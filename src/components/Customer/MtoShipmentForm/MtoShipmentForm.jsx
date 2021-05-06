@@ -17,6 +17,7 @@ import {
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
 
+import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -119,7 +120,7 @@ class MtoShipmentForm extends Component {
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
-    const optionalLabel = <span className={styles.optional}>Optional</span>;
+    const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
     return (
       <Formik
@@ -191,10 +192,10 @@ class MtoShipmentForm extends Component {
                       billed for any excess weight you move.
                     </Alert>
 
-                    <Form className={styles.form}>
+                    <Form className={formStyles.form}>
                       {showPickupFields && (
                         <>
-                          <SectionWrapper className={styles.formSection}>
+                          <SectionWrapper className={formStyles.formSection}>
                             {showDeliveryFields && <h2>Pickup information</h2>}
                             <Fieldset legend="Pickup date">
                               <DatePickerInput
@@ -237,7 +238,7 @@ class MtoShipmentForm extends Component {
 
                             <ContactInfoFields
                               name="pickup.agent"
-                              legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
+                              legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                               render={(fields) => (
                                 <>
                                   <p>Who can let the movers pick up your things if you’re not there?</p>
@@ -251,7 +252,7 @@ class MtoShipmentForm extends Component {
 
                       {showDeliveryFields && (
                         <>
-                          <SectionWrapper className={styles.formSection}>
+                          <SectionWrapper className={formStyles.formSection}>
                             {showPickupFields && <h2>Delivery information</h2>}
                             <Fieldset legend="Delivery date">
                               <DatePickerInput
@@ -271,7 +272,7 @@ class MtoShipmentForm extends Component {
                             <Fieldset legend="Delivery location">
                               <FormGroup>
                                 <p>Do you know your delivery address yet?</p>
-                                <div className={styles.radioGroup}>
+                                <div className={formStyles.radioGroup}>
                                   <Field
                                     as={Radio}
                                     id="has-delivery-address"
@@ -323,7 +324,7 @@ class MtoShipmentForm extends Component {
 
                             <ContactInfoFields
                               name="delivery.agent"
-                              legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
+                              legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                               render={(fields) => (
                                 <>
                                   <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
@@ -337,7 +338,7 @@ class MtoShipmentForm extends Component {
 
                       {isNTS && (
                         <>
-                          <SectionWrapper className={styles.formSection} data-testid="nts-what-to-expect">
+                          <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
                             <Fieldset legend="What you can expect">
                               <p>
                                 The moving company will find a storage facility approved by the government, and will
@@ -352,13 +353,13 @@ class MtoShipmentForm extends Component {
                         </>
                       )}
 
-                      <SectionWrapper className={styles.formSection}>
-                        <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
+                      <SectionWrapper className={formStyles.formSection}>
+                        <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
                           <Label htmlFor="customerRemarks">
                             Is there anything special about this shipment that the movers should know?
                           </Label>
 
-                          <div className={styles.remarksExamples}>
+                          <div className={formStyles.remarksExamples}>
                             Examples
                             <ul>
                               <li>Things that might need special handling</li>
@@ -390,7 +391,7 @@ class MtoShipmentForm extends Component {
                         </p>
                       </Hint>
 
-                      <div className={styles.formActions}>
+                      <div className={formStyles.formActions}>
                         <WizardNavigation
                           disableNext={isSubmitting || !isValid}
                           editMode={!isCreatePage}

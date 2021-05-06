@@ -18,6 +18,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 
 import styles from './OfficeShipmentForm.module.scss';
 
+import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -63,7 +64,7 @@ const OfficeShipmentForm = ({
 
   const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
-  const optionalLabel = <span className={styles.optional}>Optional</span>;
+  const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
   const submitMTOShipment = ({ shipmentOption, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
     const { moveId } = match.params;
@@ -182,12 +183,12 @@ const OfficeShipmentForm = ({
                     </p>
                   </SectionWrapper>
 
-                  <Form className={styles.form}>
+                  <Form className={formStyles.form}>
                     {showPickupFields && (
                       <>
-                        <SectionWrapper className={styles.formSection}>
+                        <SectionWrapper className={formStyles.formSection}>
                           {showDeliveryFields && <h2>Pickup information</h2>}
-                          <Fieldset legend="Pickup date">
+                          <Fieldset>
                             <DatePickerInput
                               name="pickup.requestedDate"
                               label="Requested pickup date"
@@ -215,7 +216,7 @@ const OfficeShipmentForm = ({
 
                           <ContactInfoFields
                             name="pickup.agent"
-                            legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
+                            legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                             render={(fields) => <>{fields}</>}
                           />
                         </SectionWrapper>
@@ -224,9 +225,9 @@ const OfficeShipmentForm = ({
 
                     {showDeliveryFields && (
                       <>
-                        <SectionWrapper className={styles.formSection}>
+                        <SectionWrapper className={formStyles.formSection}>
                           {showPickupFields && <h2>Delivery information</h2>}
-                          <Fieldset legend="Delivery date">
+                          <Fieldset>
                             <DatePickerInput
                               name="delivery.requestedDate"
                               label="Requested delivery date"
@@ -238,7 +239,7 @@ const OfficeShipmentForm = ({
                           <Fieldset legend="Delivery location">
                             <FormGroup>
                               <p>Does the customer know their delivery address yet?</p>
-                              <div className={styles.radioGroup}>
+                              <div className={formStyles.radioGroup}>
                                 <Field
                                   as={Radio}
                                   id="has-delivery-address"
@@ -275,7 +276,7 @@ const OfficeShipmentForm = ({
 
                           <ContactInfoFields
                             name="delivery.agent"
-                            legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
+                            legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                             render={(fields) => <>{fields}</>}
                           />
                         </SectionWrapper>
@@ -284,7 +285,7 @@ const OfficeShipmentForm = ({
 
                     {isNTS && (
                       <>
-                        <SectionWrapper className={styles.formSection} data-testid="nts-what-to-expect">
+                        <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
                           <Fieldset legend="What you can expect">
                             <p>
                               The moving company will find a storage facility approved by the government, and will move
@@ -299,14 +300,14 @@ const OfficeShipmentForm = ({
                       </>
                     )}
 
-                    <SectionWrapper className={styles.formSection}>
-                      <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
+                    <SectionWrapper className={formStyles.formSection}>
+                      <Fieldset legend={<h2 className={formStyles.legendContent}>Remarks {optionalLabel}</h2>}>
                         <Label htmlFor="customerRemarks">Customer remarks</Label>
                         <Field
                           as={Textarea}
                           data-testid="remarks"
                           name="customerRemarks"
-                          className={`${styles.remarks}`}
+                          className={`${formStyles.remarks}`}
                           placeholder=""
                           id="customerRemarks"
                           maxLength={500}
@@ -320,7 +321,7 @@ const OfficeShipmentForm = ({
                           as={Textarea}
                           data-testid="counselor-remarks"
                           name="counselorRemarks"
-                          className={`${styles.remarks}`}
+                          className={`${formStyles.remarks}`}
                           placeholder=""
                           id="counselorRemarks"
                           maxLength={500}
@@ -331,7 +332,7 @@ const OfficeShipmentForm = ({
                       </Fieldset>
                     </SectionWrapper>
 
-                    <div className={styles.formActions}>
+                    <div className={formStyles.formActions}>
                       <WizardNavigation
                         disableNext={isSubmitting || !isValid}
                         editMode
