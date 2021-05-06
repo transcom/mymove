@@ -24,7 +24,7 @@ const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
-  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
 
   const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
@@ -69,18 +69,19 @@ const ServicesCounselingMoveDetails = () => {
   if (isError) return <SomethingWentWrong />;
 
   const handleShowCancellationModal = () => {
-    setIsCancelModalVisible(true);
+    setIsSubmitModalVisible(true);
   };
 
   const handleConfirmSubmitMoveDetails = () => {
     mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    setIsSubmitModalVisible(false);
   };
 
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        {isCancelModalVisible && (
-          <SubmitMoveConfirmationModal onClose={setIsCancelModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
+        {isSubmitModalVisible && (
+          <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
 
         <GridContainer

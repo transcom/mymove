@@ -5,7 +5,7 @@ import { Button, Overlay, ModalContainer } from '@trussworks/react-uswds';
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
-  <div>
+  <div data-testid="SubmitMoveConfirmationModal">
     <Overlay />
     <ModalContainer>
       <Modal>
@@ -22,7 +22,7 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
             className="usa-button--tertiary"
             type="button"
             onClick={() => onClose()}
-            data-testid="modalBackButton"
+            data-testid="modalCancelButton"
           >
             Cancel
           </Button>
