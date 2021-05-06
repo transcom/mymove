@@ -39,7 +39,7 @@ UPDATE duty_stations
        'Fort Leavenworth',
        'Fort Lee',
        'Fort Leonard Wood',
-       'Fort Mccoy',
+       'Fort McCoy',
        'Fort George G. Meade',
        'Fort Polk',
        'Fort Riley',
@@ -65,7 +65,7 @@ UPDATE duty_stations
        'NSA Saratoga Springs',
        'Patrick AFB',
        'Pine Bluff Arsenal',
-       'Presidio Of Monterey',
+       'Presidio of Monterey',
        'JBSA Randolph',
        'Red River Army Depot',
        'Redstone Arsenal',
@@ -84,3 +84,4 @@ UPDATE duty_stations
        'White Sands Missile Range',
        'Wright-Patterson AFB'
 );
+
