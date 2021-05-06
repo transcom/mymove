@@ -80,6 +80,44 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	})
 
+	suite.T().Run("422 - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+
+		handler := UpdatePaymentServiceItemStatusHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			Fetcher:        fetcher,
+			Builder:        *queryBuilder,
+		}
+
+		updateParams := params
+		updateParams.Body.Status = ""
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("500 - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+
+		handler := UpdatePaymentServiceItemStatusHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			Fetcher:        fetcher,
+			Builder:        *queryBuilder,
+		}
+
+		updateParams := params
+		updateParams.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
+		reason := "More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters More than 255 characters "
+		updateParams.Body.RejectionReason = &reason
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusInternalServerError{}, response)
+	})
+
 	suite.T().Run("Successful patch - Rejection - Integration Test", func(t *testing.T) {
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
