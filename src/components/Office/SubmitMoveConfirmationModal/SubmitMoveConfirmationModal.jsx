@@ -11,7 +11,7 @@ export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
       <Modal>
         <ModalClose handleClick={() => onClose()} />
         <ModalTitle>
-          <h3>Are you sure?</h3>
+          <h2>Are you sure?</h2>
         </ModalTitle>
         <p>You can’t make changes after you submit the move.</p>
         <ModalActions>
