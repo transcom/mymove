@@ -483,6 +483,12 @@ func init() {
               "$ref": "#/responses/PreconditionFailed"
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -4668,6 +4674,12 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
