@@ -243,7 +243,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit allowances page
-    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
 
     // Toggle between Edit Allowances and Edit Orders page
     cy.get('[data-testid="view-orders"]').click();
@@ -252,6 +252,12 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
     cy.get('form').within(($form) => {
+      // Edit pro-gear, pro-gear spouse, RME, and OCIE fields
+      cy.get('input[name="proGearWeight"]').clear().type('1999');
+      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
+      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+
       // Edit grade and authorized weight
       cy.get('select[name=agency]').contains('Army');
       cy.get('select[name=agency]').select('Navy');
@@ -260,7 +266,7 @@ describe('TOO user', () => {
       cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
       //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click();
+      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
 
       // Edit allowances page | Save
       cy.get('button').contains('Save').click();
@@ -268,13 +274,18 @@ describe('TOO user', () => {
 
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
-    cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="ocie"]').contains('Unauthorized');
+
+    cy.get('[data-testid="authorizedWeight"]').contains('11,111');
     cy.get('[data-testid="branchRank"]').contains('Navy');
     cy.get('[data-testid="branchRank"]').contains('W-2');
     cy.get('[data-testid="dependents"]').contains('Unauthorized');
 
     // Edit allowances page | Cancel
-    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });

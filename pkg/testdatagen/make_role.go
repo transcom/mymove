@@ -1,0 +1,74 @@
+package testdatagen
+
+import (
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models/roles"
+)
+
+// MakeRole creates a single Role defaulting to the customer.
+func MakeRole(db *pop.Connection, assertions Assertions) roles.Role {
+	role := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeCustomer,
+		RoleName: "Customer",
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&role, assertions.Role)
+
+	mustCreate(db, &role, assertions.Stub)
+
+	return role
+}
+
+// MakeServicesCounselorRole creates a single services counselor role.
+func MakeServicesCounselorRole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypeServicesCounselor,
+			RoleName: "Services Counselor",
+		},
+	})
+}
+
+// MakePPMOfficeRole creates a single ppm office user role.
+func MakePPMOfficeRole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypePPMOfficeUsers,
+			RoleName: "PPP Office User",
+		},
+	})
+}
+
+// MakeTOORole creates a single transportation ordering officer role.
+func MakeTOORole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypeTOO,
+			RoleName: "Transportation Ordering Officer",
+		},
+	})
+}
+
+// MakeTIORole creates a single transportation inovicing officer role.
+func MakeTIORole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypeTIO,
+			RoleName: "Transportation Invoicing Officer",
+		},
+	})
+}
+
+// MakeContractingOfficerRole creates a single contracting officer role.
+func MakeContractingOfficerRole(db *pop.Connection) roles.Role {
+	return MakeRole(db, Assertions{
+		Role: roles.Role{
+			RoleType: roles.RoleTypeContractingOfficer,
+			RoleName: "Contracting Officer",
+		},
+	})
+}

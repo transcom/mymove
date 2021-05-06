@@ -28,8 +28,8 @@ describe('Office App', () => {
       expect(wrapper.find('SomethingWentWrong')).toHaveLength(0);
     });
 
-    it('renders the basic header by default', () => {
-      expect(wrapper.find('QueueHeader')).toHaveLength(1);
+    it('renders the logged out header by default', () => {
+      expect(wrapper.find('LoggedOutHeader')).toHaveLength(1);
     });
 
     it('fetches initial data', () => {
@@ -345,18 +345,6 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
       });
-
-      it('handles the ServicesCounselingMoveInfo URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTOOState} initialEntries={['/counseling/moves/AU67C6']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('PrivateRoute');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/counseling/moves/:moveCode');
-      });
     });
 
     describe('TIO routes', () => {
@@ -399,10 +387,28 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode');
       });
+    });
+
+    describe('Services Counselor routes', () => {
+      const loggedInServicesCounselorState = {
+        auth: {
+          activeRole: roleTypes.SERVICES_COUNSELOR,
+          isLoading: false,
+          isLoggedIn: true,
+        },
+        entities: {
+          user: {
+            userId123: {
+              id: 'userId123',
+              roles: [{ roleType: roleTypes.SERVICES_COUNSELOR }],
+            },
+          },
+        },
+      };
 
       it('handles the ServicesCounselingMoveInfo URL', () => {
         const app = mount(
-          <MockProviders initialState={loggedInTIOState} initialEntries={['/counseling/moves/AU67C6']}>
+          <MockProviders initialState={loggedInServicesCounselorState} initialEntries={['/counseling/moves/AU67C6']}>
             <ConnectedOffice />
           </MockProviders>,
         );

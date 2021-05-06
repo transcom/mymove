@@ -123,8 +123,7 @@ func TestSplitStatementsLoop(t *testing.T) {
 	f, err := os.Open(fixture)
 
 	defer func() {
-		// TODO
-		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil { // #nosec G307
+		if fixtureCloseErr := f.Close(); fixtureCloseErr != nil {
 			t.Error("Failed to close fixture", zap.Error(fixtureCloseErr))
 		}
 	}()

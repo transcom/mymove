@@ -150,7 +150,6 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, erro
 
 // LogoutURL returns a full URL to log out of login.gov with required params
 func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
-	/* #nosec URL is known to be good */
 	logoutPath, _ := url.Parse(fmt.Sprintf("https://%s/openid_connect/logout", p.hostname))
 	// Parameters taken from https://developers.login.gov/oidc/#logout
 	params := url.Values{

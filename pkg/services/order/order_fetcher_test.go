@@ -4,11 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
-
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -165,8 +164,24 @@ func (suite *OrderServiceSuite) TestListMoves() {
 				SubmittedAt: &submittedAt,
 			},
 		})
-		createdSubmittedDate := submittedAt.Format(time.RFC3339Nano)
-		params := services.ListOrderParams{SubmittedAt: &createdSubmittedDate}
+
+		// Test edge cases
+		submittedAt2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt2,
+			},
+		})
+
+		// Test edge cases
+		submittedAt3 := time.Date(2022, 03, 31, 23, 59, 59, 59, time.UTC)
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				SubmittedAt: &submittedAt3,
+			},
+		})
+
+		params := services.ListOrderParams{SubmittedAt: &submittedAt}
 
 		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
@@ -466,18 +481,13 @@ func (suite *OrderServiceSuite) TestListMovesWithSortOrder() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortOrder() {
+func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortFilter() {
 
 	// TESTCASE SCENARIO
 	// Under test: OrderFetcher.ListOrders function
 	// Mocked:     None
 	// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
 	//             We create an office user with the USMC GBLOC
-	//             Then we request a list of moves sorted by GBLOC, first ascending then descending
-	// Expected outcome:
-	//             We expect both moves to be returned
-	//             In asc mode, we should get the ACME move, then the ZANY move
-	//             In desc mode, we should get the ZANY move, then the ACME move
 
 	// Create an office user at the USMC GBLOC transportation office
 	officeUser := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
@@ -538,26 +548,64 @@ func (suite *OrderServiceSuite) TestListUSMCMovesWithGBLOCSortOrder() {
 	gblocACME := acmeMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
 	gblocZANY := zanyMove.Orders.OriginDutyStation.TransportationOffice.Gbloc
 
-	// Setup and run the function under test sorting GBLOC with ascending mode
-	orderFetcher := NewOrderFetcher(suite.DB())
-	statuses := []string{"NEEDS SERVICE COUNSELING"}
-	// Sort by service member name
-	params := services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("asc"), Status: statuses}
-	moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+	suite.T().Run("Sort by origin GBLOC", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: OrderFetcher.ListOrders function
+		// Mocked:     None
+		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
+		//             We create an office user with the USMC GBLOC
+		//             Then we request a list of moves sorted by GBLOC, first ascending then descending
+		// Expected outcome:
+		//             We expect both moves to be returned
+		//             In asc mode, we should get the ACME move, then the ZANY move
+		//             In desc mode, we should get the ZANY move, then the ACME move
 
-	// Check the results
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(gblocACME, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
-	suite.Equal(gblocZANY, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		// Setup and run the function under test sorting GBLOC with ascending mode
+		orderFetcher := NewOrderFetcher(suite.DB())
+		statuses := []string{"NEEDS SERVICE COUNSELING"}
+		// Sort by service member name
+		params := services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("asc"), Status: statuses}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
 
-	// Setup and run the function under test sorting GBLOC with descending mode
-	params = services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("desc"), Status: statuses}
-	moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+		// Check the results
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(gblocACME, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		suite.Equal(gblocZANY, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
 
-	// Check the results
-	suite.NoError(err)
-	suite.Equal(2, len(moves))
-	suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
-	suite.Equal(gblocACME, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		// Setup and run the function under test sorting GBLOC with descending mode
+		params = services.ListOrderParams{Sort: swag.String("originGBLOC"), Order: swag.String("desc"), Status: statuses}
+		moves, _, err = orderFetcher.ListOrders(officeUser.ID, &params)
+
+		// Check the results
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+		suite.Equal(gblocACME, moves[1].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+	})
+
+	suite.T().Run("Filter by origin GBLOC", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: OrderFetcher.ListOrders function
+		// Mocked:     None
+		// Set up:     We create 2 USMC moves with different GBLOCs, ACME and ZANY
+		//             We create an office user with the USMC GBLOC
+		//             Then we request a list of moves filtered by GBLOC ZANY
+		// Expected outcome:
+		//             We expect 1 moves to be returned, the ZANY move
+
+		// Setup and run the function under test filtering GBLOC for ZANY
+		orderFetcher := NewOrderFetcher(suite.DB())
+		statuses := []string{"NEEDS SERVICE COUNSELING"}
+		// Sort by service member name
+		params := services.ListOrderParams{OriginGBLOC: swag.String("ZANY"), Status: statuses}
+		moves, _, err := orderFetcher.ListOrders(officeUser.ID, &params)
+
+		// Check the results
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(gblocZANY, moves[0].Orders.OriginDutyStation.TransportationOffice.Gbloc)
+
+	})
+
 }

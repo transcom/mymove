@@ -144,9 +144,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		ServiceMemberID: serviceMember.ID,
 		Email:           serviceMember.User.LoginGovEmail,
 	}
-	for _, role := range serviceMember.User.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, serviceMember.User.Roles...)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -170,9 +168,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
 	}
-	for _, role := range user.User.Roles {
-		session.Roles = append(session.Roles, role)
-	}
+	session.Roles = append(session.Roles, user.User.Roles...)
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }

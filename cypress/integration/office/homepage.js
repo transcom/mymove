@@ -8,7 +8,7 @@ describe('Office Home Page', function () {
   it('successfully loads when not logged in', function () {
     cy.logout();
     cy.contains('office.move.mil');
-    cy.contains('Sign In');
+    cy.contains('Sign in');
   });
 
   it('open accepted shipments queue and see moves', function () {

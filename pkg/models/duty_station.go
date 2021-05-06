@@ -14,15 +14,16 @@ import (
 
 // DutyStation represents a military duty station for a specific affiliation
 type DutyStation struct {
-	ID                     uuid.UUID                    `json:"id" db:"id"`
-	CreatedAt              time.Time                    `json:"created_at" db:"created_at"`
-	UpdatedAt              time.Time                    `json:"updated_at" db:"updated_at"`
-	Name                   string                       `json:"name" db:"name"`
-	Affiliation            internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
-	AddressID              uuid.UUID                    `json:"address_id" db:"address_id"`
-	Address                Address                      `belongs_to:"address"`
-	TransportationOfficeID *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice   TransportationOffice         `belongs_to:"transportation_offices"`
+	ID                         uuid.UUID                    `json:"id" db:"id"`
+	CreatedAt                  time.Time                    `json:"created_at" db:"created_at"`
+	UpdatedAt                  time.Time                    `json:"updated_at" db:"updated_at"`
+	Name                       string                       `json:"name" db:"name"`
+	Affiliation                internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
+	AddressID                  uuid.UUID                    `json:"address_id" db:"address_id"`
+	Address                    Address                      `belongs_to:"address"`
+	TransportationOfficeID     *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
+	TransportationOffice       TransportationOffice         `belongs_to:"transportation_offices"`
+	ProvidesServicesCounseling bool                         `json:"provides_services_counseling" db:"provides_services_counseling"`
 }
 
 // DutyStations is not required by pop and may be deleted

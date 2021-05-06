@@ -45,7 +45,7 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 			colIndex++
 			oconusToOconusPrice.UBPrice = getCell(row.Cells, colIndex)
 
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("StageOconusToOconusPrice", oconusToOconusPrice))
 			}
 			oconusToOconusPrices = append(oconusToOconusPrices, oconusToOconusPrice)
@@ -85,7 +85,7 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 			colIndex++
 			conusToOconusPrice.UBPrice = getCell(row.Cells, colIndex)
 
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("StageConusToOconusPrice", conusToOconusPrice))
 			}
 			conusToOconusPrices = append(conusToOconusPrices, conusToOconusPrice)
@@ -125,7 +125,7 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 			colIndex++
 			oconusToConusPrice.UBPrice = getCell(row.Cells, colIndex)
 
-			if params.ShowOutput == true {
+			if params.ShowOutput {
 				logger.Info("", zap.Any("StageOconusToConusPrice", oconusToConusPrice))
 			}
 			oconusToConusPrices = append(oconusToConusPrices, oconusToConusPrice)

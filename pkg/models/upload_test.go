@@ -159,7 +159,8 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	models.DeleteUpload(suite.DB(), &upload) // nolint:errcheck
+	// nolint:errcheck
+	models.DeleteUpload(suite.DB(), &upload)
 	up, _ := models.FetchUserUpload(suite.DB(), &session, upload.ID)
 
 	// fetches a nil upload

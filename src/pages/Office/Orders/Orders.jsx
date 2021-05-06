@@ -85,6 +85,14 @@ const Orders = () => {
   };
 
   const order = Object.values(orders)?.[0];
+  const { entitlement } = order;
+  // TODO - passing in these fields so they don't get unset. Need to rework the endpoint.
+  const {
+    proGearWeight,
+    proGearWeightSpouse,
+    requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment,
+  } = entitlement;
 
   useEffect(() => {
     // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
@@ -102,6 +110,10 @@ const Orders = () => {
       newDutyStationId: values.newDutyStation.id,
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
+      proGearWeight,
+      proGearWeightSpouse,
+      requiredMedicalEquipmentWeight,
+      organizationalClothingAndIndividualEquipment,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };

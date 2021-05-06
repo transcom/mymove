@@ -42,9 +42,6 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// is canceled
-	IsCanceled *bool `json:"isCanceled,omitempty"`
-
 	// locator
 	Locator string `json:"locator,omitempty"`
 

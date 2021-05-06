@@ -3,16 +3,14 @@ import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import classnames from 'classnames';
 
-import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
 // API / Redux actions
 import { selectIsLoggedIn } from 'store/auth/selectors';
-import { logOut as logOutAction, loadUser as loadUserAction } from 'store/auth/actions';
+import { loadUser as loadUserAction } from 'store/auth/actions';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import {
   loadInternalSchema as loadInternalSchemaAction,
@@ -22,16 +20,15 @@ import {
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { QueueHeader } from 'shared/Header/Office';
-import MilmoveHeader from 'components/MilMoveHeader';
 import FOUOHeader from 'components/FOUOHeader';
 import BypassBlock from 'components/BypassBlock';
+import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
+import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
 import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
-import { LocationShape, UserRolesShape, OfficeUserInfoShape } from 'types/index';
-import { LogoutUser } from 'utils/api';
+import { LocationShape, UserRolesShape } from 'types/index';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -87,9 +84,7 @@ export class OfficeApp extends Component {
       activeRole,
       userIsLoggedIn,
       userRoles,
-      officeUser,
       location: { pathname },
-      logOut,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -139,12 +134,6 @@ export class OfficeApp extends Component {
         component={TXOMoveInfo}
         requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
       />,
-      <PrivateRoute
-        key="servicesCounselingMoveInfoRoute"
-        path="/counseling/moves/:moveCode"
-        component={ServicesCounselingMoveInfo}
-        requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
-      />,
     ];
 
     const isFullscreenPage = matchPath(pathname, {
@@ -155,13 +144,6 @@ export class OfficeApp extends Component {
       [`site--fullscreen`]: isFullscreenPage,
     });
 
-    let queueText = '';
-    if (activeRole === roleTypes.TOO) {
-      queueText = 'moves';
-    } else if (activeRole === roleTypes.TIO) {
-      queueText = 'payment requests';
-    }
-
     return (
       <>
         <div id="app-root">
@@ -169,28 +151,7 @@ export class OfficeApp extends Component {
             <BypassBlock />
             <FOUOHeader />
             {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {!hideHeaderPPM && (
-              <>
-                {!userIsLoggedIn || (activeRole !== roleTypes.TOO && activeRole !== roleTypes.TIO) ? (
-                  <QueueHeader />
-                ) : (
-                  <MilmoveHeader
-                    lastName={officeUser.last_name}
-                    firstName={officeUser.first_name}
-                    handleLogout={() => {
-                      logOut();
-                      LogoutUser();
-                    }}
-                  >
-                    {officeUser.transportation_office && (
-                      <Link to="/">
-                        {officeUser.transportation_office.gbloc} {queueText}
-                      </Link>
-                    )}
-                  </MilmoveHeader>
-                )}
-              </>
-            )}
+            {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
 
@@ -217,11 +178,19 @@ export class OfficeApp extends Component {
                       component={PaymentRequestQueue}
                       requiredRoles={[roleTypes.TIO]}
                     />
+
+                    {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
                       path="/counseling/queue"
                       exact
                       component={ServicesCounselingQueue}
-                      requiredRoles={[roleTypes.TOO, roleTypes.TIO]}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+                    <PrivateRoute
+                      key="servicesCounselingMoveInfoRoute"
+                      path="/counseling/moves/:moveCode"
+                      component={ServicesCounselingMoveInfo}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
                     {/* PPM & TXO conflicting routes - select based on user role */}
@@ -240,6 +209,8 @@ export class OfficeApp extends Component {
                             return <PaymentRequestQueue {...routeProps} />;
                           case roleTypes.TOO:
                             return <MoveQueue {...routeProps} />;
+                          case roleTypes.SERVICES_COUNSELOR:
+                            return <ServicesCounselingQueue {...routeProps} />;
                           default:
                             // User has unknown role or shouldn't have access
                             return <div />;
@@ -266,8 +237,6 @@ OfficeApp.propTypes = {
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
-  officeUser: OfficeUserInfoShape,
-  logOut: PropTypes.func.isRequired,
 };
 
 OfficeApp.defaultProps = {
@@ -275,7 +244,6 @@ OfficeApp.defaultProps = {
   userIsLoggedIn: false,
   userRoles: [],
   activeRole: null,
-  officeUser: {},
 };
 
 const mapStateToProps = (state) => {
@@ -286,19 +254,13 @@ const mapStateToProps = (state) => {
     userIsLoggedIn: selectIsLoggedIn(state),
     userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
-    officeUser: user?.office_user || {},
   };
 };
 
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      loadInternalSchema: loadInternalSchemaAction,
-      loadPublicSchema: loadPublicSchemaAction,
-      loadUser: loadUserAction,
-      logOut: logOutAction,
-    },
-    dispatch,
-  );
+const mapDispatchToProps = {
+  loadInternalSchema: loadInternalSchemaAction,
+  loadPublicSchema: loadPublicSchemaAction,
+  loadUser: loadUserAction,
+};
 
 export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(OfficeApp)));

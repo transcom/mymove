@@ -1778,6 +1778,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
+			Locator:            "TIOFLO",
 			OrdersID:           orders7.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
@@ -1873,6 +1874,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOServiceItem: serviceItemDLH7,
 	})
 
+	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
 	additionalPaymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
@@ -1881,6 +1883,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Status:          models.PaymentRequestStatusPending,
 			RejectionReason: nil,
 			SequenceNumber:  2,
+			CreatedAt:       createdAtTime,
 		},
 		Move: mto7,
 	})
@@ -1998,6 +2001,34 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	/* A user with services counselor role */
+	servicesCounselorRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
+	email = "services_counselor_role@office.mil"
+	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            servicesCounselorUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
+			Email:  email,
+			Active: true,
+			UserID: &servicesCounselorUUID,
+		},
+	})
+
 	/* A user with both too and tio roles */
 	email = "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
@@ -2023,6 +2054,28 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		ServiceMember: models.ServiceMember{
 			User:   user,
 			UserID: user.ID,
+		},
+	})
+
+	/* A user with too, tio, and services counselor roles */
+	email = "too_tio_services_counselor_role@office.mil"
+	ttooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
+	loginGovID = uuid.Must(uuid.NewV4())
+	user = testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            ttooTioServicesUUID,
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole, servicesCounselorRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
+			Email:  email,
+			Active: true,
+			UserID: &ttooTioServicesUUID,
 		},
 	})
 

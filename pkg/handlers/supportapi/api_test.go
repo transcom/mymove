@@ -34,7 +34,8 @@ func (suite *HandlerSuite) AfterTest() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		file.Data.Close() // nolint:errcheck
+		// nolint:errcheck
+		file.Data.Close()
 	}
 }
 

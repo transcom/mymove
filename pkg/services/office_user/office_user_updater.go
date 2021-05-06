@@ -45,6 +45,22 @@ func (o *officeUserUpdater) UpdateOfficeUser(id uuid.UUID, payload *adminmessage
 		foundUser.Active = *payload.Active
 	}
 
+	transportationOfficeID := payload.TransportationOfficeID.String()
+	if transportationOfficeID != uuid.Nil.String() && transportationOfficeID != "" {
+		transportationIDFilter := []services.QueryFilter{
+			query.NewQueryFilter("id", "=", transportationOfficeID),
+		}
+		// Use FetchOne to see if we have a transportation office that matches the provided id
+		var transportationOffice models.TransportationOffice
+		fetchErr := o.builder.FetchOne(&transportationOffice, transportationIDFilter)
+
+		if fetchErr != nil {
+			return nil, nil, fetchErr
+		}
+
+		foundUser.TransportationOfficeID = uuid.FromStringOrNil(transportationOfficeID)
+	}
+
 	verrs, err := o.builder.UpdateOne(&foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err

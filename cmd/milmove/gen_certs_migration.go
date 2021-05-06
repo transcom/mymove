@@ -233,7 +233,7 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 	var t1 *template.Template
 	updateMode := v.GetBool(UpdateFlag)
 
-	if updateMode == true {
+	if updateMode {
 		certsTemplate.ID = v.GetString(ClientCertIDFlag)
 		t1 = template.Must(template.New("certs_migration").Parse(updateCertsMigration))
 	} else {

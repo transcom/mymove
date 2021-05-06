@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Set of flags used for GEX
 const (
 	// GEXBasicAuthUsernameFlag is the GEX Basic Auth Username Flag
 	GEXBasicAuthUsernameFlag string = "gex-basic-auth-username"
@@ -19,8 +20,8 @@ const (
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-
-	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
+	// #nosec G101
+	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"
 	// GEXSendProdInvoiceFlag is the GEX Send Prod Invoice Flag
 	GEXSendProdInvoiceFlag string = "gex-send-prod-invoice"
@@ -28,10 +29,10 @@ const (
 	GEXURLFlag string = "gex-url"
 	// SendToSyncada is the flag to control if we try sending files to syncada or not
 	SendToSyncada string = "send-to-syncada"
-	// GEXChannelDataWarehouse is the URL query parameter that we use when sending to USBank's data warehouse
-	GEXChannelDataWarehouse string = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
-	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to GEX
-	GEXChannelInvoice string = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
+	// GEXChannelInvoice is the URL query parameter that we use when sending EDI invoices to US Bank via GEX
+	GEXChannelInvoice string = "TRANSCOM-DPS-MILMOVE-CPS-IN-USBANK-RCOM"
+	// GEXChannelDataWarehouse is the URL query parameter that we use when sending data to the IGC data warehouse
+	GEXChannelDataWarehouse string = "TRANSCOM-DPS-MILMOVE-GHG-IN-IGC-RCOM"
 )
 
 var gexHostnames = []string{

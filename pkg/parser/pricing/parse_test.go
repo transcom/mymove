@@ -175,7 +175,7 @@ var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int,
 }
 
 func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
-	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax)
 
 	// 0:
 	xlsxDataSheets[0] = XlsxDataSheetInfo{
@@ -412,5 +412,6 @@ func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename str
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	os.Remove(currentOutputFilename) // nolint:errcheck
+	// nolint:errcheck
+	os.Remove(currentOutputFilename)
 }

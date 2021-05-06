@@ -841,7 +841,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		},
 	})
 
-	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
+	createdAtTime := time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC)
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			CreatedAt: createdAtTime,
@@ -889,9 +889,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {
-		submittedAtDate := strfmt.Date{}
-		err := submittedAtDate.UnmarshalText([]byte("2020-10-29"))
-		suite.NoError(err)
+		submittedAtDate := strfmt.DateTime(time.Date(2020, 10, 29, 0, 0, 0, 0, time.UTC))
 
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
@@ -988,10 +986,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 }
 
 func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
@@ -1200,9 +1195,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 	})
 
 	suite.Run("returns move only from marine corps service member for USMC office user", func() {
-		marineCorpsOfficeUser := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
-		fmt.Printf("USMC ID %s\n", marineCorpsOfficeUser.ID)
-		fmt.Printf("marine corps office user %v", marineCorpsOfficeUser.TransportationOffice.Gbloc)
+		marineCorpsOfficeUser := testdatagen.MakeServicesCounselorOfficeUserWithUSMCGBLOC(suite.DB())
 
 		usmcRequest := httptest.NewRequest("GET", "/queues/counseling", nil)
 		usmcRequest = suite.AuthenticateOfficeRequest(usmcRequest, marineCorpsOfficeUser)

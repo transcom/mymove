@@ -50,6 +50,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: Prime API](#setup-prime-api)
   * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
+  * [Setup: Nix](#setup-nix)
 * [Development](#development)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -101,6 +102,9 @@ To create an account in the sandbox, follow the same instructions, but [in the s
 ### Setup: Developer Setup
 
 Note: These instructions are a living document and often fall out-of-date. If you run into anything that needs correcting or updating, please create a PR with those changes to help those coming after you.
+
+See [Setup: Nix](#setup-nix) for an experiment with a possibly simpler
+way to install all the developer dependencies
 
 There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
 
@@ -340,6 +344,30 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. You will also need to follow these steps when using Chamber and AWS vault to [set up direnv](#setup-direnv).
 
 AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
+
+### Setup: Nix
+
+NOTE: Nix is an experiment. If you are setting things up with Nix you
+do not need to follow the instructions above about [Setup: Golang](#setup-golang) and [Setup: Quick Initial Setup](#setup-quick-initial-setup).
+
+NOTE: Nix as an experiment means you ask for help in the `#code-nix`
+slack channel. It's not an officially supported development environment.
+
+1. First read the overview in the [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/main/developing/nix).
+1. Follow the [macOS installation instructions](https://nixos.org/manual/nix/stable/#sect-macos-installation).
+1. Ensure you have `direnv` and a modern `bash` installed. To install
+   globally with nix, run `nix-env -i direnv bash`
+1. Ensure you have run `direnv allow` to set up the appropriate nix
+   environment variables.
+1. Make sure you have disabled any `nodeenv`, `asdf` or any other
+   version switchers for mymove.
+1. Run `./nix/update.sh`
+
+If the nix dependencies change, you should see a warning from direnv:
+
+```text
+direnv: WARNING: nix packages out of date. Run nix/update.sh
+```
 
 ## Development
 

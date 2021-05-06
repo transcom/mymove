@@ -172,7 +172,7 @@ var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int,
 }
 
 func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
-	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax)
 
 	// 0:
 	xlsxDataSheets[0] = XlsxDataSheetInfo{

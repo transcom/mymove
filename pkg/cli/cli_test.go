@@ -34,7 +34,8 @@ func (suite *cliTestSuite) Setup(fn initFlags, flagSet []string) {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	flag.Parse(flagSet) // nolint:errcheck
+	// nolint:errcheck
+	flag.Parse(flagSet)
 
 	v := viper.New()
 	err := v.BindPFlags(flag)

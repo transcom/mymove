@@ -96,12 +96,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	var submittedAt *string
-	if params.SubmittedAt != nil {
-		str := params.SubmittedAt.String()
-		submittedAt = &str
-	}
-
 	listPaymentRequestParams := services.FetchPaymentRequestListParams{
 		Branch:                 params.Branch,
 		Locator:                params.Locator,
@@ -111,7 +105,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Status:                 params.Status,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
-		SubmittedAt:            submittedAt,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		Sort:                   params.Sort,
 		Order:                  params.Order,
 	}
@@ -157,8 +151,7 @@ type GetServicesCounselingQueueHandler struct {
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// TODO add Services Counselor role authorization check when it becomes available
-	if !session.IsOfficeUser() || !(session.Roles.HasRole(roles.RoleTypeTOO) || session.Roles.HasRole(roles.RoleTypeTIO)) {
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		logger.Error("user is not authenticated with an office role")
 		return queues.NewGetServicesCounselingQueueForbidden()
 	}
@@ -169,7 +162,8 @@ func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCouns
 		DodID:                  params.DodID,
 		LastName:               params.LastName,
 		DestinationDutyStation: params.DestinationDutyStation,
-		SubmittedAt:            params.SubmittedAt,
+		OriginGBLOC:            params.OriginGBLOC,
+		SubmittedAt:            handlers.FmtDateTimePtrToPopPtr(params.SubmittedAt),
 		RequestedMoveDate:      params.RequestedMoveDate,
 		Page:                   params.Page,
 		PerPage:                params.PerPage,

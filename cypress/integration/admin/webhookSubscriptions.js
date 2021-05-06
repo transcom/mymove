@@ -16,7 +16,7 @@ describe('Webhook Subscriptions', function () {
     cy.signInAsNewAdminUser();
     cy.get('a[href*="system/webhook_subscriptions"]').click();
     cy.url().should('eq', adminBaseURL + '/system/webhook_subscriptions');
-    cy.get('header').contains('Webhook subscriptions');
+    cy.get('header').contains('Webhook Subscriptions');
 
     const columnLabels = ['Id', 'Event key', 'Severity', 'Callback url', 'Status', 'Updated at'];
     checkLabels('table', columnLabels);
@@ -107,7 +107,7 @@ describe('Webhook Subscription Create Page', function () {
     cy.get('input[id="id"]')
       .invoke('text')
       .then((subID) => {
-        cy.get('#react-admin-title').contains('Webhook subscription #' + subID);
+        cy.get('#react-admin-title').contains('Webhook Subscriptions #' + subID);
       });
 
     cy.get('input[id="subscriberId"]').type('5db13bb4-6d29-4bdb-bc81-262f4513ecf6');

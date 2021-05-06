@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -34,7 +35,7 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 		return []models.Move{}, 0, err
 	}
 
-	gbloc := transportationOffice.Gbloc
+	officeUserGbloc := transportationOffice.Gbloc
 
 	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
@@ -44,10 +45,11 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	var gblocQuery QueryOption
-	if gbloc == "USMC" {
+	if officeUserGbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+		gblocQuery = gblocFilter(params.OriginGBLOC)
 	} else {
-		gblocQuery = gblocFilter(gbloc)
+		gblocQuery = gblocFilter(&officeUserGbloc)
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -242,10 +244,12 @@ func moveStatusFilter(statuses []string) QueryOption {
 	}
 }
 
-func submittedAtFilter(submittedAt *string) QueryOption {
+func submittedAtFilter(submittedAt *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
-			query.Where("CAST(moves.submitted_at AS DATE) = ?", *submittedAt)
+			// Between is inclusive, so the end date is set to 1 milsecond prior to the next day
+			submittedAtEnd := submittedAt.AddDate(0, 0, 1).Add(-1 * time.Millisecond)
+			query.Where("moves.submitted_at between ? and ?", submittedAt.Format(time.RFC3339), submittedAtEnd.Format(time.RFC3339))
 		}
 	}
 }
@@ -258,9 +262,11 @@ func requestedMoveDateFilter(requestedMoveDate *string) QueryOption {
 	}
 }
 
-func gblocFilter(gbloc string) QueryOption {
+func gblocFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
-		query.Where("origin_to.gbloc = ?", gbloc)
+		if gbloc != nil {
+			query.Where("origin_to.gbloc ILIKE ?", *gbloc)
+		}
 	}
 }
 

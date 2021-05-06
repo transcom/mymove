@@ -37,7 +37,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID) // nolint:errcheck
+		// nolint:errcheck
+		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 
 		suite.Equal(unit.Miles(defaultZip5Distance), *mtoShipment.Distance)
 	})
