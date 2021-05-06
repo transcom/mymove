@@ -37,7 +37,7 @@ describe('SubmitMoveConfirmationModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('calls the submit function when submit putton is clicked', async () => {
+  it('calls the submit function when submit button is clicked', async () => {
     const wrapper = mount(<SubmitMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} />);
 
     wrapper.find('button[type="submit"]').simulate('click');

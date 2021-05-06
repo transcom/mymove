@@ -49,7 +49,7 @@ describe('RequestShipmentCancellationModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('calls the submit function when submit putton is clicked', async () => {
+  it('calls the submit function when submit button is clicked', async () => {
     const wrapper = mount(
       <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
