@@ -73,12 +73,12 @@ describe('ServiceItemCard component', () => {
     });
 
     // using react testing library to test dom interactions
-    it('disables the save button when rejection reason is empty', () => {
+    it('disables the save button when rejection reason is empty', async () => {
       render(<ServiceItemCard {...basicServiceItemCard} />);
 
       fireEvent.click(screen.getByTestId('rejectRadio'));
 
-      waitFor(() => {
+      await waitFor(() => {
         expect(screen.getByTestId('rejectionSaveButton')).toHaveAttribute('disabled');
       });
     });
@@ -93,13 +93,19 @@ describe('ServiceItemCard component', () => {
         target: { value: 'Rejected just because.' },
       });
 
-      expect(screen.getByTestId('rejectionSaveButton').hasAttribute('disabled')).toBeFalsy();
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionSaveButton').hasAttribute('disabled')).toBeFalsy();
+      });
 
       // Save
       fireEvent.click(screen.getByTestId('rejectionSaveButton'));
 
-      expect(screen.getByTestId('editReasonButton')).toBeTruthy();
-      expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      await waitFor(() => {
+        expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      });
     });
 
     // using react testing library to test dom interactions
@@ -111,8 +117,12 @@ describe('ServiceItemCard component', () => {
       };
       render(<ServiceItemCard {...data} />);
 
-      expect(screen.getByTestId('editReasonButton')).toBeTruthy();
-      expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      await waitFor(() => {
+        expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      });
 
       // Click on Edit reason button, edit text area and save
       fireEvent.click(screen.getByTestId('editReasonButton'));
@@ -121,8 +131,12 @@ describe('ServiceItemCard component', () => {
       });
       fireEvent.click(screen.getByTestId('rejectionSaveButton'));
 
-      expect(screen.getByTestId('editReasonButton')).toBeTruthy();
-      expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Edited rejection reason.');
+      await waitFor(() => {
+        expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Edited rejection reason.');
+      });
     });
   });
 
