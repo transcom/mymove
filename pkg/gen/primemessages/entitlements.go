@@ -34,6 +34,9 @@ type Entitlements struct {
 	// non temporary storage
 	NonTemporaryStorage *bool `json:"nonTemporaryStorage,omitempty"`
 
+	// organizational clothingand individual equipment
+	OrganizationalClothingandIndividualEquipment bool `json:"organizationalClothingandIndividualEquipment,omitempty"`
+
 	// privately owned vehicle
 	PrivatelyOwnedVehicle *bool `json:"privatelyOwnedVehicle,omitempty"`
 
@@ -42,6 +45,9 @@ type Entitlements struct {
 
 	// pro gear weight spouse
 	ProGearWeightSpouse int64 `json:"proGearWeightSpouse,omitempty"`
+
+	// required medical equipment weight
+	RequiredMedicalEquipmentWeight int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
 
 	// storage in transit
 	StorageInTransit int64 `json:"storageInTransit,omitempty"`

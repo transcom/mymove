@@ -1015,6 +1015,13 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingandIndividualEquipment:
+        type: boolean
+        example: false
       storageInTransit:
         example: 90
         type: integer
