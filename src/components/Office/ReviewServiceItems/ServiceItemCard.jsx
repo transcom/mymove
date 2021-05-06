@@ -113,15 +113,17 @@ const ServiceItemCard = ({
       >
         {({ initialValues, handleReset, handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
-            setCanEditRejection(true);
             handleChange(event);
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(true);
+            });
           };
 
           const handleRejectChange = (event) => {
-            setCanEditRejection(false);
             handleChange(event);
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(false);
+            });
           };
 
           const handleRejectCancel = (event) => {
@@ -133,12 +135,13 @@ const ServiceItemCard = ({
           };
 
           const handleFormReset = () => {
-            setCanEditRejection(true);
             setValues({
               status: 'REQUESTED',
               rejectionReason: '',
             });
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(true);
+            });
           };
 
           return (
