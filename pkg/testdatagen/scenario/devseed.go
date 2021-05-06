@@ -3398,7 +3398,12 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 
 func createHHGNeedsServicesCounseling(db *pop.Connection) {
 	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{})
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:     "SRVCSL",
@@ -3439,6 +3444,9 @@ func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uplo
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Move: models.Move{
 			Locator:     "USMCSS",
 			Status:      models.MoveStatusNeedsServiceCounseling,
@@ -3483,6 +3491,9 @@ func createHHGNeedsServicesCounselingUSMC2(db *pop.Connection, userUploader *upl
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Move: models.Move{
 			Locator:     "USMCSC",
 			Status:      models.MoveStatusNeedsServiceCounseling,
@@ -3518,6 +3529,9 @@ func createHHGServicesCounselingCompleted(db *pop.Connection) {
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Move: models.Move{
 			Locator:                      "CSLCMP",
 			Status:                       models.MoveStatusServiceCounselingCompleted,
