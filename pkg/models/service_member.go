@@ -58,8 +58,8 @@ type ServiceMember struct {
 	ResidentialAddress     *Address                  `belongs_to:"address"`
 	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
 	BackupMailingAddress   *Address                  `belongs_to:"address"`
-	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
-	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
+	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
+	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation               `belongs_to:"duty_stations"`
 	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`

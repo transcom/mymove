@@ -83,10 +83,10 @@ type Move struct {
 	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
 	Orders                       Order                   `belongs_to:"orders"`
 	SelectedMoveType             *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	MoveDocuments                MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
+	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
+	MoveDocuments                MoveDocuments           `has_many:"move_documents" fk_id:"move_id" order_by:"created_at desc"`
 	Status                       MoveStatus              `json:"status" db:"status"`
-	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
+	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
 	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                         *bool                   `json:"show" db:"show"`
 	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
@@ -94,9 +94,9 @@ type Move struct {
 	Contractor                   *Contractor             `belongs_to:"contractors"`
 	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                      *string                 `db:"ppm_type"`
-	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items"`
-	PaymentRequests              PaymentRequests         `has_many:"payment_requests"`
-	MTOShipments                 MTOShipments            `has_many:"mto_shipments"`
+	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`
+	PaymentRequests              PaymentRequests         `has_many:"payment_requests" fk_id:"move_id"`
+	MTOShipments                 MTOShipments            `has_many:"mto_shipments" fk_id:"move_id"`
 	ReferenceID                  *string                 `db:"reference_id"`
 	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
 }

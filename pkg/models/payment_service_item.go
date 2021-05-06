@@ -70,7 +70,7 @@ type PaymentServiceItem struct {
 	//Associations
 	PaymentRequest           PaymentRequest           `belongs_to:"payment_request"`
 	MTOServiceItem           MTOServiceItem           `belongs_to:"mto_service_item"`
-	PaymentServiceItemParams PaymentServiceItemParams `has_many:"payment_service_item_params"`
+	PaymentServiceItemParams PaymentServiceItemParams `has_many:"payment_service_item_params" fk_id:"payment_service_item_id"`
 }
 
 // PaymentServiceItems is not required by pop and may be deleted

@@ -21,8 +21,8 @@ type TransportationOffice struct {
 	AddressID        uuid.UUID             `json:"address_id" db:"address_id"`
 	Latitude         float32               `json:"latitude" db:"latitude"`
 	Longitude        float32               `json:"longitude" db:"longitude"`
-	PhoneLines       OfficePhoneLines      `has_many:"office_phone_lines"`
-	Emails           OfficeEmails          `has_many:"office_emails"`
+	PhoneLines       OfficePhoneLines      `has_many:"office_phone_lines" fk_id:"transportation_office_id"`
+	Emails           OfficeEmails          `has_many:"office_emails" fk_id:"transportation_office_id"`
 	Hours            *string               `json:"hours" db:"hours"`
 	Services         *string               `json:"services" db:"services"`
 	Note             *string               `json:"note" db:"note"`
