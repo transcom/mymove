@@ -107,7 +107,7 @@ const ServiceItemCard = ({
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
-          patchPaymentServiceItem(id, values);
+          return patchPaymentServiceItem(id, values);
         }}
         enableReinitialize
       >
