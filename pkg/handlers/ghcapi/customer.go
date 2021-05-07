@@ -5,7 +5,6 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -58,11 +57,7 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 		return customercodeop.NewUpdateCustomerBadRequest()
 	}
 
-	newCustomer, err := Customer(*params.Body)
-	if err != nil {
-		logger.Error("error converting payload to service member model", zap.Error(err))
-		return customercodeop.NewUpdateCustomerBadRequest()
-	}
+	newCustomer := payloads.CustomerToServiceMember(*params.Body)
 	newCustomer.ID = customerID
 
 	updatedCustomer, err := h.customerUpdater.UpdateCustomer(params.IfMatch, newCustomer)
@@ -71,7 +66,7 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 		logger.Error("error updating customer", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
-			return customercodeop.NewGetCustomerBadRequest()
+			return customercodeop.NewGetCustomerNotFound()
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
@@ -82,49 +77,7 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 		}
 	}
 
-	var customer models.ServiceMember
-	query := h.DB().Where("user_id = ?", updatedCustomer.ID)
-	err = query.First(&customer)
-
-	if err != nil {
-		logger.Error("ghcapi.UpdateCustomerHandler could not find customer")
-	}
-
 	customerPayload := payloads.Customer(updatedCustomer)
 
 	return customercodeop.NewUpdateCustomerOK().WithPayload(customerPayload)
-}
-
-// Customer transforms UpdateCustomerPayload to ServiceMember model
-func Customer(payload ghcmessages.UpdateCustomerPayload) (models.ServiceMember, error) {
-	// TODO: move this to internal/models payload_to_modal?
-
-	var address = models.Address{
-		ID:             uuid.FromStringOrNil(payload.CurrentAddress.ID.String()),
-		StreetAddress1: *payload.CurrentAddress.StreetAddress1,
-		StreetAddress2: payload.CurrentAddress.StreetAddress2,
-		StreetAddress3: payload.CurrentAddress.StreetAddress3,
-		City:           *payload.CurrentAddress.City,
-		State:          *payload.CurrentAddress.State,
-		PostalCode:     *payload.CurrentAddress.PostalCode,
-		Country:        payload.CurrentAddress.Country,
-	}
-
-	var backupContact = models.BackupContact{
-		Email: *payload.BackupContact.Email,
-		Name:  *payload.BackupContact.Name,
-		Phone: payload.BackupContact.Phone,
-	}
-
-	var backupContacts []models.BackupContact
-	backupContacts = append(backupContacts, backupContact)
-
-	return models.ServiceMember{
-		ResidentialAddress: &address,
-		BackupContacts:     backupContacts,
-		FirstName:          &payload.FirstName,
-		LastName:           &payload.LastName,
-		PersonalEmail:      payload.Email,
-		Telephone:          payload.Phone,
-	}, nil
 }
