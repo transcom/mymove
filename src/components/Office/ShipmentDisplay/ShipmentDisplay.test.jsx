@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import ShipmentDisplay from './ShipmentDisplay';
 
@@ -50,21 +50,15 @@ describe('Shipment Container', () => {
     expect(wrapper.find('div[data-testid="shipment-display"]').exists()).toBe(true);
   });
   it('renders with comments', () => {
-    const { queryByText } = render(
-      <ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />,
-    );
-    expect(queryByText('Counselor remarks')).toBeInTheDocument();
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.queryByText('Counselor remarks')).toBeInTheDocument();
   });
   it('renders with edit button', () => {
-    const { queryByText } = render(
-      <ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} editURL="/" />,
-    );
-    expect(queryByText('Edit shipment')).toBeInTheDocument();
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} editURL="/" />);
+    expect(screen.queryByText('Edit shipment')).toBeInTheDocument();
   });
   it('renders without edit button', () => {
-    const { queryByText } = render(
-      <ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />,
-    );
-    expect(queryByText('Edit shipment')).not.toBeInTheDocument();
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.queryByText('Edit shipment')).not.toBeInTheDocument();
   });
 });
