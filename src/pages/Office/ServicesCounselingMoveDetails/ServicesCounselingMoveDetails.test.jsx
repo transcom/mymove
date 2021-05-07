@@ -169,6 +169,14 @@ describe('MoveDetails page', () => {
     it('renders the Allowances Table', () => {
       expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
     });
+
+    it('allows the service counseler to use the modal as expected', () => {
+      wrapper.find('[data-testid="submitMoveDetailsBtn"]').first().simulate('click');
+      expect(wrapper.find('[data-testid="SubmitMoveConfirmationModal"]').length).toBe(1);
+
+      wrapper.find('button[type="submit"]').simulate('click');
+      expect(wrapper.find('[data-testid="SubmitMoveConfirmationModal"]').length).toBe(0);
+    });
   });
 
   describe('service counseling completed', () => {

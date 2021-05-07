@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
 import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
+import { SubmitMoveConfirmationModal } from '../../../components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
@@ -23,6 +24,7 @@ const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
 
   const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
@@ -66,10 +68,21 @@ const ServicesCounselingMoveDetails = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const handleShowCancellationModal = () => {
+    setIsSubmitModalVisible(true);
+  };
+
+  const handleConfirmSubmitMoveDetails = () => {
+    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    setIsSubmitModalVisible(false);
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        {/* LeftNav here */}
+        {isSubmitModalVisible && (
+          <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
+        )}
 
         <GridContainer
           className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}
@@ -88,13 +101,7 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                <Button
-                  data-testid="submitMoveDetailsBtn"
-                  type="button"
-                  onClick={() => {
-                    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
-                  }}
-                >
+                <Button data-testid="submitMoveDetailsBtn" type="button" onClick={handleShowCancellationModal}>
                   Submit move details
                 </Button>
               )}
@@ -104,9 +111,11 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Allowances"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
-                  Edit allowances
-                </Link>
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                    Edit allowances
+                  </Link>
+                )
               }
             >
               <AllowancesList info={allowancesInfo} />
@@ -116,9 +125,11 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Customer info"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
-                  Edit customer info
-                </Link>
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                    Edit customer info
+                  </Link>
+                )
               }
             >
               <CustomerInfoList customerInfo={customerInfo} />

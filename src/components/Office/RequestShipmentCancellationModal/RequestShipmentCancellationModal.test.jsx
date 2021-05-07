@@ -3,6 +3,13 @@ import { mount } from 'enzyme';
 
 import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
 
+let onClose;
+let onSubmit;
+beforeEach(() => {
+  onClose = jest.fn();
+  onSubmit = jest.fn();
+});
+
 describe('RequestShipmentCancellationModal', () => {
   const shipmentInfo = {
     shipmentID: '123456',
@@ -12,7 +19,7 @@ describe('RequestShipmentCancellationModal', () => {
 
   it('renders the component', () => {
     const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={jest.fn()} onClose={jest.fn()} shipmentInfo={shipmentInfo} />,
+      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
     expect(wrapper.find('RequestShipmentCancellationModal').exists()).toBe(true);
     expect(wrapper.find('ModalTitle').exists()).toBe(true);
@@ -23,9 +30,8 @@ describe('RequestShipmentCancellationModal', () => {
   });
 
   it('closes the modal when close icon is clicked', () => {
-    const onClose = jest.fn();
     const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={jest.fn()} onClose={onClose} shipmentInfo={shipmentInfo} />,
+      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
 
     wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
@@ -34,9 +40,8 @@ describe('RequestShipmentCancellationModal', () => {
   });
 
   it('closes the modal when the cancel button is clicked', () => {
-    const onClose = jest.fn();
     const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={jest.fn()} onClose={onClose} shipmentInfo={shipmentInfo} />,
+      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
 
     wrapper.find('button[data-testid="modalBackButton"]').simulate('click');
@@ -44,10 +49,9 @@ describe('RequestShipmentCancellationModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('calls the submit function when submit putton is clicked', async () => {
-    const onSubmit = jest.fn();
+  it('calls the submit function when submit button is clicked', async () => {
     const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={jest.fn()} shipmentInfo={shipmentInfo} />,
+      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
     );
 
     wrapper.find('button[type="submit"]').simulate('click');
