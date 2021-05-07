@@ -57,7 +57,7 @@ const SignIn = ({ context, location, showLocalDevLogin }) => {
           {location.state && location.state.hasLoggedOut && (
             <div>
               <Alert type="success" heading="You have signed out of MilMove">
-                You have successfully signed out
+                Sign in again when you&apos;re ready to start a new session.
               </Alert>
             </div>
           )}

@@ -120,6 +120,9 @@ function serviceMemberProfile(reloadAfterEveryPage) {
 function serviceMemberLogsOut() {
   // service member user can logout and see logout success message
   cy.contains('Sign out').click();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/sign-in/);
+  });
   cy.url().should('eq', '/sign-in');
   cy.get('.usa-alert--success').contains('You have signed out of MilMove').should('exist');
 
