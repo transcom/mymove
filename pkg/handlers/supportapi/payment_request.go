@@ -328,12 +328,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			logger.Error(msg, zap.Error(err))
 			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
-		err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
-		if err != nil {
-			msg := "Error processing reviewed payment requests"
-			logger.Error(msg, zap.Error(err))
-			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
-		}
+		reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	} else {
 		if paymentRequestID != uuid.Nil {
 			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
