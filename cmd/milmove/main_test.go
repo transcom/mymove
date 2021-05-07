@@ -43,7 +43,8 @@ func TestWebServerSuite(t *testing.T) {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
 	//RA Modified Severity: N/A
-	flag.Parse([]string{}) // nolint:errcheck
+	// nolint:errcheck
+	flag.Parse([]string{})
 
 	v := viper.New()
 	bindErr := v.BindPFlags(flag)
