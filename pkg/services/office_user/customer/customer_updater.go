@@ -41,20 +41,26 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 				existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
 			}
 
-			err = tx.Save(existingCustomer.ResidentialAddress)
-			if err != nil {
-				return err
+			verrs, dbErr := tx.ValidateAndSave(existingCustomer.ResidentialAddress)
+			if verrs != nil && verrs.HasAny() {
+				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
+			}
+			if dbErr != nil {
+				return dbErr
 			}
 		}
 
-		if backupContacts := customer.BackupContacts; backupContacts != nil {
+		if backupContacts := customer.BackupContacts; len(backupContacts) > 0 {
 			existingCustomer.BackupContacts[0].Name = backupContacts[0].Name
 			existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
 			existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
 
-			err = tx.Save(existingCustomer.BackupContacts)
-			if err != nil {
-				return err
+			verrs, dbErr := tx.ValidateAndSave(existingCustomer.BackupContacts)
+			if verrs != nil && verrs.HasAny() {
+				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
+			}
+			if dbErr != nil {
+				return dbErr
 			}
 		}
 
