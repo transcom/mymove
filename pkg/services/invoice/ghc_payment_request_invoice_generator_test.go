@@ -91,7 +91,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	}
 
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			SAC: models.StringPointer("1234"),
+		},
+	})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -607,7 +611,11 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 	}
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			SAC: models.StringPointer("1234"),
+		},
+	})
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{

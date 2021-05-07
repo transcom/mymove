@@ -268,6 +268,14 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
+	if moveTaskOrder.Orders.SAC == nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Missing SAC")
+	}
+	edi858.FA2 = edisegment.FA2{
+		BreakdownStructureDetailCode: "ZZ",
+		FinancialInformationCode:     *moveTaskOrder.Orders.SAC,
+	}
+
 	return edi858, nil
 }
 

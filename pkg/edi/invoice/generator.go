@@ -32,6 +32,7 @@ type Invoice858C struct {
 	SE           edisegment.SE
 	GE           edisegment.GE
 	IEA          edisegment.IEA
+	FA2          edisegment.FA2
 }
 
 // InvoiceHeader holds all of the segments that are part of an Invoice858C's Header
@@ -156,6 +157,7 @@ func (invoice Invoice858C) Segments() [][]string {
 	records = append(records, invoice.SE.StringArray())
 	records = append(records, invoice.GE.StringArray())
 	records = append(records, invoice.IEA.StringArray())
+	records = append(records, invoice.FA2.StringArray())
 	return records
 }
 

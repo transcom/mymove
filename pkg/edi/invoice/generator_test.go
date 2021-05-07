@@ -86,6 +86,7 @@ L3*300.000*B***100
 SE*12345*ABCDE
 GE*1*9999
 IEA*1*000009999
+FA2*ZZ*1234
 `, ediString)
 	})
 }
@@ -255,6 +256,10 @@ func MakeValidEdi() Invoice858C {
 		IEA: edisegment.IEA{
 			NumberOfIncludedFunctionalGroups: 1,
 			InterchangeControlNumber:         9999,
+		},
+		FA2: edisegment.FA2{
+			BreakdownStructureDetailCode: "ZZ",
+			FinancialInformationCode:     "1234",
 		},
 	}
 }
