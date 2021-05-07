@@ -81,7 +81,7 @@ type Move struct {
 	UpdatedAt                    time.Time               `json:"updated_at" db:"updated_at"`
 	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
 	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
-	Orders                       Order                   `belongs_to:"orders"`
+	Orders                       Order                   `belongs_to:"orders" fk_id:"orders_id"`
 	SelectedMoveType             *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
 	MoveDocuments                MoveDocuments           `has_many:"move_documents" fk_id:"move_id" order_by:"created_at desc"`
@@ -91,7 +91,7 @@ type Move struct {
 	Show                         *bool                   `json:"show" db:"show"`
 	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
 	ContractorID                 *uuid.UUID              `db:"contractor_id"`
-	Contractor                   *Contractor             `belongs_to:"contractors"`
+	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`
 	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                      *string                 `db:"ppm_type"`
 	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`

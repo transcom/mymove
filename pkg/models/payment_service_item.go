@@ -68,8 +68,8 @@ type PaymentServiceItem struct {
 	UpdatedAt        time.Time                `db:"updated_at"`
 
 	//Associations
-	PaymentRequest           PaymentRequest           `belongs_to:"payment_request"`
-	MTOServiceItem           MTOServiceItem           `belongs_to:"mto_service_item"`
+	PaymentRequest           PaymentRequest           `belongs_to:"payment_request" fk_id:"payment_request_id"`
+	MTOServiceItem           MTOServiceItem           `belongs_to:"mto_service_item" fk_id:"mto_service_item_id"`
 	PaymentServiceItemParams PaymentServiceItemParams `has_many:"payment_service_item_params" fk_id:"payment_service_item_id"`
 }
 

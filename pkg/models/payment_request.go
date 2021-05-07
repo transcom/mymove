@@ -62,7 +62,7 @@ type PaymentRequest struct {
 	UpdatedAt            time.Time            `db:"updated_at"`
 
 	// Associations
-	MoveTaskOrder       Move                `belongs_to:"moves"`
+	MoveTaskOrder       Move                `belongs_to:"moves" fk_id:"move_id"`
 	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items" fk_id:"payment_request_id"`
 	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs" fk_id:"payment_request_id"`
 	EdiErrors           EdiErrors           `has_many:"edi_errors" fk_id:"payment_request_id"`

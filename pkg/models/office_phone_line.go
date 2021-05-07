@@ -13,7 +13,7 @@ import (
 type OfficePhoneLine struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
 	TransportationOfficeID uuid.UUID            `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
+	TransportationOffice   TransportationOffice `belongs_to:"transportation_office" fk_id:"transportation_office_id"`
 	Number                 string               `json:"number" db:"number"`
 	Label                  *string              `json:"label" db:"label"`
 	IsDsnNumber            bool                 `json:"is_dsn_number" db:"is_dsn_number"`

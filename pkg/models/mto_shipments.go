@@ -68,7 +68,7 @@ const (
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
-	MoveTaskOrder                    Move              `belongs_to:"moves"`
+	MoveTaskOrder                    Move              `belongs_to:"moves" fk_id:"move_id"`
 	MoveTaskOrderID                  uuid.UUID         `db:"move_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
@@ -78,15 +78,15 @@ type MTOShipment struct {
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
 	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
-	PickupAddress                    *Address          `belongs_to:"addresses"`
+	PickupAddress                    *Address          `belongs_to:"addresses" fk_id:"pickup_address_id"`
 	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
-	DestinationAddress               *Address          `belongs_to:"addresses"`
+	DestinationAddress               *Address          `belongs_to:"addresses" fk_id:"destination_address_id"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
 	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
-	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
+	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
-	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`
+	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
 	SecondaryDeliveryAddressID       *uuid.UUID        `db:"secondary_delivery_address_id"`
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`

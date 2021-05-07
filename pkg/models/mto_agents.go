@@ -21,7 +21,7 @@ const (
 // MTOAgent is a struct that represents the mto_agents table.
 type MTOAgent struct {
 	ID            uuid.UUID    `db:"id"`
-	MTOShipment   MTOShipment  `belongs_to:"mto_shipments"`
+	MTOShipment   MTOShipment  `belongs_to:"mto_shipments" fk_id:"mto_shipment_id"`
 	MTOShipmentID uuid.UUID    `db:"mto_shipment_id"`
 	FirstName     *string      `db:"first_name"`
 	LastName      *string      `db:"last_name"`

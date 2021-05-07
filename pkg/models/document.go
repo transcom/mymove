@@ -18,7 +18,7 @@ import (
 type Document struct {
 	ID              uuid.UUID     `db:"id"`
 	ServiceMemberID uuid.UUID     `db:"service_member_id"`
-	ServiceMember   ServiceMember `belongs_to:"service_members"`
+	ServiceMember   ServiceMember `belongs_to:"service_members" fk_id:"service_member_id"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 	DeletedAt       *time.Time    `db:"deleted_at"`
