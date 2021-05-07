@@ -3,7 +3,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import OfficeShipmentForm from './OfficeShipmentForm';
+import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -59,11 +59,11 @@ const mockMtoShipment = {
   },
 };
 
-describe('OfficeShipmentForm component', () => {
+describe('ServicesCounselingShipmentForm component', () => {
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
       const { queryByText, queryByLabelText, queryAllByLabelText } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
       );
 
       await waitFor(() => {
@@ -107,7 +107,7 @@ describe('OfficeShipmentForm component', () => {
 
     it('does not render special NTS What to expect section', async () => {
       const { queryByTestId } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
       );
 
       await waitFor(() => {
@@ -117,7 +117,7 @@ describe('OfficeShipmentForm component', () => {
 
     it('uses the current residence address for pickup address when checked', async () => {
       const { queryByLabelText, queryAllByLabelText } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
       );
 
       userEvent.click(queryByLabelText('Use my current address'));
@@ -133,7 +133,7 @@ describe('OfficeShipmentForm component', () => {
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
       const { queryByLabelText, queryAllByLabelText } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
       );
 
       userEvent.click(queryByLabelText('Yes'));
@@ -160,7 +160,7 @@ describe('OfficeShipmentForm component', () => {
   describe('editing an already existing HHG shipment', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
       const { queryByLabelText, queryAllByLabelText } = render(
-        <OfficeShipmentForm
+        <ServicesCounselingShipmentForm
           {...defaultProps}
           isCreatePage={false}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
@@ -192,7 +192,7 @@ describe('OfficeShipmentForm component', () => {
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
       const { queryByText, queryByLabelText } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
       );
 
       await waitFor(() => {
@@ -226,7 +226,7 @@ describe('OfficeShipmentForm component', () => {
 
     it('renders special NTS What to expect section', async () => {
       const { queryByTestId } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
       );
 
       await waitFor(() => {
@@ -238,7 +238,7 @@ describe('OfficeShipmentForm component', () => {
   describe('creating a new NTS-R shipment', () => {
     it('renders the NTS-R shipment form', async () => {
       const { queryByText, queryByLabelText } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
       );
 
       await waitFor(() => {
@@ -268,7 +268,7 @@ describe('OfficeShipmentForm component', () => {
 
     it('does not render special NTS What to expect section', async () => {
       const { queryByTestId } = render(
-        <OfficeShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
+        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
       );
 
       await waitFor(() => {

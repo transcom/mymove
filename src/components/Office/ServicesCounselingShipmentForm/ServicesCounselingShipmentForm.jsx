@@ -16,7 +16,7 @@ import {
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
-import styles from './OfficeShipmentForm.module.scss';
+import styles from './ServicesCounselingShipmentForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
@@ -35,7 +35,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 
-const OfficeShipmentForm = ({
+const ServicesCounselingShipmentForm = ({
   match,
   history,
   newDutyStationAddress,
@@ -171,7 +171,7 @@ const OfficeShipmentForm = ({
                   </Alert>
                 )}
 
-                <div className={styles.OfficeShipmentForm}>
+                <div className={styles.ServicesCounselingShipmentForm}>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
                   <h1>Edit shipment details</h1>
@@ -352,7 +352,7 @@ const OfficeShipmentForm = ({
   );
 };
 
-OfficeShipmentForm.propTypes = {
+ServicesCounselingShipmentForm.propTypes = {
   match: MatchShape,
   history: HistoryShape,
   updateMTOShipment: func.isRequired,
@@ -368,7 +368,7 @@ OfficeShipmentForm.propTypes = {
   }).isRequired,
 };
 
-OfficeShipmentForm.defaultProps = {
+ServicesCounselingShipmentForm.defaultProps = {
   isCreatePage: false,
   match: { isExact: false, params: { moveID: '' } },
   history: { goBack: () => {}, push: () => {} },
@@ -392,4 +392,4 @@ OfficeShipmentForm.defaultProps = {
   },
 };
 
-export default OfficeShipmentForm;
+export default ServicesCounselingShipmentForm;

@@ -3,7 +3,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import OfficeShipmentForm from './OfficeShipmentForm';
+import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
@@ -80,14 +80,14 @@ const mockMtoShipment = {
 };
 
 export default {
-  title: 'Office Components / Forms / HHGShipmentForm',
+  title: 'Office Components / Forms / ServicesCounselingShipmentForm',
 };
 
 function renderStory(props) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <OfficeShipmentForm {...defaultProps} {...props} />
+        <ServicesCounselingShipmentForm {...defaultProps} {...props} />
       </ConnectedRouter>
     </Provider>
   );
