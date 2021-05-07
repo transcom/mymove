@@ -85,7 +85,7 @@
         display: flex;
         align-items: center;
         align-self: stretch;
-        color: $link-light;
+        color: #fff;
         font-weight: normal;
         border-top: 4px solid transparent;
         border-bottom: 4px solid transparent;
@@ -102,6 +102,7 @@
         }
 
         @include at-media(tablet) {
+          color: $link-light;
           font-weight: bold;
         }
 
