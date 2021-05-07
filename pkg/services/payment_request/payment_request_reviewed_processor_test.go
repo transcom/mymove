@@ -1,11 +1,3 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used set up environment variables
-//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
-// nolint:errcheck
 package paymentrequest
 
 import (
@@ -168,14 +160,20 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
-	os.Setenv("SYNCADA_SFTP_PORT", "1234")
-	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	err := os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	suite.FatalNoError(err)
 	// generated fake host key to pass parser used following command and only saved the pub key
 	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	err = os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	suite.FatalNoError(err)
 
 	var responseSuccess = http.Response{}
 	responseSuccess.StatusCode = http.StatusOK
@@ -390,7 +388,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	suite.T().Run("process reviewed payment request, failed EDI generator (mock GEX HTTP)", func(t *testing.T) {
 		// reset database
-		suite.TruncateAll()
+		err := suite.TruncateAll()
+		suite.FatalNoError(err)
 
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
@@ -664,29 +663,41 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 }
 
 func (suite *PaymentRequestServiceSuite) lockPR(prID uuid.UUID) {
-	query := `
-		BEGIN;
+	selectQuery := `
 		SELECT * FROM payment_requests
 		WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
+`
+	updateQuery := `
 		UPDATE payment_requests
-		SET
-			status = $2,
+		SET status = $2
 		WHERE id = $1;
 	`
-	suite.DB().RawQuery(query, prID, models.PaymentRequestStatusPaid).Exec()
+	err := suite.DB().RawQuery(`BEGIN;`).Exec()
+	suite.FatalNoError(err)
+	err = suite.DB().RawQuery(selectQuery, prID).Exec()
+	suite.FatalNoError(err)
+	err = suite.DB().RawQuery(updateQuery, prID, models.PaymentRequestStatusPaid).Exec()
+	suite.FatalNoError(err)
 	time.Sleep(1 * time.Second)
-	suite.DB().RawQuery(`COMMIT;`).Exec()
+	err = suite.DB().RawQuery(`COMMIT;`).Exec()
+	suite.FatalNoError(err)
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest() {
-	os.Setenv("SYNCADA_SFTP_PORT", "1234")
-	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	err := os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	suite.FatalNoError(err)
 	// generated fake host key to pass parser used following command and only saved the pub key
 	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	err = os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	suite.FatalNoError(err)
 
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
@@ -719,7 +730,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest
 			paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
 			suite.NoError(err)
 			if i == 0 {
-				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
+				suite.Equal(models.PaymentRequestStatusPaid, paymentRequest.Status)
 			} else {
 				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
 			}
