@@ -77,8 +77,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a mto service item", h.GetTraceID())
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:

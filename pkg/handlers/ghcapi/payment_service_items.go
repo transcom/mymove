@@ -47,8 +47,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding payment service item for status update with ID: %s", params.PaymentServiceItemID), zap.Error(err))
-		payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(payload)
+		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 	}
 	// Create a model object to use for the update and set the status
 	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
@@ -84,8 +83,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		case query.StaleIdentifierError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
-			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(payload)
+			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		}
 	}
 	if verrs != nil {

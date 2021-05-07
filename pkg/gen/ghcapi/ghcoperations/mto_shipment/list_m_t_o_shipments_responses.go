@@ -72,7 +72,7 @@ type ListMTOShipmentsNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewListMTOShipmentsNotFound creates ListMTOShipmentsNotFound with default headers values
@@ -82,13 +82,13 @@ func NewListMTOShipmentsNotFound() *ListMTOShipmentsNotFound {
 }
 
 // WithPayload adds the payload to the list m t o shipments not found response
-func (o *ListMTOShipmentsNotFound) WithPayload(payload interface{}) *ListMTOShipmentsNotFound {
+func (o *ListMTOShipmentsNotFound) WithPayload(payload *ghcmessages.Error) *ListMTOShipmentsNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list m t o shipments not found response
-func (o *ListMTOShipmentsNotFound) SetPayload(payload interface{}) {
+func (o *ListMTOShipmentsNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -96,16 +96,18 @@ func (o *ListMTOShipmentsNotFound) SetPayload(payload interface{}) {
 func (o *ListMTOShipmentsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // ListMTOShipmentsUnprocessableEntityCode is the HTTP code returned for type ListMTOShipmentsUnprocessableEntity
 const ListMTOShipmentsUnprocessableEntityCode int = 422
 
-/*ListMTOShipmentsUnprocessableEntity Validation error
+/*ListMTOShipmentsUnprocessableEntity The payload was unprocessable.
 
 swagger:response listMTOShipmentsUnprocessableEntity
 */
@@ -158,7 +160,7 @@ type ListMTOShipmentsInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewListMTOShipmentsInternalServerError creates ListMTOShipmentsInternalServerError with default headers values
@@ -168,13 +170,13 @@ func NewListMTOShipmentsInternalServerError() *ListMTOShipmentsInternalServerErr
 }
 
 // WithPayload adds the payload to the list m t o shipments internal server error response
-func (o *ListMTOShipmentsInternalServerError) WithPayload(payload interface{}) *ListMTOShipmentsInternalServerError {
+func (o *ListMTOShipmentsInternalServerError) WithPayload(payload *ghcmessages.Error) *ListMTOShipmentsInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list m t o shipments internal server error response
-func (o *ListMTOShipmentsInternalServerError) SetPayload(payload interface{}) {
+func (o *ListMTOShipmentsInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -182,8 +184,10 @@ func (o *ListMTOShipmentsInternalServerError) SetPayload(payload interface{}) {
 func (o *ListMTOShipmentsInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

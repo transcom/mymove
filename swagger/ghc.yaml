@@ -41,25 +41,15 @@ paths:
           schema:
             $ref: '#/definitions/Customer'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - customer
       description: Returns a given customer
@@ -82,23 +72,15 @@ paths:
           schema:
             $ref: '#/definitions/Move'
         '400':
-          description: The locator provided is invalid
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - move
       description: Returns a given move for a unique alphanumeric locator string
@@ -138,31 +120,19 @@ paths:
           schema:
             $ref: '#/definitions/Order'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthenticated
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was unauthorized
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: internal server error
+          $ref: '#/responses/ServerError'
     get:
       produces:
         - application/json
@@ -173,25 +143,15 @@ paths:
           schema:
             $ref: '#/definitions/Order'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - order
       description: Gets an order
@@ -215,25 +175,15 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrders'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - order
       description: Gets move task orders associated with an order
@@ -256,25 +206,15 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Deletes a move by ID
@@ -290,25 +230,15 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Gets a move
@@ -335,33 +265,19 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Updates a move by ID
@@ -385,17 +301,11 @@ paths:
           schema:
             $ref: '#/definitions/MTOServiceItems'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Gets all line items for a move
@@ -419,17 +329,11 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipments'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoShipment
       description: Gets all shipments for a move task order
@@ -470,25 +374,15 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoShipment
       description: Updates a shipment's status
@@ -518,17 +412,11 @@ paths:
           schema:
             $ref: '#/definitions/MTOAgents'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoAgent
       description: Fetches a list of agents associated with a move task order.
@@ -556,25 +444,15 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Deletes a line item by ID for a move by ID
@@ -590,25 +468,15 @@ paths:
           schema:
             $ref: '#/definitions/MTOServiceItem'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Gets a line item by ID for a move by ID
@@ -635,29 +503,17 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Updates a service item by ID for a move by ID
@@ -698,33 +554,19 @@ paths:
           schema:
             $ref: '#/definitions/MTOServiceItem'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Changes the status of a line item for a move by ID
@@ -757,37 +599,21 @@ paths:
           schema:
             $ref: '#/definitions/Move'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move task order status to make it available to prime
@@ -815,37 +641,21 @@ paths:
           schema:
             $ref: '#/definitions/Move'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move (move task order) status to service counseling completed
@@ -886,29 +696,17 @@ paths:
           schema:
             $ref: '#/definitions/PaymentServiceItem'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentServiceItem
       description: Changes the status of a line item for a move by ID
@@ -933,25 +731,15 @@ paths:
           schema:
             $ref: '#/definitions/Entitlements'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move by ID
@@ -973,25 +761,15 @@ paths:
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Fetches an instance of a payment request by id
@@ -1015,21 +793,13 @@ paths:
           schema:
             $ref: '#/definitions/PaymentRequests'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Fetches payment requests for a move
@@ -1063,33 +833,19 @@ paths:
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Updates status of a payment request by id
@@ -1115,33 +871,19 @@ paths:
           schema:
             $ref: '#/definitions/DocumentPayload'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   /queues/counseling:
     get:
       produces:
@@ -1231,13 +973,9 @@ paths:
           schema:
             $ref: '#/definitions/QueueMovesResult'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   /queues/moves:
     get:
       produces:
@@ -1299,13 +1037,9 @@ paths:
           schema:
             $ref: '#/definitions/QueueMovesResult'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   /queues/payment-requests:
     get:
       produces:
@@ -1373,13 +1107,9 @@ paths:
           schema:
             $ref: '#/definitions/QueuePaymentRequestsResult'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   '/tac/valid':
     get:
       summary: Validation of a TAC value
@@ -1400,25 +1130,15 @@ paths:
           schema:
             $ref: '#/definitions/TacValid'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -2919,6 +2639,10 @@ responses:
     description: The requested resource wasn't found
     schema:
       $ref: '#/definitions/Error'
+  Conflict:
+    description: Conflict error
+    schema:
+      $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
     schema:
@@ -2931,7 +2655,7 @@ responses:
     description: Precondition failed
     schema:
       $ref: '#/definitions/Error'
-  Conflict:
-    description: Conflict error
+  UnprocessableEntity:
+    description: The payload was unprocessable.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ValidationError'
