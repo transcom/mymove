@@ -67,7 +67,7 @@
     "regenerator-runtime": "^0.13.7",
     "reselect": "^4.0.0",
     "swagger-client": "^3.13.2",
-    "swagger-ui-dist": "^3.47.1",
+    "swagger-ui-dist": "^3.48.0",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
