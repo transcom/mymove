@@ -216,10 +216,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Process 858s
-	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
-	if err != nil {
-		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
-	}
+	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	logger.Info("Finished processing reviewed payment requests")
 
 	if !sendToSyncada {
