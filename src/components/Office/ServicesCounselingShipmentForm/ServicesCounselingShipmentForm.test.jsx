@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
@@ -62,104 +62,94 @@ const mockMtoShipment = {
 describe('ServicesCounselingShipmentForm component', () => {
   describe('when creating a new HHG shipment', () => {
     it('renders the HHG shipment form', async () => {
-      const { queryByText, queryByLabelText, queryAllByLabelText } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       await waitFor(() => {
-        expect(queryByText('HHG')).toHaveClass('usa-tag');
+        expect(screen.queryByText('HHG')).toHaveClass('usa-tag');
       });
 
-      expect(queryByText('Pickup date')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
-      expect(queryByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.queryByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
-      expect(queryAllByLabelText('First name')[0]).toHaveAttribute('name', 'pickup.agent.firstName');
-      expect(queryAllByLabelText('Last name')[0]).toHaveAttribute('name', 'pickup.agent.lastName');
-      expect(queryAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
-      expect(queryAllByLabelText('Email')[0]).toHaveAttribute('name', 'pickup.agent.email');
+      expect(screen.queryByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryAllByLabelText('First name')[0]).toHaveAttribute('name', 'pickup.agent.firstName');
+      expect(screen.queryAllByLabelText('Last name')[0]).toHaveAttribute('name', 'pickup.agent.lastName');
+      expect(screen.queryAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
+      expect(screen.queryAllByLabelText('Email')[0]).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(queryByText('Delivery date')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
-      expect(queryAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
-      expect(queryAllByLabelText('Last name')[1]).toHaveAttribute('name', 'delivery.agent.lastName');
-      expect(queryAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
-      expect(queryAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
+      expect(screen.queryByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
+      expect(screen.queryAllByLabelText('Last name')[1]).toHaveAttribute('name', 'delivery.agent.lastName');
+      expect(screen.queryAllByLabelText('Phone')[1]).toHaveAttribute('name', 'delivery.agent.phone');
+      expect(screen.queryAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(queryByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.queryByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
-      expect(queryByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.queryByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
 
     it('does not render special NTS What to expect section', async () => {
-      const { queryByTestId } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       await waitFor(() => {
-        expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
       });
     });
 
     it('uses the current residence address for pickup address when checked', async () => {
-      const { queryByLabelText, queryAllByLabelText } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(queryByLabelText('Use my current address'));
+      userEvent.click(screen.queryByLabelText('Use my current address'));
 
       await waitFor(() => {
-        expect(queryAllByLabelText('Address 1')[0]).toHaveValue(defaultProps.currentResidence.street_address_1);
-        expect(queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(queryAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
-        expect(queryAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
-        expect(queryAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postal_code);
+        expect(screen.queryAllByLabelText('Address 1')[0]).toHaveValue(defaultProps.currentResidence.street_address_1);
+        expect(screen.queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
+        expect(screen.queryAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
+        expect(screen.queryAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
+        expect(screen.queryAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postal_code);
       });
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
-      const { queryByLabelText, queryAllByLabelText } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(queryByLabelText('Yes'));
+      userEvent.click(screen.queryByLabelText('Yes'));
 
       await waitFor(() => {
-        expect(queryAllByLabelText('Address 1')[0]).toHaveAttribute('name', 'pickup.address.street_address_1');
-        expect(queryAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.street_address_1');
+        expect(screen.queryAllByLabelText('Address 1')[0]).toHaveAttribute('name', 'pickup.address.street_address_1');
+        expect(screen.queryAllByLabelText('Address 1')[1]).toHaveAttribute('name', 'delivery.address.street_address_1');
 
-        expect(queryAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.street_address_2');
-        expect(queryAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.street_address_2');
+        expect(screen.queryAllByLabelText(/Address 2/)[0]).toHaveAttribute('name', 'pickup.address.street_address_2');
+        expect(screen.queryAllByLabelText(/Address 2/)[1]).toHaveAttribute('name', 'delivery.address.street_address_2');
 
-        expect(queryAllByLabelText('City')[0]).toHaveAttribute('name', 'pickup.address.city');
-        expect(queryAllByLabelText('City')[1]).toHaveAttribute('name', 'delivery.address.city');
+        expect(screen.queryAllByLabelText('City')[0]).toHaveAttribute('name', 'pickup.address.city');
+        expect(screen.queryAllByLabelText('City')[1]).toHaveAttribute('name', 'delivery.address.city');
 
-        expect(queryAllByLabelText('State')[0]).toHaveAttribute('name', 'pickup.address.state');
-        expect(queryAllByLabelText('State')[1]).toHaveAttribute('name', 'delivery.address.state');
+        expect(screen.queryAllByLabelText('State')[0]).toHaveAttribute('name', 'pickup.address.state');
+        expect(screen.queryAllByLabelText('State')[1]).toHaveAttribute('name', 'delivery.address.state');
 
-        expect(queryAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postal_code');
-        expect(queryAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postal_code');
+        expect(screen.queryAllByLabelText('ZIP')[0]).toHaveAttribute('name', 'pickup.address.postal_code');
+        expect(screen.queryAllByLabelText('ZIP')[1]).toHaveAttribute('name', 'delivery.address.postal_code');
       });
     });
   });
 
   describe('editing an already existing HHG shipment', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
-      const { queryByLabelText, queryAllByLabelText } = render(
+      render(
         <ServicesCounselingShipmentForm
           {...defaultProps}
           isCreatePage={false}
@@ -169,110 +159,98 @@ describe('ServicesCounselingShipmentForm component', () => {
       );
 
       await waitFor(() => {
-        expect(queryByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+        expect(screen.queryByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
       });
-      expect(queryByLabelText('Use my current address')).not.toBeChecked();
-      expect(queryAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
-      expect(queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(queryAllByLabelText('City')[0]).toHaveValue('San Antonio');
-      expect(queryAllByLabelText('State')[0]).toHaveValue('TX');
-      expect(queryAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(queryByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
-      expect(queryByLabelText('Yes')).toBeChecked();
-      expect(queryAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
-      expect(queryAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(queryAllByLabelText('City')[1]).toHaveValue('Tacoma');
-      expect(queryAllByLabelText('State')[1]).toHaveValue('WA');
-      expect(queryAllByLabelText('ZIP')[1]).toHaveValue('98421');
-      expect(queryByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
-      expect(queryByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
+      expect(screen.queryByLabelText('Use my current address')).not.toBeChecked();
+      expect(screen.queryAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.queryAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.queryAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.queryAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.queryAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.queryByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.queryByLabelText('Yes')).toBeChecked();
+      expect(screen.queryAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.queryAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.queryAllByLabelText('City')[1]).toHaveValue('Tacoma');
+      expect(screen.queryAllByLabelText('State')[1]).toHaveValue('WA');
+      expect(screen.queryAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.queryByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
+      expect(screen.queryByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
   });
 
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
-      const { queryByText, queryByLabelText } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       await waitFor(() => {
-        expect(queryByText('NTS')).toHaveClass('usa-tag');
+        expect(screen.queryByText('NTS')).toHaveClass('usa-tag');
       });
-      expect(queryByText('Pickup date')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
-      expect(queryByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.queryByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('First name')).toHaveAttribute('name', 'pickup.agent.firstName');
-      expect(queryByLabelText('Last name')).toHaveAttribute('name', 'pickup.agent.lastName');
-      expect(queryByLabelText('Phone')).toHaveAttribute('name', 'pickup.agent.phone');
-      expect(queryByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
+      expect(screen.queryByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryByLabelText('First name')).toHaveAttribute('name', 'pickup.agent.firstName');
+      expect(screen.queryByLabelText('Last name')).toHaveAttribute('name', 'pickup.agent.lastName');
+      expect(screen.queryByLabelText('Phone')).toHaveAttribute('name', 'pickup.agent.phone');
+      expect(screen.queryByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(queryByText('Delivery date')).not.toBeInTheDocument();
-      expect(queryByText('Delivery location')).not.toBeInTheDocument();
-      expect(queryByText(/Receiving agent/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Delivery location')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
-      expect(queryByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.queryByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
-      expect(queryByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.queryByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
 
     it('renders special NTS What to expect section', async () => {
-      const { queryByTestId } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
       await waitFor(() => {
-        expect(queryByTestId('nts-what-to-expect')).toBeInTheDocument();
+        expect(screen.queryByTestId('nts-what-to-expect')).toBeInTheDocument();
       });
     });
   });
 
   describe('creating a new NTS-R shipment', () => {
     it('renders the NTS-R shipment form', async () => {
-      const { queryByText, queryByLabelText } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       await waitFor(() => {
-        expect(queryByText('NTS-R')).toHaveClass('usa-tag');
+        expect(screen.queryByText('NTS-R')).toHaveClass('usa-tag');
       });
 
-      expect(queryByText('Pickup date')).not.toBeInTheDocument();
-      expect(queryByText('Pickup location')).not.toBeInTheDocument();
-      expect(queryByText(/Releasing agent/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
-      expect(queryByText('Delivery date')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.queryByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
-      expect(queryByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
-      expect(queryByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
-      expect(queryByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
+      expect(screen.queryByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.queryByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
+      expect(screen.queryByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
+      expect(screen.queryByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
+      expect(screen.queryByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
-      expect(queryByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
-      expect(queryByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.queryByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
+      expect(screen.queryByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
 
     it('does not render special NTS What to expect section', async () => {
-      const { queryByTestId } = render(
-        <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
-      );
+      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       await waitFor(() => {
-        expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
       });
     });
   });
