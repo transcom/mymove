@@ -15,6 +15,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	shipmentType := models.MTOShipmentTypeHHG
 	shipmentStatus := models.MTOShipmentStatusDraft
 	mtoShipment := assertions.MTOShipment
+	counselorRemarks := mtoShipment.CounselorRemarks
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
@@ -27,6 +28,10 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	if mtoShipment.Status != "" {
 		shipmentStatus = mtoShipment.Status
+	}
+
+	if counselorRemarks != nil {
+		counselorRemarks = mtoShipment.CounselorRemarks
 	}
 
 	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom
@@ -107,6 +112,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ActualPickupDate:      &actualPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       swag.String("Please treat gently"),
+		CounselorRemarks:      counselorRemarks,
 		PrimeEstimatedWeight:  estimatedWeight,
 		PrimeActualWeight:     &actualWeight,
 		ShipmentType:          shipmentType,
