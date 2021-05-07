@@ -866,7 +866,7 @@ paths:
           required: true
           description: UUID of the document to return
       responses:
-        200:
+        '200':
           description: the requested document
           schema:
             $ref: '#/definitions/DocumentPayload'
