@@ -1006,6 +1006,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -3638,6 +3641,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean"
         },
         "moveTaskOrderID": {
           "type": "string",
