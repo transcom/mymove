@@ -51,14 +51,14 @@ describe('Shipment Container', () => {
   });
   it('renders with comments', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
-    expect(screen.queryByText('Counselor remarks')).toBeInTheDocument();
+    expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
   });
   it('renders with edit button', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} editURL="/" />);
-    expect(screen.queryByText('Edit shipment')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
   });
   it('renders without edit button', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
-    expect(screen.queryByText('Edit shipment')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
   });
 });
