@@ -1,5 +1,6 @@
 {
-  "plugins": [{
+  "plugins": [
+    {
       "name": "@zeplin/cli-connect-react-plugin"
     },
     {
@@ -14,7 +15,8 @@
   "projects": [
     "5f7cbab735d969035eb65339"
   ],
-  "components": [{
+  "components": [
+    {
       "path": "src/stories/buttons.stories.jsx",
       "zeplinIds": [
         "608c656d466485913303e418"
@@ -23,9 +25,30 @@
     {
       "path": "src/components/FOUOHeader/index.jsx",
       "zeplinIds": []
+    },
+    {
+      "path": "src/components/CustomerHeader/index.jsx",
+      "zeplinIds": [
+        "5f9c9d9f9e653cb5360df985"
+      ]
+    },
+    {
+      "path": "src/components/form/fields/TextField.jsx",
+      "zeplinIds": [
+        "608c6ae5400618288e0259d8"
+      ]
+    },
+    {
+      "path": "src/components/FOUOHeader/FOUOHeader.stories.jsx",
+      "zeplinIds": [
+        "5f9c9dc4dec7a31d9ad7338f"
+      ]
     }
   ],
   "github": {
     "repository": "transcom/mymove"
-  }
+  },
+  "styleguides": [
+    "5f8482beb303e1283ee53ba7"
+  ]
 }
