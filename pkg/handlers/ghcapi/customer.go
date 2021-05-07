@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -49,7 +50,12 @@ type UpdateCustomerHandler struct {
 
 // Handle updates a customer from a request payload
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		logger.Error("user is not authenticated with service counselor office role")
+		return customercodeop.NewUpdateCustomerForbidden()
+	}
 
 	customerID, err := uuid.FromString(params.CustomerID.String())
 	if err != nil {

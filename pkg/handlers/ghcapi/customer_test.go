@@ -4,6 +4,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/models/roles"
 	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
 
 	customerops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -46,6 +47,10 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateCustomerHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeServicesCounselor,
+	})
 	body := &ghcmessages.UpdateCustomerPayload{
 		LastName:  "Newlastname",
 		FirstName: "Newfirstname",
@@ -64,6 +69,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	}
 	customer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 	request := httptest.NewRequest("PATCH", "/orders/{customerID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := customerops.UpdateCustomerParams{
 		HTTPRequest: request,
 		CustomerID:  strfmt.UUID(customer.ID.String()),
