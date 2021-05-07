@@ -2,6 +2,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
+import { action } from '@storybook/addon-actions';
 
 import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
@@ -40,6 +41,7 @@ const defaultProps = {
     },
   },
   isCreatePage: true,
+  updateMTOShipment: action('update MTO shipment'),
 };
 
 const mockMtoShipment = {
