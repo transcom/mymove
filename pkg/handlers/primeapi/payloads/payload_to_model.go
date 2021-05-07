@@ -97,6 +97,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
+		Diversion:       bool(mtoShipment.Diversion),
 	}
 
 	if mtoShipment.PrimeEstimatedWeight > 0 {
