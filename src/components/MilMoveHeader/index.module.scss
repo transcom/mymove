@@ -7,8 +7,8 @@
   color: $bg-white;
 
   // Override USWDS
-  + .usa-section,
-  + main {
+  +.usa-section,
+  +main {
     border-top: none !important;
   }
 
@@ -79,7 +79,7 @@
       display: flex;
       align-items: center;
 
-      > a,
+      >a,
       > :global(.usa-link),
       > :global(.usa-button.usa-button--unstyled) {
         display: flex;
@@ -90,6 +90,10 @@
         border-top: 4px solid transparent;
         border-bottom: 4px solid transparent;
         @include u-padding-y(1);
+
+        @include at-media(tablet) {
+          font-weight: bold;
+        }
 
         &:visited {
           color: $link-light;
