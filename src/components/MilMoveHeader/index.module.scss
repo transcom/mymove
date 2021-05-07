@@ -91,6 +91,16 @@
         border-bottom: 4px solid transparent;
         @include u-padding-y(1);
 
+        svg {
+          color: #fff;
+        }
+
+        &:hover {
+          svg {
+            color: $link-light;
+          }
+        }
+
         @include at-media(tablet) {
           font-weight: bold;
         }
