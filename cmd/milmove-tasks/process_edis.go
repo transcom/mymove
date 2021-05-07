@@ -234,7 +234,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	defer func() {
 		if closeErr := sshClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
@@ -244,7 +244,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	defer func() {
 		if closeErr := sftpClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
