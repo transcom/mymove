@@ -372,7 +372,7 @@ class MtoShipmentForm extends Component {
                             as={Textarea}
                             data-testid="remarks"
                             name="customerRemarks"
-                            className={`${styles.remarks}`}
+                            className={`${formStyles.remarks}`}
                             placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
                             id="customerRemarks"
                             maxLength={250}
