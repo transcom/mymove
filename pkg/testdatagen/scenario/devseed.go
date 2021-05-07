@@ -418,6 +418,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
+			CounselorRemarks:     swag.String("Please handle with care"),
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
 		},
