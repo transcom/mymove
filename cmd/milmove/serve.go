@@ -598,7 +598,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if len(gexURL) == 0 {
 		// this spins up a local test server
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusForbidden)
+			w.WriteHeader(http.StatusOK)
 		}))
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
