@@ -42,7 +42,7 @@ func (h IndexNotificationsHandler) Handle(params notificationsop.IndexNotificati
 	queryAssociations := []services.QueryAssociation{
 		query.NewQueryAssociation("ServiceMember.User"),
 	}
-	associations := query.NewQueryAssociations(queryAssociations)
+	associations := query.NewQueryAssociationsPreload(queryAssociations)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	var notifications []models.Notification
