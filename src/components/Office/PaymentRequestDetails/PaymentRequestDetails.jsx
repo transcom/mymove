@@ -41,16 +41,20 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
-          <div>
-            <p>
-              <small>
-                {shipmentDepartureDate !== '' && (
-                  <b data-testid="departure-date">Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}</b>
-                )}{' '}
-                {shipmentAddress !== '' && <span data-testid="pickup-to-destination">{shipmentAddress}</span>}
-              </small>
-            </p>
-          </div>
+          {(shipmentDepartureDate || shipmentAddress) && (
+            <div>
+              <p>
+                <small>
+                  {shipmentDepartureDate && (
+                    <strong data-testid="departure-date">
+                      Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}
+                    </strong>
+                  )}{' '}
+                  {shipmentAddress && <span data-testid="pickup-to-destination">{shipmentAddress}</span>}
+                </small>
+              </p>
+            </div>
+          )}
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -86,7 +90,7 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipmentDepartureDate: PropTypes.string,
-  shipmentAddress: PropTypes.node,
+  shipmentAddress: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
