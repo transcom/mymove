@@ -654,10 +654,11 @@ func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 
-	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&Move{})
+	exists, err := db.Where(`reference_id= $1`, newReferenceID).Exists(&Move{})
+
 	if err != nil {
 		return "", err
-	} else if count > 0 {
+	} else if exists {
 		return "", errors.New("move: reference_id already exists")
 	}
 
