@@ -35,7 +35,7 @@ type ElectronicOrder struct {
 	OrdersNumber string                    `json:"orders_number" db:"orders_number"`
 	Edipi        string                    `json:"edipi" db:"edipi"`
 	Issuer       Issuer                    `json:"issuer" db:"issuer"`
-	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" order_by:"seq_num asc"`
+	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" fk_id:"electronic_order_id" order_by:"seq_num asc"`
 }
 
 // String is not required by pop and may be deleted

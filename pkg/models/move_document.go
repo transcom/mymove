@@ -108,11 +108,11 @@ const (
 type MoveDocument struct {
 	ID                       uuid.UUID                `json:"id" db:"id"`
 	DocumentID               uuid.UUID                `json:"document_id" db:"document_id"`
-	Document                 Document                 `belongs_to:"documents"`
+	Document                 Document                 `belongs_to:"documents" fk_id:"document_id"`
 	MoveID                   uuid.UUID                `json:"move_id" db:"move_id"`
-	Move                     Move                     `belongs_to:"moves"`
+	Move                     Move                     `belongs_to:"moves" fk_id:"move_id"`
 	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
-	PersonallyProcuredMove   PersonallyProcuredMove   `belongs_to:"personally_procured_moves"`
+	PersonallyProcuredMove   PersonallyProcuredMove   `belongs_to:"personally_procured_moves" fk_id:"personally_procured_move_id"`
 	Title                    string                   `json:"title" db:"title"`
 	Status                   MoveDocumentStatus       `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType         `json:"move_document_type" db:"move_document_type"`

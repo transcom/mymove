@@ -24,7 +24,7 @@ const (
 // MTOServiceItemDimension is an object representing dimensions for a service item.
 type MTOServiceItemDimension struct {
 	ID               uuid.UUID             `db:"id"`
-	MTOServiceItem   MTOServiceItem        `belongs_to:"mto_service_items"`
+	MTOServiceItem   MTOServiceItem        `belongs_to:"mto_service_items" fk_id:"mto_service_item_id"`
 	MTOServiceItemID uuid.UUID             `db:"mto_service_item_id"`
 	Type             DimensionType         `db:"type"`
 	Length           unit.ThousandthInches `db:"length_thousandth_inches"`
