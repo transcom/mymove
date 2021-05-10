@@ -81,6 +81,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
+	ghcAPI.CustomerUpdateCustomerHandler = UpdateCustomerHandler{
+		context,
+		customer.NewCustomerUpdater(context.DB()),
+	}
 	ghcAPI.OrderGetOrderHandler = GetOrdersHandler{
 		context,
 		order.NewOrderFetcher(context.DB()),
