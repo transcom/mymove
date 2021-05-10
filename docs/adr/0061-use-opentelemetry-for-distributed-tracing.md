@@ -47,12 +47,24 @@ layers of the MilMove project
 
 * `+` Enables accessing vendor-specific capabilities
 * `-` Vendor lock-in in code
-  * this may be mitigated by translation layers available within the
-  OpenTelemetry ecosystem
+  * lock-in may be somewhat mitigated by translation layers available within
+  the OpenTelemetry ecosystem, at the expense of increased configuration burden
+  * example - choosing AWS X-Ray would work well in the deployed GovCloud
+  environments, but it does not scale down to exclusively local development
+  environments, i.e. X-Ray does not provide a UI for browsing distributed
+  traces with their local X-Ray daemon
+  * example - choosing Honeycomb.io's instrumentation libraries adds a lot of
+  nice auto-instrumentation capabilities over OpenTelemetry, but since
+  Honeycomb does not have FedRAMP (nor do most of their peers), the distributed
+  tracing could not be enabled in the GovCloud deployed environments
+  * example - using an open source tool (e.g. OpenZipkin) can scale down to
+  local development, but would require more infrastructure support to self-
+  host the data storage and UI tools in the GovCloud environments
 
 ### ~~Do not instrument~~
 
 * `+` No work to be done
 * `-` developers and operators continue to use current methods to build their
-understanding of the system
+understanding of the system, which is likely slower and less complete than when
+using distributed tracing
 
