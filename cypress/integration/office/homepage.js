@@ -29,7 +29,7 @@ describe('Office Home Page', function () {
   it('office user can logout and see logout success message', function () {
     cy.contains('Sign out').click();
     cy.location().should((loc) => {
-      let signOutUrl = '/^' + officeBaseURL + '/sign-in/';
+      let signOutUrl = new RegExp('^' + officeBaseURL + '/sign-in');
       expect(loc.pathname).to.match(signOutUrl);
     });
     cy.url().should('eq', officeBaseURL + '/sign-in');

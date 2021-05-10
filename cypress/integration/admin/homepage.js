@@ -24,7 +24,7 @@ describe('Admin Home Page', function () {
   it('admin user can logout and see logout success message', function () {
     cy.contains('Logout').click();
     cy.location().should((loc) => {
-      expect(loc.pathname).to.match('/^//');
+      expect(loc.pathname).to.match(/^\/$/);
     });
     cy.url().should('eq', '/');
     cy.get('.usa-alert--success').contains('You have signed out of MilMove').should('exist');
