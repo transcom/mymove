@@ -65,7 +65,7 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 	}
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	associations := query.NewQueryAssociations(queryAssociations)
+	associations := query.NewQueryAssociationsPreload(queryAssociations)
 	moves, err := h.MoveListFetcher.FetchMoveList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

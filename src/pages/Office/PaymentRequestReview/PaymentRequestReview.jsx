@@ -58,6 +58,7 @@ export const PaymentRequestReview = ({ history, match }) => {
         },
       });
     },
+    throwOnError: true,
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -71,7 +72,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
 
-    mutatePaymentServiceItemStatus({
+    return mutatePaymentServiceItemStatus({
       moveTaskOrderID: paymentRequest.moveTaskOrderID,
       paymentServiceItemID,
       status: values.status,

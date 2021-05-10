@@ -38,9 +38,9 @@ type TransportationServiceProviderPerformance struct {
 	RateCycleStart                  time.Time                     `json:"rate_cycle_start" db:"rate_cycle_start"`
 	RateCycleEnd                    time.Time                     `json:"rate_cycle_end" db:"rate_cycle_end"`
 	TrafficDistributionListID       uuid.UUID                     `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TrafficDistributionList         TrafficDistributionList       `belongs_to:"traffic_distribution_list"`
+	TrafficDistributionList         TrafficDistributionList       `belongs_to:"traffic_distribution_list" fk_id:"traffic_distribution_list_id"`
 	TransportationServiceProviderID uuid.UUID                     `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	TransportationServiceProvider   TransportationServiceProvider `belongs_to:"transportation_service_provider"`
+	TransportationServiceProvider   TransportationServiceProvider `belongs_to:"transportation_service_provider" fk_id:"transportation_service_provider_id"`
 	QualityBand                     *int                          `json:"quality_band" db:"quality_band"`
 	BestValueScore                  float64                       `json:"best_value_score" db:"best_value_score"`
 	LinehaulRate                    unit.DiscountRate             `json:"linehaul_rate" db:"linehaul_rate"`

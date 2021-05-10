@@ -40,13 +40,13 @@ type AdminUser struct {
 	CreatedAt      time.Time    `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at" db:"updated_at"`
 	UserID         *uuid.UUID   `json:"user_id" db:"user_id"`
-	User           User         `belongs_to:"user"`
+	User           User         `belongs_to:"user" fk_id:"user_id"`
 	Role           AdminRole    `json:"role" db:"role"`
 	Email          string       `json:"email" db:"email"`
 	FirstName      string       `json:"first_name" db:"first_name"`
 	LastName       string       `json:"last_name" db:"last_name"`
 	OrganizationID *uuid.UUID   `json:"organization_id" db:"organization_id"`
-	Organization   Organization `belongs_to:"organization"`
+	Organization   Organization `belongs_to:"organization" fk_id:"organization_id"`
 	Active         bool         `json:"active" db:"active"`
 }
 

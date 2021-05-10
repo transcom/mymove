@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/validate/v3"
-
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -286,6 +286,75 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
+	})
+}
+
+func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
+	// Create two default duty stations (with address and transportation office)
+	testdatagen.MakeDefaultDutyStation(suite.DB())
+	testdatagen.MakeDefaultDutyStation(suite.DB())
+	builder := NewQueryBuilder(suite.DB())
+
+	suite.T().Run("fetches many with default associations", func(t *testing.T) {
+		var dutyStations models.DutyStations
+		err := builder.FetchMany(&dutyStations, nil, defaultAssociations(), nil, nil)
+		suite.NoError(err)
+		suite.Len(dutyStations, 2)
+
+		// Make sure every record has an address and transportation office loaded
+		for _, dutyStation := range dutyStations {
+			suite.NotEqual(uuid.Nil, dutyStation.Address.ID)
+			suite.NotEqual(uuid.Nil, dutyStation.TransportationOffice.ID)
+		}
+	})
+
+	suite.T().Run("fetches many with no associations", func(t *testing.T) {
+		var dutyStations models.DutyStations
+		err := builder.FetchMany(&dutyStations, nil, nil, nil, nil)
+		suite.NoError(err)
+		suite.Len(dutyStations, 2)
+
+		// Make sure every record has no address or transportation office loaded
+		for _, dutyStation := range dutyStations {
+			suite.Equal(uuid.Nil, dutyStation.Address.ID)
+			suite.Equal(uuid.Nil, dutyStation.TransportationOffice.ID)
+		}
+	})
+
+	suite.T().Run("fetches many with one explicit non-preloaded association", func(t *testing.T) {
+		var dutyStations models.DutyStations
+		associations := NewQueryAssociations([]services.QueryAssociation{
+			NewQueryAssociation("Address"),
+		})
+
+		err := builder.FetchMany(&dutyStations, nil, associations, nil, nil)
+		suite.NoError(err)
+		suite.Len(dutyStations, 2)
+
+		// Make sure every record has an address loaded but not a transportation office
+		for _, dutyStation := range dutyStations {
+			suite.NotEqual(uuid.Nil, dutyStation.Address.ID)
+			suite.Equal(uuid.Nil, dutyStation.TransportationOffice.ID)
+		}
+	})
+
+	suite.T().Run("fetches many with one explicit preloaded two-level association", func(t *testing.T) {
+		var dutyStations models.DutyStations
+		associations := NewQueryAssociationsPreload([]services.QueryAssociation{
+			NewQueryAssociation("TransportationOffice.Address"),
+		})
+
+		err := builder.FetchMany(&dutyStations, nil, associations, nil, nil)
+		suite.NoError(err)
+		suite.Len(dutyStations, 2)
+
+		// Make sure every record does not have an address loaded but does have a transportation office and
+		// its address loaded
+		for _, dutyStation := range dutyStations {
+			suite.Equal(uuid.Nil, dutyStation.Address.ID)
+			suite.NotEqual(uuid.Nil, dutyStation.TransportationOffice.ID)
+			suite.NotEqual(uuid.Nil, dutyStation.TransportationOffice.Address.ID)
+		}
 	})
 }
 
