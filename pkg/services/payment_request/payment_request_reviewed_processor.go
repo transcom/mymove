@@ -201,7 +201,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() {
 			ProcessEndedAt:   time.Now(),
 			NumEDIsProcessed: numProcessed,
 		}
-		p.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+		p.logger.Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
 
 		verrs, err := p.db.ValidateAndCreate(&ediProcessing)
 		if err != nil {
