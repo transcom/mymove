@@ -1,5 +1,3 @@
-import { officeBaseURL } from '../../support/constants';
-
 describe('setting up service member profile requiring an access code', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -17,7 +15,6 @@ describe('setting up service member profile requiring an access code', function 
     });
     serviceMemberChoosesConusOrOconus();
     serviceMemberProfile();
-    serviceMemberLogsOut();
   });
 
   it.skip('restarts app after every page', function () {
