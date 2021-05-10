@@ -5,6 +5,7 @@ import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
 import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
+import ServicesCounselingOrdersList from '../../../components/Office/DefinitionLists/ServicesCounselingOrdersList';
 import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
 import { SubmitMoveConfirmationModal } from '../../../components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
@@ -48,6 +49,14 @@ const ServicesCounselingMoveDetails = () => {
     dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+  };
+
+  const ordersInfo = {
+    currentDutyStation: order.originDutyStation,
+    newDutyStation: order.destinationDutyStation,
+    issuedDate: order.date_issued,
+    reportByDate: order.report_by_date,
+    ordersType: order.order_type,
   };
 
   // use mutation calls
@@ -107,6 +116,18 @@ const ServicesCounselingMoveDetails = () => {
               )}
             </Grid>
           </Grid>
+          <div className={styles.section} id="orders">
+            <DetailsPanel
+              title="Orders"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  View and edit orders
+                </Link>
+              }
+            >
+              <ServicesCounselingOrdersList ordersInfo={ordersInfo} />
+            </DetailsPanel>
+          </div>
           <div className={styles.section} id="allowances">
             <DetailsPanel
               title="Allowances"
