@@ -145,6 +145,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		})
 	}
+	if api.CustomerUpdateCustomerHandler == nil {
+		api.CustomerUpdateCustomerHandler = customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		api.MtoServiceItemUpdateMTOServiceItemHandler = mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")

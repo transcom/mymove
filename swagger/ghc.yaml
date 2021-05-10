@@ -65,6 +65,57 @@ paths:
       description: Returns a given customer
       operationId: getCustomer
       summary: Returns a given customer
+    patch:
+      summary: Updates customer info
+      description: Updates customer info by ID
+      operationId: updateCustomer
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateCustomerPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/Customer'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthenticated
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was unauthorized
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
@@ -905,6 +956,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -1663,6 +1718,31 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+  UpdateCustomerPayload:
+    type: object
+    properties:
+      first_name:
+        type: string
+        example: John
+      last_name:
+        type: string
+        example: Doe
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      current_address:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      backup_contact:
+        x-nullable: true
+        $ref: '#/definitions/BackupContact'
   DutyStation:
     type: object
     properties:

@@ -59,6 +59,10 @@ const (
 	MTOShipmentStatusRejected MTOShipmentStatus = "REJECTED"
 	// MTOShipmentStatusCancellationRequested is the status that indicates the TOO has requested that the Prime cancel the shipment
 	MTOShipmentStatusCancellationRequested MTOShipmentStatus = "CANCELLATION_REQUESTED"
+	// MTOShipmentStatusCanceled is the status that indicates that a shipment has been canceled by the Prime
+	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
+	// MTOShipmentStatusDiversionRequested is the status that indicates that teh TOO has requested that the prime divert a shipment
+	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
@@ -74,6 +78,7 @@ type MTOShipment struct {
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
 	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
+	CounselorRemarks                 *string           `db:"counselor_remarks"`
 	PickupAddress                    *Address          `belongs_to:"addresses"`
 	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
 	DestinationAddress               *Address          `belongs_to:"addresses"`
@@ -89,6 +94,7 @@ type MTOShipment struct {
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
+	Diversion                        bool              `db:"diversion"`
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
 	CreatedAt                        time.Time         `db:"created_at"`
@@ -107,6 +113,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusSubmitted),
 		string(MTOShipmentStatusDraft),
 		string(MTOShipmentStatusCancellationRequested),
+		string(MTOShipmentStatusCanceled),
+		string(MTOShipmentStatusDiversionRequested),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {
