@@ -30,6 +30,7 @@ const ServiceItemCard = ({
   paymentServiceItemParams,
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
+  const [canEditRejection, setCanEditRejection] = useState(!rejectionReason);
 
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
@@ -106,21 +107,41 @@ const ServiceItemCard = ({
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
-          patchPaymentServiceItem(id, values);
+          return patchPaymentServiceItem(id, values);
         }}
+        enableReinitialize
       >
-        {({ handleChange, submitForm, values, setValues }) => {
+        {({ initialValues, handleReset, handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(true);
+            });
+          };
+
+          const handleRejectChange = (event) => {
+            handleChange(event);
+            submitForm().then(() => {
+              setCanEditRejection(false);
+            });
+          };
+
+          const handleRejectCancel = (event) => {
+            if (initialValues.rejectionReason) {
+              setCanEditRejection(false);
+            }
+
+            handleReset(event);
           };
 
           const handleFormReset = () => {
             setValues({
               status: 'REQUESTED',
-              rejectionReason: undefined,
+              rejectionReason: '',
             });
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(true);
+            });
           };
 
           return (
@@ -161,26 +182,55 @@ const ServiceItemCard = ({
                     {values.status === DENIED && (
                       <FormGroup>
                         <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
-                        <Textarea
-                          id={`rejectReason-${id}`}
-                          name="rejectionReason"
-                          onChange={handleChange}
-                          value={values.rejectionReason}
-                        />
-                        {!requestComplete && (
-                          <div className={styles.rejectionButtonGroup}>
-                            <Button type="button" data-testid="rejectionSaveButton" onClick={submitForm}>
-                              Save
-                            </Button>
+                        {!canEditRejection && (
+                          <>
+                            <p data-testid="rejectionReasonReadOnly">{values.rejectionReason}</p>
                             <Button
-                              data-testid="cancelRejectionButton"
-                              secondary
-                              onClick={handleFormReset}
                               type="button"
+                              unstyled
+                              data-testid="editReasonButton"
+                              className={styles.clearStatus}
+                              onClick={() => setCanEditRejection(true)}
+                              aria-label="Edit reason button"
                             >
-                              Cancel
+                              <span className="icon">
+                                <FontAwesomeIcon icon="pen" title="Edit reason" alt="" />
+                              </span>
+                              <span aria-hidden="true">Edit reason</span>
                             </Button>
-                          </div>
+                          </>
+                        )}
+
+                        {!requestComplete && canEditRejection && (
+                          <>
+                            <Textarea
+                              id={`rejectReason-${id}`}
+                              name="rejectionReason"
+                              onChange={handleChange}
+                              value={values.rejectionReason}
+                            />
+                            <div className={styles.rejectionButtonGroup}>
+                              <Button
+                                id="rejectionSaveButton"
+                                type="button"
+                                data-testid="rejectionSaveButton"
+                                onClick={handleRejectChange}
+                                disabled={!values.rejectionReason}
+                                aria-label="Rejection save button"
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                data-testid="cancelRejectionButton"
+                                secondary
+                                onClick={handleRejectCancel}
+                                type="button"
+                                aria-label="Cancel rejection button"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </>
                         )}
                       </FormGroup>
                     )}

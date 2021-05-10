@@ -80,16 +80,22 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	verrs, err := h.UpdateOne(&paymentServiceItem, &params.IfMatch)
 	// Using a switch to match error causes to appropriate return type in gen code
 	if err != nil {
+		logger.Error("Error updating payment service item status", zap.Error(err))
+
 		switch err.(type) {
 		case query.StaleIdentifierError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.NotFoundError:
 			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(payload)
+		default:
+			payload := payloadForClientError("Error updating", "Error updating payment service item status", h.GetTraceID())
+			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(payload)
 		}
 	}
 	if verrs != nil {
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(verrs.String())})
+		payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceID(), verrs)
+		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 	}
 
 	_, err = event.TriggerEvent(event.Event{

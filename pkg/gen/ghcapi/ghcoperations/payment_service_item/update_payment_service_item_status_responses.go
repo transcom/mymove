@@ -267,6 +267,50 @@ func (o *UpdatePaymentServiceItemStatusPreconditionFailed) WriteResponse(rw http
 	}
 }
 
+// UpdatePaymentServiceItemStatusUnprocessableEntityCode is the HTTP code returned for type UpdatePaymentServiceItemStatusUnprocessableEntity
+const UpdatePaymentServiceItemStatusUnprocessableEntityCode int = 422
+
+/*UpdatePaymentServiceItemStatusUnprocessableEntity Validation error
+
+swagger:response updatePaymentServiceItemStatusUnprocessableEntity
+*/
+type UpdatePaymentServiceItemStatusUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdatePaymentServiceItemStatusUnprocessableEntity creates UpdatePaymentServiceItemStatusUnprocessableEntity with default headers values
+func NewUpdatePaymentServiceItemStatusUnprocessableEntity() *UpdatePaymentServiceItemStatusUnprocessableEntity {
+
+	return &UpdatePaymentServiceItemStatusUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update payment service item status unprocessable entity response
+func (o *UpdatePaymentServiceItemStatusUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *UpdatePaymentServiceItemStatusUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update payment service item status unprocessable entity response
+func (o *UpdatePaymentServiceItemStatusUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdatePaymentServiceItemStatusUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdatePaymentServiceItemStatusInternalServerErrorCode is the HTTP code returned for type UpdatePaymentServiceItemStatusInternalServerError
 const UpdatePaymentServiceItemStatusInternalServerErrorCode int = 500
 
