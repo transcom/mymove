@@ -73,6 +73,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		return mtoshipmentops.NewListMTOShipmentsInternalServerError()
 	}
 
+	fmt.Println("🍑🍑🍑🍑🍑🍑🍑🍑")
+	fmt.Printf("%+v\n", shipments)
 	payload := payloads.MTOShipments(&shipments)
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
