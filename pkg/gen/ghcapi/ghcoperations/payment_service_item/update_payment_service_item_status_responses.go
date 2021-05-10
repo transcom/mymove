@@ -280,7 +280,7 @@ func (o *UpdatePaymentServiceItemStatusPreconditionFailed) WriteResponse(rw http
 // UpdatePaymentServiceItemStatusUnprocessableEntityCode is the HTTP code returned for type UpdatePaymentServiceItemStatusUnprocessableEntity
 const UpdatePaymentServiceItemStatusUnprocessableEntityCode int = 422
 
-/*UpdatePaymentServiceItemStatusUnprocessableEntity Validation error
+/*UpdatePaymentServiceItemStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response updatePaymentServiceItemStatusUnprocessableEntity
 */
