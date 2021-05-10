@@ -41,8 +41,9 @@ func TestWebServerSuite(t *testing.T) {
 	//RA: Functions with unchecked return values in the file are used set up environment variables
 	//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Modified Severity: N/A
+	//RA Validator Status: Known Issue
+	//RA Modified Severity: CAT III
+	//RA Validator: leodis.f.scott.civ@mail.mil
 	// nolint:errcheck
 	flag.Parse([]string{})
 
