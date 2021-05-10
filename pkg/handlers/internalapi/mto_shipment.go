@@ -183,11 +183,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
 
-	// In some places, we used this unbound eager call accidentally and loaded all associations when the
-	// intention was to load no associations. In this instance, we get E2E failures if we change this to load
-	// no associations, so we'll keep it as is and can revisit later if we want to optimize further.  This is
-	// just loading shipments for a specific move (likely only 1 or 2 in most cases), so the impact of the
-	// additional loading shouldn't be too dramatic.
+	// TODO: In some places, we used this unbound eager call accidentally and loaded all associations when the
+	//   intention was to load no associations. In this instance, we get E2E failures if we change this to load
+	//   no associations, so we'll keep it as is and can revisit later if we want to optimize further.  This is
+	//   just loading shipments for a specific move (likely only 1 or 2 in most cases), so the impact of the
+	//   additional loading shouldn't be too dramatic.
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
 
 	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
