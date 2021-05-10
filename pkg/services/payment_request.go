@@ -49,7 +49,7 @@ type PaymentRequestUploadCreator interface {
 // PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
 //go:generate mockery -name PaymentRequestReviewedProcessor
 type PaymentRequestReviewedProcessor interface {
-	ProcessReviewedPaymentRequest() error
+	ProcessReviewedPaymentRequest()
 	ProcessAndLockReviewedPR(pr models.PaymentRequest) error
 }
 

@@ -216,10 +216,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Process 858s
-	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
-	if err != nil {
-		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
-	}
+	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	logger.Info("Finished processing reviewed payment requests")
 
 	if !sendToSyncada {
@@ -234,7 +231,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	defer func() {
 		if closeErr := sshClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
@@ -244,7 +241,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	defer func() {
 		if closeErr := sftpClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
