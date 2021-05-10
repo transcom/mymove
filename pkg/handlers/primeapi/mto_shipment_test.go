@@ -1056,3 +1056,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ApprovedDate, &now)
 	})
 }
+
+func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
+	//setup
+
+	// success - shipment is prime-available, in "CANCELLATION_REQUESTED" status
+	// fail - shipment not found
+	// fail - not prime-available
+	// fail - stale eTag
+	// fail - conflict, shipment is not "CANCELLATION_REQUESTED"
+	// fail - invalid input, tried to pass in something other than "CANCELED" status
+}
