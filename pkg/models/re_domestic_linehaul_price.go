@@ -26,8 +26,8 @@ type ReDomesticLinehaulPrice struct {
 	UpdatedAt             time.Time       `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract            ReContract            `belongs_to:"re_contract"`
-	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area"`
+	Contract            ReContract            `belongs_to:"re_contract" fk_id:"contract_id"`
+	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area" fk_id:"domestic_service_area_id"`
 }
 
 // ReDomesticLinehaulPrices is not required by pop and may be deleted

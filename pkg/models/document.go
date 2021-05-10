@@ -18,11 +18,11 @@ import (
 type Document struct {
 	ID              uuid.UUID     `db:"id"`
 	ServiceMemberID uuid.UUID     `db:"service_member_id"`
-	ServiceMember   ServiceMember `belongs_to:"service_members"`
+	ServiceMember   ServiceMember `belongs_to:"service_members" fk_id:"service_member_id"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 	DeletedAt       *time.Time    `db:"deleted_at"`
-	UserUploads     UserUploads   `has_many:"user_uploads" order_by:"created_at asc"`
+	UserUploads     UserUploads   `has_many:"user_uploads" fk_id:"document_id" order_by:"created_at asc"`
 }
 
 // Documents is not required by pop and may be deleted

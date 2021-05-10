@@ -30,12 +30,11 @@ func (h IndexWebhookSubscriptionsHandler) Handle(params webhooksubscriptionop.In
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	var webhookSubscriptions models.WebhookSubscriptions
-	err := h.ListFetcher.FetchRecordList(&webhookSubscriptions, queryFilters, associations, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(&webhookSubscriptions, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

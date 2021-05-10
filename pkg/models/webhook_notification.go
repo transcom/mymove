@@ -36,7 +36,7 @@ type WebhookNotification struct {
 	EventKey         string                    `db:"event_key"`
 	TraceID          *uuid.UUID                `db:"trace_id"`
 	MoveTaskOrderID  *uuid.UUID                `db:"move_id"`
-	MoveTaskOrder    Move                      `belongs_to:"moves"`
+	MoveTaskOrder    Move                      `belongs_to:"moves" fk_id:"move_id"`
 	ObjectID         *uuid.UUID                `db:"object_id"`
 	Payload          string                    `db:"payload"`
 	Status           WebhookNotificationStatus `db:"status"`

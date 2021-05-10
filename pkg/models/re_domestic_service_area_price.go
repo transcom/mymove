@@ -23,9 +23,9 @@ type ReDomesticServiceAreaPrice struct {
 	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract            ReContract            `belongs_to:"re_contract"`
-	Service             ReService             `belongs_to:"re_service"`
-	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area"`
+	Contract            ReContract            `belongs_to:"re_contract" fk_id:"contract_id"`
+	Service             ReService             `belongs_to:"re_service" fk_id:"service_id"`
+	DomesticServiceArea ReDomesticServiceArea `belongs_to:"re_domestic_service_area" fk_id:"domestic_service_area_id"`
 }
 
 // ReDomesticServiceAreaPrices is not required by pop and may be deleted

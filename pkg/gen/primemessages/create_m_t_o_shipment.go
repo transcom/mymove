@@ -33,6 +33,9 @@ type CreateMTOShipment struct {
 	// Required: true
 	DestinationAddress *Address `json:"destinationAddress"`
 
+	// diversion
+	Diversion bool `json:"diversion,omitempty"`
+
 	// move task order ID
 	// Required: true
 	// Format: uuid
@@ -79,6 +82,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		DestinationAddress *Address `json:"destinationAddress"`
 
+		Diversion bool `json:"diversion,omitempty"`
+
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
@@ -121,6 +126,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
 
+	// diversion
+	result.Diversion = data.Diversion
+
 	// moveTaskOrderID
 	result.MoveTaskOrderID = data.MoveTaskOrderID
 
@@ -158,6 +166,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		DestinationAddress *Address `json:"destinationAddress"`
 
+		Diversion bool `json:"diversion,omitempty"`
+
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		PickupAddress *Address `json:"pickupAddress"`
@@ -176,6 +186,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		Diversion: m.Diversion,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
 

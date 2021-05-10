@@ -756,6 +756,8 @@ paths:
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
       tags:

@@ -80,6 +80,11 @@
           margin-top: 0;
         }
       }
+
+      p {
+        @include u-margin-top(1);
+        @include u-margin-bottom(0);
+      }
     }
 
     &.selected {
