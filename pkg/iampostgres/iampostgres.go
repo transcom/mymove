@@ -4,6 +4,8 @@ package iampostgres
 // - https://stackoverflow.com/questions/56355577/using-database-sql-library-and-fetching-password-from-vault-when-a-new-connectio
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"net/url"
@@ -11,10 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"database/sql"
-	"database/sql/driver"
-
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
 	pg "github.com/lib/pq"
@@ -151,4 +151,5 @@ func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
 
 func init() {
 	sql.Register("custompostgres", &RDSPostgresDriver{&pg.Driver{}})
+	sqlx.BindDriver("custompostgres", sqlx.DOLLAR)
 }

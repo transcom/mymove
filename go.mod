@@ -82,12 +82,6 @@ require (
 	pault.ag/go/pksigner v1.0.2
 )
 
-// transcom/sqlx v1.2.1 is just jmoiron's 1.2.0 with custom driver fixes
-// This is a temporary solution till https://github.com/jmoiron/sqlx/pull/560
-// is merged or a better solution is completed as mentioned in
-// https://github.com/jmoiron/sqlx/pull/520
-replace github.com/jmoiron/sqlx v1.2.0 => github.com/transcom/sqlx v1.2.1
-
 // https://github.com/codegangsta/gin/issues/154#issuecomment-544391671
 // This fixes an issue that was being caused due to urfave/cli v1.21.0
 // being renamed.
