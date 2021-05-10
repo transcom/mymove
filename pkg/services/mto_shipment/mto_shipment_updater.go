@@ -503,6 +503,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCancellationRequested},
 			}
 		}
+	case models.MTOShipmentStatusCancellationRequested:
+		if status != models.MTOShipmentStatusCanceled && status != models.MTOShipmentStatusDiversionRequested {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCanceled, models.MTOShipmentStatusDiversionRequested},
+			}
+		}
 	default:
 		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: status}
 	}

@@ -334,3 +334,55 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 
 	return services.InvalidInputError{}
 }
+
+// UpdateMTOShipmentStatusHandler is the handler to update MTO shipments
+type UpdateMTOShipmentStatusHandler struct {
+	handlers.HandlerContext
+	checker services.MTOShipmentUpdater
+	updater services.MTOShipmentStatusUpdater
+}
+
+// Handle handler that updates a mto shipment
+func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+
+	availableToPrime, err := h.checker.MTOShipmentsMTOAvailableToPrime(shipmentID)
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
+		default:
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+	}
+	if !availableToPrime {
+		return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+	}
+
+	status := models.MTOShipmentStatus(params.Body.Status)
+	eTag := params.IfMatch
+
+	shipment, err := h.updater.UpdateMTOShipmentStatus(shipmentID, status, nil, eTag)
+	if err != nil {
+		logger.Error("UpdateMTOShipmentStatusStatus error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(
+				payloads.ValidationError("The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors))
+		case services.PreconditionFailedError:
+			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+		case mtoshipment.ConflictStatusError:
+			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+		default:
+			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+	}
+
+	return mtoshipmentops.NewUpdateMTOShipmentStatusOK().WithPayload(payloads.MTOShipment(shipment))
+}
