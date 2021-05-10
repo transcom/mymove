@@ -35,6 +35,9 @@ type RDSPostgresDriver struct {
 	*pg.Driver
 }
 
+// CustomPostgres is used to set the driverName to the custom postgres driver
+const CustomPostgres string = "custompostgres"
+
 // GetCurrentPass gets IAM password if needed and will block till valid password is available
 func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
@@ -150,6 +153,6 @@ func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
 }
 
 func init() {
-	sql.Register("custompostgres", &RDSPostgresDriver{&pg.Driver{}})
-	sqlx.BindDriver("custompostgres", sqlx.DOLLAR)
+	sql.Register(CustomPostgres, &RDSPostgresDriver{&pg.Driver{}})
+	sqlx.BindDriver(CustomPostgres, sqlx.DOLLAR)
 }
