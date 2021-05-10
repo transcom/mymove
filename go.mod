@@ -33,7 +33,7 @@ require (
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.2
 	github.com/gobuffalo/nulls v0.4.0 // indirect
-	github.com/gobuffalo/pop/v5 v5.3.3
+	github.com/gobuffalo/pop/v5 v5.3.4
 	github.com/gobuffalo/validate/v3 v3.3.0
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.3
@@ -44,7 +44,7 @@ require (
 	github.com/imdario/mergo v0.3.12
 	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jessevdk/go-flags v1.5.0
-	github.com/jmoiron/sqlx v1.2.0
+	github.com/jmoiron/sqlx v1.3.3
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.1
@@ -71,8 +71,8 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/text v0.3.6
 	golang.org/x/tools v0.0.0-20200929161345-d7fc70abf50f
@@ -81,12 +81,6 @@ require (
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	pault.ag/go/pksigner v1.0.2
 )
-
-// transcom/sqlx v1.2.1 is just jmoiron's 1.2.0 with custom driver fixes
-// This is a temporary solution till https://github.com/jmoiron/sqlx/pull/560
-// is merged or a better solution is completed as mentioned in
-// https://github.com/jmoiron/sqlx/pull/520
-replace github.com/jmoiron/sqlx v1.2.0 => github.com/transcom/sqlx v1.2.1
 
 // https://github.com/codegangsta/gin/issues/154#issuecomment-544391671
 // This fixes an issue that was being caused due to urfave/cli v1.21.0

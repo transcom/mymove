@@ -260,7 +260,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
-		Driver:   "custompostgres",
+		Driver:   iampg.CustomPostgres,
 		Database: dbName,
 		Host:     dbHost,
 		Port:     dbPort,
