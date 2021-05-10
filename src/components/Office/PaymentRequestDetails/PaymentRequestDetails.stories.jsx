@@ -3,7 +3,7 @@ import React from 'react';
 import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatPaymentRequestReviewAddressString } from 'utils/shipmentDisplay';
+import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
 
 export default {
   title: 'Office Components/PaymentRequestDetails',
@@ -18,7 +18,7 @@ export default {
   ],
 };
 
-const hhgAddress = formatPaymentRequestReviewAddressString(
+const hhgAddress = formatPaymentRequestAddressString(
   {
     city: 'Beverly Hills',
     postal_code: '90210',
@@ -34,7 +34,7 @@ const hhgAddress = formatPaymentRequestReviewAddressString(
 const addresses = {
   basicAddress: '',
   hhgAddress,
-  ntsAddress: formatPaymentRequestReviewAddressString(
+  ntsAddress: formatPaymentRequestAddressString(
     {
       city: 'Boston',
       postal_code: '02101',
