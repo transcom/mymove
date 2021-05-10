@@ -25,24 +25,6 @@ describe('Office Home Page', function () {
     cy.get('[data-testid=queueTableRow]:first').click();
     cy.url().should('include', '/moves/');
   });
-
-  it('office user can logout and see logout success message', function () {
-    cy.contains('Sign out').click();
-    cy.location().should((loc) => {
-      let signOutUrl = new RegExp('^' + officeBaseURL + '/sign-in');
-      expect(loc.pathname).to.match(signOutUrl);
-    });
-    cy.url().should('eq', officeBaseURL + '/sign-in');
-    cy.get('.usa-alert--success').contains('You have signed out of MilMove').should('exist');
-  });
-
-  /*
-  it('office user is already logged out and revisits sign-in page, logout success message should not exist', function () {
-    cy.patientVisit('/sign-in');
-    cy.url().should('eq', officeBaseURL + '/sign-in');
-    cy.get('.usa-alert--success').contains('You have signed out of MilMove').should('not.exist');
-  });
-  */
 });
 
 describe('Office authorization', () => {
