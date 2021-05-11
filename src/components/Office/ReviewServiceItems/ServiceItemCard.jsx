@@ -72,25 +72,28 @@ const ServiceItemCard = ({
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
           <div className={styles.cardHeader}>
-            <h6 className={styles.cardTitle}>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
-            <small className={styles.addressBlock}>
-              {mtoShipmentDepartureDate !== '' && (
-                <div>
-                  <span>Departed</span> {mtoShipmentDepartureDate}
-                </div>
-              )}
-              {mtoShipmentPickupAddress !== '' && (
-                <div>
-                  <span>From</span> {mtoShipmentPickupAddress}
-                </div>
-              )}
-              {mtoShipmentPickupAddress !== '' && (
-                <div>
-                  <span>To</span> {mtoShipmentDestinationAddress}
-                </div>
-              )}
-            </small>
+            <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+            {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
+              <small className={styles.addressBlock}>
+                {mtoShipmentDepartureDate && (
+                  <div>
+                    <span>Departed</span> {mtoShipmentDepartureDate}
+                  </div>
+                )}
+                {mtoShipmentPickupAddress && (
+                  <div>
+                    <span>From</span> {mtoShipmentPickupAddress}
+                  </div>
+                )}
+                {mtoShipmentPickupAddress && (
+                  <div>
+                    <span>To</span> {mtoShipmentDestinationAddress}
+                  </div>
+                )}
+              </small>
+            )}
           </div>
+          <hr className="divider" />
           <dl>
             <dt>Service item</dt>
             <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -170,25 +173,28 @@ const ServiceItemCard = ({
             <Form className={styles.form} onSubmit={submitForm}>
               <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
                 <div className={styles.cardHeader}>
-                  <h6 className={styles.cardTitle}>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
-                  <small className={styles.addressBlock}>
-                    {mtoShipmentDepartureDate !== '' && (
-                      <div>
-                        <span>Departed</span> {mtoShipmentDepartureDate}
-                      </div>
-                    )}
-                    {mtoShipmentPickupAddress !== '' && (
-                      <div>
-                        <span>From</span> {mtoShipmentPickupAddress}
-                      </div>
-                    )}
-                    {mtoShipmentPickupAddress !== '' && (
-                      <div>
-                        <span>To</span> {mtoShipmentDestinationAddress}
-                      </div>
-                    )}
-                  </small>
+                  <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+                  {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
+                    <small className={styles.addressBlock}>
+                      {mtoShipmentDepartureDate && (
+                        <div>
+                          <span>Departed</span> {mtoShipmentDepartureDate}
+                        </div>
+                      )}
+                      {mtoShipmentPickupAddress && (
+                        <div>
+                          <span>From</span> {mtoShipmentPickupAddress}
+                        </div>
+                      )}
+                      {mtoShipmentPickupAddress && (
+                        <div>
+                          <span>To</span> {mtoShipmentDestinationAddress}
+                        </div>
+                      )}
+                    </small>
+                  )}
                 </div>
+                <hr className={styles.divider} />
                 <dl>
                   <dt>Service item</dt>
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
