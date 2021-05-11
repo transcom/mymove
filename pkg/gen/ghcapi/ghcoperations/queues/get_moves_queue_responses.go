@@ -69,7 +69,7 @@ type GetMovesQueueForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMovesQueueForbidden creates GetMovesQueueForbidden with default headers values
@@ -79,13 +79,13 @@ func NewGetMovesQueueForbidden() *GetMovesQueueForbidden {
 }
 
 // WithPayload adds the payload to the get moves queue forbidden response
-func (o *GetMovesQueueForbidden) WithPayload(payload interface{}) *GetMovesQueueForbidden {
+func (o *GetMovesQueueForbidden) WithPayload(payload *ghcmessages.Error) *GetMovesQueueForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get moves queue forbidden response
-func (o *GetMovesQueueForbidden) SetPayload(payload interface{}) {
+func (o *GetMovesQueueForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *GetMovesQueueForbidden) SetPayload(payload interface{}) {
 func (o *GetMovesQueueForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type GetMovesQueueInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetMovesQueueInternalServerError creates GetMovesQueueInternalServerError with default headers values
@@ -121,13 +123,13 @@ func NewGetMovesQueueInternalServerError() *GetMovesQueueInternalServerError {
 }
 
 // WithPayload adds the payload to the get moves queue internal server error response
-func (o *GetMovesQueueInternalServerError) WithPayload(payload interface{}) *GetMovesQueueInternalServerError {
+func (o *GetMovesQueueInternalServerError) WithPayload(payload *ghcmessages.Error) *GetMovesQueueInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get moves queue internal server error response
-func (o *GetMovesQueueInternalServerError) SetPayload(payload interface{}) {
+func (o *GetMovesQueueInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,8 +137,10 @@ func (o *GetMovesQueueInternalServerError) SetPayload(payload interface{}) {
 func (o *GetMovesQueueInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
