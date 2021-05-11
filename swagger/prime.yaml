@@ -942,6 +942,8 @@ definitions:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
+      diversion:
+        type: boolean
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update
@@ -1533,6 +1535,9 @@ definitions:
           - REJECTED
           - CANCELLATION_REQUESTED
           - CANCELED
+          - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true

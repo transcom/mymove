@@ -211,6 +211,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			FirstAvailableDeliveryDate:       &firstAvailableDeliveryDate,
 			PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightRecordedDate,
 			Status:                           models.MTOShipmentStatusSubmitted,
+			Diversion:                        true,
 			CustomerRemarks:                  &customerRemarks,
 		}
 
@@ -227,6 +228,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
+		suite.Equal(true, newShipment.Diversion)
 		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)

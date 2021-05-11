@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { bool, shape, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { useHistory } from 'react-router-dom';
 
 import styles from './SignIn.module.scss';
 import '@trussworks/react-uswds/lib/index.css';
@@ -14,9 +15,17 @@ import { isDevelopment } from 'shared/constants';
 
 const SignIn = ({ context, location, showLocalDevLogin }) => {
   const [showEula, setShowEula] = useState(false);
+  const history = useHistory();
+
+  useEffect(() => {
+    function unload() {
+      history.replace('', null);
+    }
+    window.addEventListener('beforeunload', unload);
+    return () => window.removeEventListener('beforeunload', unload);
+  }, [history]);
 
   const { error } = qs.parse(location.search);
-  const hash = qs.parse(location.hash);
   const { siteName, showLoginWarning } = context;
 
   return (
@@ -38,10 +47,17 @@ const SignIn = ({ context, location, showLocalDevLogin }) => {
               <br />
             </div>
           )}
-          {'timedout' in hash && (
+          {location.state && location.state.timedout && (
             <div>
               <Alert type="error" heading="Logged out">
                 You have been logged out due to inactivity.
+              </Alert>
+            </div>
+          )}
+          {location.state && location.state.hasLoggedOut && (
+            <div>
+              <Alert type="success" heading="You have signed out of MilMove">
+                Sign in again when you&apos;re ready to start a new session.
               </Alert>
             </div>
           )}

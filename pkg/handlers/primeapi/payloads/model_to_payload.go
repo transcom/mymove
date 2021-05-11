@@ -341,6 +341,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
+		Diversion:                bool(mtoShipment.Diversion),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
