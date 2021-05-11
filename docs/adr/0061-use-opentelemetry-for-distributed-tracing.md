@@ -4,6 +4,14 @@
 
 _Give developers and operators an easier way to understand the behavior and structure of running systems by instrumenting code for distributed tracing._
 
+Some of the benefits of distributed tracing, as outlined in
+[this](https://petabridge.com/blog/why-use-distributed-tracing/) article are:
+
+* radically improves developer productivity and output
+* works across multiple applications, programming languages, and transports
+* improve time to market
+* facilitates excellent cross-team communication and cooperation
+
 ## Considered Alternatives
 
 * Use OpenTelemetry
@@ -15,7 +23,7 @@ _Give developers and operators an easier way to understand the behavior and stru
 * Chosen Alternative: *Use OpenTelemetry*
 * OpenTelemetry is an emerging industry standard
   * vendors find benefit of being in the OpenTelemetry ecosystem because they
-  no longer have to create or support instrumentation libraries in an every
+  no longer have to create or support instrumentation libraries in an ever
   growing array of languages, i.e. as soon as language library exists for
   OpenTelemetry, the vendors automatically become available to support that
   given language.
