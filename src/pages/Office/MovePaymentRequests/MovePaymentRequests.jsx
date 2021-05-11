@@ -9,7 +9,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
-import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
+import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
@@ -59,6 +59,7 @@ const MovePaymentRequests = ({
         mtoShipmentID: shipment.id,
         shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
+        shipmentModificationType: getShipmentModificationType(shipment),
       });
     });
   }

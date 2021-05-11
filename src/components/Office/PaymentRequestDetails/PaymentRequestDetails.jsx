@@ -30,7 +30,13 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAddress, paymentRequestStatus }) => {
+const PaymentRequestDetails = ({
+  serviceItems,
+  shipmentModificationType,
+  shipmentDepartureDate,
+  shipmentAddress,
+  paymentRequestStatus,
+}) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   return (
@@ -41,10 +47,9 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
-              <ShipmentModificationTag
-                className={styles.ShipmentModificationTag}
-                shipmentModificationType={shipmentModificationTypes.DIVERSION}
-              />
+              {shipmentModificationType && (
+                <ShipmentModificationTag shipmentModificationType={shipmentModificationType} />
+              )}
             </h3>
           </div>
           {(shipmentDepartureDate || shipmentAddress) && (
@@ -98,11 +103,13 @@ PaymentRequestDetails.propTypes = {
   shipmentDepartureDate: PropTypes.string,
   shipmentAddress: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
+  shipmentModificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
 };
 
 PaymentRequestDetails.defaultProps = {
   shipmentDepartureDate: '',
   shipmentAddress: '',
+  shipmentModificationType: '',
 };
 
 export default PaymentRequestDetails;

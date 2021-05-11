@@ -4,6 +4,7 @@ import { mount } from 'enzyme';
 import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentModificationTypes } from 'constants/shipments';
 import { MockProviders } from 'testUtils';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
@@ -365,6 +366,40 @@ describe('PaymentRequestDetails', () => {
     );
     it('disables expanding the service item pricer calculations', () => {
       expect(wrapper.find('ExpandableServiceItemRow').at(0).prop('disableExpansion')).toBe(false);
+    });
+  });
+
+  describe('When a payment request has a shipment that was cancelled ', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipmentAddress={shipmentAddressHHG}
+          shipmentDepartureDate={shipmentDepartureDate}
+          shipmentModificationType={shipmentModificationTypes.CANCELLED}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('there is a cancelled tag displayed', () => {
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELLED);
+    });
+  });
+
+  describe('When a payment request has a shipment that was diverted ', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipmentAddress={shipmentAddressHHG}
+          shipmentDepartureDate={shipmentDepartureDate}
+          shipmentModificationType={shipmentModificationTypes.DIVERSION}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('there is a diversion tag displayed', () => {
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.DIVERSION);
     });
   });
 });

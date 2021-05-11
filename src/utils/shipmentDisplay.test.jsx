@@ -5,7 +5,10 @@ import {
   formatCustomerDestination,
   formatPaymentRequestAddressString,
   formatPaymentRequestReviewAddressString,
+  getShipmentModificationType,
 } from './shipmentDisplay';
+
+import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 
 describe('shipmentDisplay utils', () => {
   describe('formatAddress', () => {
@@ -118,6 +121,28 @@ describe('shipmentDisplay utils', () => {
     it('shows expected string when an address is not present', () => {
       const addressString = formatPaymentRequestReviewAddressString();
       expect(addressString).toEqual('');
+    });
+  });
+
+  describe('getShipmentModificationType', () => {
+    const cancelledShipment = {
+      status: shipmentStatuses.CANCELLED,
+      diversion: false,
+    };
+
+    const divertedShipment = {
+      status: shipmentStatuses.APPROVED,
+      diversion: true,
+    };
+
+    it('returns canceled when the shipment status is cancelled', () => {
+      const shipmentType = getShipmentModificationType(cancelledShipment);
+      expect(shipmentType).toEqual(shipmentModificationTypes.CANCELLED);
+    });
+
+    it('returns diversion when the shipment has been marked as a diversion', () => {
+      const shipmentType = getShipmentModificationType(divertedShipment);
+      expect(shipmentType).toEqual(shipmentModificationTypes.DIVERSION);
     });
   });
 });

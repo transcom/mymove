@@ -5,12 +5,12 @@ import ShipmentModificationTag from './ShipmentModificationTag';
 
 import { shipmentModificationTypes } from 'constants/shipments';
 
-describe('BackupContactForm Component', () => {
-  it('renders the canceled tag', async () => {
+describe('ShipmentModificationTag Component', () => {
+  it('renders the cancelled tag', async () => {
     const { getByText } = render(
-      <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.CANCELED} />,
+      <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.CANCELLED} />,
     );
-    expect(getByText('CANCELED')).toBeInTheDocument();
+    expect(getByText('CANCELLED')).toBeInTheDocument();
   });
   it('renders the diversion tag', async () => {
     const { getByText } = render(

@@ -164,16 +164,17 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
           {sortedShipments.map((serviceItems) => {
             let shipmentDepartureDate = '';
             let shipmentAddress = '';
+            let shipmentModificationType = '';
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
             if (serviceItemShipmentID) {
-              shipmentAddress = shipmentsInfo.find((address) => address.mtoShipmentID === serviceItemShipmentID)
-                ?.shipmentAddress;
-
-              shipmentDepartureDate = shipmentsInfo.find(
-                (departureDate) => departureDate.mtoShipmentID === serviceItemShipmentID,
-              )?.departureDate;
+              const selectedShipment = shipmentsInfo.find(
+                (shipment) => shipment.mtoShipmentID === serviceItemShipmentID,
+              );
+              shipmentAddress = selectedShipment?.shipmentAddress;
+              shipmentDepartureDate = selectedShipment?.departureDate;
+              shipmentModificationType = selectedShipment?.shipmentModificationType;
             }
 
             return (
@@ -181,6 +182,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
                 key={serviceItemShipmentID || 'basicServiceItems'}
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
+                shipmentModificationType={shipmentModificationType}
                 shipmentDepartureDate={shipmentDepartureDate}
                 shipmentAddress={shipmentAddress}
                 paymentRequestStatus={paymentRequest.status}
@@ -197,7 +199,12 @@ PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
   shipmentsInfo: arrayOf(
-    shape({ mtoShipmentId: PropTypes.string, shipmentAddress: PropTypes.node, departureDate: PropTypes.string }),
+    shape({
+      mtoShipmentId: PropTypes.string,
+      shipmentAddress: PropTypes.node,
+      departureDate: PropTypes.string,
+      shipmentModificationType: PropTypes.string,
+    }),
   ).isRequired,
 };
 

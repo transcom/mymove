@@ -4,6 +4,7 @@ import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 export default {
   title: 'Office Components/PaymentRequestDetails',
@@ -237,6 +238,25 @@ export const withHHGShipmentServiceItems = () => (
     shipmentAddress={addresses.hhgAddress}
   />
 );
+
+export const withHHGShipmentServiceItemsWithACancelledShipment = () => (
+  <PaymentRequestDetails
+    shipmentDepartureDate="2021-04-20"
+    serviceItems={hhgRequestedServiceItems}
+    shipmentAddress={addresses.hhgAddress}
+    shipmentModificationType={shipmentModificationTypes.CANCELLED}
+  />
+);
+
+export const withHHGShipmentServiceItemsWithADivertedShipment = () => (
+  <PaymentRequestDetails
+    shipmentDepartureDate="2021-04-20"
+    serviceItems={hhgRequestedServiceItems}
+    shipmentAddress={addresses.hhgAddress}
+    shipmentModificationType={shipmentModificationTypes.DIVERSION}
+  />
+);
+
 export const withNTSRShipmentServiceItems = () => (
   <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipmentAddress={addresses.ntsAddress} />
 );
