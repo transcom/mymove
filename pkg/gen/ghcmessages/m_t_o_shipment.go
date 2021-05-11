@@ -21,6 +21,9 @@ type MTOShipment struct {
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
 
+	// counselor remarks
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
