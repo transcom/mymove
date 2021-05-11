@@ -81,31 +81,19 @@ paths:
           schema:
             $ref: '#/definitions/Customer'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthenticated
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was unauthorized
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: internal server error
+          $ref: '#/responses/ServerError'
   '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system

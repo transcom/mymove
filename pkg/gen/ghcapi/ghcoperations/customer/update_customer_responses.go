@@ -69,7 +69,7 @@ type UpdateCustomerBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateCustomerBadRequest creates UpdateCustomerBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateCustomerBadRequest() *UpdateCustomerBadRequest {
 }
 
 // WithPayload adds the payload to the update customer bad request response
-func (o *UpdateCustomerBadRequest) WithPayload(payload interface{}) *UpdateCustomerBadRequest {
+func (o *UpdateCustomerBadRequest) WithPayload(payload *ghcmessages.Error) *UpdateCustomerBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update customer bad request response
-func (o *UpdateCustomerBadRequest) SetPayload(payload interface{}) {
+func (o *UpdateCustomerBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,16 +93,18 @@ func (o *UpdateCustomerBadRequest) SetPayload(payload interface{}) {
 func (o *UpdateCustomerBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateCustomerUnauthorizedCode is the HTTP code returned for type UpdateCustomerUnauthorized
 const UpdateCustomerUnauthorizedCode int = 401
 
-/*UpdateCustomerUnauthorized The request was unauthenticated
+/*UpdateCustomerUnauthorized The request was denied
 
 swagger:response updateCustomerUnauthorized
 */
@@ -111,7 +113,7 @@ type UpdateCustomerUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateCustomerUnauthorized creates UpdateCustomerUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewUpdateCustomerUnauthorized() *UpdateCustomerUnauthorized {
 }
 
 // WithPayload adds the payload to the update customer unauthorized response
-func (o *UpdateCustomerUnauthorized) WithPayload(payload interface{}) *UpdateCustomerUnauthorized {
+func (o *UpdateCustomerUnauthorized) WithPayload(payload *ghcmessages.Error) *UpdateCustomerUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update customer unauthorized response
-func (o *UpdateCustomerUnauthorized) SetPayload(payload interface{}) {
+func (o *UpdateCustomerUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,16 +137,18 @@ func (o *UpdateCustomerUnauthorized) SetPayload(payload interface{}) {
 func (o *UpdateCustomerUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateCustomerForbiddenCode is the HTTP code returned for type UpdateCustomerForbidden
 const UpdateCustomerForbiddenCode int = 403
 
-/*UpdateCustomerForbidden The request was unauthorized
+/*UpdateCustomerForbidden The request was denied
 
 swagger:response updateCustomerForbidden
 */
@@ -153,7 +157,7 @@ type UpdateCustomerForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateCustomerForbidden creates UpdateCustomerForbidden with default headers values
@@ -163,13 +167,13 @@ func NewUpdateCustomerForbidden() *UpdateCustomerForbidden {
 }
 
 // WithPayload adds the payload to the update customer forbidden response
-func (o *UpdateCustomerForbidden) WithPayload(payload interface{}) *UpdateCustomerForbidden {
+func (o *UpdateCustomerForbidden) WithPayload(payload *ghcmessages.Error) *UpdateCustomerForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update customer forbidden response
-func (o *UpdateCustomerForbidden) SetPayload(payload interface{}) {
+func (o *UpdateCustomerForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *UpdateCustomerForbidden) SetPayload(payload interface{}) {
 func (o *UpdateCustomerForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type UpdateCustomerNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateCustomerNotFound creates UpdateCustomerNotFound with default headers values
@@ -205,13 +211,13 @@ func NewUpdateCustomerNotFound() *UpdateCustomerNotFound {
 }
 
 // WithPayload adds the payload to the update customer not found response
-func (o *UpdateCustomerNotFound) WithPayload(payload interface{}) *UpdateCustomerNotFound {
+func (o *UpdateCustomerNotFound) WithPayload(payload *ghcmessages.Error) *UpdateCustomerNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update customer not found response
-func (o *UpdateCustomerNotFound) SetPayload(payload interface{}) {
+func (o *UpdateCustomerNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +225,11 @@ func (o *UpdateCustomerNotFound) SetPayload(payload interface{}) {
 func (o *UpdateCustomerNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type UpdateCustomerPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateCustomerPreconditionFailed creates UpdateCustomerPreconditionFailed with default headers values
@@ -247,13 +255,13 @@ func NewUpdateCustomerPreconditionFailed() *UpdateCustomerPreconditionFailed {
 }
 
 // WithPayload adds the payload to the update customer precondition failed response
-func (o *UpdateCustomerPreconditionFailed) WithPayload(payload interface{}) *UpdateCustomerPreconditionFailed {
+func (o *UpdateCustomerPreconditionFailed) WithPayload(payload *ghcmessages.Error) *UpdateCustomerPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update customer precondition failed response
-func (o *UpdateCustomerPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateCustomerPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,16 +269,18 @@ func (o *UpdateCustomerPreconditionFailed) SetPayload(payload interface{}) {
 func (o *UpdateCustomerPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateCustomerUnprocessableEntityCode is the HTTP code returned for type UpdateCustomerUnprocessableEntity
 const UpdateCustomerUnprocessableEntityCode int = 422
 
-/*UpdateCustomerUnprocessableEntity Validation error
+/*UpdateCustomerUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateCustomerUnprocessableEntity
 */
@@ -314,11 +324,16 @@ func (o *UpdateCustomerUnprocessableEntity) WriteResponse(rw http.ResponseWriter
 // UpdateCustomerInternalServerErrorCode is the HTTP code returned for type UpdateCustomerInternalServerError
 const UpdateCustomerInternalServerErrorCode int = 500
 
-/*UpdateCustomerInternalServerError internal server error
+/*UpdateCustomerInternalServerError A server error occurred
 
 swagger:response updateCustomerInternalServerError
 */
 type UpdateCustomerInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateCustomerInternalServerError creates UpdateCustomerInternalServerError with default headers values
@@ -327,10 +342,25 @@ func NewUpdateCustomerInternalServerError() *UpdateCustomerInternalServerError {
 	return &UpdateCustomerInternalServerError{}
 }
 
+// WithPayload adds the payload to the update customer internal server error response
+func (o *UpdateCustomerInternalServerError) WithPayload(payload *ghcmessages.Error) *UpdateCustomerInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update customer internal server error response
+func (o *UpdateCustomerInternalServerError) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateCustomerInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
