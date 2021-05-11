@@ -82,6 +82,98 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
+// UpdateShipmentHandler updates shipments
+type UpdateShipmentHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MTOShipmentUpdater
+}
+
+// Handle updates shipments
+func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	payload := params.Body
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+
+		payload := payloadForValidationError(
+			"Empty body error",
+			"The MTO Shipment request body cannot be empty.",
+			h.GetTraceID(),
+			validate.NewErrors(),
+		)
+
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
+	}
+
+	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+	mtoShipment.ID = uuid.FromStringOrNil(params.ShipmentID.String())
+
+	// TODO: This doesn't really make sense...copied from internalapi/mto_shipment.go, but we're not checking the
+	// current status of the shipment, we're checking what status was passed in with the payload...at least if I'm
+	// understanding correctly. We could fetch the current move from the DB, but h.MTOShipmentUpdater.UpdateMTOShipment
+	// does that so we'd be fetching it twice -.-
+	if mtoShipment.Status != models.MTOShipmentStatusSubmitted {
+		logger.Error("Invalid mto shipment status: shipment in services counseling can only have submitted status")
+
+		payload := payloadForValidationError(
+			"Invalid shipment status",
+			"The MTO Shipment status should be SUBMITTED.",
+			h.GetTraceID(),
+			validate.NewErrors(),
+		)
+
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
+	}
+
+	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		case services.InvalidInputError:
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(
+				payloadForValidationError(
+					handlers.ValidationErrMessage,
+					err.Error(),
+					h.GetTraceID(),
+					e.ValidationErrors,
+				),
+			)
+		case services.PreconditionFailedError:
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
+			}
+
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		default:
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		}
+	}
+
+	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+
+	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
+}
+
 // PatchShipmentHandler patches shipments
 type PatchShipmentHandler struct {
 	handlers.HandlerContext
