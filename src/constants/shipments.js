@@ -10,6 +10,11 @@ export const shipmentTypes = {
   [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC]: 'HHG',
 };
 
+export const shipmentModificationTypes = {
+  CANCELED: 'CANCELED',
+  DIVERSION: 'DIVERSION',
+};
+
 export const mtoShipmentTypes = {
   [SHIPMENT_OPTIONS.HHG]: 'Household goods',
   [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC]: 'Household goods',
