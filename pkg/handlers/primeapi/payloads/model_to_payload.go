@@ -423,19 +423,32 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitHHGActualOrigin: Address(mtoServiceItem.SITOriginHHGActualAddress),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
-		var sitDepartureDate time.Time
+		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2 time.Time
+		var timeMilitary1, timeMilitary2 *string
+
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
+
 		firstContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+		timeMilitary1 = &firstContact.TimeMilitary
+		timeMilitary2 = &secondContact.TimeMilitary
+
+		if !firstContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate1 = firstContact.FirstAvailableDeliveryDate
+		}
+
+		if !secondContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate2 = firstContact.FirstAvailableDeliveryDate
+		}
 
 		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
-			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
-			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
-			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(timeMilitary1),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstAvailableDeliveryDate1),
+			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(timeMilitary2),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(firstAvailableDeliveryDate2),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),

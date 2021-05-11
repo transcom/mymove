@@ -503,7 +503,21 @@ paths:
 
         **DDFSIT**
 
-        **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+        **1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
+          * `firstAvailableDeliveryDate1`
+            * string <date>
+            * First available date that Prime can deliver SIT service item.
+          * `firstAvailableDeliveryDate2`
+            * string <date>
+            * Second available date that Prime can deliver SIT service item.
+          * `timeMilitary1`
+            * string\d{4}Z
+            * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+          * `timeMilitary2`
+            * string\d{4}Z
+            * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+
+        When a DDFSIT is requested, the API will auto-create the following group of service items:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
           * DDDSIT - Domestic destination SIT delivery
@@ -512,6 +526,7 @@ paths:
 
         **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
         Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
 
       operationId: createMTOServiceItem
       tags:
@@ -1221,19 +1236,23 @@ definitions:
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
             pattern: '\d{4}Z'
+            x-nullable: true
           firstAvailableDeliveryDate1:
             format: date
             type: string
             description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
             pattern: '\d{4}Z'
+            x-nullable: true
           firstAvailableDeliveryDate2:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
           sitEntryDate:
             format: date
             type: string
@@ -1247,10 +1266,6 @@ definitions:
             $ref: '#/definitions/Address'
         required:
           - reServiceCode
-          - timeMilitary1
-          - firstAvailableDeliveryDate1
-          - timeMilitary2
-          - firstAvailableDeliveryDate2
           - sitEntryDate
   MTOServiceItemDimension:
     description: Describes a dimension object for the MTOServiceItem.
