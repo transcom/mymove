@@ -149,6 +149,29 @@ func main() {
 	prime.InitUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
+	updateMTOShipmentStatusCommand := &cobra.Command{
+		Use:   "update-mto-shipment-status",
+		Short: "Update MTO shipment status",
+		Long: `
+  This command allows the Prime to update the MTO shipment status.
+  Currently, they are only allowed to updated a shipment to the "CANCELED" status.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain a body defining the request body.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/status
+  The file should contain json as follows:
+    {
+      "mtoShipmentID": <uuid string>,
+      "ifMatch": <etag>,
+      "body": <MtoShipmentRequestStatus>,
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.UpdateMTOShipmentStatus,
+		SilenceUsage: true,
+	}
+	prime.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(updateMTOShipmentStatusCommand)
+
 	updateMTOShipmentAddressCommand := &cobra.Command{
 		Use:   "update-mto-shipment-address",
 		Short: "Update MTO shipment address",
@@ -402,7 +425,7 @@ func main() {
 	prime.InitCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
-	updateMTOShipmentStatusCommand := &cobra.Command{
+	supportUpdateMTOShipmentStatusCommand := &cobra.Command{
 		Use:   "support-update-mto-shipment-status",
 		Short: "Update MTO shipment status for prime",
 		Long: `
@@ -422,8 +445,8 @@ func main() {
 		RunE:         support.UpdateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	support.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
-	root.AddCommand(updateMTOShipmentStatusCommand)
+	support.InitUpdateMTOShipmentStatusFlags(supportUpdateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(supportUpdateMTOShipmentStatusCommand)
 
 	getPaymentRequestEDI := &cobra.Command{
 		Use:   "support-get-payment-request-edi",
