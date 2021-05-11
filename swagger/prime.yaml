@@ -1019,7 +1019,7 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
-      organizationalClothingandIndividualEquipment:
+      organizationalClothingAndIndividualEquipment:
         type: boolean
         example: false
       storageInTransit:

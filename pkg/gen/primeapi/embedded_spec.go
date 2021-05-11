@@ -1179,7 +1179,7 @@ func init() {
           "x-nullable": true,
           "example": false
         },
-        "organizationalClothingandIndividualEquipment": {
+        "organizationalClothingAndIndividualEquipment": {
           "type": "boolean",
           "example": false
         },
@@ -3824,7 +3824,7 @@ func init() {
           "x-nullable": true,
           "example": false
         },
-        "organizationalClothingandIndividualEquipment": {
+        "organizationalClothingAndIndividualEquipment": {
           "type": "boolean",
           "example": false
         },

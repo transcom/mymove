@@ -34,8 +34,8 @@ type Entitlements struct {
 	// non temporary storage
 	NonTemporaryStorage *bool `json:"nonTemporaryStorage,omitempty"`
 
-	// organizational clothingand individual equipment
-	OrganizationalClothingandIndividualEquipment bool `json:"organizationalClothingandIndividualEquipment,omitempty"`
+	// organizational clothing and individual equipment
+	OrganizationalClothingAndIndividualEquipment bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
 
 	// privately owned vehicle
 	PrivatelyOwnedVehicle *bool `json:"privatelyOwnedVehicle,omitempty"`

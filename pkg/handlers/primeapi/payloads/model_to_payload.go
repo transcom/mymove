@@ -147,7 +147,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
 		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
-		OrganizationalClothingandIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
+		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		StorageInTransit: sit,
 		TotalDependents:  totalDependents,
 		TotalWeight:      totalWeight,
