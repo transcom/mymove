@@ -2,6 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 
 import ExpandableServiceItemRow from '../ExpandableServiceItemRow/ExpandableServiceItemRow';
+import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModificationTag';
 
 import styles from './PaymentRequestDetails.module.scss';
 
@@ -9,6 +10,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
 import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -39,6 +41,10 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+              <ShipmentModificationTag
+                className={styles.ShipmentModificationTag}
+                shipmentModificationType={shipmentModificationTypes.DIVERSION}
+              />
             </h3>
           </div>
           {(shipmentDepartureDate || shipmentAddress) && (
