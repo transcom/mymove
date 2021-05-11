@@ -2226,9 +2226,6 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
-        "diversion": {
-          "type": "boolean"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -4921,9 +4918,6 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
-        "diversion": {
-          "type": "boolean"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,

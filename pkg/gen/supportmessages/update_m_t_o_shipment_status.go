@@ -19,9 +19,6 @@ import (
 // swagger:model UpdateMTOShipmentStatus
 type UpdateMTOShipmentStatus struct {
 
-	// diversion
-	Diversion bool `json:"diversion,omitempty"`
-
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
