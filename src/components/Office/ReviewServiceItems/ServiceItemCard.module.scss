@@ -58,7 +58,6 @@
 
   .statusOption {
     @include u-padding(0);
-    @include u-shadow(2);
     @include u-border(1px);
     border-color: $base-light;
     border-radius: units(2px);
@@ -70,7 +69,7 @@
         margin: 0;
       }
 
-      .usa-radio__input:checked + .usa-radio__label {
+      .usa-radio__input:checked+.usa-radio__label {
         background-color: $link-light;
       }
 
@@ -81,10 +80,19 @@
           margin-top: 0;
         }
       }
+
+      p {
+        @include u-margin-top(1);
+        @include u-margin-bottom(0);
+      }
+    }
+
+    &.selected {
+      @include u-shadow(2);
     }
   }
 
-  .statusOption + .statusOption {
+  .statusOption+.statusOption {
     @include u-margin-top(1);
   }
 
@@ -94,7 +102,7 @@
     @include u-text('light');
   }
 
-  .statusOption + .clearStatus {
+  .statusOption+.clearStatus {
     margin-top: 3px;
   }
 

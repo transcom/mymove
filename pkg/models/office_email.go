@@ -13,7 +13,7 @@ import (
 type OfficeEmail struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
 	TransportationOfficeID uuid.UUID            `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
+	TransportationOffice   TransportationOffice `belongs_to:"transportation_office" fk_id:"transportation_office_id"`
 	Email                  string               `json:"email" db:"email"`
 	Label                  *string              `json:"label" db:"label"`
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`

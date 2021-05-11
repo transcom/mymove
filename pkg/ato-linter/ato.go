@@ -1,7 +1,9 @@
 package atolinter
 
 import (
+	"fmt"
 	"go/ast"
+	"regexp"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
@@ -18,6 +20,15 @@ var ATOAnalyzer = &analysis.Analyzer{
 }
 
 const disableNoSec = "#nosec"
+const disableErrcheck = "nolint:errcheck"
+const disableStaticcheck = "lint:ignore"
+const disableStaticcheckFile = "lint:file-ignore"
+
+var linters = []string{disableNoSec, disableErrcheck, disableStaticcheck, disableStaticcheckFile}
+var lintersString = strings.Join(linters, "|")
+
+var lintersRegex = regexp.MustCompile(fmt.Sprintf("(?P<linterDisabled>%v)", lintersString))
+
 const validatorStatusLabel = "RA Validator Status:"
 
 var validatorStatuses = map[string]bool{
@@ -29,37 +40,57 @@ var validatorStatuses = map[string]bool{
 	"BAD PRACTICE":        true,
 }
 
-// check if comment group has disabling of gosec in it but it doesn't have a specific rule it is disabling
-func containsGosecDisableNoRule(comments []*ast.Comment) bool {
+func findDisabledLinter(comments []*ast.Comment) (bool, string) {
 	for _, comment := range comments {
-		if strings.Contains(comment.Text, disableNoSec) {
-			individualCommentArr := strings.Split(comment.Text, " ")
-			for index, str := range individualCommentArr {
-				if str == disableNoSec && index == len(individualCommentArr)-1 {
-					return true
-				}
-			}
+		match := lintersRegex.FindStringSubmatch(comment.Text)
+
+		if match == nil {
+			continue
+		}
+
+		return true, match[1]
+	}
+
+	return false, ""
+}
+
+func checkForDisabledRule(linter string, comments []*ast.Comment) bool {
+	var rulePattern string
+
+	switch linter {
+	case disableNoSec:
+		rulePattern = "G\\d{3}"
+	case disableStaticcheck, disableStaticcheckFile:
+		rulePattern = "S[AT]?\\d{4}"
+	}
+
+	return containsDisableWithoutRule(linter, rulePattern, comments)
+}
+
+func containsDisableWithoutRule(linter string, rulePattern string, comments []*ast.Comment) bool {
+	for _, comment := range comments {
+		regex := regexp.MustCompile(fmt.Sprintf("(?P<linter>%v) ?(?P<rule>%s)?", linter, rulePattern))
+
+		match := regex.FindStringSubmatch(comment.Text)
+
+		if match == nil {
+			continue
+		}
+
+		if match[2] == "" {
+			return true
 		}
 	}
 	return false
 }
 
-func containsGosecNoAnnotation(comments []*ast.Comment) bool {
+func containsDisabledLinterWithoutAnnotation(comments []*ast.Comment) bool {
 	for _, comment := range comments {
 		if strings.Contains(comment.Text, validatorStatusLabel) {
 			return false
 		}
 	}
 	return true
-}
-
-func containsNosec(comments []*ast.Comment) bool {
-	for _, comment := range comments {
-		if strings.Contains(comment.Text, disableNoSec) {
-			return true
-		}
-	}
-	return false
 }
 
 func containsAnnotationNotApproved(comments []*ast.Comment) bool {
@@ -86,34 +117,41 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	// pass.ResultOf[inspect.Analyzer] will be set if we've added inspect.Analyzer to Requires.
 	inspector := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 	nodeFilter := []ast.Node{ // filter needed nodes: visit only them
-		(*ast.CommentGroup)(nil),
+		(*ast.File)(nil),
 	}
 
 	inspector.Preorder(nodeFilter, func(node ast.Node) {
-		comments := node.(*ast.CommentGroup)
-		commentsContainNosec := containsNosec(comments.List)
+		file := node.(*ast.File)
+		comments := file.Comments
 
-		if !commentsContainNosec {
-			return
-		}
+		for _, commentGroup := range comments {
+			linterDisabled, linter := findDisabledLinter(commentGroup.List)
 
-		containsDisablingGosecWithNoReason := containsGosecDisableNoRule(comments.List)
+			if !linterDisabled {
+				continue
+			}
 
-		if containsDisablingGosecWithNoReason {
-			pass.Reportf(node.Pos(), "Please provide the gosec rule that is being disabled")
-			return
-		}
+			switch linter {
+			case disableNoSec, disableStaticcheck, disableStaticcheckFile:
+				missingDisabledRule := checkForDisabledRule(linter, commentGroup.List)
 
-		containsDisablingGosecNoAnnotation := containsGosecNoAnnotation(comments.List)
-		if containsDisablingGosecNoAnnotation {
-			pass.Reportf(node.Pos(), "Disabling of gosec must have an annotation associated with it. Please visit https://docs.google.com/document/d/1qiBNHlctSby0RZeaPzb-afVxAdA9vlrrQgce00zjDww/edit#heading=h.b2vss780hqfi")
-			return
-		}
+				if missingDisabledRule {
+					pass.Reportf(commentGroup.Pos(), "Please provide the rule that is being disabled")
+					continue
+				}
+			}
 
-		containsAnnotationNotApproved := containsAnnotationNotApproved(comments.List)
-		if containsAnnotationNotApproved {
-			pass.Reportf(node.Pos(), "Annotation needs approval from an ISSO")
-			return
+			containsDisabledLinterWithoutAnnotation := containsDisabledLinterWithoutAnnotation(commentGroup.List)
+			if containsDisabledLinterWithoutAnnotation {
+				pass.Reportf(commentGroup.Pos(), "Disabling of linter must have an annotation associated with it. Please visit https://github.com/transcom/mymove/wiki/guide-to-static-analysis-annotations-for-disabled-Linters#guide-to-static-analysis-annotations-for-disabled-linters")
+				continue
+			}
+
+			containsAnnotationNotApproved := containsAnnotationNotApproved(commentGroup.List)
+			if containsAnnotationNotApproved {
+				pass.Reportf(commentGroup.Pos(), "Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more info see https://github.com/transcom/mymove/wiki/guide-to-static-analysis-security-workflow#guide-to-static-analysis-security-workflow")
+				continue
+			}
 		}
 	})
 

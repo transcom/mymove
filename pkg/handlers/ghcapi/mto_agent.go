@@ -42,7 +42,7 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID.String()),
 	}
 	var mtoAgents models.MTOAgents
-	err = h.FetchRecordList(&mtoAgents, queryFilters, query.NewQueryAssociations([]services.QueryAssociation{}), nil, nil)
+	err = h.FetchRecordList(&mtoAgents, queryFilters, nil, nil, nil)
 	// return errors
 	if err != nil {
 		if err.Error() == "FETCH_NOT_FOUND" {

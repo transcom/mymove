@@ -60,6 +60,8 @@ jest.mock('hooks/queries', () => ({
             privatelyOwnedVehicle: true,
             proGearWeight: 2000,
             proGearWeightSpouse: 500,
+            requiredMedicalEquipmentWeight: 1000,
+            organizationalClothingAndIndividualEquipment: true,
             storageInTransit: 2,
             totalDependents: 1,
             totalWeight: 5000,
@@ -95,9 +97,33 @@ describe('MoveAllowances page', () => {
   });
 
   it('renders displays the allowances in the sidebar form', () => {
-    expect(wrapper.find({ 'data-testid': 'weightAllowance' }).text()).toBe('5,000 lbs');
-    expect(wrapper.find({ 'data-testid': 'proGearWeight' }).text()).toBe('2,000 lbs');
-    expect(wrapper.find({ 'data-testid': 'spouseProGearWeight' }).text()).toBe('500 lbs');
-    expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toBe('2 days');
+    // Pro-gear
+    expect(wrapper.find(`input[data-testid="proGearWeightInput"]`).getDOMNode().value).toBe('2,000');
+
+    // Pro-gear spouse
+    expect(wrapper.find(`input[data-testid="proGearWeightSpouseInput"]`).getDOMNode().value).toBe('500');
+
+    // RME
+    expect(wrapper.find(`input[data-testid="rmeInput"]`).getDOMNode().value).toBe('1,000');
+
+    // Branch
+    expect(wrapper.find(`select[data-testid="branchInput"]`).getDOMNode().value).toBe('ARMY');
+
+    // Rank
+    expect(wrapper.find(`select[data-testid="rankInput"]`).getDOMNode().value).toBe('E_1');
+
+    // OCIE
+    expect(
+      wrapper.find(`input[name="organizationalClothingAndIndividualEquipment"]`).getDOMNode().checked,
+    ).toBeTruthy();
+
+    // Weight allowance
+    expect(wrapper.find('dd').at(0).text()).toBe('5,000 lbs');
+
+    // Storage in-transit
+    expect(wrapper.find('dd').at(1).text()).toBe('2 days');
+
+    // Dependents authorized
+    expect(wrapper.find(`input[name="dependentsAuthorized"]`).getDOMNode().checked).toBeTruthy();
   });
 });

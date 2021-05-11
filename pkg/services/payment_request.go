@@ -2,6 +2,7 @@ package services
 
 import (
 	"io"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -48,7 +49,7 @@ type PaymentRequestUploadCreator interface {
 // PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
 //go:generate mockery -name PaymentRequestReviewedProcessor
 type PaymentRequestReviewedProcessor interface {
-	ProcessReviewedPaymentRequest() error
+	ProcessReviewedPaymentRequest()
 	ProcessAndLockReviewedPR(pr models.PaymentRequest) error
 }
 
@@ -62,7 +63,7 @@ type FetchPaymentRequestListParams struct {
 	Status                 []string
 	Page                   *int64
 	PerPage                *int64
-	SubmittedAt            *string
+	SubmittedAt            *time.Time
 	Sort                   *string
 	Order                  *string
 }

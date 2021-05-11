@@ -47,8 +47,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding payment service item for status update with ID: %s", params.PaymentServiceItemID), zap.Error(err))
-		payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(payload)
+		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 	}
 	// Create a model object to use for the update and set the status
 	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
@@ -80,16 +79,20 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	verrs, err := h.UpdateOne(&paymentServiceItem, &params.IfMatch)
 	// Using a switch to match error causes to appropriate return type in gen code
 	if err != nil {
+		logger.Error("Error updating payment service item status", zap.Error(err))
+
 		switch err.(type) {
 		case query.StaleIdentifierError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
-			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(payload)
+			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString("Error updating payment service item status")})
 		}
 	}
 	if verrs != nil {
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(verrs.String())})
+		payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceID(), verrs)
+		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 	}
 
 	_, err = event.TriggerEvent(event.Event{

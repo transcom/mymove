@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
-import DetailsTable from '../../../components/Office/DetailsTable/DetailsTable';
-import CustomerInfo from '../../../components/Office/CustomerInfo';
+import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
+import ServicesCounselingOrdersList from '../../../components/Office/DefinitionLists/ServicesCounselingOrdersList';
+import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
+import { SubmitMoveConfirmationModal } from '../../../components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
@@ -17,12 +20,12 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MOVES } from 'constants/queryKeys';
 import { MOVE_STATUSES } from 'shared/constants';
-import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
 
   const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
@@ -48,6 +51,14 @@ const ServicesCounselingMoveDetails = () => {
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
   };
 
+  const ordersInfo = {
+    currentDutyStation: order.originDutyStation,
+    newDutyStation: order.destinationDutyStation,
+    issuedDate: order.date_issued,
+    reportByDate: order.report_by_date,
+    ordersType: order.order_type,
+  };
+
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatusServiceCounselingCompleted, {
     onSuccess: (data) => {
@@ -66,10 +77,21 @@ const ServicesCounselingMoveDetails = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const handleShowCancellationModal = () => {
+    setIsSubmitModalVisible(true);
+  };
+
+  const handleConfirmSubmitMoveDetails = () => {
+    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+    setIsSubmitModalVisible(false);
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
-        {/* LeftNav here */}
+        {isSubmitModalVisible && (
+          <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
+        )}
 
         <GridContainer
           className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}
@@ -88,37 +110,51 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                <Button
-                  data-testid="submitMoveDetailsBtn"
-                  type="button"
-                  onClick={() => {
-                    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
-                  }}
-                >
+                <Button data-testid="submitMoveDetailsBtn" type="button" onClick={handleShowCancellationModal}>
                   Submit move details
                 </Button>
               )}
             </Grid>
           </Grid>
+          <div className={styles.section} id="orders">
+            <DetailsPanel
+              title="Orders"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  View and edit orders
+                </Link>
+              }
+            >
+              <ServicesCounselingOrdersList ordersInfo={ordersInfo} />
+            </DetailsPanel>
+          </div>
           <div className={styles.section} id="allowances">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <AllowancesTable info={allowancesInfo} />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel
+              title="Allowances"
+              editButton={
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                    Edit allowances
+                  </Link>
+                )
+              }
+            >
+              <AllowancesList info={allowancesInfo} />
+            </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <DetailsTable
+            <DetailsPanel
               title="Customer info"
-              editable
-              editTitle="Edit customer info"
-              editTestLabel="edit-customer-info"
-              editLinkLocation="#"
+              editButton={
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                    Edit customer info
+                  </Link>
+                )
+              }
             >
-              <CustomerInfo customerInfo={customerInfo} />
-            </DetailsTable>
+              <CustomerInfoList customerInfo={customerInfo} />
+            </DetailsPanel>
           </div>
         </GridContainer>
       </div>

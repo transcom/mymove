@@ -19,7 +19,6 @@ import (
 type testOfficeUserQueryBuilder struct {
 	fakeFetchOne             func(model interface{}) error
 	fakeCreateOne            func(models interface{}) (*validate.Errors, error)
-	fakeUpdateOne            func(models interface{}, eTag *string) (*validate.Errors, error)
 	fakeQueryForAssociations func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
 }
 

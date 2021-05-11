@@ -59,12 +59,16 @@ const (
 	MTOShipmentStatusRejected MTOShipmentStatus = "REJECTED"
 	// MTOShipmentStatusCancellationRequested is the status that indicates the TOO has requested that the Prime cancel the shipment
 	MTOShipmentStatusCancellationRequested MTOShipmentStatus = "CANCELLATION_REQUESTED"
+	// MTOShipmentStatusCanceled is the status that indicates that a shipment has been canceled by the Prime
+	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
+	// MTOShipmentStatusDiversionRequested is the status that indicates that teh TOO has requested that the prime divert a shipment
+	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
-	MoveTaskOrder                    Move              `belongs_to:"moves"`
+	MoveTaskOrder                    Move              `belongs_to:"moves" fk_id:"move_id"`
 	MoveTaskOrderID                  uuid.UUID         `db:"move_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
@@ -74,21 +78,23 @@ type MTOShipment struct {
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
 	RequiredDeliveryDate             *time.Time        `db:"required_delivery_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
-	PickupAddress                    *Address          `belongs_to:"addresses"`
+	CounselorRemarks                 *string           `db:"counselor_remarks"`
+	PickupAddress                    *Address          `belongs_to:"addresses" fk_id:"pickup_address_id"`
 	PickupAddressID                  *uuid.UUID        `db:"pickup_address_id"`
-	DestinationAddress               *Address          `belongs_to:"addresses"`
+	DestinationAddress               *Address          `belongs_to:"addresses" fk_id:"destination_address_id"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
 	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
-	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
+	SecondaryPickupAddress           *Address          `belongs_to:"addresses" fk_id:"secondary_pickup_address_id"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
-	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`
+	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
 	SecondaryDeliveryAddressID       *uuid.UUID        `db:"secondary_delivery_address_id"`
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
+	Diversion                        bool              `db:"diversion"`
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
 	CreatedAt                        time.Time         `db:"created_at"`
@@ -107,6 +113,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusSubmitted),
 		string(MTOShipmentStatusDraft),
 		string(MTOShipmentStatusCancellationRequested),
+		string(MTOShipmentStatusCanceled),
+		string(MTOShipmentStatusDiversionRequested),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

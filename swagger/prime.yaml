@@ -888,6 +888,8 @@ definitions:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
+      diversion:
+        type: boolean
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update
@@ -1071,10 +1073,6 @@ definitions:
       availableToPrimeAt:
         format: date-time
         type: string
-        x-nullable: true
-        readOnly: true
-      isCanceled:
-        type: boolean
         x-nullable: true
         readOnly: true
       updatedAt:
@@ -1482,6 +1480,9 @@ definitions:
           - SUBMITTED
           - REJECTED
           - CANCELLATION_REQUESTED
+          - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true

@@ -44,7 +44,7 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(pickupPath string
 			ProcessEndedAt:   time.Now(),
 			NumEDIsProcessed: numProcessed,
 		}
-		s.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+		s.logger.Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
 
 		verrs, err := s.db.ValidateAndCreate(&ediProcessing)
 		if err != nil {

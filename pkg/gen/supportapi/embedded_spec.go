@@ -1583,6 +1583,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1747,12 +1750,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "description": "Indicated this MoveTaskOrder has been canceled.",
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -2226,6 +2223,9 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
+        "diversion": {
+          "type": "boolean"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2237,7 +2237,8 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
@@ -4273,6 +4274,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -4437,12 +4441,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "description": "Indicated this MoveTaskOrder has been canceled.",
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -4916,6 +4914,9 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
+        "diversion": {
+          "type": "boolean"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -4927,7 +4928,8 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }

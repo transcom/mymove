@@ -39,10 +39,9 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, associations, pagination, ordering)
+	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
