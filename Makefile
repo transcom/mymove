@@ -192,18 +192,18 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/gin: .check_go_version.stamp .check_gopath.stamp
+bin/gin: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
-bin/soda: .check_go_version.stamp .check_gopath.stamp
+bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v5/soda
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
-bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
+bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
 # No static linking / $(LDFLAGS) because mockery is only used for testing
-bin/mockery: .check_go_version.stamp .check_gopath.stamp
+bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/mockery github.com/vektra/mockery/v2
 
 ### Cert Targets
