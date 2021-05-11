@@ -204,7 +204,7 @@ bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
 
 # No static linking / $(LDFLAGS) because mockery is only used for testing
 bin/mockery: .check_go_version.stamp .check_gopath.stamp
-	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
+	go build -o bin/mockery github.com/vektra/mockery/v2
 
 ### Cert Targets
 
