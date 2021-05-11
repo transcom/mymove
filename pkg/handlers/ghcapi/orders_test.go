@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -207,6 +208,63 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	suite.Equal(body.Grade, ordersPayload.Grade)
 	suite.Equal(body.Agency, ordersPayload.Agency)
 	suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
+}
+
+func (suite *HandlerSuite) TestUpdateServicesCounselorOrderHandlerIntegration() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeServicesCounselor,
+	})
+
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+
+	newAuthorizedWeight := int64(10000)
+	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
+	affiliation := ghcmessages.BranchAIRFORCE
+	grade := ghcmessages.GradeO5
+	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+	body := &ghcmessages.UpdateOrderPayload{
+		AuthorizedWeight:     &newAuthorizedWeight,
+		Agency:               affiliation,
+		DependentsAuthorized: swag.Bool(true),
+		Grade:                &grade,
+		IssueDate:            handlers.FmtDatePtr(&issueDate),
+		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
+		OrdersType:           "RETIREMENT",
+		OrdersTypeDetail:     &ordersTypeDetail,
+		DepartmentIndicator:  &deptIndicator,
+		OrdersNumber:         handlers.FmtString("ORDER100"),
+		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  handlers.FmtString("987654321"),
+	}
+
+	params := orderop.UpdateOrderParams{
+		HTTPRequest: request,
+		OrderID:     strfmt.UUID(order.ID.String()),
+		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := UpdateOrderHandler{
+		context,
+		orderservice.NewOrderUpdater(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&orderop.UpdateOrderBadRequest{}, response)
+
 }
 
 // Test that an order notification got stored Successfully
