@@ -250,6 +250,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// Check for required fields on a DDFSIT
 		if model.ReService.Code == models.ReServiceCodeDDFSIT {
 			verrs := validateDDFSIT(*destsit)
+
 			if verrs.HasAny() {
 				return nil, verrs
 			}
