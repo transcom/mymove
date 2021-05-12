@@ -181,7 +181,12 @@ const ServiceItemCard = ({
             <Form className={styles.form} onSubmit={submitForm}>
               <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
                 <div className={styles.cardHeader}>
-                  <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+                  <h3>
+                    {shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}
+                    {mtoShipmentModificationType && (
+                      <ShipmentModificationTag shipmentModificationType={mtoShipmentModificationType} />
+                    )}
+                  </h3>
                   {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
                     <small className={styles.addressBlock}>
                       {mtoShipmentDepartureDate && (
