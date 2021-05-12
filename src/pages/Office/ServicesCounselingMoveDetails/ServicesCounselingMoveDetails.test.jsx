@@ -166,8 +166,14 @@ describe('MoveDetails page', () => {
       expect(wrapper.find('button[data-testid="submitMoveDetailsBtn"]').length).toBe(1);
     });
 
+    it('renders the Orders Definition List', () => {
+      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
+      expect(wrapper.find('[data-testid="currentDutyStation"]').exists()).toBe(true);
+    });
+
     it('renders the Allowances Table', () => {
       expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
+      expect(wrapper.find('[data-testid="branchRank"]').exists()).toBe(true);
     });
 
     it('allows the service counseler to use the modal as expected', () => {

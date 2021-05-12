@@ -166,8 +166,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment request ", h.GetTraceID())
-			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payload)
+			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:

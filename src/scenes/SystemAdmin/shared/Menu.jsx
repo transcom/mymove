@@ -24,7 +24,10 @@ const Menu = (props) => {
         leftIcon={<ExitIcon />}
         onClick={(e) => {
           e.preventDefault();
-          LogoutUser();
+          LogoutUser().then(() => {
+            window.localStorage.setItem('hasLoggedOut', true);
+            window.location.href = '/';
+          });
         }}
       />
     </div>

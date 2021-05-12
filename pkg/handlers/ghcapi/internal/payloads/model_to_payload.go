@@ -297,6 +297,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
+	}
+
 	if mtoShipment.ApprovedDate != nil {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}

@@ -21,8 +21,8 @@ type ReTaskOrderFee struct {
 	UpdatedAt      time.Time  `json:"updated_at" db:"updated_at"`
 
 	//Associations
-	ContractYear ReContractYear `belongs_to:"re_contract_year"`
-	Service      ReService      `belongs_to:"re_service"`
+	ContractYear ReContractYear `belongs_to:"re_contract_year" fk_id:"contract_year_id"`
+	Service      ReService      `belongs_to:"re_service" fk_id:"service_id"`
 }
 
 // ReTaskOrderFees is not required by pop and may be deleted

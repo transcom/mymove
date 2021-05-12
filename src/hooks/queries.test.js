@@ -282,6 +282,7 @@ describe('usePaymentRequestQueries', () => {
       paymentRequest: undefined,
       paymentRequests: undefined,
       paymentServiceItems: undefined,
+      mtoShipments: undefined,
       isLoading: true,
       isError: false,
       isSuccess: false,
@@ -299,6 +300,50 @@ describe('usePaymentRequestQueries', () => {
         },
       },
       paymentServiceItems: {},
+      mtoShipments: [
+        {
+          shipmentType: 'HHG_LONGHAUL_DOMESTIC',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic linehaul',
+            },
+            {
+              reServiceName: 'Fuel surcharge',
+            },
+          ],
+        },
+        {
+          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+          ],
+          mtoServiceItems: [
+            {
+              reServiceName: 'Domestic origin price',
+            },
+            {
+              reServiceName: 'Domestic unpacking',
+            },
+          ],
+        },
+      ],
       isLoading: false,
       isError: false,
       isSuccess: true,

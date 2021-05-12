@@ -57,6 +57,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
+
+	// TODO: These associations could be preloaded, but it will require Pop 5.3.4 to land first as it
+	//   has a fix for using a "has_many" association that has a pointer-based foreign key (like the
+	//   case with "MTOServiceItems.ReService"). There appear to be other changes that will need to be
+	//   made for Pop 5.3.4 though (see https://ustcdp3.slack.com/archives/CP497TGAU/p1620421441217700).
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
 		query.NewQueryAssociation("MTOServiceItems.ReService"),
 		query.NewQueryAssociation("MTOAgents"),

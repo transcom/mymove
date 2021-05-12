@@ -55,34 +55,78 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates customer info by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Updates customer info",
+        "operationId": "updateCustomer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/UpdateCustomerPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -123,46 +167,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -186,34 +209,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -235,34 +243,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -303,46 +296,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -375,34 +347,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -454,40 +411,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -527,34 +469,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -576,34 +503,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -644,40 +556,22 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -736,46 +630,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -841,52 +714,28 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
+            "$ref": "#/responses/Conflict"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -928,52 +777,28 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
+            "$ref": "#/responses/Conflict"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -997,31 +822,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The locator provided is invalid"
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1054,22 +867,13 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1103,22 +907,13 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1152,22 +947,13 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1228,34 +1014,19 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
+            "$ref": "#/responses/Conflict"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1297,28 +1068,16 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1352,34 +1111,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1420,43 +1164,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was unauthenticated",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was unauthorized",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "internal server error"
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1490,34 +1216,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1551,34 +1262,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1639,46 +1335,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -1806,16 +1481,10 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -1917,16 +1586,10 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2037,16 +1700,10 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2077,34 +1734,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2933,6 +2575,11 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
           "format": "date"
@@ -3820,6 +3467,39 @@ func init() {
         "isValid": {
           "type": "boolean",
           "example": true
+        }
+      }
+    },
+    "UpdateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "backup_contact": {
+          "x-nullable": true,
+          "$ref": "#/definitions/BackupContact"
+        },
+        "current_address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         }
       }
     },
@@ -4058,6 +3738,12 @@ func init() {
       "schema": {
         "$ref": "#/definitions/Error"
       }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   },
   "tags": [
@@ -4133,46 +3819,111 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates customer info by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Updates customer info",
+        "operationId": "updateCustomer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4216,50 +3967,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4267,10 +4003,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4297,46 +4030,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4361,46 +4079,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4444,50 +4147,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4495,10 +4183,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4534,46 +4219,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4628,55 +4298,43 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4719,46 +4377,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4783,46 +4426,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4866,55 +4494,37 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4976,50 +4586,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5027,10 +4622,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5099,59 +4691,41 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "409": {
             "description": "Conflict error",
             "schema": {
-              "description": "Conflict error",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5159,10 +4733,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5207,59 +4778,41 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "409": {
             "description": "Conflict error",
             "schema": {
-              "description": "Conflict error",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5267,10 +4820,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5295,42 +4845,33 @@ func init() {
             }
           },
           "400": {
-            "description": "The locator provided is invalid"
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5366,14 +4907,11 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5381,10 +4919,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5421,14 +4956,11 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5436,10 +4968,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5476,14 +5005,11 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5491,10 +5017,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5558,32 +5081,23 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "409": {
             "description": "Conflict error",
             "schema": {
-              "description": "Conflict error",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5591,10 +5105,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5639,23 +5150,17 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5663,10 +5168,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5703,46 +5205,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5786,56 +5273,44 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
-            "description": "The request was unauthenticated",
+            "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The request was unauthorized",
+            "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "internal server error"
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
@@ -5871,46 +5346,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5947,46 +5407,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6050,50 +5495,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -6101,10 +5531,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6235,19 +5662,13 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6352,19 +5773,13 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6478,19 +5893,13 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6524,46 +5933,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -7393,6 +6787,11 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
           "format": "date"
@@ -8280,6 +7679,39 @@ func init() {
         "isValid": {
           "type": "boolean",
           "example": true
+        }
+      }
+    },
+    "UpdateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "backup_contact": {
+          "x-nullable": true,
+          "$ref": "#/definitions/BackupContact"
+        },
+        "current_address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         }
       }
     },
@@ -8523,6 +7955,12 @@ func init() {
       "description": "A server error occurred",
       "schema": {
         "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
       }
     }
   },
