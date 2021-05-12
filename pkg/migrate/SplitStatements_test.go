@@ -12,6 +12,7 @@ package migrate
 import (
 	"bufio"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -194,6 +195,44 @@ func TestSplitStatementsCopyFromStdinWithSemicolons(t *testing.T) {
 	}
 	require.Equal(t, i, 3)
 }
+
+func TestSplitStatementsCopyFromStdinTrailingEmptyColumns(t *testing.T) {
+	// Data loaded with COPY ... FROM stdin has columns separated by tabs. Empty columns at the end of a record will leave
+	// tabs at the end of the line. We want to make sure that this trailing whitespace is not trimmed because it is significant.
+	// We're using a string for this test case instead of a file so the trailing whitespace doesn't accidentally get trimmed off by
+	// an aggressive text editor.
+	originalStatements := []string{
+		"COPY public.users (id, login_gov_uuid, login_gov_email, created_at, updated_at, active, current_mil_session_id, current_admin_session_id, current_office_session_id) FROM stdin;",
+		"00000000-0000-0000-0000-000000000000\t\\N\texample@example.com\t2021-05-12\t20:09:04.701587\t2021-05-12\t20:09:04.701587\tt\t\t\t",
+		"11111111-1111-1111-1111-111111111111\t\\N\texample@example.com\t2021-05-12\t20:09:04.701587\t2021-05-12\t20:09:04.701587\tt\t\t\t",
+		"\\.",
+	}
+	text := strings.Join(originalStatements, "\n")
+	f := strings.NewReader(text)
+	lines := make(chan string, 1000)
+	dropComments := true
+	dropSearchPath := true
+
+	go func() {
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
+		}
+		close(lines)
+	}()
+
+	wait := 10 * time.Millisecond
+	statements := make(chan string, 1000)
+	go SplitStatements(lines, statements, wait)
+
+	i := 0
+	for stmt := range statements {
+		require.Equal(t, originalStatements[i], stmt)
+		i++
+	}
+	require.Equal(t, i, 4)
+}
+
 func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 
 	// Load the fixture with the sql example

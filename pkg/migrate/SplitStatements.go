@@ -138,7 +138,6 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		}
 
 		// If not quoted and there's a quote, increase our quote level.
-		//if char == '\'' {
 		if char == '\'' && !inCopyStatement {
 			str, err := in.Range(i, i+2)
 			if err != nil {

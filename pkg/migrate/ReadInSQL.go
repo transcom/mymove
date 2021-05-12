@@ -28,5 +28,5 @@ func ReadInSQLLine(line string, dropComments bool, dropSearchPath bool) string {
 		return ""
 	}
 
-	return strings.TrimSpace(line)
+	return line
 }
