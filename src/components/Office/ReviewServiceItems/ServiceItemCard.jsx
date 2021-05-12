@@ -343,7 +343,7 @@ ServiceItemCard.defaultProps = {
   mtoShipmentDepartureDate: '',
   mtoShipmentDestinationAddress: '',
   mtoShipmentPickupAddress: '',
-  mtoShipmentModificationType: '',
+  mtoShipmentModificationType: undefined,
   mtoServiceItemName: null,
   status: undefined,
   rejectionReason: '',

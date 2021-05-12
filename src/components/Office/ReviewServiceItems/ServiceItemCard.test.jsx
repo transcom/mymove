@@ -9,6 +9,7 @@ import ServiceItemCard from './ServiceItemCard';
 
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 const basicServiceItemCard = {
   id: '1',
@@ -44,6 +45,16 @@ const needsReviewServiceItemCard = {
 const reviewedServiceItemCard = {
   ...needsReviewServiceItemCard,
   requestComplete: true,
+};
+
+const cancelledShipmentServiceItemCard = {
+  ...needsReviewServiceItemCard,
+  mtoShipmentModificationType: shipmentModificationTypes.CANCELLED,
+};
+
+const divertedShipmentServiceItemCard = {
+  ...needsReviewServiceItemCard,
+  mtoShipmentModificationType: shipmentModificationTypes.DIVERSION,
 };
 
 describe('ServiceItemCard component', () => {
@@ -169,6 +180,20 @@ describe('ServiceItemCard component', () => {
     it('does not render calculations toggle when the service item calculations are not implemented', () => {
       const component = mount(<ServiceItemCard {...reviewedBasicServiceItemCard} />);
       expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
+    });
+  });
+
+  describe('When a service item has a shipment that was cancelled ', () => {
+    const component = mount(<ServiceItemCard {...cancelledShipmentServiceItemCard} />);
+    it('there is a cancelled tag displayed', () => {
+      expect(component.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELLED);
+    });
+  });
+
+  describe('When a service item has a shipment that was diverted ', () => {
+    const component = mount(<ServiceItemCard {...divertedShipmentServiceItemCard} />);
+    it('there is a diversion tag displayed', () => {
+      expect(component.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.DIVERSION);
     });
   });
 });
