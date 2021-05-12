@@ -69,7 +69,7 @@ type GetEntitlementsBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetEntitlementsBadRequest creates GetEntitlementsBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewGetEntitlementsBadRequest() *GetEntitlementsBadRequest {
 }
 
 // WithPayload adds the payload to the get entitlements bad request response
-func (o *GetEntitlementsBadRequest) WithPayload(payload interface{}) *GetEntitlementsBadRequest {
+func (o *GetEntitlementsBadRequest) WithPayload(payload *ghcmessages.Error) *GetEntitlementsBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get entitlements bad request response
-func (o *GetEntitlementsBadRequest) SetPayload(payload interface{}) {
+func (o *GetEntitlementsBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *GetEntitlementsBadRequest) SetPayload(payload interface{}) {
 func (o *GetEntitlementsBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type GetEntitlementsUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetEntitlementsUnauthorized creates GetEntitlementsUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewGetEntitlementsUnauthorized() *GetEntitlementsUnauthorized {
 }
 
 // WithPayload adds the payload to the get entitlements unauthorized response
-func (o *GetEntitlementsUnauthorized) WithPayload(payload interface{}) *GetEntitlementsUnauthorized {
+func (o *GetEntitlementsUnauthorized) WithPayload(payload *ghcmessages.Error) *GetEntitlementsUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get entitlements unauthorized response
-func (o *GetEntitlementsUnauthorized) SetPayload(payload interface{}) {
+func (o *GetEntitlementsUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *GetEntitlementsUnauthorized) SetPayload(payload interface{}) {
 func (o *GetEntitlementsUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type GetEntitlementsForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetEntitlementsForbidden creates GetEntitlementsForbidden with default headers values
@@ -163,13 +167,13 @@ func NewGetEntitlementsForbidden() *GetEntitlementsForbidden {
 }
 
 // WithPayload adds the payload to the get entitlements forbidden response
-func (o *GetEntitlementsForbidden) WithPayload(payload interface{}) *GetEntitlementsForbidden {
+func (o *GetEntitlementsForbidden) WithPayload(payload *ghcmessages.Error) *GetEntitlementsForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get entitlements forbidden response
-func (o *GetEntitlementsForbidden) SetPayload(payload interface{}) {
+func (o *GetEntitlementsForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *GetEntitlementsForbidden) SetPayload(payload interface{}) {
 func (o *GetEntitlementsForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type GetEntitlementsNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetEntitlementsNotFound creates GetEntitlementsNotFound with default headers values
@@ -205,13 +211,13 @@ func NewGetEntitlementsNotFound() *GetEntitlementsNotFound {
 }
 
 // WithPayload adds the payload to the get entitlements not found response
-func (o *GetEntitlementsNotFound) WithPayload(payload interface{}) *GetEntitlementsNotFound {
+func (o *GetEntitlementsNotFound) WithPayload(payload *ghcmessages.Error) *GetEntitlementsNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get entitlements not found response
-func (o *GetEntitlementsNotFound) SetPayload(payload interface{}) {
+func (o *GetEntitlementsNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +225,11 @@ func (o *GetEntitlementsNotFound) SetPayload(payload interface{}) {
 func (o *GetEntitlementsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type GetEntitlementsInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetEntitlementsInternalServerError creates GetEntitlementsInternalServerError with default headers values
@@ -247,13 +255,13 @@ func NewGetEntitlementsInternalServerError() *GetEntitlementsInternalServerError
 }
 
 // WithPayload adds the payload to the get entitlements internal server error response
-func (o *GetEntitlementsInternalServerError) WithPayload(payload interface{}) *GetEntitlementsInternalServerError {
+func (o *GetEntitlementsInternalServerError) WithPayload(payload *ghcmessages.Error) *GetEntitlementsInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get entitlements internal server error response
-func (o *GetEntitlementsInternalServerError) SetPayload(payload interface{}) {
+func (o *GetEntitlementsInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,8 +269,10 @@ func (o *GetEntitlementsInternalServerError) SetPayload(payload interface{}) {
 func (o *GetEntitlementsInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

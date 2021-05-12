@@ -26,7 +26,7 @@ type WebhookSubscriptionStatus string
 // A WebhookSubscription represents a webhook subscription
 type WebhookSubscription struct {
 	ID           uuid.UUID                 `db:"id"`
-	Subscriber   Contractor                `belongs_to:"contractors:"`
+	Subscriber   Contractor                `belongs_to:"contractors" fk_id:"subscriber_id"`
 	SubscriberID uuid.UUID                 `db:"subscriber_id"`
 	Status       WebhookSubscriptionStatus `db:"status"`
 	Severity     int                       `db:"severity"` // Zero indicates no severity value, 1 is highest

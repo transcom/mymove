@@ -53,6 +53,8 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
 
+	dbShipment.Diversion = requestedUpdatedShipment.Diversion
+
 	if requestedUpdatedShipment.RequestedDeliveryDate != nil {
 		dbShipment.RequestedDeliveryDate = requestedUpdatedShipment.RequestedDeliveryDate
 	}
@@ -377,6 +379,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.PickupAddressID,
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
+		mtoShipment.Diversion,
 		mtoShipment.ID,
 	}
 }
@@ -401,7 +404,8 @@ func generateUpdateMTOShipmentQuery() string {
 			destination_address_id = ?,
 			pickup_address_id = ?,
 			secondary_delivery_address_id = ?,
-			secondary_pickup_address_id = ?
+			secondary_pickup_address_id = ?,
+			diversion = ?
 		WHERE
 			id = ?
 	`

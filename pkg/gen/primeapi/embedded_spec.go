@@ -1006,6 +1006,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -1644,6 +1647,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1725,7 +1731,8 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -3635,6 +3642,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -4273,6 +4283,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -4354,7 +4367,8 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "REJECTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },

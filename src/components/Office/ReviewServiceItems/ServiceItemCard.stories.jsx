@@ -28,6 +28,9 @@ export const Basic = (args) => (
 export const HHG = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
@@ -40,6 +43,9 @@ export const HHG = (args) => (
 export const NTS = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.NTS}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
@@ -52,6 +58,9 @@ export const NTS = (args) => (
 export const NTSR = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.NTSR}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
@@ -64,6 +73,9 @@ export const NTSR = (args) => (
 export const HHGLonghaulDomestic = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
@@ -76,6 +88,9 @@ export const HHGLonghaulDomestic = (args) => (
 export const HHGShorthaulDomestic = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
@@ -88,6 +103,9 @@ export const HHGShorthaulDomestic = (args) => (
 export const NeedsReviewRequestCalculations = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
@@ -100,6 +118,9 @@ export const NeedsReviewRequestCalculations = (args) => (
 export const AcceptedRequestComplete = () => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.APPROVED}
@@ -112,6 +133,9 @@ export const AcceptedRequestComplete = () => (
 export const RejectedRequestComplete = () => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.DENIED}

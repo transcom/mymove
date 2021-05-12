@@ -20,9 +20,9 @@ type DutyStation struct {
 	Name                       string                       `json:"name" db:"name"`
 	Affiliation                internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
 	AddressID                  uuid.UUID                    `json:"address_id" db:"address_id"`
-	Address                    Address                      `belongs_to:"address"`
+	Address                    Address                      `belongs_to:"address" fk_id:"address_id"`
 	TransportationOfficeID     *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice       TransportationOffice         `belongs_to:"transportation_offices"`
+	TransportationOffice       TransportationOffice         `belongs_to:"transportation_offices" fk_id:"transportation_office_id"`
 	ProvidesServicesCounseling bool                         `json:"provides_services_counseling" db:"provides_services_counseling"`
 }
 

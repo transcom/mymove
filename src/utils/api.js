@@ -2,7 +2,6 @@
 // utility functions related to API interactions
 
 import Swagger from 'swagger-client';
-import qs from 'query-string';
 
 import { getClient, checkResponse, requestInterceptor } from 'shared/Swagger/api';
 
@@ -30,7 +29,7 @@ export async function GetIsLoggedIn() {
   return response.body;
 }
 
-export async function LogoutUser(timedout) {
+export function LogoutUser() {
   const logoutEndpoint = '/auth/logout';
   const req = {
     url: logoutEndpoint,
@@ -38,13 +37,5 @@ export async function LogoutUser(timedout) {
     credentials: 'same-origin', // Passes through CSRF cookies
     requestInterceptor,
   };
-  try {
-    // Successful logout should return a redirect url
-    const resp = await Swagger.http(req);
-    const redirectUrl = timedout ? qs.stringifyUrl({ url: resp.text, fragmentIdentifier: 'timedout' }) : resp.text;
-    window.location.href = redirectUrl;
-  } catch (err) {
-    // Failure to logout should return user to homepage
-    window.location.href = '/';
-  }
+  return Swagger.http(req);
 }
