@@ -1,21 +1,17 @@
 package testingsuite
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"math/rand"
-	"os"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/flock"
 
 	// Anonymously import lib/pq driver so it's available to Pop
 	_ "github.com/lib/pq"
@@ -35,8 +31,6 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 // #nosec G404
 var seededRand = rand.New(random.NewCryptoSeededSource())
 
-var fileLock = flock.New(os.TempDir() + "/server-test-lock.lock")
-
 // StringWithCharset returns a random string
 // https://www.calhoun.io/creating-random-strings-in-go/
 func StringWithCharset(length int, charset string) string {
@@ -51,10 +45,9 @@ func StringWithCharset(length int, charset string) string {
 type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
-	origConn            *pop.Connection
 	lowPrivConn         *pop.Connection
 	highPrivConn        *pop.Connection
-	origConnDetails     *pop.ConnectionDetails
+	pgConnDetails       *pop.ConnectionDetails
 	lowPrivConnDetails  *pop.ConnectionDetails
 	highPrivConnDetails *pop.ConnectionDetails
 
@@ -144,16 +137,6 @@ func WithHighPrivPSQLRole() PopTestSuiteOption {
 
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTestSuite {
-	// Try to obtain the lock in this method within 10 minutes
-	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
-	defer cancel()
-
-	// Continually check if the lock is available
-	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
-	if lockErr != nil {
-		log.Panic(lockErr)
-	}
-
 	dbDialect := "postgres"
 	dbName, dbNameErr := envy.MustGet("DB_NAME")
 	if dbNameErr != nil {
@@ -191,49 +174,45 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 		"sslmode": dbSSLMode,
 	}
 
-	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNameTest)
-	origConnDetails := pop.ConnectionDetails{
+	// Connect to postgres db to clone the test database
+	//
+	// The tests should never connect to dbNameTest directly because
+	// postgres cannot use a database as a template if there is a
+	// connection to it
+	//
+	// This way we don't need a lock to prevent simultaneous tests
+	// from cloning
+	dbNamePostgres := "postgres"
+	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNamePostgres)
+
+	pgConnDetails := pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Driver:   "postgres",
-		Database: dbNameTest,
+		Database: dbNamePostgres,
 		Host:     dbHost,
 		Port:     dbPortTest,
 		User:     dbUser,
 		Password: dbPassword,
 		Options:  dbOptions,
 	}
-	origConn, origConnErr := pop.NewConnection(&origConnDetails)
-	if origConnErr != nil {
-		log.Panic(origConnErr)
+	pgConn, err := pop.NewConnection(&pgConnDetails)
+	if err != nil {
+		log.Panic(err)
 	}
-	if openErr := origConn.Open(); openErr != nil {
-		log.Panic(openErr)
+	if err := pgConn.Open(); err != nil {
+		log.Panic(err)
 	}
-
-	// Doing this before cloning should pre-clean the DB for all tests
-	log.Printf("attempting to truncate the database %s", dbNameTest)
-	errTruncateAll := origConn.TruncateAll()
-	if errTruncateAll != nil {
-		log.Panicf("failed to truncate database '%s': %#v", dbNameTest, errTruncateAll)
-	}
+	defer pgConn.Close()
 
 	uniq := StringWithCharset(6, charset)
 	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(packageName.String(), "/", "_", -1), uniq)
 	log.Printf("attempting to clone database %s to %s... ", dbNameTest, dbNamePackage)
-	if err := cloneDatabase(origConn, dbNameTest, dbNamePackage); err != nil {
+	if err := cloneDatabase(pgConn, dbNameTest, dbNamePackage); err != nil {
 		log.Panicf("failed to clone database '%s' to '%s': %#v", dbNameTest, dbNamePackage, err)
 	}
 	log.Println("success")
 
-	// disconnect from the original DB
-	if err := origConn.Close(); err != nil {
-		log.Panic(err)
-	}
-
-	// Release the lock so other tests can clone the DB
-	if err := fileLock.Unlock(); err != nil {
-		log.Panic(err)
-	}
+	// The db is already truncated as part of the test setup
 
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNamePackage)
 
@@ -283,10 +262,9 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 	pts := &PopTestSuite{
 		lowPrivConn:         lowPrivsConn,
 		highPrivConn:        highPrivsConn,
-		origConn:            origConn,
 		lowPrivConnDetails:  &lowPrivConnDetails,
 		highPrivConnDetails: &highPrivConnDetails,
-		origConnDetails:     &origConnDetails,
+		pgConnDetails:       &pgConnDetails,
 		PackageName:         packageName,
 	}
 
@@ -380,35 +358,17 @@ func (suite *PopTestSuite) TearDown() {
 		log.Panic(err)
 	}
 
-	// Try to obtain the lock in this method within 10 minutes
-	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
-	defer cancel()
-
-	// Continually check if the lock is available
-	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
-	if lockErr != nil {
-		log.Panic(lockErr)
-	}
-
 	// reconnect to the original DB
-	origConn, origConnErr := pop.NewConnection(suite.origConnDetails)
-	if origConnErr != nil {
-		log.Panic(origConnErr)
+	pgConn, err := pop.NewConnection(suite.pgConnDetails)
+	if err != nil {
+		log.Panic(err)
 	}
-	if openErr := origConn.Open(); openErr != nil {
-		log.Panic(openErr)
+	if err := pgConn.Open(); err != nil {
+		log.Panic(err)
 	}
+	defer pgConn.Close()
 	// Remove the package DB
-	if err := dropDB(origConn, (*suite.lowPrivConnDetails).Database); err != nil {
-		log.Panic(err)
-	}
-	// disconnect from the original DB
-	if err := origConn.Close(); err != nil {
-		log.Panic(err)
-	}
-
-	// Release the lock so other tests can clone the DB
-	if err := fileLock.Unlock(); err != nil {
+	if err := dropDB(pgConn, (*suite.lowPrivConnDetails).Database); err != nil {
 		log.Panic(err)
 	}
 }
