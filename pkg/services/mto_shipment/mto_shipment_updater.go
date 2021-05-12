@@ -124,6 +124,10 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		dbShipment.CustomerRemarks = requestedUpdatedShipment.CustomerRemarks
 	}
 
+	if requestedUpdatedShipment.CounselorRemarks != nil {
+		dbShipment.CounselorRemarks = requestedUpdatedShipment.CounselorRemarks
+	}
+
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		agentsToCreateOrUpdate := []models.MTOAgent{}
