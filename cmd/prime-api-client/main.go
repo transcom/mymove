@@ -154,7 +154,7 @@ func main() {
 		Short: "Update MTO shipment status",
 		Long: `
   This command allows the Prime to update the MTO shipment status.
-  Currently, they are only allowed to updated a shipment to the "CANCELED" status.
+  Currently, they are only allowed to update a shipment to the "CANCELED" status.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain a body defining the request body.
 

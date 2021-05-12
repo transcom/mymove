@@ -335,14 +335,14 @@ func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.T
 	return services.InvalidInputError{}
 }
 
-// UpdateMTOShipmentStatusHandler is the handler to update MTO shipments
+// UpdateMTOShipmentStatusHandler is the handler to update MTO Shipments' status
 type UpdateMTOShipmentStatusHandler struct {
 	handlers.HandlerContext
 	checker services.MTOShipmentUpdater
 	updater services.MTOShipmentStatusUpdater
 }
 
-// Handle handler that updates a mto shipment
+// Handle handler that updates a mto shipment's status
 func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
