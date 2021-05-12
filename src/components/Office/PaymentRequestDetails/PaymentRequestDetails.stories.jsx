@@ -3,6 +3,7 @@ import React from 'react';
 import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
 
 export default {
   title: 'Office Components/PaymentRequestDetails',
@@ -17,10 +18,34 @@ export default {
   ],
 };
 
+const hhgAddress = formatPaymentRequestAddressString(
+  {
+    city: 'Beverly Hills',
+    postal_code: '90210',
+    state: 'CA',
+  },
+  {
+    city: 'Fairfield',
+    postal_code: '94535',
+    state: 'CA',
+  },
+);
+
 const addresses = {
   basicAddress: '',
-  hhgAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
-  ntsAddress: 'Boston, MA 02101 to Princeton, NJ 08540',
+  hhgAddress,
+  ntsAddress: formatPaymentRequestAddressString(
+    {
+      city: 'Boston',
+      postal_code: '02101',
+      state: 'MA',
+    },
+    {
+      city: 'Princeton',
+      postal_code: '08540',
+      state: 'NJ',
+    },
+  ),
 };
 
 const unreviewedPaymentRequestItems = [
@@ -206,7 +231,11 @@ export const withSingleBasicServiceItem = () => (
 );
 
 export const withHHGShipmentServiceItems = () => (
-  <PaymentRequestDetails serviceItems={hhgRequestedServiceItems} shipmentAddress={addresses.hhgAddress} />
+  <PaymentRequestDetails
+    shipmentDepartureDate="2021-04-20"
+    serviceItems={hhgRequestedServiceItems}
+    shipmentAddress={addresses.hhgAddress}
+  />
 );
 export const withNTSRShipmentServiceItems = () => (
   <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipmentAddress={addresses.ntsAddress} />

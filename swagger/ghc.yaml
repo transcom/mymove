@@ -2315,6 +2315,10 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      actualPickupDate:
+        x-nullable: true
+        format: date
+        type: string
       approvedDate:
         format: date
         type: string
