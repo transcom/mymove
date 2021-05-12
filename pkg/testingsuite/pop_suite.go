@@ -45,6 +45,7 @@ func StringWithCharset(length int, charset string) string {
 type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
+	dbNameTemplate      string
 	lowPrivConn         *pop.Connection
 	highPrivConn        *pop.Connection
 	pgConnDetails       *pop.ConnectionDetails
@@ -123,7 +124,50 @@ func WithHighPrivPSQLRole() PopTestSuiteOption {
 	return func(pts *PopTestSuite) {
 		// Mark a flag that indicates that we are only using a single privileged role.
 		pts.useHighPrivsPSQLRole = true
+	}
+}
 
+// NewPopTestSuite returns a new PopTestSuite
+func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTestSuite {
+	// Create a standardized PopTestSuite object.
+	pts := &PopTestSuite{
+		PackageName: packageName,
+	}
+
+	// Apply the user-supplied options to the PopTestSuite object.
+	for _, opt := range opts {
+		opt(pts)
+	}
+
+	pts.getDbConnectionDetails()
+
+	log.Printf("package %s is attempting to connect to database %s", packageName, pts.pgConnDetails.Database)
+	pgConn, err := pop.NewConnection(pts.pgConnDetails)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err := pgConn.Open(); err != nil {
+		log.Panic(err)
+	}
+	defer pgConn.Close()
+
+	pts.highPrivConn, err = pop.NewConnection(pts.highPrivConnDetails)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err := pts.highPrivConn.Open(); err != nil {
+		log.Panic(err)
+	}
+
+	pts.lowPrivConn, err = pop.NewConnection(pts.lowPrivConnDetails)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err := pts.lowPrivConn.Open(); err != nil {
+		log.Panic(err)
+	}
+
+	if pts.useHighPrivsPSQLRole {
 		// Disconnect the low privileged connection and replace its connection and connection
 		// details with those of the high privileged connection.
 		if err := pts.lowPrivConn.Close(); err != nil {
@@ -133,40 +177,48 @@ func WithHighPrivPSQLRole() PopTestSuiteOption {
 		pts.lowPrivConn = pts.highPrivConn
 		pts.lowPrivConnDetails = pts.highPrivConnDetails
 	}
+
+	log.Printf("attempting to clone database %s to %s... ", pts.dbNameTemplate, pts.lowPrivConnDetails.Database)
+	if err := cloneDatabase(pgConn, pts.dbNameTemplate, pts.lowPrivConnDetails.Database); err != nil {
+		log.Panicf("failed to clone database '%s' to '%s': %#v", pts.dbNameTemplate, pts.lowPrivConnDetails.Database, err)
+	}
+	log.Println("success")
+
+	// The db is already truncated as part of the test setup
+
+	return *pts
 }
 
-// NewPopTestSuite returns a new PopTestSuite
-func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTestSuite {
+func (suite *PopTestSuite) getDbConnectionDetails() {
 	dbDialect := "postgres"
-	dbName, dbNameErr := envy.MustGet("DB_NAME")
-	if dbNameErr != nil {
-		log.Panic(dbNameErr)
+	dbNameTest, err := envy.MustGet("DB_NAME_TEST")
+	if err != nil {
+		log.Panic(err)
 	}
-	dbNameTest := envy.Get("DB_NAME_TEST", dbName)
-	dbHost, dbHostErr := envy.MustGet("DB_HOST")
-	if dbHostErr != nil {
-		log.Panic(dbHostErr)
+	dbHost, err := envy.MustGet("DB_HOST")
+	if err != nil {
+		log.Panic(err)
 	}
-	dbPort, dbPortErr := envy.MustGet("DB_PORT")
-	if dbPortErr != nil {
-		log.Panic(dbPortErr)
+	dbPort, err := envy.MustGet("DB_PORT")
+	if err != nil {
+		log.Panic(err)
 	}
 	dbPortTest := envy.Get("DB_PORT_TEST", dbPort)
-	dbUser, dbUserErr := envy.MustGet("DB_USER")
-	if dbUserErr != nil {
-		log.Panic(dbUserErr)
+	dbUser, err := envy.MustGet("DB_USER")
+	if err != nil {
+		log.Panic(err)
 	}
-	dbUserLowPriv, dbUserLowPrivErr := envy.MustGet("DB_USER_LOW_PRIV")
-	if dbUserLowPrivErr != nil {
-		log.Panic(dbUserLowPrivErr)
+	dbUserLowPriv, err := envy.MustGet("DB_USER_LOW_PRIV")
+	if err != nil {
+		log.Panic(err)
 	}
-	dbPassword, dbPasswordErr := envy.MustGet("DB_PASSWORD")
-	if dbPasswordErr != nil {
-		log.Panic(dbPasswordErr)
+	dbPassword, err := envy.MustGet("DB_PASSWORD")
+	if err != nil {
+		log.Panic(err)
 	}
-	dbPasswordApp, dbPasswordAppErr := envy.MustGet("DB_PASSWORD_LOW_PRIV")
-	if dbPasswordAppErr != nil {
-		log.Panic(dbPasswordAppErr)
+	dbPasswordApp, err := envy.MustGet("DB_PASSWORD_LOW_PRIV")
+	if err != nil {
+		log.Panic(err)
 	}
 	dbSSLMode := envy.Get("DB_SSL_MODE", "disable")
 
@@ -183,9 +235,8 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 	// This way we don't need a lock to prevent simultaneous tests
 	// from cloning
 	dbNamePostgres := "postgres"
-	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNamePostgres)
 
-	pgConnDetails := pop.ConnectionDetails{
+	suite.pgConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Driver:   "postgres",
 		Database: dbNamePostgres,
@@ -195,52 +246,14 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 		Password: dbPassword,
 		Options:  dbOptions,
 	}
-	pgConn, err := pop.NewConnection(&pgConnDetails)
-	if err != nil {
-		log.Panic(err)
-	}
-	if err := pgConn.Open(); err != nil {
-		log.Panic(err)
-	}
-	defer pgConn.Close()
 
 	uniq := StringWithCharset(6, charset)
-	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(packageName.String(), "/", "_", -1), uniq)
-	log.Printf("attempting to clone database %s to %s... ", dbNameTest, dbNamePackage)
-	if err := cloneDatabase(pgConn, dbNameTest, dbNamePackage); err != nil {
-		log.Panicf("failed to clone database '%s' to '%s': %#v", dbNameTest, dbNamePackage, err)
-	}
-	log.Println("success")
-
-	// The db is already truncated as part of the test setup
-
-	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNamePackage)
-
-	// Prepare a new connection to the temporary database with the same PostgreSQL role privileges
-	// as what the migrations task will have when running migrations. These privileges will be
-	// higher than the role that runs application.
-	highPrivConnDetails := pop.ConnectionDetails{
-		Dialect:  dbDialect,
-		Driver:   "postgres",
-		Database: dbNamePackage,
-		Host:     dbHost,
-		Port:     dbPortTest,
-		User:     dbUser,
-		Password: dbPassword,
-		Options:  dbOptions,
-	}
-	highPrivsConn, highPrivsConnErr := pop.NewConnection(&highPrivConnDetails)
-	if highPrivsConnErr != nil {
-		log.Panic(highPrivsConnErr)
-	}
-	if openErr := highPrivsConn.Open(); openErr != nil {
-		log.Panic(openErr)
-	}
+	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(suite.PackageName.String(), "/", "_", -1), uniq)
 
 	// Prepare a new connection to the temporary database with the same PostgreSQL role privileges
 	// as what the application will have when running the server. These privileges will be lower
 	// than the role that runs database migrations.
-	lowPrivConnDetails := pop.ConnectionDetails{
+	suite.lowPrivConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Driver:   "postgres",
 		Database: dbNamePackage,
@@ -250,30 +263,21 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 		Password: dbPasswordApp,
 		Options:  dbOptions,
 	}
-	lowPrivsConn, lowPrivsConnErr := pop.NewConnection(&lowPrivConnDetails)
-	if lowPrivsConnErr != nil {
-		log.Panic(lowPrivsConnErr)
-	}
-	if openErr := lowPrivsConn.Open(); openErr != nil {
-		log.Panic(openErr)
-	}
-
-	// Create a standardized PopTestSuite object.
-	pts := &PopTestSuite{
-		lowPrivConn:         lowPrivsConn,
-		highPrivConn:        highPrivsConn,
-		lowPrivConnDetails:  &lowPrivConnDetails,
-		highPrivConnDetails: &highPrivConnDetails,
-		pgConnDetails:       &pgConnDetails,
-		PackageName:         packageName,
+	// Prepare a new connection to the temporary database with the same PostgreSQL role privileges
+	// as what the migrations task will have when running migrations. These privileges will be
+	// higher than the role that runs application.
+	suite.highPrivConnDetails = &pop.ConnectionDetails{
+		Dialect:  dbDialect,
+		Driver:   "postgres",
+		Database: dbNamePackage,
+		Host:     dbHost,
+		Port:     dbPortTest,
+		User:     dbUser,
+		Password: dbPassword,
+		Options:  dbOptions,
 	}
 
-	// Apply the user-supplied options to the PopTestSuite object.
-	for _, opt := range opts {
-		opt(pts)
-	}
-
-	return *pts
+	suite.dbNameTemplate = dbNameTest
 }
 
 // DB returns a db connection
