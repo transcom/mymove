@@ -5,13 +5,15 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModificationTag';
+
 import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentTypes, shipmentModificationTypes } from 'constants/shipments';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { PaymentServiceItemParam } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
@@ -23,6 +25,7 @@ const ServiceItemCard = ({
   mtoShipmentDepartureDate,
   mtoShipmentPickupAddress,
   mtoShipmentDestinationAddress,
+  mtoShipmentModificationType,
   mtoServiceItemCode,
   mtoServiceItemName,
   amount,
@@ -72,7 +75,12 @@ const ServiceItemCard = ({
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
           <div className={styles.cardHeader}>
-            <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+            <h3>
+              {shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}
+              {mtoShipmentModificationType && (
+                <ShipmentModificationTag shipmentModificationType={mtoShipmentModificationType} />
+              )}
+            </h3>
             {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
               <small className={styles.addressBlock}>
                 {mtoShipmentDepartureDate && (
@@ -315,6 +323,7 @@ ServiceItemCard.propTypes = {
   mtoShipmentDepartureDate: PropTypes.string,
   mtoShipmentDestinationAddress: PropTypes.node,
   mtoShipmentPickupAddress: PropTypes.node,
+  mtoShipmentModificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
@@ -329,6 +338,7 @@ ServiceItemCard.defaultProps = {
   mtoShipmentDepartureDate: '',
   mtoShipmentDestinationAddress: '',
   mtoShipmentPickupAddress: '',
+  mtoShipmentModificationType: '',
   mtoServiceItemName: null,
   status: undefined,
   rejectionReason: '',
