@@ -58,7 +58,7 @@ require (
 	github.com/pkg/sftp v1.13.0
 	github.com/rickar/cal v1.0.5
 	github.com/spf13/afero v1.6.0
-	github.com/spf13/cobra v0.0.7
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/objx v0.3.0
@@ -66,7 +66,7 @@ require (
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tiaguinho/gosoap v1.4.4
-	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
+	github.com/vektra/mockery/v2 v2.7.5
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0
