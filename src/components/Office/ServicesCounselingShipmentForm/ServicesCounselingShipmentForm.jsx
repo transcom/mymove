@@ -2,17 +2,7 @@ import React from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik, Field } from 'formik';
 import { generatePath } from 'react-router';
-import {
-  Fieldset,
-  Radio,
-  Checkbox,
-  Alert,
-  FormGroup,
-  Label,
-  Textarea,
-  GridContainer,
-  Grid,
-} from '@trussworks/react-uswds';
+import { Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
@@ -162,190 +152,186 @@ const ServicesCounselingShipmentForm = ({
         };
 
         return (
-          <GridContainer>
-            <Grid row>
-              <Grid col desktop={{ col: 8, offset: 2 }}>
-                {errorMessage && (
-                  <Alert type="error" heading="An error occurred">
-                    {errorMessage}
-                  </Alert>
+          <>
+            {errorMessage && (
+              <Alert type="error" heading="An error occurred">
+                {errorMessage}
+              </Alert>
+            )}
+
+            <div className={styles.ServicesCounselingShipmentForm}>
+              <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+
+              <h1>Edit shipment details</h1>
+
+              <SectionWrapper className={styles.weightAllowance}>
+                <p>
+                  <strong>Weight Allowance: </strong>
+                  {serviceMember.weight_allotment.total_weight_self} lbs
+                </p>
+              </SectionWrapper>
+
+              <Form className={formStyles.form}>
+                {showPickupFields && (
+                  <>
+                    <SectionWrapper className={formStyles.formSection}>
+                      {showDeliveryFields && <h2>Pickup information</h2>}
+                      <Fieldset>
+                        <DatePickerInput
+                          name="pickup.requestedDate"
+                          label="Requested pickup date"
+                          id="requestedPickupDate"
+                          validate={validateDate}
+                        />
+                      </Fieldset>
+
+                      <AddressFields
+                        name="pickup.address"
+                        legend="Pickup location"
+                        render={(fields) => (
+                          <>
+                            <Checkbox
+                              data-testid="useCurrentResidence"
+                              label="Use my current address"
+                              name="useCurrentResidence"
+                              onChange={handleUseCurrentResidenceChange}
+                              id="useCurrentResidenceCheckbox"
+                            />
+                            {fields}
+                          </>
+                        )}
+                      />
+
+                      <ContactInfoFields
+                        name="pickup.agent"
+                        legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                        render={(fields) => <>{fields}</>}
+                      />
+                    </SectionWrapper>
+                  </>
                 )}
 
-                <div className={styles.ServicesCounselingShipmentForm}>
-                  <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
-
-                  <h1>Edit shipment details</h1>
-
-                  <SectionWrapper className={styles.weightAllowance}>
-                    <p>
-                      <strong>Weight Allowance: </strong>
-                      {serviceMember.weight_allotment.total_weight_self} lbs
-                    </p>
-                  </SectionWrapper>
-
-                  <Form className={formStyles.form}>
-                    {showPickupFields && (
-                      <>
-                        <SectionWrapper className={formStyles.formSection}>
-                          {showDeliveryFields && <h2>Pickup information</h2>}
-                          <Fieldset>
-                            <DatePickerInput
-                              name="pickup.requestedDate"
-                              label="Requested pickup date"
-                              id="requestedPickupDate"
-                              validate={validateDate}
-                            />
-                          </Fieldset>
-
-                          <AddressFields
-                            name="pickup.address"
-                            legend="Pickup location"
-                            render={(fields) => (
-                              <>
-                                <Checkbox
-                                  data-testid="useCurrentResidence"
-                                  label="Use my current address"
-                                  name="useCurrentResidence"
-                                  onChange={handleUseCurrentResidenceChange}
-                                  id="useCurrentResidenceCheckbox"
-                                />
-                                {fields}
-                              </>
-                            )}
-                          />
-
-                          <ContactInfoFields
-                            name="pickup.agent"
-                            legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                            render={(fields) => <>{fields}</>}
-                          />
-                        </SectionWrapper>
-                      </>
-                    )}
-
-                    {showDeliveryFields && (
-                      <>
-                        <SectionWrapper className={formStyles.formSection}>
-                          {showPickupFields && <h2>Delivery information</h2>}
-                          <Fieldset>
-                            <DatePickerInput
-                              name="delivery.requestedDate"
-                              label="Requested delivery date"
-                              id="requestedDeliveryDate"
-                              validate={validateDate}
-                            />
-                          </Fieldset>
-
-                          <Fieldset legend="Delivery location">
-                            <FormGroup>
-                              <p>Does the customer know their delivery address yet?</p>
-                              <div className={formStyles.radioGroup}>
-                                <Field
-                                  as={Radio}
-                                  id="has-delivery-address"
-                                  label="Yes"
-                                  name="hasDeliveryAddress"
-                                  value="yes"
-                                  title="Yes, I know my delivery address"
-                                  checked={hasDeliveryAddress === 'yes'}
-                                />
-                                <Field
-                                  as={Radio}
-                                  id="no-delivery-address"
-                                  label="No"
-                                  name="hasDeliveryAddress"
-                                  value="no"
-                                  title="No, I do not know my delivery address"
-                                  checked={hasDeliveryAddress === 'no'}
-                                />
-                              </div>
-                            </FormGroup>
-                            {hasDeliveryAddress === 'yes' ? (
-                              <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
-                            ) : (
-                              <p>
-                                We can use the zip of their new duty station:
-                                <br />
-                                <strong>
-                                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                                  {newDutyStationAddress.postal_code}{' '}
-                                </strong>
-                              </p>
-                            )}
-                          </Fieldset>
-
-                          <ContactInfoFields
-                            name="delivery.agent"
-                            legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
-                            render={(fields) => <>{fields}</>}
-                          />
-                        </SectionWrapper>
-                      </>
-                    )}
-
-                    {isNTS && (
-                      <>
-                        <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
-                          <Fieldset legend="What you can expect">
-                            <p>
-                              The moving company will find a storage facility approved by the government, and will move
-                              your belongings there.
-                            </p>
-                            <p>
-                              You’ll need to schedule an NTS release shipment to get your items back, most likely as
-                              part of a future move.
-                            </p>
-                          </Fieldset>
-                        </SectionWrapper>
-                      </>
-                    )}
-
+                {showDeliveryFields && (
+                  <>
                     <SectionWrapper className={formStyles.formSection}>
-                      <Fieldset legend={<h2 className={formStyles.legendContent}>Remarks {optionalLabel}</h2>}>
-                        <Label htmlFor="customerRemarks">Customer remarks</Label>
-                        <Field
-                          as={Textarea}
-                          data-testid="remarks"
-                          name="customerRemarks"
-                          className={`${formStyles.remarks}`}
-                          placeholder=""
-                          id="customerRemarks"
-                          maxLength={500}
+                      {showPickupFields && <h2>Delivery information</h2>}
+                      <Fieldset>
+                        <DatePickerInput
+                          name="delivery.requestedDate"
+                          label="Requested delivery date"
+                          id="requestedDeliveryDate"
+                          validate={validateDate}
                         />
-                        <Hint>
-                          <p>500 characters</p>
-                        </Hint>
+                      </Fieldset>
 
-                        <Label htmlFor="counselorRemarks">Counselor remarks</Label>
-                        <Field
-                          as={Textarea}
-                          data-testid="counselor-remarks"
-                          name="counselorRemarks"
-                          className={`${formStyles.remarks}`}
-                          placeholder=""
-                          id="counselorRemarks"
-                          maxLength={500}
-                        />
-                        <Hint>
-                          <p>500 characters</p>
-                        </Hint>
+                      <Fieldset legend="Delivery location">
+                        <FormGroup>
+                          <p>Does the customer know their delivery address yet?</p>
+                          <div className={formStyles.radioGroup}>
+                            <Field
+                              as={Radio}
+                              id="has-delivery-address"
+                              label="Yes"
+                              name="hasDeliveryAddress"
+                              value="yes"
+                              title="Yes, I know my delivery address"
+                              checked={hasDeliveryAddress === 'yes'}
+                            />
+                            <Field
+                              as={Radio}
+                              id="no-delivery-address"
+                              label="No"
+                              name="hasDeliveryAddress"
+                              value="no"
+                              title="No, I do not know my delivery address"
+                              checked={hasDeliveryAddress === 'no'}
+                            />
+                          </div>
+                        </FormGroup>
+                        {hasDeliveryAddress === 'yes' ? (
+                          <AddressFields name="delivery.address" render={(fields) => <>{fields}</>} />
+                        ) : (
+                          <p>
+                            We can use the zip of their new duty station:
+                            <br />
+                            <strong>
+                              {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                              {newDutyStationAddress.postal_code}{' '}
+                            </strong>
+                          </p>
+                        )}
+                      </Fieldset>
+
+                      <ContactInfoFields
+                        name="delivery.agent"
+                        legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                        render={(fields) => <>{fields}</>}
+                      />
+                    </SectionWrapper>
+                  </>
+                )}
+
+                {isNTS && (
+                  <>
+                    <SectionWrapper className={formStyles.formSection} data-testid="nts-what-to-expect">
+                      <Fieldset legend="What you can expect">
+                        <p>
+                          The moving company will find a storage facility approved by the government, and will move your
+                          belongings there.
+                        </p>
+                        <p>
+                          You’ll need to schedule an NTS release shipment to get your items back, most likely as part of
+                          a future move.
+                        </p>
                       </Fieldset>
                     </SectionWrapper>
+                  </>
+                )}
 
-                    <div className={formStyles.formActions}>
-                      <WizardNavigation
-                        disableNext={isSubmitting || !isValid}
-                        editMode
-                        onNextClick={handleSubmit}
-                        onBackClick={history.goBack}
-                        onCancelClick={history.goBack}
-                      />
-                    </div>
-                  </Form>
+                <SectionWrapper className={formStyles.formSection}>
+                  <Fieldset legend={<h2 className={formStyles.legendContent}>Remarks {optionalLabel}</h2>}>
+                    <Label htmlFor="customerRemarks">Customer remarks</Label>
+                    <Field
+                      as={Textarea}
+                      data-testid="remarks"
+                      name="customerRemarks"
+                      className={`${formStyles.remarks}`}
+                      placeholder=""
+                      id="customerRemarks"
+                      maxLength={500}
+                    />
+                    <Hint>
+                      <p>500 characters</p>
+                    </Hint>
+
+                    <Label htmlFor="counselorRemarks">Counselor remarks</Label>
+                    <Field
+                      as={Textarea}
+                      data-testid="counselor-remarks"
+                      name="counselorRemarks"
+                      className={`${formStyles.remarks}`}
+                      placeholder=""
+                      id="counselorRemarks"
+                      maxLength={500}
+                    />
+                    <Hint>
+                      <p>500 characters</p>
+                    </Hint>
+                  </Fieldset>
+                </SectionWrapper>
+
+                <div className={formStyles.formActions}>
+                  <WizardNavigation
+                    disableNext={isSubmitting || !isValid}
+                    editMode
+                    onNextClick={handleSubmit}
+                    onBackClick={history.goBack}
+                    onCancelClick={history.goBack}
+                  />
                 </div>
-              </Grid>
-            </Grid>
-          </GridContainer>
+              </Form>
+            </div>
+          </>
         );
       }}
     </Formik>
