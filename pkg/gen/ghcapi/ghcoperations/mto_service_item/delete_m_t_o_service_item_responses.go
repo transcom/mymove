@@ -69,7 +69,7 @@ type DeleteMTOServiceItemBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewDeleteMTOServiceItemBadRequest creates DeleteMTOServiceItemBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewDeleteMTOServiceItemBadRequest() *DeleteMTOServiceItemBadRequest {
 }
 
 // WithPayload adds the payload to the delete m t o service item bad request response
-func (o *DeleteMTOServiceItemBadRequest) WithPayload(payload interface{}) *DeleteMTOServiceItemBadRequest {
+func (o *DeleteMTOServiceItemBadRequest) WithPayload(payload *ghcmessages.Error) *DeleteMTOServiceItemBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete m t o service item bad request response
-func (o *DeleteMTOServiceItemBadRequest) SetPayload(payload interface{}) {
+func (o *DeleteMTOServiceItemBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *DeleteMTOServiceItemBadRequest) SetPayload(payload interface{}) {
 func (o *DeleteMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type DeleteMTOServiceItemUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewDeleteMTOServiceItemUnauthorized creates DeleteMTOServiceItemUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewDeleteMTOServiceItemUnauthorized() *DeleteMTOServiceItemUnauthorized {
 }
 
 // WithPayload adds the payload to the delete m t o service item unauthorized response
-func (o *DeleteMTOServiceItemUnauthorized) WithPayload(payload interface{}) *DeleteMTOServiceItemUnauthorized {
+func (o *DeleteMTOServiceItemUnauthorized) WithPayload(payload *ghcmessages.Error) *DeleteMTOServiceItemUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete m t o service item unauthorized response
-func (o *DeleteMTOServiceItemUnauthorized) SetPayload(payload interface{}) {
+func (o *DeleteMTOServiceItemUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *DeleteMTOServiceItemUnauthorized) SetPayload(payload interface{}) {
 func (o *DeleteMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type DeleteMTOServiceItemForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewDeleteMTOServiceItemForbidden creates DeleteMTOServiceItemForbidden with default headers values
@@ -163,13 +167,13 @@ func NewDeleteMTOServiceItemForbidden() *DeleteMTOServiceItemForbidden {
 }
 
 // WithPayload adds the payload to the delete m t o service item forbidden response
-func (o *DeleteMTOServiceItemForbidden) WithPayload(payload interface{}) *DeleteMTOServiceItemForbidden {
+func (o *DeleteMTOServiceItemForbidden) WithPayload(payload *ghcmessages.Error) *DeleteMTOServiceItemForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete m t o service item forbidden response
-func (o *DeleteMTOServiceItemForbidden) SetPayload(payload interface{}) {
+func (o *DeleteMTOServiceItemForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *DeleteMTOServiceItemForbidden) SetPayload(payload interface{}) {
 func (o *DeleteMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type DeleteMTOServiceItemNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewDeleteMTOServiceItemNotFound creates DeleteMTOServiceItemNotFound with default headers values
@@ -205,13 +211,13 @@ func NewDeleteMTOServiceItemNotFound() *DeleteMTOServiceItemNotFound {
 }
 
 // WithPayload adds the payload to the delete m t o service item not found response
-func (o *DeleteMTOServiceItemNotFound) WithPayload(payload interface{}) *DeleteMTOServiceItemNotFound {
+func (o *DeleteMTOServiceItemNotFound) WithPayload(payload *ghcmessages.Error) *DeleteMTOServiceItemNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete m t o service item not found response
-func (o *DeleteMTOServiceItemNotFound) SetPayload(payload interface{}) {
+func (o *DeleteMTOServiceItemNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +225,11 @@ func (o *DeleteMTOServiceItemNotFound) SetPayload(payload interface{}) {
 func (o *DeleteMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type DeleteMTOServiceItemInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewDeleteMTOServiceItemInternalServerError creates DeleteMTOServiceItemInternalServerError with default headers values
@@ -247,13 +255,13 @@ func NewDeleteMTOServiceItemInternalServerError() *DeleteMTOServiceItemInternalS
 }
 
 // WithPayload adds the payload to the delete m t o service item internal server error response
-func (o *DeleteMTOServiceItemInternalServerError) WithPayload(payload interface{}) *DeleteMTOServiceItemInternalServerError {
+func (o *DeleteMTOServiceItemInternalServerError) WithPayload(payload *ghcmessages.Error) *DeleteMTOServiceItemInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete m t o service item internal server error response
-func (o *DeleteMTOServiceItemInternalServerError) SetPayload(payload interface{}) {
+func (o *DeleteMTOServiceItemInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,8 +269,10 @@ func (o *DeleteMTOServiceItemInternalServerError) SetPayload(payload interface{}
 func (o *DeleteMTOServiceItemInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
