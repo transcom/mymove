@@ -28,7 +28,7 @@ const ServicesCounselingEditShipmentDetails = () => {
       <ServicesCounselingShipmentForm
         match={matchPath(pathname, {
           isExact: true,
-          path: '/moves/:moveId/:shipmentId',
+          path: '/moves/:moveCode/:shipmentId',
         })}
         history={history}
         updateMTOShipment={updateMtoShipmentHandler}
@@ -37,7 +37,7 @@ const ServicesCounselingEditShipmentDetails = () => {
         newDutyStationAddress={order.destinationDutyStation}
         selectedMoveType={SHIPMENT_OPTIONS.HHG}
         mtoShipment={matchingShipment}
-        serviceMember={{ ...customer, weight_allotment: weightAllotment }}
+        serviceMember={{ weight_allotment: weightAllotment }}
       />
     </GridContainer>
   );
