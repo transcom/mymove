@@ -1,11 +1,14 @@
 package testingsuite
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"math/rand"
 	"runtime"
 	"strings"
+	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/random"
 
@@ -46,6 +49,7 @@ type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
 	dbNameTemplate      string
+	pgConn              *pop.Connection
 	lowPrivConn         *pop.Connection
 	highPrivConn        *pop.Connection
 	pgConnDetails       *pop.ConnectionDetails
@@ -64,6 +68,9 @@ type PopTestSuite struct {
 	//
 	// For more details, please see https://dp3.atlassian.net/browse/MB-5197
 	useHighPrivsPSQLRole bool
+
+	// Enable this flag to use per test transactions
+	usePerTestTransaction bool
 }
 
 func dropDB(conn *pop.Connection, destination string) error {
@@ -127,6 +134,16 @@ func WithHighPrivPSQLRole() PopTestSuiteOption {
 	}
 }
 
+// WithPerTestTransaction is a functional option that can be passed
+// into the NewPopTestSuite function to create a PopTestSuite that
+// runs each test inside a transaction and rolls back at the end of
+// the test. See also PopTestSuite#Run
+func WithPerTestTransaction() PopTestSuiteOption {
+	return func(pts *PopTestSuite) {
+		pts.usePerTestTransaction = true
+	}
+}
+
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTestSuite {
 	// Create a standardized PopTestSuite object.
@@ -139,6 +156,10 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 		opt(pts)
 	}
 
+	if pts.useHighPrivsPSQLRole && pts.usePerTestTransaction {
+		log.Fatal("Cannot use both high priv psql and per test transaction")
+	}
+
 	pts.getDbConnectionDetails()
 
 	log.Printf("package %s is attempting to connect to database %s", packageName, pts.pgConnDetails.Database)
@@ -146,30 +167,43 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 	if err != nil {
 		log.Panic(err)
 	}
-	if err := pgConn.Open(); err != nil {
+	if err = pgConn.Open(); err != nil {
 		log.Panic(err)
 	}
-	defer pgConn.Close()
+	pts.pgConn = pgConn
 
-	pts.highPrivConn, err = pop.NewConnection(pts.highPrivConnDetails)
-	if err != nil {
-		log.Panic(err)
-	}
-	if err := pts.highPrivConn.Open(); err != nil {
-		log.Panic(err)
-	}
+	if pts.usePerTestTransaction {
+		pts.findOrCreatePerTestTransactionDb()
+	} else {
+		pts.highPrivConn, err = pop.NewConnection(pts.highPrivConnDetails)
+		if err != nil {
+			log.Panic(err)
+		}
+		if err = pts.highPrivConn.Open(); err != nil {
+			log.Panic(err)
+		}
 
-	pts.lowPrivConn, err = pop.NewConnection(pts.lowPrivConnDetails)
-	if err != nil {
-		log.Panic(err)
-	}
-	if err := pts.lowPrivConn.Open(); err != nil {
-		log.Panic(err)
+		pts.lowPrivConn, err = pop.NewConnection(pts.lowPrivConnDetails)
+		if err != nil {
+			log.Panic(err)
+		}
+		if err := pts.lowPrivConn.Open(); err != nil {
+			log.Panic(err)
+		}
+
+		log.Printf("attempting to clone database %s to %s... ", pts.dbNameTemplate, pts.lowPrivConnDetails.Database)
+		if err := cloneDatabase(pgConn, pts.dbNameTemplate, pts.lowPrivConnDetails.Database); err != nil {
+			log.Panicf("failed to clone database '%s' to '%s': %#v", pts.dbNameTemplate, pts.lowPrivConnDetails.Database, err)
+		}
+		log.Println("success")
+
+		// The db is already truncated as part of the test setup
 	}
 
 	if pts.useHighPrivsPSQLRole {
-		// Disconnect the low privileged connection and replace its connection and connection
-		// details with those of the high privileged connection.
+		// Disconnect the low privileged connection and replace its
+		// connection and connection details with those of the high
+		// privileged connection.
 		if err := pts.lowPrivConn.Close(); err != nil {
 			log.Panic(err)
 		}
@@ -177,14 +211,6 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 		pts.lowPrivConn = pts.highPrivConn
 		pts.lowPrivConnDetails = pts.highPrivConnDetails
 	}
-
-	log.Printf("attempting to clone database %s to %s... ", pts.dbNameTemplate, pts.lowPrivConnDetails.Database)
-	if err := cloneDatabase(pgConn, pts.dbNameTemplate, pts.lowPrivConnDetails.Database); err != nil {
-		log.Panicf("failed to clone database '%s' to '%s': %#v", pts.dbNameTemplate, pts.lowPrivConnDetails.Database, err)
-	}
-	log.Println("success")
-
-	// The db is already truncated as part of the test setup
 
 	return *pts
 }
@@ -234,12 +260,10 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 	//
 	// This way we don't need a lock to prevent simultaneous tests
 	// from cloning
-	dbNamePostgres := "postgres"
-
 	suite.pgConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Driver:   "postgres",
-		Database: dbNamePostgres,
+		Database: "postgres",
 		Host:     dbHost,
 		Port:     dbPortTest,
 		User:     dbUser,
@@ -250,8 +274,9 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 	uniq := StringWithCharset(6, charset)
 	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(suite.PackageName.String(), "/", "_", -1), uniq)
 
-	// Prepare a new connection to the temporary database with the same PostgreSQL role privileges
-	// as what the application will have when running the server. These privileges will be lower
+	// Prepare a new connection to the temporary database with the
+	// same PostgreSQL role privileges as what the application will
+	// have when running the server. These privileges will be lower
 	// than the role that runs database migrations.
 	suite.lowPrivConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
@@ -263,8 +288,9 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 		Password: dbPasswordApp,
 		Options:  dbOptions,
 	}
-	// Prepare a new connection to the temporary database with the same PostgreSQL role privileges
-	// as what the migrations task will have when running migrations. These privileges will be
+	// Prepare a new connection to the temporary database with the
+	// same PostgreSQL role privileges as what the migrations task
+	// will have when running migrations. These privileges will be
 	// higher than the role that runs application.
 	suite.highPrivConnDetails = &pop.ConnectionDetails{
 		Dialect:  dbDialect,
@@ -280,9 +306,85 @@ func (suite *PopTestSuite) getDbConnectionDetails() {
 	suite.dbNameTemplate = dbNameTest
 }
 
+// findOrCreatePerTestTransactionDb tries to reuse a pool of databases so
+// a clone doesn't have to be created, which greatly speeds up the
+// tests. Because it is used for tests that rollback a transaction at
+// the end of the test, the db can be reused.
+func (suite *PopTestSuite) findOrCreatePerTestTransactionDb() {
+	packageName := suite.PackageName.String()
+	suite.pgConnDetails.Options["application_name"] = packageName
+	suite.lowPrivConnDetails.Options["application_name"] = packageName
+	// lockStart is an arbitrary number, it could be anything
+	lockStart := 10000
+	dbNum := 1
+
+	var lock bool
+	for {
+		lockQuery := fmt.Sprintf("SELECT pg_try_advisory_lock(%d)", lockStart+dbNum)
+		err := suite.pgConn.RawQuery(lockQuery).First(&lock)
+		if err != nil {
+			log.Panic(err)
+		}
+		if lock {
+			break
+		}
+		dbNum++
+	}
+	// now we have a lock on dbNum until the pgConn closes
+	templateDbName := suite.dbNameTemplate
+	testDbName := fmt.Sprintf("%s_%d", templateDbName, dbNum)
+	// when doing per test transaction, high priv conn should never be used
+	suite.highPrivConnDetails.Database = "UNUSED"
+	suite.lowPrivConnDetails.Database = testDbName
+
+	// Try to figure out if we need to recreate the test db from the
+	// template db by looking at when each was modified
+	// If the template db is newer, we need to recreate, otherwise we
+	// can reuse
+	mtimeQuery := "SELECT (pg_stat_file('base/'||oid ||'/PG_VERSION')).modification FROM pg_database WHERE datname = ?"
+	var templateMtime time.Time
+	err := suite.pgConn.RawQuery(mtimeQuery, templateDbName).First(&templateMtime)
+	if err != nil {
+		log.Panic(err)
+	}
+	var testDbMtime time.Time
+	err = suite.pgConn.RawQuery(mtimeQuery, testDbName).First(&testDbMtime)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
+	}
+	if testDbMtime.Unix() < templateMtime.Unix() {
+		// If the testdb was modified before the source, we need to
+		// recreate it
+		err = dropDB(suite.pgConn, testDbName)
+		if err != nil {
+			log.Panic(err)
+		}
+		err = cloneDatabase(suite.pgConn, templateDbName, testDbName)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+}
+
 // DB returns a db connection
 func (suite *PopTestSuite) DB() *pop.Connection {
+	// Create the db connection on demand for per test transactions.
+	// This is necessary so that we know the current test name and can
+	// create a new db per test
+	if suite.usePerTestTransaction {
+		if suite.lowPrivConn == nil {
+			suite.lowPrivConn = suite.openTxnPopConnection()
+		}
+	}
 	return suite.lowPrivConn
+}
+
+// setDB overrides the connection for per test transactions
+func (suite *PopTestSuite) setDB(conn *pop.Connection) {
+	if !suite.usePerTestTransaction {
+		log.Panic("Cannot use setDB wihout per test transaction")
+	}
+	suite.lowPrivConn = conn
 }
 
 // Truncate deletes all data from the specified tables.
@@ -297,9 +399,12 @@ func (suite *PopTestSuite) Truncate(tables []string) error {
 	return nil
 }
 
-// TruncateAll deletes all data from all tables that are owned by the user connected to the
-// database.
+// TruncateAll deletes all data from all tables that are owned by the
+// user connected to the database.
 func (suite *PopTestSuite) TruncateAll() error {
+	if suite.usePerTestTransaction {
+		log.Fatal("Cannot TruncateAll with Per Test Transaction")
+	}
 	return suite.highPrivConn.TruncateAll()
 }
 
@@ -308,7 +413,7 @@ func (suite *PopTestSuite) MustSave(model interface{}) {
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := suite.lowPrivConn.ValidateAndSave(model)
+	verrs, err := suite.DB().ValidateAndSave(model)
 	if err != nil {
 		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
 	}
@@ -336,7 +441,7 @@ func (suite *PopTestSuite) MustDestroy(model interface{}) {
 	t := suite.T()
 	t.Helper()
 
-	err := suite.lowPrivConn.Destroy(model)
+	err := suite.DB().Destroy(model)
 	if err != nil {
 		suite.T().Errorf("Errors encountered destroying %v: %v", model, err)
 	}
@@ -351,28 +456,87 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 	return true
 }
 
+// Run overrides the default testify Run to ensure that the testdb is
+// torn down for per txn tests
+//
+// It would be nice if subtests could start a new transaction inside
+// the current connection so they could reuse db setup between
+// subtests. Unfortunately, because database/sql and pop do not
+// support nested transactions, this gets complicated and hairy
+// quickly. When testing that approach, connections wouldn't get
+// closed and cause other tests to hang or subtests would report
+// incorrect errors about transactions already being closed.
+//
+// And so, if per test transaction is enabled, each subtest gets a new
+// connection. This means subtests are really just like main tests,
+// but subtests are a helpful way to group tests together, which can
+// be useful. Setup has to be moved to a function that can be run once
+// per subtest. In testing, that was still faster with per test
+// transactions than the old way of cloning a db per package.
+//
+// When using per test transactions, watch out for subtests that do
+// not use testify.suite as they won't use this code and thus won't
+// get a per subtest connection. Tests that use the native testing
+// subtests look like
+//
+// suite.T().Run("name", func(t *testing.T) { ... })
+//
+// instead of
+//
+// suite.Run("name", func() { ... })
+//
+func (suite *PopTestSuite) Run(name string, subtest func()) bool {
+	oldDB := suite.lowPrivConn
+	oldT := suite.T()
+	defer suite.SetT(oldT)
+	return oldT.Run(name, func(t *testing.T) {
+		suite.SetT(t)
+		if suite.usePerTestTransaction {
+			subtestDb := suite.openTxnPopConnection()
+			suite.setDB(subtestDb)
+			defer func() {
+				err := subtestDb.Close()
+				if err != nil {
+					log.Fatalf("Closing Subtest DB Failed!: %v", err)
+				}
+				suite.setDB(oldDB)
+			}()
+			subtest()
+		} else {
+			subtest()
+		}
+	})
+}
+
+// TearDownTest runs the teardown per test. It will only do something
+// useful if per test transactions are enabled
+func (suite *PopTestSuite) TearDownTest() {
+	suite.tearDownTxnTest()
+}
+
 // TearDown runs the teardown for step for the suite
 // Important steps are to close open DB connections and drop the DB
 func (suite *PopTestSuite) TearDown() {
 	// disconnect from the package DB connections
-	if err := suite.lowPrivConn.Close(); err != nil {
-		log.Panic(err)
+	if suite.lowPrivConn != nil {
+		if err := suite.lowPrivConn.Close(); err != nil {
+			log.Panic(err)
+		}
 	}
-	if err := suite.highPrivConn.Close(); err != nil {
-		log.Panic(err)
+	if suite.highPrivConn != nil {
+		if err := suite.highPrivConn.Close(); err != nil {
+			log.Panic(err)
+		}
 	}
 
-	// reconnect to the original DB
-	pgConn, err := pop.NewConnection(suite.pgConnDetails)
+	// Remove the package DB if this isn't a per test transaction
+	if !suite.usePerTestTransaction {
+		if err := dropDB(suite.pgConn, (*suite.lowPrivConnDetails).Database); err != nil {
+			log.Panic(err)
+		}
+	}
+	err := suite.pgConn.Close()
 	if err != nil {
-		log.Panic(err)
-	}
-	if err := pgConn.Open(); err != nil {
-		log.Panic(err)
-	}
-	defer pgConn.Close()
-	// Remove the package DB
-	if err := dropDB(pgConn, (*suite.lowPrivConnDetails).Database); err != nil {
 		log.Panic(err)
 	}
 }
