@@ -88,7 +88,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 		}
 
 		// If not in block not quoted and on semicolon, then split statement.
-		if blocks.Empty() && quoted == 0 && char == ';' {
+		if blocks.Empty() && quoted == 0 && char == ';' && !inCopyStatement {
 			str := strings.TrimSpace(stmt.String() + ";")
 			if len(str) > 0 { // will the len ever be zero? we're adding a semicolon?
 				statements <- str

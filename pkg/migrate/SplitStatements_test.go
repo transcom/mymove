@@ -192,7 +192,7 @@ func TestSplitStatementsCopyFromStdinWithSemicolons(t *testing.T) {
 		require.Equal(t, expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 6)
+	require.Equal(t, i, 3)
 }
 func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 
