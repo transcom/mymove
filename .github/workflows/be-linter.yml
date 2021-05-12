@@ -19,8 +19,5 @@ jobs:
       - name: install lint cmd
         run: go install ./cmd/ato-linter
 
-      - name: Run custom go linter on pkg
-        run: go run ./cmd/ato-linter/main.go -- ./pkg/...
-
-      - name: Run custom go linter on cmd
-        run: go run ./cmd/ato-linter/main.go -- ./cmd/...
+      - name: Run custom go linter on codebase
+        run: go run ./cmd/ato-linter/main.go -- ./...
