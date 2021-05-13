@@ -191,7 +191,7 @@ PaymentRequestCard.propTypes = {
   paymentRequest: PaymentRequestShape.isRequired,
   shipmentsInfo: arrayOf(
     shape({
-      mtoShipmentId: PropTypes.string,
+      mtoShipmentID: PropTypes.string,
       shipmentAddress: PropTypes.node,
       departureDate: PropTypes.string,
       shipmentModificationType: PropTypes.string,

@@ -61,12 +61,12 @@ const shipmentsInfo = [
   {
     mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
     departureDate: '2020-01-09T00:00:00.000Z',
-    shipmentAddress,
+    address: shipmentAddress,
   },
   {
     mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
     departureDate: '2020-01-09T00:00:00.000Z',
-    shipmentAddress,
+    address: shipmentAddress,
   },
 ];
 
