@@ -196,6 +196,53 @@ paths:
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
+  '/orders/{orderID}/allowances':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates an allowance (Orders with Entitlements)
+      description: All fields sent in this request will be set on the order referenced
+      operationId: updateAllowance
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateAllowancePayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of allowance
+          schema:
+            $ref: '#/definitions/Order'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/orders/{orderID}/move-task-orders':
     parameters:
       - description: ID of order to use
@@ -1881,6 +1928,48 @@ definitions:
       - newDutyStationId
       - originDutyStationId
       - agency
+  UpdateAllowancePayload:
+    type: object
+    properties:
+      authorizedWeight:
+        minimum: 1
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
+      agency:
+        description: the branch that the service member belongs to
+        $ref: '#/definitions/Branch'
+      proGearWeight:
+        minimum: 0
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      proGearWeightSpouse:
+        minimum: 0
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      requiredMedicalEquipmentWeight:
+        minimum: 0
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        description: only for Army
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -2711,6 +2800,10 @@ responses:
       $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
+    schema:
+      $ref: '#/definitions/Error'
+  Unauthorized:
+    description: The request was unauthorized
     schema:
       $ref: '#/definitions/Error'
   ServerError:
