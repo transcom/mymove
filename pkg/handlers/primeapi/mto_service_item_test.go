@@ -791,13 +791,13 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 		// CALL FUNCTION UNDER TEST
 		req = httptest.NewRequest("POST", "/mto-service-items", nil)
-		params = mtoserviceitemops.CreateMTOServiceItemParams{
+		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
 		}
 
 		// CHECK RESULTS
-		response := handler.Handle(params)
+		response := handler.Handle(paramsDDFSIT)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
 
 	})
