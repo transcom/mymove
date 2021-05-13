@@ -2,7 +2,29 @@
 
 **User Story:** *[Distributed Tracing ADR](https://dp3.atlassian.net/browse/MB-8053)*
 
-_Give developers and operators an easier way to understand the behavior and structure of running systems by instrumenting code for distributed tracing._
+_Give developers and operators an easier way to understand the behavior and
+structure of running systems by instrumenting code for distributed tracing._
+
+## Problem Statement
+
+### Why Distributed Tracing?
+
+> Observability is defined as the ability of the internal states of a system to
+be determined by its external outputs.
+
+There are several established techniques for gaining observability into complex
+software systems.
+
+* Logging
+  * helpful for known knowns
+  * e.g. "I want to know when a specific condition is reached"
+* Metrics
+  * helpful for assessing known unknowns
+  * e.g. "How many requests per second was the system handling last Tuesday?"
+* Distributed Tracing
+  * helpful for learning about unknown unknowns
+  * e.g. "What was the execution context for User X that caused their
+  interaction to timeout last Tuesday?"
 
 Some of the benefits of distributed tracing, as outlined in
 [this](https://petabridge.com/blog/why-use-distributed-tracing/) article are:
@@ -11,6 +33,29 @@ Some of the benefits of distributed tracing, as outlined in
 * works across multiple applications, programming languages, and transports
 * improve time to market
 * facilitates excellent cross-team communication and cooperation
+
+Here are several example scenarios or questions that distributed tracing can
+help answer.
+
+* As a new engineer on the team, I want to understand how many separate systems
+are involved when a certain user type logs in and the first page is rendered.
+* As an operations engineer, I want to know how many SQL queries are executed
+for a given endpoint or interaction.
+* As a product manager, I want to know if a new feature is being used by a
+certain cohort of users on a regular basis.
+* As an engineer, I want to prove that an optimization I wrote is effective
+in a production environment.
+* As a load tester, after I have shown that a problem exists, I want to
+understand how the system is interacting so I can debug and fix the issue.
+
+### ADR Goals and Anti-goals
+
+* Goal: Choose which set of libraries to use at callsites (across programming
+languages) within the MilMove codebase, which will be used to generate
+distributed tracing data
+* Anti-goal: Committing to a specific "backend", i.e. platform or service for
+gathering, exploring, and displaying trace information
+  * Sub-goal: Leaving open as many options as possible for the backend
 
 ## Considered Alternatives
 
