@@ -211,46 +211,22 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateServicesCounselorOrderHandlerIntegration() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeServicesCounselor,
 	})
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	order := move.Orders
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
-
-	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
-	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	newAuthorizedWeight := int64(10000)
-	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
-	affiliation := ghcmessages.BranchAIRFORCE
-	grade := ghcmessages.GradeO5
-	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+
 	body := &ghcmessages.UpdateOrderPayload{
-		AuthorizedWeight:     &newAuthorizedWeight,
-		Agency:               affiliation,
-		DependentsAuthorized: swag.Bool(true),
-		Grade:                &grade,
-		IssueDate:            handlers.FmtDatePtr(&issueDate),
-		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
-		OrdersType:           "RETIREMENT",
-		OrdersTypeDetail:     &ordersTypeDetail,
-		DepartmentIndicator:  &deptIndicator,
-		OrdersNumber:         handlers.FmtString("ORDER100"),
-		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
-		Tac:                  handlers.FmtString("E19A"),
-		Sac:                  handlers.FmtString("987654321"),
+		AuthorizedWeight: &newAuthorizedWeight,
 	}
 
 	params := orderop.UpdateOrderParams{
 		HTTPRequest: request,
-		OrderID:     strfmt.UUID(order.ID.String()),
-		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
 		Body:        body,
 	}
 
@@ -260,10 +236,11 @@ func (suite *HandlerSuite) TestUpdateServicesCounselorOrderHandlerIntegration() 
 		orderservice.NewOrderUpdater(suite.DB()),
 	}
 
+	orderUpdater := &mocks.OrderUpdater{}
+	orderUpdater.AssertNumberOfCalls(suite.T(), "UpdateOrder", 0)
 	response := handler.Handle(params)
-	suite.IsNotErrResponse(response)
 
-	suite.Assertions.IsType(&orderop.UpdateOrderBadRequest{}, response)
+	suite.IsType(&orderop.UpdateOrderUnauthorized{}, response)
 
 }
 
