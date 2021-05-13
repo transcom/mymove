@@ -8,9 +8,9 @@ import { shipmentModificationTypes } from 'constants/shipments';
 describe('ShipmentModificationTag Component', () => {
   it('renders the cancelled tag', async () => {
     const { getByText } = render(
-      <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.CANCELLED} />,
+      <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.CANCELED} />,
     );
-    expect(getByText('CANCELLED')).toBeInTheDocument();
+    expect(getByText('CANCELED')).toBeInTheDocument();
   });
   it('renders the diversion tag', async () => {
     const { getByText } = render(

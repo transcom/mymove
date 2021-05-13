@@ -109,7 +109,7 @@ export const HHGCancelled = (args) => (
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
-    mtoShipmentModificationType={shipmentModificationTypes.CANCELLED}
+    mtoShipmentModificationType={shipmentModificationTypes.CANCELED}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
     paymentServiceItemParams={testParams.FuelSurchage}
     amount={999.99}

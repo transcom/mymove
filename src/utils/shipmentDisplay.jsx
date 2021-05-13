@@ -65,8 +65,8 @@ export function formatPaymentRequestReviewAddressString(address) {
 }
 
 export function getShipmentModificationType(shipment) {
-  if (shipment.status === shipmentStatuses.CANCELLED) {
-    return shipmentModificationTypes.CANCELLED;
+  if (shipment.status === shipmentStatuses.CANCELED) {
+    return shipmentModificationTypes.CANCELED;
   }
 
   if (shipment.diversion === true) {

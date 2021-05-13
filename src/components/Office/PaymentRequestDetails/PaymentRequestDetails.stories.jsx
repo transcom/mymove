@@ -244,7 +244,7 @@ export const withHHGShipmentServiceItemsWithACancelledShipment = () => (
     shipmentDepartureDate="2021-04-20"
     serviceItems={hhgRequestedServiceItems}
     shipmentAddress={addresses.hhgAddress}
-    shipmentModificationType={shipmentModificationTypes.CANCELLED}
+    shipmentModificationType={shipmentModificationTypes.CANCELED}
   />
 );
 

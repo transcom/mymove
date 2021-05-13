@@ -376,13 +376,13 @@ describe('PaymentRequestDetails', () => {
           serviceItems={hhgServiceItems}
           shipmentAddress={shipmentAddressHHG}
           shipmentDepartureDate={shipmentDepartureDate}
-          shipmentModificationType={shipmentModificationTypes.CANCELLED}
+          shipmentModificationType={shipmentModificationTypes.CANCELED}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
     );
     it('there is a cancelled tag displayed', () => {
-      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELLED);
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELED);
     });
   });
 

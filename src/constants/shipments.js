@@ -11,7 +11,7 @@ export const shipmentTypes = {
 };
 
 export const shipmentModificationTypes = {
-  CANCELLED: 'CANCELLED',
+  CANCELED: 'CANCELED',
   DIVERSION: 'DIVERSION',
 };
 
@@ -30,7 +30,7 @@ export const shipmentStatuses = {
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
   CANCELLATION_REQUESTED: 'CANCELLATION_REQUESTED',
-  CANCELLED: 'CANCELLED',
+  CANCELED: 'CANCELED',
 };
 
 export const LONGHAUL_MIN_DISTANCE = 50;

@@ -49,7 +49,7 @@ const reviewedServiceItemCard = {
 
 const cancelledShipmentServiceItemCard = {
   ...needsReviewServiceItemCard,
-  mtoShipmentModificationType: shipmentModificationTypes.CANCELLED,
+  mtoShipmentModificationType: shipmentModificationTypes.CANCELED,
 };
 
 const divertedShipmentServiceItemCard = {
@@ -186,7 +186,7 @@ describe('ServiceItemCard component', () => {
   describe('When a service item has a shipment that was cancelled ', () => {
     const component = mount(<ServiceItemCard {...cancelledShipmentServiceItemCard} />);
     it('there is a cancelled tag displayed', () => {
-      expect(component.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELLED);
+      expect(component.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELED);
     });
   });
 
