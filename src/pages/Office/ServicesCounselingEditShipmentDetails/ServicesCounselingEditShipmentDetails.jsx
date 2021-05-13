@@ -4,14 +4,14 @@ import { GridContainer } from '@trussworks/react-uswds';
 
 import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const ServicesCounselingEditShipmentDetails = () => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
-  const { order, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const { pathname } = useLocation();
 
   if (isLoading) return <LoadingPlaceholder />;

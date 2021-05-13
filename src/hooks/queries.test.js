@@ -11,6 +11,7 @@ import {
   useUserQueries,
   useTXOMoveInfoQueries,
   useMoveDetailsQueries,
+  useEditShipmentQueries,
 } from './queries';
 
 import { serviceItemCodes } from 'content/serviceItems';
@@ -548,6 +549,79 @@ describe('useMoveDetailsQueries', () => {
             },
             {
               reServiceName: serviceItemCodes.DUPK,
+            },
+          ],
+        },
+      ],
+      mtoServiceItems: [
+        {
+          id: 'a',
+          reServiceName: serviceItemCodes.CS,
+        },
+        {
+          id: 'b',
+          reServiceName: serviceItemCodes.MS,
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useEditShipmentQueries', () => {
+  it('loads data', async () => {
+    const moveCode = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useEditShipmentQueries(moveCode));
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
+      order: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
+        },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
+      },
+      mtoShipments: [
+        {
+          shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'a1',
+            },
+          ],
+        },
+        {
+          shipmentType: SHIPMENT_OPTIONS.NTSR,
+          mtoAgents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              mtoShipmentID: 'b2',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              mtoShipmentID: 'b2',
             },
           ],
         },
