@@ -13,6 +13,7 @@ import { serviceItemCodes } from 'content/serviceItems';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -137,7 +138,7 @@ const RequestedShipments = ({
 
           <form onSubmit={formik.handleSubmit}>
             <h2>Requested shipments</h2>
-            <div className={styles.shipmentCards}>
+            <div className={shipmentCardsStyles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
                   <ShipmentDisplay
@@ -194,7 +195,7 @@ const RequestedShipments = ({
       {shipmentsStatus === 'APPROVED' && (
         <>
           <h2>Approved shipments</h2>
-          <div className={styles.shipmentCards}>
+          <div className={shipmentCardsStyles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
                 <ShipmentDisplay
