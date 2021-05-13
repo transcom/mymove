@@ -13,7 +13,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http/httptest"
-	"os"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -190,7 +189,6 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 }
 
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
-	os.Setenv("FEATURE_FLAG_SERVICE_COUNSELING", "false")
 
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
@@ -289,9 +287,19 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 
 func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 	suite.Run("Routes to service counseling when feature flag is true", func() {
-		os.Setenv("FEATURE_FLAG_SERVICE_COUNSELING", "true")
-		// Given: a set of orders, a move, user and servicemember
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		// Given: a set of orders with an origin duty station that provides services counseling,
+		// a move, user and servicemember
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				ProvidesServicesCounseling: true,
+			},
+		})
+		assertions := testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation: &dutyStation,
+			},
+		}
+		move := testdatagen.MakeMove(suite.DB(), assertions)
 
 		// And: the context contains the auth values
 		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
