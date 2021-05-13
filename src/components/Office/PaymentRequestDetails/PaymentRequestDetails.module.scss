@@ -5,8 +5,20 @@
 .PaymentRequestDetails {
   :global .stackedtable-header {
     max-width: unset;
+
     h3 {
-      margin-top: 10px;
+      @include u-margin-top(2);
+      @include u-margin-bottom(1.5);
+    }
+    display: block;
+
+    .departureDate {
+        @include u-text('bold');
+    }
+
+    p {
+      @include u-margin-top(-.5);
+      @include u-margin-bottom(3);
     }
   }
 

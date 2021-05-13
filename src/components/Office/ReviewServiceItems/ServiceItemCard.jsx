@@ -8,10 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import { toDollarString } from 'shared/formatters';
+import { toDollarString, formatDateFromIso } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { mtoShipmentTypes } from 'constants/shipments';
+import { shipmentTypes } from 'constants/shipments';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { PaymentServiceItemParam } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
@@ -20,6 +20,9 @@ import { allowedServiceItemCalculations } from 'constants/serviceItems';
 const ServiceItemCard = ({
   id,
   mtoShipmentType,
+  mtoShipmentDepartureDate,
+  mtoShipmentPickupAddress,
+  mtoShipmentDestinationAddress,
   mtoServiceItemCode,
   mtoServiceItemName,
   amount,
@@ -68,7 +71,29 @@ const ServiceItemCard = ({
     return (
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-          <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+          <div className={styles.cardHeader}>
+            <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+            {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
+              <small className={styles.addressBlock}>
+                {mtoShipmentDepartureDate && (
+                  <div>
+                    <span>Departed</span> {formatDateFromIso(mtoShipmentDepartureDate, 'DD MMM YYYY')}
+                  </div>
+                )}
+                {mtoShipmentPickupAddress && (
+                  <div>
+                    <span>From</span> {mtoShipmentPickupAddress}
+                  </div>
+                )}
+                {mtoShipmentPickupAddress && (
+                  <div>
+                    <span>To</span> {mtoShipmentDestinationAddress}
+                  </div>
+                )}
+              </small>
+            )}
+          </div>
+          <hr className="divider" />
           <dl>
             <dt>Service item</dt>
             <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -147,7 +172,29 @@ const ServiceItemCard = ({
           return (
             <Form className={styles.form} onSubmit={submitForm}>
               <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-                <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+                <div className={styles.cardHeader}>
+                  <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+                  {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
+                    <small className={styles.addressBlock}>
+                      {mtoShipmentDepartureDate && (
+                        <div>
+                          <span>Departed</span> {formatDateFromIso(mtoShipmentDepartureDate, 'DD MMM YYYY')}
+                        </div>
+                      )}
+                      {mtoShipmentPickupAddress && (
+                        <div>
+                          <span>From</span> {mtoShipmentPickupAddress}
+                        </div>
+                      )}
+                      {mtoShipmentPickupAddress && (
+                        <div>
+                          <span>To</span> {mtoShipmentDestinationAddress}
+                        </div>
+                      )}
+                    </small>
+                  )}
+                </div>
+                <hr className={styles.divider} />
                 <dl>
                   <dt>Service item</dt>
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -265,6 +312,9 @@ ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
   mtoServiceItemCode: PropTypes.string.isRequired,
   mtoShipmentType: ShipmentOptionsOneOf,
+  mtoShipmentDepartureDate: PropTypes.string,
+  mtoShipmentDestinationAddress: PropTypes.node,
+  mtoShipmentPickupAddress: PropTypes.node,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
@@ -276,6 +326,9 @@ ServiceItemCard.propTypes = {
 
 ServiceItemCard.defaultProps = {
   mtoShipmentType: null,
+  mtoShipmentDepartureDate: '',
+  mtoShipmentDestinationAddress: '',
+  mtoShipmentPickupAddress: '',
   mtoServiceItemName: null,
   status: undefined,
   rejectionReason: '',

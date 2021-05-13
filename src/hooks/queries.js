@@ -82,13 +82,19 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
+  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery]);
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
+    enabled: !!mtoID,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery, mtoShipmentQuery]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
+    mtoShipments,
     isLoading,
     isError,
     isSuccess,

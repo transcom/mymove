@@ -1,19 +1,15 @@
 package move
 
 import (
+	"database/sql"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
-
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
+	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -34,7 +30,10 @@ func NewMoveRouter(db *pop.Connection) services.MoveRouter {
 func (router moveRouter) Submit(move *models.Move) error {
 	var err error
 
-	if router.needsServiceCounseling() {
+	needsServicesCounseling, err := router.needsServiceCounseling(move)
+	if err != nil {
+		return err
+	} else if needsServicesCounseling {
 		err = router.sendToServiceCounselor(move)
 	} else {
 		err = router.sendNewMoveToOfficeUser(move)
@@ -45,25 +44,31 @@ func (router moveRouter) Submit(move *models.Move) error {
 	return nil
 }
 
-// TODO: Replace the code in this function to determine whether or not the move
-// needs service counseling based on the service member's origin duty station.
-// Then remove all code related to the service counseling feature flag here and
-// in pkg/cli/featureflag.go, and remove any references to
-// `FEATURE_FLAG_SERVICE_COUNSELING` from the entire project.
-// You'll need to update the test setup in TestSubmitMoveForServiceCounselingHandler
-// so that the move's origin duty station will trigger service counseling.
-func (router moveRouter) needsServiceCounseling() bool {
-	logger := zap.NewNop()
-	flag := pflag.CommandLine
-	v := viper.New()
-	err := v.BindPFlags(flag)
-	if err != nil {
-		logger.Fatal("could not bind flags", zap.Error(err))
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
+func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error) {
+	var orders models.Order
+	err := router.db.Q().
+		Where("orders.id = ?", move.OrdersID).
+		First(&orders)
 
-	return v.GetBool(cli.FeatureFlagServiceCounseling)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return false, services.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+		default:
+			return false, err
+		}
+	}
+
+	var originDutyStation models.DutyStation
+
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
+		originDutyStation, err = models.FetchDutyStation(router.db, *orders.OriginDutyStationID)
+		if err != nil {
+			return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+		}
+		return originDutyStation.ProvidesServicesCounseling, nil
+	}
+	return false, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
@@ -71,7 +76,7 @@ func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
 		return errors.Wrap(
 			models.ErrInvalidTransition, fmt.Sprintf(
-				"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s",
+				"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is: %s",
 				move.Status,
 			),
 		)
@@ -87,7 +92,9 @@ func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
 // The Submitted status indicates to the TOO that this is a new move.
 func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
-		return errors.Wrap(models.ErrInvalidTransition, "Submit")
+		return errors.Wrap(models.ErrInvalidTransition, fmt.Sprintf(
+			"Cannot move to Submitted state for TOO review when the Move is not in Draft status. Its current status is: %s",
+			move.Status))
 	}
 	move.Status = models.MoveStatusSUBMITTED
 	now := time.Now()
