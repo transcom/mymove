@@ -246,12 +246,18 @@ func (suite *HandlerSuite) TestUpdateServicesCounselorOrderHandlerIntegration() 
 
 // Test that an order notification got stored Successfully
 func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")

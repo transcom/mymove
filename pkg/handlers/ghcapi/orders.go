@@ -85,7 +85,7 @@ type UpdateOrderHandler struct {
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if session.IsOfficeUser() || session.Roles.HasRole(roles.RoleTypeServicesCounselor) && params.Body.AuthorizedWeight != nil {
+	if session.IsOfficeUser() && session.Roles.HasRole(roles.RoleTypeServicesCounselor) && params.Body.AuthorizedWeight != nil {
 		return orderop.NewUpdateOrderUnauthorized()
 	}
 
