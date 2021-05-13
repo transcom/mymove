@@ -388,7 +388,7 @@ func init() {
       }
     },
     "/mto-shipments/{mtoShipmentID}": {
-      "put": {
+      "patch": {
         "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
@@ -2904,7 +2904,7 @@ func init() {
       }
     },
     "/mto-shipments/{mtoShipmentID}": {
-      "put": {
+      "patch": {
         "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
