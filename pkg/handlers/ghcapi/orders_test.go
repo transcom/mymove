@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"net/http/httptest"
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -146,7 +147,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -184,6 +187,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -216,7 +220,9 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -248,6 +254,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
 	}
 
 	traceID, err := uuid.NewV4()
@@ -265,7 +272,9 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -294,6 +303,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -307,7 +317,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -338,6 +350,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -355,7 +368,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 	}
 	suite.MustSave(&move)
 
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -385,6 +400,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 	handler := UpdateOrderHandler{
 		context,
 		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
@@ -395,7 +411,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 
 	updatedOrder, _ := models.FetchOrder(suite.DB(), order.ID)
 
-	suite.Equal("unable to find destination duty station", *errorDetail)
+	suite.Contains(*errorDetail, "NewDutyStationID can not be blank.")
 	suite.NotNil(updatedOrder.TAC)
 }
 
@@ -424,7 +440,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	suite.Run("When Move is still in draft status, TAC can be nil", func() {
 		params := orderop.UpdateOrderParams{
@@ -438,6 +456,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 		handler := UpdateOrderHandler{
 			context,
 			orderservice.NewOrderUpdater(suite.DB()),
+			orderservice.NewOrderFetcher(suite.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -474,6 +493,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 		handler := UpdateOrderHandler{
 			context,
 			orderservice.NewOrderUpdater(suite.DB()),
+			orderservice.NewOrderFetcher(suite.DB()),
 		}
 		response := handler.Handle(params)
 
@@ -509,6 +529,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 			handler := UpdateOrderHandler{
 				context,
 				orderservice.NewOrderUpdater(suite.DB()),
+				orderservice.NewOrderFetcher(suite.DB()),
 			}
 			response := handler.Handle(params)
 
@@ -518,5 +539,166 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 
 			suite.Contains(*errorDetail, "TAC must be exactly 4 alphanumeric characters.")
 		}
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateAllowanceHandlerIntegration() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+
+	newAuthorizedWeight := int64(10000)
+	grade := ghcmessages.GradeO5
+	affiliation := ghcmessages.BranchAIRFORCE
+	ocie := false
+	proGearWeight := swag.Int64(100)
+	proGearWeightSpouse := swag.Int64(10)
+	rmeWeight := swag.Int64(10000)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	requestUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
+	handler := UpdateAllowanceHandler{
+		context,
+		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
+	}
+
+	suite.T().Run("successfully updates order allowance", func(t *testing.T) {
+		body := &ghcmessages.UpdateAllowancePayload{
+			Agency:               affiliation,
+			AuthorizedWeight:     &newAuthorizedWeight,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+		}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		allowanceOK := response.(*orderop.UpdateAllowanceOK)
+		ordersPayload := allowanceOK.Payload
+
+		suite.Assertions.IsType(&orderop.UpdateAllowanceOK{}, response)
+		suite.Equal(order.ID.String(), ordersPayload.ID.String())
+		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
+		suite.Equal(body.Grade, ordersPayload.Grade)
+		suite.Equal(body.Agency, ordersPayload.Agency)
+		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
+		suite.Equal(*body.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(*body.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
+		suite.Equal(*body.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
+		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+	})
+
+	suite.T().Run("successfully updates order allowance without ocie, rme, pro-gear, and pro-gear spouse fields", func(t *testing.T) {
+		newMove := testdatagen.MakeDefaultMove(suite.DB())
+		newOrder := newMove.Orders
+
+		body := &ghcmessages.UpdateAllowancePayload{
+			Agency:               affiliation,
+			AuthorizedWeight:     &newAuthorizedWeight,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+		}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(newOrder.ID.String()),
+			IfMatch:     etag.GenerateEtag(newOrder.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		allowanceOK := response.(*orderop.UpdateAllowanceOK)
+		ordersPayload := allowanceOK.Payload
+
+		suite.Assertions.IsType(&orderop.UpdateAllowanceOK{}, response)
+		suite.Equal(newOrder.ID.String(), ordersPayload.ID.String())
+		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
+		suite.Equal(body.Grade, ordersPayload.Grade)
+		suite.Equal(body.Agency, ordersPayload.Agency)
+		suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
+
+		// should be defaults
+		suite.EqualValues(newOrder.Entitlement.OrganizationalClothingAndIndividualEquipment, ordersPayload.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.EqualValues(newOrder.Entitlement.ProGearWeight, ordersPayload.Entitlement.ProGearWeight)
+		suite.EqualValues(newOrder.Entitlement.ProGearWeightSpouse, ordersPayload.Entitlement.ProGearWeightSpouse)
+		suite.EqualValues(newOrder.Entitlement.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
+	})
+
+	suite.T().Run("returns 400 bad request", func(t *testing.T) {
+		body := &ghcmessages.UpdateAllowancePayload{}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(""),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&orderop.UpdateAllowanceBadRequest{}, response)
+	})
+
+	suite.T().Run("returns 403 forbidden", func(t *testing.T) {
+		stubbedUser := testdatagen.MakeStubbedUser(suite.DB())
+		newRequest := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+		newRequest = suite.AuthenticateUserRequest(newRequest, stubbedUser)
+		body := &ghcmessages.UpdateAllowancePayload{}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: newRequest,
+			OrderID:     strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&orderop.UpdateAllowanceForbidden{}, response)
+	})
+
+	suite.T().Run("returns 404 not found", func(t *testing.T) {
+		body := &ghcmessages.UpdateAllowancePayload{}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&orderop.UpdateAllowanceNotFound{}, response)
+	})
+
+	suite.T().Run("returns 412 pre-condition failed", func(t *testing.T) {
+		body := &ghcmessages.UpdateAllowancePayload{
+			Agency:               affiliation,
+			AuthorizedWeight:     &newAuthorizedWeight,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+		}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     "",
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&orderop.UpdateAllowancePreconditionFailed{}, response)
 	})
 }

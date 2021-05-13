@@ -2,11 +2,12 @@ package ghcapi
 
 import (
 	"database/sql"
+	"time"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/query"
-	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
