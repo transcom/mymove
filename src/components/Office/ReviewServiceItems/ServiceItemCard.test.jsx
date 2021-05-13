@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { act } from 'react-dom/test-utils';
+import { render, fireEvent, act, waitFor, screen } from '@testing-library/react';
 import { mount } from 'enzyme';
 
 import testParams from '../ServiceItemCalculations/serviceItemTestParams';
@@ -29,6 +29,9 @@ const needsReviewServiceItemCard = {
   id: '1',
   mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
   mtoShipmentID: '2',
+  mtoShipmentDepartureDate: '04 May 2021',
+  mtoShipmentPickupAddress: 'Fairfield, CA 94535',
+  mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
   mtoServiceItemName: serviceItemCodes.FSC,
   mtoServiceItemCode: 'FSC',
   amount: 1000,
@@ -70,6 +73,73 @@ describe('ServiceItemCard component', () => {
     it('does not render calculations toggle when the service item calculations are not implemented', () => {
       const component = mount(<ServiceItemCard {...basicServiceItemCard} />);
       expect(component.find('button[data-testid="toggleCalculations"]').exists()).toBe(false);
+    });
+
+    // using react testing library to test dom interactions
+    it('disables the save button when rejection reason is empty', async () => {
+      render(<ServiceItemCard {...basicServiceItemCard} />);
+
+      fireEvent.click(screen.getByTestId('rejectRadio'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionSaveButton')).toHaveAttribute('disabled');
+      });
+    });
+
+    // using react testing library to test dom interactions
+    it('shows edit reason link after saving', async () => {
+      render(<ServiceItemCard {...basicServiceItemCard} />);
+
+      // Click on reject radio and fill in text area
+      fireEvent.click(screen.getByTestId('rejectRadio'));
+      fireEvent.change(screen.getByTestId('textarea'), {
+        target: { value: 'Rejected just because.' },
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionSaveButton').hasAttribute('disabled')).toBeFalsy();
+      });
+
+      // Save
+      fireEvent.click(screen.getByTestId('rejectionSaveButton'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      });
+    });
+
+    // using react testing library to test dom interactions
+    it('edits the rejection reason', async () => {
+      const data = {
+        ...basicServiceItemCard,
+        status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+        rejectionReason: 'Rejected just because.',
+      };
+      render(<ServiceItemCard {...data} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Rejected just because.');
+      });
+
+      // Click on Edit reason button, edit text area and save
+      fireEvent.click(screen.getByTestId('editReasonButton'));
+      fireEvent.change(screen.getByTestId('textarea'), {
+        target: { value: 'Edited rejection reason.' },
+      });
+      fireEvent.click(screen.getByTestId('rejectionSaveButton'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('editReasonButton')).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('rejectionReasonReadOnly').textContent).toBe('Edited rejection reason.');
+      });
     });
   });
 

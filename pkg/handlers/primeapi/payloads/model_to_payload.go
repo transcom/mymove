@@ -121,10 +121,8 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var totalWeight int64
 	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
 		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
 	var authorizedWeight *int64
@@ -141,17 +139,19 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	return &primemessages.Entitlements{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  int64(entitlement.ProGearWeight),
+		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
+		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
+		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
+		StorageInTransit: sit,
+		TotalDependents:  totalDependents,
+		TotalWeight:      totalWeight,
+		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -341,6 +341,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
+		Diversion:                bool(mtoShipment.Diversion),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),

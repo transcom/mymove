@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import OfficeUserInfo from 'components/MilMoveHeader/OfficeUserInfo';
@@ -12,9 +12,15 @@ import { selectLoggedInUser } from 'store/entities/selectors';
 import { roleTypes } from 'constants/userRoles';
 
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
+  const history = useHistory();
   const handleLogout = () => {
     logOut();
-    LogoutUser();
+    LogoutUser().then(() => {
+      history.push({
+        pathname: '/sign-in',
+        state: { hasLoggedOut: true },
+      });
+    });
   };
 
   let queueText = '';

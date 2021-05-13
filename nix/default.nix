@@ -47,6 +47,14 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
+      name = "postgresql-12.4";
+      url = "https://github.com/NixOS/nixpkgs/";
+      ref = "refs/heads/nixpkgs-unstable";
+      rev = "db2de55cbe4258f223ca7af0ace34fce9046d731";
+    }) {}).postgresql_12
+
+    (import (builtins.fetchGit {
+      # Descriptive name to make the store path easier to identify
       name = "pre-commit-2.7.1";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";

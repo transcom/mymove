@@ -11,7 +11,7 @@ import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { mtoShipmentTypes } from 'constants/shipments';
+import { shipmentTypes } from 'constants/shipments';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { PaymentServiceItemParam } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
@@ -20,6 +20,9 @@ import { allowedServiceItemCalculations } from 'constants/serviceItems';
 const ServiceItemCard = ({
   id,
   mtoShipmentType,
+  mtoShipmentDepartureDate,
+  mtoShipmentPickupAddress,
+  mtoShipmentDestinationAddress,
   mtoServiceItemCode,
   mtoServiceItemName,
   amount,
@@ -30,6 +33,7 @@ const ServiceItemCard = ({
   paymentServiceItemParams,
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
+  const [canEditRejection, setCanEditRejection] = useState(!rejectionReason);
 
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
@@ -67,7 +71,29 @@ const ServiceItemCard = ({
     return (
       <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
         <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-          <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+          <div className={styles.cardHeader}>
+            <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+            {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
+              <small className={styles.addressBlock}>
+                {mtoShipmentDepartureDate && (
+                  <div>
+                    <span>Departed</span> {mtoShipmentDepartureDate}
+                  </div>
+                )}
+                {mtoShipmentPickupAddress && (
+                  <div>
+                    <span>From</span> {mtoShipmentPickupAddress}
+                  </div>
+                )}
+                {mtoShipmentPickupAddress && (
+                  <div>
+                    <span>To</span> {mtoShipmentDestinationAddress}
+                  </div>
+                )}
+              </small>
+            )}
+          </div>
+          <hr className="divider" />
           <dl>
             <dt>Service item</dt>
             <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -106,27 +132,69 @@ const ServiceItemCard = ({
       <Formik
         initialValues={{ status, rejectionReason }}
         onSubmit={(values) => {
-          patchPaymentServiceItem(id, values);
+          return patchPaymentServiceItem(id, values);
         }}
+        enableReinitialize
       >
-        {({ handleChange, submitForm, values, setValues }) => {
+        {({ initialValues, handleReset, handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(true);
+            });
+          };
+
+          const handleRejectChange = (event) => {
+            handleChange(event);
+            submitForm().then(() => {
+              setCanEditRejection(false);
+            });
+          };
+
+          const handleRejectCancel = (event) => {
+            if (initialValues.rejectionReason) {
+              setCanEditRejection(false);
+            }
+
+            handleReset(event);
           };
 
           const handleFormReset = () => {
             setValues({
               status: 'REQUESTED',
-              rejectionReason: undefined,
+              rejectionReason: '',
             });
-            submitForm();
+            submitForm().then(() => {
+              setCanEditRejection(true);
+            });
           };
 
           return (
             <Form className={styles.form} onSubmit={submitForm}>
               <ShipmentContainer className={styles.shipmentContainerCard} shipmentType={mtoShipmentType}>
-                <h6 className={styles.cardHeader}>{mtoShipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h6>
+                <div className={styles.cardHeader}>
+                  <h3>{shipmentTypes[`${mtoShipmentType}`] || 'BASIC SERVICE ITEMS'}</h3>
+                  {(mtoShipmentDepartureDate || mtoShipmentPickupAddress || mtoShipmentPickupAddress) && (
+                    <small className={styles.addressBlock}>
+                      {mtoShipmentDepartureDate && (
+                        <div>
+                          <span>Departed</span> {mtoShipmentDepartureDate}
+                        </div>
+                      )}
+                      {mtoShipmentPickupAddress && (
+                        <div>
+                          <span>From</span> {mtoShipmentPickupAddress}
+                        </div>
+                      )}
+                      {mtoShipmentPickupAddress && (
+                        <div>
+                          <span>To</span> {mtoShipmentDestinationAddress}
+                        </div>
+                      )}
+                    </small>
+                  )}
+                </div>
+                <hr className={styles.divider} />
                 <dl>
                   <dt>Service item</dt>
                   <dd data-testid="serviceItemName">{mtoServiceItemName}</dd>
@@ -161,26 +229,55 @@ const ServiceItemCard = ({
                     {values.status === DENIED && (
                       <FormGroup>
                         <Label htmlFor={`rejectReason-${id}`}>Reason for rejection</Label>
-                        <Textarea
-                          id={`rejectReason-${id}`}
-                          name="rejectionReason"
-                          onChange={handleChange}
-                          value={values.rejectionReason}
-                        />
-                        {!requestComplete && (
-                          <div className={styles.rejectionButtonGroup}>
-                            <Button type="button" data-testid="rejectionSaveButton" onClick={submitForm}>
-                              Save
-                            </Button>
+                        {!canEditRejection && (
+                          <>
+                            <p data-testid="rejectionReasonReadOnly">{values.rejectionReason}</p>
                             <Button
-                              data-testid="cancelRejectionButton"
-                              secondary
-                              onClick={handleFormReset}
                               type="button"
+                              unstyled
+                              data-testid="editReasonButton"
+                              className={styles.clearStatus}
+                              onClick={() => setCanEditRejection(true)}
+                              aria-label="Edit reason button"
                             >
-                              Cancel
+                              <span className="icon">
+                                <FontAwesomeIcon icon="pen" title="Edit reason" alt="" />
+                              </span>
+                              <span aria-hidden="true">Edit reason</span>
                             </Button>
-                          </div>
+                          </>
+                        )}
+
+                        {!requestComplete && canEditRejection && (
+                          <>
+                            <Textarea
+                              id={`rejectReason-${id}`}
+                              name="rejectionReason"
+                              onChange={handleChange}
+                              value={values.rejectionReason}
+                            />
+                            <div className={styles.rejectionButtonGroup}>
+                              <Button
+                                id="rejectionSaveButton"
+                                type="button"
+                                data-testid="rejectionSaveButton"
+                                onClick={handleRejectChange}
+                                disabled={!values.rejectionReason}
+                                aria-label="Rejection save button"
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                data-testid="cancelRejectionButton"
+                                secondary
+                                onClick={handleRejectCancel}
+                                type="button"
+                                aria-label="Cancel rejection button"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </>
                         )}
                       </FormGroup>
                     )}
@@ -215,6 +312,9 @@ ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
   mtoServiceItemCode: PropTypes.string.isRequired,
   mtoShipmentType: ShipmentOptionsOneOf,
+  mtoShipmentDepartureDate: PropTypes.string,
+  mtoShipmentDestinationAddress: PropTypes.node,
+  mtoShipmentPickupAddress: PropTypes.node,
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
@@ -226,6 +326,9 @@ ServiceItemCard.propTypes = {
 
 ServiceItemCard.defaultProps = {
   mtoShipmentType: null,
+  mtoShipmentDepartureDate: '',
+  mtoShipmentDestinationAddress: '',
+  mtoShipmentPickupAddress: '',
   mtoServiceItemName: null,
   status: undefined,
   rejectionReason: '',

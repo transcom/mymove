@@ -69,7 +69,7 @@ type UpdateMTOStatusServiceCounselingCompletedBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedBadRequest creates UpdateMTOStatusServiceCounselingCompletedBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedBadRequest() *UpdateMTOStatusSe
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed bad request response
-func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedBadRequest {
+func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed bad request response
-func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) SetPayload(payload
 func (o *UpdateMTOStatusServiceCounselingCompletedBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type UpdateMTOStatusServiceCounselingCompletedUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedUnauthorized creates UpdateMTOStatusServiceCounselingCompletedUnauthorized with default headers values
@@ -121,13 +123,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedUnauthorized() *UpdateMTOStatus
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed unauthorized response
-func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedUnauthorized {
+func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed unauthorized response
-func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) SetPayload(paylo
 func (o *UpdateMTOStatusServiceCounselingCompletedUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type UpdateMTOStatusServiceCounselingCompletedForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedForbidden creates UpdateMTOStatusServiceCounselingCompletedForbidden with default headers values
@@ -163,13 +167,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedForbidden() *UpdateMTOStatusSer
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed forbidden response
-func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedForbidden {
+func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed forbidden response
-func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,9 +181,11 @@ func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) SetPayload(payload 
 func (o *UpdateMTOStatusServiceCounselingCompletedForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -195,7 +201,7 @@ type UpdateMTOStatusServiceCounselingCompletedNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedNotFound creates UpdateMTOStatusServiceCounselingCompletedNotFound with default headers values
@@ -205,13 +211,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedNotFound() *UpdateMTOStatusServ
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed not found response
-func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedNotFound {
+func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed not found response
-func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -219,9 +225,11 @@ func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) SetPayload(payload i
 func (o *UpdateMTOStatusServiceCounselingCompletedNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -237,7 +245,7 @@ type UpdateMTOStatusServiceCounselingCompletedConflict struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedConflict creates UpdateMTOStatusServiceCounselingCompletedConflict with default headers values
@@ -247,13 +255,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedConflict() *UpdateMTOStatusServ
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed conflict response
-func (o *UpdateMTOStatusServiceCounselingCompletedConflict) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedConflict {
+func (o *UpdateMTOStatusServiceCounselingCompletedConflict) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedConflict {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed conflict response
-func (o *UpdateMTOStatusServiceCounselingCompletedConflict) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedConflict) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -261,16 +269,18 @@ func (o *UpdateMTOStatusServiceCounselingCompletedConflict) SetPayload(payload i
 func (o *UpdateMTOStatusServiceCounselingCompletedConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(409)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOStatusServiceCounselingCompletedPreconditionFailedCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedPreconditionFailed
 const UpdateMTOStatusServiceCounselingCompletedPreconditionFailedCode int = 412
 
-/*UpdateMTOStatusServiceCounselingCompletedPreconditionFailed Precondition Failed
+/*UpdateMTOStatusServiceCounselingCompletedPreconditionFailed Precondition failed
 
 swagger:response updateMTOStatusServiceCounselingCompletedPreconditionFailed
 */
@@ -279,7 +289,7 @@ type UpdateMTOStatusServiceCounselingCompletedPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed creates UpdateMTOStatusServiceCounselingCompletedPreconditionFailed with default headers values
@@ -289,13 +299,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed() *UpdateMTO
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed precondition failed response
-func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed {
+func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed precondition failed response
-func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -303,16 +313,18 @@ func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) SetPayload
 func (o *UpdateMTOStatusServiceCounselingCompletedPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // UpdateMTOStatusServiceCounselingCompletedUnprocessableEntityCode is the HTTP code returned for type UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity
 const UpdateMTOStatusServiceCounselingCompletedUnprocessableEntityCode int = 422
 
-/*UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity Validation error
+/*UpdateMTOStatusServiceCounselingCompletedUnprocessableEntity The payload was unprocessable.
 
 swagger:response updateMTOStatusServiceCounselingCompletedUnprocessableEntity
 */
@@ -365,7 +377,7 @@ type UpdateMTOStatusServiceCounselingCompletedInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewUpdateMTOStatusServiceCounselingCompletedInternalServerError creates UpdateMTOStatusServiceCounselingCompletedInternalServerError with default headers values
@@ -375,13 +387,13 @@ func NewUpdateMTOStatusServiceCounselingCompletedInternalServerError() *UpdateMT
 }
 
 // WithPayload adds the payload to the update m t o status service counseling completed internal server error response
-func (o *UpdateMTOStatusServiceCounselingCompletedInternalServerError) WithPayload(payload interface{}) *UpdateMTOStatusServiceCounselingCompletedInternalServerError {
+func (o *UpdateMTOStatusServiceCounselingCompletedInternalServerError) WithPayload(payload *ghcmessages.Error) *UpdateMTOStatusServiceCounselingCompletedInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o status service counseling completed internal server error response
-func (o *UpdateMTOStatusServiceCounselingCompletedInternalServerError) SetPayload(payload interface{}) {
+func (o *UpdateMTOStatusServiceCounselingCompletedInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -389,8 +401,10 @@ func (o *UpdateMTOStatusServiceCounselingCompletedInternalServerError) SetPayloa
 func (o *UpdateMTOStatusServiceCounselingCompletedInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

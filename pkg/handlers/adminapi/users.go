@@ -66,12 +66,11 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	var users models.Users
-	err := h.ListFetcher.FetchRecordList(&users, queryFilters, associations, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(&users, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

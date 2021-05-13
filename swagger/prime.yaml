@@ -888,6 +888,8 @@ definitions:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
+      diversion:
+        type: boolean
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update
@@ -1013,6 +1015,13 @@ definitions:
         example: 500
         type: integer
         x-formatting: weight
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        type: boolean
+        example: false
       storageInTransit:
         example: 90
         type: integer
@@ -1478,6 +1487,9 @@ definitions:
           - SUBMITTED
           - REJECTED
           - CANCELLATION_REQUESTED
+          - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true

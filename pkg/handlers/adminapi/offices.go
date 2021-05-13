@@ -44,15 +44,9 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	// FetchMany does an eager query of all associated data. By listing only ShippingOffice as an association we reduce
-	// the association fetching down to one. Ideally this should be zero, but the query builder does not support this
-	// at this time.
-	associations := query.NewQueryAssociations([]services.QueryAssociation{
-		query.NewQueryAssociation("ShippingOffice"),
-	})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination, ordering)
+	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

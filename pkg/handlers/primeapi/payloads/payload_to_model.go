@@ -97,6 +97,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
+		Diversion:       bool(mtoShipment.Diversion),
 	}
 
 	if mtoShipment.PrimeEstimatedWeight > 0 {
@@ -134,6 +135,7 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	model := &models.MTOShipment{
 		ID:           uuid.FromStringOrNil(mtoShipment.ID.String()),
 		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
+		Diversion:    bool(mtoShipment.Diversion),
 	}
 
 	scheduledPickupDate := time.Time(mtoShipment.ScheduledPickupDate)
