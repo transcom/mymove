@@ -19,12 +19,20 @@ import (
 )
 
 type moveRouter struct {
-	db *pop.Connection
+	db     *pop.Connection
+	logger Logger
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter(db *pop.Connection) services.MoveRouter {
-	return &moveRouter{db}
+func NewMoveRouter(db *pop.Connection, logger Logger) services.MoveRouter {
+	return &moveRouter{db, logger}
+}
+
+// InitNewMoveRouter initialize NewMoveRouter
+func InitNewMoveRouter(db *pop.Connection, logger Logger) (services.MoveRouter, error) {
+	return NewMoveRouter(
+		db,
+		logger), nil
 }
 
 // Submit is called when the customer submits their move. It determines whether
