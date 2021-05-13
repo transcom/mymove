@@ -7,6 +7,7 @@ import styles from './PaymentRequestDetails.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
+import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
@@ -17,7 +18,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
     case SHIPMENT_OPTIONS.HHG:
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-      return ['Household goods', styles.hhgShipmentType];
+      return ['HHG', styles.hhgShipmentType];
     case SHIPMENT_OPTIONS.NTS:
       return ['Non-temp storage', styles.ntsrShipmentType];
     case SHIPMENT_OPTIONS.NTSR:
@@ -27,7 +28,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestStatus }) => {
+const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAddress, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   return (
@@ -40,7 +41,20 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestSt
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
             </h3>
           </div>
-          {shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}
+          {(shipmentDepartureDate || shipmentAddress) && (
+            <div>
+              <p>
+                <small>
+                  {shipmentDepartureDate && (
+                    <strong data-testid="departure-date">
+                      Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}
+                    </strong>
+                  )}{' '}
+                  {shipmentAddress && <span data-testid="pickup-to-destination">{shipmentAddress}</span>}
+                </small>
+              </p>
+            </div>
+          )}
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -75,11 +89,13 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress, paymentRequestSt
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
-  shipmentAddress: PropTypes.string,
+  shipmentDepartureDate: PropTypes.string,
+  shipmentAddress: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {
+  shipmentDepartureDate: '',
   shipmentAddress: '',
 };
 

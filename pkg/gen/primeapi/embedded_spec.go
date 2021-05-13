@@ -1252,6 +1252,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -1263,6 +1267,11 @@ func init() {
           "example": 2000
         },
         "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
@@ -3998,6 +4007,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -4009,6 +4022,11 @@ func init() {
           "example": 2000
         },
         "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
