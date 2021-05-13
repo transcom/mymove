@@ -157,11 +157,32 @@ const ntsrServiceItems = [
   },
 ];
 
-const shipmentAddressBasic = '';
-const shipmentAddressHHG = 'Beverly Hills, CA 90210 to Fairfield, CA 94535';
-const shipmentAddressNTS = 'Boston, MA 02101 to Princeton, NJ 08540';
-const shipmentDepartureDate = '2020-12-01T00:00:00.000Z';
-const shipmentDepartureDateBasic = '';
+const hhgShipment = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+};
+
+const hhgShipmentCanceled = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.CANCELED,
+};
+
+const hhgShipmentDiversion = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.DIVERSION,
+};
+
+const basicShipment = {
+  address: '',
+  departureDate: '',
+};
+
+const ntsShipment = {
+  address: 'Boston, MA 02101 to Princeton, NJ 08540',
+  departureDate: '020-12-01T00:00:00.000Z',
+};
 
 const testMoveLocator = 'AF7K1P';
 
@@ -171,8 +192,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={basicServiceItems}
-          shipmentAddress={shipmentAddressBasic}
-          shipmentDepartureDate={shipmentDepartureDateBasic}
+          shipment={basicShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
@@ -235,8 +255,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -290,8 +309,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={ntsrServiceItems}
-          shipmentAddress={shipmentAddressNTS}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={ntsShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -342,8 +360,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -358,8 +375,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
@@ -374,9 +390,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
-          shipmentModificationType={shipmentModificationTypes.CANCELED}
+          shipment={hhgShipmentCanceled}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -391,9 +405,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
-          shipmentModificationType={shipmentModificationTypes.DIVERSION}
+          shipment={hhgShipmentDiversion}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,

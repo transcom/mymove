@@ -162,19 +162,12 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {
-            let shipmentDepartureDate = '';
-            let shipmentAddress = '';
-            let shipmentModificationType = '';
+            let selectedShipment = {};
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
             if (serviceItemShipmentID) {
-              const selectedShipment = shipmentsInfo.find(
-                (shipment) => shipment.mtoShipmentID === serviceItemShipmentID,
-              );
-              shipmentAddress = selectedShipment?.shipmentAddress;
-              shipmentDepartureDate = selectedShipment?.departureDate;
-              shipmentModificationType = selectedShipment?.shipmentModificationType;
+              selectedShipment = shipmentsInfo.find((shipment) => shipment.mtoShipmentID === serviceItemShipmentID);
             }
 
             return (
@@ -182,9 +175,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
                 key={serviceItemShipmentID || 'basicServiceItems'}
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
-                shipmentModificationType={shipmentModificationType}
-                shipmentDepartureDate={shipmentDepartureDate}
-                shipmentAddress={shipmentAddress}
+                shipment={selectedShipment}
                 paymentRequestStatus={paymentRequest.status}
               />
             );

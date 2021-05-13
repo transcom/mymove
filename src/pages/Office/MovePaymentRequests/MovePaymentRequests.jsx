@@ -57,9 +57,9 @@ const MovePaymentRequests = ({
     mtoShipments.forEach((shipment) => {
       shipmentsInfo.push({
         mtoShipmentID: shipment.id,
-        shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
+        address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
-        shipmentModificationType: getShipmentModificationType(shipment),
+        modificationType: getShipmentModificationType(shipment),
       });
     });
   }

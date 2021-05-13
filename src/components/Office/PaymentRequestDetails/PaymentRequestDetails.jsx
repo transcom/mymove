@@ -30,13 +30,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({
-  serviceItems,
-  shipmentModificationType,
-  shipmentDepartureDate,
-  shipmentAddress,
-  paymentRequestStatus,
-}) => {
+const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   return (
@@ -47,21 +41,21 @@ const PaymentRequestDetails = ({
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
-              {shipmentModificationType && (
-                <ShipmentModificationTag shipmentModificationType={shipmentModificationType} />
+              {shipment.modificationType && (
+                <ShipmentModificationTag shipmentModificationType={shipment.modificationType} />
               )}
             </h3>
           </div>
-          {(shipmentDepartureDate || shipmentAddress) && (
+          {(shipment.departureDate || shipment.address) && (
             <div>
               <p>
                 <small>
-                  {shipmentDepartureDate && (
+                  {shipment.departureDate && (
                     <strong data-testid="departure-date">
-                      Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}
+                      Departed {formatDateFromIso(shipment.departureDate, 'DD MMM YYYY')}
                     </strong>
                   )}{' '}
-                  {shipmentAddress && <span data-testid="pickup-to-destination">{shipmentAddress}</span>}
+                  {shipment.address && <span data-testid="pickup-to-destination">{shipment.address}</span>}
                 </small>
               </p>
             </div>
@@ -100,16 +94,20 @@ const PaymentRequestDetails = ({
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
-  shipmentDepartureDate: PropTypes.string,
-  shipmentAddress: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  shipment: PropTypes.shape({
+    address: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    modificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    departureDate: PropTypes.string,
+  }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
-  shipmentModificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
 };
 
 PaymentRequestDetails.defaultProps = {
-  shipmentDepartureDate: '',
-  shipmentAddress: '',
-  shipmentModificationType: '',
+  shipment: {
+    departureDate: '',
+    address: '',
+    modificationType: '',
+  },
 };
 
 export default PaymentRequestDetails;
