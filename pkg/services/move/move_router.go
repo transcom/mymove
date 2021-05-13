@@ -44,8 +44,6 @@ func (router moveRouter) Submit(move *models.Move) error {
 	return nil
 }
 
-// TODO: (Remaining) You'll need to update the test setup in TestSubmitMoveForServiceCounselingHandler
-// so that the move's origin duty station will trigger service counseling.
 func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error) {
 	var orders models.Order
 	err := router.db.Q().
