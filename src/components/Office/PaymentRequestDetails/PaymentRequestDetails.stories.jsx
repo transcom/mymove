@@ -239,7 +239,7 @@ export const withHHGShipmentServiceItems = () => (
   />
 );
 
-export const withHHGShipmentServiceItemsWithACancelledShipment = () => (
+export const withHHGShipmentServiceItemsWithACanceledShipment = () => (
   <PaymentRequestDetails
     shipmentDepartureDate="2021-04-20"
     serviceItems={hhgRequestedServiceItems}

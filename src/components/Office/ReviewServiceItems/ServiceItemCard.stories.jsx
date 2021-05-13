@@ -101,7 +101,7 @@ export const HHGShorthaulDomestic = (args) => (
   />
 );
 
-export const HHGCancelled = (args) => (
+export const HHGCanceled = (args) => (
   <ServiceItemCard
     mtoShipmentType={SHIPMENT_OPTIONS.HHG}
     mtoShipmentDepartureDate="04 May 2021"

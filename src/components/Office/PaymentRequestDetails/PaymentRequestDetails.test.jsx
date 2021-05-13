@@ -369,7 +369,7 @@ describe('PaymentRequestDetails', () => {
     });
   });
 
-  describe('When a payment request has a shipment that was cancelled ', () => {
+  describe('When a payment request has a shipment that was canceled ', () => {
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
@@ -381,7 +381,7 @@ describe('PaymentRequestDetails', () => {
         />
       </MockProviders>,
     );
-    it('there is a cancelled tag displayed', () => {
+    it('there is a canceled tag displayed', () => {
       expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELED);
     });
   });

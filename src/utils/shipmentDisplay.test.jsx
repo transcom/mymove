@@ -125,7 +125,7 @@ describe('shipmentDisplay utils', () => {
   });
 
   describe('getShipmentModificationType', () => {
-    const cancelledShipment = {
+    const canceledShipment = {
       status: shipmentStatuses.CANCELED,
       diversion: false,
     };
@@ -135,8 +135,8 @@ describe('shipmentDisplay utils', () => {
       diversion: true,
     };
 
-    it('returns canceled when the shipment status is cancelled', () => {
-      const shipmentType = getShipmentModificationType(cancelledShipment);
+    it('returns canceled when the shipment status is canceled', () => {
+      const shipmentType = getShipmentModificationType(canceledShipment);
       expect(shipmentType).toEqual(shipmentModificationTypes.CANCELED);
     });
 

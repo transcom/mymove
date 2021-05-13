@@ -6,7 +6,7 @@ import ShipmentModificationTag from './ShipmentModificationTag';
 import { shipmentModificationTypes } from 'constants/shipments';
 
 describe('ShipmentModificationTag Component', () => {
-  it('renders the cancelled tag', async () => {
+  it('renders the canceled tag', async () => {
     const { getByText } = render(
       <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.CANCELED} />,
     );
