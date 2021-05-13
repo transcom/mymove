@@ -108,8 +108,10 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		}
 	}
 
-	if !session.IsOfficeUser() {
-		return handleError(services.NewForbiddenError("user is not an office user"))
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypePPMOfficeUsers) &&
+		!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO) &&
+		!session.Roles.HasRole(roles.RoleTypeServicesCounselor)) {
+		return handleError(services.NewForbiddenError("is not an user with roles ppm office, TOO, TIO or Service Counselor"))
 	}
 
 	// Parsing order id
@@ -201,8 +203,10 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 		}
 	}
 
-	if !session.IsOfficeUser() {
-		return handleError(services.NewForbiddenError("user is not an office user"))
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypePPMOfficeUsers) &&
+		!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO) &&
+		!session.Roles.HasRole(roles.RoleTypeServicesCounselor)) {
+		return handleError(services.NewForbiddenError("is not an user with roles ppm office, TOO, TIO or Service Counselor"))
 	}
 
 	// Parsing order id

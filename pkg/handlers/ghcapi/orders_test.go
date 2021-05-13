@@ -638,6 +638,41 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandlerIntegration() {
 		suite.EqualValues(newOrder.Entitlement.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 	})
 
+	suite.T().Run("successfully updates order allowance without updating authorized weight field as Service Counselor role", func(t *testing.T) {
+		newMove := testdatagen.MakeDefaultMove(suite.DB())
+		newOrder := newMove.Orders
+		authWeight := swag.Int64(1234)
+
+		scRoleUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		req := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+		req = suite.AuthenticateOfficeRequest(req, scRoleUser)
+
+		body := &ghcmessages.UpdateAllowancePayload{
+			Agency:               affiliation,
+			AuthorizedWeight:     authWeight,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+		}
+
+		params := orderop.UpdateAllowanceParams{
+			HTTPRequest: req,
+			OrderID:     strfmt.UUID(newOrder.ID.String()),
+			IfMatch:     etag.GenerateEtag(newOrder.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		allowanceOK := response.(*orderop.UpdateAllowanceOK)
+		ordersPayload := allowanceOK.Payload
+
+		suite.Assertions.IsType(&orderop.UpdateAllowanceOK{}, response)
+		suite.Equal(newOrder.ID.String(), ordersPayload.ID.String())
+		suite.NotEqual(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
+		// equals the original value
+		suite.EqualValues(*newOrder.Entitlement.DBAuthorizedWeight, *ordersPayload.Entitlement.AuthorizedWeight)
+	})
+
 	suite.T().Run("returns 400 bad request", func(t *testing.T) {
 		body := &ghcmessages.UpdateAllowancePayload{}
 

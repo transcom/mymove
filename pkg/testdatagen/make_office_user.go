@@ -21,11 +21,21 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		if assertions.User.LoginGovEmail == "" {
 			assertions.User.LoginGovEmail = email
 		}
+
 		user = MakeUser(db, assertions)
 	}
 
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail
+	}
+	if user.Roles == nil {
+		officeRole := roles.Role{
+			ID:       uuid.Must(uuid.NewV4()),
+			RoleType: roles.RoleTypePPMOfficeUsers,
+			RoleName: "PPM Office Users",
+		}
+
+		user.Roles = []roles.Role{officeRole}
 	}
 
 	office := assertions.OfficeUser.TransportationOffice
