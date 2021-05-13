@@ -16,6 +16,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/random"
+
 	"github.com/stretchr/testify/mock"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
@@ -3438,6 +3440,103 @@ func createHHGNeedsServicesCounseling(db *pop.Connection) {
 	})
 }
 
+func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, allDutyStations []models.DutyStation, dutyStationsInGBLOC []models.DutyStation, assertions testdatagen.Assertions) {
+	randDays, err := random.GetRandomInt(366)
+	if err != nil {
+		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(err))
+	}
+	submittedAt := time.Now().AddDate(0, 0, randDays*-1)
+
+	if assertions.ServiceMember.Affiliation == nil {
+		randomAffiliation, err := random.GetRandomInt(5)
+		if err != nil {
+			log.Panic(fmt.Errorf("Unable to generate random integer for affiliation"), zap.Error(err))
+		}
+		assertions.ServiceMember.Affiliation = &[]models.ServiceMemberAffiliation{
+			models.AffiliationARMY,
+			models.AffiliationAIRFORCE,
+			models.AffiliationNAVY,
+			models.AffiliationCOASTGUARD,
+			models.AffiliationMARINES}[randomAffiliation]
+	}
+
+	dutyStationCount := len(allDutyStations)
+	if assertions.Order.OriginDutyStationID == nil {
+		// We can pick any origin duty station not only one in the office user's GBLOC
+		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
+			randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
+			if err != nil {
+				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
+			}
+			assertions.Order.OriginDutyStation = &allDutyStations[randDutyStaionIndex]
+			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
+		} else {
+			randDutyStaionIndex, err := random.GetRandomInt(len(dutyStationsInGBLOC))
+			if err != nil {
+				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
+			}
+			assertions.Order.OriginDutyStation = &dutyStationsInGBLOC[randDutyStaionIndex]
+			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
+		}
+	}
+
+	if assertions.Order.NewDutyStationID == uuid.Nil {
+		randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
+		if err != nil {
+			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
+		}
+		assertions.Order.NewDutyStation = allDutyStations[randDutyStaionIndex]
+		assertions.Order.NewDutyStationID = assertions.Order.NewDutyStation.ID
+	}
+
+	orders := testdatagen.MakeOrderWithoutDefaults(db, assertions)
+
+	if assertions.Move.SubmittedAt == nil {
+		assertions.Move.SubmittedAt = &submittedAt
+	}
+
+	if assertions.Move.Status == "" {
+		randStatusIndex, err := random.GetRandomInt(len(possibleStatuses))
+		if err != nil {
+			log.Panic(fmt.Errorf("Unable to generate random integer for move status"), zap.Error(err))
+		}
+		assertions.Move.Status = possibleStatuses[randStatusIndex]
+
+		if assertions.Move.Status == models.MoveStatusServiceCounselingCompleted {
+			counseledAt := submittedAt.Add(3 * 24 * time.Hour)
+			assertions.Move.ServiceCounselingCompletedAt = &counseledAt
+		}
+	}
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move:  assertions.Move,
+		Order: orders,
+	})
+
+	laterRequestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	laterRequestedDeliveryDate := laterRequestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &laterRequestedPickupDate,
+			RequestedDeliveryDate: &laterRequestedDeliveryDate,
+		},
+	})
+
+	earlierRequestedPickupDate := submittedAt.Add(30 * 24 * time.Hour)
+	earlierRequestedDeliveryDate := earlierRequestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &earlierRequestedPickupDate,
+			RequestedDeliveryDate: &earlierRequestedDeliveryDate,
+		},
+	})
+}
+
 func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
 
 	marineCorps := models.AffiliationMARINES
@@ -3551,6 +3650,15 @@ func createHHGServicesCounselingCompleted(db *pop.Connection) {
 
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
+	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	var allDutyStations []models.DutyStation
+	db.All(&allDutyStations)
+
+	var originDutyStationsInGBLOC []models.DutyStation
+	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		All(&originDutyStationsInGBLOC)
+
 	// PPM Office Queue
 	createPPMOfficeUser(db)
 	createPPMWithAdvance(db, userUploader)
@@ -3570,6 +3678,13 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createHHGNeedsServicesCounselingUSMC(db, userUploader)
 	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
 	createHHGServicesCounselingCompleted(db)
+
+	for i := 0; i < 50; i++ {
+		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
+		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+			UserUploader: userUploader,
+		})
+	}
 
 	// TXO Queues
 	createTOO(db)
