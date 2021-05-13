@@ -5,16 +5,15 @@ import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModificationTag';
-
 import styles from './ServiceItemCard.module.scss';
 
+import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
+import { shipmentTypes, shipmentModificationTypes } from 'constants/shipments';
+import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { shipmentTypes, shipmentModificationTypes } from 'constants/shipments';
-import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { PaymentServiceItemParam } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
 
