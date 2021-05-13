@@ -53,7 +53,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 }
 
 func (suite *MoveServiceSuite) TestSubmitted() {
-	moveRouter := NewMoveRouter(suite.DB())
+	moveRouter := NewMoveRouter(suite.DB(), suite.logger)
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		var move models.Move
