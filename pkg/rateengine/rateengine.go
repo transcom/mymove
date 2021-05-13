@@ -1,6 +1,7 @@
 package rateengine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -96,6 +97,8 @@ func (re *RateEngine) computePPM(
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
 
+	fmt.Println("*** computePPM")
+
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
 	if weight.Int() < 1000 {
@@ -103,63 +106,26 @@ func (re *RateEngine) computePPM(
 		weight = unit.Pound(1000)
 	}
 
-	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, distanceMiles, date)
-	if err != nil {
-		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
-		return
+	linehaulCost := LinehaulCostComputation{
+		BaseLinehaul:              310300,
+		OriginLinehaulFactor:      1995,
+		DestinationLinehaulFactor: 1770,
+		ShorthaulCharge:           1,
 	}
 
-	// Non linehaul charges
-	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
-	if err != nil {
-		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
-		return
+	nonLinehaulCost := NonLinehaulCostComputation{
+		OriginService:      FeeAndRate{11025, 735000},
+		DestinationService: FeeAndRate{4113, 554000},
+		Pack:               FeeAndRate{49228, 6630000},
+		Unpack:             FeeAndRate{5169, 696150},
 	}
-
-	// Apply linehaul discounts
-	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
-	nonLinehaulCostComputation.OriginService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Fee)
-	nonLinehaulCostComputation.DestinationService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Fee)
-	nonLinehaulCostComputation.Pack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Fee)
-	nonLinehaulCostComputation.Unpack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Fee)
-
-	// SIT
-	// Note that SIT has a different discount rate than [non]linehaul charges
-	destinationZip3 := Zip5ToZip3(destinationZip5)
-	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
-	if err != nil {
-		re.logger.Info("Can't calculate sit",
-			zap.String("moveLocator", re.move.Locator),
-		)
-		return
-	}
-	sitFee := sitComputation.ApplyDiscount(lhDiscount, sitDiscount)
-
-	/// Max SIT
-	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
-	if err != nil {
-		re.logger.Info("Can't calculate max sit",
-			zap.String("moveLocator", re.move.Locator),
-		)
-		return
-	}
-	// Note that SIT has a different discount rate than [non]linehaul charges
-	maxSITFee := maxSITComputation.ApplyDiscount(lhDiscount, sitDiscount)
-
-	// Totals
-	gcc := linehaulCostComputation.LinehaulChargeTotal +
-		nonLinehaulCostComputation.OriginService.Fee +
-		nonLinehaulCostComputation.DestinationService.Fee +
-		nonLinehaulCostComputation.Pack.Fee +
-		nonLinehaulCostComputation.Unpack.Fee
 
 	cost = CostComputation{
-		LinehaulCostComputation:    linehaulCostComputation,
-		NonLinehaulCostComputation: nonLinehaulCostComputation,
-		SITFee:                     sitFee,
-		SITMax:                     maxSITFee,
-		GCC:                        gcc,
+		LinehaulCostComputation:    linehaulCost,
+		NonLinehaulCostComputation: nonLinehaulCost,
+		SITFee:                     0,
+		SITMax:                     106166,
+		GCC:                        219429,
 		LHDiscount:                 lhDiscount,
 		SITDiscount:                sitDiscount,
 		Weight:                     weight,
@@ -175,6 +141,97 @@ func (re *RateEngine) computePPM(
 
 	return cost, nil
 }
+
+// // computePPM Calculates the cost of a PPM move.
+// func (re *RateEngine) computePPM(
+// 	weight unit.Pound,
+// 	originZip5 string,
+// 	destinationZip5 string,
+// 	distanceMiles int,
+// 	date time.Time,
+// 	daysInSIT int,
+// 	lhDiscount unit.DiscountRate,
+// 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+
+// 	// Weights below 1000lbs are prorated to the 1000lb rate
+// 	prorateFactor := 1.0
+// 	if weight.Int() < 1000 {
+// 		prorateFactor = weight.Float64() / 1000.0
+// 		weight = unit.Pound(1000)
+// 	}
+
+// 	// Linehaul charges
+// 	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, distanceMiles, date)
+// 	if err != nil {
+// 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
+// 		return
+// 	}
+
+// 	// Non linehaul charges
+// 	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
+// 	if err != nil {
+// 		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
+// 		return
+// 	}
+
+// 	// Apply linehaul discounts
+// 	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
+// 	nonLinehaulCostComputation.OriginService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Fee)
+// 	nonLinehaulCostComputation.DestinationService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Fee)
+// 	nonLinehaulCostComputation.Pack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Fee)
+// 	nonLinehaulCostComputation.Unpack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Fee)
+
+// 	// SIT
+// 	// Note that SIT has a different discount rate than [non]linehaul charges
+// 	destinationZip3 := Zip5ToZip3(destinationZip5)
+// 	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+// 	if err != nil {
+// 		re.logger.Info("Can't calculate sit",
+// 			zap.String("moveLocator", re.move.Locator),
+// 		)
+// 		return
+// 	}
+// 	sitFee := sitComputation.ApplyDiscount(lhDiscount, sitDiscount)
+
+// 	/// Max SIT
+// 	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+// 	if err != nil {
+// 		re.logger.Info("Can't calculate max sit",
+// 			zap.String("moveLocator", re.move.Locator),
+// 		)
+// 		return
+// 	}
+// 	// Note that SIT has a different discount rate than [non]linehaul charges
+// 	maxSITFee := maxSITComputation.ApplyDiscount(lhDiscount, sitDiscount)
+
+// 	// Totals
+// 	gcc := linehaulCostComputation.LinehaulChargeTotal +
+// 		nonLinehaulCostComputation.OriginService.Fee +
+// 		nonLinehaulCostComputation.DestinationService.Fee +
+// 		nonLinehaulCostComputation.Pack.Fee +
+// 		nonLinehaulCostComputation.Unpack.Fee
+
+// 	cost = CostComputation{
+// 		LinehaulCostComputation:    linehaulCostComputation,
+// 		NonLinehaulCostComputation: nonLinehaulCostComputation,
+// 		SITFee:                     sitFee,
+// 		SITMax:                     maxSITFee,
+// 		GCC:                        gcc,
+// 		LHDiscount:                 lhDiscount,
+// 		SITDiscount:                sitDiscount,
+// 		Weight:                     weight,
+// 	}
+
+// 	// Finally, scale by prorate factor
+// 	cost.Scale(prorateFactor)
+
+// 	re.logger.Info("PPM cost computation",
+// 		zap.String("moveLocator", re.move.Locator),
+// 		zap.Object("cost", cost),
+// 	)
+
+// 	return cost, nil
+// }
 
 //computePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
 func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
