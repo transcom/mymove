@@ -350,7 +350,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
 
-	req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 	params := mtoshipmentops.UpdateMTOShipmentParams{
 		HTTPRequest:   req,
@@ -374,7 +374,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	now := time.Now()
 
-	suite.T().Run("PUT failure - 500", func(t *testing.T) {
+	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		mockHandler := UpdateMTOShipmentHandler{
 			context,
@@ -399,15 +399,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	})
 
-	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
+	suite.T().Run("Successful PATCH - Integration Test", func(t *testing.T) {
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(mtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
-	suite.T().Run("PUT failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
+	suite.T().Run("PATCH failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
 		notAvailableShipment := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipmentNotAvailable.ID),
@@ -418,11 +420,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("Successful PUT - Update weights on minimal shipment estimated weights", func(t *testing.T) {
+	suite.T().Run("Successful PATCH - Update weights on minimal shipment estimated weights", func(t *testing.T) {
 		minimalMtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 		minimalMtoShipment.PrimeActualWeight = &primeActualWeight
 
-		req = httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s", minimalMtoShipment.ID.String()), nil)
+		req = httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalMtoShipment.ID.String()), nil)
 		eTag = etag.GenerateEtag(minimalMtoShipment.UpdatedAt)
 		params = mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -435,12 +437,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+
 		suite.Equal(minimalMtoShipment.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(minimalMtoShipment.PrimeActualWeight.Int64(), okResponse.Payload.PrimeActualWeight)
 		suite.Equal(minimalMtoShipment.PrimeEstimatedWeight.Int64(), okResponse.Payload.PrimeEstimatedWeight)
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(minimalMtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+
 	})
 
-	suite.T().Run("PUT Failure (422) - Cannot update weight without scheduledPickupDate", func(t *testing.T) {
+	suite.T().Run("PATCH Failure (422) - Cannot update weight without scheduledPickupDate", func(t *testing.T) {
 		noScheduledPickupShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -452,7 +458,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		noScheduledPickupShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 		noScheduledPickupShipment.PrimeActualWeight = &primeActualWeight
 
-		noPickupReq := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
+		noPickupReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
 		noPickupETag := etag.GenerateEtag(noScheduledPickupShipment.UpdatedAt)
 		noPickupParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   noPickupReq,
@@ -469,7 +475,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
 	})
 
-	suite.T().Run("PUT failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
+	suite.T().Run("PATCH failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
 		notAvailableShipment := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: *handlers.FmtUUID(mtoShipmentNotAvailable.ID),
@@ -480,7 +486,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("PUT failure - 404", func(t *testing.T) {
+	suite.T().Run("PATCH failure - 404", func(t *testing.T) {
 		notFoundParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
 			MtoShipmentID: strfmt.UUID(uuid.Nil.String()),
@@ -491,7 +497,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("PUT failure - 422 (extra fields)", func(t *testing.T) {
+	suite.T().Run("PATCH failure - 422 (extra fields)", func(t *testing.T) {
 		remarks := fmt.Sprintf("test conflict %s", time.Now())
 		conflictParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
@@ -503,16 +509,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("PUT failure - 412", func(t *testing.T) {
+	suite.T().Run("PATCH failure - 412", func(t *testing.T) {
 		staleParams := params
-		// no need to update IfMatch or eTag value because it's still the old value from before the successful PUT
+		// no need to update IfMatch or eTag value because it's still the old value from before the successful PATCH
 		staleParams.Body.PrimeEstimatedWeight = 0 // causes this test to fail because any updates to this are invalid
 		// (and input validation happens first before this check)
 		response := handler.Handle(staleParams)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("PUT failure - 422", func(t *testing.T) {
+	suite.T().Run("PATCH failure - 422", func(t *testing.T) {
 		params.Body.PrimeEstimatedWeight = 1 // cannot update once initial value has been set
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
@@ -551,7 +557,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		ID: strfmt.UUID(mtoShipment2.ID.String()),
 	}
 
-	req2 := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", mtoShipment2.ID.String()), nil)
+	req2 := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", mtoShipment2.ID.String()), nil)
 
 	eTag = etag.GenerateEtag(mtoShipment2.UpdatedAt)
 	params = mtoshipmentops.UpdateMTOShipmentParams{
@@ -561,7 +567,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		IfMatch:       eTag,
 	}
 
-	suite.T().Run("Successful PUT - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
+	suite.T().Run("Successful PATCH - Integration Test with Only Required Fields in Payload", func(t *testing.T) {
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 		handler := UpdateMTOShipmentHandler{
 			context,
@@ -573,6 +579,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(mtoShipment2.ID.String(), okResponse.Payload.ID.String())
+
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(mtoShipment2.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+
 	})
 	//}
 
@@ -624,7 +634,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -642,6 +652,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
+
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+
 	})
 
 	suite.T().Run("Successful case if scheduled pickup is changed. RequiredDeliveryDate should be generated.", func(t *testing.T) {
@@ -660,7 +674,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -690,6 +704,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -728,7 +745,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
 			DestinationAddress:   &payloadAKAddress,
 		}
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -757,6 +774,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
@@ -798,7 +818,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			DestinationAddress:   &payloadAdakAddress,
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -828,6 +848,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
 
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+
 	})
 
 	suite.T().Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func(t *testing.T) {
@@ -847,7 +870,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -883,7 +906,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -905,6 +928,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func(t *testing.T) {
@@ -924,7 +949,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -959,7 +984,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -981,6 +1006,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Successful case for valid and complete payload including approved date and re service code", func(t *testing.T) {
@@ -1018,7 +1045,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			PointOfContact: "John McRand",
 		}
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -1054,5 +1081,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.Equal(string(reService.Code), serviceItemDDFSITCode)
 		suite.Equal(oldShipment.ApprovedDate, &now)
+		// Confirm PATCH working as expected; non-updated value still exists
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 }
