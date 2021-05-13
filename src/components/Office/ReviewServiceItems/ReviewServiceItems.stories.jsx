@@ -74,7 +74,7 @@ export const HHG = () => (
       {
         id: '1',
         mtoShipmentID: '10',
-        mtoShipmentDepartureDate: '04 May 2021',
+        mtoShipmentDepartureDate: '2020-04-29',
         mtoShipmentPickupAddress: 'Fairfield, CA 94535',
         mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,

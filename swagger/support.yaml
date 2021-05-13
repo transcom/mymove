@@ -864,6 +864,13 @@ definitions:
         type: integer
         x-formatting: weight
         readOnly: true
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        type: boolean
+        example: false
       storageInTransit:
         example: 90
         type: integer
