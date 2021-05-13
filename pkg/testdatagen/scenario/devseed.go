@@ -3679,7 +3679,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
 	createHHGServicesCounselingCompleted(db)
 
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 12; i++ {
 		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
 		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
 			UserUploader: userUploader,
