@@ -1,6 +1,6 @@
 import React from 'react';
 import { matchPath, useHistory, useLocation, useParams } from 'react-router-dom';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -24,21 +24,25 @@ const ServicesCounselingEditShipmentDetails = () => {
   const updateMtoShipmentHandler = () => {};
 
   return (
-    <GridContainer>
-      <ServicesCounselingShipmentForm
-        match={matchPath(pathname, {
-          isExact: true,
-          path: '/moves/:moveCode/:shipmentId',
-        })}
-        history={history}
-        updateMTOShipment={updateMtoShipmentHandler}
-        isCreatePage={false}
-        currentResidence={customer.current_address}
-        newDutyStationAddress={order.destinationDutyStation}
-        selectedMoveType={SHIPMENT_OPTIONS.HHG}
-        mtoShipment={matchingShipment}
-        serviceMember={{ weight_allotment: weightAllotment }}
-      />
+    <GridContainer containerSize="widescreen">
+      <Grid row>
+        <Grid col desktop={{ col: 8, offset: 2 }}>
+          <ServicesCounselingShipmentForm
+            match={matchPath(pathname, {
+              isExact: true,
+              path: '/moves/:moveCode/:shipmentId',
+            })}
+            history={history}
+            updateMTOShipment={updateMtoShipmentHandler}
+            isCreatePage={false}
+            currentResidence={customer.current_address}
+            newDutyStationAddress={order.destinationDutyStation}
+            selectedMoveType={SHIPMENT_OPTIONS.HHG}
+            mtoShipment={matchingShipment}
+            serviceMember={{ weight_allotment: weightAllotment }}
+          />
+        </Grid>
+      </Grid>
     </GridContainer>
   );
 };
