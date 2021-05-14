@@ -1392,7 +1392,7 @@ func init() {
       "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
-      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognizes as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
+      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
       "type": "array",
       "maxItems": 2,
       "items": {
@@ -4204,7 +4204,7 @@ func init() {
       "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
-      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognizes as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
+      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
       "type": "array",
       "maxItems": 2,
       "items": {
