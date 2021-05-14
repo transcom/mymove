@@ -751,6 +751,7 @@ paths:
           $ref: '#/responses/ServerError'
 definitions:
   Address:
+    description: A postal address.
     type: object
     properties:
       id:
@@ -1165,11 +1166,13 @@ definitions:
   MTOAgent:
     properties:
       id:
+        description: The ID of the agent.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         readOnly: true
         type: string
       mtoShipmentID:
+        description: The ID of the shipment this agent is permitted to release/receive.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
@@ -1205,13 +1208,19 @@ definitions:
         readOnly: true
     type: object
   MTOAgents:
+    description: >
+      A list of the agents for a shipment. Agents are the people who the Prime contractor recognizes as permitted to
+      release (in the case of pickup) or receive (on delivery) a shipment.
     items:
       $ref: '#/definitions/MTOAgent'
     type: array
     maxItems: 2
   MTOAgentType:
+    title: Agent Type
+    description: >
+      The type for this agent. `RELEASING` means they have authority on pickup, `RECEIVING` means they can receive the
+      shipment on delivery.
     type: string
-    title: MTO Agent Type
     example: RELEASING_AGENT
     enum:
       - RELEASING_AGENT
@@ -1459,14 +1468,14 @@ definitions:
       - REJECTED
   MTOShipment:
     properties:
-      moveTaskOrderID:
-        description: The ID of the move for this shipment.
+      id:
+        description: The ID of the shipment.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
         readOnly: true
-      id:
-        description: The ID of the shipment.
+      moveTaskOrderID:
+        description: The ID of the move for this shipment.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
@@ -1529,6 +1538,7 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:
+        description: A list of service items connected to this shipment.
         items:
           $ref: '#/definitions/MTOServiceItem'
         type: array
@@ -1580,12 +1590,14 @@ definitions:
         type: string
         description: Email or ID of a contact person for this update.
   MTOShipments:
+    description: A list of shipments.
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
   MTOShipmentType:
-    type: string
     title: Shipment Type
+    description: The type of shipment.
+    type: string
     example: HHG
     enum:
       - HHG

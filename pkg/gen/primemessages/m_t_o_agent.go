@@ -36,7 +36,7 @@ type MTOAgent struct {
 	// first name
 	FirstName *string `json:"firstName,omitempty"`
 
-	// id
+	// The ID of the agent.
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -44,7 +44,7 @@ type MTOAgent struct {
 	// last name
 	LastName *string `json:"lastName,omitempty"`
 
-	// mto shipment ID
+	// The ID of the shipment this agent is permitted to release/receive.
 	// Read Only: true
 	// Format: uuid
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`

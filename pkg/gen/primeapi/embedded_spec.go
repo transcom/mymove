@@ -873,6 +873,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address.",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -1336,6 +1337,7 @@ func init() {
           "x-nullable": true
         },
         "id": {
+          "description": "The ID of the agent.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -1346,6 +1348,7 @@ func init() {
           "x-nullable": true
         },
         "mtoShipmentID": {
+          "description": "The ID of the shipment this agent is permitted to release/receive.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -1365,8 +1368,9 @@ func init() {
       }
     },
     "MTOAgentType": {
+      "description": "The type for this agent. ` + "`" + `RELEASING` + "`" + ` means they have authority on pickup, ` + "`" + `RECEIVING` + "`" + ` means they can receive the shipment on delivery.\n",
       "type": "string",
-      "title": "MTO Agent Type",
+      "title": "Agent Type",
       "enum": [
         "RELEASING_AGENT",
         "RECEIVING_AGENT"
@@ -1374,6 +1378,7 @@ func init() {
       "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
+      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognizes as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
       "type": "array",
       "maxItems": 2,
       "items": {
@@ -1760,6 +1765,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
@@ -1842,6 +1848,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
+      "description": "The type of shipment.",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -1857,6 +1864,7 @@ func init() {
       "example": "HHG"
     },
     "MTOShipments": {
+      "description": "A list of shipments.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOShipment"
@@ -3643,6 +3651,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address.",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -4106,6 +4115,7 @@ func init() {
           "x-nullable": true
         },
         "id": {
+          "description": "The ID of the agent.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -4116,6 +4126,7 @@ func init() {
           "x-nullable": true
         },
         "mtoShipmentID": {
+          "description": "The ID of the shipment this agent is permitted to release/receive.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -4135,8 +4146,9 @@ func init() {
       }
     },
     "MTOAgentType": {
+      "description": "The type for this agent. ` + "`" + `RELEASING` + "`" + ` means they have authority on pickup, ` + "`" + `RECEIVING` + "`" + ` means they can receive the shipment on delivery.\n",
       "type": "string",
-      "title": "MTO Agent Type",
+      "title": "Agent Type",
       "enum": [
         "RELEASING_AGENT",
         "RECEIVING_AGENT"
@@ -4144,6 +4156,7 @@ func init() {
       "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
+      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognizes as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
       "type": "array",
       "maxItems": 2,
       "items": {
@@ -4530,6 +4543,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
@@ -4612,6 +4626,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
+      "description": "The type of shipment.",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -4627,6 +4642,7 @@ func init() {
       "example": "HHG"
     },
     "MTOShipments": {
+      "description": "A list of shipments.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOShipment"

@@ -15,6 +15,8 @@ import (
 
 // MTOShipmentType Shipment Type
 //
+// The type of shipment.
+//
 // swagger:model MTOShipmentType
 type MTOShipmentType string
 
