@@ -90,7 +90,8 @@ describe('MoveAllowances page', () => {
   );
 
   it('renders the sidebar elements', () => {
-    expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View Allowances');
+    expect(wrapper.find({ 'data-testid': 'allowances-header' }).text()).toBe('View allowances');
+    expect(wrapper.find({ 'data-testid': 'view-orders' }).at(0).text()).toBe('View orders');
     expect(wrapper.find({ 'data-testid': 'header' }).text()).toBe('Counseling');
   });
 

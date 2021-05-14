@@ -4,13 +4,17 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 
@@ -79,33 +83,17 @@ func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParam
 type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
+	orderFetcher services.OrderFetcher
 }
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	if session.IsOfficeUser() && session.Roles.HasRole(roles.RoleTypeServicesCounselor) && params.Body.AuthorizedWeight != nil {
-		return orderop.NewUpdateOrderUnauthorized()
-	}
-
-	orderID, err := uuid.FromString(params.OrderID.String())
-	if err != nil {
-		logger.Error("unable to parse order id param to uuid", zap.Error(err))
-		return orderop.NewUpdateOrderBadRequest()
-	}
-
-	newOrder, err := Order(*params.Body)
-	if err != nil {
-		logger.Error("error converting payload to order model", zap.Error(err))
-		return orderop.NewUpdateOrderBadRequest()
-	}
-	newOrder.ID = orderID
-
-	updatedOrder, err := h.orderUpdater.UpdateOrder(params.IfMatch, newOrder)
-
-	if err != nil {
+	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
+		case *services.BadDataError:
+			return orderop.NewUpdateOrderBadRequest()
 		case services.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()
 		case services.InvalidInputError:
@@ -113,18 +101,53 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewUpdateOrderInternalServerError()
 		}
 	}
 
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypePPMOfficeUsers) &&
+		!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO) &&
+		!session.Roles.HasRole(roles.RoleTypeServicesCounselor)) {
+		return handleError(services.NewForbiddenError("is not an user with roles ppm office, TOO, TIO or Service Counselor"))
+	}
+
+	// Parsing order id
+	orderID, err := uuid.FromString(params.OrderID.String())
+	if err != nil {
+		return handleError(services.NewBadDataError("unable to parse order id param to uuid"))
+	}
+
+	// make sure order exists
+	existingOrder, err := h.orderFetcher.FetchOrder(orderID)
+	if err != nil {
+		return handleError(services.NewNotFoundError(orderID, "while looking for order"))
+	}
+
+	// make sure duty station exists
+
+	// make sure eTag matches
+	existingETag := etag.GenerateEtag(existingOrder.UpdatedAt)
+	if existingETag != params.IfMatch {
+		return handleError(services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: params.IfMatch}))
+	}
+
+	// good to update
+	updatingOrder := Order(*existingOrder, *params.Body, session)
+	updatedOrder, err := h.orderUpdater.UpdateOrder(updatingOrder)
+	if err != nil {
+		return handleError(err)
+	}
+
+	// For capturing event information
 	// Find the record where orderID matches order.ID
 	var move models.Move
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
 	err = query.First(&move)
 
 	var moveID = move.ID
-
 	if err != nil {
 		logger.Error("ghcapi.UpdateOrderHandler could not find move")
 		moveID = uuid.Nil
@@ -151,80 +174,195 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
 }
 
-// Order transforms UpdateOrderPayload to Order model
-func Order(payload ghcmessages.UpdateOrderPayload) (models.Order, error) {
+// UpdateAllowanceHandler updates an order and entitlements via PATCH /orders/{orderId}/allowances
+type UpdateAllowanceHandler struct {
+	handlers.HandlerContext
+	orderUpdater services.OrderUpdater
+	orderFetcher services.OrderFetcher
+}
 
-	var originDutyStationID uuid.UUID
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID = uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+// Handle ... updates an order from a request payload
+func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error updating order allowance", zap.Error(err))
+		switch err.(type) {
+		case *services.BadDataError:
+			return orderop.NewUpdateAllowanceBadRequest()
+		case services.NotFoundError:
+			return orderop.NewUpdateAllowanceNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewUpdateAllowanceInternalServerError()
+		}
 	}
 
-	newDutyStationID, err := uuid.FromString(payload.NewDutyStationID.String())
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypePPMOfficeUsers) &&
+		!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO) &&
+		!session.Roles.HasRole(roles.RoleTypeServicesCounselor)) {
+		return handleError(services.NewForbiddenError("is not an user with roles ppm office, TOO, TIO or Service Counselor"))
+	}
+
+	// Parsing order id
+	orderID, err := uuid.FromString(params.OrderID.String())
 	if err != nil {
-		return models.Order{}, err
+		return handleError(services.NewBadDataError("unable to parse order id param to uuid"))
 	}
 
-	var departmentIndicator *string
-	if payload.DepartmentIndicator != nil {
-		departmentIndicator = (*string)(payload.DepartmentIndicator)
+	// make sure order exists
+	existingOrder, err := h.orderFetcher.FetchOrder(orderID)
+	if err != nil {
+		return handleError(services.NewNotFoundError(orderID, "while looking for order"))
 	}
 
-	var grade *string
-	if payload.Grade != nil {
-		grade = (*string)(payload.Grade)
+	// make sure eTag matches
+	existingETag := etag.GenerateEtag(existingOrder.UpdatedAt)
+	if existingETag != params.IfMatch {
+		return handleError(services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: params.IfMatch}))
 	}
 
-	var entitlement models.Entitlement
-	if payload.AuthorizedWeight != nil {
-		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
+	// good to update
+	updatingOrder := OrderAllowance(*existingOrder, *params.Body, session)
+	updatedOrder, err := h.orderUpdater.UpdateOrder(updatingOrder)
+	if err != nil {
+		return handleError(err)
 	}
 
-	if payload.DependentsAuthorized != nil {
-		entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	// For capturing event information
+	// Find the record where orderID matches order.ID
+	var move models.Move
+	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
+	err = query.First(&move)
+
+	var moveID = move.ID
+	if err != nil {
+		logger.Error("ghcapi.UpdateAllowanceHandler could not find move")
+		moveID = uuid.Nil
 	}
+
+	// UpdateOrder event Trigger for the first updated move:
+	_, err = event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateAllowanceEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: updatedOrder.ID,           // ID of the updated logical object (look at what the payload returns)
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateAllowanceHandler could not generate the event")
+	}
+
+	orderPayload := payloads.Order(updatedOrder)
+
+	return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+}
+
+// Order transforms UpdateOrderPayload to Order model
+func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, session *auth.Session) models.Order {
+	isServicesCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
+	order := existingOrder
+
+	// update both order origin duty station and service member duty station
+	if payload.OriginDutyStationID != nil {
+		originDutyStationID := uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+		order.OriginDutyStationID = &originDutyStationID
+		order.ServiceMember.DutyStationID = &originDutyStationID
+	}
+
+	if payload.NewDutyStationID != nil {
+		newDutyStationID := uuid.FromStringOrNil(payload.NewDutyStationID.String())
+		order.NewDutyStationID = newDutyStationID
+	}
+
+	if payload.DepartmentIndicator != nil && !isServicesCounselor {
+		departmentIndicator := (*string)(payload.DepartmentIndicator)
+		order.DepartmentIndicator = departmentIndicator
+	}
+
+	if payload.IssueDate != nil {
+		order.IssueDate = time.Time(*payload.IssueDate)
+	}
+
+	if payload.OrdersNumber != nil && !isServicesCounselor {
+		order.OrdersNumber = payload.OrdersNumber
+	}
+
+	if payload.OrdersTypeDetail != nil && !isServicesCounselor {
+		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
+		order.OrdersTypeDetail = &orderTypeDetail
+	}
+
+	if payload.ReportByDate != nil {
+		order.ReportByDate = time.Time(*payload.ReportByDate)
+	}
+
+	if payload.Sac != nil && !isServicesCounselor {
+		order.SAC = payload.Sac
+	}
+
+	if payload.Tac != nil && !isServicesCounselor {
+		order.TAC = payload.Tac
+	}
+
+	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+
+	return order
+}
+
+// OrderAllowance transforms UpdateOrderPayload to Order model. Specifically for
+// UpdateAllowance endpoint.
+func OrderAllowance(existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload, session *auth.Session) models.Order {
+	isServicesCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
+	order := existingOrder
 
 	if payload.ProGearWeight != nil {
-		entitlement.ProGearWeight = int(*payload.ProGearWeight)
+		order.Entitlement.ProGearWeight = int(*payload.ProGearWeight)
 	}
 
 	if payload.ProGearWeightSpouse != nil {
-		entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
+		order.Entitlement.ProGearWeightSpouse = int(*payload.ProGearWeightSpouse)
 	}
 
 	if payload.RequiredMedicalEquipmentWeight != nil {
-		entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
+		order.Entitlement.RequiredMedicalEquipmentWeight = int(*payload.RequiredMedicalEquipmentWeight)
+	}
+
+	// branch for service member
+	if payload.Agency != "" {
+		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
+		order.ServiceMember.Affiliation = &serviceMemberAffiliation
+	}
+
+	// rank
+	if payload.Grade != nil {
+		grade := (*string)(payload.Grade)
+		order.Grade = grade
 	}
 
 	if payload.OrganizationalClothingAndIndividualEquipment != nil {
-		entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
+		order.Entitlement.OrganizationalClothingAndIndividualEquipment = *payload.OrganizationalClothingAndIndividualEquipment
 	}
 
-	var ordersTypeDetail *internalmessages.OrdersTypeDetail
-	if payload.OrdersTypeDetail != nil {
-		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
-		ordersTypeDetail = &orderTypeDetail
+	// only office users and TXO roles can edit authorized weight
+	// omit value from update
+	if payload.AuthorizedWeight != nil && !isServicesCounselor {
+		dbAuthorizedWeight := swag.Int(int(*payload.AuthorizedWeight))
+		order.Entitlement.DBAuthorizedWeight = dbAuthorizedWeight
 	}
 
-	var serviceMember models.ServiceMember
-	if payload.Agency != "" {
-		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
-		serviceMember.Affiliation = &serviceMemberAffiliation
+	if payload.DependentsAuthorized != nil {
+		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
 	}
 
-	return models.Order{
-		ServiceMember:       serviceMember,
-		DepartmentIndicator: departmentIndicator,
-		Entitlement:         &entitlement,
-		Grade:               grade,
-		IssueDate:           time.Time(*payload.IssueDate),
-		NewDutyStationID:    newDutyStationID,
-		OrdersNumber:        payload.OrdersNumber,
-		OrdersType:          internalmessages.OrdersType(payload.OrdersType),
-		OrdersTypeDetail:    ordersTypeDetail,
-		OriginDutyStationID: &originDutyStationID,
-		ReportByDate:        time.Time(*payload.ReportByDate),
-		SAC:                 payload.Sac,
-		TAC:                 payload.Tac,
-	}, nil
-
+	return order
 }

@@ -1,8 +1,9 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { shallow } from 'enzyme';
-import { useLocation } from 'react-router-dom';
+import { mount } from 'enzyme';
 
-import MoveDocumentWrapper from './MoveDocumentWrapper';
+import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
+import { MockProviders } from 'testUtils';
 
 const mockOriginDutyStation = {
   address: {
@@ -75,56 +76,32 @@ jest.mock('hooks/queries', () => ({
           sac: 'E2P3',
         },
       },
-      documents: {
-        2: {
-          id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
-        },
-      },
-      upload: {
-        z: {
-          id: 'z',
-          filename: 'test.pdf',
-          contentType: 'application/pdf',
-          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-        },
-      },
     };
   },
 }));
 
-const testMoveId = '10000';
+describe('Orders page', () => {
+  const wrapper = mount(
+    <MockProviders initialEntries={['moves/FP24I2/orders']}>
+      <ServicesCounselingOrders />
+    </MockProviders>,
+  );
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn().mockReturnValue({ orderId: testMoveId }),
-  useLocation: jest.fn(),
-}));
-
-describe('MoveDocumentWrapper', () => {
-  it('renders the document viewer', () => {
-    useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/orders` }));
-    const wrapper = shallow(<MoveDocumentWrapper />);
-
-    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+  it('renders the sidebar orders detail form', () => {
+    expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
   });
 
-  it('renders the sidebar Orders component', () => {
-    useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/orders` }));
-    const wrapper = shallow(<MoveDocumentWrapper />);
-    expect(wrapper.find('Orders').exists()).toBe(true);
+  it('renders the sidebar elements', () => {
+    expect(wrapper.find({ 'data-testid': 'view-orders-header' }).text()).toBe('View orders');
+    // There is only 1 button, but mount-rendering react-uswds Button component has inner buttons
+    expect(wrapper.find({ 'data-testid': 'view-allowances' }).at(0).text()).toBe('View allowances');
   });
 
-  it('renders the sidebar MoveAllowances component', () => {
-    useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/allowances` }));
-    const wrapper = shallow(<MoveDocumentWrapper />);
-    expect(wrapper.find('MoveAllowances').exists()).toBe(true);
+  it('populates initial field values', () => {
+    expect(wrapper.find('Select[name="originDutyStation"]').prop('value')).toEqual(mockOriginDutyStation);
+    expect(wrapper.find('Select[name="newDutyStation"]').prop('value')).toEqual(mockDestinationDutyStation);
+    expect(wrapper.find('input[name="issueDate"]').prop('value')).toBe('15 Mar 2018');
+    expect(wrapper.find('input[name="reportByDate"]').prop('value')).toBe('01 Aug 2018');
+    expect(wrapper.find('select[name="ordersType"]').prop('value')).toBe('PERMANENT_CHANGE_OF_STATION');
   });
 });

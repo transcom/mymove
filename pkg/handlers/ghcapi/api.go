@@ -92,8 +92,15 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		context,
 		order.NewOrderUpdater(context.DB()),
+		order.NewOrderFetcher(context.DB()),
 	}
 	ghcAPI.OrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+
+	ghcAPI.OrderUpdateAllowanceHandler = UpdateAllowanceHandler{
+		context,
+		order.NewOrderUpdater(context.DB()),
+		order.NewOrderFetcher(context.DB()),
+	}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
