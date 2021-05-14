@@ -145,11 +145,13 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 
 // MakeStubbedServiceMember returns a stubbed service member that is not stored in the DB
 func MakeStubbedServiceMember(db *pop.Connection) models.ServiceMember {
+	user := MakeStubbedUser(db)
+
 	return MakeServiceMember(db, Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:     uuid.Must(uuid.NewV4()),
-			User:   MakeStubbedUser(db),
-			UserID: uuid.Must(uuid.NewV4()),
+			User:   user,
+			UserID: user.ID,
 		},
 		Stub: true,
 	})
