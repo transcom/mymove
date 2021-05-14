@@ -529,6 +529,80 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 	})
 }
 
+func (suite *HandlerSuite) TestUpdateOrderHandlerIntegrationAsServiceCounselor() {
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := UpdateOrderHandler{
+		context,
+		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
+	}
+
+	suite.T().Run("successfully updates order allowance without updating unauthorized fields as Service Counselor role", func(t *testing.T) {
+		newMove := testdatagen.MakeDefaultMove(suite.DB())
+		newOrder := newMove.Orders
+
+		scRoleUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+		req := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+		req = suite.AuthenticateOfficeRequest(req, scRoleUser)
+
+		// fields that are editable for Services counselor
+		newDutyStationID := strfmt.UUID(newOrder.NewDutyStationID.String())
+		originDutyStationID := strfmt.UUID(newOrder.OriginDutyStationID.String())
+		dateIssued := strfmt.Date(time.Now())
+		reportByDate := strfmt.Date(time.Now())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+
+		// fields that are unauthorized, will be ignored
+		departmentIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersNumber := "1234"
+		ordersTypeDetail := ghcmessages.OrdersTypeDetailHHGPROHIBITED20WEEKS
+		sac := "4312"
+		tac := "3123"
+
+		body := &ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &departmentIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    &newDutyStationID,
+			OrdersNumber:        &ordersNumber,
+			OrdersType:          ordersType,
+			OrdersTypeDetail:    &ordersTypeDetail,
+			OriginDutyStationID: &originDutyStationID,
+			ReportByDate:        &reportByDate,
+			Sac:                 &sac,
+			Tac:                 &tac,
+		}
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: req,
+			OrderID:     strfmt.UUID(newOrder.ID.String()),
+			IfMatch:     etag.GenerateEtag(newOrder.UpdatedAt),
+			Body:        body,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		allowanceOK := response.(*orderop.UpdateOrderOK)
+		ordersPayload := allowanceOK.Payload
+
+		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+		suite.Equal(newOrder.ID.String(), ordersPayload.ID.String())
+
+		// Should not have been updated
+		suite.NotEqual(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
+		suite.NotEqual(body.OrdersNumber, ordersPayload.OrderNumber)
+		suite.NotEqual(body.OrdersTypeDetail, ordersPayload.OrderTypeDetail)
+		suite.NotEqual(body.Tac, ordersPayload.Tac)
+		suite.NotEqual(body.Sac, ordersPayload.Sac)
+
+		// Should be original values
+		suite.EqualValues(*newOrder.DepartmentIndicator, *ordersPayload.DepartmentIndicator)
+		suite.EqualValues(*newOrder.OrdersNumber, *ordersPayload.OrderNumber)
+		suite.EqualValues(*newOrder.OrdersTypeDetail, *ordersPayload.OrderTypeDetail)
+		suite.EqualValues(newOrder.TAC, ordersPayload.Tac)
+		suite.EqualValues(newOrder.SAC, ordersPayload.Sac)
+	})
+}
+
 func (suite *HandlerSuite) TestUpdateAllowanceHandlerIntegration() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
