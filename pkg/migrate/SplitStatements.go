@@ -36,12 +36,6 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	for {
 		// Get current character
 		char, err := in.Index(i)
-		if char != '\'' {
-			quoteRunLength = 0
-		} else {
-			quoteRunLength++
-		}
-
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -52,6 +46,12 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 				close(statements)
 				return
 			}
+		}
+
+		if char != '\'' {
+			quoteRunLength = 0
+		} else {
+			quoteRunLength++
 		}
 
 		// If statement is empty, don't prefix with spaces
