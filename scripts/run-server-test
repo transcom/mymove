@@ -111,4 +111,4 @@ if [[ "${SERVER_REPORT:-}" == "1" ]]; then
 fi
 
 # shellcheck disable=SC2086
-DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" gotestsum --format pkgname --jsonfile json.log --packages=${package_list} -- ${failfast_flag} -vet=off -parallel "${parallel}" -count 1 ${verbose_flag} ${coverage_flag} ${short_flag} | tee "${test_output_file}"
+DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test ${failfast_flag} -vet=off -parallel "${parallel}" -count 1 ${verbose_flag} ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
