@@ -120,13 +120,26 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
-	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
 	}
 
-	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
 	}
+
+	//if mtoShipment.PickupAddress != nil {
+	//	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	//}
+	//
+	//if mtoShipment.DestinationAddress != nil {
+	//	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	//}
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

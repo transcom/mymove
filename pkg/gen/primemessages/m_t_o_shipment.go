@@ -45,7 +45,7 @@ type MTOShipment struct {
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to being diverted or placed in SIT.
+	// The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.
 	//
 	DestinationAddress struct {
 		Address

@@ -950,9 +950,15 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       pickupAddress:
-        $ref: '#/definitions/Address'
+        description: The pickup address for the shipment, provided during counseling with the customer.
+        allOf:
+            - $ref: '#/definitions/Address'
       destinationAddress:
-        $ref: '#/definitions/Address'
+        description: >
+          The destination address for the shipment, provided during counseling with the customer. May be blank at first,
+          and may not represent the true final destination due to the shipment being diverted or placed in SIT.
+        allOf:
+          - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
@@ -1558,7 +1564,7 @@ definitions:
       destinationAddress:
         description: >
           The destination address for the shipment, provided by the customer. May be blank at first, and may not
-          represent the true final destination due to being diverted or placed in SIT.
+          represent the true final destination due to the shipment being diverted or placed in SIT.
         allOf:
             - $ref: '#/definitions/Address'
       secondaryPickupAddress:

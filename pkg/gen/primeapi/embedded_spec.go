@@ -1079,7 +1079,12 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The destination address for the shipment, provided during counseling with the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion.",
@@ -1098,7 +1103,12 @@ func init() {
           }
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The pickup address for the shipment, provided during counseling with the customer.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "pointOfContact": {
           "description": "Email or id of a contact person for this update",
@@ -1738,7 +1748,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to being diverted or placed in SIT.\n",
+          "description": "The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3881,7 +3891,12 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The destination address for the shipment, provided during counseling with the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion.",
@@ -3900,7 +3915,12 @@ func init() {
           }
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The pickup address for the shipment, provided during counseling with the customer.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "pointOfContact": {
           "description": "Email or id of a contact person for this update",
@@ -4540,7 +4560,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to being diverted or placed in SIT.\n",
+          "description": "The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"

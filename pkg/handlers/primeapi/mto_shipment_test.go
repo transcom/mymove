@@ -58,32 +58,32 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &primemessages.CreateMTOShipment{
-			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			Agents:          nil,
-			CustomerRemarks: nil,
-			DestinationAddress: &primemessages.Address{
-				City:           &destinationAddress.City,
-				Country:        destinationAddress.Country,
-				PostalCode:     &destinationAddress.PostalCode,
-				State:          &destinationAddress.State,
-				StreetAddress1: &destinationAddress.StreetAddress1,
-				StreetAddress2: destinationAddress.StreetAddress2,
-				StreetAddress3: destinationAddress.StreetAddress3,
-			},
-			PickupAddress: &primemessages.Address{
-				City:           &pickupAddress.City,
-				Country:        pickupAddress.Country,
-				PostalCode:     &pickupAddress.PostalCode,
-				State:          &pickupAddress.State,
-				StreetAddress1: &pickupAddress.StreetAddress1,
-				StreetAddress2: pickupAddress.StreetAddress2,
-				StreetAddress3: pickupAddress.StreetAddress3,
-			},
+			MoveTaskOrderID:      handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			Agents:               nil,
+			CustomerRemarks:      nil,
 			PointOfContact:       "John Doe",
 			PrimeEstimatedWeight: 1200,
 			RequestedPickupDate:  handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
 			ShipmentType:         primemessages.MTOShipmentTypeHHG,
 		},
+	}
+	params.Body.DestinationAddress.Address = primemessages.Address{
+		City:           &destinationAddress.City,
+		Country:        destinationAddress.Country,
+		PostalCode:     &destinationAddress.PostalCode,
+		State:          &destinationAddress.State,
+		StreetAddress1: &destinationAddress.StreetAddress1,
+		StreetAddress2: destinationAddress.StreetAddress2,
+		StreetAddress3: destinationAddress.StreetAddress3,
+	}
+	params.Body.PickupAddress.Address = primemessages.Address{
+		City:           &pickupAddress.City,
+		Country:        pickupAddress.Country,
+		PostalCode:     &pickupAddress.PostalCode,
+		State:          &pickupAddress.State,
+		StreetAddress1: &pickupAddress.StreetAddress1,
+		StreetAddress2: pickupAddress.StreetAddress2,
+		StreetAddress3: pickupAddress.StreetAddress3,
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
@@ -166,7 +166,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		badParams := params
-		badParams.Body.PickupAddress = nil
+		badParams.Body.PickupAddress.Address.StreetAddress1 = nil
 
 		response := handler.Handle(badParams)
 
