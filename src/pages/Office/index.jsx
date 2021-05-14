@@ -185,6 +185,13 @@ export class OfficeApp extends Component {
 
                     {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
+                      key="servicesCounselingEditShipmentDetailsRoute"
+                      exact
+                      path={servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH}
+                      component={ServicesCounselingEditShipmentDetails}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+                    <PrivateRoute
                       path="/counseling/queue"
                       exact
                       component={ServicesCounselingQueue}
@@ -194,12 +201,6 @@ export class OfficeApp extends Component {
                       key="servicesCounselingMoveInfoRoute"
                       path="/counseling/moves/:moveCode"
                       component={ServicesCounselingMoveInfo}
-                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
-                    />
-                    <PrivateRoute
-                      key="servicesCounselingEditShipmentDetailsRoute"
-                      path={servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH}
-                      component={ServicesCounselingEditShipmentDetails}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 

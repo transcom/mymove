@@ -33,7 +33,7 @@ const ServicesCounselingEditShipmentDetails = () => {
           <ServicesCounselingShipmentForm
             match={matchPath(pathname, {
               isExact: true,
-              path: '/counseling/moves/:moveCode/:shipmentId',
+              path: '/moves/:moveCode/:shipmentId/edit',
             })}
             history={history}
             updateMTOShipment={() => {}}
