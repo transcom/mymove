@@ -126,15 +126,18 @@ describe('MoveDocumentWrapper', () => {
     </MockProviders>,
   );
 
-  it('renders the orders document viewer', () => {
+  it('renders the orders document viewer', async () => {
+    await wrapperOrders.update();
     expect(wrapperOrders.find('DocumentViewer').exists()).toBe(true);
   });
 
-  it('renders the sidebar services counseling orders form', () => {
+  it('renders the sidebar services counseling orders form', async () => {
+    await wrapperOrders.update();
     expect(wrapperOrders.find('ServicesCounselingOrders').exists()).toBe(true);
   });
 
-  it('renders the sidebar services counseling move allowances form', () => {
+  it('renders the sidebar services counseling move allowances form', async () => {
+    await wrapperAllowances.update();
     expect(wrapperAllowances.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
   });
 });
