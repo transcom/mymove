@@ -120,9 +120,11 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Orders"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-                  View and edit orders
-                </Link>
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                    View and edit orders
+                  </Link>
+                )
               }
             >
               <ServicesCounselingOrdersList ordersInfo={ordersInfo} />
