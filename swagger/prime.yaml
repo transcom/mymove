@@ -974,7 +974,9 @@ definitions:
         type: boolean
       pointOfContact:
         type: string
-        description: Email or id of a contact person for this update
+        description: >
+          Email or ID of the person who will be contacted in the event of questions or concerns about this update.
+          May be the person performing the update, or someone else working with the Prime contractor.
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -1635,7 +1637,9 @@ definitions:
         readOnly: true
       pointOfContact:
         type: string
-        description: Email or ID of a contact person for this update.
+        description: >
+          Email or ID of the person who will be contacted in the event of questions or concerns about this update.
+          May be the person performing the update, or someone else working with the Prime contractor.
   MTOShipments:
     description: A list of shipments.
     items:
@@ -1647,6 +1651,7 @@ definitions:
       The type of shipment.
         * `HHG` = Household goods move
         * `NTS` = Non-temporary storage
+        * `UB` = Unaccompanied Baggage
     type: string
     example: HHG
     enum:
@@ -1655,6 +1660,11 @@ definitions:
       - HHG_SHORTHAUL_DOMESTIC
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+      - MOTORHOME
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_LONGHAUL_DOMESTIC: Domestic Longhaul HHG

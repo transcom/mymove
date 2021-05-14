@@ -92,7 +92,8 @@ type MTOShipment struct {
 		Address
 	} `json:"pickupAddress,omitempty"`
 
-	// Email or ID of a contact person for this update.
+	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
+	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.

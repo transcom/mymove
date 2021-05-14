@@ -59,7 +59,8 @@ type CreateMTOShipment struct {
 		Address
 	} `json:"pickupAddress"`
 
-	// Email or id of a contact person for this update
+	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
+	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.

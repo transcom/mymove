@@ -1112,7 +1112,7 @@ func init() {
           ]
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeEstimatedWeight": {
@@ -1800,7 +1800,7 @@ func init() {
           ]
         },
         "pointOfContact": {
-          "description": "Email or ID of a contact person for this update.",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeActualWeight": {
@@ -1883,7 +1883,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied Baggage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -1891,7 +1891,12 @@ func init() {
         "HHG_LONGHAUL_DOMESTIC",
         "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC"
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB",
+        "MOTORHOME",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
@@ -3929,7 +3934,7 @@ func init() {
           ]
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeEstimatedWeight": {
@@ -4617,7 +4622,7 @@ func init() {
           ]
         },
         "pointOfContact": {
-          "description": "Email or ID of a contact person for this update.",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeActualWeight": {
@@ -4700,7 +4705,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied Baggage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -4708,7 +4713,12 @@ func init() {
         "HHG_LONGHAUL_DOMESTIC",
         "HHG_SHORTHAUL_DOMESTIC",
         "HHG_INTO_NTS_DOMESTIC",
-        "HHG_OUTOF_NTS_DOMESTIC"
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB",
+        "MOTORHOME",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
         "HHG": "Household goods move (HHG)",
