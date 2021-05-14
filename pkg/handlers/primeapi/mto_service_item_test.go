@@ -796,6 +796,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
 		}
 
+		// Run swagger validations
+		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
+
 		// CHECK RESULTS
 		response := handler.Handle(paramsDDFSIT)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
