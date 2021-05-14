@@ -51,7 +51,8 @@ type MTOShipment struct {
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.
+	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already.
+	// May be blank when entered by the customer, required when entered by the Prime. May not represent the true final destination due to the shipment being diverted or placed in SIT.
 	//
 	DestinationAddress struct {
 		Address

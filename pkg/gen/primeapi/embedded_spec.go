@@ -1749,7 +1749,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already.\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1888,13 +1888,17 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
       ],
       "x-display-value": {
-        "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "HHG": "Household goods move (HHG)",
+        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
+        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG"
       },
       "example": "HHG"
     },
@@ -4562,7 +4566,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already.\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4701,13 +4705,17 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
       ],
       "x-display-value": {
-        "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "HHG": "Household goods move (HHG)",
+        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
+        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG"
       },
       "example": "HHG"
     },
