@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { bool, string, func, shape, number } from 'prop-types';
-import { Formik, Field } from 'formik';
+import { bool, func, number, shape, string } from 'prop-types';
+import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
 import {
-  Fieldset,
-  Radio,
-  Checkbox,
   Alert,
+  Checkbox,
+  Fieldset,
   FormGroup,
-  Label,
-  Textarea,
-  GridContainer,
   Grid,
+  GridContainer,
+  Label,
+  Radio,
+  Textarea,
 } from '@trussworks/react-uswds';
 
 import getShipmentOptions from './getShipmentOptions';
@@ -21,9 +21,9 @@ import formStyles from 'styles/form.module.scss';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, MatchShape, HistoryShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MatchShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { createMTOShipment, patchMTOShipment, getResponseError } from 'services/internalApi';
+import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { shipmentForm } from 'content/shipments';
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
