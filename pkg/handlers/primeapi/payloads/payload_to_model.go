@@ -133,14 +133,6 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		model.DestinationAddress = addressModel
 	}
 
-	//if mtoShipment.PickupAddress != nil {
-	//	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	//}
-	//
-	//if mtoShipment.DestinationAddress != nil {
-	//	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
-	//}
-
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
