@@ -1579,7 +1579,7 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
-        description: >
+        description: |
           Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
           during onboarding, if they know their new address already.
 
@@ -1643,7 +1643,10 @@ definitions:
     type: array
   MTOShipmentType:
     title: Shipment Type
-    description: The type of shipment.
+    description: |
+      The type of shipment.
+        * `HHG` = Household goods move
+        * `NTS` = Non-temporary storage
     type: string
     example: HHG
     enum:

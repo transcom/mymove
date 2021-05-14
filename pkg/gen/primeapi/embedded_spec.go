@@ -1749,7 +1749,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already.\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1883,7 +1883,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -4566,7 +4566,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already.\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4700,7 +4700,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
