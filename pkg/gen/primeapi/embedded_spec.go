@@ -679,6 +679,79 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment\nstatus to be changed to \"CANCELED.\" Currently, the Prime cannot update the shipment to any other status.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipmentStatus",
+        "operationId": "updateMTOShipmentStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOShipmentStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/payment-requests": {
       "post": {
         "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
@@ -1741,6 +1814,7 @@ func init() {
             "SUBMITTED",
             "REJECTED",
             "CANCELLATION_REQUESTED",
+            "CANCELED",
             "DIVERSION_REQUESTED"
           ],
           "readOnly": true
@@ -2305,6 +2379,18 @@ func init() {
           }
         }
       ]
+    },
+    "UpdateMTOShipmentStatus": {
+      "description": "Contains the statuses available to the Prime when updating a shipment.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "CANCELED"
+          ]
+        }
+      }
     },
     "Upload": {
       "type": "object",
@@ -3266,6 +3352,103 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/status": {
+      "patch": {
+        "description": "### Functionality\nThis endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment\nstatus to be changed to \"CANCELED.\" Currently, the Prime cannot update the shipment to any other status.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipmentStatus",
+        "operationId": "updateMTOShipmentStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMTOShipmentStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the shipment's status.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -4386,6 +4569,7 @@ func init() {
             "SUBMITTED",
             "REJECTED",
             "CANCELLATION_REQUESTED",
+            "CANCELED",
             "DIVERSION_REQUESTED"
           ],
           "readOnly": true
@@ -4953,6 +5137,18 @@ func init() {
           }
         }
       ]
+    },
+    "UpdateMTOShipmentStatus": {
+      "description": "Contains the statuses available to the Prime when updating a shipment.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "CANCELED"
+          ]
+        }
+      }
     },
     "Upload": {
       "type": "object",
