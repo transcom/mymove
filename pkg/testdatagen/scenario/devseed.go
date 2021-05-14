@@ -16,6 +16,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
+
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/stretchr/testify/mock"
@@ -3488,6 +3490,10 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 		assertions.Order.NewDutyStation = allDutyStations[randDutyStaionIndex]
 		assertions.Order.NewDutyStationID = assertions.Order.NewDutyStation.ID
 	}
+
+	randomFirst, randomLast := fakedata.RandomName()
+	assertions.ServiceMember.FirstName = &randomFirst
+	assertions.ServiceMember.LastName = &randomLast
 
 	orders := testdatagen.MakeOrderWithoutDefaults(db, assertions)
 

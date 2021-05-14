@@ -4,8 +4,6 @@ import (
 	"log"
 	"strconv"
 
-	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
-
 	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
@@ -109,11 +107,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	backupMailingAddress := MakeDefaultAddress(db)
 	e1 := models.ServiceMemberRankE1
 	station := FetchOrMakeDefaultCurrentDutyStation(db)
-	randomFirst, randomLast := fakedata.RandomName()
+
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
-		FirstName:              &randomFirst,
-		LastName:               &randomLast,
 		Edipi:                  swag.String(randomEdipi()),
 		Rank:                   &e1,
 		Affiliation:            affiliation,
