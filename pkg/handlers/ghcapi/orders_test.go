@@ -21,9 +21,13 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
 	params := orderop.GetOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -142,11 +146,15 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -209,14 +217,48 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 }
 
+func (suite *HandlerSuite) TestUpdateServicesCounselorOrderHandlerIntegration() {
+	servicesCounselorUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, servicesCounselorUser)
+
+	newAuthorizedWeight := int64(10000)
+
+	body := &ghcmessages.UpdateOrderPayload{
+		AuthorizedWeight: &newAuthorizedWeight,
+	}
+
+	params := orderop.UpdateOrderParams{
+		HTTPRequest: request,
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := UpdateOrderHandler{
+		context,
+		orderservice.NewOrderUpdater(suite.DB()),
+	}
+
+	orderUpdater := &mocks.OrderUpdater{}
+	orderUpdater.AssertNumberOfCalls(suite.T(), "UpdateOrder", 0)
+	response := handler.Handle(params)
+
+	suite.IsType(&orderop.UpdateOrderUnauthorized{}, response)
+
+}
+
 // Test that an order notification got stored Successfully
 func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -265,7 +307,10 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -302,12 +347,15 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -346,6 +394,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -356,6 +406,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 	suite.MustSave(&move)
 
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
@@ -400,6 +451,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.TAC = nil
@@ -425,6 +478,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 	}
 
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	suite.Run("When Move is still in draft status, TAC can be nil", func() {
 		params := orderop.UpdateOrderParams{
