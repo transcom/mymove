@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
 import { shipmentOptionLabels } from 'shared/constants';
@@ -29,13 +30,35 @@ export const getShipmentTypeLabel = (shipmentType) => shipmentOptionLabels.find(
 
 export function formatPaymentRequestAddressString(pickupAddress, destinationAddress) {
   if (pickupAddress && destinationAddress) {
-    return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+    return (
+      <>
+        {pickupAddress.city}, {pickupAddress.state} {pickupAddress.postal_code} <FontAwesomeIcon icon="arrow-right" />{' '}
+        {destinationAddress.city}, {destinationAddress.state} {destinationAddress.postal_code}
+      </>
+    );
   }
   if (pickupAddress && !destinationAddress) {
-    return `${pickupAddress.city}, ${pickupAddress.state} ${pickupAddress.postal_code} to TBD`;
+    return (
+      <>
+        {pickupAddress.city}, {pickupAddress.state} {pickupAddress.postal_code} <FontAwesomeIcon icon="arrow-right" />{' '}
+        TBD
+      </>
+    );
   }
   if (!pickupAddress && destinationAddress) {
-    return `TBD to ${destinationAddress.city}, ${destinationAddress.state} ${destinationAddress.postal_code}`;
+    return (
+      <>
+        TBD <FontAwesomeIcon icon="arrow-right" /> {destinationAddress.city}, {destinationAddress.state}{' '}
+        {destinationAddress.postal_code}
+      </>
+    );
   }
   return ``;
+}
+
+export function formatPaymentRequestReviewAddressString(address) {
+  if (address) {
+    return `${address.city}, ${address.state} ${address.postal_code}`;
+  }
+  return '';
 }
