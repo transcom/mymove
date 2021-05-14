@@ -110,7 +110,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('MoveDocumentWrapper', () => {
-  const wrapper = mount(
+  const wrapperOrders = mount(
     <MockProviders initialEntries={[`/counseling/moves/${testMoveId}/orders`]}>
       <Suspense fallback={<div>Loading</div>}>
         <ServicesCounselingMoveDocumentWrapper />
@@ -118,12 +118,23 @@ describe('MoveDocumentWrapper', () => {
     </MockProviders>,
   );
 
+  const wrapperAllowances = mount(
+    <MockProviders initialEntries={[`/counseling/moves/${testMoveId}/allowances`]}>
+      <Suspense fallback={<div>Loading</div>}>
+        <ServicesCounselingMoveDocumentWrapper />
+      </Suspense>
+    </MockProviders>,
+  );
+
   it('renders the orders document viewer', () => {
-    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+    expect(wrapperOrders.find('DocumentViewer').exists()).toBe(true);
   });
 
-  it('renders the sidebar services counseling move allowances form', async () => {
-    await wrapper.update();
-    expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
+  it('renders the sidebar services counseling orders form', () => {
+    expect(wrapperOrders.find('ServicesCounselingOrders').exists()).toBe(true);
+  });
+
+  it('renders the sidebar services counseling move allowances form', () => {
+    expect(wrapperAllowances.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
   });
 });
