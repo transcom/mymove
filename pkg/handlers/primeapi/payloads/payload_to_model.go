@@ -20,16 +20,25 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	if address == nil {
 		return nil
 	}
-	return &models.Address{
+	modelAddress := &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress1: *address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
 	}
+	if address.StreetAddress1 != nil {
+		modelAddress.StreetAddress1 = *address.StreetAddress1
+	}
+	if address.City != nil {
+		modelAddress.City = *address.City
+	}
+	if address.State != nil {
+		modelAddress.State = *address.State
+	}
+	if address.PostalCode != nil {
+		modelAddress.PostalCode = *address.PostalCode
+	}
+	return modelAddress
 }
 
 // MTOAgentModel model
@@ -163,14 +172,6 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
-	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	}
-
-	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
-	}
-
 	if mtoShipment.PrimeActualWeight > 0 {
 		actualWeight := unit.Pound(mtoShipment.PrimeActualWeight)
 		model.PrimeActualWeight = &actualWeight
@@ -181,18 +182,32 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.PrimeEstimatedWeight = &estimatedWeight
 	}
 
-	if mtoShipment.SecondaryPickupAddress != nil {
-		model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
-		secondaryPickupAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryPickupAddress.ID.String())
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
 	}
 
-	//if mtoShipment.SecondaryDeliveryAddress != nil {
-	//	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
-	model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
-	secondaryDeliveryAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryDeliveryAddress.ID.String())
-	model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	//}
+	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
+	}
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

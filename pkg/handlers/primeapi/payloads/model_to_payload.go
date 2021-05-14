@@ -334,21 +334,31 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
-		ID:                     strfmt.UUID(mtoShipment.ID.String()),
-		Agents:                 *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:        strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:           primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:        mtoShipment.CustomerRemarks,
-		PickupAddress:          Address(mtoShipment.PickupAddress),
-		Status:                 string(mtoShipment.Status),
-		Diversion:              bool(mtoShipment.Diversion),
-		DestinationAddress:     Address(mtoShipment.DestinationAddress),
-		SecondaryPickupAddress: Address(mtoShipment.SecondaryPickupAddress),
-		CreatedAt:              strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:              strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                   etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:              strfmt.UUID(mtoShipment.ID.String()),
+		Agents:          *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID: strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:    primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks: mtoShipment.CustomerRemarks,
+		Status:          string(mtoShipment.Status),
+		Diversion:       bool(mtoShipment.Diversion),
+		CreatedAt:       strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:       strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:            etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
-	payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
+
+	// Set up address payloads
+	if mtoShipment.PickupAddress != nil {
+		payload.PickupAddress.Address = *Address(mtoShipment.PickupAddress)
+	}
+	if mtoShipment.DestinationAddress != nil {
+		payload.DestinationAddress.Address = *Address(mtoShipment.DestinationAddress)
+	}
+	if mtoShipment.SecondaryPickupAddress != nil {
+		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
+	}
+	if mtoShipment.SecondaryDeliveryAddress != nil {
+		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
+	}
 
 	if mtoShipment.MTOServiceItems != nil {
 		// sets MTOServiceItems

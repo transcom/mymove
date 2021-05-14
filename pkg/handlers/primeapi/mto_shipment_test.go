@@ -728,8 +728,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
-			DestinationAddress:   &payloadAKAddress,
 		}
+		payload.DestinationAddress.Address = payloadAKAddress
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -797,8 +797,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
-			DestinationAddress:   &payloadAdakAddress,
 		}
+		payload.DestinationAddress.Address = payloadAdakAddress
 
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 

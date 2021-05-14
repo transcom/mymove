@@ -45,8 +45,11 @@ type MTOShipment struct {
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	// The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to being diverted or placed in SIT.
+	//
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress,omitempty"`
 
 	// This value indicates whether or not this shipment is part of a diversion.
 	Diversion bool `json:"diversion,omitempty"`
@@ -72,8 +75,10 @@ type MTOShipment struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
+	// The pickup address for the shipment, provided by the customer.
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress,omitempty"`
 
 	// Email or ID of a contact person for this update.
 	PointOfContact string `json:"pointOfContact,omitempty"`
@@ -109,13 +114,15 @@ type MTOShipment struct {
 	// Format: date
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-	// The TEST TEST TEST
+	// The secondary delivery address for the shipment. May be deprecated.
 	SecondaryDeliveryAddress struct {
 		Address
 	} `json:"secondaryDeliveryAddress,omitempty"`
 
-	// secondary pickup address
-	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+	// The secondary pickup address for the shipment. May be deprecated.
+	SecondaryPickupAddress struct {
+		Address
+	} `json:"secondaryPickupAddress,omitempty"`
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
@@ -155,7 +162,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress,omitempty"`
 
 		Diversion bool `json:"diversion,omitempty"`
 
@@ -169,7 +178,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -191,7 +202,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 			Address
 		} `json:"secondaryDeliveryAddress,omitempty"`
 
-		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
@@ -316,7 +329,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress,omitempty"`
 
 		Diversion bool `json:"diversion,omitempty"`
 
@@ -328,7 +343,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -350,7 +367,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 			Address
 		} `json:"secondaryDeliveryAddress,omitempty"`
 
-		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
@@ -572,15 +591,6 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -647,15 +657,6 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
-	}
-
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -726,15 +727,6 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 
 	if swag.IsZero(m.SecondaryPickupAddress) { // not required
 		return nil
-	}
-
-	if m.SecondaryPickupAddress != nil {
-		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryPickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
