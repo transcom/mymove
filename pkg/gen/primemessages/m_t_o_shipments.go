@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// MTOShipments m t o shipments
+// MTOShipments A list of shipments.
 //
 // swagger:model MTOShipments
 type MTOShipments []*MTOShipment
