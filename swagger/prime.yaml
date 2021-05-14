@@ -946,6 +946,7 @@ definitions:
       agents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:
+        description: A list of service items connected to this shipment.
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
