@@ -3628,28 +3628,9 @@ func init() {
         "originDutyStationId"
       ],
       "properties": {
-        "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "grade": {
-          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -7959,28 +7940,9 @@ func init() {
         "originDutyStationId"
       ],
       "properties": {
-        "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "grade": {
-          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",

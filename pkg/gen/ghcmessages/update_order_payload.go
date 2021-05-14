@@ -17,21 +17,8 @@ import (
 // swagger:model UpdateOrderPayload
 type UpdateOrderPayload struct {
 
-	// the branch that the service member belongs to
-	Agency Branch `json:"agency,omitempty"`
-
-	// unit is in lbs
-	// Minimum: 1
-	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
-
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
-
-	// dependents authorized
-	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
-
-	// grade
-	Grade *Grade `json:"grade,omitempty"`
 
 	// Orders date
 	//
@@ -78,19 +65,7 @@ type UpdateOrderPayload struct {
 func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAgency(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateAuthorizedWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDepartmentIndicator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -124,35 +99,6 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateOrderPayload) validateAgency(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Agency) { // not required
-		return nil
-	}
-
-	if err := m.Agency.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateAuthorizedWeight(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.AuthorizedWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("authorizedWeight", "body", int64(*m.AuthorizedWeight), 1, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DepartmentIndicator) { // not required
@@ -163,24 +109,6 @@ func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateGrade(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Grade) { // not required
-		return nil
-	}
-
-	if m.Grade != nil {
-		if err := m.Grade.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
 			}
 			return err
 		}

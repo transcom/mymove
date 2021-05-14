@@ -154,26 +154,17 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 
-	newAuthorizedWeight := int64(10000)
-	deptIndicator := ghcmessages.DeptIndicator("COAST_GUARD")
-	affiliation := ghcmessages.BranchAIRFORCE
-	grade := ghcmessages.GradeO5
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	body := &ghcmessages.UpdateOrderPayload{
-		AuthorizedWeight:     &newAuthorizedWeight,
-		Agency:               affiliation,
-		DependentsAuthorized: swag.Bool(true),
-		Grade:                &grade,
-		IssueDate:            handlers.FmtDatePtr(&issueDate),
-		ReportByDate:         handlers.FmtDatePtr(&reportByDate),
-		OrdersType:           "RETIREMENT",
-		OrdersTypeDetail:     &ordersTypeDetail,
-		DepartmentIndicator:  &deptIndicator,
-		OrdersNumber:         handlers.FmtString("ORDER100"),
-		NewDutyStationID:     handlers.FmtUUID(destinationDutyStation.ID),
-		OriginDutyStationID:  handlers.FmtUUID(originDutyStation.ID),
-		Tac:                  handlers.FmtString("E19A"),
-		Sac:                  handlers.FmtString("987654321"),
+		IssueDate:           handlers.FmtDatePtr(&issueDate),
+		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+		OrdersType:          "RETIREMENT",
+		OrdersTypeDetail:    &ordersTypeDetail,
+		OrdersNumber:        handlers.FmtString("ORDER100"),
+		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                 handlers.FmtString("E19A"),
+		Sac:                 handlers.FmtString("987654321"),
 	}
 
 	params := orderop.UpdateOrderParams{
@@ -207,10 +198,6 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, ordersPayload.Tac)
 	suite.Equal(body.Sac, ordersPayload.Sac)
-	suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
-	suite.Equal(body.Grade, ordersPayload.Grade)
-	suite.Equal(body.Agency, ordersPayload.Agency)
-	suite.Equal(body.DependentsAuthorized, ordersPayload.Entitlement.DependentsAuthorized)
 }
 
 // Test that an order notification got stored Successfully

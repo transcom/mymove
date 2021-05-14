@@ -288,26 +288,6 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) m
 		order.DepartmentIndicator = departmentIndicator
 	}
 
-	if payload.Grade != nil {
-		grade := (*string)(payload.Grade)
-		order.Grade = grade
-		order.ServiceMember.Rank = (*models.ServiceMemberRank)(grade)
-	}
-
-	if payload.AuthorizedWeight != nil {
-		dbAuthorizedWeight := swag.Int(int(*payload.AuthorizedWeight))
-		order.Entitlement.DBAuthorizedWeight = dbAuthorizedWeight
-	}
-
-	if payload.DependentsAuthorized != nil {
-		order.Entitlement.DependentsAuthorized = payload.DependentsAuthorized
-	}
-
-	if payload.Agency != "" {
-		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
-		order.ServiceMember.Affiliation = &serviceMemberAffiliation
-	}
-
 	if payload.IssueDate != nil {
 		order.IssueDate = time.Time(*payload.IssueDate)
 	}
