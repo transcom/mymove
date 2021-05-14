@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Overlay, ModalContainer } from '@trussworks/react-uswds';
+import { Button, ModalContainer, Overlay } from '@trussworks/react-uswds';
 
-import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
+import Modal, { connectModal, ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
   <div data-testid="SubmitMoveConfirmationModal">

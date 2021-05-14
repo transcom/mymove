@@ -1675,7 +1675,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -2232,9 +2235,6 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
-        "diversion": {
-          "type": "boolean"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2247,6 +2247,7 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
+            "CANCELED",
             "DIVERSION_REQUESTED"
           ]
         }
@@ -4375,7 +4376,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4932,9 +4936,6 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
-        "diversion": {
-          "type": "boolean"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -4947,6 +4948,7 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
+            "CANCELED",
             "DIVERSION_REQUESTED"
           ]
         }

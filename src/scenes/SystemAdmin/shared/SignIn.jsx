@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { Button } from '@trussworks/react-uswds';
 import '@trussworks/react-uswds/lib/index.css';
