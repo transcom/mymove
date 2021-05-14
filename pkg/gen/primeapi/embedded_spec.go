@@ -1703,6 +1703,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
           "format": "date"
         },
@@ -1710,7 +1711,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "date when the shipment was given the status \"APPROVED\"",
+          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -1721,6 +1722,7 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
+          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -1730,23 +1732,28 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion.",
           "type": "boolean"
         },
         "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
           "format": "date"
         },
         "id": {
+          "description": "The ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move for this shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -1762,39 +1769,46 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
+          "description": "Email or ID of a contact person for this update.",
           "type": "string"
         },
         "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of the shipment, provided after consulting with the customer and surveying their shipment. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
+          "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "rejectionReason": {
+          "description": "The reason why this shipment was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
+          "description": "The date the customer provided as their prefered pickup date.",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "requiredDeliveryDate": {
+          "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
           "format": "date"
         },
@@ -1808,10 +1822,11 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
           "type": "string",
           "enum": [
-            "APPROVED",
             "SUBMITTED",
+            "APPROVED",
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
@@ -4458,6 +4473,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
           "format": "date"
         },
@@ -4465,7 +4481,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "date when the shipment was given the status \"APPROVED\"",
+          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -4476,6 +4492,7 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
+          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -4485,23 +4502,28 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion.",
           "type": "boolean"
         },
         "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
           "format": "date"
         },
         "id": {
+          "description": "The ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move for this shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -4517,39 +4539,46 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
+          "description": "Email or ID of a contact person for this update.",
           "type": "string"
         },
         "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of the shipment, provided after consulting with the customer and surveying their shipment. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
+          "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "rejectionReason": {
+          "description": "The reason why this shipment was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
+          "description": "The date the customer provided as their prefered pickup date.",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "requiredDeliveryDate": {
+          "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
           "format": "date"
         },
@@ -4563,10 +4592,11 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
           "type": "string",
           "enum": [
-            "APPROVED",
             "SUBMITTED",
+            "APPROVED",
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
