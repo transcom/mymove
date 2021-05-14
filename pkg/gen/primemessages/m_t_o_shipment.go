@@ -40,18 +40,21 @@ type MTOShipment struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs.
+	// The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:
+	// * bulky or fragile items, * weapons, * access info for their address.
+	// Customer enters this information during onboarding. Optional field.
 	//
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.
+	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.
 	//
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
-	// This value indicates whether or not this shipment is part of a diversion.
+	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
+	//
 	Diversion bool `json:"diversion,omitempty"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
@@ -75,7 +78,8 @@ type MTOShipment struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// The pickup address for the shipment, provided by the customer.
+	// The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.
+	//
 	PickupAddress struct {
 		Address
 	} `json:"pickupAddress,omitempty"`
@@ -86,7 +90,7 @@ type MTOShipment struct {
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
-	// The estimated weight of the shipment, provided after consulting with the customer and surveying their shipment. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
+	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
@@ -99,7 +103,8 @@ type MTOShipment struct {
 	// Read Only: true
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
-	// The date the customer provided as their prefered pickup date.
+	// The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
+	//
 	// Read Only: true
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
@@ -114,12 +119,12 @@ type MTOShipment struct {
 	// Format: date
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-	// The secondary delivery address for the shipment. May be deprecated.
+	// A second delivery address for this shipment, if the customer entered one. An optional field.
 	SecondaryDeliveryAddress struct {
 		Address
 	} `json:"secondaryDeliveryAddress,omitempty"`
 
-	// The secondary pickup address for the shipment. May be deprecated.
+	// A second pickup address for this shipment, if the customer entered one. An optional field.
 	SecondaryPickupAddress struct {
 		Address
 	} `json:"secondaryPickupAddress,omitempty"`

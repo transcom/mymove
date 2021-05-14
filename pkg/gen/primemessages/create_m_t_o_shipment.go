@@ -26,18 +26,20 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs. Provided during counseling.
+	// The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:
+	// * bulky or fragile items, * weapons, * access info for their address.
+	// Customer enters this information during onboarding. Optional field.
 	//
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// The destination address for the shipment, provided during counseling with the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.
-	//
+	// Where the movers should deliver this shipment.
 	// Required: true
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress"`
 
-	// This value indicates whether or not this shipment is part of a diversion.
+	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
+	//
 	Diversion bool `json:"diversion,omitempty"`
 
 	// The ID of the move this new shipment is for.
@@ -47,7 +49,7 @@ type CreateMTOShipment struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// The pickup address for the shipment, provided during counseling with the customer.
+	// The address where the movers should pick up this shipment.
 	// Required: true
 	PickupAddress struct {
 		Address
@@ -56,11 +58,12 @@ type CreateMTOShipment struct {
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// The estimated weight of the shipment, determined during counseling with the customer. This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be modified later.
+	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-	// The date the customer provided during counseling as their prefered pickup date.
+	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
+	//
 	// Required: true
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`

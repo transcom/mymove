@@ -926,20 +926,28 @@ definitions:
         format: uuid
         type: string
       requestedPickupDate:
-        description: The date the customer provided during counseling as their prefered pickup date.
+        description: >
+          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
+          pack date, are derived from this date.
         format: date
         type: string
       primeEstimatedWeight:
         description: >
-          The estimated weight of the shipment, determined during counseling with the customer.
-          This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be
-          modified later.
+          The estimated weight of this shipment, determined by the movers during the pre-move survey.
+          This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
+          the Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
       customerRemarks:
         description: >
-          The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment
-          so that they can take care of any unique shipping and handling needs. Provided during counseling.
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
+          special circumstances for this shipment. Typical examples:
+
+          * bulky or fragile items,
+          * weapons,
+          * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
         type: string
         example: handle with care
         x-nullable: true
@@ -951,19 +959,19 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       pickupAddress:
-        description: The pickup address for the shipment, provided during counseling with the customer.
+        description: The address where the movers should pick up this shipment.
         allOf:
             - $ref: '#/definitions/Address'
       destinationAddress:
-        description: >
-          The destination address for the shipment, provided during counseling with the customer. May be blank at first,
-          and may not represent the true final destination due to the shipment being diverted or placed in SIT.
+        description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
-        description: This value indicates whether or not this shipment is part of a diversion.
+        description: >
+          This value indicates whether or not this shipment is part of a diversion.
+          If yes, the shipment can be either the starting or ending segment of the diversion.
         type: boolean
       pointOfContact:
         type: string
@@ -1502,7 +1510,9 @@ definitions:
         type: string
         readOnly: true
       requestedPickupDate:
-        description: The date the customer provided as their prefered pickup date.
+        description: >
+          The date the customer selects during onboarding as their preferred pickup date. Other dates, such as
+          required delivery date and (outside MilMove) the pack date, are derived from this date.
         format: date
         type: string
         readOnly: true
@@ -1529,7 +1539,7 @@ definitions:
         readOnly: true
       primeEstimatedWeight:
         description: >
-          The estimated weight of the shipment, provided after consulting with the customer and surveying their shipment.
+          The estimated weight of this shipment, determined by the movers during the pre-move survey.
           This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
           the Prime contracter will need to contact the TOO to change it.
         type: integer
@@ -1545,8 +1555,14 @@ definitions:
         example: 4500
       customerRemarks:
         description: >
-          The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment
-          so that they can take care of any unique shipping and handling needs.
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
+          special circumstances for this shipment. Typical examples:
+
+          * bulky or fragile items,
+          * weapons,
+          * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
         type: string
         example: handle with care
         x-nullable: true
@@ -1559,27 +1575,33 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
         type: array
       pickupAddress:
-        description: The pickup address for the shipment, provided by the customer.
+        description: >
+          The address where the movers should pick up this shipment, entered by the customer during onboarding
+          when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
-          The destination address for the shipment, provided by the customer. May be blank at first, and may not
-          represent the true final destination due to the shipment being diverted or placed in SIT.
+          Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
+          during onboarding, if they know their new address already.
+          May be blank at first, and may not represent the true final destination due to the shipment being diverted
+          or placed in SIT.
         allOf:
             - $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        description: The secondary pickup address for the shipment. May be deprecated.
+        description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
             - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        description: The secondary delivery address for the shipment. May be deprecated.
+        description: A second delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
-        description: This value indicates whether or not this shipment is part of a diversion.
+        description: >
+          This value indicates whether or not this shipment is part of a diversion.
+          If yes, the shipment can be either the starting or ending segment of the diversion.
         type: boolean
       status:
         description: >

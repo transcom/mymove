@@ -1073,13 +1073,13 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
-          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs. Provided during counseling.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "The destination address for the shipment, provided during counseling with the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1087,7 +1087,7 @@ func init() {
           ]
         },
         "diversion": {
-          "description": "This value indicates whether or not this shipment is part of a diversion.",
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "moveTaskOrderID": {
@@ -1104,7 +1104,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The pickup address for the shipment, provided during counseling with the customer.",
+          "description": "The address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1116,12 +1116,12 @@ func init() {
           "type": "string"
         },
         "primeEstimatedWeight": {
-          "description": "The estimated weight of the shipment, determined during counseling with the customer. This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be modified later.\n",
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "requestedPickupDate": {
-          "description": "The date the customer provided during counseling as their prefered pickup date.",
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
         },
@@ -1742,14 +1742,14 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
-          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1757,7 +1757,7 @@ func init() {
           ]
         },
         "diversion": {
-          "description": "This value indicates whether or not this shipment is part of a diversion.",
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "eTag": {
@@ -1792,7 +1792,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The pickup address for the shipment, provided by the customer.",
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1809,7 +1809,7 @@ func init() {
           "example": 4500
         },
         "primeEstimatedWeight": {
-          "description": "The estimated weight of the shipment, provided after consulting with the customer and surveying their shipment. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
@@ -1827,7 +1827,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
-          "description": "The date the customer provided as their prefered pickup date.",
+          "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -1844,7 +1844,7 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "description": "The secondary delivery address for the shipment. May be deprecated.",
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1852,7 +1852,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "The secondary pickup address for the shipment. May be deprecated.",
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3886,13 +3886,13 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
-          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs. Provided during counseling.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "The destination address for the shipment, provided during counseling with the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3900,7 +3900,7 @@ func init() {
           ]
         },
         "diversion": {
-          "description": "This value indicates whether or not this shipment is part of a diversion.",
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "moveTaskOrderID": {
@@ -3917,7 +3917,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The pickup address for the shipment, provided during counseling with the customer.",
+          "description": "The address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3929,12 +3929,12 @@ func init() {
           "type": "string"
         },
         "primeEstimatedWeight": {
-          "description": "The estimated weight of the shipment, determined during counseling with the customer. This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be modified later.\n",
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "requestedPickupDate": {
-          "description": "The date the customer provided during counseling as their prefered pickup date.",
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
         },
@@ -4555,14 +4555,14 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
-          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "The destination address for the shipment, provided by the customer. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details during onboarding, if they know their new address already. May be blank at first, and may not represent the true final destination due to the shipment being diverted or placed in SIT.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4570,7 +4570,7 @@ func init() {
           ]
         },
         "diversion": {
-          "description": "This value indicates whether or not this shipment is part of a diversion.",
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "eTag": {
@@ -4605,7 +4605,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The pickup address for the shipment, provided by the customer.",
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4622,7 +4622,7 @@ func init() {
           "example": 4500
         },
         "primeEstimatedWeight": {
-          "description": "The estimated weight of the shipment, provided after consulting with the customer and surveying their shipment. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
@@ -4640,7 +4640,7 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
-          "description": "The date the customer provided as their prefered pickup date.",
+          "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -4657,7 +4657,7 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "description": "The secondary delivery address for the shipment. May be deprecated.",
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4665,7 +4665,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "The secondary pickup address for the shipment. May be deprecated.",
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
