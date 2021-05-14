@@ -7,7 +7,6 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -22,10 +21,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
@@ -150,10 +146,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
@@ -257,10 +250,7 @@ func (suite *HandlerSuite) TestUpdateServicesCounselorOrderHandlerIntegration() 
 
 // Test that an order notification got stored Successfully
 func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	order := move.Orders
@@ -317,10 +307,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -360,10 +347,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerNotFound() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
@@ -410,10 +394,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
@@ -470,10 +451,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeTOO,
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
