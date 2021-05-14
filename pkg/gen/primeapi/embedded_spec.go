@@ -2438,7 +2438,7 @@ func init() {
       ]
     },
     "UpdateMTOShipmentStatus": {
-      "description": "Contains the statuses available to the Prime when updating a shipment.",
+      "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
       "type": "object",
       "properties": {
         "status": {
@@ -5253,7 +5253,7 @@ func init() {
       ]
     },
     "UpdateMTOShipmentStatus": {
-      "description": "Contains the statuses available to the Prime when updating a shipment.",
+      "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
       "type": "object",
       "properties": {
         "status": {
