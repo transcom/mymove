@@ -18,7 +18,7 @@ import (
 // The type of shipment.
 //   * `HHG` = Household goods move
 //   * `NTS` = Non-temporary storage
-//   * `UB` = Unaccompanied Baggage
+//   * `UB` = Unaccompanied baggage
 //
 //
 // swagger:model MTOShipmentType

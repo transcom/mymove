@@ -1883,7 +1883,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied Baggage\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied baggage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -4705,7 +4705,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied Baggage\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied baggage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
