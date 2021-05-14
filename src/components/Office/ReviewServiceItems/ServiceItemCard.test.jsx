@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, fireEvent, act, waitFor, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { mount } from 'enzyme';
 
 import testParams from '../ServiceItemCalculations/serviceItemTestParams';
 
 import ServiceItemCard from './ServiceItemCard';
 
-import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
 
 const basicServiceItemCard = {

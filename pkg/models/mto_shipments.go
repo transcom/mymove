@@ -57,11 +57,11 @@ const (
 	MTOShipmentStatusApproved MTOShipmentStatus = "APPROVED"
 	// MTOShipmentStatusRejected is the rejected status type for MTO Shipments
 	MTOShipmentStatusRejected MTOShipmentStatus = "REJECTED"
-	// MTOShipmentStatusCancellationRequested is the status that indicates the TOO has requested that the Prime cancel the shipment
+	// MTOShipmentStatusCancellationRequested indicates the TOO has requested that the Prime cancel the shipment
 	MTOShipmentStatusCancellationRequested MTOShipmentStatus = "CANCELLATION_REQUESTED"
-	// MTOShipmentStatusCanceled is the status that indicates that a shipment has been canceled by the Prime
+	// MTOShipmentStatusCanceled indicates that a shipment has been canceled by the Prime
 	MTOShipmentStatusCanceled MTOShipmentStatus = "CANCELED"
-	// MTOShipmentStatusDiversionRequested is the status that indicates that teh TOO has requested that the prime divert a shipment
+	// MTOShipmentStatusDiversionRequested indicates that the TOO has requested that the Prime divert a shipment
 	MTOShipmentStatusDiversionRequested MTOShipmentStatus = "DIVERSION_REQUESTED"
 )
 
