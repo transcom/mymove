@@ -109,8 +109,10 @@ type MTOShipment struct {
 	// Format: date
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-	// secondary delivery address
-	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+	// The TEST TEST TEST
+	SecondaryDeliveryAddress struct {
+		Address
+	} `json:"secondaryDeliveryAddress,omitempty"`
 
 	// secondary pickup address
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
@@ -185,7 +187,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+		SecondaryDeliveryAddress struct {
+			Address
+		} `json:"secondaryDeliveryAddress,omitempty"`
 
 		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
@@ -342,7 +346,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+		SecondaryDeliveryAddress struct {
+			Address
+		} `json:"secondaryDeliveryAddress,omitempty"`
 
 		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
@@ -711,15 +717,6 @@ func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) 
 
 	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
-	}
-
-	if m.SecondaryDeliveryAddress != nil {
-		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryDeliveryAddress")
-			}
-			return err
-		}
 	}
 
 	return nil

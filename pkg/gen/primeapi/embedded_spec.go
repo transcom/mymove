@@ -1819,7 +1819,12 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The TEST TEST TEST",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
@@ -4597,7 +4602,12 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The TEST TEST TEST",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"

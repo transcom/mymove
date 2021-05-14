@@ -1549,7 +1549,9 @@ definitions:
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        $ref: '#/definitions/Address'
+        description: The TEST TEST TEST
+        allOf:
+          - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:

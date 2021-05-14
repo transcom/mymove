@@ -187,11 +187,12 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
 	}
 
-	if mtoShipment.SecondaryDeliveryAddress != nil {
-		model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
-		secondaryDeliveryAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryDeliveryAddress.ID.String())
-		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	}
+	//if mtoShipment.SecondaryDeliveryAddress != nil {
+	//	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+	model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	secondaryDeliveryAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryDeliveryAddress.ID.String())
+	model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
+	//}
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
