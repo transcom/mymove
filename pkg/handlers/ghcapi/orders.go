@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 
@@ -82,7 +83,10 @@ type UpdateOrderHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	if session.IsOfficeUser() && session.Roles.HasRole(roles.RoleTypeServicesCounselor) && params.Body.AuthorizedWeight != nil {
+		return orderop.NewUpdateOrderUnauthorized()
+	}
 
 	orderID, err := uuid.FromString(params.OrderID.String())
 	if err != nil {
