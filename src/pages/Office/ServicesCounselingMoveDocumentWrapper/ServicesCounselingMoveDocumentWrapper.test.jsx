@@ -1,7 +1,8 @@
 import React, { Suspense } from 'react';
 import { mount } from 'enzyme';
 
-import ServicesCounselingMoveDocumentWrapper from 'pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper';
+import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
+
 import { MockProviders } from 'testUtils';
 
 const mockOriginDutyStation = {
