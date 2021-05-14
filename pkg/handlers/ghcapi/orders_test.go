@@ -153,9 +153,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	body := &ghcmessages.UpdateOrderPayload{
+		DepartmentIndicator: &deptIndicator,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
