@@ -20,16 +20,25 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	if address == nil {
 		return nil
 	}
-	return &models.Address{
+	modelAddress := &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress1: *address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
 	}
+	if address.StreetAddress1 != nil {
+		modelAddress.StreetAddress1 = *address.StreetAddress1
+	}
+	if address.City != nil {
+		modelAddress.City = *address.City
+	}
+	if address.State != nil {
+		modelAddress.State = *address.State
+	}
+	if address.PostalCode != nil {
+		modelAddress.PostalCode = *address.PostalCode
+	}
+	return modelAddress
 }
 
 // MTOAgentModel model
@@ -111,12 +120,17 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
-	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
 	}
 
-	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
 	}
 
 	if mtoShipment.Agents != nil {
@@ -163,14 +177,6 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
-	if mtoShipment.PickupAddress != nil {
-		model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	}
-
-	if mtoShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
-	}
-
 	if mtoShipment.PrimeActualWeight > 0 {
 		actualWeight := unit.Pound(mtoShipment.PrimeActualWeight)
 		model.PrimeActualWeight = &actualWeight
@@ -181,15 +187,30 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.PrimeEstimatedWeight = &estimatedWeight
 	}
 
-	if mtoShipment.SecondaryPickupAddress != nil {
-		model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
-		secondaryPickupAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryPickupAddress.ID.String())
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
+	if addressModel != nil {
+		model.PickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
+	if addressModel != nil {
+		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
 	}
 
-	if mtoShipment.SecondaryDeliveryAddress != nil {
-		model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
-		secondaryDeliveryAddressID := uuid.FromStringOrNil(mtoShipment.SecondaryDeliveryAddress.ID.String())
+	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
 	}
 
@@ -246,6 +267,16 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		if destsit.ReServiceCode != nil {
 			model.ReService.Code = models.ReServiceCode(*destsit.ReServiceCode)
+
+		}
+
+		// Check for required fields on a DDFSIT
+		if model.ReService.Code == models.ReServiceCodeDDFSIT {
+			verrs := validateDDFSIT(*destsit)
+
+			if verrs.HasAny() {
+				return nil, verrs
+			}
 		}
 
 		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
@@ -361,4 +392,23 @@ func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *val
 	return validate.Validate(
 		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
 	)
+}
+
+// validateDDFSIT validates that DDFSIT has required Customer Contact fields
+func validateDDFSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.FirstAvailableDeliveryDate1 == nil {
+		verrs.Add("firstAvailableDeliveryDate1", "firstAvailableDeliveryDate1 is required in body.")
+	}
+	if m.FirstAvailableDeliveryDate2 == nil {
+		verrs.Add("firstAvailableDeliveryDate2", "firstAvailableDeliveryDate2 is required in body.")
+	}
+	if m.TimeMilitary1 == nil {
+		verrs.Add("timeMilitary1", "timeMilitary1 is required in body.")
+	}
+	if m.TimeMilitary2 == nil {
+		verrs.Add("timeMilitary2", "timeMilitary2 is required in body.")
+	}
+	return verrs
 }

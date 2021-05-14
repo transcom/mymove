@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateMTOShipmentStatus Contains the statuses available to the Prime when updating a shipment.
+// UpdateMTOShipmentStatus Contains the statuses available to the Prime when updating the state of a shipment.
 //
 // swagger:model UpdateMTOShipmentStatus
 type UpdateMTOShipmentStatus struct {

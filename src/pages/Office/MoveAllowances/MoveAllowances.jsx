@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 import ordersStyles from '../Orders/Orders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateOrder } from 'services/ghcApi';
+import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -51,7 +51,7 @@ const MoveAllowances = () => {
     history.push(`/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

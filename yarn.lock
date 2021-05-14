@@ -9512,10 +9512,10 @@ filepond-polyfill@^1.0.2:
   resolved "https://registry.yarnpkg.com/filepond-polyfill/-/filepond-polyfill-1.0.4.tgz#cd816b4eb595dabd4baff215a797cb57ee1997ed"
   integrity sha512-ERBcCzqXadQB4mUaG34IOCsLStVpuG3F4a/nyYYeJLAfBIkT9DbQcJpIqcRQM+T3DyiNi1iZnq3rusFcQRaSMg==
 
-filepond@^4.27.0:
-  version "4.27.0"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.27.0.tgz#19ca80196f28a4a0ccca528acb592d8c192d6476"
-  integrity sha512-Z1XUXny6BQw9RVORz/MMjyVJHcW+tXiMRxocLEAY6gY1EfpMPwLJcQhalpMnfiGax7sBqXkv3tE8sZO71Q7Hbw==
+filepond@^4.27.1:
+  version "4.27.1"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.27.1.tgz#2fdbb2a2e49b32feb978ef41752a1d84bc68f222"
+  integrity sha512-L4DQgywbI68L+Qtp+1Wo6ZuzxtsfnxPMssTV4tyV0Sm9+9SOhwX5Dmx7y9RE5I8E7OnKKugxuUSakXUPS689Zg==
 
 filesize@6.1.0:
   version "6.1.0"
@@ -18798,9 +18798,9 @@ sshpk@^1.7.0:
     tweetnacl "~0.14.0"
 
 ssri@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/ssri/-/ssri-6.0.1.tgz#2a3c41b28dd45b62b63676ecb74001265ae9edd8"
-  integrity sha512-3Wge10hNcT1Kur4PDFwEieXSCMCJs/7WvSACcrMYrNp+b8kDL1/0wJch5Ni2WrtwEa2IO8OsVfeKIciKCDx/QA==
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/ssri/-/ssri-6.0.2.tgz#157939134f20464e7301ddba3e90ffa8f7728ac5"
+  integrity sha512-cepbSq/neFK7xB6A50KHN0xHDotYzq58wWCa5LeWqnPrHG8GzfEjO/4O8kpmcGW+oaxkvhEJCWgbgNk4/ZV93Q==
   dependencies:
     figgy-pudding "^3.5.1"
 
@@ -19288,10 +19288,10 @@ swagger-client@^3.13.2:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^3.47.1:
-  version "3.47.1"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.47.1.tgz#03b214a40d61e417051879cdb4a96f9c6b518a38"
-  integrity sha512-7b9iHDC/GGC9SJLd3HiV/3EnsJ3wu7xN8Q4MpOPfQO8UG7TQFG2TMTDkvvy0SNeqxQY0tGQY0ppZC9a95tW3kg==
+swagger-ui-dist@^3.48.0:
+  version "3.48.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.48.0.tgz#3d23194d86ec1e76b926a345578c290ef3fc6e98"
+  integrity sha512-UgpKIQW5RAb4nYRG8B615blmQzct0DNuvtX4904Fe2aMWAVfWeKHKl4kwzFXuBJgr2WYWTwM1PnhZ+qqkLrpPg==
 
 symbol-observable@1.2.0, symbol-observable@^1.1.0:
   version "1.2.0"
