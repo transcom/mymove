@@ -246,6 +246,16 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 
 		if destsit.ReServiceCode != nil {
 			model.ReService.Code = models.ReServiceCode(*destsit.ReServiceCode)
+
+		}
+
+		// Check for required fields on a DDFSIT
+		if model.ReService.Code == models.ReServiceCodeDDFSIT {
+			verrs := validateDDFSIT(*destsit)
+
+			if verrs.HasAny() {
+				return nil, verrs
+			}
 		}
 
 		model.CustomerContacts = models.MTOServiceItemCustomerContacts{
@@ -361,4 +371,23 @@ func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *val
 	return validate.Validate(
 		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
 	)
+}
+
+// validateDDFSIT validates that DDFSIT has required Customer Contact fields
+func validateDDFSIT(m primemessages.MTOServiceItemDestSIT) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if m.FirstAvailableDeliveryDate1 == nil {
+		verrs.Add("firstAvailableDeliveryDate1", "firstAvailableDeliveryDate1 is required in body.")
+	}
+	if m.FirstAvailableDeliveryDate2 == nil {
+		verrs.Add("firstAvailableDeliveryDate2", "firstAvailableDeliveryDate2 is required in body.")
+	}
+	if m.TimeMilitary1 == nil {
+		verrs.Add("timeMilitary1", "timeMilitary1 is required in body.")
+	}
+	if m.TimeMilitary2 == nil {
+		verrs.Add("timeMilitary2", "timeMilitary2 is required in body.")
+	}
+	return verrs
 }

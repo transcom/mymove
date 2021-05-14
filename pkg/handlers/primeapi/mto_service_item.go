@@ -60,7 +60,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-			verrs.Error(), h.GetTraceID(), verrs))
+			"Invalid input found in service item", h.GetTraceID(), verrs))
 	} else if mtoServiceItem == nil {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(
 			payloads.ValidationError("Unable to process service item", h.GetTraceID(), nil))
