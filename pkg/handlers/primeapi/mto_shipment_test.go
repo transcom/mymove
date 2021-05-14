@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -1054,5 +1056,147 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.Equal(string(reService.Code), serviceItemDDFSITCode)
 		suite.Equal(oldShipment.ApprovedDate, &now)
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
+	builder := query.NewQueryBuilder(suite.DB())
+	fetcher := fetch.NewFetcher(builder)
+	planner := &routemocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetPlanner(planner)
+
+	handler := UpdateMTOShipmentStatusHandler{
+		context,
+		mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner),
+		mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder), planner),
+	}
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s/status", uuid.Nil.String()), nil)
+
+	// Set up Prime-available move
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+			Status:          models.MTOShipmentStatusCancellationRequested,
+		},
+	})
+	eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+	suite.T().Run("200 SUCCESS - Updated CANCELLATION_REQUESTED to CANCELED", func(t *testing.T) {
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
+			IfMatch:       eTag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusOK)
+		suite.Equal(string(models.MTOShipmentStatusCanceled), okResponse.Payload.Status)
+		suite.Equal(move.ID.String(), okResponse.Payload.MoveTaskOrderID.String())
+		suite.NotZero(okResponse.Payload.ETag)
+
+		eTag = okResponse.Payload.ETag // updated for following tests
+	})
+
+	suite.T().Run("404 FAIL - Bad shipment ID", func(t *testing.T) {
+		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000010")
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(badUUID),
+			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
+			IfMatch:       eTag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusNotFound{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusNotFound)
+		suite.Contains(*errResponse.Payload.Detail, badUUID.String())
+	})
+
+	suite.T().Run("404 FAIL - Shipment was not Prime-available", func(t *testing.T) {
+		nonPrimeShipment := testdatagen.MakeDefaultMTOShipment(suite.DB()) // default is non-Prime available
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(nonPrimeShipment.ID),
+			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
+			IfMatch:       etag.GenerateEtag(nonPrimeShipment.UpdatedAt),
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusNotFound{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusNotFound)
+		suite.Contains(*errResponse.Payload.Detail, nonPrimeShipment.ID.String())
+	})
+
+	suite.T().Run("412 FAIL - Stale eTag", func(t *testing.T) {
+		staleShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrder:   move,
+				MoveTaskOrderID: move.ID,
+				Status:          models.MTOShipmentStatusCancellationRequested,
+			},
+		})
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(staleShipment.ID),
+			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
+			IfMatch:       "eTag",
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("409 FAIL - Current status was not CANCELLATION_REQUESTED", func(t *testing.T) {
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID), // This shipment currently has CANCELED status already
+			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusCanceled)},
+			IfMatch:       eTag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusConflict{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusConflict)
+		suite.Contains(*errResponse.Payload.Detail, string(models.MTOShipmentStatusCanceled))
+	})
+
+	suite.T().Run("422 FAIL - Tried to use a status other than CANCELED", func(t *testing.T) {
+		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &primemessages.UpdateMTOShipmentStatus{Status: string(models.MTOShipmentStatusApproved)},
+			IfMatch:       eTag,
+		}
+		// Run swagger validations - should fail
+		suite.Error(params.Body.Validate(strfmt.Default))
 	})
 }
