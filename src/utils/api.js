@@ -3,7 +3,7 @@
 
 import Swagger from 'swagger-client';
 
-import { getClient, checkResponse, requestInterceptor } from 'shared/Swagger/api';
+import { checkResponse, getClient, requestInterceptor } from 'shared/Swagger/api';
 
 export const getQueriesStatus = (queries) => {
   // Queries should be an array of statuses returned by useQuery (https://react-query.tanstack.com/docs/api#usequery)

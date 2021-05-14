@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
+import { Link, useParams } from 'react-router-dom';
+import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 import classnames from 'classnames';
 
@@ -120,9 +120,11 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Orders"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-                  View and edit orders
-                </Link>
+                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                    View and edit orders
+                  </Link>
+                )
               }
             >
               <ServicesCounselingOrdersList ordersInfo={ordersInfo} />

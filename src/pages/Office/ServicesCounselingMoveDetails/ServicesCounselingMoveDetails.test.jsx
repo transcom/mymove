@@ -194,8 +194,11 @@ describe('MoveDetails page', () => {
       </MockProviders>,
     );
 
-    it('submit move details button is not on page', () => {
+    it('hides submit and view/edit buttons', () => {
       expect(wrapper.find('[data-testid="submitMoveDetailsBtn"]').length).toBe(0);
+      expect(wrapper.find('[data-testid="edit-orders"]').length).toBe(0);
+      expect(wrapper.find('[data-testid="edit-allowances"]').length).toBe(0);
+      expect(wrapper.find('[data-testid="edit=customer-info"]').length).toBe(0);
     });
   });
 });

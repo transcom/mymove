@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
+import { Button, Fieldset, Form, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServiceItemCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import { toDollarString } from 'shared/formatters';
+import { toDollarString, formatDateFromIso } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { shipmentTypes } from 'constants/shipments';
@@ -77,7 +77,7 @@ const ServiceItemCard = ({
               <small className={styles.addressBlock}>
                 {mtoShipmentDepartureDate && (
                   <div>
-                    <span>Departed</span> {mtoShipmentDepartureDate}
+                    <span>Departed</span> {formatDateFromIso(mtoShipmentDepartureDate, 'DD MMM YYYY')}
                   </div>
                 )}
                 {mtoShipmentPickupAddress && (
@@ -178,7 +178,7 @@ const ServiceItemCard = ({
                     <small className={styles.addressBlock}>
                       {mtoShipmentDepartureDate && (
                         <div>
-                          <span>Departed</span> {mtoShipmentDepartureDate}
+                          <span>Departed</span> {formatDateFromIso(mtoShipmentDepartureDate, 'DD MMM YYYY')}
                         </div>
                       )}
                       {mtoShipmentPickupAddress && (

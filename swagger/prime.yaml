@@ -202,7 +202,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}':
-    put:
+    patch:
       summary: updateMTOShipment
       description: |
         Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
@@ -455,6 +455,60 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/status':
+    patch:
+      summary: updateMTOShipmentStatus
+      description: |
+        ### Functionality
+        This endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment
+        status to be changed to "CANCELED." Currently, the Prime cannot update the shipment to any other status.
+      operationId: updateMTOShipmentStatus
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the agent
+          required: true
+          format: uuid
+          type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMTOShipmentStatus'
+      responses:
+        '200':
+          description: Successfully updated the shipment's status.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/mto-service-items':
     post:
       summary: createMTOServiceItem
@@ -503,7 +557,21 @@ paths:
 
         **DDFSIT**
 
-        **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+        **1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
+          * `firstAvailableDeliveryDate1`
+            * string <date>
+            * First available date that Prime can deliver SIT service item.
+          * `firstAvailableDeliveryDate2`
+            * string <date>
+            * Second available date that Prime can deliver SIT service item.
+          * `timeMilitary1`
+            * string\d{4}Z
+            * Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+          * `timeMilitary2`
+            * string\d{4}Z
+            * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+
+        When a DDFSIT is requested, the API will auto-create the following group of service items:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
           * DDDSIT - Domestic destination SIT delivery
@@ -512,6 +580,7 @@ paths:
 
         **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
         Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
+
 
       operationId: createMTOServiceItem
       tags:
@@ -1230,19 +1299,23 @@ definitions:
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
             pattern: '\d{4}Z'
+            x-nullable: true
           firstAvailableDeliveryDate1:
             format: date
             type: string
             description: First available date that Prime can deliver SIT service item.
+            x-nullable: true
           timeMilitary2:
             type: string
             example: 1400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
             pattern: '\d{4}Z'
+            x-nullable: true
           firstAvailableDeliveryDate2:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+            x-nullable: true
           sitEntryDate:
             format: date
             type: string
@@ -1256,10 +1329,6 @@ definitions:
             $ref: '#/definitions/Address'
         required:
           - reServiceCode
-          - timeMilitary1
-          - firstAvailableDeliveryDate1
-          - timeMilitary2
-          - firstAvailableDeliveryDate2
           - sitEntryDate
   MTOServiceItemDimension:
     description: Describes a dimension object for the MTOServiceItem.
@@ -1487,6 +1556,7 @@ definitions:
           - SUBMITTED
           - REJECTED
           - CANCELLATION_REQUESTED
+          - CANCELED
           - DIVERSION_REQUESTED
       diversion:
         type: boolean
@@ -1883,6 +1953,14 @@ definitions:
             description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
+  UpdateMTOShipmentStatus:
+    description: Contains the statuses available to the Prime when updating a shipment.
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+          - CANCELED
   Upload:
     type: object
     properties:
