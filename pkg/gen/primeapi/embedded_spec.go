@@ -1063,16 +1063,17 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
+        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress",
-        "shipmentType",
-        "requestedPickupDate"
+        "shipmentType"
       ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
+          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs. Provided during counseling.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -1081,9 +1082,11 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion.",
           "type": "boolean"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -1102,11 +1105,12 @@ func init() {
           "type": "string"
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of the shipment, determined during counseling with the customer. This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be modified later.\n",
           "type": "integer",
           "example": 4500
         },
         "requestedPickupDate": {
-          "description": "The date the customer requested that this shipment be picked up.",
+          "description": "The date the customer provided during counseling as their prefered pickup date.",
           "type": "string",
           "format": "date"
         },
@@ -3861,16 +3865,17 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
+        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress",
-        "shipmentType",
-        "requestedPickupDate"
+        "shipmentType"
       ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
+          "description": "The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs. Provided during counseling.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -3879,9 +3884,11 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion.",
           "type": "boolean"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -3900,11 +3907,12 @@ func init() {
           "type": "string"
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of the shipment, determined during counseling with the customer. This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be modified later.\n",
           "type": "integer",
           "example": 4500
         },
         "requestedPickupDate": {
-          "description": "The date the customer requested that this shipment be picked up.",
+          "description": "The date the customer provided during counseling as their prefered pickup date.",
           "type": "string",
           "format": "date"
         },

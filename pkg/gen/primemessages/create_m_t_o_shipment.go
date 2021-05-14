@@ -26,17 +26,18 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// customer remarks
+	// The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment so that they can take care of any unique shipping and handling needs. Provided during counseling.
+	//
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
 	// Required: true
 	DestinationAddress *Address `json:"destinationAddress"`
 
-	// diversion
+	// This value indicates whether or not this shipment is part of a diversion.
 	Diversion bool `json:"diversion,omitempty"`
 
-	// move task order ID
+	// The ID of the move this new shipment is for.
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
@@ -50,10 +51,11 @@ type CreateMTOShipment struct {
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// prime estimated weight
+	// The estimated weight of the shipment, determined during counseling with the customer. This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be modified later.
+	//
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-	// The date the customer requested that this shipment be picked up.
+	// The date the customer provided during counseling as their prefered pickup date.
 	// Required: true
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`

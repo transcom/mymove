@@ -921,43 +921,52 @@ definitions:
     type: object
     properties:
       moveTaskOrderID:
+        description: The ID of the move this new shipment is for.
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
+        description: The date the customer provided during counseling as their prefered pickup date.
         format: date
         type: string
-        description: The date the customer requested that this shipment be picked up.
       primeEstimatedWeight:
+        description: >
+          The estimated weight of the shipment, determined during counseling with the customer.
+          This value **can only be updated once.** If a value is added with shipment creation, it will not be able to be
+          modified later.
         type: integer
         example: 4500
       customerRemarks:
+        description: >
+          The customer remarks are how the customer can inform the Prime of any special circumstances around their shipment
+          so that they can take care of any unique shipping and handling needs. Provided during counseling.
         type: string
         example: handle with care
         x-nullable: true
-      pickupAddress:
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
-      diversion:
-        type: boolean
-      pointOfContact:
-        type: string
-        description: Email or id of a contact person for this update
       mtoServiceItems:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      diversion:
+        description: This value indicates whether or not this shipment is part of a diversion.
+        type: boolean
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update
     required:
       - moveTaskOrderID
+      - requestedPickupDate
       - pickupAddress
       - destinationAddress
       - shipmentType
-      - requestedPickupDate
   CreatePaymentRequest:
     type: object
     properties:
