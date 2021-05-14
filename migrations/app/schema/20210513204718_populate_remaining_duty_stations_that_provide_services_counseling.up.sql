@@ -11,5 +11,7 @@ UPDATE duty_stations
         'Sector Mobile',
         'JB Elmendorf-Richardson',
         'NAVSUP FLC Puget Sound',
-        'Eielson AFB'
+        'Eielson AFB',
+        'Ellington Field ANGB',
+        'Griffiss AFB'
 );
