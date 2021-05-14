@@ -135,7 +135,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	}
 
 	// good to update
-	updatingOrder := Order(*existingOrder, *params.Body)
+	updatingOrder := Order(*existingOrder, *params.Body, session)
 	updatedOrder, err := h.orderUpdater.UpdateOrder(updatingOrder)
 	if err != nil {
 		return handleError(err)
@@ -268,7 +268,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 }
 
 // Order transforms UpdateOrderPayload to Order model
-func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, session *auth.Session) models.Order {
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
@@ -283,7 +283,7 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) m
 		order.NewDutyStationID = newDutyStationID
 	}
 
-	if payload.DepartmentIndicator != nil {
+	if payload.DepartmentIndicator != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		departmentIndicator := (*string)(payload.DepartmentIndicator)
 		order.DepartmentIndicator = departmentIndicator
 	}
@@ -292,11 +292,11 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) m
 		order.IssueDate = time.Time(*payload.IssueDate)
 	}
 
-	if payload.OrdersNumber != nil {
+	if payload.OrdersNumber != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		order.OrdersNumber = payload.OrdersNumber
 	}
 
-	if payload.OrdersTypeDetail != nil {
+	if payload.OrdersTypeDetail != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
 		order.OrdersTypeDetail = &orderTypeDetail
 	}
@@ -305,11 +305,11 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) m
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	if payload.Sac != nil {
+	if payload.Sac != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		order.SAC = payload.Sac
 	}
 
-	if payload.Tac != nil {
+	if payload.Tac != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		order.TAC = payload.Tac
 	}
 
