@@ -22,9 +22,13 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
 	params := orderop.GetOrderParams{
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
@@ -200,6 +204,43 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, ordersPayload.Tac)
 	suite.Equal(body.Sac, ordersPayload.Sac)
+}
+
+func (suite *HandlerSuite) TestUpdateServicesCounselorAllowanceHandlerIntegration() {
+	servicesCounselorUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request = suite.AuthenticateOfficeRequest(request, servicesCounselorUser)
+
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	order := move.Orders
+	newAuthorizedWeight := int64(10000)
+
+	body := &ghcmessages.UpdateAllowancePayload{
+		AuthorizedWeight: &newAuthorizedWeight,
+	}
+
+	params := orderop.UpdateAllowanceParams{
+		HTTPRequest: request,
+		OrderID:     strfmt.UUID(order.ID.String()),
+		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := UpdateAllowanceHandler{
+		context,
+		orderservice.NewOrderUpdater(suite.DB()),
+		orderservice.NewOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+
+	suite.IsType(&orderop.UpdateAllowanceOK{}, response)
+
+	allowanceOK := response.(*orderop.UpdateAllowanceOK)
+	payload := allowanceOK.Payload
+	suite.NotEqual(body.AuthorizedWeight, payload.Entitlement.AuthorizedWeight)
 }
 
 // Test that an order notification got stored Successfully

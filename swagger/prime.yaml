@@ -202,7 +202,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   '/mto-shipments/{mtoShipmentID}':
-    put:
+    patch:
       summary: updateMTOShipment
       description: |
         Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
