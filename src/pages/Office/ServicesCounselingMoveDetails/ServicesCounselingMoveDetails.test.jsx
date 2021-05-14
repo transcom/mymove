@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
@@ -8,6 +9,7 @@ import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import MOVE_STATUSES from 'constants/moves';
+import { formatDate } from 'shared/dates';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -86,6 +88,7 @@ const newMoveDetailsQuery = {
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
+      counselorRemarks: 'all good',
       destinationAddress: {
         city: 'Fairfield',
         country: 'US',
@@ -110,11 +113,44 @@ const newMoveDetailsQuery = {
         street_address_2: 'P.O. Box 12345',
         street_address_3: 'c/o Some Person',
       },
-      requestedPickupDate: '2018-03-15',
-      scheduledPickupDate: '2018-03-16',
+      requestedPickupDate: '2020-06-04',
+      scheduledPickupDate: '2020-06-05',
       shipmentType: 'HHG',
       status: 'SUBMITTED',
-      updatedAt: '2020-06-10T15:58:02.404031Z',
+      updatedAt: '2020-05-10T15:58:02.404031Z',
+    },
+    {
+      customerRemarks: 'do not drop!',
+      counselorRemarks: '',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        id: '672ff379-f6e3-48b4-a87d-752463f8f997',
+        postal_code: '94534',
+        state: 'CA',
+        street_address_1: '111 Everywhere',
+        street_address_2: 'Apt #1',
+        street_address_3: '',
+      },
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      pickupAddress: {
+        city: 'Austin',
+        country: 'US',
+        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+        id: '1686751b-ab36-43cf-b3c9-c0f467d13c55',
+        postal_code: '78712',
+        state: 'TX',
+        street_address_1: '888 Lucky Street',
+        street_address_2: '#4',
+        street_address_3: 'c/o rabbit',
+      },
+      requestedPickupDate: '2020-06-05',
+      scheduledPickupDate: '2020-06-06',
+      shipmentType: 'HHG',
+      status: 'SUBMITTED',
+      updatedAt: '2020-05-15T15:58:02.404031Z',
     },
   ],
   mtoServiceItems: [],
@@ -143,6 +179,71 @@ describe('MoveDetails page', () => {
     expect(wrapper.find({ 'data-testid': 'sc-move-details' }).exists()).toBe(true);
     expect(wrapper.containsMatchingElement(<h1>Move details</h1>)).toBe(true);
   });
+
+  /* eslint-disable camelcase */
+  it('renders shipments info', async () => {
+    render(
+      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
+        <ServicesCounselingMoveDetails />
+      </MockProviders>,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Shipments', level: 2 })).toBeInTheDocument();
+
+    expect(screen.getAllByRole('heading', { name: 'HHG', level: 3 }).length).toBe(2);
+
+    const moveDateTerms = screen.getAllByText('Requested move date');
+
+    expect(moveDateTerms.length).toBe(2);
+
+    for (let i = 0; i < moveDateTerms.length; i += 1) {
+      expect(moveDateTerms[i].nextElementSibling.textContent).toBe(
+        formatDate(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
+      );
+    }
+
+    const currentAddressTerms = screen.getAllByText('Current address');
+
+    expect(currentAddressTerms.length).toBe(3); // Third one is in customer info section
+
+    // only loop through the ones in the shipments section
+    for (let i = 0; i < 2; i += 1) {
+      const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
+
+      const addressText = currentAddressTerms[i].nextElementSibling.textContent;
+
+      expect(addressText).toContain(street_address_1);
+      expect(addressText).toContain(city);
+      expect(addressText).toContain(state);
+      expect(addressText).toContain(postal_code);
+    }
+
+    const destinationAddressTerms = screen.getAllByText('Destination address');
+
+    expect(destinationAddressTerms.length).toBe(2);
+
+    for (let i = 0; i < destinationAddressTerms.length; i += 1) {
+      const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].destinationAddress;
+
+      const addressText = destinationAddressTerms[i].nextElementSibling.textContent;
+
+      expect(addressText).toContain(street_address_1);
+      expect(addressText).toContain(city);
+      expect(addressText).toContain(state);
+      expect(addressText).toContain(postal_code);
+    }
+
+    const counselorRemarksTerms = screen.getAllByText('Counselor remarks');
+
+    expect(counselorRemarksTerms.length).toBe(2);
+
+    for (let i = 0; i < counselorRemarksTerms.length; i += 1) {
+      expect(counselorRemarksTerms[i].nextElementSibling.textContent).toBe(
+        newMoveDetailsQuery.mtoShipments[i].counselorRemarks || '—',
+      );
+    }
+  });
+  /* eslint-enable camelcase */
 
   it('renders customer info', () => {
     const wrapper = mount(

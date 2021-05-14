@@ -14,12 +14,14 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import 'styles/office.scss';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MOVES } from 'constants/queryKeys';
-import { MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
@@ -27,8 +29,24 @@ const ServicesCounselingMoveDetails = () => {
   const [alertType, setAlertType] = useState('success');
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
 
-  const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
+
+  let shipmentsInfo = [];
+
+  if (mtoShipments) {
+    shipmentsInfo = mtoShipments.map((shipment) => {
+      return {
+        id: shipment.id,
+        heading: SHIPMENT_OPTIONS.HHG,
+        requestedMoveDate: shipment.requestedPickupDate,
+        currentAddress: shipment.pickupAddress,
+        destinationAddress: shipment.destinationAddress,
+        counselorRemarks: shipment.counselorRemarks,
+      };
+    });
+  }
+
   const customerInfo = {
     name: `${customer.last_name}, ${customer.first_name}`,
     dodId: customer.dodID,
@@ -116,6 +134,24 @@ const ServicesCounselingMoveDetails = () => {
               )}
             </Grid>
           </Grid>
+
+          <div className={styles.section} id="shipments">
+            <DetailsPanel title="Shipments">
+              <div className={shipmentCardsStyles.shipmentCards}>
+                {shipmentsInfo.map((shipment) => (
+                  <ShipmentDisplay
+                    displayInfo={shipment}
+                    isSubmitted={false}
+                    key={shipment.id}
+                    shipmentId={shipment.id}
+                    shipmentType={SHIPMENT_OPTIONS.HHG}
+                    showIcon={false}
+                  />
+                ))}
+              </div>
+            </DetailsPanel>
+          </div>
+
           <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
