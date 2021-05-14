@@ -32,7 +32,7 @@ const ServicesCounselingMoveInfo = () => {
             <ServicesCounselingMoveDetails />
           </Route>
 
-          <Route path="/counseling/moves/:moveCode/allowances" exact>
+          <Route path={['/counseling/moves/:moveCode/allowances', '/counseling/moves/:moveCode/orders']} exact>
             <ServicesCounselingMoveDocumentWrapper />
           </Route>
 
