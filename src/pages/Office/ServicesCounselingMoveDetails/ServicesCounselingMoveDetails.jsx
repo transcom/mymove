@@ -111,10 +111,7 @@ const ServicesCounselingMoveDetails = () => {
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
 
-        <GridContainer
-          className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}
-          data-testid="sc-move-details"
-        >
+        <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
@@ -128,7 +125,7 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                <Button data-testid="submitMoveDetailsBtn" type="button" onClick={handleShowCancellationModal}>
+                <Button type="button" onClick={handleShowCancellationModal}>
                   Submit move details
                 </Button>
               )}
@@ -157,7 +154,7 @@ const ServicesCounselingMoveDetails = () => {
               title="Orders"
               editButton={
                 move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  <Link className="usa-button usa-button--secondary" to="orders">
                     View and edit orders
                   </Link>
                 )
@@ -171,7 +168,7 @@ const ServicesCounselingMoveDetails = () => {
               title="Allowances"
               editButton={
                 move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  <Link className="usa-button usa-button--secondary" to="allowances">
                     Edit allowances
                   </Link>
                 )
@@ -185,7 +182,7 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                  <Link className="usa-button usa-button--secondary" to="#">
                     Edit customer info
                   </Link>
                 )

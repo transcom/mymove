@@ -1,15 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
-import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
-import { MockProviders } from 'testUtils';
-import { useMoveDetailsQueries } from 'hooks/queries';
 import MOVE_STATUSES from 'constants/moves';
+import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
+import { MockProviders } from 'testUtils';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -169,24 +169,26 @@ const counselingCompletedMoveDetailsQuery = {
   },
 };
 
+const mockedComponent = (
+  <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
+    <ServicesCounselingMoveDetails />
+  </MockProviders>
+);
+
 describe('MoveDetails page', () => {
-  it('renders the h1', () => {
-    const wrapper = mount(
-      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
-        <ServicesCounselingMoveDetails />
-      </MockProviders>,
-    );
-    expect(wrapper.find({ 'data-testid': 'sc-move-details' }).exists()).toBe(true);
-    expect(wrapper.containsMatchingElement(<h1>Move details</h1>)).toBe(true);
+  it('renders the h1', async () => {
+    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+    render(mockedComponent);
+
+    expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
   });
 
   /* eslint-disable camelcase */
   it('renders shipments info', async () => {
-    render(
-      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
-        <ServicesCounselingMoveDetails />
-      </MockProviders>,
-    );
+    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+    render(mockedComponent);
 
     expect(await screen.findByRole('heading', { name: 'Shipments', level: 2 })).toBeInTheDocument();
 
@@ -245,61 +247,72 @@ describe('MoveDetails page', () => {
   });
   /* eslint-enable camelcase */
 
-  it('renders customer info', () => {
-    const wrapper = mount(
-      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
-        <ServicesCounselingMoveDetails />
-      </MockProviders>,
-    );
-    expect(wrapper.containsMatchingElement(<h2>Customer info</h2>)).toBe(true);
+  it('renders customer info', async () => {
+    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+    render(mockedComponent);
+
+    expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
   });
 
   describe('new move - needs service counseling', () => {
-    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+    it('submit move details button is on page', async () => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 
-    const wrapper = mount(
-      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
-        <ServicesCounselingMoveDetails />
-      </MockProviders>,
-    );
+      render(mockedComponent);
 
-    it('submit move details button is on page', () => {
-      expect(wrapper.find('button[data-testid="submitMoveDetailsBtn"]').length).toBe(1);
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
     });
 
-    it('renders the Orders Definition List', () => {
-      expect(wrapper.find('#orders h2').text()).toEqual('Orders');
-      expect(wrapper.find('[data-testid="currentDutyStation"]').exists()).toBe(true);
+    it('renders the Orders Definition List', async () => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+      render(mockedComponent);
+
+      expect(await screen.findByRole('heading', { name: 'Orders', level: 2 })).toBeInTheDocument();
+      expect(screen.getByText('Current duty station')).toBeInTheDocument();
     });
 
-    it('renders the Allowances Table', () => {
-      expect(wrapper.find('#allowances h2').text()).toEqual('Allowances');
-      expect(wrapper.find('[data-testid="branchRank"]').exists()).toBe(true);
+    it('renders the Allowances Table', async () => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+      render(mockedComponent);
+
+      expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
+      expect(screen.getByText('Branch, rank')).toBeInTheDocument();
     });
 
-    it('allows the service counseler to use the modal as expected', () => {
-      wrapper.find('[data-testid="submitMoveDetailsBtn"]').first().simulate('click');
-      expect(wrapper.find('[data-testid="SubmitMoveConfirmationModal"]').length).toBe(1);
+    it('allows the service counselor to use the modal as expected', async () => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 
-      wrapper.find('button[type="submit"]').simulate('click');
-      expect(wrapper.find('[data-testid="SubmitMoveConfirmationModal"]').length).toBe(0);
+      render(mockedComponent);
+
+      const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+      userEvent.click(submitButton);
+
+      expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 }));
+
+      const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+      userEvent.click(modalSubmitButton);
+
+      expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 }));
     });
   });
 
   describe('service counseling completed', () => {
-    useMoveDetailsQueries.mockImplementation(() => counselingCompletedMoveDetailsQuery);
+    it('hides submit and view/edit buttons', async () => {
+      useMoveDetailsQueries.mockImplementation(() => counselingCompletedMoveDetailsQuery);
 
-    const wrapper = mount(
-      <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
-        <ServicesCounselingMoveDetails />
-      </MockProviders>,
-    );
+      render(mockedComponent);
 
-    it('hides submit and view/edit buttons', () => {
-      expect(wrapper.find('[data-testid="submitMoveDetailsBtn"]').length).toBe(0);
-      expect(wrapper.find('[data-testid="edit-orders"]').length).toBe(0);
-      expect(wrapper.find('[data-testid="edit-allowances"]').length).toBe(0);
-      expect(wrapper.find('[data-testid="edit=customer-info"]').length).toBe(0);
+      expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'View and edit orders' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit allowances' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit customer info' })).not.toBeInTheDocument();
     });
   });
+
+  afterEach(jest.resetAllMocks);
 });
