@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
@@ -145,8 +145,13 @@ const ServicesCounselingMoveAllowances = () => {
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
                 <h2 className={documentWrapperStyles.header} data-testid="allowances-header">
-                  View Allowances
+                  View allowances
                 </h2>
+                <div>
+                  <Link className={documentWrapperStyles.viewAllowances} data-testid="view-orders" to="orders">
+                    View orders
+                  </Link>
+                </div>
               </div>
               <div className={documentWrapperStyles.body}>
                 <AllowancesDetailForm
