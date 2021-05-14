@@ -269,6 +269,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 
 // Order transforms UpdateOrderPayload to Order model
 func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, session *auth.Session) models.Order {
+	isServicesCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
 	order := existingOrder
 
 	// update both order origin duty station and service member duty station
@@ -283,7 +284,7 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, s
 		order.NewDutyStationID = newDutyStationID
 	}
 
-	if payload.DepartmentIndicator != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if payload.DepartmentIndicator != nil && !isServicesCounselor {
 		departmentIndicator := (*string)(payload.DepartmentIndicator)
 		order.DepartmentIndicator = departmentIndicator
 	}
@@ -292,11 +293,11 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, s
 		order.IssueDate = time.Time(*payload.IssueDate)
 	}
 
-	if payload.OrdersNumber != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if payload.OrdersNumber != nil && !isServicesCounselor {
 		order.OrdersNumber = payload.OrdersNumber
 	}
 
-	if payload.OrdersTypeDetail != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if payload.OrdersTypeDetail != nil && !isServicesCounselor {
 		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
 		order.OrdersTypeDetail = &orderTypeDetail
 	}
@@ -305,11 +306,11 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, s
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	if payload.Sac != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if payload.Sac != nil && !isServicesCounselor {
 		order.SAC = payload.Sac
 	}
 
-	if payload.Tac != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if payload.Tac != nil && !isServicesCounselor {
 		order.TAC = payload.Tac
 	}
 
@@ -321,6 +322,7 @@ func Order(existingOrder models.Order, payload ghcmessages.UpdateOrderPayload, s
 // OrderAllowance transforms UpdateOrderPayload to Order model. Specifically for
 // UpdateAllowance endpoint.
 func OrderAllowance(existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload, session *auth.Session) models.Order {
+	isServicesCounselor := session.Roles.HasRole(roles.RoleTypeServicesCounselor)
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {
@@ -353,7 +355,7 @@ func OrderAllowance(existingOrder models.Order, payload ghcmessages.UpdateAllowa
 
 	// only office users and TXO roles can edit authorized weight
 	// omit value from update
-	if payload.AuthorizedWeight != nil && !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+	if payload.AuthorizedWeight != nil && !isServicesCounselor {
 		dbAuthorizedWeight := swag.Int(int(*payload.AuthorizedWeight))
 		order.Entitlement.DBAuthorizedWeight = dbAuthorizedWeight
 	}
