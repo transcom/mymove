@@ -58,7 +58,7 @@ const ServicesCounselingShipmentForm = ({
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
   const submitMTOShipment = ({ shipmentOption, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
-    const { moveId } = match.params;
+    const { moveCode } = match.params;
 
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
@@ -67,13 +67,13 @@ const ServicesCounselingShipmentForm = ({
 
     const pendingMtoShipment = formatMtoShipmentForAPI({
       shipmentType: shipmentOption || selectedMoveType,
-      moveId,
+      moveCode,
       customerRemarks,
       pickup,
       delivery: deliveryDetails,
     });
 
-    const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
+    const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveCode });
 
     if (isCreatePage) {
       createMTOShipment(pendingMtoShipment)
@@ -124,7 +124,7 @@ const ServicesCounselingShipmentForm = ({
                 address: currentResidence,
               },
             });
-          } else if (match.params.moveId === mtoShipment?.moveTaskOrderId) {
+          } else if (match.params.moveCode === mtoShipment?.moveTaskOrderId) {
             // TODO - what is the purpose of this check?
             // Revert address
             setValues({
@@ -357,7 +357,7 @@ ServicesCounselingShipmentForm.propTypes = {
 
 ServicesCounselingShipmentForm.defaultProps = {
   isCreatePage: false,
-  match: { isExact: false, params: { moveID: '' } },
+  match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { goBack: () => {}, push: () => {} },
   newDutyStationAddress: {
     city: '',

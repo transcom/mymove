@@ -7,6 +7,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+// import { useMutation } from 'react-query';
 
 const ServicesCounselingEditShipmentDetails = () => {
   const { moveCode, shipmentId } = useParams();
@@ -21,7 +22,9 @@ const ServicesCounselingEditShipmentDetails = () => {
   const matchingShipment = mtoShipments.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, total_weight_self: allowances.authorizedWeight };
 
-  const updateMtoShipmentHandler = () => {};
+  /*
+  const [mutateMTOShipment] = useMutation()
+  */
 
   return (
     <GridContainer containerSize="widescreen">
@@ -30,10 +33,10 @@ const ServicesCounselingEditShipmentDetails = () => {
           <ServicesCounselingShipmentForm
             match={matchPath(pathname, {
               isExact: true,
-              path: '/moves/:moveCode/:shipmentId',
+              path: '/counseling/moves/:moveCode/:shipmentId',
             })}
             history={history}
-            updateMTOShipment={updateMtoShipmentHandler}
+            updateMTOShipment={() => {}}
             isCreatePage={false}
             currentResidence={customer.current_address}
             newDutyStationAddress={order.destinationDutyStation}
