@@ -40,8 +40,13 @@ type MTOShipment struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:
-	// * bulky or fragile items, * weapons, * access info for their address.
+	// The customer can use the customer remarks field to inform the services counselor and the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//
+	// * bulky or fragile items,
+	// * weapons,
+	// * access info for their address.
+	//
 	// Customer enters this information during onboarding. Optional field.
 	//
 	// Read Only: true

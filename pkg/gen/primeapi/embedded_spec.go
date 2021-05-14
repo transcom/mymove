@@ -1073,7 +1073,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n\n* bulky or fragile items,\n* weapons,\n* access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -1742,7 +1742,7 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n\n* bulky or fragile items,\n* weapons,\n* access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -3886,7 +3886,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n\n* bulky or fragile items,\n* weapons,\n* access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -4555,7 +4555,7 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
-          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any special circumstances for this shipment. Typical examples:\n* bulky or fragile items, * weapons, * access info for their address.\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n\n* bulky or fragile items,\n* weapons,\n* access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
