@@ -18,6 +18,8 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 }
 
 func (suite *ModelSuite) Test_FetchTDL() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
@@ -38,6 +40,8 @@ func (suite *ModelSuite) Test_FetchTDL() {
 }
 
 func (suite *ModelSuite) Test_FetchOrCreateTDL() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	foundTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
@@ -96,6 +100,8 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 }
 
 func (suite *ModelSuite) Test_TDLUniqueChannelCOS() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
