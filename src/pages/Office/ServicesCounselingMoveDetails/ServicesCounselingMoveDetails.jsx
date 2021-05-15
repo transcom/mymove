@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
+import { generatePath } from 'react-router';
 import classnames from 'classnames';
 
 import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
@@ -15,6 +16,7 @@ import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import 'styles/office.scss';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -32,17 +34,30 @@ const ServicesCounselingMoveDetails = () => {
   const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
 
+  const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
+
   let shipmentsInfo = [];
 
   if (mtoShipments) {
     shipmentsInfo = mtoShipments.map((shipment) => {
+      const editURL = counselorCanEdit
+        ? `${generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          })}`
+        : '';
+
       return {
         id: shipment.id,
-        heading: SHIPMENT_OPTIONS.HHG,
-        requestedMoveDate: shipment.requestedPickupDate,
-        currentAddress: shipment.pickupAddress,
-        destinationAddress: shipment.destinationAddress,
-        counselorRemarks: shipment.counselorRemarks,
+        displayInfo: {
+          id: shipment.id,
+          heading: SHIPMENT_OPTIONS.HHG,
+          requestedMoveDate: shipment.requestedPickupDate,
+          currentAddress: shipment.pickupAddress,
+          destinationAddress: shipment.destinationAddress,
+          counselorRemarks: shipment.counselorRemarks,
+        },
+        editURL,
       };
     });
   }
@@ -124,7 +139,7 @@ const ServicesCounselingMoveDetails = () => {
               <h1>Move details</h1>
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-              {move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+              {counselorCanEdit && (
                 <Button type="button" onClick={handleShowCancellationModal}>
                   Submit move details
                 </Button>
@@ -137,7 +152,8 @@ const ServicesCounselingMoveDetails = () => {
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
-                    displayInfo={shipment}
+                    displayInfo={shipment.displayInfo}
+                    editURL={shipment.editURL}
                     isSubmitted={false}
                     key={shipment.id}
                     shipmentId={shipment.id}
@@ -153,7 +169,7 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Orders"
               editButton={
-                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                counselorCanEdit && (
                   <Link className="usa-button usa-button--secondary" to="orders">
                     View and edit orders
                   </Link>
@@ -167,7 +183,7 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Allowances"
               editButton={
-                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                counselorCanEdit && (
                   <Link className="usa-button usa-button--secondary" to="allowances">
                     Edit allowances
                   </Link>
@@ -181,7 +197,7 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Customer info"
               editButton={
-                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
+                counselorCanEdit && (
                   <Link className="usa-button usa-button--secondary" to="#">
                     Edit customer info
                   </Link>

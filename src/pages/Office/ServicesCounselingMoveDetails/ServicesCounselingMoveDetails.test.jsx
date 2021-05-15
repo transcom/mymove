@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { generatePath } from 'react-router';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -7,11 +8,17 @@ import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
 import MOVE_STATUSES from 'constants/moves';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
 import { MockProviders } from 'testUtils';
 
 const mockRequestedMoveCode = 'LR4T8V';
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
+}));
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -299,6 +306,25 @@ describe('MoveDetails page', () => {
 
       expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 }));
     });
+
+    it('shows the edit shipment buttons', async () => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+      render(mockedComponent);
+
+      const editShipmentButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
+
+      expect(editShipmentButtons.length).toBe(2);
+
+      for (let i = 0; i < editShipmentButtons.length; i += 1) {
+        expect(editShipmentButtons[i].getAttribute('to')).toBe(
+          generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+            moveCode: mockRequestedMoveCode,
+            shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
+          }),
+        );
+      }
+    });
   });
 
   describe('service counseling completed', () => {
@@ -308,11 +334,10 @@ describe('MoveDetails page', () => {
       render(mockedComponent);
 
       expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'View and edit orders' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit allowances' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit customer info' })).not.toBeInTheDocument();
     });
   });
-
-  afterEach(jest.resetAllMocks);
 });
