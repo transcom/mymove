@@ -9,7 +9,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ServicesCounselingShipmentForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
-import { customerRoutes } from 'constants/routes';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
@@ -73,13 +73,13 @@ const ServicesCounselingShipmentForm = ({
       delivery: deliveryDetails,
     });
 
-    const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveCode });
+    const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_DETAILS_INFO_PATH, { moveCode });
 
     if (isCreatePage) {
       createMTOShipment(pendingMtoShipment)
         .then((response) => {
           updateMTOShipment(response);
-          history.push(reviewPath);
+          history.push(moveDetailsPath);
         })
         .catch((e) => {
           const { response } = e;
@@ -91,7 +91,7 @@ const ServicesCounselingShipmentForm = ({
       patchMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag)
         .then((response) => {
           updateMTOShipment(response);
-          history.push(reviewPath);
+          history.push(moveDetailsPath);
         })
         .catch((e) => {
           const { response } = e;

@@ -167,6 +167,19 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function updateMTOShipment({ moveTaskOrderID, shipmentID, normalize = true, schemaKey = 'mtoShipment' }) {
+  const operationPath = 'mtoShipment.patchMTOShipment';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      body: {},
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};

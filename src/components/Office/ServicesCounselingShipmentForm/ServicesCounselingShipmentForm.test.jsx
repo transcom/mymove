@@ -11,7 +11,7 @@ const defaultProps = {
   isCreatePage: true,
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  match: { isExact: false, path: '', url: '', params: { moveId: '' } },
+  match: { isExact: false, path: '', url: '', params: { moveCode: '', shipementId: '' } },
   history: {
     goBack: jest.fn(),
     push: jest.fn(),

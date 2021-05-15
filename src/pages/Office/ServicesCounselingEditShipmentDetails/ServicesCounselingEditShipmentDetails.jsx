@@ -7,7 +7,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-// import { useMutation } from 'react-query';
+import { updateMTOShipment } from 'services/ghcApi';
 
 const ServicesCounselingEditShipmentDetails = () => {
   const { moveCode, shipmentId } = useParams();
@@ -36,7 +36,7 @@ const ServicesCounselingEditShipmentDetails = () => {
               path: '/moves/:moveCode/:shipmentId/edit',
             })}
             history={history}
-            updateMTOShipment={() => {}}
+            updateMTOShipment={updateMTOShipment}
             isCreatePage={false}
             currentResidence={customer.current_address}
             newDutyStationAddress={order.destinationDutyStation}
