@@ -2668,6 +2668,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean",
+          "example": true
+        },
         "eTag": {
           "type": "string"
         },
@@ -6981,6 +6985,10 @@ func init() {
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean",
+          "example": true
         },
         "eTag": {
           "type": "string"

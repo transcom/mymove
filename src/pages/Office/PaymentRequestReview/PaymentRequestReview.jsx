@@ -4,7 +4,7 @@ import { queryCache, useMutation } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
-import { formatPaymentRequestReviewAddressString } from 'utils/shipmentDisplay';
+import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape, MatchShape } from 'types/router';
@@ -119,6 +119,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       mtoShipmentDestinationAddress: selectedShipment
         ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
         : undefined,
+      mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
       mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,

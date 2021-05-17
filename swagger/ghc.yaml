@@ -2301,6 +2301,9 @@ definitions:
       approvedDate:
         format: date
         type: string
+      diversion:
+        type: boolean
+        example: true
       pickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'

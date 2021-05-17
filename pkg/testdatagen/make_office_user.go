@@ -265,3 +265,16 @@ func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.Off
 		},
 	})
 }
+
+// MakeStubbedOfficeUser returns a user without hitting the DB
+func MakeStubbedOfficeUser(db *pop.Connection) models.OfficeUser {
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		User: models.User{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
+}
