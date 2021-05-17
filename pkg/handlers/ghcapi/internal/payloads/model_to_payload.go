@@ -279,6 +279,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
+		CounselorRemarks:         mtoShipment.CounselorRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
