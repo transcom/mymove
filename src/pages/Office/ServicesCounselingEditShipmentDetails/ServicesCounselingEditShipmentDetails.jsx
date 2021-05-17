@@ -1,7 +1,9 @@
 import React from 'react';
 import { matchPath, useHistory, useLocation, useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { queryCache, useMutation } from 'react-query';
 
+import { MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { useEditShipmentQueries } from 'hooks/queries';
@@ -14,6 +16,14 @@ const ServicesCounselingEditShipmentDetails = () => {
   const history = useHistory();
   const { order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const { pathname } = useLocation();
+  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([ORDERS, data.locator], data);
+      queryCache.setQueryData([MTO_SHIPMENTS, data]);
+      queryCache.invalidateQueries([ORDERS, data.locator]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, data.id]);
+    },
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -21,10 +31,6 @@ const ServicesCounselingEditShipmentDetails = () => {
   const { customer, entitlement: allowances } = order;
   const matchingShipment = mtoShipments.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, total_weight_self: allowances.authorizedWeight };
-
-  /*
-  const [mutateMTOShipment] = useMutation()
-  */
 
   return (
     <GridContainer containerSize="widescreen">
@@ -36,10 +42,10 @@ const ServicesCounselingEditShipmentDetails = () => {
               path: '/moves/:moveCode/:shipmentId/edit',
             })}
             history={history}
-            updateMTOShipment={updateMTOShipment}
+            updateMTOShipment={mutateMTOShipment}
             isCreatePage={false}
             currentResidence={customer.current_address}
-            newDutyStationAddress={order.destinationDutyStation}
+            newDutyStationAddress={order.destinationDutyStation?.address}
             selectedMoveType={SHIPMENT_OPTIONS.HHG}
             mtoShipment={matchingShipment}
             serviceMember={{ weight_allotment: weightAllotment }}
