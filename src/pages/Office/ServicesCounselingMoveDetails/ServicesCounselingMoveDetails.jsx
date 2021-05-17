@@ -5,24 +5,24 @@ import { queryCache, useMutation } from 'react-query';
 import { generatePath } from 'react-router';
 import classnames from 'classnames';
 
-import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
-import ServicesCounselingOrdersList from '../../../components/Office/DefinitionLists/ServicesCounselingOrdersList';
-import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
-import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
-import { SubmitMoveConfirmationModal } from '../../../components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import 'styles/office.scss';
-import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
+import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
+import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/ServicesCounselingOrdersList';
+import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
+import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
+import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES } from 'constants/queryKeys';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 
 const ServicesCounselingMoveDetails = () => {

@@ -8,29 +8,29 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import customerContactTypes from 'constants/customerContactTypes';
+import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { MOVE_STATUSES } from 'shared/constants';
-import dimensionTypes from 'constants/dimensionTypes';
-import customerContactTypes from 'constants/customerContactTypes';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
-import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
-import { useMoveTaskOrderQueries } from 'hooks/queries';
+import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
+import { shipmentSectionLabels } from 'content/shipments';
 import LeftNav from 'components/LeftNav';
+import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
+import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
+import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
+import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
-import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
-import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
-import { MatchShape } from 'types/router';
-import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
-import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
-import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
-import { shipmentSectionLabels } from 'content/shipments';
-import { setFlashMessage } from 'store/flash/actions';
-import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
+import { useMoveTaskOrderQueries } from 'hooks/queries';
+import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
+import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { setFlashMessage } from 'store/flash/actions';
+import { MatchShape } from 'types/router';
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
