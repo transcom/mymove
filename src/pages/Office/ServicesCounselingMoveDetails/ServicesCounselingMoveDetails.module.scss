@@ -31,7 +31,7 @@
     }
   }
 
-  .marginBottomTwo {
-    @include u-margin-bottom(2)
+  .noPaddingBottom {
+    @include u-padding-bottom(0)
   }
 }

@@ -148,8 +148,8 @@ const ServicesCounselingMoveDetails = () => {
           </Grid>
 
           <div className={styles.section} id="shipments">
-            <DetailsPanel title="Shipments">
-              <div className={classnames(shipmentCardsStyles.shipmentCards, scMoveDetailsStyles.marginBottomTwo)}>
+            <DetailsPanel title="Shipments" className={scMoveDetailsStyles.noPaddingBottom}>
+              <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
                     displayInfo={shipment.displayInfo}
