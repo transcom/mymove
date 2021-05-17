@@ -149,7 +149,7 @@ const ServicesCounselingMoveDetails = () => {
 
           <div className={styles.section} id="shipments">
             <DetailsPanel title="Shipments">
-              <div className={shipmentCardsStyles.shipmentCards}>
+              <div className={classnames(shipmentCardsStyles.shipmentCards, scMoveDetailsStyles.marginBottomTwo)}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
                     displayInfo={shipment.displayInfo}

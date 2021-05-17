@@ -30,4 +30,8 @@
       align-self: center;
     }
   }
+
+  .marginBottomTwo {
+    @include u-margin-bottom(2)
+  }
 }
