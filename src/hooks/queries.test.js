@@ -578,11 +578,6 @@ describe('useEditShipmentQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      move: {
-        id: '1234',
-        ordersId: '4321',
-        moveCode: 'ABCDEF',
-      },
       order: {
         id: '4321',
         customerID: '2468',
@@ -611,6 +606,14 @@ describe('useEditShipmentQueries', () => {
               mtoShipmentID: 'a1',
             },
           ],
+          mtoServiceItems: [
+            {
+              reServiceName: serviceItemCodes.DLH,
+            },
+            {
+              reServiceName: serviceItemCodes.FSC,
+            },
+          ],
         },
         {
           shipmentType: SHIPMENT_OPTIONS.NTSR,
@@ -624,16 +627,14 @@ describe('useEditShipmentQueries', () => {
               mtoShipmentID: 'b2',
             },
           ],
-        },
-      ],
-      mtoServiceItems: [
-        {
-          id: 'a',
-          reServiceName: serviceItemCodes.CS,
-        },
-        {
-          id: 'b',
-          reServiceName: serviceItemCodes.MS,
+          mtoServiceItems: [
+            {
+              reServiceName: serviceItemCodes.DOP,
+            },
+            {
+              reServiceName: serviceItemCodes.DUPK,
+            },
+          ],
         },
       ],
       isLoading: false,
