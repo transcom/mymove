@@ -162,18 +162,12 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {
-            let shipmentDepartureDate = '';
-            let shipmentAddress = '';
+            let selectedShipment = {};
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
             if (serviceItemShipmentID) {
-              shipmentAddress = shipmentsInfo.find((address) => address.mtoShipmentID === serviceItemShipmentID)
-                ?.shipmentAddress;
-
-              shipmentDepartureDate = shipmentsInfo.find(
-                (departureDate) => departureDate.mtoShipmentID === serviceItemShipmentID,
-              )?.departureDate;
+              selectedShipment = shipmentsInfo.find((shipment) => shipment.mtoShipmentID === serviceItemShipmentID);
             }
 
             return (
@@ -181,8 +175,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
                 key={serviceItemShipmentID || 'basicServiceItems'}
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
-                shipmentDepartureDate={shipmentDepartureDate}
-                shipmentAddress={shipmentAddress}
+                shipment={selectedShipment}
                 paymentRequestStatus={paymentRequest.status}
               />
             );
@@ -197,7 +190,12 @@ PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
   shipmentsInfo: arrayOf(
-    shape({ mtoShipmentId: PropTypes.string, shipmentAddress: PropTypes.node, departureDate: PropTypes.string }),
+    shape({
+      mtoShipmentID: PropTypes.string,
+      shipmentAddress: PropTypes.node,
+      departureDate: PropTypes.string,
+      shipmentModificationType: PropTypes.string,
+    }),
   ).isRequired,
 };
 

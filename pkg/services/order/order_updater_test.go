@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,22 +14,7 @@ import (
 )
 
 func (suite *OrderServiceSuite) TestOrderUpdater() {
-	expectedMove := testdatagen.MakeDefaultMove(suite.DB())
-	expectedOrder := expectedMove.Orders
-
 	orderUpdater := NewOrderUpdater(suite.DB())
-
-	suite.T().Run("NotFoundError when order id doesn't exit", func(t *testing.T) {
-		_, err := orderUpdater.UpdateOrder("", models.Order{})
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, err)
-	})
-
-	suite.T().Run("PreconditionsError when etag is stale", func(t *testing.T) {
-		staleEtag := etag.GenerateEtag(expectedOrder.UpdatedAt.Add(-1 * time.Minute))
-		_, err := orderUpdater.UpdateOrder(staleEtag, models.Order{ID: expectedOrder.ID})
-		suite.IsType(services.PreconditionFailedError{}, err)
-	})
 
 	suite.T().Run("Orders fields are updated without entitlement", func(t *testing.T) {
 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
@@ -39,7 +23,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		issueDate := time.Now().Add(-48 * time.Hour)
 		reportByDate := time.Now().Add(72 * time.Hour)
 		ordersTypeDetail := internalmessages.OrdersTypeDetailINSTRUCTION20WEEKS
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: &newDutyStation.ID,
 			NewDutyStationID:    newDutyStation.ID,
@@ -53,9 +37,10 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			TAC:                 swag.String("8843"),
 			SAC:                 swag.String("7766"),
 		}
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.NoError(err)
 		suite.Equal(updatedOrder.ID, actualOrder.ID)
@@ -84,7 +69,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 		serviceMemberPatch.Affiliation = &newAffiliation
 
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -94,8 +79,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			ServiceMember:       serviceMemberPatch,
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		_, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.NoError(err)
 
@@ -113,7 +99,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 		suite.NotEqual(serviceMember.Rank, newRank)
 
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -123,8 +109,10 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			Grade:               (*string)(&newRank),
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+
+		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.NoError(err)
 		suite.Equal(newRank, models.ServiceMemberRank(*actualOrder.Grade))
@@ -143,7 +131,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 		suite.NotEqual(defaultOrder.OriginDutyStationID, newDutyStation.ID)
 
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: &newDutyStation.ID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -152,8 +140,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			OrdersType:          defaultOrder.OrdersType,
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.NoError(err)
 		suite.Equal(updatedOrder.ID, actualOrder.ID)
@@ -169,7 +158,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 	suite.T().Run("Entitlement is updated", func(t *testing.T) {
 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -186,8 +175,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			},
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.NoError(err)
 		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
@@ -200,13 +190,13 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 	suite.T().Run("Entitlement is updated with move status Needs Service Counseling and missing submission fields", func(t *testing.T) {
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
 			},
 			Order: orderWithoutDefaults,
 		})
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  orderWithoutDefaults.ID,
 			OriginDutyStationID: orderWithoutDefaults.OriginDutyStationID,
 			NewDutyStationID:    orderWithoutDefaults.NewDutyStationID,
@@ -223,8 +213,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			},
 		}
 
-		expectedETag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
-		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := move.Orders
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.NoError(err)
 		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
@@ -235,7 +226,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		suite.Equal(true, actualOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
 
 		// make sure that there are missing submission fields and move is in correct status
-		suite.Equal(models.MoveStatusNeedsServiceCounseling, actualOrder.Moves[0].Status)
+		fetchedMove := models.Move{}
+		_ = suite.DB().Find(&fetchedMove, move.ID)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, fetchedMove.Status)
 		suite.Nil(actualOrder.TAC)
 		suite.Nil(actualOrder.SAC)
 		suite.Nil(actualOrder.DepartmentIndicator)
@@ -244,7 +237,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 	suite.T().Run("Entitlement is not updated: error with ProGearWeight is over max amount", func(t *testing.T) {
 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -256,8 +249,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			},
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		_, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -265,7 +259,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 
 	suite.T().Run("Entitlement is not updated: error with ProGearWeightSpouse is over max amount", func(t *testing.T) {
 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -277,8 +271,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			},
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		_, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		_, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		suite.Error(err)
 	})
@@ -292,7 +287,7 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 		serviceMember.Affiliation = &updateAffiliation
 
 		emptyStrSAC := ""
-		updatedOrder := models.Order{
+		newOrder := models.Order{
 			ID:                  defaultOrder.ID,
 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
 			NewDutyStationID:    defaultOrder.NewDutyStationID,
@@ -307,8 +302,9 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			SAC:           &emptyStrSAC,  // this will trigger validation error on Order model
 		}
 
-		expectedETag := etag.GenerateEtag(defaultOrder.UpdatedAt)
-		actualOrder, err := orderUpdater.UpdateOrder(expectedETag, updatedOrder)
+		updatedOrder := defaultOrder
+		testdatagen.MergeModels(&updatedOrder, &newOrder)
+		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
 
 		// check that we get back a validation error
 		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultOrder.ID))

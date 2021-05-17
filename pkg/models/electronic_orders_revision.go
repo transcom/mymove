@@ -334,15 +334,3 @@ func (e *ElectronicOrdersRevision) ValidateCreate(tx *pop.Connection) (*validate
 func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
-
-// CreateElectronicOrdersRevision inserts a revision into the database
-func CreateElectronicOrdersRevision(dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
-
-	responseVErrors := validate.NewErrors()
-	verrs, responseError := dbConnection.ValidateAndCreate(revision)
-	if verrs.HasAny() {
-		responseVErrors.Append(verrs)
-	}
-
-	return responseVErrors, responseError
-}

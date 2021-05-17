@@ -114,6 +114,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
+		OrderUpdateAllowanceHandler: order.UpdateAllowanceHandlerFunc(func(params order.UpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateAllowance has not yet been implemented")
+		}),
 		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
 		}),
@@ -214,6 +217,8 @@ type MymoveAPI struct {
 	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
+	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
+	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
 	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
 	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
@@ -357,6 +362,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
+	}
+	if o.OrderUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.UpdateAllowanceHandler")
 	}
 	if o.CustomerUpdateCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
@@ -553,6 +561,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/tac/valid"] = tac.NewTacValidation(o.context, o.TacTacValidationHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{orderID}/allowances"] = order.NewUpdateAllowance(o.context, o.OrderUpdateAllowanceHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
