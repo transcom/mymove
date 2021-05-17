@@ -15,7 +15,7 @@ import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
 import { MatchShape } from 'types/officeShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { createMTOShipment, patchMTOShipment, getResponseError } from 'services/internalApi';
+import { createMTOShipment, getResponseError } from 'services/internalApi';
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -57,7 +57,14 @@ const ServicesCounselingShipmentForm = ({
 
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
-  const submitMTOShipment = ({ shipmentOption, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
+  const submitMTOShipment = ({
+    shipmentOption,
+    pickup,
+    hasDeliveryAddress,
+    delivery,
+    customerRemarks,
+    counselorRemarks,
+  }) => {
     const { moveCode } = match.params;
 
     const deliveryDetails = delivery;
@@ -69,9 +76,18 @@ const ServicesCounselingShipmentForm = ({
       shipmentType: shipmentOption || selectedMoveType,
       moveCode,
       customerRemarks,
+      counselorRemarks,
       pickup,
       delivery: deliveryDetails,
     });
+
+    const updateMTOShipmentPayload = {
+      moveTaskOrderID: mtoShipment?.moveTaskOrderId,
+      shipmentID: mtoShipment.id,
+      ifMatchETag: mtoShipment.eTag,
+      normalize: false,
+      body: pendingMtoShipment,
+    };
 
     const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_DETAILS_INFO_PATH, { moveCode });
 
@@ -88,9 +104,8 @@ const ServicesCounselingShipmentForm = ({
           setErrorMessage(error);
         });
     } else {
-      patchMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag)
-        .then((response) => {
-          updateMTOShipment(response);
+      updateMTOShipment(updateMTOShipmentPayload)
+        .then(() => {
           history.push(moveDetailsPath);
         })
         .catch((e) => {

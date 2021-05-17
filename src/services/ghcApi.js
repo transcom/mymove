@@ -167,14 +167,22 @@ export function updateMTOShipmentStatus({
   );
 }
 
-export function updateMTOShipment({ moveTaskOrderID, shipmentID, normalize = true, schemaKey = 'mtoShipment' }) {
+export function updateMTOShipment({
+  moveTaskOrderID,
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
   const operationPath = 'mtoShipment.patchMTOShipment';
   return makeGHCRequest(
     operationPath,
     {
       moveTaskOrderID,
       shipmentID,
-      body: {},
+      'If-Match': ifMatchETag,
+      body,
     },
     { schemaKey, normalize },
   );

@@ -13,7 +13,6 @@ jest.mock('react-router-dom', () => ({
   }),
   useHistory: () => ({
     push: mockPush,
-    goBack: jest.fn(),
   }),
   useParams: (path) => {
     return { path, isExact: false, url: '', params: { moveCode: 'move123', shipmentId: 'shipment123' } };
