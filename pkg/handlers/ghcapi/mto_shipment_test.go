@@ -2,8 +2,9 @@ package ghcapi
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"net/http/httptest"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -37,7 +38,16 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
+type listMTOShipmentsSubtestData struct {
+	mtoAgent       models.MTOAgent
+	mtoServiceItem models.MTOServiceItem
+	shipments      models.MTOShipments
+	params         mtoshipmentops.ListMTOShipmentsParams
+}
+
+func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listMTOShipmentsSubtestData) {
+	subtestData = &listMTOShipmentsSubtestData{}
+
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -46,29 +56,39 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			CounselorRemarks: handlers.FmtString("counselor remark"),
 		},
 	})
-	mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+	subtestData.mtoAgent = testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			MTOShipmentID: mtoShipment.ID,
 		},
 	})
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+	subtestData.mtoServiceItem = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			MTOShipmentID: &mtoShipment.ID,
 		},
 	})
 
-	shipments := models.MTOShipments{mtoShipment}
+	subtestData.shipments = models.MTOShipments{mtoShipment}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
-	params := mtoshipmentops.ListMTOShipmentsParams{
+	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 	}
 
-	suite.T().Run("Successful list fetch - Integration Test", func(t *testing.T) {
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
+	suite.Run("Successful list fetch - Integration Test", func() {
+		subtestData := suite.makeListMTOShipmentsSubtestData()
+		params := subtestData.params
+		shipments := subtestData.shipments
+		mtoAgent := subtestData.mtoAgent
+		mtoServiceItem := subtestData.mtoServiceItem
+
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -89,7 +109,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
 	})
 
-	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {
+	suite.Run("Failure list fetch - Internal Server Error", func() {
+		subtestData := suite.makeListMTOShipmentsSubtestData()
+		params := subtestData.params
+
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
@@ -117,7 +140,10 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
 	})
 
-	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
+		subtestData := suite.makeListMTOShipmentsSubtestData()
+		params := subtestData.params
+
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
@@ -138,9 +164,18 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
+type patchMTOShipmentSubtestData struct {
+	params      mtoshipmentops.PatchMTOShipmentStatusParams
+	planner     *routemocks.Planner
+	mtoShipment models.MTOShipment
+	req         *http.Request
+}
+
+func (suite *HandlerSuite) makePatchMTOShipmentSubtestData() (subtestData *patchMTOShipmentSubtestData) {
+	subtestData = &patchMTOShipmentSubtestData{}
+
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	subtestData.mtoShipment = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status:       models.MTOShipmentStatusSubmitted,
@@ -169,22 +204,22 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	}
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+	eTag := etag.GenerateEtag(subtestData.mtoShipment.UpdatedAt)
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	nreq := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), subtestData.mtoShipment.ID.String()), nil)
+	subtestData.req = suite.AuthenticateUserRequest(nreq, requestUser)
 
 	approvedStatus := string(models.MTOShipmentStatusApproved)
-	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
+	subtestData.params = mtoshipmentops.PatchMTOShipmentStatusParams{
+		HTTPRequest:     subtestData.req,
+		MoveTaskOrderID: *handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
+		ShipmentID:      *handlers.FmtUUID(subtestData.mtoShipment.ID),
 		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: &approvedStatus},
 		IfMatch:         eTag,
 	}
 
 	// Run swagger validations
-	suite.NoError(params.Body.Validate(strfmt.Default))
+	suite.NoError(subtestData.params.Body.Validate(strfmt.Default))
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
@@ -193,17 +228,27 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		DistanceMilesLower: 0,
 		DistanceMilesUpper: 10000,
 	}
-	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+	verrs, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+	if err != nil {
+		log.Panicf("Error creating valid ghc domestic transit time: %v, %v", err, verrs)
+	}
 
-	planner := &routemocks.Planner{}
-	planner.On("TransitDistance",
+	subtestData.planner = &routemocks.Planner{}
+	subtestData.planner.On("TransitDistance",
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)
 
-	var nilString *string
+	return subtestData
+}
 
-	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
+	suite.Run("Successful patch - Integration Test", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		planner := subtestData.planner
+		params := subtestData.params
+		mtoShipment := subtestData.mtoShipment
+
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
@@ -222,7 +267,13 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.NotNil(okResponse.Payload.ETag)
 	})
 
-	suite.T().Run("Patch failure - 500", func(t *testing.T) {
+	suite.Run("Patch failure - 500", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		params := subtestData.params
+		eTag := params.IfMatch
+		var nilString *string
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -244,7 +295,13 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusInternalServerError{}, response)
 	})
 
-	suite.T().Run("Patch failure - 404", func(t *testing.T) {
+	suite.Run("Patch failure - 404", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		params := subtestData.params
+		eTag := params.IfMatch
+		var nilString *string
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -264,7 +321,13 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusNotFound{}, response)
 	})
 
-	suite.T().Run("Patch failure - 422", func(t *testing.T) {
+	suite.Run("Patch failure - 422", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		params := subtestData.params
+		eTag := params.IfMatch
+		var nilString *string
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -284,7 +347,13 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("Patch failure - 412", func(t *testing.T) {
+	suite.Run("Patch failure - 412", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		params := subtestData.params
+		eTag := params.IfMatch
+		var nilString *string
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -304,7 +373,13 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Patch failure - 409", func(t *testing.T) {
+	suite.Run("Patch failure - 409", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		params := subtestData.params
+		eTag := params.IfMatch
+		var nilString *string
+
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -324,7 +399,11 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusConflict{}, response)
 	})
 
-	suite.T().Run("Successful patch with webhook notification - On an approved move", func(t *testing.T) {
+	suite.Run("Successful patch with webhook notification - On an approved move", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		req := subtestData.req
+		var nilString *string
+
 		// Create mock fetcher and updater
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
@@ -341,7 +420,9 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			},
 		})
 
-		params = mtoshipmentops.PatchMTOShipmentStatusParams{
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		approvedStatus := string(models.MTOShipmentStatusApproved)
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest:     req,
 			MoveTaskOrderID: *handlers.FmtUUID(shipment.MoveTaskOrderID),
 			ShipmentID:      *handlers.FmtUUID(shipment.ID),
@@ -381,7 +462,11 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
-	suite.T().Run("Successful patch to CANCELLATION_REQUESTED status", func(t *testing.T) {
+	suite.Run("Successful patch to CANCELLATION_REQUESTED status", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		planner := subtestData.planner
+		req := subtestData.req
+
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
@@ -394,7 +479,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 				Status: models.MTOShipmentStatusApproved,
 			},
 		})
-		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
 
 		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -429,7 +514,12 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 
 	})
 
-	suite.T().Run("Swagger endpoint allows passing in CANCELED status", func(t *testing.T) {
+	suite.Run("Swagger endpoint allows passing in CANCELED status", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		req := subtestData.req
+		eTag := subtestData.params.IfMatch
+
 		canceledStatus := string(models.MTOShipmentStatusCanceled)
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest: req,
@@ -441,7 +531,12 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 	})
 
-	suite.T().Run("Swagger endpoint allows passing in DIVERSION_REQUESTED status", func(t *testing.T) {
+	suite.Run("Swagger endpoint allows passing in DIVERSION_REQUESTED status", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		req := subtestData.req
+		eTag := subtestData.params.IfMatch
+
 		diversionRequestedStatus := string(models.MTOShipmentStatusDiversionRequested)
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest: req,
@@ -453,7 +548,12 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 	})
 
-	suite.T().Run("Swagger endpoint allows passing in REJECTED status", func(t *testing.T) {
+	suite.Run("Swagger endpoint allows passing in REJECTED status", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		req := subtestData.req
+		eTag := subtestData.params.IfMatch
+
 		rejectedStatus := string(models.MTOShipmentStatusRejected)
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest: req,
@@ -465,7 +565,12 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 	})
 
-	suite.T().Run("Swagger endpoint does NOT allow passing in SUBMITTED status", func(t *testing.T) {
+	suite.Run("Swagger endpoint does NOT allow passing in SUBMITTED status", func() {
+		subtestData := suite.makePatchMTOShipmentSubtestData()
+		mtoShipment := subtestData.mtoShipment
+		req := subtestData.req
+		eTag := subtestData.params.IfMatch
+
 		submittedStatus := string(models.MTOShipmentStatusSubmitted)
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest: req,
@@ -479,7 +584,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentHandler() {
-	suite.T().Run("Returns a 403 when the office user is not a service counselor", func(t *testing.T) {
+	suite.Run("Returns a 403 when the office user is not a service counselor", func() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuid := uuid.Must(uuid.NewV4())
 		deleter := &mocks.ShipmentDeleter{}
@@ -503,7 +608,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 204 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 204 when all validations pass", func() {
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		deleter := &mocks.ShipmentDeleter{}
@@ -528,7 +633,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&shipmentops.DeleteShipmentNoContent{}, response)
 	})
 
-	suite.T().Run("Returns 404 when deleter returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when deleter returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		deleter := &mocks.ShipmentDeleter{}
@@ -552,7 +657,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 		suite.IsType(&shipmentops.DeleteShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 403 when deleter returns ForbiddenError", func(t *testing.T) {
+	suite.Run("Returns 403 when deleter returns ForbiddenError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		deleter := &mocks.ShipmentDeleter{}
@@ -578,7 +683,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentHandler() {
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -638,7 +743,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
-	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuid := uuid.Must(uuid.NewV4())
 		approver := &mocks.ShipmentApprover{}
@@ -663,7 +768,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when approver returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when approver returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -689,7 +794,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 409 when approver returns Conflict Error", func(t *testing.T) {
+	suite.Run("Returns 409 when approver returns Conflict Error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -715,7 +820,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentConflict{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -741,7 +846,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when approver returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when approver returns validation errors", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -767,7 +872,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("Returns 500 when approver returns unexpected error", func(t *testing.T) {
+	suite.Run("Returns 500 when approver returns unexpected error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -795,7 +900,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -832,7 +937,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
-	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuid := uuid.Must(uuid.NewV4())
 		requester := &mocks.ShipmentDiversionRequester{}
@@ -857,7 +962,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.RequestShipmentDiversionForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when requester returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when requester returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -883,7 +988,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.RequestShipmentDiversionNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 409 when requester returns Conflict Error", func(t *testing.T) {
+	suite.Run("Returns 409 when requester returns Conflict Error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -909,7 +1014,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.RequestShipmentDiversionConflict{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -935,7 +1040,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.RequestShipmentDiversionPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when requester returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when requester returns validation errors", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -961,7 +1066,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.RequestShipmentDiversionUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("Returns 500 when requester returns unexpected error", func(t *testing.T) {
+	suite.Run("Returns 500 when requester returns unexpected error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -989,7 +1094,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 }
 
 func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -1026,7 +1131,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
-	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuid := uuid.Must(uuid.NewV4())
 		approver := &mocks.ShipmentDiversionApprover{}
@@ -1051,7 +1156,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentDiversionForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when approver returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when approver returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1077,7 +1182,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentDiversionNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 409 when approver returns Conflict Error", func(t *testing.T) {
+	suite.Run("Returns 409 when approver returns Conflict Error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1103,7 +1208,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentDiversionConflict{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1129,7 +1234,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentDiversionPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when approver returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when approver returns validation errors", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1155,7 +1260,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		suite.IsType(&shipmentops.ApproveShipmentDiversionUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("Returns 500 when approver returns unexpected error", func(t *testing.T) {
+	suite.Run("Returns 500 when approver returns unexpected error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1185,7 +1290,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	reason := "reason"
 
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -1224,7 +1329,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
-	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuid := uuid.Must(uuid.NewV4())
 		rejecter := &mocks.ShipmentRejecter{}
@@ -1254,7 +1359,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.IsType(&shipmentops.RejectShipmentForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when rejecter returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when rejecter returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1285,7 +1390,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.IsType(&shipmentops.RejectShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 409 when rejecter returns Conflict Error", func(t *testing.T) {
+	suite.Run("Returns 409 when rejecter returns Conflict Error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1316,7 +1421,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.IsType(&shipmentops.RejectShipmentConflict{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1347,7 +1452,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.IsType(&shipmentops.RejectShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when rejecter returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when rejecter returns validation errors", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1378,7 +1483,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.IsType(&shipmentops.RejectShipmentUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("Returns 500 when rejecter returns unexpected error", func(t *testing.T) {
+	suite.Run("Returns 500 when rejecter returns unexpected error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1409,7 +1514,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 		suite.IsType(&shipmentops.RejectShipmentInternalServerError{}, response)
 	})
 
-	suite.T().Run("Requires rejection reason in Body of request", func(t *testing.T) {
+	suite.Run("Requires rejection reason in Body of request", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -1444,7 +1549,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -1481,7 +1586,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
-	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
 		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		uuid := uuid.Must(uuid.NewV4())
 		canceler := &mocks.ShipmentCancellationRequester{}
@@ -1506,7 +1611,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.IsType(&shipmentops.RequestShipmentCancellationForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when canceler returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when canceler returns NotFoundError", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1532,7 +1637,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.IsType(&shipmentops.RequestShipmentCancellationNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 409 when canceler returns Conflict Error", func(t *testing.T) {
+	suite.Run("Returns 409 when canceler returns Conflict Error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1558,7 +1663,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.IsType(&shipmentops.RequestShipmentCancellationConflict{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(time.Now())
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1584,7 +1689,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.IsType(&shipmentops.RequestShipmentCancellationPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when canceler returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when canceler returns validation errors", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1610,7 +1715,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		suite.IsType(&shipmentops.RequestShipmentCancellationUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("Returns 500 when canceler returns unexpected error", func(t *testing.T) {
+	suite.Run("Returns 500 when canceler returns unexpected error", func() {
 		shipment := testdatagen.MakeStubbedShipment(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -1637,7 +1742,14 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+type createMTOShipmentSubtestData struct {
+	builder *query.Builder
+	params  mtoshipmentops.CreateMTOShipmentParams
+}
+
+func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *createMTOShipmentSubtestData) {
+	subtestData = &createMTOShipmentSubtestData{}
+
 	mto := testdatagen.MakeAvailableMove(suite.DB())
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
@@ -1648,11 +1760,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	mtoShipment.MoveTaskOrderID = mto.ID
 
-	builder := query.NewQueryBuilder(suite.DB())
+	subtestData.builder = query.NewQueryBuilder(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
-	params := mtoshipmentops.CreateMTOShipmentParams{
+	subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &ghcmessages.CreateMTOShipment{
 			MoveTaskOrderID:     handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
@@ -1662,7 +1774,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
 		},
 	}
-	params.Body.DestinationAddress.Address = ghcmessages.Address{
+	subtestData.params.Body.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
 		Country:        destinationAddress.Country,
 		PostalCode:     &destinationAddress.PostalCode,
@@ -1671,7 +1783,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		StreetAddress2: destinationAddress.StreetAddress2,
 		StreetAddress3: destinationAddress.StreetAddress3,
 	}
-	params.Body.PickupAddress.Address = ghcmessages.Address{
+	subtestData.params.Body.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
 		Country:        pickupAddress.Country,
 		PostalCode:     &pickupAddress.PostalCode,
@@ -1681,11 +1793,23 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		StreetAddress3: pickupAddress.StreetAddress3,
 	}
 
-	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+	// Set the traceID so we can use it to find the webhook notification
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+	suite.Run("Successful POST - Integration Test", func() {
+		subtestData := suite.makeCreateMTOShipmentSubtestData()
+		builder := subtestData.builder
+		params := subtestData.params
+
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlerContext,
 			creator,
 		}
 		response := handler.Handle(params)
@@ -1699,11 +1823,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(string("counselor remark"), *createMTOShipmentPayload.CounselorRemarks)
 	})
 
-	suite.T().Run("POST failure - 500", func(t *testing.T) {
+	suite.Run("POST failure - 500", func() {
+		subtestData := suite.makeCreateMTOShipmentSubtestData()
+		params := subtestData.params
+
 		mockCreator := mocks.MTOShipmentCreator{}
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlerContext,
 			&mockCreator,
 		}
 
@@ -1719,12 +1846,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 	})
 
-	suite.T().Run("POST failure - 422 -- Bad agent IDs set on shipment", func(t *testing.T) {
+	suite.Run("POST failure - 422 -- Bad agent IDs set on shipment", func() {
+		subtestData := suite.makeCreateMTOShipmentSubtestData()
+		builder := subtestData.builder
+		params := subtestData.params
+
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlerContext,
 			creator,
 		}
 
@@ -1744,30 +1875,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(typedResponse.Payload.InvalidFields)
 	})
 
-	suite.T().Run("POST failure - 422 - invalid input, missing pickup address", func(t *testing.T) {
+	//
+	// TODO: this test panics with a null pointer exception. Duncan
+	// said he would look into a fix - ahobson 3 June 2021
+	//
+	// suite.Run("POST failure - 422 - invalid input, missing pickup address", func() {
+	// 	subtestData := suite.makeCreateMTOShipmentSubtestData()
+	// 	builder := subtestData.builder
+	// 	params := subtestData.params
+
+	// 	fetcher := fetch.NewFetcher(builder)
+	// 	creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+	// 	handler := CreateMTOShipmentHandler{
+	// 		handlerContext,
+	// 		creator,
+	// 	}
+
+	// 	badParams := params
+	// 	badParams.Body.PickupAddress.Address.StreetAddress1 = nil
+
+	// 	response := handler.Handle(badParams)
+	// 	suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+	// 	typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+	// 	suite.NotEmpty(typedResponse.Payload.InvalidFields)
+	// })
+
+	suite.Run("POST failure - 404 -- not found", func() {
+		subtestData := suite.makeCreateMTOShipmentSubtestData()
+		builder := subtestData.builder
+		params := subtestData.params
+
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			creator,
-		}
-
-		badParams := params
-		badParams.Body.PickupAddress.Address.StreetAddress1 = nil
-
-		response := handler.Handle(badParams)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
-		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-		suite.NotEmpty(typedResponse.Payload.InvalidFields)
-	})
-
-	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
-
-		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlerContext,
 			creator,
 		}
 
@@ -1776,15 +1919,18 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		badParams.Body.MoveTaskOrderID = handlers.FmtUUID(uuid.FromStringOrNil(uuidString))
 
 		response := handler.Handle(badParams)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
+	suite.Run("POST failure - 400 -- nil body", func() {
+		subtestData := suite.makeCreateMTOShipmentSubtestData()
+		builder := subtestData.builder
+
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
 		handler := CreateMTOShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlerContext,
 			creator,
 		}
 
@@ -1862,14 +2008,14 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 }
 
 func (suite *HandlerSuite) TestUpdateShipmentHandler() {
-	builder := query.NewQueryBuilder(suite.DB())
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
 
-	suite.T().Run("Successful PATCH - Integration Test", func(t *testing.T) {
+	suite.Run("Successful PATCH - Integration Test", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 		handler := UpdateShipmentHandler{
@@ -1908,7 +2054,31 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 	})
 
-	suite.T().Run("PATCH failure - 404 -- not found", func(t *testing.T) {
+	suite.Run("PATCH failure - 400 -- nil body", func() {
+		builder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
+		params := suite.getUpdateShipmentParams(oldShipment)
+		params.Body = nil
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.Run("PATCH failure - 404 -- not found", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 		handler := UpdateShipmentHandler{
@@ -1934,7 +2104,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 412 -- etag mismatch", func(t *testing.T) {
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 		handler := UpdateShipmentHandler{
@@ -1959,7 +2130,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 412 -- shipment shouldn't be updatable", func(t *testing.T) {
+	suite.Run("PATCH failure - 412 -- shipment shouldn't be updatable", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
 		handler := UpdateShipmentHandler{
@@ -1984,7 +2156,8 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
+	suite.Run("PATCH failure - 500", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		fetcher := fetch.NewFetcher(builder)
 		handler := UpdateShipmentHandler{

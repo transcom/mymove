@@ -56,7 +56,12 @@ func (store *PopSuiteTxnStore) Transaction() (*pop.Tx, error) {
 		Tx: tx,
 	}
 	store.txList = append(store.txList, t)
-	store.popConn.TX = t
+	// Fake out POP!
+	// Because we are using go-txdb to manage the transactions, we can
+	// handle nested transactions. Setting TX on the pop connection
+	// means the connection can only have a single TX, which breaks
+	// some tests
+	store.popConn.TX = nil
 	return t, nil
 }
 
