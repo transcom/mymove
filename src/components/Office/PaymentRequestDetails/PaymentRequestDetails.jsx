@@ -33,6 +33,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
 const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
+  const { modificationType, departureDate, address } = shipment;
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -41,21 +42,19 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
-              {shipment.modificationType && (
-                <ShipmentModificationTag shipmentModificationType={shipment.modificationType} />
-              )}
+              {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
           </div>
-          {(shipment.departureDate || shipment.address) && (
+          {(departureDate || address) && (
             <div>
               <p>
                 <small>
-                  {shipment.departureDate && (
+                  {departureDate && (
                     <strong data-testid="departure-date">
-                      Departed {formatDateFromIso(shipment.departureDate, 'DD MMM YYYY')}
+                      Departed {formatDateFromIso(departureDate, 'DD MMM YYYY')}
                     </strong>
                   )}{' '}
-                  {shipment.address && <span data-testid="pickup-to-destination">{shipment.address}</span>}
+                  {address && <span data-testid="pickup-to-destination">{address}</span>}
                 </small>
               </p>
             </div>
