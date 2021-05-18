@@ -638,6 +638,8 @@ transpiled
 polyfilled
 Happo
 happo.io
+PPMs
+pre-GHC
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md
