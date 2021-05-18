@@ -110,23 +110,6 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 	mtoShipment.ID = uuid.FromStringOrNil(params.ShipmentID.String())
 
-	// TODO: This doesn't really make sense...copied from internalapi/mto_shipment.go, but we're not checking the
-	// current status of the shipment, we're checking what status was passed in with the payload...at least if I'm
-	// understanding correctly. We could fetch the current move from the DB, but h.MTOShipmentUpdater.UpdateMTOShipment
-	// does that so we'd be fetching it twice -.-
-	if mtoShipment.Status != models.MTOShipmentStatusSubmitted {
-		logger.Error("Invalid mto shipment status: shipment in services counseling can only have submitted status")
-
-		payload := payloadForValidationError(
-			"Invalid shipment status",
-			"The MTO Shipment status should be SUBMITTED.",
-			h.GetTraceID(),
-			validate.NewErrors(),
-		)
-
-		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
-	}
-
 	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
 
 	if err != nil {
@@ -170,6 +153,21 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	}
 
 	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+
+	_, err = event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateMTOShipmentEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MTOShipmentUpdateEventKey,    // Event that you want to trigger
+		UpdatedObjectID: updatedMtoShipment.ID,              // ID of the updated logical object
+		MtoID:           updatedMtoShipment.MoveTaskOrderID, // ID of the associated Move
+		Request:         params.HTTPRequest,                 // Pass on the http.Request
+		DBConnection:    h.DB(),                             // Pass on the pop.Connection
+		HandlerContext:  h,                                  // Pass on the handlerContext
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateMTOShipment could not generate the event")
+	}
 
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }
