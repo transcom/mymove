@@ -32,8 +32,8 @@ const defaultProps = {
     street_address_2: '',
   },
   serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
+    weightAllotment: {
+      totalWeightSelf: 5000,
     },
   },
 };

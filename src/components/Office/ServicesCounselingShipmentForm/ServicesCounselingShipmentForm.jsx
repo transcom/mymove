@@ -174,7 +174,7 @@ const ServicesCounselingShipmentForm = ({
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
                   <strong>Weight Allowance: </strong>
-                  {formatWeight(serviceMember.weight_allotment.total_weight_self)} lbs
+                  {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
                 </p>
               </SectionWrapper>
 
@@ -355,8 +355,8 @@ ServicesCounselingShipmentForm.propTypes = {
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
   serviceMember: shape({
-    weight_allotment: shape({
-      total_weight_self: number,
+    weightAllotment: shape({
+      totalWeightSelf: number,
     }),
   }).isRequired,
 };

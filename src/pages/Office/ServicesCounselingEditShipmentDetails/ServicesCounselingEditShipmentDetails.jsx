@@ -29,7 +29,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
 
   const { customer, entitlement: allowances } = order;
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
-  const weightAllotment = { ...allowances, total_weight_self: allowances.authorizedWeight };
+  const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
   return (
     <GridContainer containerSize="widescreen">
@@ -44,7 +44,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
             newDutyStationAddress={order.destinationDutyStation?.address}
             selectedMoveType={SHIPMENT_OPTIONS.HHG}
             mtoShipment={matchingShipment}
-            serviceMember={{ weight_allotment: weightAllotment }}
+            serviceMember={{ weightAllotment }}
           />
         </Grid>
       </Grid>
