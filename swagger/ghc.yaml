@@ -425,6 +425,51 @@ paths:
       description: Gets all shipments for a move task order
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+          Creates a MTO shipment for the specified Move Task Order.
+          Required fields include:
+          * Customer requested pick-up date
+          * Pick-up Address
+          * Delivery Address
+          * Releasing / Receiving agents
+
+          Optional fields include:
+          * Customer Remarks
+          * Counselor Remarks
+          * Releasing / Receiving agents
+          * An array of optional accessorial service item codes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - description: ID of move task order for mto shipment to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateMTOShipment'
+      responses:
+        '200':
+          description: Successfully created an MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -2341,6 +2386,64 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  CreateMTOShipment:
+    type: object
+    properties:
+      moveTaskOrderID:
+        description: The ID of the move this new shipment is for.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedPickupDate:
+        description: >
+          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
+          pack date, are derived from this date.
+        format: date
+        type: string
+      customerRemarks:
+        description: |
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+      pickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+            - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+    required:
+      - moveTaskOrderID
+      - requestedPickupDate
+      - pickupAddress
+      - destinationAddress
   MTOShipmentStatus:
     type: string
     title: Shipment Status
