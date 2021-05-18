@@ -17,7 +17,11 @@ import (
 
 // AddressModel model
 func AddressModel(address *primemessages.Address) *models.Address {
-	if address == nil {
+	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
+	// We should always have ID if the user intends to update an Address,
+	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
 	modelAddress := &models.Address{
