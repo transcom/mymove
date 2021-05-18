@@ -288,6 +288,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
+		Diversion:                mtoShipment.Diversion,
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),

@@ -6,14 +6,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestElectronicOrderValidateAndCreate() {
-	newOrder := models.ElectronicOrder{
+func (suite *ModelSuite) TestElectronicOrderValidate() {
+	newOrder := &models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
-	verrs, err := suite.DB().ValidateAndCreate(&newOrder)
+	verrs, err := newOrder.Validate(nil)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
@@ -37,6 +37,8 @@ func (suite *ModelSuite) TestElectronicOrderValidations() {
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrder() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -49,6 +51,8 @@ func (suite *ModelSuite) TestCreateElectronicOrder() {
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrderWithRevision() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -74,6 +78,8 @@ func (suite *ModelSuite) TestCreateElectronicOrderWithRevision() {
 }
 
 func (suite *ModelSuite) TestFetchElectronicOrderByID() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -93,7 +99,8 @@ func (suite *ModelSuite) TestFetchElectronicOrderByID() {
 }
 
 func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
-
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -113,6 +120,8 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 }
 
 func (suite *ModelSuite) TestFetchElectronicOrdersByEdipiAndIssuers() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	edipi := "1234567890"
 	newOrder1 := models.ElectronicOrder{
 		Edipi:        edipi,

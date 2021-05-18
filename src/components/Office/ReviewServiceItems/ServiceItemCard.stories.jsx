@@ -6,6 +6,7 @@ import ServiceItemCard from './ServiceItemCard';
 
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { serviceItemCodes } from 'content/serviceItems';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 export default {
   title: 'Office Components/ReviewServiceItems/ServiceItemCards',
@@ -91,6 +92,38 @@ export const HHGShorthaulDomestic = (args) => (
     mtoShipmentDepartureDate="2020-03-16"
     mtoShipmentPickupAddress="Fairfield, CA 94535"
     mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const HHGCanceled = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
+    mtoServiceItemCode="FSC"
+    mtoServiceItemName={serviceItemCodes.FSC}
+    mtoShipmentModificationType={shipmentModificationTypes.CANCELED}
+    status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}
+    paymentServiceItemParams={testParams.FuelSurchage}
+    amount={999.99}
+    patchPaymentServiceItem={args.patchPaymentServiceItem}
+  />
+);
+
+export const HHGDiverted = (args) => (
+  <ServiceItemCard
+    mtoShipmentType={SHIPMENT_OPTIONS.HHG}
+    mtoShipmentDepartureDate="04 May 2021"
+    mtoShipmentPickupAddress="Fairfield, CA 94535"
+    mtoShipmentDestinationAddress="Beverly Hills, CA 90210"
+    mtoShipmentModificationType={shipmentModificationTypes.DIVERSION}
     mtoServiceItemCode="FSC"
     mtoServiceItemName={serviceItemCodes.FSC}
     status={PAYMENT_SERVICE_ITEM_STATUS.REQUESTED}

@@ -873,6 +873,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address.",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -1062,50 +1063,65 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
+        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress",
-        "shipmentType",
-        "requestedPickupDate"
+        "shipmentType"
       ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "requestedPickupDate": {
-          "description": "The date the customer requested that this shipment be picked up.",
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
         },
@@ -1336,6 +1352,7 @@ func init() {
           "x-nullable": true
         },
         "id": {
+          "description": "The ID of the agent.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -1346,6 +1363,7 @@ func init() {
           "x-nullable": true
         },
         "mtoShipmentID": {
+          "description": "The ID of the shipment this agent is permitted to release/receive.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -1365,8 +1383,9 @@ func init() {
       }
     },
     "MTOAgentType": {
+      "description": "The type for this agent. ` + "`" + `RELEASING` + "`" + ` means they have authority on pickup, ` + "`" + `RECEIVING` + "`" + ` means they can receive the shipment on delivery.\n",
       "type": "string",
-      "title": "MTO Agent Type",
+      "title": "Agent Type",
       "enum": [
         "RELEASING_AGENT",
         "RECEIVING_AGENT"
@@ -1374,6 +1393,7 @@ func init() {
       "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
+      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
       "type": "array",
       "maxItems": 2,
       "items": {
@@ -1703,6 +1723,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
           "format": "date"
         },
@@ -1710,7 +1731,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "date when the shipment was given the status \"APPROVED\"",
+          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -1721,97 +1742,132 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
           "format": "date"
         },
         "id": {
+          "description": "The ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move for this shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
+          "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "rejectionReason": {
+          "description": "The reason why this shipment was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
+          "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "requiredDeliveryDate": {
+          "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
           "type": "string",
           "enum": [
-            "APPROVED",
             "SUBMITTED",
+            "APPROVED",
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
@@ -1827,21 +1883,32 @@ func init() {
       }
     },
     "MTOShipmentType": {
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied baggage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
         "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "INTERNATIONAL_UB",
+        "MOTORHOME",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
-        "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "HHG": "Household goods move (HHG)",
+        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
+        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG"
       },
       "example": "HHG"
     },
     "MTOShipments": {
+      "description": "A list of shipments.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOShipment"
@@ -2381,7 +2448,7 @@ func init() {
       ]
     },
     "UpdateMTOShipmentStatus": {
-      "description": "Contains the statuses available to the Prime when updating a shipment.",
+      "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
       "type": "object",
       "properties": {
         "status": {
@@ -3628,6 +3695,7 @@ func init() {
   },
   "definitions": {
     "Address": {
+      "description": "A postal address.",
       "type": "object",
       "required": [
         "streetAddress1",
@@ -3817,50 +3885,65 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
+        "requestedPickupDate",
         "pickupAddress",
         "destinationAddress",
-        "shipmentType",
-        "requestedPickupDate"
+        "shipmentType"
       ],
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "requestedPickupDate": {
-          "description": "The date the customer requested that this shipment be picked up.",
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date"
         },
@@ -4091,6 +4174,7 @@ func init() {
           "x-nullable": true
         },
         "id": {
+          "description": "The ID of the agent.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -4101,6 +4185,7 @@ func init() {
           "x-nullable": true
         },
         "mtoShipmentID": {
+          "description": "The ID of the shipment this agent is permitted to release/receive.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -4120,8 +4205,9 @@ func init() {
       }
     },
     "MTOAgentType": {
+      "description": "The type for this agent. ` + "`" + `RELEASING` + "`" + ` means they have authority on pickup, ` + "`" + `RECEIVING` + "`" + ` means they can receive the shipment on delivery.\n",
       "type": "string",
-      "title": "MTO Agent Type",
+      "title": "Agent Type",
       "enum": [
         "RELEASING_AGENT",
         "RECEIVING_AGENT"
@@ -4129,6 +4215,7 @@ func init() {
       "example": "RELEASING_AGENT"
     },
     "MTOAgents": {
+      "description": "A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to release (in the case of pickup) or receive (on delivery) a shipment.\n",
       "type": "array",
       "maxItems": 2,
       "items": {
@@ -4458,6 +4545,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
           "format": "date"
         },
@@ -4465,7 +4553,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "date when the shipment was given the status \"APPROVED\"",
+          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "readOnly": true
@@ -4476,97 +4564,132 @@ func init() {
           "readOnly": true
         },
         "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "handle with care"
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
         },
         "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
           "format": "date"
         },
         "id": {
+          "description": "The ID of the shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "moveTaskOrderID": {
+          "description": "The ID of the move for this shipment.",
           "type": "string",
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
         "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
           "example": 4500
         },
         "primeEstimatedWeightRecordedDate": {
+          "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "rejectionReason": {
+          "description": "The reason why this shipment was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
           "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
+          "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "requiredDeliveryDate": {
+          "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
           "readOnly": true
         },
         "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "secondaryPickupAddress": {
-          "$ref": "#/definitions/Address"
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
           "type": "string",
           "enum": [
-            "APPROVED",
             "SUBMITTED",
+            "APPROVED",
             "REJECTED",
             "CANCELLATION_REQUESTED",
             "CANCELED",
@@ -4582,21 +4705,32 @@ func init() {
       }
     },
     "MTOShipmentType": {
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `NTS` + "`" + ` = Non-temporary storage\n  * ` + "`" + `UB` + "`" + ` = Unaccompanied baggage\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
         "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "INTERNATIONAL_UB",
+        "MOTORHOME",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
-        "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "HHG": "Household goods move (HHG)",
+        "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
+        "HHG_LONGHAUL_DOMESTIC": "Domestic Longhaul HHG",
+        "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS)",
+        "HHG_SHORTHAUL_DOMESTIC": "Domestic Shorthaul HHG"
       },
       "example": "HHG"
     },
     "MTOShipments": {
+      "description": "A list of shipments.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOShipment"
@@ -5139,7 +5273,7 @@ func init() {
       ]
     },
     "UpdateMTOShipmentStatus": {
-      "description": "Contains the statuses available to the Prime when updating a shipment.",
+      "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
       "type": "object",
       "properties": {
         "status": {

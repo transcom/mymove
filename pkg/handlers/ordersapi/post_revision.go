@@ -110,7 +110,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		}
 
 		newRevision = toElectronicOrdersRevision(orders, params.Revision)
-		verrs, err = models.CreateElectronicOrdersRevision(h.DB(), newRevision)
+		verrs, err = h.DB().ValidateAndCreate(newRevision)
 	}
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)

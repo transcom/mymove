@@ -99,6 +99,8 @@ func (suite *ModelSuite) Test_GetRateCycle() {
 }
 
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -139,6 +141,8 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 }
 
 func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
@@ -156,7 +160,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	})
 	band := 1
 
-	err := AssignQualityBandToTSPPerformance(suite.DB(), band, perf.ID)
+	err = AssignQualityBandToTSPPerformance(suite.DB(), band, perf.ID)
 	if err != nil {
 		t.Fatalf("Did not update quality band: %v", err)
 	}
@@ -174,6 +178,8 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 }
 
 func (suite *ModelSuite) Test_BVSWithLowMPS() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 	tspsToMake := 5
 
@@ -231,6 +237,8 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 
 // Test_FetchNextQualityBandTSPPerformance ensures that the TSP with the highest BVS is returned in the expected band
 func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -439,6 +447,8 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 // Test_GatherNextEligibleTSPPerformanceByBand ensures that TSPs are returned in the expected
 // order for the Award Queue operation.
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	tsp1 := testdatagen.MakeDefaultTSP(suite.DB())
@@ -513,6 +523,8 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 // Test_FetchTSPPerformancesForQualityBandAssignment ensures that TSPs are returned in the expected
 // order for the division into quality bands.
 func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -574,6 +586,8 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 // Test_MinimumPerformanceScore ensures that TSPs whose BVS is below the MPS
 // do not enter the Award Queue process.
 func (suite *ModelSuite) Test_MinimumPerformanceScore() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
@@ -619,6 +633,8 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 }
 
 func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 
 	foundTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{

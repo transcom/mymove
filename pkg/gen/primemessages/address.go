@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Address address
+// Address A postal address.
 //
 // swagger:model Address
 type Address struct {

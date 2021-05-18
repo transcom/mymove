@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"strings"
+	"unicode"
 )
 
 var (
@@ -28,5 +29,9 @@ func ReadInSQLLine(line string, dropComments bool, dropSearchPath bool) string {
 		return ""
 	}
 
-	return strings.TrimSpace(line)
+	// When loading data with `COPY ... FROM stdin;` we can have trailing tabs that are significant
+	// if a record has an empty string value for the last column.
+	// We could also have preceding whitespace that is significant if the first column value is empty,
+	// but that has not happened in practice yet.
+	return strings.TrimLeftFunc(line, unicode.IsSpace)
 }

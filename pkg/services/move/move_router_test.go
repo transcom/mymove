@@ -9,7 +9,7 @@ import (
 
 func (suite *MoveServiceSuite) TestMoveApproval() {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-	moveRouter := NewMoveRouter(suite.DB())
+	moveRouter := NewMoveRouter(suite.DB(), suite.logger)
 
 	suite.Run("from valid statuses", func() {
 		validStatuses := []struct {
@@ -53,7 +53,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 }
 
 func (suite *MoveServiceSuite) TestSubmitted() {
-	moveRouter := NewMoveRouter(suite.DB())
+	moveRouter := NewMoveRouter(suite.DB(), suite.logger)
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		var move models.Move

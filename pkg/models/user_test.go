@@ -15,9 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestUserCreation() {
-	t := suite.T()
-
+func (suite *ModelSuite) TestUserValidation() {
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc1")
 	userEmail := "sally@government.gov"
 
@@ -26,18 +24,12 @@ func (suite *ModelSuite) TestUserCreation() {
 		LoginGovEmail: userEmail,
 	}
 
-	if verrs, err := suite.DB().ValidateAndCreate(&newUser); err != nil || verrs.HasAny() {
-		t.Fatal("Didn't create user in db.")
-	}
+	verrs, err := newUser.Validate(nil)
 
-	if newUser.ID == uuid.Nil {
-		t.Error("Didn't get an id back for user.")
-	}
-
-	if (newUser.LoginGovEmail != userEmail) &&
-		(*newUser.LoginGovUUID != fakeUUID) {
-		t.Error("Required values didn't get set.")
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
+	suite.Equal(userEmail, newUser.LoginGovEmail)
+	suite.Equal(fakeUUID, *newUser.LoginGovUUID)
 }
 
 func (suite *ModelSuite) TestUserCreationWithoutValues() {
@@ -96,6 +88,8 @@ func (suite *ModelSuite) TestCreateUser() {
 }
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
 	// First check that it all works with no record
 	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
@@ -193,7 +187,8 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {
-
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	suite.T().Run("default user no profile", func(t *testing.T) {
 		testdatagen.MakeStubbedUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
@@ -260,6 +255,8 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 }
 
 func (suite *ModelSuite) TestGetUser() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 
 	alice := testdatagen.MakeDefaultUser(suite.DB())
 

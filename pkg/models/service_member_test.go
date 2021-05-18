@@ -24,18 +24,15 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 }
 
 func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
-
-	t := suite.T()
 	// Given: a user and a service member
 	lgu := uuid.Must(uuid.NewV4())
 	user1 := User{
 		LoginGovUUID:  &lgu,
 		LoginGovEmail: "whoever@example.com",
 	}
-	verrs, err := suite.DB().ValidateAndCreate(&user1)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
+	verrs, err := user1.Validate(nil)
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 
 	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
@@ -45,11 +42,17 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
-	fakeAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	fakeBackupAddress := testdatagen.MakeDefaultAddress(suite.DB())
-	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	fakeAddress := testdatagen.MakeStubbedAddress(suite.DB())
+	fakeBackupAddress := testdatagen.MakeStubbedAddress(suite.DB())
+	station := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: DutyStation{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
 
 	serviceMember := ServiceMember{
+		ID:                     uuid.Must(uuid.NewV4()),
 		UserID:                 user1.ID,
 		Edipi:                  &edipi,
 		Affiliation:            &affiliation,
@@ -63,32 +66,23 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		DutyStationID:          &station.ID,
 	}
 
-	// Then: IsProfileComplete should return false
-	if serviceMember.IsProfileComplete() != false {
-		t.Error("Expected profile to be incomplete.")
-	}
+	suite.Equal(false, serviceMember.IsProfileComplete())
+
 	// When: all required fields are set
 	emailPreferred := true
 	serviceMember.EmailIsPreferred = &emailPreferred
-
-	suite.MustSave(&serviceMember)
 
 	contactAssertions := testdatagen.Assertions{
 		BackupContact: BackupContact{
 			ServiceMember:   serviceMember,
 			ServiceMemberID: serviceMember.ID,
 		},
+		Stub: true,
 	}
-	testdatagen.MakeBackupContact(suite.DB(), contactAssertions)
+	backupContact := testdatagen.MakeBackupContact(suite.DB(), contactAssertions)
+	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
 
-	if err = suite.DB().Load(&serviceMember); err != nil {
-		t.Errorf("Could not load BackupContacts for serviceMember: %v", err)
-	}
-
-	// Then: IsProfileComplete should return true
-	if serviceMember.IsProfileComplete() != true {
-		t.Error("Expected profile to be complete.")
-	}
+	suite.Equal(true, serviceMember.IsProfileComplete())
 }
 
 func (suite *ModelSuite) TestFetchServiceMemberForUser() {

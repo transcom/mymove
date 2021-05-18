@@ -2,6 +2,7 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 
 import ExpandableServiceItemRow from '../ExpandableServiceItemRow/ExpandableServiceItemRow';
+import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModificationTag';
 
 import styles from './PaymentRequestDetails.module.scss';
 
@@ -9,6 +10,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
 import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -28,9 +30,10 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAddress, paymentRequestStatus }) => {
+const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
+  const { modificationType, departureDate, address } = shipment;
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -39,18 +42,19 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+              {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
           </div>
-          {(shipmentDepartureDate || shipmentAddress) && (
+          {(departureDate || address) && (
             <div>
               <p>
                 <small>
-                  {shipmentDepartureDate && (
+                  {departureDate && (
                     <strong data-testid="departure-date">
-                      Departed {formatDateFromIso(shipmentDepartureDate, 'DD MMM YYYY')}
+                      Departed {formatDateFromIso(departureDate, 'DD MMM YYYY')}
                     </strong>
                   )}{' '}
-                  {shipmentAddress && <span data-testid="pickup-to-destination">{shipmentAddress}</span>}
+                  {address && <span data-testid="pickup-to-destination">{address}</span>}
                 </small>
               </p>
             </div>
@@ -89,14 +93,20 @@ const PaymentRequestDetails = ({ serviceItems, shipmentDepartureDate, shipmentAd
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
-  shipmentDepartureDate: PropTypes.string,
-  shipmentAddress: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  shipment: PropTypes.shape({
+    address: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    modificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    departureDate: PropTypes.string,
+  }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {
-  shipmentDepartureDate: '',
-  shipmentAddress: '',
+  shipment: {
+    departureDate: '',
+    address: '',
+    modificationType: '',
+  },
 };
 
 export default PaymentRequestDetails;
