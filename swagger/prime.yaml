@@ -217,7 +217,7 @@ paths:
         * `primeEstimatedWeight`
         * `primeActualWeight`
         * `shipmentType`
-        * `agents` - Add new agents to a shipment with this endpoint only. Updates made on an existing agent can be made using the endpoint `updateMTOAgent`.
+        * `agents` - Agents can not be added or updated using this endpoint. For adding use `createMTOAgent` and for updating use `updateMTOAgent`.
 
         Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
       operationId: updateMTOShipment
