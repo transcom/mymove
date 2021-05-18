@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
@@ -448,4 +450,271 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.HasWebhookNotification(approvedShipment.ID, handlerContext.GetTraceID())
 
 	})
+}
+
+func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			TransportationOffice: models.TransportationOffice{
+				Name: "Random Office",
+			},
+		},
+	})
+	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
+
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
+
+	payload := ghcmessages.UpdateShipment{
+		DestinationAddress: &ghcmessages.Address{
+			City:           &destinationAddress.City,
+			Country:        destinationAddress.Country,
+			PostalCode:     &destinationAddress.PostalCode,
+			State:          &destinationAddress.State,
+			StreetAddress1: &destinationAddress.StreetAddress1,
+			StreetAddress2: destinationAddress.StreetAddress2,
+			StreetAddress3: destinationAddress.StreetAddress3,
+		},
+		PickupAddress: &ghcmessages.Address{
+			City:           &pickupAddress.City,
+			Country:        pickupAddress.Country,
+			PostalCode:     &pickupAddress.PostalCode,
+			State:          &pickupAddress.State,
+			StreetAddress1: &pickupAddress.StreetAddress1,
+			StreetAddress2: pickupAddress.StreetAddress2,
+			StreetAddress3: pickupAddress.StreetAddress3,
+		},
+		RequestedPickupDate:   strfmt.Date(*originalShipment.RequestedPickupDate),
+		RequestedDeliveryDate: strfmt.Date(*originalShipment.RequestedDeliveryDate),
+		ShipmentType:          ghcmessages.MTOShipmentTypeHHG,
+		Status:                ghcmessages.MTOShipmentStatusSUBMITTED,
+	}
+
+	params := mtoshipmentops.UpdateMTOShipmentParams{
+		HTTPRequest: req,
+		ShipmentID:  *handlers.FmtUUID(originalShipment.ID),
+		Body:        &payload,
+		IfMatch:     eTag,
+	}
+
+	return params
+}
+
+func (suite *HandlerSuite) TestUpdateShipmentHandler() {
+	builder := query.NewQueryBuilder(suite.DB())
+	planner := &routemocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+
+	suite.T().Run("Successful PATCH - Integration Test", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		params := suite.getUpdateShipmentParams(oldShipment)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+	})
+
+	suite.T().Run("PATCH failure - 400 -- nil body", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		params := suite.getUpdateShipmentParams(oldShipment)
+		params.Body = nil
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("PATCH failure - 400 -- invalid requested status update", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		params := suite.getUpdateShipmentParams(oldShipment)
+		params.Body.Status = ghcmessages.MTOShipmentStatusREJECTED
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	//suite.T().Run("PATCH failure - 401- permission denied - not authenticated", func(t *testing.T) {
+	//	fetcher := fetch.NewFetcher(builder)
+	//	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+	//	handler := UpdateShipmentHandler{
+	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+	//		fetcher,
+	//		updater,
+	//	}
+	//
+	//	oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+	//	params := suite.getUpdateShipmentParams(oldShipment)
+	//	updateURI := fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", oldShipment.MoveTaskOrderID.String(), oldShipment.ID.String())
+	//	unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
+	//	params.HTTPRequest = unauthorizedReq
+	//
+	//	response := handler.Handle(params)
+	//
+	//	suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnauthorized{}, response)
+	//})
+
+	//suite.T().Run("PATCH failure - 403- permission denied - wrong application / user", func(t *testing.T) {
+	//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	//	fetcher := fetch.NewFetcher(builder)
+	//	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+	//	handler := UpdateShipmentHandler{
+	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+	//		fetcher,
+	//		updater,
+	//	}
+	//
+	//	oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+	//	params := suite.getUpdateShipmentParams(oldShipment)
+	//	updateURI := fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", oldShipment.MoveTaskOrderID.String(), oldShipment.ID.String())
+	//
+	//	unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
+	//	unauthorizedReq = suite.AuthenticateOfficeRequest(unauthorizedReq, officeUser)
+	//	params.HTTPRequest = unauthorizedReq
+	//
+	//	response := handler.Handle(params)
+	//
+	//	suite.IsType(&mtoshipmentops.UpdateMTOShipmentForbidden{}, response)
+	//})
+
+	suite.T().Run("PATCH failure - 404 -- not found", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		params := suite.getUpdateShipmentParams(oldShipment)
+		params.ShipmentID = *uuidString
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
+	})
+
+	suite.T().Run("PATCH failure - 412 -- etag mismatch", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		params := suite.getUpdateShipmentParams(oldShipment)
+		params.IfMatch = "intentionally-bad-if-match-header-value"
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("PATCH failure - 422 -- invalid input", func(t *testing.T) {
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			OfficeUser: models.OfficeUser{
+				TransportationOffice: models.TransportationOffice{
+					Name: "Random Office",
+				},
+			},
+		})
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldShipment.RequestedPickupDate = nil
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", oldShipment.MoveTaskOrderID.String(), oldShipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		// invalid zip
+		payloadDestinationAddress := &ghcmessages.Address{
+			City:           swag.String("Stumptown"),
+			Country:        swag.String("USA"),
+			ID:             "6e07a670-a072-4014-be9f-4926c1389f9a",
+			State:          swag.String("CA"),
+			StreetAddress1: swag.String("321 Main St."),
+			PostalCode:     swag.String("123"),
+		}
+
+		payload := ghcmessages.UpdateShipment{
+			DestinationAddress: payloadDestinationAddress,
+		}
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(oldShipment.ID),
+			Body:        &payload,
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+
+	})
+
+	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
+		mockUpdater := mocks.MTOShipmentUpdater{}
+		fetcher := fetch.NewFetcher(builder)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			&mockUpdater,
+		}
+
+		err := errors.New("ServerError")
+
+		mockUpdater.On("UpdateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		params := suite.getUpdateShipmentParams(oldShipment)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
+	})
+
 }
