@@ -508,6 +508,29 @@ func (suite *PopTestSuite) Run(name string, subtest func()) bool {
 	})
 }
 
+// RunWithRollback runs a subtest inside a transaction that is
+// rolled back. Not all tests will work with this approach
+func (suite *PopTestSuite) RunWithRollback(name string, subtest func()) bool {
+	if !suite.usePerTestTransaction {
+		log.Fatal("Cannot use RunWithRollback without per test transaction")
+	}
+	// call suite.DB to ensure a connection is established outside the subtest
+	oldDB := suite.DB()
+	oldT := suite.T()
+	defer suite.SetT(oldT)
+	return oldT.Run(name, func(t *testing.T) {
+		suite.SetT(t)
+		err := oldDB.Rollback(func(tx *pop.Connection) {
+			suite.setDB(tx)
+			defer suite.setDB(oldDB)
+			subtest()
+		})
+		if err != nil {
+			log.Fatalf("Rollback of subtest %s failed: %v", name, err)
+		}
+	})
+}
+
 // TearDownTest runs the teardown per test. It will only do something
 // useful if per test transactions are enabled
 func (suite *PopTestSuite) TearDownTest() {

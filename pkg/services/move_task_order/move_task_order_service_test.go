@@ -12,14 +12,9 @@ type MoveTaskOrderServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *MoveTaskOrderServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestMoveTaskOrderServiceSuite(t *testing.T) {
 	ts := &MoveTaskOrderServiceSuite{
-		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
