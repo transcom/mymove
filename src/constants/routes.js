@@ -28,3 +28,7 @@ export const customerRoutes = {
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
 };
+
+export const servicesCounselingRoutes = {
+  EDIT_SHIPMENT_INFO_PATH: '/counseling/moves/:moveCode/:shipmentId',
+};
