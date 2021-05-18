@@ -489,14 +489,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		currentTime := time.Now()
 		diff := currentTime.Sub(*actualApprovedAt)
 		diffInSeconds := diff.Seconds()
-		oneSecond := 1.000000
+		twoSeconds := 2.000000
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
 			// Test that service item was approved within a few seconds of the current
-			suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+			suite.Assertions.LessOrEqual(diffInSeconds, twoSeconds)
 		}
 
 		err = suite.DB().Find(&fetchedMove, mto.ID)
@@ -645,23 +645,52 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Contains(err.Error(), "Cannot approve a shipment if the move isn't approved.")
 	})
 
+	var cancellationRequestedShipment models.MTOShipment
 	suite.T().Run("An approved shipment can change to CANCELLATION_REQUESTED", func(t *testing.T) {
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		approvedShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()),
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
 		})
-		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+		eTag = etag.GenerateEtag(approvedShipment2.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			approvedShipment.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
-		suite.DB().Find(&approvedShipment, approvedShipment.ID)
+			approvedShipment2.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
+		suite.DB().Find(&approvedShipment2, approvedShipment2.ID)
 
 		suite.NoError(err)
 		suite.NotNil(updatedShipment)
 		suite.Equal(models.MTOShipmentStatusCancellationRequested, updatedShipment.Status)
-		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment2.Status)
+
+		cancellationRequestedShipment = *updatedShipment
+	})
+
+	suite.T().Run("A CANCELLATION_REQUESTED shipment can change to CANCELED", func(t *testing.T) {
+		eTag = etag.GenerateEtag(cancellationRequestedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			cancellationRequestedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
+		suite.DB().Find(&cancellationRequestedShipment, cancellationRequestedShipment.ID)
+
+		suite.NoError(err)
+		suite.NotNil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusCanceled, updatedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusCanceled, cancellationRequestedShipment.Status)
+	})
+
+	suite.T().Run("An APPROVED shipment CANNOT change to CANCELED - ERROR", func(t *testing.T) {
+		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			approvedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
+		suite.DB().Find(&approvedShipment, approvedShipment.ID)
+
+		suite.Error(err)
+		suite.Nil(updatedShipment)
+		suite.IsType(ConflictStatusError{}, err)
+		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
 	})
 }
 

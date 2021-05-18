@@ -1,17 +1,13 @@
 package models_test
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_BackupContactCreate() {
-	t := suite.T()
-
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMember := testdatagen.MakeStubbedServiceMember(suite.DB())
 
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
@@ -21,16 +17,10 @@ func (suite *ModelSuite) Test_BackupContactCreate() {
 		Permission:      models.BackupContactPermissionEDIT,
 	}
 
-	verrs, err := suite.DB().ValidateAndCreate(&newContact)
+	verrs, err := newContact.Validate(nil)
 
-	if err != nil {
-		fmt.Println(err)
-		t.Fatal("could not save BackupContact", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) Test_BackupContactValidations() {

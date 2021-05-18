@@ -43,10 +43,13 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 
 	// Find the PaymentRequestID that matches the GCN
 	var gcn int64
+	var ediTypeFromAK2 string
 	if edi997.InterchangeControlEnvelope.FunctionalGroups != nil {
 		if edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
 			ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
 			gcn = ak1.GroupControlNumber
+
+			ediTypeFromAK2 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK2.TransactionSetIdentifierCode
 		} else {
 			e.logger.Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
 			return fmt.Errorf("Validation error(s) detected with the EDI997. EDI Errors could not be saved: %w", err)
@@ -61,7 +64,7 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	var paymentRequest models.PaymentRequest
 	err = e.db.Q().
 		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
-		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(gcn)).
+		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ? and payment_request_to_interchange_control_numbers.edi_type = ?", int(gcn), ediTypeFromAK2).
 		First(&paymentRequest)
 	if err != nil {
 		e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))

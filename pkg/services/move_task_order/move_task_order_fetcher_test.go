@@ -101,20 +101,18 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	// Set up a hidden move so we can check if it's in the output:
 	now := time.Now()
-	hide := false
+	show := false
 	hiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			AvailableToPrimeAt: &now,
-			Show:               &hide,
+			Show:               &show,
 		},
 	})
+	testdatagen.MakeDefaultMove(suite.DB())
+
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
 	suite.T().Run("all move task orders", func(t *testing.T) {
-		testdatagen.MakeDefaultMove(suite.DB())
-		testdatagen.MakeDefaultMove(suite.DB())
-		testdatagen.MakeDefaultMove(suite.DB())
-
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: false,
 			IncludeHidden:      true,
@@ -126,16 +124,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		move := moveTaskOrders[0]
 
-		// The hidden move be in this output list since we weren't excluding hidden MTOs:
-		found := false
-		for _, move := range moveTaskOrders {
-			if move.ID == hiddenMTO.ID {
-				found = true
-				break
-			}
-		}
-		suite.True(found)
-		suite.Equal(len(moveTaskOrders), 4)
+		suite.Equal(2, len(moveTaskOrders))
 		suite.NotNil(move.Orders)
 		suite.NotNil(move.Orders.OriginDutyStation)
 		suite.NotNil(move.Orders.NewDutyStation)
@@ -150,17 +139,14 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			suite.NotEqual(move.ID, hiddenMTO.ID)
 		}
 
-		suite.Equal(len(moveTaskOrders), 3) // minus the one hidden MTO
+		suite.Equal(1, len(moveTaskOrders)) // minus the one hidden MTO
 	})
 
 	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
 		now := time.Now()
 
 		testdatagen.MakeAvailableMove(suite.DB())
-		testdatagen.MakeAvailableMove(suite.DB())
 		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
-		testdatagen.MakeDefaultMove(suite.DB())
-		testdatagen.MakeDefaultMove(suite.DB())
 
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: true,
@@ -170,7 +156,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
-		suite.Equal(len(moveTaskOrders), 3)
+		suite.Equal(2, len(moveTaskOrders))
 
 		// The hidden move should be nowhere in the output list:
 		for _, move := range moveTaskOrders {
@@ -184,6 +170,6 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		searchParams.Since = &since
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
-		suite.Equal(len(mtosWithSince), 2)
+		suite.Equal(1, len(mtosWithSince))
 	})
 }

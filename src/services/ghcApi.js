@@ -120,6 +120,11 @@ export async function updateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateAllowance({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateAllowance';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {
   const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return makeGHCRequest(

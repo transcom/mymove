@@ -215,6 +215,23 @@ func NewNotImplementedError(message string) NotImplementedError {
 	}
 }
 
+// ForbiddenError is the forbidden error
+type ForbiddenError struct {
+	message string
+}
+
+// NewForbiddenError returns an error for forbidden
+func NewForbiddenError(message string) ForbiddenError {
+	return ForbiddenError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the forbidden error
+func (e ForbiddenError) Error() string {
+	return fmt.Sprintf("User is forbidden: %s", e.message)
+}
+
 // EventError is an error generated in the events/notifications system.
 // We should log but not return this sort of error to the client because
 // client's request could be successful but our notification subsystem

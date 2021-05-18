@@ -4,6 +4,7 @@ import { mount } from 'enzyme';
 import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentModificationTypes } from 'constants/shipments';
 import { MockProviders } from 'testUtils';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
@@ -156,11 +157,32 @@ const ntsrServiceItems = [
   },
 ];
 
-const shipmentAddressBasic = '';
-const shipmentAddressHHG = 'Beverly Hills, CA 90210 to Fairfield, CA 94535';
-const shipmentAddressNTS = 'Boston, MA 02101 to Princeton, NJ 08540';
-const shipmentDepartureDate = '2020-12-01T00:00:00.000Z';
-const shipmentDepartureDateBasic = '';
+const hhgShipment = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+};
+
+const hhgShipmentCanceled = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.CANCELED,
+};
+
+const hhgShipmentDiversion = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.DIVERSION,
+};
+
+const basicShipment = {
+  address: '',
+  departureDate: '',
+};
+
+const ntsShipment = {
+  address: 'Boston, MA 02101 to Princeton, NJ 08540',
+  departureDate: '020-12-01T00:00:00.000Z',
+};
 
 const testMoveLocator = 'AF7K1P';
 
@@ -170,8 +192,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={basicServiceItems}
-          shipmentAddress={shipmentAddressBasic}
-          shipmentDepartureDate={shipmentDepartureDateBasic}
+          shipment={basicShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
@@ -234,8 +255,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -289,8 +309,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={ntsrServiceItems}
-          shipmentAddress={shipmentAddressNTS}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={ntsShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -341,8 +360,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -357,14 +375,43 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
-          shipmentDepartureDate={shipmentDepartureDate}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
     );
     it('disables expanding the service item pricer calculations', () => {
       expect(wrapper.find('ExpandableServiceItemRow').at(0).prop('disableExpansion')).toBe(false);
+    });
+  });
+
+  describe('When a payment request has a shipment that was canceled ', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipment={hhgShipmentCanceled}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('there is a canceled tag displayed', () => {
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELED);
+    });
+  });
+
+  describe('When a payment request has a shipment that was diverted ', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipment={hhgShipmentDiversion}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('there is a diversion tag displayed', () => {
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.DIVERSION);
     });
   });
 });

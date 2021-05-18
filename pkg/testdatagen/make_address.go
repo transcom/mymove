@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -89,4 +90,14 @@ func MakeDefaultAddress(db *pop.Connection) models.Address {
 	FetchOrMakeDefaultTariff400ngZip3(db)
 
 	return MakeAddress(db, Assertions{})
+}
+
+// MakeStubbedAddress returns a stubbed address without saving it to the DB
+func MakeStubbedAddress(db *pop.Connection) models.Address {
+	return MakeAddress(db, Assertions{
+		Address: models.Address{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
 }

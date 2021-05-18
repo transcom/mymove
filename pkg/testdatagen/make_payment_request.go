@@ -169,3 +169,13 @@ func MakeFullDLHMTOServiceItem(db *pop.Connection, assertions Assertions) (model
 
 	return moveTaskOrder, mtoServiceItems
 }
+
+// MakeStubbedPaymentRequest returns a payment request without hitting the DB
+func MakeStubbedPaymentRequest(db *pop.Connection) models.PaymentRequest {
+	return MakePaymentRequest(db, Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
+}

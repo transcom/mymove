@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { GridContainer, Grid, Button, Alert } from '@trussworks/react-uswds';
+import { Link, useParams } from 'react-router-dom';
+import { Alert, Button, Grid, GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
+import { generatePath } from 'react-router';
 import classnames from 'classnames';
 
-import DetailsPanel from '../../../components/Office/DetailsPanel/DetailsPanel';
-import ServicesCounselingOrdersList from '../../../components/Office/DefinitionLists/ServicesCounselingOrdersList';
-import AllowancesList from '../../../components/Office/DefinitionLists/AllowancesList';
-import CustomerInfoList from '../../../components/Office/DefinitionLists/CustomerInfoList';
-import { SubmitMoveConfirmationModal } from '../../../components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
 import 'styles/office.scss';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { MOVES } from 'constants/queryKeys';
+import { servicesCounselingRoutes } from 'constants/routes';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
+import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/ServicesCounselingOrdersList';
+import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
+import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries } from 'hooks/queries';
+import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVES } from 'constants/queryKeys';
-import { MOVE_STATUSES } from 'shared/constants';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
@@ -27,8 +31,37 @@ const ServicesCounselingMoveDetails = () => {
   const [alertType, setAlertType] = useState('success');
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
 
-  const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
+  const { order, move, mtoShipments, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
+
+  const counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING;
+
+  let shipmentsInfo = [];
+
+  if (mtoShipments) {
+    shipmentsInfo = mtoShipments.map((shipment) => {
+      const editURL = counselorCanEdit
+        ? generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+            moveCode,
+            shipmentId: shipment.id,
+          })
+        : '';
+
+      return {
+        id: shipment.id,
+        displayInfo: {
+          id: shipment.id,
+          heading: SHIPMENT_OPTIONS.HHG,
+          requestedMoveDate: shipment.requestedPickupDate,
+          currentAddress: shipment.pickupAddress,
+          destinationAddress: shipment.destinationAddress,
+          counselorRemarks: shipment.counselorRemarks,
+        },
+        editURL,
+      };
+    });
+  }
+
   const customerInfo = {
     name: `${customer.last_name}, ${customer.first_name}`,
     dodId: customer.dodID,
@@ -93,10 +126,7 @@ const ServicesCounselingMoveDetails = () => {
           <SubmitMoveConfirmationModal onClose={setIsSubmitModalVisible} onSubmit={handleConfirmSubmitMoveDetails} />
         )}
 
-        <GridContainer
-          className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}
-          data-testid="sc-move-details"
-        >
+        <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
@@ -109,20 +139,41 @@ const ServicesCounselingMoveDetails = () => {
               <h1>Move details</h1>
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-              {move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                <Button data-testid="submitMoveDetailsBtn" type="button" onClick={handleShowCancellationModal}>
+              {counselorCanEdit && (
+                <Button type="button" onClick={handleShowCancellationModal}>
                   Submit move details
                 </Button>
               )}
             </Grid>
           </Grid>
+
+          <div className={styles.section} id="shipments">
+            <DetailsPanel title="Shipments" className={scMoveDetailsStyles.noPaddingBottom}>
+              <div className={shipmentCardsStyles.shipmentCards}>
+                {shipmentsInfo.map((shipment) => (
+                  <ShipmentDisplay
+                    displayInfo={shipment.displayInfo}
+                    editURL={shipment.editURL}
+                    isSubmitted={false}
+                    key={shipment.id}
+                    shipmentId={shipment.id}
+                    shipmentType={SHIPMENT_OPTIONS.HHG}
+                    showIcon={false}
+                  />
+                ))}
+              </div>
+            </DetailsPanel>
+          </div>
+
           <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
               editButton={
-                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
-                  View and edit orders
-                </Link>
+                counselorCanEdit && (
+                  <Link className="usa-button usa-button--secondary" to="orders">
+                    View and edit orders
+                  </Link>
+                )
               }
             >
               <ServicesCounselingOrdersList ordersInfo={ordersInfo} />
@@ -132,8 +183,8 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Allowances"
               editButton={
-                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                counselorCanEdit && (
+                  <Link className="usa-button usa-button--secondary" to="allowances">
                     Edit allowances
                   </Link>
                 )
@@ -146,8 +197,8 @@ const ServicesCounselingMoveDetails = () => {
             <DetailsPanel
               title="Customer info"
               editButton={
-                move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                counselorCanEdit && (
+                  <Link className="usa-button usa-button--secondary" to="#">
                     Edit customer info
                   </Link>
                 )

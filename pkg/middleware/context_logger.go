@@ -14,11 +14,12 @@ func ContextLogger(field string, original Logger) func(next http.Handler) http.H
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
+			logs := original
 			if id := trace.FromContext(ctx); len(id) > 0 {
-				next.ServeHTTP(w, r.WithContext(logging.NewContext(ctx, original.With(zap.String(field, id)))))
-			} else {
-				next.ServeHTTP(w, r.WithContext(logging.NewContext(ctx, original)))
+				logs = logs.With(zap.String(field, id))
 			}
+			ctx = logging.NewContext(ctx, logs)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }

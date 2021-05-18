@@ -1,8 +1,8 @@
 import React from 'react';
-import { bool, string, func, shape, number } from 'prop-types';
-import { Formik, Field } from 'formik';
+import { bool, func, number, shape, string } from 'prop-types';
+import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
-import { Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
+import { Alert, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 

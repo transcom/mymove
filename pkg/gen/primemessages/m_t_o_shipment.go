@@ -23,14 +23,14 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
-	// actual pickup date
+	// The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
 	// Format: date
 	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
 
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// date when the shipment was given the status "APPROVED"
+	// The date when the Transportation Ordering Officer first approved this shipment for the move.
 	// Read Only: true
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
@@ -40,83 +40,111 @@ type MTOShipment struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
-	// customer remarks
+	// The customer can use the customer remarks field to inform the services counselor and the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//   * bulky or fragile items,
+	//   * weapons,
+	//   * access info for their address.
+	//
+	// Customer enters this information during onboarding. Optional field.
+	//
 	// Read Only: true
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	// Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
+	// during onboarding, if they know their new address already.
+	//
+	// May be blank when entered by the customer, required when entered by the Prime. May not represent the true
+	// final destination due to the shipment being diverted or placed in SIT.
+	//
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress,omitempty"`
 
-	// diversion
+	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
+	//
 	Diversion bool `json:"diversion,omitempty"`
 
-	// e tag
+	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
-	// first available delivery date
+	// The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.
+	//
 	// Format: date
 	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
 
-	// id
+	// The ID of the shipment.
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// move task order ID
+	// The ID of the move for this shipment.
 	// Read Only: true
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
+	// The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.
+	//
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress,omitempty"`
 
-	// Email or id of a contact person for this update.
+	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
+	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// prime actual weight
+	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
-	// prime estimated weight
+	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
+	//
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-	// prime estimated weight recorded date
+	// The date when the Prime contractor recorded the shipment's estimated weight.
 	// Read Only: true
 	// Format: date
 	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
 
-	// rejection reason
+	// The reason why this shipment was rejected by the TOO.
 	// Read Only: true
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
-	// requested pickup date
+	// The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
+	//
 	// Read Only: true
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
-	// required delivery date
+	// The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.
+	//
 	// Read Only: true
 	// Format: date
 	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
 
-	// scheduled pickup date
+	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
 	// Format: date
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-	// secondary delivery address
-	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+	// A second delivery address for this shipment, if the customer entered one. An optional field.
+	SecondaryDeliveryAddress struct {
+		Address
+	} `json:"secondaryDeliveryAddress,omitempty"`
 
-	// secondary pickup address
-	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+	// A second pickup address for this shipment, if the customer entered one. An optional field.
+	SecondaryPickupAddress struct {
+		Address
+	} `json:"secondaryPickupAddress,omitempty"`
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
-	// status
+	// The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.
+	//
 	// Read Only: true
-	// Enum: [APPROVED SUBMITTED REJECTED CANCELLATION_REQUESTED DIVERSION_REQUESTED]
+	// Enum: [SUBMITTED APPROVED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -148,7 +176,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress,omitempty"`
 
 		Diversion bool `json:"diversion,omitempty"`
 
@@ -162,7 +192,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -180,9 +212,13 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+		SecondaryDeliveryAddress struct {
+			Address
+		} `json:"secondaryDeliveryAddress,omitempty"`
 
-		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
@@ -307,7 +343,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress,omitempty"`
 
 		Diversion bool `json:"diversion,omitempty"`
 
@@ -319,7 +357,9 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
-		PickupAddress *Address `json:"pickupAddress,omitempty"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress,omitempty"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -337,9 +377,13 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+		SecondaryDeliveryAddress struct {
+			Address
+		} `json:"secondaryDeliveryAddress,omitempty"`
 
-		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
@@ -561,15 +605,6 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -638,15 +673,6 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -708,15 +734,6 @@ func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) 
 		return nil
 	}
 
-	if m.SecondaryDeliveryAddress != nil {
-		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryDeliveryAddress")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -724,15 +741,6 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 
 	if swag.IsZero(m.SecondaryPickupAddress) { // not required
 		return nil
-	}
-
-	if m.SecondaryPickupAddress != nil {
-		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryPickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -758,7 +766,7 @@ var mTOShipmentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED","CANCELLATION_REQUESTED","DIVERSION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SUBMITTED","APPROVED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -768,17 +776,20 @@ func init() {
 
 const (
 
-	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
-	MTOShipmentStatusAPPROVED string = "APPROVED"
-
 	// MTOShipmentStatusSUBMITTED captures enum value "SUBMITTED"
 	MTOShipmentStatusSUBMITTED string = "SUBMITTED"
+
+	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
+	MTOShipmentStatusAPPROVED string = "APPROVED"
 
 	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
 	MTOShipmentStatusREJECTED string = "REJECTED"
 
 	// MTOShipmentStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
 	MTOShipmentStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
+
+	// MTOShipmentStatusCANCELED captures enum value "CANCELED"
+	MTOShipmentStatusCANCELED string = "CANCELED"
 
 	// MTOShipmentStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
 	MTOShipmentStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
