@@ -1,8 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
+
+import { updateMTOShipment } from 'services/ghcApi';
 
 const mockPush = jest.fn();
 
@@ -13,10 +16,14 @@ jest.mock('react-router-dom', () => ({
   }),
   useHistory: () => ({
     push: mockPush,
+    goBack: jest.fn(),
   }),
-  useParams: (path) => {
-    return { path, isExact: false, url: '', params: { moveCode: 'move123', shipmentId: 'shipment123' } };
-  },
+  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentId: 'shipment123' }),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  updateMTOShipment: jest.fn(),
 }));
 
 /*
@@ -30,10 +37,6 @@ jest.mock('hooks/queries', () => ({
   useEditShipmentQueries: jest
     .fn(() => {
       return {
-        move: {
-          id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-          ordersId: '1',
-        },
         order: {
           id: '1',
           originDutyStation: {
@@ -110,7 +113,7 @@ jest.mock('hooks/queries', () => ({
               street_address_3: 'c/o Some Person',
             },
             eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
-            id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+            id: 'shipment123',
             moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
             pickupAddress: {
               city: 'Beverly Hills',
@@ -125,13 +128,13 @@ jest.mock('hooks/queries', () => ({
             },
             requestedPickupDate: '2018-03-15',
             scheduledPickupDate: '2018-03-16',
+            requestedDeliveryDate: '2018-04-15',
+            scheduledDeliveryDate: '2014-04-16',
             shipmentType: 'HHG',
             status: 'SUBMITTED',
             updatedAt: '2020-06-10T15:58:02.404031Z',
           },
         ],
-        mtoServiceItems: [],
-        mtoAgents: [],
         isLoading: false,
         isError: false,
         isSuccess: true,
@@ -154,29 +157,11 @@ jest.mock('hooks/queries', () => ({
 }));
 
 const props = {
-  location: {
-    search: '',
-  },
   match: {
     path: '',
     isExact: false,
     url: '',
     params: { moveCode: 'move123', shipmentId: 'shipment123' },
-  },
-  history: {
-    goBack: jest.fn(),
-    push: jest.fn(),
-    replace: jest.fn(),
-  },
-  fetchCustomerData: jest.fn(),
-  updateMTOShipment: jest.fn(),
-  selectedMoveType: '',
-  mtoShipment: {},
-  currentResidence: {},
-  serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
-    },
   },
 };
 
@@ -200,5 +185,111 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     expect(h1).toBeInTheDocument();
+  });
+
+  it('saves the update to the counselor remarks when the save button is clicked', async () => {
+    const newCounselorRemarks = 'Counselor remarks';
+
+    const expectedPayload = {
+      body: {
+        customerRemarks: 'please treat gently',
+        destinationAddress: {
+          city: 'Fairfield',
+          country: 'US',
+          postal_code: '94535',
+          state: 'CA',
+          street_address_1: '987 Any Avenue',
+          street_address_2: 'P.O. Box 9876',
+          street_address_3: 'c/o Some Person',
+        },
+        pickupAddress: {
+          city: 'Beverly Hills',
+          country: 'US',
+          eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+          postal_code: '90210',
+          state: 'CA',
+          street_address_1: '123 Any Street',
+          street_address_2: 'P.O. Box 12345',
+          street_address_3: 'c/o Some Person',
+        },
+        requestedDeliveryDate: '2018-04-15',
+        requestedPickupDate: '2018-03-15',
+        shipmentType: 'HHG',
+      },
+      shipmentID: 'shipment123',
+      ifMatchETag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+      normalize: false,
+    };
+
+    const patchResponse = {
+      ...expectedPayload,
+      created_at: '2021-02-08T16:48:04.117Z',
+      updated_at: '2021-02-11T16:48:04.117Z',
+    };
+
+    updateMTOShipment.mockImplementation(() => Promise.resolve(patchResponse));
+
+    render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+    const counselorRemarks = await screen.findByLabelText('Counselor remarks');
+
+    userEvent.clear(counselorRemarks);
+
+    userEvent.type(counselorRemarks, newCounselorRemarks);
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+
+    expect(saveButton).not.toBeDisabled();
+
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(updateMTOShipment).toHaveBeenCalledWith(expectedPayload);
+    });
+  });
+
+  it('shows an error if the patchServiceMember API returns an error', async () => {
+    updateMTOShipment.mockImplementation(() =>
+      // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+      // eslint-disable-next-line prefer-promise-reject-errors
+      Promise.reject({
+        message: 'A server error occurred editing the shipment details',
+        response: {
+          body: {
+            detail: 'A server error occurred editing the shipment details',
+          },
+        },
+      }),
+    );
+
+    render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(updateMTOShipment).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByText('failed to update MTO shipment due to server error')).toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('routes to the profile page when the save button is clicked', async () => {
+    updateMTOShipment.mockImplementation(() => Promise.resolve());
+
+    render(<ServicesCounselingEditShipmentDetails {...props} />);
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+
+    expect(saveButton).not.toBeDisabled();
+
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
+    });
   });
 });

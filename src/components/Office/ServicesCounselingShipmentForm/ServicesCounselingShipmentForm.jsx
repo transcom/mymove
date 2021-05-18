@@ -82,7 +82,7 @@ const ServicesCounselingShipmentForm = ({
     });
 
     const updateMTOShipmentPayload = {
-      moveTaskOrderID: mtoShipment?.moveTaskOrderId,
+      moveTaskOrderID: mtoShipment?.moveTaskOrderID,
       shipmentID: mtoShipment.id,
       ifMatchETag: mtoShipment.eTag,
       normalize: false,
