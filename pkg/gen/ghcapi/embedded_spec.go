@@ -1274,6 +1274,77 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "updateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/move-task-orders": {
       "get": {
         "description": "Gets move task orders associated with an order",
@@ -2679,6 +2750,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean",
+          "example": true
+        },
         "eTag": {
           "type": "string"
         },
@@ -3552,6 +3627,55 @@ func init() {
         }
       }
     },
+    "UpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -3592,32 +3716,12 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId",
-        "agency"
+        "originDutyStationId"
       ],
       "properties": {
-        "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "grade": {
-          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -3643,29 +3747,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "organizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -3673,12 +3758,6 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
-        },
-        "requiredMedicalEquipmentWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -3857,6 +3936,12 @@ func init() {
     },
     "ServerError": {
       "description": "A server error occurred",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "Unauthorized": {
+      "description": "The request was unauthorized",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -5545,6 +5630,98 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "updateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/move-task-orders": {
       "get": {
         "description": "Gets move task orders associated with an order",
@@ -7034,6 +7211,10 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean",
+          "example": true
+        },
         "eTag": {
           "type": "string"
         },
@@ -7907,6 +8088,58 @@ func init() {
         }
       }
     },
+    "UpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -7947,32 +8180,12 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId",
-        "agency"
+        "originDutyStationId"
       ],
       "properties": {
-        "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "grade": {
-          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -7998,31 +8211,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "organizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -8030,13 +8222,6 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
-        },
-        "requiredMedicalEquipmentWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -8218,6 +8403,12 @@ func init() {
     },
     "ServerError": {
       "description": "A server error occurred",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "Unauthorized": {
+      "description": "The request was unauthorized",
       "schema": {
         "$ref": "#/definitions/Error"
       }

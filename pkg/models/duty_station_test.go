@@ -7,6 +7,9 @@ import (
 )
 
 func (suite *ModelSuite) TestFindDutyStations() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
+
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
@@ -103,6 +106,8 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 	suite.verifyValidationErrors(station, expErrors)
 }
 func (suite *ModelSuite) Test_FetchDutyStationTransportationOffice() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	t := suite.T()
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 

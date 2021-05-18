@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 
 import { shipmentOptionLabels } from 'shared/constants';
+import { shipmentStatuses, shipmentModificationTypes } from 'constants/shipments';
 
 export function formatAddress(address) {
   const { street_address_1, city, state, postal_code } = address;
@@ -60,5 +61,17 @@ export function formatPaymentRequestReviewAddressString(address) {
   if (address) {
     return `${address.city}, ${address.state} ${address.postal_code}`;
   }
+  return '';
+}
+
+export function getShipmentModificationType(shipment) {
+  if (shipment.status === shipmentStatuses.CANCELED) {
+    return shipmentModificationTypes.CANCELED;
+  }
+
+  if (shipment.diversion === true) {
+    return shipmentModificationTypes.DIVERSION;
+  }
+
   return '';
 }

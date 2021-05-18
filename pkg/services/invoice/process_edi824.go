@@ -68,10 +68,11 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 		// In the 858, the EDI only has 1 group, and the ICN and the GCN are the same. Therefore, we'll query the PR to ICN table
 		// to find the associated payment request using the reported GCN from the 824.
+		// we are only processing 824s in response to 858s
 		var paymentRequest models.PaymentRequest
 		err = e.db.Q().
 			Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
-			Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(otiGCN)).
+			Where("payment_request_to_interchange_control_numbers.interchange_control_number = ? and payment_request_to_interchange_control_numbers.edi_type = ?", int(otiGCN), models.EDIType858).
 			First(&paymentRequest)
 		if err != nil {
 			e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))

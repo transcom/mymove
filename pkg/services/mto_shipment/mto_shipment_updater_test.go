@@ -493,14 +493,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		currentTime := time.Now()
 		diff := currentTime.Sub(*actualApprovedAt)
 		diffInSeconds := diff.Seconds()
-		oneSecond := 1.000000
+		twoSeconds := 2.000000
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
 			// Test that service item was approved within a few seconds of the current
-			suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+			suite.Assertions.LessOrEqual(diffInSeconds, twoSeconds)
 		}
 
 		err = suite.DB().Find(&fetchedMove, mto.ID)

@@ -38,6 +38,9 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// diversion
+	Diversion bool `json:"diversion,omitempty"`
+
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 

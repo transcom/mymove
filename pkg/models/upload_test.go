@@ -1,17 +1,14 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
 )
 
-func (suite *ModelSuite) Test_UploadCreate() {
-	t := suite.T()
-
+func (suite *ModelSuite) Test_ValidateUpload() {
 	upload := models.Upload{
+		ID:          uuid.Must(uuid.NewV4()),
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
@@ -19,46 +16,11 @@ func (suite *ModelSuite) Test_UploadCreate() {
 		UploadType:  models.UploadTypeUSER,
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
+	var expErrors = map[string][]string{}
+	suite.verifyValidationErrors(&upload, expErrors)
 }
 
-func (suite *ModelSuite) Test_UploadCreateWithID() {
-	t := suite.T()
-
-	id := uuid.Must(uuid.NewV4())
-	upload := models.Upload{
-		ID:          id,
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypeUSER,
-	}
-
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
-
-	if upload.ID.String() != id.String() {
-		t.Errorf("wrong uuid for upload: expected %s, got %s", id.String(), upload.ID.String())
-	}
-}
-
-func (suite *ModelSuite) Test_UploadValidations() {
+func (suite *ModelSuite) Test_UploadValidationErrors() {
 	upload := &models.Upload{}
 
 	var expErrors = map[string][]string{
@@ -70,99 +32,4 @@ func (suite *ModelSuite) Test_UploadValidations() {
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)
-}
-
-func (suite *ModelSuite) TestFetchUpload() {
-	t := suite.T()
-
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
-	session := auth.Session{
-		UserID:          document.ServiceMember.UserID,
-		ApplicationName: auth.MilApp,
-		ServiceMemberID: document.ServiceMember.ID,
-	}
-	upload := models.Upload{
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypeUSER,
-	}
-
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-
-	uploadUser := models.UserUpload{
-		DocumentID: &document.ID,
-		UploaderID: document.ServiceMember.UserID,
-		Upload:     upload,
-		UploadID:   upload.ID,
-	}
-
-	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-
-	upUser, _ := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
-	suite.Equal(upUser.UploadID, upload.ID)
-	suite.Equal(upUser.Upload.ID, upload.ID)
-	suite.Equal(upUser.ID, uploadUser.ID)
-
-	upUser, _ = models.FetchUserUploadFromUploadID(suite.DB(), &session, upload.ID)
-	suite.Equal(upUser.UploadID, upload.ID)
-	suite.Equal(upUser.Upload.ID, upload.ID)
-	suite.Equal(upUser.ID, uploadUser.ID)
-}
-
-func (suite *ModelSuite) TestFetchDeletedUpload() {
-	t := suite.T()
-
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
-	session := auth.Session{
-		UserID:          document.ServiceMember.UserID,
-		ApplicationName: auth.MilApp,
-		ServiceMemberID: document.ServiceMember.ID,
-	}
-	upload := models.Upload{
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypeUSER,
-	}
-
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
-
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-	//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-	//RA: in a unit test, then there is no risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: Mitigated
-	//RA Modified Severity: N/A
-	// nolint:errcheck
-	models.DeleteUpload(suite.DB(), &upload)
-	up, _ := models.FetchUserUpload(suite.DB(), &session, upload.ID)
-
-	// fetches a nil upload
-	suite.Equal(up.ID, uuid.Nil)
 }

@@ -99,4 +99,28 @@ describe('OrdersDetailForm', () => {
     expect(wrapperWarn.find('[data-testid="textInputWarning"]').exists()).toBe(true);
     expect(wrapperWarn.find('[data-testid="textInputWarning"]').text()).toEqual(tacWarning);
   });
+
+  it('hides hideable fields', () => {
+    const form = mountOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showTac: false,
+      showSac: false,
+    });
+
+    // fields are visible
+    expect(form.find('input[name="originDutyStation"]').length).toBe(1);
+    expect(form.find('input[name="newDutyStation"]').length).toBe(1);
+    expect(form.find('input[name="issueDate"]').length).toBe(1);
+    expect(form.find('input[name="reportByDate"]').length).toBe(1);
+    expect(form.find('select[name="ordersType"]').length).toBe(1);
+
+    // fields are hidden
+    expect(form.find('select[name="departmentIndicator"]').length).toBe(0);
+    expect(form.find('input[name="ordersNumber"]').length).toBe(0);
+    expect(form.find('select[name="ordersTypeDetail"]').length).toBe(0);
+    expect(form.find('input[name="tac"]').length).toBe(0);
+    expect(form.find('input[name="sac"]').length).toBe(0);
+  });
 });
