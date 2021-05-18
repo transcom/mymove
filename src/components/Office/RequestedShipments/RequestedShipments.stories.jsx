@@ -287,6 +287,8 @@ const serviceItems = [
   },
 ];
 
+const moveTaskOrders = [{}, { serviceCounselingCompletedAt: true }];
+
 export default {
   title: 'Office Components/RequestedShipments',
 };
@@ -300,6 +302,21 @@ export const withOneShipment = () => (
       customerInfo={customerInfo}
       mtoAgents={agents}
       shipmentsStatus="SUBMITTED"
+      moveTaskOrder={moveTaskOrders[0]}
+    />
+  </div>
+);
+
+export const withCompletedServicesCounseling = () => (
+  <div style={{ position: 'relative', padding: '20px' }}>
+    <RequestedShipments
+      mtoShipments={[shipments[0]]}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="SUBMITTED"
+      moveTaskOrder={moveTaskOrders[1]}
     />
   </div>
 );
@@ -313,6 +330,7 @@ export const withMultipleShipments = () => (
       customerInfo={customerInfo}
       mtoAgents={agents}
       shipmentsStatus="SUBMITTED"
+      moveTaskOrder={moveTaskOrders[0]}
     />
   </div>
 );
@@ -327,6 +345,7 @@ export const withOneApprovedShipment = () => (
       mtoAgents={agents}
       shipmentsStatus="APPROVED"
       mtoServiceItems={serviceItems}
+      moveTaskOrder={moveTaskOrders[0]}
     />
   </div>
 );
@@ -341,6 +360,7 @@ export const withMultipleApprovedShipments = () => (
       mtoAgents={agents}
       shipmentsStatus="APPROVED"
       mtoServiceItems={serviceItems}
+      moveTaskOrder={moveTaskOrders[0]}
     />
   </div>
 );
