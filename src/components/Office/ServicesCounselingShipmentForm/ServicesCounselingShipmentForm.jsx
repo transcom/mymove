@@ -10,6 +10,7 @@ import styles from './ServicesCounselingShipmentForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
@@ -139,16 +140,6 @@ const ServicesCounselingShipmentForm = ({
                 address: currentResidence,
               },
             });
-          } else if (match.params.moveCode === mtoShipment?.moveTaskOrderId) {
-            // TODO - what is the purpose of this check?
-            // Revert address
-            setValues({
-              ...values,
-              pickup: {
-                ...values.pickup,
-                address: mtoShipment.pickupAddress,
-              },
-            });
           } else {
             // Revert address
             setValues({
@@ -183,7 +174,7 @@ const ServicesCounselingShipmentForm = ({
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
                   <strong>Weight Allowance: </strong>
-                  {serviceMember.weight_allotment.total_weight_self} lbs
+                  {formatWeight(serviceMember.weight_allotment.total_weight_self)} lbs
                 </p>
               </SectionWrapper>
 
