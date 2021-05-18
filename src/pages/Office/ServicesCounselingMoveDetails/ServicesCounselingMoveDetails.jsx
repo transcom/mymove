@@ -149,7 +149,11 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit=customer-info" to="#">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit=customer-info"
+                    to="customer-info"
+                  >
                     Edit customer info
                   </Link>
                 )
