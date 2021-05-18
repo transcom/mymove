@@ -566,49 +566,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 	})
 
-	//suite.T().Run("PATCH failure - 401- permission denied - not authenticated", func(t *testing.T) {
-	//	fetcher := fetch.NewFetcher(builder)
-	//	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-	//	handler := UpdateShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		fetcher,
-	//		updater,
-	//	}
-	//
-	//	oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	//	params := suite.getUpdateShipmentParams(oldShipment)
-	//	updateURI := fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", oldShipment.MoveTaskOrderID.String(), oldShipment.ID.String())
-	//	unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
-	//	params.HTTPRequest = unauthorizedReq
-	//
-	//	response := handler.Handle(params)
-	//
-	//	suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnauthorized{}, response)
-	//})
-
-	//suite.T().Run("PATCH failure - 403- permission denied - wrong application / user", func(t *testing.T) {
-	//	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	//	fetcher := fetch.NewFetcher(builder)
-	//	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-	//	handler := UpdateShipmentHandler{
-	//		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	//		fetcher,
-	//		updater,
-	//	}
-	//
-	//	oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	//	params := suite.getUpdateShipmentParams(oldShipment)
-	//	updateURI := fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", oldShipment.MoveTaskOrderID.String(), oldShipment.ID.String())
-	//
-	//	unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
-	//	unauthorizedReq = suite.AuthenticateOfficeRequest(unauthorizedReq, officeUser)
-	//	params.HTTPRequest = unauthorizedReq
-	//
-	//	response := handler.Handle(params)
-	//
-	//	suite.IsType(&mtoshipmentops.UpdateMTOShipmentForbidden{}, response)
-	//})
-
 	suite.T().Run("PATCH failure - 404 -- not found", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
