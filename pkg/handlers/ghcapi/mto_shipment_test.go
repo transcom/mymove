@@ -601,6 +601,28 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
+	suite.T().Run("PATCH failure - 412 -- shipment shouldn't be updatable", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusDraft,
+			},
+		})
+
+		params := suite.getUpdateShipmentParams(oldShipment)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
+	})
+
 	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		fetcher := fetch.NewFetcher(builder)
@@ -613,6 +635,14 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		err := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+		mockUpdater.On("RetrieveMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+		mockUpdater.On("CheckIfMTOShipmentCanBeUpdated",
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)

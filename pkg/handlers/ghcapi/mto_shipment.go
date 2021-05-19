@@ -91,7 +91,7 @@ type UpdateShipmentHandler struct {
 
 // Handle updates shipments
 func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
 	if payload == nil {
@@ -107,8 +107,31 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
 	}
 
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(shipmentID)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		default:
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		}
+	}
+
+	updateable, _ := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(oldShipment, session)
+
+	if !updateable {
+		return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
+	}
+
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
-	mtoShipment.ID = uuid.FromStringOrNil(params.ShipmentID.String())
+	mtoShipment.ID = shipmentID
 
 	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
 

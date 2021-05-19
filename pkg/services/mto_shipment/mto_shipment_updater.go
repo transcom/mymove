@@ -201,7 +201,7 @@ func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(mtoShipment *models.
 		return true, nil
 	}
 
-	return true, nil
+	return false, nil
 }
 
 func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
