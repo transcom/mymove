@@ -6,8 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
@@ -601,53 +599,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
-	})
-
-	suite.T().Run("PATCH failure - 422 -- invalid input", func(t *testing.T) {
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			OfficeUser: models.OfficeUser{
-				TransportationOffice: models.TransportationOffice{
-					Name: "Random Office",
-				},
-			},
-		})
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			fetcher,
-			updater,
-		}
-
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		oldShipment.RequestedPickupDate = nil
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", oldShipment.MoveTaskOrderID.String(), oldShipment.ID.String()), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		// invalid zip
-		payloadDestinationAddress := &ghcmessages.Address{
-			City:           swag.String("Stumptown"),
-			Country:        swag.String("USA"),
-			ID:             "6e07a670-a072-4014-be9f-4926c1389f9a",
-			State:          swag.String("CA"),
-			StreetAddress1: swag.String("321 Main St."),
-			PostalCode:     swag.String("123"),
-		}
-
-		payload := ghcmessages.UpdateShipment{
-			DestinationAddress: payloadDestinationAddress,
-		}
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		params := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest: req,
-			ShipmentID:  *handlers.FmtUUID(oldShipment.ID),
-			Body:        &payload,
-			IfMatch:     eTag,
-		}
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-
 	})
 
 	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
