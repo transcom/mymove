@@ -866,6 +866,12 @@ func init() {
               "$ref": "#/definitions/MTOServiceItems"
             }
           },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
           "404": {
             "$ref": "#/responses/NotFound"
           },
@@ -4987,6 +4993,18 @@ func init() {
             "description": "Successfully retrieved all line items for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOServiceItems"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
