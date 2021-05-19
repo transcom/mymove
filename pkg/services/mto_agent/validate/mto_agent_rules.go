@@ -20,6 +20,27 @@ type AgentValidationData struct {
 	Verrs               *validate.Errors
 }
 
+// NewUpdateAgentValidationData sets up AgentValidationData for updating an agent
+func NewUpdateAgentValidationData(newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment, checker services.MoveTaskOrderChecker) AgentValidationData {
+	return AgentValidationData{
+		NewAgent:            newAgent,
+		OldAgent:            oldAgent,
+		Shipment:            shipment,
+		AvailabilityChecker: checker,
+		Verrs:               validate.NewErrors(),
+	}
+}
+
+// NewCreateAgentValidationData sets up AgentValidationData for creating an agent
+func NewCreateAgentValidationData(newAgent models.MTOAgent, shipment *models.MTOShipment, checker services.MoveTaskOrderChecker) AgentValidationData {
+	return AgentValidationData{
+		NewAgent:            newAgent,
+		Shipment:            shipment,
+		AvailabilityChecker: checker,
+		Verrs:               validate.NewErrors(),
+	}
+}
+
 // checkShipmentID checks that the user didn't attempt to change the agent's Shipment ID
 func (v *AgentValidationData) checkShipmentID() error {
 	if v.OldAgent == nil {

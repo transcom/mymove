@@ -6,7 +6,6 @@ import (
 	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validate"
 
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -46,14 +45,9 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		return nil, services.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
-	agentData := mtoagentvalidate.AgentValidationData{
-		NewAgent:            *mtoAgent,
-		OldAgent:            &oldAgent,
-		Shipment:            &oldAgent.MTOShipment,
-		AvailabilityChecker: movetaskorder.NewMoveTaskOrderChecker(f.db),
-		Verrs:               validate.NewErrors(),
-	}
-
+	agentData := mtoagentvalidate.NewUpdateAgentValidationData(
+		*mtoAgent, &oldAgent, &oldAgent.MTOShipment, movetaskorder.NewMoveTaskOrderChecker(f.db),
+	)
 	newAgent, err := mtoagentvalidate.ValidateAgent(&agentData, validatorKey)
 	if err != nil {
 		return nil, err

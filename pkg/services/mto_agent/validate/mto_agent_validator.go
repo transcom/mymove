@@ -7,6 +7,9 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// NOTE: These validator keys are used the same way for both Update and Create actions.
+// The values passed into the AgentValidationData struct are what differentiate the two.
+
 // BasicAgentValidatorKey is the key for generic validation on the Agent
 const BasicAgentValidatorKey string = "BasicAgentValidatorKey"
 

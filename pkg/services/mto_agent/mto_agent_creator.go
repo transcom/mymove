@@ -2,7 +2,6 @@ package mtoagent
 
 import (
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validate"
@@ -45,13 +44,7 @@ func (f *mtoAgentCreator) CreateMTOAgent(mtoAgent *models.MTOAgent, validatorKey
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	agentData := mtoagentvalidate.AgentValidationData{
-		NewAgent:            *mtoAgent,
-		Shipment:            mtoShipment,
-		AvailabilityChecker: f.mtoAvailabilityChecker,
-		Verrs:               validate.NewErrors(),
-	}
-
+	agentData := mtoagentvalidate.NewCreateAgentValidationData(*mtoAgent, mtoShipment, f.mtoAvailabilityChecker)
 	mtoAgent, err = mtoagentvalidate.ValidateAgent(&agentData, validatorKey)
 	if err != nil {
 		return nil, err
