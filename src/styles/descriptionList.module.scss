@@ -14,18 +14,11 @@
     }
   }
 
-  .rowWithVisualCue {
-    dt {
-      @include u-padding-left(1.5);
-    }
-  }
-
   .rowWithVisualCue::before {
-    @include u-border-right(0.5, solid);
-    content: " ";
-    border-color: $mm-gold;
-    margin-top: 0.15rem;
-    margin-bottom: 0.05rem;
+    @include u-margin-y(0.5);
+    @include u-outline(2px); // only valid values were 1px, 2px, 0 and 05
+    outline-color: $mm-gold;
+    content: "";
   }
 
   dt,
