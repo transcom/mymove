@@ -14,12 +14,26 @@
     }
   }
 
+  .rowWithVisualCue {
+    dt {
+      @include u-padding-left(1.5);
+    }
+  }
+
+  .rowWithVisualCue::before {
+    @include u-border-right(0.5, solid);
+    content: " ";
+    border-color: $mm-gold;
+    margin-top: 0.15rem;
+    margin-bottom: 0.05rem;
+  }
+
   dt,
   dd {
     @include u-border-top('1px');
     @include u-border-top('base-lighter');
 
-    @include u-padding-x(1);
+    @include u-padding-x(2);
     @include u-padding-y(1.5);
   }
 
