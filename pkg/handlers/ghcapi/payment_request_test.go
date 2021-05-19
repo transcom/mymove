@@ -305,10 +305,10 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		nonApprovedPRStatuses := [5]ghcmessages.PaymentRequestStatus{"SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", "EDI_ERROR", "PENDING"}
 
 		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
-			pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+			pendingPaymentRequest := testdatagen.MakeStubbedPaymentRequest(suite.DB())
 
 			paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-			paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(pendingPaymentRequest, nil).Once()
+			paymentRequestFetcher.On("FetchPaymentRequest", pendingPaymentRequest.ID).Return(pendingPaymentRequest, nil).Once()
 
 			req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
 			req = suite.AuthenticateOfficeRequest(req, officeUser)
