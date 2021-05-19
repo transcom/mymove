@@ -75,8 +75,15 @@ func (v *AgentValidationData) checkAgentID() error {
 // It also checks that we're not adding more than the max number of agents.
 // NOTE: You need to make sure MTOShipment.MTOAgents is populated for the results of this check to be accurate.
 func (v *AgentValidationData) checkAgentType() error {
-	if v.NewAgent.MTOAgentType == "" {
-		return nil // We don't need to check the MTOAgentType if it's not being updated
+	if v.Shipment == nil {
+		return services.NewImplementationError(
+			fmt.Sprintf("AgentValidationData needs the shipment data in order to validate the AgentType for NewAgent: %s", v.NewAgent.ID),
+		)
+	}
+
+	// We don't need to check the MTOAgentType if it's not being updated, or if there are no other agents:
+	if v.NewAgent.MTOAgentType == "" || v.Shipment.MTOAgents == nil {
+		return nil
 	}
 
 	agents := v.Shipment.MTOAgents
