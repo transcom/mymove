@@ -310,7 +310,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 
 		if newShipment.SecondaryPickupAddress != nil {
 			if dbShipment.SecondaryPickupAddressID != nil {
-				newShipment.PickupAddress.ID = *dbShipment.SecondaryPickupAddressID
+				newShipment.SecondaryPickupAddress.ID = *dbShipment.SecondaryPickupAddressID
 			}
 
 			err := tx.Save(newShipment.SecondaryPickupAddress)
