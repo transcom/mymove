@@ -13,6 +13,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
+import formattedCustomerName from 'utils/formattedCustomerName';
 import 'styles/office.scss';
 import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 import { useMoveDetailsQueries } from 'hooks/queries';
@@ -30,7 +31,7 @@ const ServicesCounselingMoveDetails = () => {
   const { order, move, isLoading, isError } = useMoveDetailsQueries(moveCode);
   const { customer, entitlement: allowances } = order;
   const customerInfo = {
-    name: `${customer.last_name}, ${customer.first_name}`,
+    name: formattedCustomerName(customer.first_name, customer.last_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
     phone: `+1 ${customer.phone}`,
     email: customer.email,
