@@ -237,6 +237,12 @@ const moveTaskOrder = {
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
 };
 
+const moveTaskOrderServicesCounselingCompleted = {
+  eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
+  id: '6e8c5ca4-774c-4170-934a-59d22259e480',
+  serviceCounselingCompletedAt: '2020-10-02T19:20:08.481139Z',
+};
+
 const serviceItems = [
   {
     approvedAt: '2020-10-02T19:20:08.481139Z',
@@ -287,6 +293,19 @@ const requestedShipmentsComponent = (
   />
 );
 
+const requestedShipmentsComponentServicesCounselingCompleted = (
+  <RequestedShipments
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+    customerInfo={customerInfo}
+    mtoShipments={shipments}
+    approveMTO={approveMTO}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+  />
+);
+
 const requestedShipmentsComponentMissingRequiredInfo = (
   <RequestedShipments
     ordersInfo={ordersInfo}
@@ -301,9 +320,16 @@ const requestedShipmentsComponentMissingRequiredInfo = (
 );
 
 describe('RequestedShipments', () => {
-  it('renders the container successfully', () => {
+  it('renders the container successfully without services counseling completed', () => {
     const wrapper = shallow(requestedShipmentsComponent);
     expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
+    expect(wrapper.find('p[data-testid="services-counseling-completed-text"]').exists()).toBe(false);
+  });
+
+  it('renders the container successfully with services counseling completed', () => {
+    const wrapper = shallow(requestedShipmentsComponentServicesCounselingCompleted);
+    expect(wrapper.find('div[data-testid="requested-shipments"]').exists()).toBe(true);
+    expect(wrapper.find('p[data-testid="services-counseling-completed-text"]').exists()).toBe(true);
   });
 
   it('renders a shipment passed to it', () => {

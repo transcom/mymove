@@ -287,7 +287,7 @@ const serviceItems = [
   },
 ];
 
-const moveTaskOrders = [{}, { serviceCounselingCompletedAt: true }];
+const moveTaskOrders = [{}, { serviceCounselingCompletedAt: '2020-10-02T19:20:08.481139Z' }];
 
 export default {
   title: 'Office Components/RequestedShipments',

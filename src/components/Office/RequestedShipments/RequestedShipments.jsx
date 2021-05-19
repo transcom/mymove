@@ -169,7 +169,7 @@ const RequestedShipments = ({
                       onChange={formik.handleChange}
                     />
                     {moveTaskOrder.serviceCounselingCompletedAt ? (
-                      <p className={styles.serviceCounselingCompleted}>
+                      <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
                         The customer has received counseling for this move.
                       </p>
                     ) : (
