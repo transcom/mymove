@@ -864,6 +864,13 @@ definitions:
         type: integer
         x-formatting: weight
         readOnly: true
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        type: boolean
+        example: false
       storageInTransit:
         example: 90
         type: integer
@@ -1393,6 +1400,11 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+          - CANCELLATION_REQUESTED
+          - CANCELED
+          - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true
@@ -1774,6 +1786,8 @@ definitions:
           - APPROVED
           - SUBMITTED
           - CANCELLATION_REQUESTED
+          - CANCELED
+          - DIVERSION_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough

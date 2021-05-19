@@ -15,7 +15,7 @@ type PaymentRequestToInterchangeControlNumber struct {
 	EDIType                  EDIType   `db:"edi_type"`
 
 	// Associations
-	PaymentRequest PaymentRequest `belongs_to:"payment_requests"`
+	PaymentRequest PaymentRequest `belongs_to:"payment_requests" fk_id:"payment_request_id"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

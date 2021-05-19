@@ -12,8 +12,6 @@ import (
 )
 
 func (suite *ModelSuite) Test_UserUploadCreate() {
-	t := suite.T()
-
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	upload := models.Upload{
@@ -24,75 +22,16 @@ func (suite *ModelSuite) Test_UserUploadCreate() {
 		UploadType:  models.UploadTypeUSER,
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-
 	uploadUser := models.UserUpload{
+		ID:         uuid.Must(uuid.NewV4()),
 		DocumentID: &document.ID,
 		UploaderID: document.ServiceMember.UserID,
 		Upload:     upload,
 	}
 
-	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
+	var expErrors = map[string][]string{}
 
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-}
-
-func (suite *ModelSuite) Test_UserUploadCreateWithID() {
-	t := suite.T()
-
-	upload := models.Upload{
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypeUSER,
-	}
-
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
-	id := uuid.Must(uuid.NewV4())
-	uploadUser := models.UserUpload{
-		ID:         id,
-		DocumentID: &document.ID,
-		UploaderID: document.ServiceMemberID,
-		Upload:     upload,
-	}
-
-	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
-
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-
-	if uploadUser.ID.String() != id.String() {
-		t.Errorf("wrong uuid for UserUpload: expected %s, got %s", id.String(), uploadUser.ID.String())
-	}
+	suite.verifyValidationErrors(&uploadUser, expErrors)
 }
 
 func (suite *ModelSuite) Test_UserUploadValidations() {
@@ -105,7 +44,7 @@ func (suite *ModelSuite) Test_UserUploadValidations() {
 	suite.verifyValidationErrors(uploadUser, expErrors)
 }
 
-func (suite *ModelSuite) TestFetchUserUploadWithNoUpload() {
+func (suite *ModelSuite) TestCreateUserUploadWithNoUpload() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	uploadUser := models.UserUpload{
@@ -119,101 +58,40 @@ func (suite *ModelSuite) TestFetchUserUploadWithNoUpload() {
 }
 
 func (suite *ModelSuite) TestFetchUserUpload() {
-	t := suite.T()
-
-	document := testdatagen.MakeDefaultDocument(suite.DB())
+	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
 
 	session := auth.Session{
-		UserID:          document.ServiceMember.UserID,
+		UserID:          userUpload.Document.ServiceMember.UserID,
 		ApplicationName: auth.MilApp,
-		ServiceMemberID: document.ServiceMember.ID,
+		ServiceMemberID: userUpload.Document.ServiceMember.ID,
 	}
 
-	upload := models.Upload{
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypeUSER,
-	}
+	fetchedUserUpload, _ := models.FetchUserUpload(suite.DB(), &session, userUpload.ID)
 
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
+	suite.Equal(fetchedUserUpload.ID, userUpload.ID)
 
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-	uploadUser := models.UserUpload{
-		DocumentID: &document.ID,
-		UploaderID: document.ServiceMember.UserID,
-		Upload:     upload,
-	}
+	savedUpload := userUpload.Upload
+	fetchedUserUpload, _ = models.FetchUserUploadFromUploadID(suite.DB(), &session, savedUpload.ID)
 
-	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect UserUpload validation errors: %v", verrs)
-	}
-
-	upUser, _ := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
-	suite.Equal(upUser.ID, uploadUser.ID)
-	suite.Equal(upload.ID, uploadUser.Upload.ID)
-	suite.Equal(upload.ID, uploadUser.UploadID)
+	suite.Equal(fetchedUserUpload.UploadID, savedUpload.ID)
+	suite.Equal(fetchedUserUpload.Upload.ID, savedUpload.ID)
+	suite.Equal(fetchedUserUpload.ID, userUpload.ID)
 }
 
 func (suite *ModelSuite) TestFetchDeletedUserUpload() {
-	t := suite.T()
-
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
+	userUpload := testdatagen.MakeDefaultUserUpload(suite.DB())
 	session := auth.Session{
-		UserID:          document.ServiceMember.UserID,
+		UserID:          userUpload.Document.ServiceMember.UserID,
 		ApplicationName: auth.MilApp,
-		ServiceMemberID: document.ServiceMember.ID,
+		ServiceMemberID: userUpload.Document.ServiceMember.ID,
 	}
-	upload := models.Upload{
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypeUSER,
-	}
+	err := models.DeleteUserUpload(suite.DB(), &userUpload)
 
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save Upload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect rUpload validation errors: %v", verrs)
-	}
-
-	uploadUser := models.UserUpload{
-		DocumentID: &document.ID,
-		UploaderID: document.ServiceMember.UserID,
-		UploadID:   upload.ID,
-		Upload:     upload,
-	}
-
-	verrs, err = suite.DB().ValidateAndSave(&uploadUser)
-	if err != nil {
-		t.Fatalf("could not save UserUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
-
-	err = models.DeleteUserUpload(suite.DB(), &uploadUser)
 	suite.Nil(err)
-	userUp, err := models.FetchUserUpload(suite.DB(), &session, uploadUser.ID)
-	suite.Equal("error fetching user_uploads: FETCH_NOT_FOUND", err.Error())
 
+	userUp, err := models.FetchUserUpload(suite.DB(), &session, userUpload.ID)
+
+	suite.Equal("error fetching user_uploads: FETCH_NOT_FOUND", err.Error())
 	// fetches a nil userupload
 	suite.Equal(userUp.ID, uuid.Nil)
 }

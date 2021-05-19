@@ -53,6 +53,8 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
 
+	dbShipment.Diversion = requestedUpdatedShipment.Diversion
+
 	if requestedUpdatedShipment.RequestedDeliveryDate != nil {
 		dbShipment.RequestedDeliveryDate = requestedUpdatedShipment.RequestedDeliveryDate
 	}
@@ -278,7 +280,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 
 		if newShipment.SecondaryPickupAddress != nil {
 			if dbShipment.SecondaryPickupAddressID != nil {
-				newShipment.PickupAddress.ID = *dbShipment.SecondaryPickupAddressID
+				newShipment.SecondaryPickupAddress.ID = *dbShipment.SecondaryPickupAddressID
 			}
 
 			err := tx.Save(newShipment.SecondaryPickupAddress)
@@ -377,6 +379,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.PickupAddressID,
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
+		mtoShipment.Diversion,
 		mtoShipment.ID,
 	}
 }
@@ -401,7 +404,8 @@ func generateUpdateMTOShipmentQuery() string {
 			destination_address_id = ?,
 			pickup_address_id = ?,
 			secondary_delivery_address_id = ?,
-			secondary_pickup_address_id = ?
+			secondary_pickup_address_id = ?,
+			diversion = ?
 		WHERE
 			id = ?
 	`
@@ -501,6 +505,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 				transitionFromStatus:      shipment.Status,
 				transitionToStatus:        status,
 				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCancellationRequested},
+			}
+		}
+	case models.MTOShipmentStatusCancellationRequested:
+		if status != models.MTOShipmentStatusCanceled && status != models.MTOShipmentStatusDiversionRequested {
+			return nil, ConflictStatusError{
+				id:                        shipment.ID,
+				transitionFromStatus:      shipment.Status,
+				transitionToStatus:        status,
+				transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusCanceled, models.MTOShipmentStatusDiversionRequested},
 			}
 		}
 	default:

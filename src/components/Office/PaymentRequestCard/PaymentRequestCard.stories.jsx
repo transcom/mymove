@@ -10,6 +10,7 @@ import PaymentRequestCard from './PaymentRequestCard';
 
 import { MockProviders } from 'testUtils';
 import { serviceItemCodes } from 'content/serviceItems';
+import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
 
 const mockedDate = '2020-12-08T00:00:00.000Z';
 
@@ -51,14 +52,21 @@ const move = {
   locator: '12345',
 };
 
-const shipmentAddresses = [
+const shipmentAddress = formatPaymentRequestAddressString(
+  { city: 'Boston', state: 'MA', postal_code: '02101' },
+  { city: 'Princeton', state: 'NJ', postal_code: '08540' },
+);
+
+const shipmentsInfo = [
   {
     mtoShipmentID: 'd81175b7-e26d-4e1e-b1d1-47b17bf4b7f3',
-    shipmentAddress: 'Columbia, SC 29212 to Princeton, NJ 08540',
+    departureDate: '2020-01-09T00:00:00.000Z',
+    address: shipmentAddress,
   },
   {
     mtoShipmentID: '9e8222e4-9cdb-4994-8294-6d918a4c684d',
-    shipmentAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+    departureDate: '2020-01-09T00:00:00.000Z',
+    address: shipmentAddress,
   },
 ];
 
@@ -186,13 +194,13 @@ const rejectedPaymentRequest = {
 };
 
 export const NeedsReview = () => (
-  <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentAddresses={shipmentAddresses} />
+  <PaymentRequestCard paymentRequest={pendingPaymentRequest} shipmentsInfo={shipmentsInfo} />
 );
 
 export const Reviewed = () => (
-  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentAddresses={shipmentAddresses} />
+  <PaymentRequestCard paymentRequest={reviewedPaymentRequest} shipmentsInfo={shipmentsInfo} />
 );
 
 export const Rejected = () => (
-  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentAddresses={shipmentAddresses} />
+  <PaymentRequestCard paymentRequest={rejectedPaymentRequest} shipmentsInfo={shipmentsInfo} />
 );

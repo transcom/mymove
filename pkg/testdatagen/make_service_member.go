@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -140,4 +141,18 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	}
 
 	return serviceMember
+}
+
+// MakeStubbedServiceMember returns a stubbed service member that is not stored in the DB
+func MakeStubbedServiceMember(db *pop.Connection) models.ServiceMember {
+	user := MakeStubbedUser(db)
+
+	return MakeServiceMember(db, Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:     uuid.Must(uuid.NewV4()),
+			User:   user,
+			UserID: user.ID,
+		},
+		Stub: true,
+	})
 }

@@ -3,6 +3,8 @@ import React from 'react';
 import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 export default {
   title: 'Office Components/PaymentRequestDetails',
@@ -17,11 +19,31 @@ export default {
   ],
 };
 
-const addresses = {
-  basicAddress: '',
-  hhgAddress: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
-  ntsAddress: 'Boston, MA 02101 to Princeton, NJ 08540',
-};
+const hhgAddress = formatPaymentRequestAddressString(
+  {
+    city: 'Beverly Hills',
+    postal_code: '90210',
+    state: 'CA',
+  },
+  {
+    city: 'Fairfield',
+    postal_code: '94535',
+    state: 'CA',
+  },
+);
+
+const ntsAddress = formatPaymentRequestAddressString(
+  {
+    city: 'Boston',
+    postal_code: '02101',
+    state: 'MA',
+  },
+  {
+    city: 'Princeton',
+    postal_code: '08540',
+    state: 'NJ',
+  },
+);
 
 const unreviewedPaymentRequestItems = [
   {
@@ -195,19 +217,67 @@ const ntsrRequestedServiceItems = [
   },
 ];
 
+const hhgShipment = {
+  address: hhgAddress,
+  departureDate: '2020-12-01T00:00:00.000Z',
+};
+
+const hhgShipmentCanceled = {
+  address: hhgAddress,
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.CANCELED,
+};
+
+const hhgShipmentDiversion = {
+  address: hhgAddress,
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.DIVERSION,
+};
+
+const basicShipment = {
+  address: '',
+  departureDate: '',
+};
+
+const ntsShipment = {
+  address: ntsAddress,
+  departureDate: '020-12-01T00:00:00.000Z',
+};
+
 export const withUnreviewedBasicServiceItems = () => (
   <PaymentRequestDetails serviceItems={unreviewedPaymentRequestItems} />
 );
 export const withReviewedBasicServiceItems = () => (
-  <PaymentRequestDetails serviceItems={reviewedPaymentRequestItems} shipmentAddress={addresses.basicAddress} />
+  <PaymentRequestDetails serviceItems={reviewedPaymentRequestItems} shipment={basicShipment} />
 );
 export const withSingleBasicServiceItem = () => (
-  <PaymentRequestDetails serviceItems={singleBasicServiceItem} shipmentAddress={addresses.basicAddress} />
+  <PaymentRequestDetails serviceItems={singleBasicServiceItem} shipment={basicShipment} />
 );
 
 export const withHHGShipmentServiceItems = () => (
-  <PaymentRequestDetails serviceItems={hhgRequestedServiceItems} shipmentAddress={addresses.hhgAddress} />
+  <PaymentRequestDetails
+    shipmentDepartureDate="2021-04-20"
+    serviceItems={hhgRequestedServiceItems}
+    shipment={hhgShipment}
+  />
 );
+
+export const withHHGShipmentServiceItemsWithACanceledShipment = () => (
+  <PaymentRequestDetails
+    shipmentDepartureDate="2021-04-20"
+    serviceItems={hhgRequestedServiceItems}
+    shipment={hhgShipmentCanceled}
+  />
+);
+
+export const withHHGShipmentServiceItemsWithADivertedShipment = () => (
+  <PaymentRequestDetails
+    shipmentDepartureDate="2021-04-20"
+    serviceItems={hhgRequestedServiceItems}
+    shipment={hhgShipmentDiversion}
+  />
+);
+
 export const withNTSRShipmentServiceItems = () => (
-  <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipmentAddress={addresses.ntsAddress} />
+  <PaymentRequestDetails serviceItems={ntsrRequestedServiceItems} shipment={ntsShipment} />
 );

@@ -19,8 +19,8 @@ type ReZip5RateArea struct {
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract ReContract `belongs_to:"re_contract"`
-	RateArea ReRateArea `belongs_to:"re_rate_areas"`
+	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
+	RateArea ReRateArea `belongs_to:"re_rate_areas" fk_id:"rate_area_id"`
 }
 
 // ReZip5RateAreas is not required by pop and may be deleted

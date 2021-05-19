@@ -192,19 +192,19 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/gin: .check_go_version.stamp .check_gopath.stamp
+bin/gin: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
-bin/soda: .check_go_version.stamp .check_gopath.stamp
+bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v5/soda
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
-bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
+bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
 # No static linking / $(LDFLAGS) because mockery is only used for testing
-bin/mockery: .check_go_version.stamp .check_gopath.stamp
-	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
+bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/mockery github.com/vektra/mockery/v2
 
 ### Cert Targets
 
@@ -1041,7 +1041,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
+	docker pull milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

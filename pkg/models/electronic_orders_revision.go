@@ -154,7 +154,7 @@ type ElectronicOrdersRevision struct {
 	CreatedAt             time.Time                   `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time                   `json:"updated_at" db:"updated_at"`
 	ElectronicOrderID     uuid.UUID                   `json:"electronic_order_id" db:"electronic_order_id"`
-	ElectronicOrder       ElectronicOrder             `belongs_to:"electronic_order"`
+	ElectronicOrder       ElectronicOrder             `belongs_to:"electronic_order" fk_id:"electronic_order_id"`
 	SeqNum                int                         `json:"seq_num" db:"seq_num"`
 	GivenName             string                      `json:"given_name" db:"given_name"`
 	MiddleName            *string                     `json:"middle_name" db:"middle_name"`
@@ -333,16 +333,4 @@ func (e *ElectronicOrdersRevision) ValidateCreate(tx *pop.Connection) (*validate
 // This method is not required and may be deleted.
 func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-// CreateElectronicOrdersRevision inserts a revision into the database
-func CreateElectronicOrdersRevision(dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
-
-	responseVErrors := validate.NewErrors()
-	verrs, responseError := dbConnection.ValidateAndCreate(revision)
-	if verrs.HasAny() {
-		responseVErrors.Append(verrs)
-	}
-
-	return responseVErrors, responseError
 }
