@@ -26,13 +26,6 @@ jest.mock('services/ghcApi', () => ({
   updateMTOShipment: jest.fn(),
 }));
 
-/*
-The order in which these mockImplementationOnce is directly correlated to the
-order in which the tests are run. This is because different data should be
-returned from the call each time in order to tests the different states that
-the component can be in. The default will be to return all the data needed for
-the full tests.
-*/
 jest.mock('hooks/queries', () => ({
   useEditShipmentQueries: jest
     .fn(() => {
@@ -166,18 +159,27 @@ const props = {
 };
 
 describe('ServicesCounselingEditShipmentDetails component', () => {
-  it('renders the Loading Placeholder when the query is still loading', async () => {
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+  /*
+  The order in which these mockImplementationOnce is directly correlated to the
+  order in which the tests are run. This is because different data should be
+  returned from the call each time in order to tests the different states that
+  the component can be in. The default will be to return all the data needed for
+  the full tests.
+  */
+  describe('check different component states - ORDER MATTERS see comment in tests', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
 
-    const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
-    expect(h2).toBeInTheDocument();
-  });
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
 
-  it('renders the Something Went Wrong component when the query errors', async () => {
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      render(<ServicesCounselingEditShipmentDetails {...props} />);
 
-    const errorMessage = await screen.getByText(/Something went wrong./);
-    expect(errorMessage).toBeInTheDocument();
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
   it('renders the Services Counseling Shipment Form', async () => {

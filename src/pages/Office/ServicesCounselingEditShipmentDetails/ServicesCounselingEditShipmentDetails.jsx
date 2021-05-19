@@ -1,7 +1,9 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
+
+import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
@@ -11,6 +13,7 @@ import { useEditShipmentQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
+import CustomerHeader from 'components/CustomerHeader';
 
 const ServicesCounselingEditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
@@ -32,23 +35,26 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
   return (
-    <GridContainer containerSize="widescreen">
-      <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
-          <ServicesCounselingShipmentForm
-            match={match}
-            history={history}
-            updateMTOShipment={mutateMTOShipment}
-            isCreatePage={false}
-            currentResidence={customer.current_address}
-            newDutyStationAddress={order.destinationDutyStation?.address}
-            selectedMoveType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={matchingShipment}
-            serviceMember={{ weightAllotment }}
-          />
-        </Grid>
-      </Grid>
-    </GridContainer>
+    <>
+      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
+      <div className={styles.tabContent}>
+        <div className={styles.container}>
+          <GridContainer className={styles.gridContainer}>
+            <ServicesCounselingShipmentForm
+              match={match}
+              history={history}
+              updateMTOShipment={mutateMTOShipment}
+              isCreatePage={false}
+              currentResidence={customer.current_address}
+              newDutyStationAddress={order.destinationDutyStation?.address}
+              selectedMoveType={SHIPMENT_OPTIONS.HHG}
+              mtoShipment={matchingShipment}
+              serviceMember={{ weightAllotment }}
+            />
+          </GridContainer>
+        </div>
+      </div>
+    </>
   );
 };
 
