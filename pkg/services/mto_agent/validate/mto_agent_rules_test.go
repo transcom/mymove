@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData() {
+func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData() {
 	// Set up the data needed for AgentValidationData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
@@ -201,7 +201,7 @@ func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData() {
 	})
 }
 
-func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData_checkAgentID() {
+func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData_checkAgentID() {
 	suite.T().Run("SUCCESS - When creating a new agent, ID should be nil", func(t *testing.T) {
 		agentData := AgentValidationData{
 			NewAgent: models.MTOAgent{
@@ -269,7 +269,7 @@ func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData_checkAgentI
 	})
 }
 
-func (suite *MTOAgentValidationServiceSuite) TestAgentValidationData_checkAgentType() {
+func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData_checkAgentType() {
 	// Set up - no need to create real DB records, we just need models:
 	randomUUID, _ := uuid.NewV4()
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{Stub: true})

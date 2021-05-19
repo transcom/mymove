@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOAgentValidationServiceSuite) TestValidateAgent() {
+func (suite *MTOAgentValidateServiceSuite) TestValidateAgent() {
 	// Set up the data needed for AgentValidationData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())

@@ -8,16 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MTOAgentValidationServiceSuite struct {
+type MTOAgentValidateServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *MTOAgentValidationServiceSuite) SetupTest() {
+func (suite *MTOAgentValidateServiceSuite) SetupTest() {
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 }
-func TestMTOAgentValidationServiceSuite(t *testing.T) {
-	ts := &MTOAgentValidationServiceSuite{
+func TestMTOAgentValidateServiceSuite(t *testing.T) {
+	ts := &MTOAgentValidateServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
