@@ -638,6 +638,15 @@ transpiled
 polyfilled
 Happo
 happo.io
+OpenTelemetry
+noop
+Honeycomb.io
+OpenZipkin
+swappable
+unconfigured
+Zipkin
+knowns
+callsites
 PPMs
 pre-GHC
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.

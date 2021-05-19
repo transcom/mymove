@@ -448,6 +448,49 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	})
 
+	suite.T().Run("Successful PATCH - Update that does not include addresses will not blank out data", func(t *testing.T) {
+		// Get the default shipment that has PickupAddress populated:
+		addressShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move, // Prime-available move
+		})
+
+		eTagAddressShipment := string(etag.GenerateEtag(addressShipment.UpdatedAt))
+		paramsAddressShipment := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(addressShipment.ID),
+			Body:          ClearNonUpdateFields(&addressShipment),
+			IfMatch:       eTagAddressShipment,
+		}
+		// Blank out PickupAddress - it should NOT be modified or nullified
+		paramsAddressShipment.Body.PickupAddress.Address = primemessages.Address{}
+		paramsAddressShipment.Body.Diversion = true // something to update
+
+		// Run swagger validations
+		suite.NoError(paramsAddressShipment.Body.Validate(strfmt.Default))
+
+		// Hit endpoint and check response
+		response := handler.Handle(paramsAddressShipment)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+
+		suite.Equal(addressShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(true, okResponse.Payload.Diversion)
+
+		// Check that address fields are all the same:
+		originalAddress := addressShipment.PickupAddress
+		returnedAddress := okResponse.Payload.PickupAddress
+		suite.NotEmpty(returnedAddress.ID)
+		suite.Equal(originalAddress.ID.String(), returnedAddress.ID.String())
+		suite.Equal(originalAddress.StreetAddress1, *returnedAddress.StreetAddress1)
+		suite.Equal(originalAddress.StreetAddress2, returnedAddress.StreetAddress2)
+		suite.Equal(originalAddress.StreetAddress3, returnedAddress.StreetAddress3)
+		suite.Equal(originalAddress.City, *returnedAddress.City)
+		suite.Equal(originalAddress.State, *returnedAddress.State)
+		suite.Equal(originalAddress.Country, returnedAddress.Country)
+		suite.Equal(originalAddress.PostalCode, *returnedAddress.PostalCode)
+	})
+
 	suite.T().Run("PATCH Failure (422) - Cannot update weight without scheduledPickupDate", func(t *testing.T) {
 		noScheduledPickupShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: move,
