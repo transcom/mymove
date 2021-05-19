@@ -23,6 +23,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -447,5 +448,104 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		// Check that webhook notification was stored
 		suite.HasWebhookNotification(approvedShipment.ID, handlerContext.GetTraceID())
 
+	})
+}
+
+func (suite *HandlerSuite) TestDeleteShipmentHandler() {
+	suite.T().Run("Returns a 403 when the office user is not a service counselor", func(t *testing.T) {
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.AssertNumberOfCalls(suite.T(), "DeleteShipment", 0)
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := shipmentops.DeleteShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 204 when all validations pass", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", shipment.ID).Return(shipment.MoveTaskOrderID, nil)
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := shipmentops.DeleteShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+
+		suite.IsType(&shipmentops.DeleteShipmentNoContent{}, response)
+	})
+
+	suite.T().Run("Returns 404 when deleter returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", shipment.ID).Return(uuid.Nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := shipmentops.DeleteShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&shipmentops.DeleteShipmentNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 403 when deleter returns ForbiddenError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		deleter := &mocks.ShipmentDeleter{}
+
+		deleter.On("DeleteShipment", shipment.ID).Return(uuid.Nil, services.ForbiddenError{})
+
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := DeleteShipmentHandler{
+			handlerContext,
+			deleter,
+		}
+		deletionParams := shipmentops.DeleteShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(deletionParams)
+		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
 	})
 }
