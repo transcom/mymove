@@ -16,7 +16,13 @@
 
   .rowWithVisualCue::before {
     @include u-margin-y(0.5);
-    @include u-outline(2px); // only valid values were 1px, 2px, 0 and 05
+    // only valid values were 1px, 2px, 0 and 05
+    // 2px were needed for the outline
+    @include u-outline(2px);
+    // this is to offset the position of the outline
+    // so it lines up next to the row
+    @include u-margin-left(-2px);
+    @include u-margin-right(2px);
     outline-color: $mm-gold;
     content: "";
   }
