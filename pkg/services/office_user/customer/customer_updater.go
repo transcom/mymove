@@ -80,6 +80,14 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 			existingCustomer.Telephone = customer.Telephone
 		}
 
+		if customer.Suffix != nil {
+			existingCustomer.Suffix = customer.Suffix
+		}
+
+		if customer.MiddleName != nil {
+			existingCustomer.MiddleName = customer.MiddleName
+		}
+
 		// optimistic locking handled before transaction block
 		verrs, updateErr := tx.ValidateAndUpdate(existingCustomer)
 

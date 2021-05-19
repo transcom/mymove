@@ -11,6 +11,7 @@ import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
+import { CUSTOMER } from 'constants/queryKeys';
 
 const CustomerInfo = ({ customer, isLoading, isError }) => {
   const { moveCode } = useParams();
@@ -22,14 +23,13 @@ const CustomerInfo = ({ customer, isLoading, isError }) => {
 
   const [mutateCustomerInfo] = useMutation(updateCustomerInfo, {
     onSuccess: (data, variables) => {
-      // TODO: cache stuff
-      // const updatedOrder = data.orders[variables.orderID];
-      // queryCache.setQueryData([ORDERS, variables.orderID], {
-      //   orders: {
-      //     [`${variables.orderID}`]: updatedOrder,
-      //   },
-      // });
-      // queryCache.invalidateQueries(ORDERS);
+      const updatedCustomer = data.customer[variables.customerId];
+      queryCache.setQueryData([CUSTOMER, variables.customerId], {
+        customer: {
+          [`${variables.customerId}`]: updatedCustomer,
+        },
+      });
+      queryCache.invalidateQueries(CUSTOMER);
       handleClose();
     },
     onError: (error) => {
@@ -52,13 +52,26 @@ const CustomerInfo = ({ customer, isLoading, isError }) => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values) => {
-    const { firstName, lastName, customerTelephone, customerEmail, customerAddress, name, email, telephone } = values;
+    const {
+      firstName,
+      lastName,
+      customerTelephone,
+      customerEmail,
+      customerAddress,
+      suffix,
+      middleName,
+      name,
+      email,
+      telephone,
+    } = values;
     const body = {
       first_name: firstName,
       last_name: lastName,
       phone: customerTelephone,
       email: customerEmail,
       current_address: customerAddress,
+      suffix,
+      middle_name: middleName,
       backup_contact: {
         name,
         email,

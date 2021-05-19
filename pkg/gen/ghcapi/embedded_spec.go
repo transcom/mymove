@@ -3619,11 +3619,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jay"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         }
       }
     },
@@ -7940,11 +7950,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jay"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         }
       }
     },
