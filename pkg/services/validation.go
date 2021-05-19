@@ -2,11 +2,6 @@ package services
 
 import "time"
 
-// ValidationData TODO consider if we need this interface type for flexibility (mocking, etc)...
-type ValidationData interface {
-	getVerrs() error
-}
-
 // ValidationFunc is a type representing the signature for a function that validates a service/model
 type ValidationFunc func() error
 
