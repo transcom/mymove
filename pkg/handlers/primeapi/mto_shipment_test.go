@@ -408,7 +408,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(mtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(mtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("PATCH failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
@@ -444,7 +445,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(minimalMtoShipment.PrimeActualWeight.Int64(), okResponse.Payload.PrimeActualWeight)
 		suite.Equal(minimalMtoShipment.PrimeEstimatedWeight.Int64(), okResponse.Payload.PrimeEstimatedWeight)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(minimalMtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(minimalMtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -583,7 +585,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(mtoShipment2.ID.String(), okResponse.Payload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(mtoShipment2.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(mtoShipment2.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 	//}
@@ -656,7 +659,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -710,7 +714,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -782,7 +787,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
@@ -855,7 +861,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -935,7 +942,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func(t *testing.T) {
@@ -1013,7 +1021,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Successful case for valid and complete payload including approved date and re service code", func(t *testing.T) {
@@ -1088,7 +1097,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(string(reService.Code), serviceItemDDFSITCode)
 		suite.Equal(oldShipment.ApprovedDate, &now)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 }
 

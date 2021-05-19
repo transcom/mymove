@@ -116,7 +116,7 @@ type MTOShipment struct {
 	//
 	// Read Only: true
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 	// The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.
 	//
@@ -206,7 +206,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
@@ -371,7 +371,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 

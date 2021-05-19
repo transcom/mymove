@@ -339,6 +339,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		ApprovedDate:                     handlers.FmtDatePtr(mtoShipment.ApprovedDate),
 		FirstAvailableDeliveryDate:       handlers.FmtDatePtr(mtoShipment.FirstAvailableDeliveryDate),
 		PrimeEstimatedWeightRecordedDate: handlers.FmtDatePtr(mtoShipment.PrimeEstimatedWeightRecordedDate),
+		RequestedPickupDate:              handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
 		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
 		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
 		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
@@ -368,10 +369,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 
 	if mtoShipment.MTOServiceItems != nil {
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
-	}
-
-	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {

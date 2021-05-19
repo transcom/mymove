@@ -1838,6 +1838,8 @@ func init() {
           "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "requiredDeliveryDate": {
@@ -4672,6 +4674,8 @@ func init() {
           "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "requiredDeliveryDate": {

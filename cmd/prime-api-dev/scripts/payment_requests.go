@@ -609,7 +609,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			if err != nil {
 				log.Fatal("Cannot get date input", err)
 			}
-			shipment.RequestedPickupDate = strFmtDate
+			shipment.RequestedPickupDate = &strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
 				isString: true,

@@ -151,14 +151,10 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
 		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
 		RequiredDeliveryDate:       handlers.FmtDatePtrToPopPtr(mtoShipment.RequiredDeliveryDate),
+		RequestedPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.RequestedPickupDate),
 		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  bool(mtoShipment.Diversion),
-	}
-
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	if !requestedPickupDate.IsZero() {
-		model.RequestedPickupDate = &requestedPickupDate
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
