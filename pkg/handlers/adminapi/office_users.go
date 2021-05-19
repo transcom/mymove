@@ -74,11 +74,10 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	var officeUsers models.OfficeUsers
-	err := h.ListFetcher.FetchRecordList(&officeUsers, queryFilters, associations, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(&officeUsers, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -197,7 +196,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	_, err = h.UserRoleAssociator.UpdateUserRoles(*createdOfficeUser.UserID, updatedRoles)
 	if err != nil {
-		logger.Error("error updating user roles", zap.Error(err))
+		logger.Error("Error updating user roles", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
@@ -239,7 +238,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		updatedRoles := rolesPayloadToModel(payload.Roles)
 		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
 		if err != nil {
-			logger.Error("error updating user roles", zap.Error(err))
+			logger.Error("Error updating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()
 		}
 	}

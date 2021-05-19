@@ -17,6 +17,10 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
+	// actual pickup date
+	// Format: date
+	ActualPickupDate *strfmt.Date `json:"actualPickupDate,omitempty"`
+
 	// approved date
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
@@ -30,6 +34,9 @@ type MTOShipment struct {
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
+	// diversion
+	Diversion bool `json:"diversion,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -90,6 +97,10 @@ type MTOShipment struct {
 func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateActualPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateApprovedDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -149,6 +160,19 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ActualPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("actualPickupDate", "body", "date", m.ActualPickupDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

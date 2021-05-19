@@ -30,7 +30,7 @@ import (
 type StoreResult struct{}
 
 // FileStorer is the set of methods needed to store and retrieve objects.
-//go:generate mockery -name FileStorer
+//go:generate mockery --name FileStorer
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string, *string) (*StoreResult, error)
 	Fetch(string) (io.ReadCloser, error)
@@ -55,7 +55,8 @@ func ComputeChecksum(data io.ReadSeeker) (string, error) {
 	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity: CAT III
-	hash := md5.New() // #nosec G401
+	// #nosec G401
+	hash := md5.New()
 	if _, err := io.Copy(hash, data); err != nil {
 		return "", errors.Wrap(err, "could not read file")
 	}

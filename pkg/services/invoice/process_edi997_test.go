@@ -53,13 +53,17 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusSentToGex,
+			},
+		})
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType997,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -96,13 +100,17 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 	`
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusSentToGex,
+			},
+		})
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001252,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType997,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -111,6 +119,50 @@ IEA*1*000000995
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
+		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+	})
+
+	suite.T().Run("can handle 997 and 858 with same ICN", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
+GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
+ST*997*0001
+AK1*SI*100001253
+AK2*858*0001
+
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000995
+	`
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusSentToGex,
+			},
+		})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 995,
+				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
+			},
+		})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 100001253,
+				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
+			},
+		})
+		err := edi997Processor.ProcessFile("", sample997EDIString)
+		suite.NoError(err)
+
+		var updatedPR models.PaymentRequest
+		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		suite.FatalNoError(err)
 		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
 	})
 
@@ -128,13 +180,17 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusSentToGex,
+			},
+		})
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 22,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType997,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -142,7 +198,7 @@ IEA*1*000000022
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
-		suite.Equal(models.PaymentRequestStatusPending, updatedPR.Status)
+		suite.Equal(models.PaymentRequestStatusSentToGex, updatedPR.Status)
 	})
 
 	suite.T().Run("throw an error when edi997 is missing a transaction set", func(t *testing.T) {
@@ -161,7 +217,26 @@ IEA*1*000000022
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
 ST*997*0001
-AK1*SI*100001253
+AK1*SI*100001254
+AK2*858*0001
+
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000022
+	`
+		err := edi997Processor.ProcessFile("", sample997EDIString)
+		suite.Error(err, "fail to process 997")
+		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
+	})
+
+	suite.T().Run("Should only find icn of edi type in AK2", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
+GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
+ST*997*0001
+AK1*SI*100001254
 AK2*858*0001
 
 AK5*A
@@ -185,7 +260,7 @@ ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *210217*153
 GS*BS*MILMOVE*8004171844*20190903*1617*2000000000*X*004010
 ST*997*0001
 AK1*FA*100001251
-AK2*909*0001
+AK2*858*0001
 AK3*ab*123
 AK4*1*2*3*4*MM*bad data goes here 89
 AK3*ab*124
@@ -195,7 +270,7 @@ AK9*P*10*1*1
 SE*6*0001
 ST*997*0002
 AK1*BA*100001251
-AK2*900*0001
+AK2*858*0001
 AK3*ab*123
 AK4*1*2*3*4*MM*bad data goes here 90
 AK5*B
@@ -205,7 +280,7 @@ GE*1*220001
 GS*FA*MILMOVE*8004171844*20190903*1617*22000000001*X*004010
 ST*997*0001
 AK1*VV*100001251
-AK2*123*0001
+AK2*858*0001
 AK3*ab*123
 AK4*1*2*3*4*MM*bad data goes here 93
 AK5*C
@@ -214,13 +289,17 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000995
 `
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusSentToGex,
+			},
+		})
 		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
 			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
 				PaymentRequestID:         paymentRequest.ID,
 				InterchangeControlNumber: 100001251,
 				PaymentRequest:           paymentRequest,
-				EDIType:                  models.EDIType997,
+				EDIType:                  models.EDIType858,
 			},
 		})
 		err := edi997Processor.ProcessFile("", sample997EDIString)
@@ -237,12 +316,9 @@ IEA*1*000000995
 			{TestName: "Invalid FunctionalIdentifierCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'oneof' tag"},
 			{TestName: "Invalid GroupControlNumber", ExpectedErrorMsg: "'GroupControlNumber' failed on the 'max' tag"},
 			{TestName: "Invalid FunctionalIdentifierCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'eq' tag"},
-			{TestName: "Invalid TransactionSetIdentifierCode", ExpectedErrorMsg: "'TransactionSetIdentifierCode' failed on the 'eq' tag"},
 			{TestName: "Invalid TransactionSetAcknowledgmentCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'eq' tag"},
-			{TestName: "Second AK2 Invalid TransactionSetIdentifierCode", ExpectedErrorMsg: "'TransactionSetIdentifierCode' failed on the 'eq' tag"},
 			{TestName: "Invalid GroupControlNumber", ExpectedErrorMsg: "'GroupControlNumber' failed on the 'max' tag"},
 			{TestName: "Second AK5 Invalid TransactionSetAcknowledgmentCode", ExpectedErrorMsg: "'FunctionalIdentifierCode' failed on the 'eq' tag"},
-			{TestName: "Third (in second functionalGroupEnvelope) AK2 Invalid TransactionSetIdentifierCode", ExpectedErrorMsg: "'TransactionSetIdentifierCode' failed on the 'eq' tag"},
 		}
 
 		for i, data := range testData {

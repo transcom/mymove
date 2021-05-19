@@ -26,7 +26,7 @@ type GetPaymentRequestsQueueURL struct {
 	PerPage                *int64
 	Sort                   *string
 	Status                 []string
-	SubmittedAt            *strfmt.Date
+	SubmittedAt            *strfmt.DateTime
 
 	_basePath string
 	// avoid unkeyed usage

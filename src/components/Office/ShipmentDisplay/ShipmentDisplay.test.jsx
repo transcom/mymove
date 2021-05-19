@@ -1,5 +1,6 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ShipmentDisplay from './ShipmentDisplay';
 
@@ -18,6 +19,7 @@ const info = {
     state: 'WA',
     postal_code: '98421',
   },
+  counselorRemarks: 'counselor approved',
 };
 
 const postalOnly = {
@@ -46,5 +48,17 @@ describe('Shipment Container', () => {
       <ShipmentDisplay shipmentId="1" displayInfo={postalOnly} onChange={jest.fn()} isSubmitted={false} />,
     );
     expect(wrapper.find('div[data-testid="shipment-display"]').exists()).toBe(true);
+  });
+  it('renders with comments', () => {
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.getByText('Counselor remarks')).toBeInTheDocument();
+  });
+  it('renders with edit button', () => {
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} editURL="/" />);
+    expect(screen.getByRole('button', { name: 'Edit shipment' })).toBeInTheDocument();
+  });
+  it('renders without edit button', () => {
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
   });
 });

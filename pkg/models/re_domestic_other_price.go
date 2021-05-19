@@ -23,8 +23,8 @@ type ReDomesticOtherPrice struct {
 	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract ReContract `belongs_to:"re_contract"`
-	Service  ReService  `belongs_to:"re_service"`
+	Contract ReContract `belongs_to:"re_contract" fk_id:"contract_id"`
+	Service  ReService  `belongs_to:"re_service" fk_id:"service_id"`
 }
 
 // ReDomesticOtherPrices is not required by pop and may be deleted

@@ -7,21 +7,14 @@ import (
 )
 
 func (suite *ModelSuite) Test_DpsUserCreate() {
-	t := suite.T()
-
 	dpsUser := models.DpsUser{
 		LoginGovEmail: "test@example.com",
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&dpsUser)
+	verrs, err := dpsUser.Validate(nil)
 
-	if err != nil {
-		t.Fatalf("could not save DPS user: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) Test_DpsUserValidations() {

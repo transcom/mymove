@@ -7,6 +7,9 @@ import CustomerHeader from 'components/CustomerHeader';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
+const ServicesCounselingMoveDocumentWrapper = lazy(() =>
+  import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
+);
 const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
 );
@@ -27,6 +30,10 @@ const ServicesCounselingMoveInfo = () => {
           {/* TODO - Routes not finalized, revisit */}
           <Route path="/counseling/moves/:moveCode/details" exact>
             <ServicesCounselingMoveDetails />
+          </Route>
+
+          <Route path={['/counseling/moves/:moveCode/allowances', '/counseling/moves/:moveCode/orders']} exact>
+            <ServicesCounselingMoveDocumentWrapper />
           </Route>
 
           {/* TODO - clarify role/tab access */}

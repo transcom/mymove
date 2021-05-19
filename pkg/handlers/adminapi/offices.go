@@ -44,10 +44,9 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination, ordering)
+	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -69,7 +68,7 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 
 func (h IndexOfficesHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
 	type Filter struct {
-		ID string `json:"id"`
+		Name string `json:"q"`
 	}
 
 	f := Filter{}
@@ -85,8 +84,9 @@ func (h IndexOfficesHandler) generateQueryFilters(filters *string, logger handle
 			zap.String("filters", fs))
 	}
 
-	if f.ID != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("id", "=", f.ID))
+	if f.Name != "" {
+		queryName := fmt.Sprintf("%%%s%%", f.Name)
+		queryFilters = append(queryFilters, query.NewQueryFilter("name", "ILIKE", queryName))
 	}
 
 	return queryFilters

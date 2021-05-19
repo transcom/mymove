@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 import ordersStyles from '../Orders/Orders.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateOrder } from 'services/ghcApi';
+import { updateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -24,6 +24,20 @@ const branchDropdownOption = dropdownInputOptions(ORDERS_BRANCH_OPTIONS);
 
 const validationSchema = Yup.object({
   authorizedWeight: Yup.number().min(1, 'Authorized weight must be greater than or equal to 1').required('Required'),
+  proGearWeight: Yup.number()
+    .min(0, 'Pro-gear weight must be greater than or equal to 0')
+    .max(2000, "Enter a weight that does not go over the customer's maximum allowance")
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
+  proGearWeightSpouse: Yup.number()
+    .min(0, 'Spouse pro-gear weight must be greater than or equal to 0')
+    .max(500, "Enter a weight that does not go over the customer's maximum allowance")
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
+  requiredMedicalEquipmentWeight: Yup.number()
+    .min(0, 'RME weight must be greater than or equal to 0')
+    .transform((value) => (Number.isNaN(value) ? 0 : value))
+    .notRequired(),
 });
 
 const MoveAllowances = () => {
@@ -37,7 +51,7 @@ const MoveAllowances = () => {
     history.push(`/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
@@ -69,7 +83,16 @@ const MoveAllowances = () => {
 
   const order = Object.values(orders)?.[0];
   const onSubmit = (values) => {
-    const { grade, authorizedWeight, agency, dependentsAuthorized } = values;
+    const {
+      grade,
+      authorizedWeight,
+      agency,
+      dependentsAuthorized,
+      proGearWeight,
+      proGearWeightSpouse,
+      requiredMedicalEquipmentWeight,
+      organizationalClothingAndIndividualEquipment,
+    } = values;
     const body = {
       issueDate: order.date_issued,
       newDutyStationId: order.destinationDutyStation.id,
@@ -81,14 +104,34 @@ const MoveAllowances = () => {
       authorizedWeight: Number(authorizedWeight),
       agency,
       dependentsAuthorized,
+      proGearWeight: Number(proGearWeight),
+      proGearWeightSpouse: Number(proGearWeightSpouse),
+      requiredMedicalEquipmentWeight: Number(requiredMedicalEquipmentWeight),
+      organizationalClothingAndIndividualEquipment,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const { entitlement, grade, agency } = order;
-  const { authorizedWeight, dependentsAuthorized } = entitlement;
+  const {
+    authorizedWeight,
+    dependentsAuthorized,
+    proGearWeight,
+    proGearWeightSpouse,
+    requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment,
+  } = entitlement;
 
-  const initialValues = { authorizedWeight: `${authorizedWeight}`, grade, agency, dependentsAuthorized };
+  const initialValues = {
+    authorizedWeight: `${authorizedWeight}`,
+    grade,
+    agency,
+    dependentsAuthorized,
+    proGearWeight: `${proGearWeight}`,
+    proGearWeightSpouse: `${proGearWeightSpouse}`,
+    requiredMedicalEquipmentWeight: `${requiredMedicalEquipmentWeight}`,
+    organizationalClothingAndIndividualEquipment,
+  };
 
   return (
     <div className={ordersStyles.sidebar}>
@@ -120,6 +163,7 @@ const MoveAllowances = () => {
                   entitlements={order.entitlement}
                   rankOptions={rankDropdownOptions}
                   branchOptions={branchDropdownOption}
+                  editableAuthorizedWeight
                 />
               </div>
               <div className={ordersStyles.bottom}>

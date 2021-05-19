@@ -12,6 +12,15 @@
     }
   }
 
+  h3 {
+    @include u-margin-top(1.5);
+    @include u-margin-bottom(1);
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   dl {
     @include u-margin-bottom(1);
   }
@@ -49,16 +58,27 @@
     align-items: center;
   }
 
+  .divider {
+    @include u-border-top(1px);
+    @include u-border-top('base-lighter');
+    @include u-margin-left(-2);
+    @include u-margin-right(-2);
+  }
+
   .cardHeader {
-    text-transform: uppercase;
-    @include u-margin-top(2);
+    @include u-margin-top(1.5);
     @include u-margin-bottom(2);
-    @include u-text('base');
+  }
+
+  .addressBlock {
+    @include u-margin-top(0);
+    span {
+      @include u-text('bold');
+    }
   }
 
   .statusOption {
     @include u-padding(0);
-    @include u-shadow(2);
     @include u-border(1px);
     border-color: $base-light;
     border-radius: units(2px);
@@ -70,7 +90,7 @@
         margin: 0;
       }
 
-      .usa-radio__input:checked + .usa-radio__label {
+      .usa-radio__input:checked+.usa-radio__label {
         background-color: $link-light;
       }
 
@@ -81,10 +101,19 @@
           margin-top: 0;
         }
       }
+
+      p {
+        @include u-margin-top(1);
+        @include u-margin-bottom(0);
+      }
+    }
+
+    &.selected {
+      @include u-shadow(2);
     }
   }
 
-  .statusOption + .statusOption {
+  .statusOption+.statusOption {
     @include u-margin-top(1);
   }
 
@@ -94,7 +123,7 @@
     @include u-text('light');
   }
 
-  .statusOption + .clearStatus {
+  .statusOption+.clearStatus {
     margin-top: 3px;
   }
 

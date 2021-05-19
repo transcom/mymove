@@ -35,5 +35,10 @@ func MakeDefaultUser(db *pop.Connection) models.User {
 
 // MakeStubbedUser returns a user without hitting the DB
 func MakeStubbedUser(db *pop.Connection) models.User {
-	return MakeUser(db, Assertions{Stub: true})
+	return MakeUser(db, Assertions{
+		User: models.User{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
 }

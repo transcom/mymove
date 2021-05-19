@@ -19,9 +19,9 @@ type distanceCalculator interface {
 type DistanceCalculation struct {
 	ID                   uuid.UUID `json:"id" db:"id"`
 	OriginAddressID      uuid.UUID `json:"origin_address_id" db:"origin_address_id"`
-	OriginAddress        Address   `belongs_to:"address"`
+	OriginAddress        Address   `belongs_to:"address" fk_id:"origin_address_id"`
 	DestinationAddressID uuid.UUID `json:"destination_address_id" db:"destination_address_id"`
-	DestinationAddress   Address   `belongs_to:"address"`
+	DestinationAddress   Address   `belongs_to:"address" fk_id:"destination_address_id"`
 	DistanceMiles        int       `json:"distance_miles" db:"distance_miles"`
 	CreatedAt            time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`

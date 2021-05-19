@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
-import { GridContainer, Grid, Tag } from '@trussworks/react-uswds';
+import { useParams, useHistory, Link } from 'react-router-dom';
+import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
@@ -10,15 +10,16 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
 import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
-import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';
-import CustomerInfoTable from 'components/Office/CustomerInfoTable';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
+import OrdersList from 'components/Office/DefinitionLists/OrdersList';
+import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
-import AllowancesTable from 'components/Office/AllowancesTable/AllowancesTable';
-import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
+import { useMoveDetailsQueries } from 'hooks/queries';
+import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -218,31 +219,33 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
             </div>
           )}
           <div className={styles.section} id="orders">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <OrdersTable ordersInfo={ordersInfo} />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel
+              title="Orders"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
+                  Edit orders
+                </Link>
+              }
+            >
+              <OrdersList ordersInfo={ordersInfo} />
+            </DetailsPanel>
           </div>
           <div className={styles.section} id="allowances">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <AllowancesTable info={allowancesInfo} showEditBtn />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel
+              title="Allowances"
+              editButton={
+                <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="allowances">
+                  Edit allowances
+                </Link>
+              }
+            >
+              <AllowancesList info={allowancesInfo} />
+            </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <GridContainer>
-              <Grid row gap>
-                <Grid col>
-                  <CustomerInfoTable customerInfo={customerInfo} />
-                </Grid>
-              </Grid>
-            </GridContainer>
+            <DetailsPanel title="Customer info">
+              <CustomerInfoList customerInfo={customerInfo} />
+            </DetailsPanel>
           </div>
         </GridContainer>
       </div>

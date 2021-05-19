@@ -7,6 +7,7 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -17,6 +18,16 @@ import (
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services"
 )
+
+//GexSendError is returned when there is an error sending an EDI to GEX
+type GexSendError struct {
+	paymentRequestID uuid.UUID
+	err              error
+}
+
+func (e GexSendError) Error() string {
+	return fmt.Sprintf("error sending the following EDI (PaymentRequest.ID: %s) to GEX: %s", e.paymentRequestID, e.err.Error())
+}
 
 type paymentRequestReviewedProcessor struct {
 	db                            *pop.Connection
@@ -113,7 +124,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
 		err = paymentrequesthelper.SendToSyncada(edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
 		if err != nil {
-			return fmt.Errorf("error sending the following EDI (PaymentRequest.ID: %s, error string) to Syncada: %s", lockedPR.ID, err)
+			return GexSendError{paymentRequestID: lockedPR.ID, err: err}
 		}
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
@@ -153,7 +164,12 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			)
 		}
 
-		pr.Status = models.PaymentRequestStatusEDIError
+		switch transactionError.(type) {
+		case GexSendError:
+			// if we failed in sending there is nothing to do here but retry later so keep the status the same
+		default:
+			pr.Status = models.PaymentRequestStatusEDIError
+		}
 		verrs, err = p.db.ValidateAndUpdate(&pr)
 		if err != nil {
 			p.logger.Error(
@@ -174,7 +190,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 	return nil
 }
 
-func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
+func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() {
 	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0
 	start := time.Now()
@@ -185,7 +201,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			ProcessEndedAt:   time.Now(),
 			NumEDIsProcessed: numProcessed,
 		}
-		p.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+		p.logger.Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
 
 		verrs, err := p.db.ValidateAndCreate(&ediProcessing)
 		if err != nil {
@@ -199,22 +215,24 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 	// Fetch all payment request that have been reviewed
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
 	if err != nil {
-		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
+		p.logger.Error("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest", zap.Error(err))
+		return
 	}
 
 	if len(reviewedPaymentRequests) == 0 {
 		// No reviewed payment requests to process
-		return nil
+		p.logger.Info("no payment requests to process found")
+		return
 	}
 
 	// Send all reviewed payment request to Syncada
 	for _, pr := range reviewedPaymentRequests {
 		err := p.ProcessAndLockReviewedPR(pr)
 		if err != nil {
-			return err
+			// only log the error and keep working, one failure shouldn't stop the processing of others
+			p.logger.Error(fmt.Sprintf("failed to process payment request id: %s", pr.ID), zap.Error(err))
+		} else {
+			numProcessed++
 		}
-		numProcessed++
 	}
-
-	return nil
 }

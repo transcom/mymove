@@ -353,8 +353,10 @@ do not need to follow the instructions above about [Setup: Golang](#setup-golang
 NOTE: Nix as an experiment means you ask for help in the `#code-nix`
 slack channel. It's not an officially supported development environment.
 
-1. First read the overview in the [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/adh-nix-devenv/developing/nix).
+1. First read the overview in the [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/main/developing/nix).
 1. Follow the [macOS installation instructions](https://nixos.org/manual/nix/stable/#sect-macos-installation).
+1. Ensure you have `direnv` and a modern `bash` installed. To install
+   globally with nix, run `nix-env -i direnv bash`
 1. Ensure you have run `direnv allow` to set up the appropriate nix
    environment variables.
 1. Make sure you have disabled any `nodeenv`, `asdf` or any other

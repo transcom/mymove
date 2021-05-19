@@ -215,6 +215,23 @@ func NewNotImplementedError(message string) NotImplementedError {
 	}
 }
 
+// ForbiddenError is the forbidden error
+type ForbiddenError struct {
+	message string
+}
+
+// NewForbiddenError returns an error for forbidden
+func NewForbiddenError(message string) ForbiddenError {
+	return ForbiddenError{
+		message: message,
+	}
+}
+
+// Error is the string representation of the forbidden error
+func (e ForbiddenError) Error() string {
+	return fmt.Sprintf("User is forbidden: %s", e.message)
+}
+
 // ImplementationError is returned when a type or function has been implemented incorrectly
 // (Typically a dev error)
 type ImplementationError struct {

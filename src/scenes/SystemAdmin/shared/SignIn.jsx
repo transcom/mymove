@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import qs from 'query-string';
 import { Button } from '@trussworks/react-uswds';
 import '@trussworks/react-uswds/lib/index.css';
@@ -11,7 +11,14 @@ import styles from './SignIn.module.scss';
 const SignIn = ({ context, location }) => {
   const error = qs.parse(location.search).error;
   const [showEula, setShowEula] = useState(false);
-
+  function recentlyLoggedOut() {
+    window.localStorage.removeItem('hasLoggedOut');
+  }
+  useEffect(() => {
+    window.addEventListener('beforeunload', recentlyLoggedOut);
+    return () => window.removeEventListener('beforeunload', recentlyLoggedOut);
+  }, []);
+  const hasLoggedOut = JSON.parse(window.localStorage.getItem('hasLoggedOut'));
   return (
     <div>
       <ConnectedEulaModal
@@ -29,6 +36,13 @@ const SignIn = ({ context, location }) => {
               There was an error during your last sign in attempt. Please try again.
             </Alert>
             <br />
+          </div>
+        )}
+        {hasLoggedOut && (
+          <div>
+            <Alert type="success" heading="You have signed out of MilMove">
+              Sign in again when you&apos;re ready to start a new session.
+            </Alert>
           </div>
         )}
         <h1 className="align-center">Welcome to {context.siteName}!</h1>
