@@ -1736,6 +1736,8 @@ func init() {
           "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "createdAt": {
@@ -1770,7 +1772,9 @@ func init() {
         "firstAvailableDeliveryDate": {
           "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "description": "The ID of the shipment.",
@@ -1819,6 +1823,8 @@ func init() {
           "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "rejectionReason": {
@@ -1838,6 +1844,8 @@ func init() {
           "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "scheduledPickupDate": {
@@ -4562,6 +4570,8 @@ func init() {
           "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "createdAt": {
@@ -4596,7 +4606,9 @@ func init() {
         "firstAvailableDeliveryDate": {
           "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "description": "The ID of the shipment.",
@@ -4645,6 +4657,8 @@ func init() {
           "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "rejectionReason": {
@@ -4664,6 +4678,8 @@ func init() {
           "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "scheduledPickupDate": {

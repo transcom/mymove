@@ -147,26 +147,18 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	}
 
 	model := &models.MTOShipment{
-		ID:                  uuid.FromStringOrNil(mtoShipment.ID.String()),
-		ActualPickupDate:    handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
-		ScheduledPickupDate: handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
-		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
-		Diversion:           bool(mtoShipment.Diversion),
-	}
-
-	firstAvailableDeliveryDate := time.Time(mtoShipment.FirstAvailableDeliveryDate)
-	if !firstAvailableDeliveryDate.IsZero() {
-		model.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
+		ID:                         uuid.FromStringOrNil(mtoShipment.ID.String()),
+		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
+		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
+		RequiredDeliveryDate:       handlers.FmtDatePtrToPopPtr(mtoShipment.RequiredDeliveryDate),
+		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
+		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
+		Diversion:                  bool(mtoShipment.Diversion),
 	}
 
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	if !requestedPickupDate.IsZero() {
 		model.RequestedPickupDate = &requestedPickupDate
-	}
-
-	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
-	if !requiredDeliveryDate.IsZero() {
-		model.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {

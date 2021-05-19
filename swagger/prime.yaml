@@ -1525,6 +1525,8 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       requestedPickupDate:
         description: >
           The date the customer selects during onboarding as their preferred pickup date. Other dates, such as
@@ -1550,6 +1552,8 @@ definitions:
           travel accordingly.
         format: date
         type: string
+        x-omitempty: false
+        x-nullable: true
       requiredDeliveryDate:
         description: >
           The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is
@@ -1557,6 +1561,8 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       primeEstimatedWeight:
         description: >
           The estimated weight of this shipment, determined by the movers during the pre-move survey.
@@ -1569,6 +1575,8 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       primeActualWeight:
         description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
         type: integer
