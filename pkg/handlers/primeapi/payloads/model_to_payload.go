@@ -334,16 +334,18 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
-		ID:              strfmt.UUID(mtoShipment.ID.String()),
-		Agents:          *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID: strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:    primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks: mtoShipment.CustomerRemarks,
-		Status:          string(mtoShipment.Status),
-		Diversion:       bool(mtoShipment.Diversion),
-		CreatedAt:       strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:       strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:            etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                  strfmt.UUID(mtoShipment.ID.String()),
+		ActualPickupDate:    handlers.FmtDatePtr(mtoShipment.ActualPickupDate),
+		ScheduledPickupDate: handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
+		Agents:              *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:        primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:     mtoShipment.CustomerRemarks,
+		Status:              string(mtoShipment.Status),
+		Diversion:           bool(mtoShipment.Diversion),
+		CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	// Set up address payloads
@@ -369,16 +371,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}
 
-	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
-	}
-
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
-	}
-
-	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
-		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
 	}
 
 	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {

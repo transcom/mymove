@@ -25,7 +25,7 @@ type MTOShipment struct {
 
 	// The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
 	// Format: date
-	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
@@ -126,7 +126,7 @@ type MTOShipment struct {
 
 	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
 	// Format: date
-	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 	// A second delivery address for this shipment, if the customer entered one. An optional field.
 	SecondaryDeliveryAddress struct {
@@ -166,7 +166,7 @@ func (m *MTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
 
@@ -210,7 +210,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
 
-		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 		SecondaryDeliveryAddress struct {
 			Address
@@ -333,7 +333,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
 
@@ -375,7 +375,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
 
-		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 		SecondaryDeliveryAddress struct {
 			Address

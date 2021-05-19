@@ -1725,7 +1725,9 @@ func init() {
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -1841,7 +1843,9 @@ func init() {
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
@@ -4547,7 +4551,9 @@ func init() {
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -4663,7 +4669,9 @@ func init() {
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
