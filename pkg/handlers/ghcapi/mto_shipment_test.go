@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
@@ -451,12 +453,9 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 }
 
 func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			TransportationOffice: models.TransportationOffice{
-				Name: "Random Office",
-			},
-		},
+	servicesCounselor := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	servicesCounselor.User.Roles = append(servicesCounselor.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeServicesCounselor,
 	})
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
@@ -464,7 +463,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateOfficeRequest(req, servicesCounselor)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
@@ -520,9 +519,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 		params := suite.getUpdateShipmentParams(oldShipment)
-
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
@@ -537,27 +539,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.Body = nil
-
-		response := handler.Handle(params)
-
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
-	})
-
-	suite.T().Run("PATCH failure - 400 -- invalid requested status update", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			fetcher,
-			updater,
-		}
-
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		params := suite.getUpdateShipmentParams(oldShipment)
-		params.Body.Status = ghcmessages.MTOShipmentStatusREJECTED
 
 		response := handler.Handle(params)
 
@@ -574,7 +562,11 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.ShipmentID = *uuidString
 
@@ -592,7 +584,11 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
@@ -647,7 +643,11 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 
 		response := handler.Handle(params)
