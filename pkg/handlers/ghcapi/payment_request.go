@@ -138,7 +138,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	if existingPaymentRequest.Status != models.PaymentRequestStatusReviewed && existingPaymentRequest.Status != models.PaymentRequestStatusReviewedAllRejected {
 		payload := payloadForValidationError("Unable to complete request",
-			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWEDALLREJECTED instead it was: %s", existingPaymentRequest.Status.String()),
+			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED instead it was: %s", existingPaymentRequest.Status.String()),
 			h.GetTraceID(), validate.NewErrors())
 		return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 	}
