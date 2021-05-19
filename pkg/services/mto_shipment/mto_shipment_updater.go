@@ -10,8 +10,10 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -189,28 +191,52 @@ func (e StaleIdentifierError) Error() string {
 	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
 }
 
+//CheckIfMTOShipmentCanBeUpdated checks if a shipment should be updatable
+func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
+	if session.IsOfficeApp() && session.IsOfficeUser() && session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		if mtoShipment.Status != models.MTOShipmentStatusSubmitted {
+			return false, nil
+		}
+
+		return true, nil
+	}
+
+	return true, nil
+}
+
+func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoShipmentID),
+	}
+
+	var shipment models.MTOShipment
+
+	err := f.FetchRecord(&shipment, queryFilters)
+
+	if err != nil {
+		return nil, services.NewNotFoundError(mtoShipmentID, "Shipment not found")
+	}
+
+	return &shipment, nil
+}
+
 //UpdateMTOShipment updates the mto shipment
 func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoShipment.ID.String()),
-	}
-	var oldShipment models.MTOShipment
-
-	err := f.FetchRecord(&oldShipment, queryFilters)
+	oldShipment, err := f.RetrieveMTOShipment(mtoShipment.ID)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
 	}
 	var dbShipment models.MTOShipment
-	err = deepcopy.Copy(&dbShipment, &oldShipment) // save the original db version, oldShipment will be modified
+	err = deepcopy.Copy(&dbShipment, oldShipment) // save the original db version, oldShipment will be modified
 	if err != nil {
 		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}
-	err = setNewShipmentFields(&oldShipment, mtoShipment)
+	err = setNewShipmentFields(oldShipment, mtoShipment)
 	if err != nil {
 		return nil, err
 	}
-	newShipment := &oldShipment // old shipment has now been updated with requested changes
+	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
 	err = f.updateShipmentRecord(&dbShipment, newShipment, eTag)
 
@@ -223,18 +249,18 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 		}
 	}
 
-	var updatedShipment models.MTOShipment
-	err = f.FetchRecord(&updatedShipment, queryFilters)
+	updatedShipment, err := f.RetrieveMTOShipment(mtoShipment.ID)
+
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 
-	err = f.db.Eager("MTOServiceItems.ReService").Find(&updatedShipment, mtoShipment.ID.String())
+	err = f.db.Eager("MTOServiceItems.ReService").Find(updatedShipment, mtoShipment.ID.String())
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 
-	return &updatedShipment, nil
+	return updatedShipment, nil
 }
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
