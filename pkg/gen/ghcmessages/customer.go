@@ -46,9 +46,15 @@ type Customer struct {
 	// last name
 	LastName string `json:"last_name,omitempty"`
 
+	// middle name
+	MiddleName *string `json:"middle_name,omitempty"`
+
 	// phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Phone *string `json:"phone,omitempty"`
+
+	// suffix
+	Suffix *string `json:"suffix,omitempty"`
 
 	// user ID
 	// Format: uuid

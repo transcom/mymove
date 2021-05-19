@@ -2107,11 +2107,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -3622,7 +3632,7 @@ func init() {
         "middle_name": {
           "type": "string",
           "x-nullable": true,
-          "example": "Jay"
+          "example": "David"
         },
         "phone": {
           "type": "string",
@@ -6435,11 +6445,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -7953,7 +7973,7 @@ func init() {
         "middle_name": {
           "type": "string",
           "x-nullable": true,
-          "example": "Jay"
+          "example": "David"
         },
         "phone": {
           "type": "string",
