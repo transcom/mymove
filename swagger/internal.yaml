@@ -14,7 +14,7 @@ consumes:
 produces:
   - application/json
 definitions:
-  LoggedInUserPayload:
+  LoggedInUser:
     type: object
     properties:
       id:
@@ -27,16 +27,14 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         readOnly: true
-      first_name:
+      firstName:
         type: string
         example: John
         readOnly: true
-      service_member:
-        $ref: '#/definitions/ServiceMemberPayload'
-        x-nullable: true
-      office_user:
+      serviceMember:
+        $ref: '#/definitions/ServiceMember'
+      officeUser:
         $ref: '#/definitions/OfficeUser'
-        x-nullable: true
       roles:
         type: array
         items:
@@ -59,7 +57,7 @@ definitions:
       MARINES: Marine Corps
       AIR_FORCE: Air Force
       COAST_GUARD: Coast Guard
-  DutyStationPayload:
+  DutyStation:
     type: object
     properties:
       id:
@@ -69,7 +67,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address_id:
+      addressId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -77,22 +75,24 @@ definitions:
         $ref: '#/definitions/Address'
       affiliation:
         $ref: '#/definitions/Affiliation'
-      transportation_office:
+      transportationOffice:
         $ref: '#/definitions/TransportationOffice'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - name
-      - address_id
+      - addressId
       - address
       - affiliation
-      - created_at
-      - updated_at
+      - createdAt
+      - updatedAt
   TransportationOffice:
     type: object
     properties:
@@ -105,7 +105,7 @@ definitions:
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
-      phone_lines:
+      phoneLines:
         type: array
         items:
           type: string
@@ -124,90 +124,91 @@ definitions:
         type: number
         format: float
         example: -98.62759
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - name
       - address
-      - created_at
-      - updated_at
-  DutyStationsPayload:
+      - createdAt
+      - updatedAt
+  DutyStations:
     type: array
     items:
-      $ref: '#/definitions/DutyStationPayload'
-  CreatePersonallyProcuredMovePayload:
+      $ref: '#/definitions/DutyStation'
+  CreatePersonallyProcuredMove:
     type: object
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      original_move_date:
+      originalMoveDate:
         type: string
-        example: '2018-04-26'
         format: date
         title: When do you plan to move?
         x-nullable: true
-      pickup_postal_code:
+      pickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_additional_postal_code:
+      hasAdditionalPostalCode:
         type: boolean
         x-nullable: true
         title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
+      additionalPickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destinationPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_sit:
+      hasSit:
         type: boolean
         x-nullable: true
         title: Will you put anything in storage?
-      days_in_storage:
+      daysInStorage:
         type: integer
         title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
-      estimated_storage_reimbursement:
+      estimatedStorageReimbursement:
         type: string
         title: Estimated Storage Reimbursement
         x-nullable: true
-      weight_estimate:
+      weightEstimate:
         type: integer
         minimum: 0
         title: Weight Estimate
         x-nullable: true
-      net_weight:
+      netWeight:
         type: integer
         minimum: 1
         title: Net Weight
         x-nullable: true
-      has_requested_advance:
+      hasRequestedAdvance:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/CreateReimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
-      has_pro_gear:
+      advanceWorksheet:
+        $ref: '#/definitions/Document'
+      hasProGear:
         type: string
         title: Has Pro-Gear
         enum:
@@ -215,7 +216,7 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-      has_pro_gear_over_thousand:
+      hasProGearOverThousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
         enum:
@@ -223,86 +224,84 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-  UpdatePersonallyProcuredMovePayload:
+  UpdatePersonallyProcuredMove:
     type: object
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      original_move_date:
+      originalMoveDate:
         type: string
         format: date
-        example: '2018-04-26'
         title: When do you plan to move?
         x-nullable: true
-      actual_move_date:
+      actualMoveDate:
         type: string
-        example: '2018-04-26'
         format: date
         title: When did you actually move?
         x-nullable: true
-      pickup_postal_code:
+      pickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_additional_postal_code:
+      hasAdditionalPostalCode:
         type: boolean
         x-nullable: true
         title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
+      additionalPickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destinationPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_sit:
+      hasSit:
         type: boolean
         x-nullable: true
         title: Will you put anything in storage?
-      days_in_storage:
+      daysInStorage:
         type: integer
         title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
-      total_sit_cost:
+      totalSitCost:
         type: integer
         title: How much does your storage cost?
         minimum: 0
         x-nullable: true
-      estimated_storage_reimbursement:
+      estimatedStorageReimbursement:
         type: string
         title: Estimated Storage Reimbursement
         x-nullable: true
-      weight_estimate:
+      weightEstimate:
         type: integer
         minimum: 0
         title: Weight Estimate
         x-nullable: true
-      net_weight:
+      netWeight:
         type: integer
         minimum: 1
         title: Net Weight
         x-nullable: true
-      has_requested_advance:
+      hasRequestedAdvance:
         type: boolean
         default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
-      has_pro_gear:
+      advanceWorksheet:
+        $ref: '#/definitions/Document'
+      hasProGear:
         type: string
         title: Has Pro-Gear
         enum:
@@ -310,7 +309,7 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-      has_pro_gear_over_thousand:
+      hasProGearOverThousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
         enum:
@@ -318,92 +317,90 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-  PatchPersonallyProcuredMovePayload:
+  PatchPersonallyProcuredMove:
     type: object
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      original_move_date:
+      originalMoveDate:
         type: string
-        example: '2018-04-26'
         format: date
         title: When do you plan to move?
         x-nullable: true
-      actual_move_date:
+      actualMoveDate:
         type: string
-        example: '2018-04-26'
         format: date
         title: When did you actually move?
         x-nullable: true
-      pickup_postal_code:
+      pickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_additional_postal_code:
+      hasAdditionalPostalCode:
         type: boolean
         x-nullable: true
         title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
+      addtionalPickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destinationPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_sit:
+      hasSit:
         type: boolean
         x-nullable: true
         title: Will you put anything in storage?
-      days_in_storage:
+      daysInStorage:
         type: integer
         title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
-      total_sit_cost:
+      totalSitCost:
         type: integer
         minimum: 1
         title: How much does your storage cost?
         x-nullable: true
-      weight_estimate:
+      weightEstimate:
         type: integer
         minimum: 0
         title: Weight Estimate
         x-nullable: true
-      net_weight:
+      netWeight:
         type: integer
         minimum: 1
         title: Net Weight
         x-nullable: true
-      incentive_estimate_max:
+      incentiveEstimateMax:
         type: integer
         minimum: 1
         title: Incentive Estimate Max
         x-nullable: true
-      incentive_estimate_min:
+      incentiveEstimateMin:
         type: integer
         minimum: 1
         title: Incentive Estimate Min
         x-nullable: true
-      has_requested_advance:
+      hasRequestedAdvance:
         type: boolean
         default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
-      has_pro_gear:
+      advanceWorksheet:
+        $ref: '#/definitions/Document'
+      hasProGear:
         type: string
         title: Has Pro-Gear
         enum:
@@ -411,7 +408,7 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-      has_pro_gear_over_thousand:
+      hasProGearOverThousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
         enum:
@@ -419,89 +416,87 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
-  PersonallyProcuredMovePayload:
+  PersonallyProcuredMove:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
+      moveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      original_move_date:
+      originalMoveDate:
         type: string
         format: date
         title: When do you plan to move?
-        example: '2018-04-26'
         x-nullable: true
-      actual_move_date:
+      actualMoveDate:
         type: string
-        example: '2018-04-26'
         format: date
         title: When did you actually move?
         x-nullable: true
-      submit_date:
+      submitDate:
         type: string
         format: date-time
         title: When was the ppm move submitted?
         example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
-      approve_date:
+      approveDate:
         type: string
         format: date-time
         title: When was the ppm move approved?
         example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
-      pickup_postal_code:
+      pickupPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_additional_postal_code:
+      hasAdditionalPostcalCode:
         type: boolean
         x-nullable: true
         title: Will you move anything from another pickup location?
-      additional_pickup_postal_code:
+      additonalPickupPostalCpde:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destinationPostalCode:
         type: string
         format: zip
         title: ZIP code
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      has_sit:
+      hasSit:
         type: boolean
         x-nullable: true
         title: Will you put anything in storage?
-      days_in_storage:
+      daysInStorage:
         type: integer
         title: How many days of storage do you think you'll need?
         minimum: 0
         maximum: 90
         x-nullable: true
-      estimated_storage_reimbursement:
+      estimatedStorageReimbursement:
         type: string
         title: Estimated Storage Reimbursement
         x-nullable: true
-      weight_estimate:
+      weightEstimate:
         type: integer
         minimum: 0
         title: Weight Estimate
         x-nullable: true
         x-formatting: weight
-      net_weight:
+      netWeight:
         type: integer
         minimum: 1
         title: Net Weight
@@ -511,38 +506,38 @@ definitions:
         type: integer
         title: Distance between origin and destination in miles
         x-nullable: true
-      planned_sit_max:
+      plannedSitMax:
         type: integer
         title: Maximum SIT reimbursement for the planned SIT duration
         x-nullable: true
-      total_sit_cost:
+      totalSitCost:
         type: integer
         format: cents
         title: Total cost for the planned SIT duration
         x-nullable: true
-      sit_max:
+      sitMax:
         type: integer
         title: Maximum SIT reimbursement for maximum SIT duration
         x-nullable: true
-      incentive_estimate_min:
+      incentiveEstimateMin:
         type: integer
         title: Estimated incentive minimum in cents
         x-nullable: true
-      incentive_estimate_max:
+      incentiveEstimateMax:
         type: integer
         title: Estimated incentive maximum in cents
         x-nullable: true
       status:
         $ref: '#/definitions/PPMStatus'
-      has_requested_advance:
+      hasRequestedAdvance:
         type: boolean
         default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
-      advance_worksheet:
-        $ref: '#/definitions/DocumentPayload'
-      has_pro_gear:
+      advanceWorksheet:
+        $ref: '#/definitions/Document'
+      hasProGear:
         type: string
         title: Has Pro-Gear
         enum:
@@ -554,7 +549,7 @@ definitions:
           NOT SURE: Not Sure
           'YES': Yes
           'NO': No
-      has_pro_gear_over_thousand:
+      hasProGearOverThousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
         enum:
@@ -566,31 +561,33 @@ definitions:
           NOT SURE: Not Sure
           'YES': Yes
           'NO': No
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
-      - created_at
-      - updated_at
-  SubmitMoveForApprovalPayload:
+      - createdAt
+      - updatedAt
+  SubmitMoveForApproval:
     type: object
     properties:
       certificate:
-        $ref: '#/definitions/CreateSignedCertificationPayload'
-  SubmitPersonallyProcuredMovePayload:
+        $ref: '#/definitions/CreateSignedCertification'
+  SubmitPersonallyProcuredMove:
     type: object
     properties:
-      submit_date:
+      submitDate:
         type: string
         format: date-time
         title: When was the ppm move submitted?
         example: '2019-03-26T13:19:56-04:00'
     required:
-      - submit_date
+      - submitDate
   PPMSitEstimate:
     type: object
     properties:
@@ -602,38 +599,38 @@ definitions:
   PPMEstimateRange:
     type: object
     properties:
-      range_min:
+      rangeMin:
         type: integer
         title: Low estimate
-      range_max:
+      rangeMax:
         type: integer
         title: High estimate
     required:
-      - range_min
-      - range_max
+      - rangeMin
+      - rangeMax
   PPMIncentive:
     type: object
     properties:
       gcc:
         type: integer
         title: GCC
-      incentive_percentage:
+      incentivePercentage:
         type: integer
         title: PPM Incentive @ 95%
     required:
       - gcc
-      - incentive_percentage
-  ExpenseSummaryPayload:
+      - incentivePercentage
+  ExpenseSummary:
     type: object
     properties:
       categories:
         type: array
         items:
           $ref: '#/definitions/CategoryExpenseSummary'
-      grand_total:
+      grandTotal:
         type: object
         properties:
-          payment_method_totals:
+          paymentMethodTotals:
             $ref: '#/definitions/PaymentMethodsTotals'
           total:
             type: integer
@@ -642,45 +639,45 @@ definitions:
     properties:
       category:
         $ref: '#/definitions/MovingExpenseType'
-      payment_methods:
+      paymentMethods:
         $ref: '#/definitions/PaymentMethodsTotals'
       total:
         type: integer
   PaymentMethodsTotals:
     type: object
     properties:
-      MIL_PAY:
+      milPay:
         type: integer
-      OTHER:
+      other:
         type: integer
-      GTCC:
+      gtcc:
         type: integer
-  ApprovePersonallyProcuredMovePayload:
+  ApprovePersonallyProcuredMove:
     type: object
     properties:
-      approve_date:
+      approveDate:
         type: string
         format: date-time
         title: When was the ppm move approved?
         example: '2019-03-26T13:19:56-04:00'
     required:
-      - approve_date
-  IndexPersonallyProcuredMovePayload:
+      - approveDate
+  IndexPersonallyProcuredMove:
     type: array
     items:
-      $ref: '#/definitions/PersonallyProcuredMovePayload'
-  MovePayload:
+      $ref: '#/definitions/PersonallyProcuredMove'
+  Move:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      orders_id:
+      ordersId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -688,47 +685,49 @@ definitions:
       locator:
         type: string
         example: '12432'
-      selected_move_type:
+      selectedMoveType:
         $ref: '#/definitions/SelectedMoveType'
       status:
         $ref: '#/definitions/MoveStatus'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
-      submitted_at:
+        readOnly: true
+      submittedAt:
         type: string
         format: date-time
         x-nullable: true
-      personally_procured_moves:
-        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-      mto_shipments:
+      personallyProcuredMoves:
+        $ref: '#/definitions/IndexPersonallyProcuredMove'
+      mtoShipments:
         $ref: '#/definitions/MTOShipments'
-      cancel_reason:
+      cancelReason:
         type: string
         example: 'Change of orders'
         x-nullable: true
     required:
       - id
-      - orders_id
+      - ordersId
       - locator
-      - created_at
-      - updated_at
+      - createdAt
+      - updatedAt
   CancelMove:
     type: object
     properties:
-      cancel_reason:
+      cancelReason:
         type: string
         example: 'Change of orders'
         x-nullable: true
     required:
-      - cancel_reason
-  PatchMovePayload:
+      - cancelReason
+  PatchMove:
     type: object
     properties:
-      selected_move_type:
+      selectedMoveType:
         $ref: '#/definitions/SelectedMoveType'
   SelectedMoveType:
     type: string
@@ -750,14 +749,14 @@ definitions:
       HHG_INTO_NTS_DOMESTIC: Non-Temporary Storage
       HHG_OUTOF_NTS_DOMESTIC: Non-Temporary Storage Release
       HHG_PPM: Both HHG and PPM
-  IndexMovesPayload:
+  IndexMoves:
     type: array
     items:
-      $ref: '#/definitions/MovePayload'
+      $ref: '#/definitions/Move'
   MoveDocuments:
     type: array
     items:
-      $ref: '#/definitions/MoveDocumentPayload'
+      $ref: '#/definitions/MoveDocument'
   WeightTicketSetType:
     type: string
     x-nullable: true
@@ -772,29 +771,29 @@ definitions:
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
       PRO_GEAR: Pro-gear
-  MoveDocumentPayload:
+  MoveDocument:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
+      moveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      personally_procured_move_id:
+      personallyProcurredMoveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
       document:
-        $ref: '#/definitions/DocumentPayload'
+        $ref: '#/definitions/Document'
       title:
         type: string
         example: very_useful_document.pdf
         title: Document title
-      move_document_type:
+      moveDocumentType:
         $ref: '#/definitions/MoveDocumentType'
       status:
         $ref: '#/definitions/MoveDocumentStatus'
@@ -803,15 +802,15 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
-      moving_expense_type:
+      movingExpenseType:
         $ref: '#/definitions/MovingExpenseType'
-      requested_amount_cents:
+      requestedAmountCents:
         type: integer
         format: cents
         minimum: 1
         title: Requested Amount
         description: unit is cents
-      payment_method:
+      paymentMethod:
         type: string
         title: Payment Method
         enum:
@@ -820,82 +819,79 @@ definitions:
         x-display-value:
           OTHER: Other account
           GTCC: GTCC
-      receipt_missing:
+      receiptMissing:
         title: missing expense receipt
         type: boolean
         x-nullable: true
-      weight_ticket_set_type:
+      weightTicketSetType:
         $ref: '#/definitions/WeightTicketSetType'
-      vehicle_nickname:
+      vehicleNickname:
         type: string
         title: Nickname (ex. "15-foot truck")
         x-nullable: true
-      vehicle_make:
+      vehicleMake:
         type: string
         title: Vehicle make
         x-nullable: true
-      vehicle_model:
+      vehicleModel:
         type: string
         title: Vehicle model
         x-nullable: true
-      empty_weight:
+      emptyWeight:
         title: Empty weight
         type: integer
         minimum: 0
         x-nullable: true
         x-formatting: weight
-      empty_weight_ticket_missing:
+      emptyWeightTicketMissing:
         title: missing empty weight ticket
         type: boolean
         x-nullable: true
-      full_weight:
+      fullWeight:
         title: Full weight
         type: integer
         minimum: 0
         x-nullable: true
         x-formatting: weight
-      full_weight_ticket_missing:
+      fullWeightTicketMissing:
         title: missing full weight ticket
         type: boolean
         x-nullable: true
-      weight_ticket_date:
+      weightTicketDate:
         title: Weight ticket date
         type: string
-        example: '2018-04-26'
         format: date
         x-nullable: true
-      trailer_ownership_missing:
+      trailerOwnershipMissing:
         title: missing trailer ownership documentation
         type: boolean
         x-nullable: true
-      storage_start_date:
+      storageStartDate:
         type: string
         format: date
         title: Start date of storage for storage expenses
-        example: '2018-04-26'
         x-nullable: true
-      storage_end_date:
+      storageEndDate:
         type: string
         format: date
         title: End date of storage for storage expenses
-        example: '2018-04-26'
         x-nullable: true
     required:
       - id
-      - move_id
+      - moveId
       - document
       - title
-      - move_document_type
+      - moveDocumentType
       - status
-  CreateGenericMoveDocumentPayload:
+  CreateGenericMoveDocument:
     type: object
     properties:
-      personally_procured_move_id:
+      personallyProcurredMoveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-      upload_ids:
+      uploadIds:
         type: array
         items:
           type: string
@@ -904,7 +900,7 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
-      move_document_type:
+      moveDocumentType:
         $ref: '#/definitions/MoveDocumentType'
       notes:
         type: string
@@ -912,9 +908,9 @@ definitions:
         x-nullable: true
         title: Notes
     required:
-      - upload_ids
+      - uploadIds
       - title
-      - move_document_type
+      - moveDocumentType
   MoveDocumentType:
     type: string
     title: Document type
@@ -933,15 +929,15 @@ definitions:
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
       WEIGHT_TICKET_SET: Weight ticket set
-  CreateMovingExpenseDocumentPayload:
+  CreateMovingExpenseDocument:
     type: object
     properties:
-      personally_procured_move_id:
+      personallyProcurredMoveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-      upload_ids:
+      uploadIds:
         type: array
         items:
           type: string
@@ -950,17 +946,17 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
-      moving_expense_type:
+      movingExpenseType:
         $ref: '#/definitions/MovingExpenseType'
-      move_document_type:
+      moveDocumentType:
         $ref: '#/definitions/MoveDocumentType'
-      requested_amount_cents:
+      requestedAmountCents:
         type: integer
         format: cents
         minimum: 1
         title: Requested Amount
         description: unit is cents
-      payment_method:
+      paymentMethod:
         type: string
         title: Method of Payment
         enum:
@@ -969,7 +965,7 @@ definitions:
         x-display-value:
           OTHER: Other payment method
           GTCC: GTCC
-      receipt_missing:
+      receiptMissing:
         title: missing expense receipt
         type: boolean
       notes:
@@ -977,24 +973,22 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
-      storage_start_date:
+      storageStartDate:
         type: string
         format: date
         title: Start date of storage for storage expenses
-        example: '2018-04-26'
         x-nullable: true
-      storage_end_date:
+      storageEndDate:
         type: string
         format: date
         title: End date of storage for storage expenses
-        example: '2018-04-26'
         x-nullable: true
     required:
       - title
-      - move_document_type
-      - moving_expense_type
-      - requested_amount_cents
-      - payment_method
+      - moveDocumentType
+      - movingExpenseType
+      - requestedAmountCents
+      - paymentMethod
   MovingExpenseType:
     type: string
     title: Moving Expense Type
@@ -1031,62 +1025,61 @@ definitions:
       OK: OK
       HAS_ISSUE: Has issue
       EXCLUDE_FROM_CALCULATION: Exclude from calculation
-  CreateWeightTicketDocumentsPayload:
+  CreateWeightTicketDocuments:
     type: object
     properties:
-      personally_procured_move_id:
+      personallyProcurredMoveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      upload_ids:
+      uploadIds:
         type: array
         items:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      weight_ticket_set_type:
+      weightTicketSetType:
         $ref: '#/definitions/WeightTicketSetType'
-      vehicle_nickname:
+      vehicleNickname:
         type: string
         title: Vehicle nickname (ex. 'Large box truck')
         x-nullable: true
-      vehicle_make:
+      vehicleMake:
         type: string
         title: Vehicle make
         x-nullable: true
-      vehicle_model:
+      vehicleModel:
         type: string
         title: Vehicle model
         x-nullable: true
-      empty_weight_ticket_missing:
+      emptyWeightTicketMissing:
         title: missing empty weight ticket
         type: boolean
-      empty_weight:
+      emptyWeight:
         title: empty weight ticket recorded weight
         type: integer
         minimum: 0
-      full_weight_ticket_missing:
+      fullWeightTicketMissing:
         title: missing full weight ticket
         type: boolean
-      full_weight:
+      fullWeight:
         title: full weight ticket recorded weight
         type: integer
         minimum: 0
-      weight_ticket_date:
+      weightTicketDate:
         title: Full Weight Ticket Date
         type: string
-        example: '2018-04-26'
         format: date
         x-nullable: true
-      trailer_ownership_missing:
+      trailerOwnershipMissing:
         title: missing trailer ownership documentation
         type: boolean
     required:
-      - personally_procured_move_id
-      - weight_ticket_set_type
-      - full_weight_ticket_missing
-      - empty_weight_ticket_missing
-      - trailer_ownership_missing
+      - personallyProcurredMoveId
+      - weightTicketSetType
+      - fullWeightTicketMissing
+      - emptyWeightTicketMissing
+      - trailerOwnershipMissing
   OfficeUser:
     type: object
     properties:
@@ -1094,21 +1087,21 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      userId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      first_name:
+      firstName:
         type: string
         example: John
         x-nullable: true
         title: First name
-      middle_name:
+      middleName:
         type: string
         example: L.
         x-nullable: true
         title: Middle name
-      last_name:
+      lastName:
         type: string
         example: Donut
         x-nullable: true
@@ -1127,22 +1120,24 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best contact phone
-      transportation_office:
+      transportationOffice:
         $ref: '#/definitions/TransportationOffice'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
-  ServiceMemberPayload:
+        readOnly: true
+  ServiceMember:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      userId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1161,21 +1156,19 @@ definitions:
           $ref: '#/definitions/Orders'
       affiliation:
         $ref: '#/definitions/Affiliation'
-        title: Branch
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-        title: Rank
-      first_name:
+      firstName:
         type: string
         example: John
         x-nullable: true
         title: First name
-      middle_name:
+      middleName:
         type: string
         example: L.
         x-nullable: true
         title: Middle name
-      last_name:
+      lastName:
         type: string
         example: Donut
         x-nullable: true
@@ -1192,62 +1185,63 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best contact phone
-      secondary_telephone:
+      secondaryTelephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
         title: Secondary Phone
-      personal_email:
+      personalEmail:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal Email Address
-      phone_is_preferred:
+      phoneIsPreferred:
         type: boolean
         x-nullable: true
         title: Telephone
-      email_is_preferred:
+      emailIsPeferred:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
-      residential_address:
+      currentStation:
+        $ref: '#/definitions/DutyStation'
+      residentialAddress:
         $ref: '#/definitions/Address'
-        title: Residential Address
-      backup_mailing_address:
+      backupMailingAddress:
         $ref: '#/definitions/Address'
-      backup_contacts:
-        $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
-      is_profile_complete:
+      backupContacts:
+        $ref: '#/definitions/IndexServiceMemberBackupContacts'
+      isProfileComplete:
         type: boolean
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
-      requires_access_code:
+        readOnly: true
+      requiresAccessCode:
         type: boolean
         x-nullable: false
         title: Requires Access Code
-      weight_allotment:
+      weightAllotment:
         $ref: '#/definitions/WeightAllotment'
     required:
       - id
-      - user_id
-      - is_profile_complete
-      - created_at
-      - updated_at
-      - requires_access_code
-  CreateServiceMemberPayload:
+      - userId
+      - isProfileComplete
+      - createdAt
+      - updatedAt
+      - requiresAccessCode
+  CreateServiceMember:
     type: object
     properties:
-      user_id:
+      userId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1264,17 +1258,17 @@ definitions:
         $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      first_name:
+      firstName:
         type: string
         example: John
         x-nullable: true
         title: First name
-      middle_name:
+      middleName:
         type: string
         example: L.
         x-nullable: true
         title: Middle name
-      last_name:
+      lastName:
         type: string
         example: Donut
         x-nullable: true
@@ -1291,43 +1285,41 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best contact phone
-      secondary_telephone:
+      secondaryTelephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
         title: Alternate phone
-      personal_email:
+      personalEmail:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
-      phone_is_preferred:
+      phoneIsPreferred:
         type: boolean
         x-nullable: true
         title: Phone
-      email_is_preferred:
+      emailIsPreferred:
         type: boolean
         x-nullable: true
         title: Email
-      current_station_id:
+      currentStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-      residential_address:
+      residentialAddress:
         $ref: '#/definitions/Address'
-        title: Residential Address
-      backup_mailing_address:
+      backupMailingAddress:
         $ref: '#/definitions/Address'
-        title: Backup Mailing Address
-  PatchServiceMemberPayload:
+  PatchServiceMember:
     type: object
     properties:
-      user_id:
+      userId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1344,17 +1336,17 @@ definitions:
         $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      first_name:
+      firstName:
         type: string
         example: John
         x-nullable: true
         title: First name
-      middle_name:
+      middleName:
         type: string
         example: L.
         x-nullable: true
         title: Middle name
-      last_name:
+      lastName:
         type: string
         example: Donut
         x-nullable: true
@@ -1371,47 +1363,45 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best Contact Phone
-      secondary_telephone:
+      secondaryTelephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
         title: Alternate Phone
-      personal_email:
+      personalEmail:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal Email
-      phone_is_preferred:
+      phoneIsPreferred:
         type: boolean
         x-nullable: true
         title: Phone
-      email_is_preferred:
+      emailIsPreferred:
         type: boolean
         x-nullable: true
         title: Email
-      current_station_id:
+      currentStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-      residential_address:
+      residentialAddress:
         $ref: '#/definitions/Address'
-        title: Residential Address
-      backup_mailing_address:
+      backupMailingAddress:
         $ref: '#/definitions/Address'
-        title: Backup Mailing Address
-  ServiceMemberBackupContactPayload:
+  ServiceMemberBackupContact:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1437,16 +1427,18 @@ definitions:
         title: Email
       permission:
         $ref: '#/definitions/BackupContactPermission'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
-      - created_at
-      - updated_at
+      - createdAt
+      - updatedAt
       - name
       - email
       - permission
@@ -1461,7 +1453,7 @@ definitions:
       NONE: Contact Only
       VIEW: View all move details
       EDIT: View and edit all move details
-  CreateServiceMemberBackupContactPayload:
+  CreateServiceMemberBackupContact:
     type: object
     properties:
       name:
@@ -1489,7 +1481,7 @@ definitions:
       - name
       - email
       - permission
-  UpdateServiceMemberBackupContactPayload:
+  UpdateServiceMemberBackupContact:
     type: object
     properties:
       name:
@@ -1515,23 +1507,25 @@ definitions:
       - name
       - email
       - permission
-  IndexServiceMemberBackupContactsPayload:
+  IndexServiceMemberBackupContacts:
     type: array
     items:
-      $ref: '#/definitions/ServiceMemberBackupContactPayload'
-  SignedCertificationPayload:
+      $ref: '#/definitions/ServiceMemberBackupContact'
+  SignedCertification:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
       date:
         type: string
         format: date-time
@@ -1539,27 +1533,26 @@ definitions:
       signature:
         type: string
         title: Signature
-      certification_text:
+      certificationText:
         type: string
-      move_id:
+      moveId:
         type: string
         format: uuid
-      personally_procured_move_id:
+      personallyProcurredMoveId:
         type: string
         format: uuid
         x-nullable: true
-      certification_type:
+      certificationType:
         $ref: '#/definitions/SignedCertificationType'
-        x-nullable: true
     required:
       - id
-      - move_id
-      - created_at
-      - updated_at
+      - moveId
+      - createdAt
+      - updatedAt
       - date
       - signature
-      - certification_text
-  CreateSignedCertificationPayload:
+      - certificationText
+  CreateSignedCertification:
     type: object
     properties:
       date:
@@ -1569,23 +1562,22 @@ definitions:
       signature:
         type: string
         title: Signature
-      certification_text:
+      certificationText:
         type: string
-      personally_procured_move_id:
+      personallyProcurredMoveId:
         type: string
         format: uuid
         x-nullable: true
-      certification_type:
+      certificationType:
         $ref: '#/definitions/SignedCertificationTypeCreate'
-        x-nullable: true
     required:
       - date
       - signature
-      - certification_text
+      - certificationText
   SignedCertifications:
     type: array
     items:
-      $ref: '#/definitions/SignedCertificationPayload'
+      $ref: '#/definitions/SignedCertification'
   SignedCertificationType:
     type: string
     enum:
@@ -1600,33 +1592,33 @@ definitions:
       - PPM_PAYMENT
       - SHIPMENT
     x-nullable: true
-  DocumentPayload:
+  Document:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         title: The service member this document belongs to
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
     required:
       - id
-      - service_member_id
+      - serviceMemberId
       - uploads
-  PostDocumentPayload:
+  PostDocument:
     type: object
     properties:
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         title: The service member this document belongs to
-  UploadPayload:
+  Upload:
     type: object
     properties:
       id:
@@ -1640,7 +1632,7 @@ definitions:
       filename:
         type: string
         example: filename.pdf
-      content_type:
+      contentType:
         type: string
         format: mime-type
         example: application/pdf
@@ -1652,24 +1644,26 @@ definitions:
           - INFECTED
           - CLEAN
           - PROCESSING
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - url
       - filename
-      - content_type
+      - contentType
       - bytes
-      - created_at
-      - updated_at
-  DPSAuthCookieURLPayload:
+      - createdAt
+      - updatedAt
+  DPSAuthCookieURL:
     type: object
     properties:
-      cookie_url:
+      cookieUrl:
         type: string
         format: uri
   TShirtSize:
@@ -1763,16 +1757,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -1888,7 +1882,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -1901,25 +1895,25 @@ definitions:
         example: 'USA'
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
-      - postal_code
+      - postalCode
   CreateReimbursement:
     type: object
     x-nullable: true
     properties:
-      requested_amount:
+      requestedAmount:
         type: integer
         format: cents
         minimum: 1
         title: Requested Amount
         description: unit is cents
-      method_of_receipt:
+      methodOfReceipt:
         $ref: '#/definitions/MethodOfReceipt'
     required:
-      - requested_amount
-      - method_of_receipt
+      - requestedAmount
+      - methodOfReceipt
   Reimbursement:
     type: object
     x-nullable: true
@@ -1928,25 +1922,24 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      requested_amount:
+      requestedAmount:
         type: integer
         format: cents
         minimum: 1
         title: Requested Amount
         description: unit is cents
-      method_of_receipt:
+      methodOfReceipt:
         $ref: '#/definitions/MethodOfReceipt'
       status:
         $ref: '#/definitions/ReimbursementStatus'
-      requested_date:
+      requestedDate:
         x-nullable: true
         type: string
-        example: '2018-04-26'
         format: date
         title: Requested Date
     required:
-      - requested_amount
-      - method_of_receipt
+      - requestedAmount
+      - methodOfReceipt
   ReimbursementStatus:
     x-nullable: true
     type: string
@@ -2051,7 +2044,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2059,50 +2052,49 @@ definitions:
         type: string
         example: 'O-6'
         x-nullable: true
-      issue_date:
+      issueDate:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
         title: Date issued
-      report_by_date:
+      reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
         title: Report by
       status:
         $ref: '#/definitions/OrdersStatus'
-      orders_type:
+      ordersType:
         $ref: '#/definitions/OrdersType'
-      orders_type_detail:
+      ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      has_dependents:
+      hasDependents:
         type: boolean
         title: Are dependents included in your orders?
-      spouse_has_pro_gear:
+      spouseHasProGear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
-      origin_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
-        x-nullable: true
-      new_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
-      uploaded_orders:
-        $ref: '#/definitions/DocumentPayload'
+      originDutyStation:
+        $ref: '#/definitions/DutyStation'
+      newDutyStation:
+        $ref: '#/definitions/DutyStation'
+      uploadedOrders:
+        $ref: '#/definitions/Document'
       moves:
-        $ref: '#/definitions/IndexMovesPayload'
-      orders_number:
+        $ref: '#/definitions/IndexMoves'
+      ordersNumber:
         type: string
         title: Orders Number
         x-nullable: true
         example: '030-00362'
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+        readOnly: true
+      updatedAt:
         type: string
         format: date-time
+        readOnly: true
       tac:
         type: string
         title: TAC
@@ -2113,7 +2105,7 @@ definitions:
         title: SAC
         example: 'N002214CSW32Y9'
         x-nullable: true
-      department_indicator:
+      departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       authorizedWeight:
         type: integer
@@ -2121,50 +2113,48 @@ definitions:
         x-nullable: true
     required:
       - id
-      - service_member_id
-      - issue_date
-      - report_by_date
-      - orders_type
-      - has_dependents
-      - spouse_has_pro_gear
-      - new_duty_station
-      - uploaded_orders
-      - created_at
-      - updated_at
+      - serviceMemberId
+      - issueDate
+      - reportByDate
+      - ordersType
+      - hasDependents
+      - spouseHasProGear
+      - newDutyStation
+      - uploadedOrders
+      - createdAt
+      - updatedAt
   CreateUpdateOrders:
     type: object
     properties:
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      issue_date:
+      issueDate:
         type: string
         description: The date and time that these orders were cut.
         format: date
-        example: '2018-04-26'
         title: Orders date
-      report_by_date:
+      reportByDate:
         type: string
         description: Report By Date
         format: date
-        example: '2018-04-26'
         title: Report-by date
-      orders_type:
+      ordersType:
         $ref: '#/definitions/OrdersType'
-      orders_type_detail:
+      ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      has_dependents:
+      hasDependents:
         type: boolean
         title: Are dependents included in your orders?
-      spouse_has_pro_gear:
+      spouseHasProGear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
-      new_duty_station_id:
+      newDutyStationId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      orders_number:
+      ordersNumber:
         type: string
         title: Orders Number
         x-nullable: true
@@ -2179,17 +2169,17 @@ definitions:
         title: SAC
         example: 'N002214CSW32Y9'
         x-nullable: true
-      department_indicator:
+      departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
     required:
-      - service_member_id
-      - issue_date
-      - report_by_date
-      - orders_type
-      - has_dependents
-      - spouse_has_pro_gear
-      - new_duty_station_id
-  InvalidRequestResponsePayload:
+      - serviceMemberId
+      - issueDate
+      - reportByDate
+      - ordersType
+      - hasDependents
+      - spouseHasProGear
+      - newDutyStationId
+  InvalidRequestResponse:
     type: object
     properties:
       errors:
@@ -2206,23 +2196,23 @@ definitions:
       status:
         type: string
         example: APPROVED
-      ppm_status:
+      ppmStatus:
         type: string
         example: PAYMENT_REQUESTED
         x-nullable: true
-      hhg_status:
+      hhgStatus:
         type: string
         example: ACCEPTED
         x-nullable: true
       locator:
         type: string
         example: '12432'
-      gbl_number:
+      gblNumber:
         type: string
         example: 'LNK12345'
         title: GBL Number
         x-nullable: true
-      customer_name:
+      customerName:
         type: string
         example: Thedog, Nino
         title: Customer Name
@@ -2236,7 +2226,7 @@ definitions:
         title: 'DoD ID #'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      orders_type:
+      ordersType:
         type: string
         title: Move Type
         enum:
@@ -2244,131 +2234,124 @@ definitions:
           - PCS - CONUS
           - PCS + TDY - OCONUS
           - PCS + TDY - CONUS
-      move_date:
+      moveDate:
         type: string
         format: date
-        example: 2018-04-25
         x-nullable: true
-      submitted_date:
-        type: string
-        format: date-time
-        example: 2018-04-25
-        x-nullable: true
-      last_modified_date:
+      submittedDate:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
-      created_at:
+        x-nullable: true
+      lastModifiedDate:
         type: string
         format: date-time
-      origin_duty_station_name:
+        example: 2017-07-21T17:32:28Z
+      createdAt:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        readOnly: true
+      originDutyStationName:
         type: string
         example: Dover AFB
         title: Origin
         x-nullable: true
-      destination_duty_station_name:
+      destinationDutyStationName:
         type: string
         example: Dover AFB
         title: Destination
         x-nullable: true
-      pm_survey_conducted_date:
+      pmSurveyConductedDate:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
         x-nullable: true
-      origin_gbloc:
+      originGbloc:
         type: string
         example: LKNQ
         title: Origin GBLOC
         x-nullable: true
-      destination_gbloc:
+      destinationGbloc:
         type: string
         example: LKNQ
         title: Destination GBLOC
         x-nullable: true
-      delivered_date:
+      deliveredDate:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
         x-nullable: true
-      invoice_approved_date:
+      invoiceApprovedDate:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
         x-nullable: true
-      weight_allotment:
+      weightAllotment:
         $ref: '#/definitions/WeightAllotment'
-      branch_of_service:
+      branchOfService:
         type: string
-      actual_move_date:
+      actualMoveDate:
         type: string
         format: date
-        example: 2018-04-25
         x-nullable: true
-      original_move_date:
+      originalMoveDate:
         type: string
         format: date
-        example: 2018-04-25
         x-nullable: true
     required:
       - id
       - status
       - locator
-      - customer_name
+      - customerName
       - edipi
       - rank
-      - orders_type
-      - branch_of_service
-      - last_modified_date
-      - created_at
+      - ordersType
+      - branchOfService
+      - lastModifiedDate
+      - createdAt
   MoveDatesSummary:
     type: object
     properties:
       id:
         type: string
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25'
-      move_id:
+      moveId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_date:
+      moveDate:
         type: string
         format: date
-        example: '2018-09-25'
       pack:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
       pickup:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
       transit:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
       delivery:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
       report:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
     required:
       - id
-      - move_id
-      - move_date
+      - moveId
+      - moveDate
       - pack
       - pickup
       - transit
@@ -2377,64 +2360,62 @@ definitions:
   AvailableMoveDates:
     type: object
     properties:
-      start_date:
+      startDate:
         type: string
         format: date
-        example: '2018-09-25'
       available:
         type: array
         items:
           type: string
           format: date
-          example: '2018-09-25'
     required:
-      - start_date
+      - startDate
       - available
   WeightAllotment:
     type: object
     properties:
-      total_weight_self:
+      totalWeightSelf:
         type: integer
         example: 18000
-      total_weight_self_plus_dependents:
+      totalWeightSelfPlusDependents:
         type: integer
         example: 18000
-      pro_gear_weight:
+      proGearWeight:
         type: integer
         example: 2000
-      pro_gear_weight_spouse:
+      proGearWeightSpouse:
         type: integer
         example: 500
     required:
-      - total_weight_self
-      - total_weight_self_plus_dependents
-      - pro_gear_weight
-      - pro_gear_weight_spouse
+      - totalWeightSelf
+      - totalWeightSelfPlusDependents
+      - proGearWeight
+      - proGearWeightSpouse
   IndexEntitlements:
     type: object
     additionalProperties:
       $ref: '#/definitions/WeightAllotment'
-  RateEnginePostalCodePayload:
+  RateEnginePostalCode:
     type: object
     properties:
       valid:
         type: boolean
         example: false
-      postal_code:
+      postalCode:
         type: string
         description: zip code, international allowed
         format: zip
         title: ZIP
         example: "'90210' or 'N15 3NL'"
-      postal_code_type:
+      postalCodeType:
         type: string
         enum:
           - origin
           - destination
     required:
       - valid
-      - postal_code
-      - postal_code_type
+      - postalCode
+      - postalCodeType
   AccessCode:
     type: object
     properties:
@@ -2442,23 +2423,24 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
+      serviceMemberId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       code:
         type: string
         example: CODE456
-      move_type:
+      moveType:
         type: string
         title: Selected Move Type
         enum:
           - HHG
           - PPM
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      claimed_at:
+        readOnly: true
+      claimedAt:
         type: string
         format: date-time
         example: 2018-04-12T23:20:50.52Z
@@ -2467,8 +2449,8 @@ definitions:
     required:
       - id
       - code
-      - move_type
-      - created_at
+      - moveType
+      - createdAt
   Role:
     type: object
     properties:
@@ -2482,9 +2464,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - roleType
@@ -2605,6 +2589,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -2666,10 +2651,8 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
-        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
-        x-nullable: true
   ClientError:
     type: object
     properties:
@@ -2721,51 +2704,51 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: original_move_date
+          name: originalMoveDate
           type: string
           format: date
           required: true
         - in: query
-          name: origin_zip
+          name: originZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_duty_station_zip
+          name: originDutyStationZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: orders_id
+          name: ordersId
           type: string
           format: uuid
           required: true
         - in: query
-          name: weight_estimate
+          name: weightEstimate
           type: integer
           required: true
       responses:
-        200:
+        '200':
           description: Made estimate of PPM cost range
           schema:
             $ref: '#/definitions/PPMEstimateRange'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: ppm discount not found for provided postal codes and original move date
-        409:
+        '409':
           description: distance is less than 50 miles (no short haul moves)
-        422:
+        '422':
           description: cannot process request with given information
-        500:
+        '500':
           description: internal server error
-  /estimates/ppm_sit:
+  /estimates/ppm-sit:
     get:
       summary: Return a PPM move's SIT cost estimate
       description: Calculates a reimbursment for a PPM move's SIT
@@ -2774,52 +2757,52 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: personally_procured_move_id
+          name: personallyProcuredMoveId
           type: string
           format: uuid
           required: true
         - in: query
-          name: original_move_date
+          name: originalMoveDate
           type: string
           format: date
           required: true
         - in: query
-          name: days_in_storage
+          name: daysInStorage
           type: integer
           required: true
         - in: query
-          name: origin_zip
+          name: originZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: orders_id
+          name: ordersId
           type: string
           format: uuid
           required: true
         - in: query
-          name: weight_estimate
+          name: weightEstimate
           type: integer
           required: true
       responses:
-        200:
+        '200':
           description: show PPM SIT estimate
           schema:
             $ref: '#/definitions/PPMSitEstimate'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        409:
+        '409':
           description: distance is less than 50 miles (no short haul moves)
-        422:
+        '422':
           description: the payload was unprocessable
-        500:
+        '500':
           description: internal server error
-  /users/logged_in:
+  /users/logged-in:
     get:
       summary: Returns the user info for the currently logged in user
       description: Returns the user info for the currently logged in user
@@ -2827,17 +2810,17 @@ paths:
       tags:
         - users
       responses:
-        200:
+        '200':
           description: Currently logged in user
           schema:
-            $ref: '#/definitions/LoggedInUserPayload'
-        400:
+            $ref: '#/definitions/LoggedInUser'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        500:
+        '500':
           description: server error
-  /users/is_logged_in:
+  /users/is-logged-in:
     get:
       summary: Returns boolean as to whether the user is logged in
       description: Returns boolean as to whether the user is logged in
@@ -2845,13 +2828,13 @@ paths:
       tags:
         - users
       responses:
-        200:
+        '200':
           description: Currently logged in user
           schema:
             type: boolean
-        400:
+        '400':
           description: invalid request
-        500:
+        '500':
           description: server error
   /orders:
     post:
@@ -2867,17 +2850,17 @@ paths:
           schema:
             $ref: '#/definitions/CreateUpdateOrders'
       responses:
-        201:
+        '201':
           description: created instance of orders
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
   /orders/{ordersId}:
     put:
@@ -2899,19 +2882,19 @@ paths:
           schema:
             $ref: '#/definitions/CreateUpdateOrders'
       responses:
-        200:
+        '200':
           description: updated instance of orders
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: orders not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: Returns the given order
@@ -2927,19 +2910,19 @@ paths:
           required: true
           description: UUID of the order
       responses:
-        200:
+        '200':
           description: the instance of the order
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: order is not found
-        500:
+        '500':
           description: internal server error
   /moves/{moveId}:
     patch:
@@ -2956,24 +2939,24 @@ paths:
           required: true
           description: UUID of the move
         - in: body
-          name: patchMovePayload
+          name: patchMove
           required: true
           schema:
-            $ref: '#/definitions/PatchMovePayload'
+            $ref: '#/definitions/PatchMove'
       responses:
-        201:
+        '201':
           description: updated instance of move
           schema:
-            $ref: '#/definitions/MovePayload'
-        400:
+            $ref: '#/definitions/Move'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move is not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: Returns the given move
@@ -2989,24 +2972,24 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: the instance of the move
           schema:
-            $ref: '#/definitions/MovePayload'
-        400:
+            $ref: '#/definitions/Move'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move is not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/signed_certifications:
+  /moves/{moveId}/signed-certifications:
     post:
       summary: Submits signed certification for the given move ID
-      description: Create an instance of signed_certification tied to the move ID
+      description: Create an instance of signed-certification tied to the move ID
       operationId: createSignedCertification
       tags:
         - certification
@@ -3018,28 +3001,28 @@ paths:
           required: true
           description: UUID of the move being signed for
         - in: body
-          name: createSignedCertificationPayload
+          name: createSignedCertification
           required: true
           schema:
-            $ref: '#/definitions/CreateSignedCertificationPayload'
+            $ref: '#/definitions/CreateSignedCertification'
       responses:
-        201:
-          description: created instance of signed_certification
+        '201':
+          description: created instance of signed-certification
           schema:
-            $ref: '#/definitions/SignedCertificationPayload'
-        400:
+            $ref: '#/definitions/SignedCertification'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to sign for this move
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: gets the signed certifications for the given move ID
-      description: returns a list of all signed_certifications associated with the move ID
+      description: returns a list of all signed-certifications associated with the move ID
       operationId: indexSignedCertification
       tags:
         - certification
@@ -3050,24 +3033,24 @@ paths:
           format: uuid
           required: true
       responses:
-        200:
+        '200':
           description: returns a list of signed certifications
           schema:
             $ref: '#/definitions/SignedCertifications'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move:
+  /moves/{moveId}/personally-procured-move:
     post:
       summary: Creates a new PPM for the given move
-      description: Create an instance of personally_procured_move tied to the move ID
+      description: Create an instance of personally-procured-move tied to the move ID
       operationId: createPersonallyProcuredMove
       tags:
         - ppm
@@ -3079,24 +3062,24 @@ paths:
           required: true
           description: UUID of the move this PPM is associated with
         - in: body
-          name: createPersonallyProcuredMovePayload
+          name: createPersonallyProcuredMove
           required: true
           schema:
-            $ref: '#/definitions/CreatePersonallyProcuredMovePayload'
+            $ref: '#/definitions/CreatePersonallyProcuredMove'
       responses:
-        201:
-          description: created instance of personally_procured_move
+        '201':
+          description: created instance of personally-procured-move
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: server error
     get:
       summary: Returns a list of all PPMs associated with this move
@@ -3112,17 +3095,17 @@ paths:
           required: true
           description: UUID of the move these PPMs are associated with
       responses:
-        200:
-          description: returns list of personally_procured_move
+        '200':
+          description: returns list of personally-procured-move
           schema:
-            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/IndexPersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
+  /moves/{moveId}/personally-procured-move/{personallyProcuredMoveId}/estimate:
     patch:
       summary: Calculates the estimated incentive of a PPM
       description: This request calculates the estimated incentive of a PPM and attaches this range to the PPM
@@ -3143,23 +3126,23 @@ paths:
           required: true
           description: UUID of the PPM being patched
       responses:
-        200:
-          description: updated instance of personally_procured_move
+        '200':
+          description: updated instance of personally-procured-move
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: ppm is not found or ppm discount not found for provided postal codes and original move date
-        422:
+        '422':
           description: cannot process request with given information
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
+  /moves/{moveId}/personally-procured-move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
@@ -3180,22 +3163,22 @@ paths:
           required: true
           description: UUID of the PPM being updated
         - in: body
-          name: updatePersonallyProcuredMovePayload
+          name: UpdatePersonallyProcuredMove
           required: true
           schema:
-            $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
+            $ref: '#/definitions/UpdatePersonallyProcuredMove'
       responses:
-        200:
-          description: updated instance of personally_procured_move
+        '200':
+          description: updated instance of personally-procured-move
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
     patch:
       summary: Patches the PPM
@@ -3217,26 +3200,26 @@ paths:
           required: true
           description: UUID of the PPM being patched
         - in: body
-          name: patchPersonallyProcuredMovePayload
+          name: patchPersonallyProcuredMove
           required: true
           schema:
-            $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
+            $ref: '#/definitions/PatchPersonallyProcuredMove'
       responses:
-        200:
-          description: updated instance of personally_procured_move
+        '200':
+          description: updated instance of personally-procured-move
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: ppm is not found or ppm discount not found for provided postal codes and original move date
-        422:
+        '422':
           description: cannot process request with given information
-        500:
+        '500':
           description: internal server error
     get:
       summary: Returns the given PPM
@@ -3258,17 +3241,17 @@ paths:
           required: true
           description: UUID of the PPM
       responses:
-        200:
-          description: the instance of personally_procured_move
+        '200':
+          description: the instance of personally-procured-move
           schema:
-            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/IndexPersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-  /personally_procured_move/{personallyProcuredMoveId}/submit:
+  /personally-procured-move/{personallyProcuredMoveId}/submit:
     post:
       summary: Submits a PPM for approval
       description: Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
@@ -3282,27 +3265,27 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being submitted
-        - name: submitPersonallyProcuredMovePayload
+        - name: submitPersonallyProcuredMove
           in: body
           required: true
           schema:
-            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
+            $ref: '#/definitions/SubmitPersonallyProcuredMove'
       responses:
-        200:
-          description: updated instance of personally_procured_move
+        '200':
+          description: updated instance of personally-procured-move
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: ppm is not found
-        500:
+        '500':
           description: internal server error
-  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
+  /personally-procured-move/{personallyProcuredMoveId}/expense-summary:
     get:
       summary: Returns an expense summary organized by expense type
       description: Calculates and returns an expense summary organized by expense type
@@ -3317,21 +3300,21 @@ paths:
           required: true
           description: UUID of the PPM
       responses:
-        200:
+        '200':
           description: Successfully calculated expense summary
           schema:
-            $ref: '#/definitions/ExpenseSummaryPayload'
-        400:
+            $ref: '#/definitions/ExpenseSummary'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: personally procured move not found
-        500:
+        '500':
           description: server error
-  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
+  /personally-procured-move/{personallyProcuredMoveId}/request-payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
       description: Moves the PPM and the move into the PAYMENT_REQUESTED state
@@ -3346,19 +3329,19 @@ paths:
           required: true
           description: UUID of the PPM
       responses:
-        200:
+        '200':
           description: Sucesssfully requested payment
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
@@ -3375,17 +3358,17 @@ paths:
           required: true
           description: UUID of the reimbursement being approved
       responses:
-        200:
+        '200':
           description: updated instance of reimbursement
           schema:
             $ref: '#/definitions/Reimbursement'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
   /moves/{moveId}/orders:
     get:
@@ -3402,27 +3385,27 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: the orders information for a move for office use
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move not found
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/move_documents:
+  /moves/{moveId}/move-documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
-        - move_docs
+        - move-docs
       parameters:
         - in: path
           name: moveId
@@ -3431,22 +3414,22 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: returns list of move douments
           schema:
             $ref: '#/definitions/MoveDocuments'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
     post:
       summary: Creates a move document
       description: Created a move document with the given information
       operationId: createGenericMoveDocument
       tags:
-        - move_docs
+        - move-docs
       parameters:
         - name: moveId
           in: path
@@ -3455,30 +3438,30 @@ paths:
           required: true
           description: UUID of the move
         - in: body
-          name: createGenericMoveDocumentPayload
+          name: createGenericMoveDocument
           required: true
           schema:
-            $ref: '#/definitions/CreateGenericMoveDocumentPayload'
+            $ref: '#/definitions/CreateGenericMoveDocument'
       responses:
-        200:
+        '200':
           description: returns new move document object
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        400:
+            $ref: '#/definitions/MoveDocument'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to modify this move
-        500:
+        '500':
           description: server error
-  /move_documents/{moveDocumentId}:
+  /move-documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
       operationId: updateMoveDocument
       tags:
-        - move_docs
+        - move-docs
       parameters:
         - in: path
           name: moveDocumentId
@@ -3490,28 +3473,28 @@ paths:
           name: updateMoveDocument
           required: true
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
+            $ref: '#/definitions/MoveDocument'
       responses:
-        200:
+        '200':
           description: updated instance of move document
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        400:
+            $ref: '#/definitions/MoveDocument'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: move document not found
-        500:
+        '500':
           description: internal server error
     delete:
       summary: Deletes a move document
       description: Deletes a move document with the given information
       operationId: deleteMoveDocument
       tags:
-        - move_docs
+        - move-docs
       parameters:
         - in: path
           name: moveDocumentId
@@ -3520,25 +3503,25 @@ paths:
           required: true
           description: UUID of the move document model
       responses:
-        204:
+        '204':
           description: deleted
-        400:
+        '400':
           description: invalid request
           schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+            $ref: '#/definitions/InvalidRequestResponse'
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
-  /moves/{moveId}/moving_expense_documents:
+  /moves/{moveId}/moving-expense-documents:
     post:
       summary: Creates a moving expense document
       description: Created a moving expense document with the given information
       operationId: createMovingExpenseDocument
       tags:
-        - move_docs
+        - move-docs
       parameters:
         - name: moveId
           in: path
@@ -3547,22 +3530,22 @@ paths:
           required: true
           description: UUID of the move
         - in: body
-          name: createMovingExpenseDocumentPayload
+          name: createMovingExpenseDocument
           required: true
           schema:
-            $ref: '#/definitions/CreateMovingExpenseDocumentPayload'
+            $ref: '#/definitions/CreateMovingExpenseDocument'
       responses:
-        200:
+        '200':
           description: returns new moving expense document object
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        400:
+            $ref: '#/definitions/MoveDocument'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to modify this move
-        500:
+        '500':
           description: server error
   /moves/{moveId}/approve:
     post:
@@ -3579,21 +3562,21 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: returns updated (approved) move object
           schema:
-            $ref: '#/definitions/MovePayload'
-        400:
+            $ref: '#/definitions/Move'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to approve this move
-        409:
+        '409':
           description: the move is not in a state to be approved
           schema:
-            $ref: '#/definitions/MovePayload'
-        500:
+            $ref: '#/definitions/Move'
+        '500':
           description: server error
   /moves/{moveId}/submit:
     post:
@@ -3609,27 +3592,27 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
-        - name: submitMoveForApprovalPayload
+        - name: submitMoveForApproval
           in: body
           required: true
           schema:
-            $ref: '#/definitions/SubmitMoveForApprovalPayload'
+            $ref: '#/definitions/SubmitMoveForApproval'
       responses:
-        200:
+        '200':
           description: returns updated (submitted) move object
           schema:
-            $ref: '#/definitions/MovePayload'
-        400:
+            $ref: '#/definitions/Move'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to approve this move
-        409:
+        '409':
           description: the move is not in a state to be approved
           schema:
-            $ref: '#/definitions/MovePayload'
-        500:
+            $ref: '#/definitions/Move'
+        '500':
           description: server error
   /moves/{moveId}/cancel:
     post:
@@ -3651,23 +3634,23 @@ paths:
           schema:
             $ref: '#/definitions/CancelMove'
       responses:
-        200:
+        '200':
           description: returns updated (canceled) move object
           schema:
-            $ref: '#/definitions/MovePayload'
-        400:
+            $ref: '#/definitions/Move'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to cancel this move
-        409:
+        '409':
           description: the move is not in a state to be canceled
           schema:
-            $ref: '#/definitions/MovePayload'
-        500:
+            $ref: '#/definitions/Move'
+        '500':
           description: server error
-  /moves/{moveId}/move_dates_summary:
+  /moves/{moveId}/move-dates-summary:
     get:
       summary: Returns projected move-related dates for a given move date
       description: Returns projected move-related dates for a given move date
@@ -3688,19 +3671,19 @@ paths:
           required: true
           description: The chosen move date
       responses:
-        200:
+        '200':
           description: List of projected move-related dates
           schema:
             $ref: '#/definitions/MoveDatesSummary'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/shipment_summary_worksheet:
+  /moves/{moveId}/shipment-summary-worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
       description: Generates pre-filled PDF using data already collected
@@ -3723,7 +3706,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        200:
+        '200':
           headers:
             Content-Disposition:
               type: string
@@ -3732,15 +3715,15 @@ paths:
           schema:
             format: binary
             type: file
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
+  /personally-procured-moves/{personallyProcuredMoveId}/create-ppm-attachments:
     post:
       summary: Creates PPM attachments PDF
       description: Creates a PPM attachments PDF
@@ -3764,25 +3747,25 @@ paths:
           collectionFormat: csv
           description: Restrict the list to documents with matching docType.
       responses:
-        200:
+        '200':
           description: returns a PPM attachments upload
           schema:
-            $ref: '#/definitions/UploadPayload'
-        400:
+            $ref: '#/definitions/Upload'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to perform this action
-        413:
+        '413':
           description: payload is too large
-        422:
+        '422':
           description: malformed PDF contained in uploads
-        424:
+        '424':
           description: no files to be processed into attachments PDF
-        500:
+        '500':
           description: server error
-  /personally_procured_moves/{personallyProcuredMoveId}/approve:
+  /personally-procured-moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
       description: Sets the status of the PPM to APPROVED.
@@ -3796,25 +3779,25 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being updated
-        - name: approvePersonallyProcuredMovePayload
+        - name: ApprovePersonallyProcuredMove
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
+            $ref: '#/definitions/ApprovePersonallyProcuredMove'
       responses:
-        200:
-          description: updated instance of personally_procured_move
+        '200':
+          description: updated instance of personally-procured-move
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
+            $ref: '#/definitions/PersonallyProcuredMove'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /personally_procured_moves/incentive:
+  /personally-procured-moves/incentive:
     get:
       summary: Return a PPM incentive value
       description: Calculates incentive for a PPM move (excluding SIT)
@@ -3823,24 +3806,24 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: original_move_date
+          name: originalMoveDate
           type: string
           format: date
           required: true
         - in: query
-          name: origin_zip
+          name: originZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_duty_station_zip
+          name: originDutyStationZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: orders_id
+          name: ordersId
           type: string
           format: uuid
           required: true
@@ -3849,19 +3832,19 @@ paths:
           type: integer
           required: true
       responses:
-        200:
+        '200':
           description: Made calculation of PPM incentive
           schema:
             $ref: '#/definitions/PPMIncentive'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        409:
+        '409':
           description: distance is less than 50 miles (no short haul moves)
-        500:
+        '500':
           description: internal server error
   /documents:
     post:
@@ -3872,18 +3855,18 @@ paths:
         - documents
       parameters:
         - in: body
-          name: documentPayload
+          name: document
           required: true
           schema:
-            $ref: '#/definitions/PostDocumentPayload'
+            $ref: '#/definitions/PostDocument'
       responses:
-        201:
+        '201':
           description: created document
           schema:
-            $ref: '#/definitions/DocumentPayload'
-        400:
+            $ref: '#/definitions/Document'
+        '400':
           description: invalid request
-        500:
+        '500':
           description: server error
   /documents/{documentId}:
     get:
@@ -3900,19 +3883,19 @@ paths:
           required: true
           description: UUID of the document to return
       responses:
-        200:
+        '200':
           description: the requested document
           schema:
-            $ref: '#/definitions/DocumentPayload'
-        400:
+            $ref: '#/definitions/Document'
+        '400':
           description: invalid request
           schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+            $ref: '#/definitions/InvalidRequestResponse'
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
   /uploads/{uploadId}:
     delete:
@@ -3929,17 +3912,17 @@ paths:
           required: true
           description: UUID of the upload to be deleted
       responses:
-        204:
+        '204':
           description: deleted
-        400:
+        '400':
           description: invalid request
           schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+            $ref: '#/definitions/InvalidRequestResponse'
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
   /uploads:
     post:
@@ -3963,21 +3946,21 @@ paths:
           description: The file to upload.
           required: true
       responses:
-        201:
+        '201':
           description: created upload
           schema:
-            $ref: '#/definitions/UploadPayload'
-        400:
+            $ref: '#/definitions/Upload'
+        '400':
           description: invalid request
           schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+            $ref: '#/definitions/InvalidRequestResponse'
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        413:
+        '413':
           description: payload is too large
-        500:
+        '500':
           description: server error
     delete:
       summary: Deletes a collection of uploads
@@ -3995,53 +3978,53 @@ paths:
           required: true
           description: Array of UUIDs to be deleted
       responses:
-        204:
+        '204':
           description: deleted
-        400:
+        '400':
           description: invalid request
           schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
+            $ref: '#/definitions/InvalidRequestResponse'
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
-  /service_members:
+  /service-members:
     post:
       summary: Creates service member for a logged-in user
       description: Creates an instance of a service member tied to a user
       operationId: createServiceMember
       tags:
-        - service_members
+        - service-members
       parameters:
         - in: body
-          name: createServiceMemberPayload
+          name: createServiceMember
           required: true
           schema:
-            $ref: '#/definitions/CreateServiceMemberPayload'
+            $ref: '#/definitions/CreateServiceMember'
       responses:
-        201:
+        '201':
           description: created instance of service member
           schema:
-            $ref: '#/definitions/ServiceMemberPayload'
-        400:
+            $ref: '#/definitions/ServiceMember'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
-  /service_members/{serviceMemberId}:
+  /service-members/{serviceMemberId}:
     get:
       summary: Returns the given service member
       description: Returns the given service member
       operationId: showServiceMember
       tags:
-        - service_members
+        - service-members
       parameters:
         - in: path
           name: serviceMemberId
@@ -4050,26 +4033,26 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        200:
+        '200':
           description: the instance of the service member
           schema:
-            $ref: '#/definitions/ServiceMemberPayload'
-        400:
+            $ref: '#/definitions/ServiceMember'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
     patch:
       summary: Patches the service member
       description: Any fields sent in this request will be set on the service member referenced
       operationId: patchServiceMember
       tags:
-        - service_members
+        - service-members
       parameters:
         - in: path
           name: serviceMemberId
@@ -4078,32 +4061,32 @@ paths:
           required: true
           description: UUID of the service member
         - in: body
-          name: patchServiceMemberPayload
+          name: patchServiceMember
           required: true
           schema:
-            $ref: '#/definitions/PatchServiceMemberPayload'
+            $ref: '#/definitions/PatchServiceMember'
       responses:
-        200:
+        '200':
           description: updated instance of service member
           schema:
-            $ref: '#/definitions/ServiceMemberPayload'
-        400:
+            $ref: '#/definitions/ServiceMember'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
-  /service_members/{serviceMemberId}/current_orders:
+  /service-members/{serviceMemberId}/current-orders:
     get:
       summary: Returns the latest orders for a given service member
       description: Returns orders
       operationId: showServiceMemberOrders
       tags:
-        - service_members
+        - service-members
       parameters:
         - in: path
           name: serviceMemberId
@@ -4112,33 +4095,33 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        200:
+        '200':
           description: the instance of the service member
           schema:
             $ref: '#/definitions/Orders'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: service member not found
-        500:
+        '500':
           description: internal server error
-  /service_members/{serviceMemberId}/backup_contacts:
+  /service-members/{serviceMemberId}/backup-contacts:
     post:
       summary: Submits backup contact for a logged-in user
       description: Creates an instance of a backup contact tied to a service member user
       operationId: createServiceMemberBackupContact
       tags:
-        - backup_contacts
+        - backup-contacts
       parameters:
         - in: body
-          name: createBackupContactPayload
+          name: createBackupContact
           required: true
           schema:
-            $ref: '#/definitions/CreateServiceMemberBackupContactPayload'
+            $ref: '#/definitions/CreateServiceMemberBackupContact'
         - in: path
           name: serviceMemberId
           type: string
@@ -4146,26 +4129,26 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        201:
+        '201':
           description: created instance of service member backup contact
           schema:
-            $ref: '#/definitions/ServiceMemberBackupContactPayload'
-        400:
+            $ref: '#/definitions/ServiceMemberBackupContact'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to create this backup contact
-        404:
+        '404':
           description: contact not found
-        500:
+        '500':
           description: internal server error
     get:
       summary: List all service member backup contacts
       description: List all service member backup contacts
       operationId: indexServiceMemberBackupContacts
       tags:
-        - backup_contacts
+        - backup-contacts
       parameters:
         - in: path
           name: serviceMemberId
@@ -4174,27 +4157,27 @@ paths:
           required: true
           description: UUID of the service member
       responses:
-        200:
+        '200':
           description: list of service member backup contacts
           schema:
-            $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
-        400:
+            $ref: '#/definitions/IndexServiceMemberBackupContacts'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to see this backup contact
-        404:
+        '404':
           description: contact not found
-        500:
+        '500':
           description: internal server error
-  /backup_contacts/{backupContactId}:
+  /backup-contacts/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
       description: Returns the given service member backup contact
       operationId: showServiceMemberBackupContact
       tags:
-        - backup_contacts
+        - backup-contacts
       parameters:
         - in: path
           name: backupContactId
@@ -4203,32 +4186,32 @@ paths:
           required: true
           description: UUID of the service member backup contact
       responses:
-        200:
+        '200':
           description: the instance of the service member backup contact
           schema:
-            $ref: '#/definitions/ServiceMemberBackupContactPayload'
-        400:
+            $ref: '#/definitions/ServiceMemberBackupContact'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: backup contact not found
-        500:
+        '500':
           description: internal server error
     put:
       summary: Updates a service member backup contact
       description: Any fields sent in this request will be set on the backup contact referenced
       operationId: updateServiceMemberBackupContact
       tags:
-        - backup_contacts
+        - backup-contacts
       parameters:
         - in: body
-          name: updateServiceMemberBackupContactPayload
+          name: updateServiceMemberBackupContact
           required: true
           schema:
-            $ref: '#/definitions/UpdateServiceMemberBackupContactPayload'
+            $ref: '#/definitions/UpdateServiceMemberBackupContact'
         - in: path
           name: backupContactId
           type: string
@@ -4236,27 +4219,27 @@ paths:
           required: true
           description: UUID of the service member backup contact
       responses:
-        201:
+        '201':
           description: updated instance of backup contact
           schema:
-            $ref: '#/definitions/ServiceMemberBackupContactPayload'
-        400:
+            $ref: '#/definitions/ServiceMemberBackupContact'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: backup contact not found
-        500:
+        '500':
           description: internal server error
-  /duty_stations:
+  /duty-stations:
     get:
       summary: Returns the duty stations matching the search query
       description: Returns the duty stations matching the search query
       operationId: searchDutyStations
       tags:
-        - duty_stations
+        - duty-stations
       parameters:
         - in: query
           name: search
@@ -4264,27 +4247,27 @@ paths:
           required: true
           description: Search string for duty stations
       responses:
-        200:
+        '200':
           description: the instance of the duty station
           schema:
-            $ref: '#/definitions/DutyStationsPayload'
-        400:
+            $ref: '#/definitions/DutyStations'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: matching duty station not found
-        500:
+        '500':
           description: internal server error
-  /duty_stations/{dutyStationId}/transportation_office:
+  /duty-stations/{dutyStationId}/transportation-office:
     get:
       summary: Returns the transportation office for a given duty station
       description: Returns the given duty station's transportation office
       operationId: showDutyStationTransportationOffice
       tags:
-        - transportation_offices
+        - transportation-offices
       parameters:
         - in: path
           name: dutyStationId
@@ -4293,19 +4276,19 @@ paths:
           required: true
           description: UUID of the duty station
       responses:
-        200:
+        '200':
           description: the instance of the transportation office for a duty station
           schema:
             $ref: '#/definitions/TransportationOffice'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        404:
+        '404':
           description: transportation office not found
-        500:
+        '500':
           description: internal server error
   /queues/{queueType}:
     get:
@@ -4319,27 +4302,27 @@ paths:
           name: queueType
           type: string
           enum:
-            - new
-            - ppm_payment_requested
-            - all
-            - ppm_approved
-            - ppm_completed
+            - NEW
+            - PPM_PAYMENT_REQUESTED
+            - ALL
+            - PPM_APPROVED
+            - PPM_COMPLETED
           required: true
           description: Queue type to show
       responses:
-        200:
+        '200':
           description: list all moves in the specified queue
           schema:
             type: array
             items:
               $ref: '#/definitions/MoveQueueItem'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized to access this queue
-        404:
+        '404':
           description: move queue item is not found
   /entitlements:
     get:
@@ -4349,7 +4332,7 @@ paths:
       tags:
         - entitlements
       responses:
-        200:
+        '200':
           description: List of weights allotted entitlement
           schema:
             $ref: '#/definitions/IndexEntitlements'
@@ -4368,13 +4351,13 @@ paths:
           required: true
           description: UUID of the move
       responses:
-        200:
+        '200':
           description: weight estimate is below allotted entitlement
-        404:
+        '404':
           description: personally procured move not found
-        409:
+        '409':
           description: Requested weight estimate is above allotted entitlement
-  /calendar/available_move_dates:
+  /calendar/available-move-dates:
     get:
       summary: Returns available dates for the move calendar
       description: Returns available dates for the move calendar
@@ -4389,54 +4372,54 @@ paths:
           required: true
           description: Look for future available dates starting from (and including) this date
       responses:
-        200:
+        '200':
           description: List of available dates
           schema:
             $ref: '#/definitions/AvailableMoveDates'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /dps_auth/cookie_url:
+  /dps-auth/cookie-url:
     post:
       summary: Returns the URL to redirect to that begins DPS auth
       description: Returns the URL to redirect to that begins DPS auth
       operationId: getCookieURL
       tags:
-        - dps_auth
+        - dps-auth
       parameters:
         - in: query
-          name: cookie_name
+          name: cookieName
           type: string
           description: The name of the cookie to set, DPS by default
           required: false
         - in: query
-          name: dps_redirect_url
+          name: dpsRedirectUrl
           type: string
           description: The DPS URL to redirec to
           required: false
       responses:
-        200:
+        '200':
           description: Success
           schema:
-            $ref: '#/definitions/DPSAuthCookieURLPayload'
-        400:
+            $ref: '#/definitions/DPSAuthCookieURL'
+        '400':
           description: invalid request
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /moves/{moveId}/weight_ticket:
+  /moves/{moveId}/weight-ticket:
     post:
       summary: Creates a weight ticket document
       description: Created a weight ticket document with the given information
       operationId: createWeightTicketDocument
       tags:
-        - move_docs
+        - move-docs
       parameters:
         - name: moveId
           in: path
@@ -4448,55 +4431,55 @@ paths:
           name: createWeightTicketDocument
           required: true
           schema:
-            $ref: '#/definitions/CreateWeightTicketDocumentsPayload'
+            $ref: '#/definitions/CreateWeightTicketDocuments'
       responses:
-        200:
+        '200':
           description: returns new weight ticket document object
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        400:
+            $ref: '#/definitions/MoveDocument'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: not authorized to modify this move
-        500:
+        '500':
           description: server error
-  /rate_engine_postal_codes/{postal_code}:
+  /rate-engine-postal-codes/{postalCode}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.
       description: Verifies if a zipcode is valid for origin or destination location for a move.
       operationId: validatePostalCodeWithRateData
       tags:
-        - postal_codes
+        - postal-codes
       parameters:
         - in: path
-          name: postal_code
+          name: postalCode
           type: string
           required: true
           format: zip
           pattern: '^(\d{5}?)$'
         - in: query
-          name: postal_code_type
+          name: postalCodeType
           type: string
           required: true
           enum:
             - origin
             - destination
       responses:
-        200:
-          description: postal_code is valid or invalid
+        '200':
+          description: postalCode is valid or invalid
           schema:
-            $ref: '#/definitions/RateEnginePostalCodePayload'
-        400:
+            $ref: '#/definitions/RateEnginePostalCode'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: must be authenticated to use this endpoint
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: server error
-  /access_codes:
+  /access-codes:
     get:
       summary: Fetches an access code
       description: Fetches the access code for a service member.
@@ -4504,19 +4487,19 @@ paths:
       tags:
         - accesscode
       responses:
-        200:
+        '200':
           description: access code has been found in system
           schema:
             $ref: '#/definitions/AccessCode'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: not authorized to fetch access code
-        404:
+        '404':
           description: access code not found in system
-        500:
+        '500':
           description: server error
-  /access_codes/valid:
+  /access-codes/valid:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
       description: Verifies if access code is both unused and correctly associated with a move type.
@@ -4531,19 +4514,19 @@ paths:
           pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
           x-nullable: false
       responses:
-        200:
+        '200':
           description: access code is invalid or valid
           schema:
             $ref: '#/definitions/AccessCode'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: not authorized to validate access code
-        404:
+        '404':
           description: access code not found in system
-        500:
+        '500':
           description: server error
-  /access_codes/invalid:
+  /access-codes/invalid:
     patch:
       summary: Updates access code as invalid by associating it with the current service member.
       description: Updates access code as invalid by associating it with the current service member.
@@ -4563,17 +4546,17 @@ paths:
               code:
                 type: string
       responses:
-        200:
+        '200':
           description: access code is invalid or valid
           schema:
             $ref: '#/definitions/AccessCode'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: not authorized to validate access code
-        404:
+        '404':
           description: access code not found in system
-        500:
+        '500':
           description: server error
   /addresses/{addressId}:
     get:
@@ -4590,19 +4573,19 @@ paths:
           required: true
           description: UUID of the address to return
       responses:
-        200:
+        '200':
           description: the requested address
           schema:
             $ref: '#/definitions/Address'
-        400:
+        '400':
           description: invalid request
-        403:
+        '403':
           description: not authorized
-        404:
+        '404':
           description: not found
-        500:
+        '500':
           description: server error
-  '/mto_shipments':
+  '/mto-shipments':
     post:
       summary: createMTOShipment
       description: |
@@ -4708,7 +4691,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{moveTaskOrderID}/mto_shipments:
+  /moves/{moveTaskOrderID}/mto-shipments:
     get:
       summary: Gets all shipments for a move task order
       description: |
