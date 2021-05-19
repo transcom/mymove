@@ -35,6 +35,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</dd>
         </div>
         <div
+          data-testid="progear-row"
           className={classNames(descriptionListStyles.row, {
             [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
           })}
@@ -43,6 +44,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="progear">{formatWeight(info.progear)}</dd>
         </div>
         <div
+          data-testid="spouseprogear-row"
           className={classNames(descriptionListStyles.row, {
             [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
           })}
@@ -51,6 +53,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
         <div
+          data-testid="rme-row"
           className={classNames(descriptionListStyles.row, {
             [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
           })}
@@ -59,6 +62,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
         </div>
         <div
+          data-testid="ocie-row"
           className={classNames(descriptionListStyles.row, {
             [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
           })}
