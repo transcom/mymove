@@ -289,7 +289,8 @@ func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData_checkAgentTyp
 			NewAgent: models.MTOAgent{
 				LastName: &lastName,
 			},
-			Verrs: validate.NewErrors(),
+			Shipment: &shipment,
+			Verrs:    validate.NewErrors(),
 		}
 
 		err := agentData.checkAgentType()
