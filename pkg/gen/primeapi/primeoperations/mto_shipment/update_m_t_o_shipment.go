@@ -48,6 +48,7 @@ Updates an existing shipment for a Move Task Order (MTO). Only the following fie
 * `agents` - Agents can not be added or updated using this endpoint. For adding use `createMTOAgent` and for updating use `updateMTOAgent`.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+All addresses should be updated using `updateMTOShipmentAddress` instead of `updateMTOShipment`.
 
 
 */
