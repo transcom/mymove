@@ -295,7 +295,10 @@ const ServicesCounselingShipmentForm = ({
                 )}
 
                 <SectionWrapper className={formStyles.formSection}>
-                  <Fieldset legend={<h2 className={formStyles.legendContent}>Remarks {optionalLabel}</h2>}>
+                  <Fieldset>
+                    <h2>
+                      Remarks <span className="float-right">{optionalLabel}</span>
+                    </h2>
                     <Label htmlFor="customerRemarks">Customer remarks</Label>
                     <Field
                       as={Textarea}
