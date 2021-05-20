@@ -85,7 +85,9 @@ func Zip5ToZip3(zip5 string) string {
 	return zip5[0:3]
 }
 
-// computePPM Calculates the cost of a PPM move.
+// computePPM this is returning a hardcoded value because we aren't loading tariff400ng data
+// hardcoded value to prevent errors when scheduling a ppm beyond 2021-05-15
+// PPMs will be addressed in outcome 7
 func (re *RateEngine) computePPM(
 	weight unit.Pound,
 	originZip5 string,
@@ -141,6 +143,8 @@ func (re *RateEngine) computePPM(
 	return cost, nil
 }
 
+// computePPM commented out in favor of returning a hardcoded struct above.
+// left this function in rather than deleting because we will use this function when we get to outcome 7
 // // computePPM Calculates the cost of a PPM move.
 // func (re *RateEngine) computePPM(
 // 	weight unit.Pound,
