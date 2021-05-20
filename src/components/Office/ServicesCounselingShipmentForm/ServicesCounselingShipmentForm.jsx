@@ -9,23 +9,23 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 import styles from './ServicesCounselingShipmentForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
+import SectionWrapper from 'components/Customer/SectionWrapper';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import { Form } from 'components/form/Form';
+import { DatePickerInput } from 'components/form/fields';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
+import Hint from 'components/Hint/index';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { createMTOShipment, getResponseError } from 'services/internalApi';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
-import { MatchShape } from 'types/officeShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { createMTOShipment, getResponseError } from 'services/internalApi';
-import { DatePickerInput } from 'components/form/fields';
-import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import { Form } from 'components/form/Form';
-import Hint from 'components/Hint/index';
+import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
-import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
-import SectionWrapper from 'components/Customer/SectionWrapper';
-import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 
 const ServicesCounselingShipmentForm = ({
   match,

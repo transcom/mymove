@@ -5,15 +5,15 @@ import { queryCache, useMutation } from 'react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
+import CustomerHeader from 'components/CustomerHeader';
+import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
-import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { useEditShipmentQueries } from 'hooks/queries';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
-import CustomerHeader from 'components/CustomerHeader';
 
 const ServicesCounselingEditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
