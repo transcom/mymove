@@ -236,12 +236,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 }
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
-	serviceCounselingCompletedAt := time.Now()
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			Status:                       models.MoveStatusNeedsServiceCounseling,
-			ServiceCounselingCompletedAt: &serviceCounselingCompletedAt,
+			Status: models.MoveStatusNeedsServiceCounseling,
 		},
 		Order: order,
 	})
@@ -271,6 +269,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 
 		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
 		suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
+		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
 		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
 	})
 
