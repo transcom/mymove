@@ -33,6 +33,6 @@ describe('CustomerInfo', () => {
         <CustomerInfo customer={mockCustomer} isLoading={false} isError={false} />{' '}
       </MockProviders>,
     );
-    expect(screen.getByLabelText('First name')).toEqual('John');
+    expect(screen.getByLabelText('First name').value).toEqual('John');
   });
 });
