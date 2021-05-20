@@ -65,6 +65,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0058](0058-replace-loki-with-happo.md) - Use Happo for visual regression testing
 - [ADR-0059](0059-use-snapshot-to-cleanup-loadtesting.md) - Use snapshot to cleanup load testing
 - [ADR-0060](0060-move-state-for-service-counseling.md) - _Move statuses to support service counseling_
+- [ADR-0061](0061-use-opentelemetry-for-distributed-tracing.md) - _Use OpenTelemetry to instrument code for distributed tracing_
 
 <!-- adrlogstop -->
 
