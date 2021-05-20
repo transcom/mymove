@@ -247,6 +247,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
+		counselorRemarks := "Counselor approved"
 		updatedShipment := models.MTOShipment{
 			ID:                               oldShipment.ID,
 			DestinationAddress:               &newDestinationAddress,
@@ -267,6 +268,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			Status:                           models.MTOShipmentStatusSubmitted,
 			Diversion:                        true,
 			CustomerRemarks:                  &customerRemarks,
+			CounselorRemarks:                 &counselorRemarks,
 		}
 
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
@@ -281,6 +283,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
+		suite.Equal(counselorRemarks, *newShipment.CounselorRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
 		suite.Equal(true, newShipment.Diversion)
 		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
