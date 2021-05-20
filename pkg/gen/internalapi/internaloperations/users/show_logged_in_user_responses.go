@@ -25,7 +25,7 @@ type ShowLoggedInUserOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.LoggedInUserPayload `json:"body,omitempty"`
+	Payload *internalmessages.LoggedInUser `json:"body,omitempty"`
 }
 
 // NewShowLoggedInUserOK creates ShowLoggedInUserOK with default headers values
@@ -35,13 +35,13 @@ func NewShowLoggedInUserOK() *ShowLoggedInUserOK {
 }
 
 // WithPayload adds the payload to the show logged in user o k response
-func (o *ShowLoggedInUserOK) WithPayload(payload *internalmessages.LoggedInUserPayload) *ShowLoggedInUserOK {
+func (o *ShowLoggedInUserOK) WithPayload(payload *internalmessages.LoggedInUser) *ShowLoggedInUserOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the show logged in user o k response
-func (o *ShowLoggedInUserOK) SetPayload(payload *internalmessages.LoggedInUserPayload) {
+func (o *ShowLoggedInUserOK) SetPayload(payload *internalmessages.LoggedInUser) {
 	o.Payload = payload
 }
 

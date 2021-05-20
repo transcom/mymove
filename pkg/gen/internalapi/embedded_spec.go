@@ -2991,7 +2991,7 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "$ref": "#/definitions/LoggedInUserPayload"
+              "$ref": "#/definitions/LoggedInUser"
             }
           },
           "400": {
@@ -4092,7 +4092,7 @@ func init() {
         }
       }
     },
-    "LoggedInUserPayload": {
+    "LoggedInUser": {
       "type": "object",
       "required": [
         "id"
@@ -9482,7 +9482,7 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "$ref": "#/definitions/LoggedInUserPayload"
+              "$ref": "#/definitions/LoggedInUser"
             }
           },
           "400": {
@@ -10598,7 +10598,7 @@ func init() {
         }
       }
     },
-    "LoggedInUserPayload": {
+    "LoggedInUser": {
       "type": "object",
       "required": [
         "id"
