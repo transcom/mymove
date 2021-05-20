@@ -45,6 +45,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MtoShipmentCreateMTOShipmentHandler == nil {
+		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemDeleteMTOServiceItemHandler == nil {
 		api.MtoServiceItemDeleteMTOServiceItemHandler = mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.DeleteMTOServiceItem has not yet been implemented")

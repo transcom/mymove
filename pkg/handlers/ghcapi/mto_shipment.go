@@ -82,6 +82,28 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
+// CreateMTOShipmentHandler is the handler to create MTO shipments
+type CreateMTOShipmentHandler struct {
+	handlers.HandlerContext
+	mtoShipmentCreator     services.MTOShipmentCreator
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
+}
+
+// Handle creates the mto shipment
+func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
+	//logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	payload := params.Body
+
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
+
+	mtoShipment, _ = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, nil)
+
+	returnPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+}
+
 // PatchShipmentHandler patches shipments
 type PatchShipmentHandler struct {
 	handlers.HandlerContext

@@ -1092,6 +1092,51 @@ func init() {
         }
       ]
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateMTOShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -2064,6 +2109,66 @@ func init() {
         },
         "type": {
           "type": "string"
+        }
+      }
+    },
+    "CreateMTOShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "requestedPickupDate",
+        "pickupAddress",
+        "destinationAddress"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedPickupDate": {
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
+          "type": "string",
+          "format": "date"
         }
       }
     },
@@ -5269,6 +5374,63 @@ func init() {
         }
       ]
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateMTOShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -6382,6 +6544,66 @@ func init() {
         },
         "type": {
           "type": "string"
+        }
+      }
+    },
+    "CreateMTOShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "requestedPickupDate",
+        "pickupAddress",
+        "destinationAddress"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedPickupDate": {
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
+          "type": "string",
+          "format": "date"
         }
       }
     },

@@ -397,6 +397,47 @@ paths:
       description: Gets all line items for a move
       operationId: listMTOServiceItems
       summary: Gets all line items for a move
+  '/mto-shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateMTOShipment'
+      responses:
+        '200':
+          description: Successfully created a MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -425,51 +466,6 @@ paths:
       description: Gets all shipments for a move task order
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
-    post:
-      summary: createMTOShipment
-      description: |
-          Creates a MTO shipment for the specified Move Task Order.
-          Required fields include:
-          * Customer requested pick-up date
-          * Pick-up Address
-          * Delivery Address
-          * Releasing / Receiving agents
-
-          Optional fields include:
-          * Customer Remarks
-          * Counselor Remarks
-          * Releasing / Receiving agents
-          * An array of optional accessorial service item codes
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      operationId: createMTOShipment
-      tags:
-        - mtoShipment
-      parameters:
-        - description: ID of move task order for mto shipment to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - in: body
-          name: body
-          schema:
-            $ref: '#/definitions/CreateMTOShipment'
-      responses:
-        '200':
-          description: Successfully created an MTO shipment.
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -2434,7 +2430,7 @@ definitions:
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
