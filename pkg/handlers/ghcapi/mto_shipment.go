@@ -93,6 +93,12 @@ type CreateMTOShipmentHandler struct {
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	payload := params.Body
+
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+	}
+
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, nil)
 
