@@ -1,7 +1,6 @@
 package rateengine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -97,8 +96,6 @@ func (re *RateEngine) computePPM(
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
 
-	fmt.Println("*** computePPM")
-
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
 	if weight.Int() < 1000 {
@@ -131,7 +128,9 @@ func (re *RateEngine) computePPM(
 		Weight:                     weight,
 	}
 
-	// Finally, scale by prorate factor
+	// this formula means nothing - it's only so the estimate changes when the slider moves
+	weightValue := weight.Float64()
+	cost.Scale(weightValue / 1000 * .4)
 	cost.Scale(prorateFactor)
 
 	re.logger.Info("PPM cost computation",
