@@ -12,6 +12,7 @@ package scenario
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/services/move"
 	"log"
 	"net/http/httptest"
 	"time"
@@ -105,6 +106,7 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 	/*
 	 * Service member with uploaded orders and a new ppm
 	 */
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	email := "ppm@incomple.te"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -150,7 +152,10 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
 		},
 	})
-	ppm0.Move.Submit()
+	err := moveRouter.Approve(&ppm0.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -161,6 +166,7 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 	/*
 	 * Service member with uploaded orders, a new ppm and no advance
 	 */
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	email := "ppm@advance.no"
 	uuidStr := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -190,7 +196,10 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit()
+	err := moveRouter.Approve(&ppmNoAdvance.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to approve move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -201,6 +210,7 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	/*
 	 * Service member with a ppm move with payment requested
 	 */
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	email := "ppm@paymentrequest.ed"
 	uuidStr := "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -239,8 +249,14 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit()
-	ppm2.Move.Approve()
+	err := moveRouter.Submit(&ppm2.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to submit move: %w", err))
+	}
+	err = moveRouter.Submit(&ppm2.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to approve move: %w", err))
+	}
 
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -256,6 +272,7 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 	/*
 	 * A PPM move that has been canceled.
 	 */
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	email := "ppm-canceled@example.com"
 	uuidStr := "20102768-4d45-449c-a585-81bc386204b1"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -285,12 +302,18 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit()
+	err := moveRouter.Submit(&ppmCanceled.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-	ppmCanceled.Move.Cancel("reasons")
+	err = moveRouter.Cancel("reasons", &ppmCanceled.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to cancel move: %w", err))
+	}
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -361,6 +384,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	/*
 	 * A service member with orders and a submitted move with a ppm and hhg
 	 */
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	email := "combo@ppm.hhg"
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -451,7 +475,10 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit()
+	err := moveRouter.Submit(&move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to submit move: %w", err))
+	}
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -459,6 +486,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 }
 
 func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *uploader.UserUploader) {
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "REQINF",
@@ -472,7 +500,10 @@ func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, userUploader *upload
 	order.OrdersTypeDetail = nil
 	mustSave(db, &order)
 
-	move.Submit()
+	err := moveRouter.Submit(&move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to submit move: %w", err))
+	}
 	mustSave(db, &move)
 }
 
@@ -643,6 +674,7 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	/*
 	 * Service member with a ppm ready to request payment
 	 */
+	moveRouter := move.NewMoveRouter(db, zap.NewNop())
 	email := "ppm@requestingpayment.newflow"
 	uuidStr := "745e0eba-4028-4c78-a262-818b00802748"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -682,8 +714,14 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit()
-	ppm6.Move.Approve()
+	err := moveRouter.Submit(&ppm6.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to submit move: %w", err))
+	}
+	err = moveRouter.Approve(&ppm6.Move)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to approve move: %w", err))
+	}
 
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -700,7 +738,7 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 // Creates a payment request with domestic longhaul and shorthaul shipments with
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
-
+	moveRouter := move.NewMoveRouter(db, logger)
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
@@ -740,7 +778,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		Move: move,
 	})
 
-	submissionErr := move.Submit()
+	submissionErr := moveRouter.Submit(&move)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -753,7 +791,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	queryBuilder := query.NewQueryBuilder(db)
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {

@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"github.com/transcom/mymove/pkg/services/move"
 	"io"
 	"log"
 
@@ -107,10 +108,10 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
 
-	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
+	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context, move.NewMoveRouter(context.DB(), context.Logger())}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
-	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context}
+	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context, move.NewMoveRouter(context.DB(), context.Logger())}
 
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{context}
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}

@@ -25,11 +25,12 @@ type moveTaskOrderUpdater struct {
 	moveTaskOrderFetcher
 	builder            UpdateMoveTaskOrderQueryBuilder
 	serviceItemCreator services.MTOServiceItemCreator
+	moveRouter 			services.MoveRouter
 }
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator}
+func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator, moveRouter}
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
@@ -111,9 +112,9 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 		now := time.Now()
 		move.AvailableToPrimeAt = &now
 
-		err = move.Approve()
+		err := o.moveRouter.Approve(move)
 		if err != nil {
-			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
+			return nil, err
 		}
 
 		verrs, err = o.builder.UpdateOne(move, &eTag)

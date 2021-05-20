@@ -29,6 +29,7 @@ type HandlerContext interface {
 	SessionFromContext(ctx context.Context) *auth.Session
 	LoggerFromContext(ctx context.Context) Logger
 	LoggerFromRequest(r *http.Request) Logger
+	Logger() Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -121,6 +122,10 @@ func (hctx *handlerContext) LoggerFromContext(ctx context.Context) Logger {
 	if logger, ok := logging.FromContext(ctx).(Logger); ok {
 		return logger
 	}
+	return hctx.logger
+}
+
+func (hctx *handlerContext) Logger() Logger {
 	return hctx.logger
 }
 

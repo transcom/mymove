@@ -24,6 +24,7 @@ type createMTOServiceItemQueryBuilder interface {
 type mtoServiceItemCreator struct {
 	builder          createMTOServiceItemQueryBuilder
 	createNewBuilder func(db *pop.Connection) createMTOServiceItemQueryBuilder
+	moveRouter 		services.MoveRouter
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
@@ -290,7 +291,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 
 		if moveShouldBeApproved {
-			err = move.Approve()
+			err = o.moveRouter.Approve(&move)
 			if err != nil {
 				return fmt.Errorf("%e", err)
 			}
@@ -299,7 +300,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
 		} else {
-			err = move.SetApprovalsRequested()
+			err = o.moveRouter.SendToOfficeUserToReviewNewServiceItems(&move)
 			if err != nil {
 				return fmt.Errorf("%e", err)
 			}

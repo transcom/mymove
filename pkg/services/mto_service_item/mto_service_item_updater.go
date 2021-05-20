@@ -29,6 +29,7 @@ type mtoServiceItemQueryBuilder interface {
 type mtoServiceItemUpdater struct {
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func(db *pop.Connection) mtoServiceItemQueryBuilder
+	moveRouter       services.MoveRouter
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
@@ -133,7 +134,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	}
 
 	if moveShouldBeMoveApproved {
-		err = move.Approve()
+		err = p.moveRouter.Approve(&move)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +153,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	// being in SUBMITTED status) then it needs to be set to APPROVALS REQUESTED
 	// so the TOO can review it.
 	if !moveShouldBeMoveApproved {
-		err = move.SetApprovalsRequested()
+		err = p.moveRouter.SendToOfficeUserToReviewNewServiceItems(&move)
 		if err != nil {
 			return nil, err
 		}
