@@ -91,14 +91,29 @@ type CreateMTOShipmentHandler struct {
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-	//logger := h.LoggerFromRequest(params.HTTPRequest)
-
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 	payload := params.Body
-
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoShipment.Status = models.MTOShipmentStatusSubmitted
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, nil)
 
-	mtoShipment, _ = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, nil)
+	if err != nil {
+		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewCreateMTOShipmentNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+		default:
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+		}
+	}
 
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
