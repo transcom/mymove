@@ -70,6 +70,10 @@ type MTOShipment struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// requested delivery date
+	// Format: date
+	RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+
 	// requested pickup date
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
@@ -133,6 +137,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRequestedDeliveryDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -294,6 +302,19 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateRequestedDeliveryDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequestedDeliveryDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

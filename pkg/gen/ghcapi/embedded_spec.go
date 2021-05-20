@@ -2792,6 +2792,10 @@ func init() {
           "x-nullable": true,
           "example": "MTO Shipment not good enough"
         },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -7252,6 +7256,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "MTO Shipment not good enough"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
         },
         "requestedPickupDate": {
           "type": "string",

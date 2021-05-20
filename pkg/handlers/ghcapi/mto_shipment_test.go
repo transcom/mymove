@@ -461,6 +461,16 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
+	customerRemarks := "help"
+	counselorRemarks := "counselor approved"
+	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	agents := ghcmessages.MTOAgents{&ghcmessages.MTOAgent{
+		FirstName: mtoAgent.FirstName,
+		LastName:  mtoAgent.LastName,
+		Email:     mtoAgent.Email,
+		Phone:     mtoAgent.Phone,
+		AgentType: string(mtoAgent.MTOAgentType),
+	}}
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, servicesCounselor)
@@ -486,10 +496,13 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 			StreetAddress2: pickupAddress.StreetAddress2,
 			StreetAddress3: pickupAddress.StreetAddress3,
 		},
-		RequestedPickupDate:   strfmt.Date(*originalShipment.RequestedPickupDate),
-		RequestedDeliveryDate: strfmt.Date(*originalShipment.RequestedDeliveryDate),
+		RequestedPickupDate:   strfmt.Date(time.Now()),
+		RequestedDeliveryDate: strfmt.Date(time.Now()),
 		ShipmentType:          ghcmessages.MTOShipmentTypeHHG,
 		Status:                ghcmessages.MTOShipmentStatusSUBMITTED,
+		CustomerRemarks:       &customerRemarks,
+		CounselorRemarks:      &counselorRemarks,
+		Agents:                agents,
 	}
 
 	params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -526,8 +539,23 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 		response := handler.Handle(params)
-
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
+		suite.Equal(params.Body.DestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())
+		suite.Equal(params.Body.Agents[0].FirstName, updatedShipment.MtoAgents[0].FirstName)
+		suite.Equal(params.Body.Agents[0].LastName, updatedShipment.MtoAgents[0].LastName)
+		suite.Equal(params.Body.Agents[0].Email, updatedShipment.MtoAgents[0].Email)
+		suite.Equal(params.Body.Agents[0].Phone, updatedShipment.MtoAgents[0].Phone)
+		suite.Equal(params.Body.Agents[0].AgentType, updatedShipment.MtoAgents[0].AgentType)
+		suite.Equal(oldShipment.ID.String(), string(updatedShipment.MtoAgents[0].MtoShipmentID))
+		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
+		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 	})
 
 	suite.T().Run("PATCH failure - 400 -- nil body", func(t *testing.T) {
