@@ -61,7 +61,7 @@ const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
 
   return {
-    officeUser: user?.office_user || {},
+    officeUser: user?.officeUser || {},
     activeRole: state.auth.activeRole,
   };
 };

@@ -12,7 +12,7 @@ jest.mock('hooks/queries', () => ({
       isLoading: false,
       isError: false,
       data: {
-        office_user: { transportation_office: { gbloc: 'TEST' } },
+        officeUser: { transportation_office: { gbloc: 'TEST' } },
       },
     };
   },

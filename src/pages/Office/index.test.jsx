@@ -58,7 +58,7 @@ describe('Office App', () => {
           userId123: {
             id: 'userId123',
             roles: [{ roleType: roleTypes.TOO }],
-            office_user: {
+            officeUser: {
               first_name: 'Amanda',
               last_name: 'Gorman',
               transportation_office: {
@@ -96,7 +96,7 @@ describe('Office App', () => {
           userId123: {
             id: 'userId123',
             roles: [{ roleType: roleTypes.TIO }],
-            office_user: {
+            officeUser: {
               first_name: 'Amanda',
               last_name: 'Gorman',
               transportation_office: {

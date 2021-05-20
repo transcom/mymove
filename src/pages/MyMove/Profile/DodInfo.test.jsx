@@ -131,7 +131,7 @@ describe('requireCustomerState DodInfo', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -159,7 +159,7 @@ describe('requireCustomerState DodInfo', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -195,7 +195,7 @@ describe('requireCustomerState DodInfo', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {

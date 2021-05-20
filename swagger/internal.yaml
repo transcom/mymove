@@ -27,14 +27,14 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         readOnly: true
-      first_name:
+      firstName:
         type: string
         example: John
         readOnly: true
-      service_member:
+      serviceMember:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
-      office_user:
+      officeUser:
         $ref: '#/definitions/OfficeUser'
         x-nullable: true
       roles:

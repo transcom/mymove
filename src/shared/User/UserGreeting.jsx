@@ -21,7 +21,7 @@ const mapStateToProps = (state) => {
   const user = selectLoggedInUser(state);
   return {
     isLoggedIn: selectIsLoggedIn,
-    firstName: user.first_name,
+    firstName: user.firstName,
     email: user.email,
   };
 };

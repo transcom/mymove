@@ -230,7 +230,7 @@ jest.mock('services/ghcApi', () => ({
 jest.mock('services/internalApi', () => ({
   getLoggedInUserQueries: () =>
     Promise.resolve({
-      office_user: { transportation_office: { gbloc: 'LMKG' } },
+      officeUser: { transportation_office: { gbloc: 'LMKG' } },
     }),
 }));
 
@@ -677,7 +677,7 @@ describe('useUserQueries', () => {
 
     expect(result.current).toEqual({
       data: {
-        office_user: { transportation_office: { gbloc: 'LMKG' } },
+        officeUser: { transportation_office: { gbloc: 'LMKG' } },
       },
       isLoading: false,
       isError: false,

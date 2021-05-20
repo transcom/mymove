@@ -73,7 +73,7 @@ describe('ConnectedCustomerPrivateRoute', () => {
                 user: {
                   userId123: {
                     id: 'userId123',
-                    service_member: 'serviceMember456',
+                    serviceMember: 'serviceMember456',
                   },
                 },
                 serviceMembers: {
@@ -111,7 +111,7 @@ describe('ConnectedCustomerPrivateRoute', () => {
                 user: {
                   userId123: {
                     id: 'userId123',
-                    service_member: 'serviceMember456',
+                    serviceMember: 'serviceMember456',
                   },
                 },
                 serviceMembers: {
@@ -160,7 +160,7 @@ describe('ConnectedCustomerPrivateRoute', () => {
                 user: {
                   userId123: {
                     id: 'userId123',
-                    service_member: 'serviceMember456',
+                    serviceMember: 'serviceMember456',
                   },
                 },
                 serviceMembers: {

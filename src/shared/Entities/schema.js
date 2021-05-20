@@ -78,13 +78,13 @@ export const serviceMember = new schema.Entity('serviceMembers', {
 
 // Loggedin User
 export const loggedInUser = new schema.Entity('user', {
-  service_member: serviceMember,
+  serviceMember: serviceMember,
 });
 
 // Documents
 export const document = new schema.Entity('documents', {
   uploads: uploads,
-  service_member: serviceMember,
+  serviceMember: serviceMember,
 });
 export const documents = new schema.Array(document);
 

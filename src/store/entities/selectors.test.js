@@ -51,7 +51,7 @@ describe('selectServiceMemberFromLoggedInUser', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -95,7 +95,7 @@ describe('selectServiceMemberFromLoggedInUser', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {},
@@ -113,7 +113,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -133,7 +133,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -156,7 +156,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -182,7 +182,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -212,7 +212,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -252,7 +252,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -308,7 +308,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -360,7 +360,7 @@ describe('selectServiceMemberProfileState', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -423,7 +423,7 @@ describe('selectCurrentDutyStation', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -448,7 +448,7 @@ describe('selectCurrentDutyStation', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -480,7 +480,7 @@ describe('selectBackupContacts', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -514,7 +514,7 @@ describe('selectBackupContacts', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -581,7 +581,7 @@ describe('selectIsProfileComplete', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -602,7 +602,7 @@ describe('selectIsProfileComplete', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -623,7 +623,7 @@ describe('selectIsProfileComplete', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -656,7 +656,7 @@ describe('selectOrdersForLoggedInUser', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -690,7 +690,7 @@ describe('selectOrdersForLoggedInUser', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -736,7 +736,7 @@ describe('selectCurrentOrders', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -781,7 +781,7 @@ describe('selectCurrentOrders', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -813,7 +813,7 @@ describe('selectCurrentOrders', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -860,7 +860,7 @@ describe('selectMovesForLoggedInUser', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -896,7 +896,7 @@ describe('selectMovesForLoggedInUser', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -942,7 +942,7 @@ describe('selectMovesForCurrentOrders', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -986,7 +986,7 @@ describe('selectMovesForCurrentOrders', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1035,7 +1035,7 @@ describe('selectCurrentMove', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1082,7 +1082,7 @@ describe('selectCurrentMove', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1129,7 +1129,7 @@ describe('selectCurrentMove', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1189,7 +1189,7 @@ describe('selectPPMForMove', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1248,7 +1248,7 @@ describe('selectPPMForMove', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1307,7 +1307,7 @@ describe('selectPPMForMove', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1368,7 +1368,7 @@ describe('selectCurrentPPM', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1427,7 +1427,7 @@ describe('selectCurrentPPM', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1486,7 +1486,7 @@ describe('selectCurrentPPM', () => {
         user: {
           userId123: {
             id: 'userId123',
-            service_member: 'serviceMemberId456',
+            serviceMember: 'serviceMemberId456',
           },
         },
         serviceMembers: {
@@ -1602,7 +1602,7 @@ describe('selectEntitlementsForLoggedInUser', () => {
             user: {
               userId123: {
                 id: 'userId123',
-                service_member: 'serviceMemberId456',
+                serviceMember: 'serviceMemberId456',
               },
             },
             serviceMembers: {
@@ -1646,7 +1646,7 @@ describe('selectEntitlementsForLoggedInUser', () => {
             user: {
               userId123: {
                 id: 'userId123',
-                service_member: 'serviceMemberId456',
+                serviceMember: 'serviceMemberId456',
               },
             },
             serviceMembers: {
@@ -1691,7 +1691,7 @@ describe('selectEntitlementsForLoggedInUser', () => {
           user: {
             userId123: {
               id: 'userId123',
-              service_member: 'serviceMemberId456',
+              serviceMember: 'serviceMemberId456',
             },
           },
           serviceMembers: {

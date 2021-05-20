@@ -14,7 +14,7 @@ const samplePayload = {
   payload: {
     created_at: '2018-05-20T14:38:57.353Z',
     id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
-    service_member: {
+    serviceMember: {
       affiliation: 'ARMY',
       backup_contacts: [
         {

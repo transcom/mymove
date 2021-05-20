@@ -17,7 +17,7 @@ const serviceCounselorUser = {
   isLoading: false,
   isError: false,
   data: {
-    office_user: { transportation_office: { gbloc: 'LKNQ' } },
+    officeUser: { transportation_office: { gbloc: 'LKNQ' } },
   },
 };
 
@@ -25,7 +25,7 @@ const marineCorpsUser = {
   isLoading: false,
   isError: false,
   data: {
-    office_user: { transportation_office: { gbloc: 'USMC' } },
+    officeUser: { transportation_office: { gbloc: 'USMC' } },
   },
 };
 

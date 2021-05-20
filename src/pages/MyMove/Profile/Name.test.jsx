@@ -136,7 +136,7 @@ describe('requireCustomerState Name', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -164,7 +164,7 @@ describe('requireCustomerState Name', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -194,7 +194,7 @@ describe('requireCustomerState Name', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -233,7 +233,7 @@ describe('requireCustomerState Name', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {

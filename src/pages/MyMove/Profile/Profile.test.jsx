@@ -16,7 +16,7 @@ describe('Profile component', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         orders: {
@@ -112,7 +112,7 @@ describe('Profile component', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -191,7 +191,7 @@ describe('Profile component', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         orders: {

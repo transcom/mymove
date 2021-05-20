@@ -26,7 +26,7 @@ type LoggedInUser struct {
 
 	// first name
 	// Read Only: true
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// id
 	// Required: true
@@ -34,13 +34,13 @@ type LoggedInUser struct {
 	ID *strfmt.UUID `json:"id"`
 
 	// office user
-	OfficeUser *OfficeUser `json:"office_user,omitempty"`
+	OfficeUser *OfficeUser `json:"officeUser,omitempty"`
 
 	// roles
 	Roles []*Role `json:"roles"`
 
 	// service member
-	ServiceMember *ServiceMemberPayload `json:"service_member,omitempty"`
+	ServiceMember *ServiceMemberPayload `json:"serviceMember,omitempty"`
 }
 
 // Validate validates this logged in user
@@ -108,7 +108,7 @@ func (m *LoggedInUser) validateOfficeUser(formats strfmt.Registry) error {
 	if m.OfficeUser != nil {
 		if err := m.OfficeUser.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("office_user")
+				return ve.ValidateName("officeUser")
 			}
 			return err
 		}
@@ -151,7 +151,7 @@ func (m *LoggedInUser) validateServiceMember(formats strfmt.Registry) error {
 	if m.ServiceMember != nil {
 		if err := m.ServiceMember.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("service_member")
+				return ve.ValidateName("serviceMember")
 			}
 			return err
 		}

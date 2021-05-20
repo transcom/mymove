@@ -45,7 +45,7 @@ describe('OfficeLoggedInHeader', () => {
           userId123: {
             id: 'userId123',
             roles: [{ roleType: roleTypes.TIO }],
-            office_user: {
+            officeUser: {
               first_name: 'Amanda',
               last_name: 'Gorman',
               transportation_office: {
@@ -79,7 +79,7 @@ describe('OfficeLoggedInHeader', () => {
           userId123: {
             id: 'userId123',
             roles: [{ roleType: roleTypes.TOO }],
-            office_user: {
+            officeUser: {
               first_name: 'Amanda',
               last_name: 'Gorman',
               transportation_office: {
@@ -113,7 +113,7 @@ describe('OfficeLoggedInHeader', () => {
           userId123: {
             id: 'userId123',
             roles: [{ roleType: roleTypes.SERVICES_COUNSELOR }],
-            office_user: {
+            officeUser: {
               first_name: 'Amanda',
               last_name: 'Gorman',
               transportation_office: {

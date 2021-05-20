@@ -103,14 +103,14 @@ const columns = (isMarineCorpsUser = false) => [
 const ServicesCounselingQueue = () => {
   const {
     // eslint-disable-next-line camelcase
-    data: { office_user },
+    data: { officeUser },
     isLoading,
     isError,
   } = useUserQueries();
 
   const history = useHistory();
 
-  const isMarineCorpsUser = office_user?.transportation_office?.gbloc === GBLOC.USMC;
+  const isMarineCorpsUser = officeUser?.transportation_office?.gbloc === GBLOC.USMC;
 
   const handleClick = (values) => {
     history.push(`/counseling/moves/${values.locator}/details`);

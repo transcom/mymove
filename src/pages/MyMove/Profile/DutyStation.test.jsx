@@ -172,7 +172,7 @@ describe('requireCustomerState DutyStation', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -205,7 +205,7 @@ describe('requireCustomerState DutyStation', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -240,7 +240,7 @@ describe('requireCustomerState DutyStation', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -285,7 +285,7 @@ describe('requireCustomerState DutyStation', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
