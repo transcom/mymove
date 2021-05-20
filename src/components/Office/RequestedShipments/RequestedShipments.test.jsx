@@ -237,6 +237,12 @@ const moveTaskOrder = {
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
 };
 
+const moveTaskOrderAvailableToPrimeAt = {
+  eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
+  id: '6e8c5ca4-774c-4170-934a-59d22259e480',
+  availableToPrimeAt: '2020-06-10T15:58:02.431995Z',
+};
+
 const moveTaskOrderServicesCounselingCompleted = {
   eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
@@ -293,6 +299,19 @@ const requestedShipmentsComponent = (
   />
 );
 
+const requestedShipmentsComponentAvailableToPrimeAt = (
+  <RequestedShipments
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    mtoAgents={agents}
+    customerInfo={customerInfo}
+    mtoShipments={shipments}
+    approveMTO={approveMTO}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrderAvailableToPrimeAt}
+  />
+);
+
 const requestedShipmentsComponentServicesCounselingCompleted = (
   <RequestedShipments
     ordersInfo={ordersInfo}
@@ -343,6 +362,12 @@ describe('RequestedShipments', () => {
     const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
     expect(approveButton.exists()).toBe(true);
     expect(approveButton.text()).toContain('Approve selected shipments');
+    expect(approveButton.html()).toContain('disabled=""');
+  });
+
+  it('renders the button when it is available to the prime', () => {
+    const wrapper = mount(requestedShipmentsComponentAvailableToPrimeAt);
+    const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
     expect(approveButton.html()).toContain('disabled=""');
   });
 
