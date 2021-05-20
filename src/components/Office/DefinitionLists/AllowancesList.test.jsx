@@ -76,9 +76,9 @@ describe('AllowancesList', () => {
 
   it('renders visual cues classname', () => {
     render(<AllowancesList info={info} showVisualCues />);
-    expect(screen.getByTestId('progear-row').className).toContain('rowWithVisualCue');
-    expect(screen.getByTestId('spouseprogear-row').className).toContain('rowWithVisualCue');
-    expect(screen.getByTestId('rme-row').className).toContain('rowWithVisualCue');
-    expect(screen.getByTestId('ocie-row').className).toContain('rowWithVisualCue');
+    expect(screen.getByText('Pro-gear').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('Spouse pro-gear').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('RME').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('OCIE').parentElement.className).toContain('rowWithVisualCue');
   });
 });
