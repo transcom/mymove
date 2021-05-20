@@ -9,6 +9,10 @@ import { formatWeight, formatDaysInTransit } from 'shared/formatters';
 import friendlyBranchRank from 'utils/branchRankFormatters';
 
 const AllowancesList = ({ info, showVisualCues }) => {
+  const visualCuesStyle = classNames(descriptionListStyles.row, {
+    [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
+  });
+
   return (
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
@@ -34,39 +38,19 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Dependents</dt>
           <dd data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</dd>
         </div>
-        <div
-          data-testid="progear-row"
-          className={classNames(descriptionListStyles.row, {
-            [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
-          })}
-        >
+        <div data-testid="progear-row" className={visualCuesStyle}>
           <dt>Pro-gear</dt>
           <dd data-testid="progear">{formatWeight(info.progear)}</dd>
         </div>
-        <div
-          data-testid="spouseprogear-row"
-          className={classNames(descriptionListStyles.row, {
-            [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
-          })}
-        >
+        <div data-testid="spouseprogear-row" className={visualCuesStyle}>
           <dt>Spouse pro-gear</dt>
           <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
-        <div
-          data-testid="rme-row"
-          className={classNames(descriptionListStyles.row, {
-            [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
-          })}
-        >
+        <div data-testid="rme-row" className={visualCuesStyle}>
           <dt>RME</dt>
           <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
         </div>
-        <div
-          data-testid="ocie-row"
-          className={classNames(descriptionListStyles.row, {
-            [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
-          })}
-        >
+        <div data-testid="ocie-row" className={visualCuesStyle}>
           <dt>OCIE</dt>
           <dd data-testid="ocie">
             {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
