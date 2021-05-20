@@ -84,8 +84,8 @@ const CustomerInfo = ({ customer, isLoading, isError }) => {
   const initialValues = {
     firstName: customer.first_name,
     lastName: customer.last_name,
-    middleName: customer.middle_name, // TODO: not sure this is implemented on backend
-    suffix: customer.suffix, // TODO: not sure this is implemented on backend
+    middleName: customer.middle_name,
+    suffix: customer.suffix,
     customerTelephone: customer.phone,
     customerEmail: customer.email,
     name: customer.backup_contact.name,
