@@ -25,7 +25,7 @@ type MTOShipment struct {
 
 	// The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
 	// Format: date
-	ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+	ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
@@ -33,7 +33,7 @@ type MTOShipment struct {
 	// The date when the Transportation Ordering Officer first approved this shipment for the move.
 	// Read Only: true
 	// Format: date
-	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+	ApprovedDate *strfmt.Date `json:"approvedDate"`
 
 	// created at
 	// Read Only: true
@@ -72,7 +72,7 @@ type MTOShipment struct {
 	// The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.
 	//
 	// Format: date
-	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+	FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
 	// The ID of the shipment.
 	// Read Only: true
@@ -106,7 +106,7 @@ type MTOShipment struct {
 	// The date when the Prime contractor recorded the shipment's estimated weight.
 	// Read Only: true
 	// Format: date
-	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+	PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
 	// The reason why this shipment was rejected by the TOO.
 	// Read Only: true
@@ -116,17 +116,17 @@ type MTOShipment struct {
 	//
 	// Read Only: true
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 	// The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.
 	//
 	// Read Only: true
 	// Format: date
-	RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+	RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
 	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
 	// Format: date
-	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 	// A second delivery address for this shipment, if the customer entered one. An optional field.
 	SecondaryDeliveryAddress struct {
@@ -166,11 +166,11 @@ func (m *MTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
 
-		ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+		ApprovedDate *strfmt.Date `json:"approvedDate"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -184,7 +184,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ETag string `json:"eTag,omitempty"`
 
-		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+		FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
@@ -202,15 +202,15 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-		PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
-		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
-		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 		SecondaryDeliveryAddress struct {
 			Address
@@ -333,11 +333,11 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+		ActualPickupDate *strfmt.Date `json:"actualPickupDate"`
 
 		Agents MTOAgents `json:"agents,omitempty"`
 
-		ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+		ApprovedDate *strfmt.Date `json:"approvedDate"`
 
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -351,7 +351,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ETag string `json:"eTag,omitempty"`
 
-		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+		FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
@@ -367,15 +367,15 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-		PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+		PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate"`
 
 		RejectionReason *string `json:"rejectionReason,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
-		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+		RequiredDeliveryDate *strfmt.Date `json:"requiredDeliveryDate"`
 
-		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+		ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 		SecondaryDeliveryAddress struct {
 			Address
