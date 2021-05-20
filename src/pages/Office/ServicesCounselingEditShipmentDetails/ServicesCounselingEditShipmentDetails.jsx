@@ -1,10 +1,11 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
+import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
 import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -40,17 +41,21 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>
-            <ServicesCounselingShipmentForm
-              match={match}
-              history={history}
-              updateMTOShipment={mutateMTOShipment}
-              isCreatePage={false}
-              currentResidence={customer.current_address}
-              newDutyStationAddress={order.destinationDutyStation?.address}
-              selectedMoveType={SHIPMENT_OPTIONS.HHG}
-              mtoShipment={matchingShipment}
-              serviceMember={{ weightAllotment }}
-            />
+            <Grid row>
+              <Grid col desktop={{ col: 8, offset: 2 }}>
+                <ServicesCounselingShipmentForm
+                  match={match}
+                  history={history}
+                  updateMTOShipment={mutateMTOShipment}
+                  isCreatePage={false}
+                  currentResidence={customer.current_address}
+                  newDutyStationAddress={order.destinationDutyStation?.address}
+                  selectedMoveType={SHIPMENT_OPTIONS.HHG}
+                  mtoShipment={matchingShipment}
+                  serviceMember={{ weightAllotment }}
+                />
+              </Grid>
+            </Grid>
           </GridContainer>
         </div>
       </div>

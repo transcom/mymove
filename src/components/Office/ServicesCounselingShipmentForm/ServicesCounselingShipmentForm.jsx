@@ -2,7 +2,7 @@ import React from 'react';
 import { bool, func, number, shape, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
-import { Alert, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
@@ -10,7 +10,6 @@ import styles from './ServicesCounselingShipmentForm.module.scss';
 
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import { DatePickerInput } from 'components/form/fields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
@@ -327,14 +326,13 @@ const ServicesCounselingShipmentForm = ({
                   </Fieldset>
                 </SectionWrapper>
 
-                <div className={formStyles.formActions}>
-                  <WizardNavigation
-                    disableNext={isSubmitting || !isValid}
-                    editMode
-                    onNextClick={handleSubmit}
-                    onBackClick={history.goBack}
-                    onCancelClick={history.goBack}
-                  />
+                <div className={`${formStyles.formActions} ${styles.buttonGroup}`}>
+                  <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
+                    Save
+                  </Button>
+                  <Button type="button" secondary onClick={history.goBack}>
+                    Cancel
+                  </Button>
                 </div>
               </Form>
             </div>
