@@ -38,19 +38,19 @@ const AllowancesList = ({ info, showVisualCues }) => {
           <dt>Dependents</dt>
           <dd data-testid="dependents">{info.dependents ? 'Authorized' : 'Unauthorized'}</dd>
         </div>
-        <div data-testid="progear-row" className={visualCuesStyle}>
+        <div className={visualCuesStyle}>
           <dt>Pro-gear</dt>
           <dd data-testid="progear">{formatWeight(info.progear)}</dd>
         </div>
-        <div data-testid="spouseprogear-row" className={visualCuesStyle}>
+        <div className={visualCuesStyle}>
           <dt>Spouse pro-gear</dt>
           <dd data-testid="spouseProgear">{formatWeight(info.spouseProgear)}</dd>
         </div>
-        <div data-testid="rme-row" className={visualCuesStyle}>
+        <div className={visualCuesStyle}>
           <dt>RME</dt>
           <dd data-testid="rme">{formatWeight(info.requiredMedicalEquipmentWeight)}</dd>
         </div>
-        <div data-testid="ocie-row" className={visualCuesStyle}>
+        <div className={visualCuesStyle}>
           <dt>OCIE</dt>
           <dd data-testid="ocie">
             {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
