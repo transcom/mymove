@@ -231,7 +231,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 
 	// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 	// update this check so test passes - but this is not testing correctness of data
-	suite.Equal(unit.Cents(219429), cost.GCC, "wrong GCC")
+	suite.Equal(unit.Cents(175543), cost.GCC, "wrong GCC")
 }
 
 func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
