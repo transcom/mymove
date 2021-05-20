@@ -25,6 +25,16 @@ type MTOShipment struct {
 	// Format: date
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
 
+	// The counselor can use the counselor remarks field to inform the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//   * bulky or fragile items,
+	//   * weapons,
+	//   * access info for their address.
+	//
+	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+	//
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`

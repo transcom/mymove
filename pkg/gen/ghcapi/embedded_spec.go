@@ -2125,7 +2125,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -2759,6 +2759,12 @@ func init() {
         "approvedDate": {
           "type": "string",
           "format": "date"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -6560,7 +6566,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "counselorRemarks": {
-          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
@@ -7194,6 +7200,12 @@ func init() {
         "approvedDate": {
           "type": "string",
           "format": "date"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",

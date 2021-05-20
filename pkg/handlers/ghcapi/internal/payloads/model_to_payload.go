@@ -278,6 +278,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:             mtoShipment.ShipmentType,
 		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
+		CounselorRemarks:         mtoShipment.CounselorRemarks,
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),

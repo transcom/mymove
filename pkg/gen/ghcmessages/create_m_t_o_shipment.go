@@ -28,7 +28,7 @@ type CreateMTOShipment struct {
 	//   * weapons,
 	//   * access info for their address.
 	//
-	// Customer enters this information during onboarding. Optional field.
+	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 

@@ -1582,6 +1582,19 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+        readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:

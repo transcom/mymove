@@ -334,16 +334,17 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
-		ID:              strfmt.UUID(mtoShipment.ID.String()),
-		Agents:          *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID: strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:    primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks: mtoShipment.CustomerRemarks,
-		Status:          string(mtoShipment.Status),
-		Diversion:       bool(mtoShipment.Diversion),
-		CreatedAt:       strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:       strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:            etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:               strfmt.UUID(mtoShipment.ID.String()),
+		Agents:           *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CounselorRemarks: mtoShipment.CounselorRemarks,
+		CustomerRemarks:  mtoShipment.CustomerRemarks,
+		Status:           string(mtoShipment.Status),
+		Diversion:        bool(mtoShipment.Diversion),
+		CreatedAt:        strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:             etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	// Set up address payloads
