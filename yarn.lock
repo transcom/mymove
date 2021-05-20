@@ -16853,10 +16853,10 @@ react-highlight-words@^0.17.0:
     memoize-one "^4.0.0"
     prop-types "^15.5.8"
 
-react-idle-timer@^4.6.1:
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.1.tgz#961ec0f816cda0e3899db43d6145b9de65ba93a6"
-  integrity sha512-3TNDR+fdYEZo9Fxa9vQFeP4FYLzklVc8kqE4gusKHGP/SFaVoeltefC/ngwsJ1C65PxEHNmEa11bUcsPUtev3A==
+react-idle-timer@^4.6.2:
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.2.tgz#25196471b4ebd33b128afe5ab080b96b1b681a66"
+  integrity sha512-EaP/yEhlwdwjd0Jckkg/gxgwLi646S6M9rSDl8/LW18uPoV+vSWS2BLy/ouoNHwpjSIKbO/jn0k+lPODg38XtA==
 
 react-imask@^6.0.7:
   version "6.0.7"
@@ -19921,9 +19921,9 @@ unbox-primitive@^1.0.0:
     which-boxed-primitive "^1.0.1"
 
 underscore@^1.9.1:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.12.0.tgz#4814940551fc80587cef7840d1ebb0f16453be97"
-  integrity sha512-21rQzss/XPMjolTiIezSu3JAjgagXKROtNrYFEOWK109qY1Uv2tVjPTZ1ci2HgvQDA16gHYSthQIJfB+XId/rQ==
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.1.tgz#0c1c6bd2df54b6b69f2314066d65b6cde6fcf9d1"
+  integrity sha512-hzSoAVtJF+3ZtiFX0VgfFPHEDRm7Y/QPjGyNo4TVdnDTdft3tr8hEkD25a1jC+TjTuE7tkHGKkhwCgs9dgBB2g==
 
 unfetch@^4.2.0:
   version "4.2.0"
