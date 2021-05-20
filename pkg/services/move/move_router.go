@@ -86,15 +86,16 @@ func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error)
 
 	var originDutyStation models.DutyStation
 
-	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
-		originDutyStation, err = models.FetchDutyStation(router.db, *orders.OriginDutyStationID)
-		if err != nil {
-			router.logger.Error("failure finding the origin duty station", zap.Error(err))
-			return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
-		}
-		return originDutyStation.ProvidesServicesCounseling, nil
+	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID != uuid.Nil {
+		return false, services.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
 	}
-	return false, nil
+
+	originDutyStation, err = models.FetchDutyStation(router.db, *orders.OriginDutyStationID)
+	if err != nil {
+		router.logger.Error("failure finding the origin duty station", zap.Error(err))
+		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+	}
+	return originDutyStation.ProvidesServicesCounseling, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
