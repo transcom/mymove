@@ -64,7 +64,7 @@ const ServicesCounselingMoveDetails = () => {
   }
 
   const customerInfo = {
-    name: formattedCustomerName(customer.first_name, customer.last_name, customer.suffix, customer.middle_name),
+    name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
     phone: `+1 ${customer.phone}`,
     email: customer.email,
