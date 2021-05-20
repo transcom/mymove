@@ -3405,7 +3405,7 @@ paths:
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
-        - move-docs
+        - moveDocs
       parameters:
         - in: path
           name: moveId
@@ -3429,7 +3429,7 @@ paths:
       description: Created a move document with the given information
       operationId: createGenericMoveDocument
       tags:
-        - move-docs
+        - moveDocs
       parameters:
         - name: moveId
           in: path
@@ -3461,7 +3461,7 @@ paths:
       description: Update a move document with the given information
       operationId: updateMoveDocument
       tags:
-        - move-docs
+        - moveDocs
       parameters:
         - in: path
           name: moveDocumentId
@@ -3494,7 +3494,7 @@ paths:
       description: Deletes a move document with the given information
       operationId: deleteMoveDocument
       tags:
-        - move-docs
+        - moveDocs
       parameters:
         - in: path
           name: moveDocumentId
@@ -3521,7 +3521,7 @@ paths:
       description: Created a moving expense document with the given information
       operationId: createMovingExpenseDocument
       tags:
-        - move-docs
+        - moveDocs
       parameters:
         - name: moveId
           in: path
@@ -3996,7 +3996,7 @@ paths:
       description: Creates an instance of a service member tied to a user
       operationId: createServiceMember
       tags:
-        - service-members
+        - serviceMembers
       parameters:
         - in: body
           name: createServiceMember
@@ -4024,7 +4024,7 @@ paths:
       description: Returns the given service member
       operationId: showServiceMember
       tags:
-        - service-members
+        - serviceMembers
       parameters:
         - in: path
           name: serviceMemberId
@@ -4052,7 +4052,7 @@ paths:
       description: Any fields sent in this request will be set on the service member referenced
       operationId: patchServiceMember
       tags:
-        - service-members
+        - serviceMembers
       parameters:
         - in: path
           name: serviceMemberId
@@ -4086,7 +4086,7 @@ paths:
       description: Returns orders
       operationId: showServiceMemberOrders
       tags:
-        - service-members
+        - serviceMembers
       parameters:
         - in: path
           name: serviceMemberId
@@ -4115,7 +4115,7 @@ paths:
       description: Creates an instance of a backup contact tied to a service member user
       operationId: createServiceMemberBackupContact
       tags:
-        - backup-contacts
+        - backupContacts
       parameters:
         - in: body
           name: createBackupContact
@@ -4148,7 +4148,7 @@ paths:
       description: List all service member backup contacts
       operationId: indexServiceMemberBackupContacts
       tags:
-        - backup-contacts
+        - backupContacts
       parameters:
         - in: path
           name: serviceMemberId
@@ -4177,7 +4177,7 @@ paths:
       description: Returns the given service member backup contact
       operationId: showServiceMemberBackupContact
       tags:
-        - backup-contacts
+        - backupContacts
       parameters:
         - in: path
           name: backupContactId
@@ -4205,7 +4205,7 @@ paths:
       description: Any fields sent in this request will be set on the backup contact referenced
       operationId: updateServiceMemberBackupContact
       tags:
-        - backup-contacts
+        - backupContacts
       parameters:
         - in: body
           name: updateServiceMemberBackupContact
@@ -4239,7 +4239,7 @@ paths:
       description: Returns the duty stations matching the search query
       operationId: searchDutyStations
       tags:
-        - duty-stations
+        - dutyStations
       parameters:
         - in: query
           name: search
@@ -4267,7 +4267,7 @@ paths:
       description: Returns the given duty station's transportation office
       operationId: showDutyStationTransportationOffice
       tags:
-        - transportation-offices
+        - transportationOffices
       parameters:
         - in: path
           name: dutyStationId
@@ -4390,7 +4390,7 @@ paths:
       description: Returns the URL to redirect to that begins DPS auth
       operationId: getCookieURL
       tags:
-        - dps-auth
+        - dpsAuth
       parameters:
         - in: query
           name: cookieName
@@ -4419,7 +4419,7 @@ paths:
       description: Created a weight ticket document with the given information
       operationId: createWeightTicketDocument
       tags:
-        - move-docs
+        - moveDocs
       parameters:
         - name: moveId
           in: path
@@ -4451,7 +4451,7 @@ paths:
       description: Verifies if a zipcode is valid for origin or destination location for a move.
       operationId: validatePostalCodeWithRateData
       tags:
-        - postal-codes
+        - postalCodes
       parameters:
         - in: path
           name: postalCode
