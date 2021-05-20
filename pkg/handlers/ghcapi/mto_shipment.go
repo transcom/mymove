@@ -124,10 +124,21 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		}
 	}
 
-	updateable, _ := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(oldShipment, session)
+	updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(oldShipment, session)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+		return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+			&ghcmessages.Error{Message: &msg},
+		)
+	}
 
 	if !updateable {
-		return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
+		msg := fmt.Sprintf("%v is not updatable", shipmentID)
+		return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
+			&ghcmessages.Error{Message: &msg},
+		)
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
@@ -175,8 +186,6 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		}
 	}
 
-	returnPayload := payloads.MTOShipment(updatedMtoShipment)
-
 	_, err = event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateMTOShipmentEndpointKey,
 		// Endpoint that is being handled
@@ -192,6 +201,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		logger.Error("ghcapi.UpdateMTOShipment could not generate the event")
 	}
 
+	returnPayload := payloads.MTOShipment(updatedMtoShipment)
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }
 
