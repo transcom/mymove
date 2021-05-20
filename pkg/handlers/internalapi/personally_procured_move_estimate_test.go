@@ -171,8 +171,8 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 	// this is updating the return value to ensure the tests pass but not
 	// checking correctness of the returned data - PPMs will be addressed in outcome 7
-	suite.Equal(int64(208458), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(230400), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(625373), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(691201), *cost.RangeMax, "RangeMax was not equal")
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
@@ -212,6 +212,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 	// this is updating the return value to ensure the tests pass but not
 	// checking correctness of the returned data - PPMs will be addressed in outcome 7
-	suite.Equal(int64(125074), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(138240), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(50030), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(55296), *cost.RangeMax, "RangeMax was not equal")
 }

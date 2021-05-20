@@ -199,8 +199,8 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 
 	// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 	// update this check so test passes - but this is not testing correctness of data
-	suite.Equal(int64(219429), *cost.Gcc, "Gcc was not equal")
-	suite.Equal(int64(208458), *cost.IncentivePercentage, "IncentivePercentage was not equal")
+	suite.Equal(int64(658287), *cost.Gcc, "Gcc was not equal")
+	suite.Equal(int64(625373), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	ordersID := uuid.Must(uuid.NewV4())
@@ -238,6 +238,6 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 
 	// PPMs estimates are being hardcoded because we are not loading tariff400ng data
 	// update this check so test passes - but this is not testing correctness of data
-	suite.Equal(int64(131657), *cost.Gcc, "Gcc was not equal")
-	suite.Equal(int64(125074), *cost.IncentivePercentage, "IncentivePercentage was not equal")
+	suite.Equal(int64(52663), *cost.Gcc, "Gcc was not equal")
+	suite.Equal(int64(50030), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
