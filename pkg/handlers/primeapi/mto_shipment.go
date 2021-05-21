@@ -125,18 +125,19 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 	if !updatedAt.IsZero() {
 		fieldsInError.Add("updatedAt", "cannot be manually modified - updated automatically")
 	}
-	primeEstimatedWeightRecordedDate := time.Time(payload.PrimeEstimatedWeightRecordedDate)
-	if !primeEstimatedWeightRecordedDate.IsZero() {
+
+	if payload.PrimeEstimatedWeightRecordedDate != nil {
 		fieldsInError.Add("primeEstimatedWeightRecordedDate", "cannot be manually modified - updated automatically")
 	}
-	requiredDeliveryDate := time.Time(payload.RequiredDeliveryDate)
-	if !requiredDeliveryDate.IsZero() {
+
+	if payload.RequiredDeliveryDate != nil {
 		fieldsInError.Add("requiredDeliveryDate", "cannot be manually modified - updated automatically")
 	}
-	approvedDate := time.Time(payload.ApprovedDate)
-	if !approvedDate.IsZero() {
+
+	if payload.ApprovedDate != nil {
 		fieldsInError.Add("approvedDate", "cannot be manually modified - updated automatically with status change")
 	}
+
 	if payload.Status != "" {
 		fieldsInError.Add("status", "cannot be updated")
 	}

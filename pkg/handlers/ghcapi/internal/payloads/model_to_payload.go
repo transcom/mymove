@@ -39,19 +39,20 @@ func Move(move *models.Move) *ghcmessages.Move {
 	}
 
 	payload := &ghcmessages.Move{
-		ID:                 strfmt.UUID(move.ID.String()),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:         Contractor(move.Contractor),
-		Locator:            move.Locator,
-		OrdersID:           strfmt.UUID(move.OrdersID.String()),
-		Orders:             Order(&move.Orders),
-		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
-		Status:             ghcmessages.MoveStatus(move.Status),
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		ID:                           strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:                   Contractor(move.Contractor),
+		Locator:                      move.Locator,
+		OrdersID:                     strfmt.UUID(move.OrdersID.String()),
+		Orders:                       Order(&move.Orders),
+		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
+		Status:                       ghcmessages.MoveStatus(move.Status),
+		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
+		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
+		ETag:                         etag.GenerateEtag(move.UpdatedAt),
+		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
 	}
 
 	return payload

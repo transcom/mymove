@@ -22,7 +22,7 @@
     @include u-border-top('base-lighter');
 
     table {
-      @include u-width(full)
+      @include u-width(full);
     }
 
     :global(.usa-fieldset) {
@@ -50,4 +50,8 @@
 .approveButton {
   @include u-margin-top(2);
   @include u-margin-left(0);
+}
+
+.serviceCounselingCompleted {
+  @include u-margin-top(3);
 }
