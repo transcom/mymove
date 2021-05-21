@@ -408,7 +408,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(mtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(mtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("PATCH failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
@@ -444,8 +445,52 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(minimalMtoShipment.PrimeActualWeight.Int64(), okResponse.Payload.PrimeActualWeight)
 		suite.Equal(minimalMtoShipment.PrimeEstimatedWeight.Int64(), okResponse.Payload.PrimeEstimatedWeight)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(minimalMtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(minimalMtoShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
+	})
+
+	suite.T().Run("Successful PATCH - Update that does not include addresses will not blank out data", func(t *testing.T) {
+		// Get the default shipment that has PickupAddress populated:
+		addressShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move, // Prime-available move
+		})
+
+		eTagAddressShipment := string(etag.GenerateEtag(addressShipment.UpdatedAt))
+		paramsAddressShipment := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(addressShipment.ID),
+			Body:          ClearNonUpdateFields(&addressShipment),
+			IfMatch:       eTagAddressShipment,
+		}
+		// Blank out PickupAddress - it should NOT be modified or nullified
+		paramsAddressShipment.Body.PickupAddress.Address = primemessages.Address{}
+		paramsAddressShipment.Body.Diversion = true // something to update
+
+		// Run swagger validations
+		suite.NoError(paramsAddressShipment.Body.Validate(strfmt.Default))
+
+		// Hit endpoint and check response
+		response := handler.Handle(paramsAddressShipment)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+
+		suite.Equal(addressShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(true, okResponse.Payload.Diversion)
+
+		// Check that address fields are all the same:
+		originalAddress := addressShipment.PickupAddress
+		returnedAddress := okResponse.Payload.PickupAddress
+		suite.NotEmpty(returnedAddress.ID)
+		suite.Equal(originalAddress.ID.String(), returnedAddress.ID.String())
+		suite.Equal(originalAddress.StreetAddress1, *returnedAddress.StreetAddress1)
+		suite.Equal(originalAddress.StreetAddress2, returnedAddress.StreetAddress2)
+		suite.Equal(originalAddress.StreetAddress3, returnedAddress.StreetAddress3)
+		suite.Equal(originalAddress.City, *returnedAddress.City)
+		suite.Equal(originalAddress.State, *returnedAddress.State)
+		suite.Equal(originalAddress.Country, returnedAddress.Country)
+		suite.Equal(originalAddress.PostalCode, *returnedAddress.PostalCode)
 	})
 
 	suite.T().Run("PATCH Failure (422) - Cannot update weight without scheduledPickupDate", func(t *testing.T) {
@@ -583,7 +628,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(mtoShipment2.ID.String(), okResponse.Payload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(mtoShipment2.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(mtoShipment2.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 	//}
@@ -656,7 +702,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -670,10 +717,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.MTOShipment{
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			ScheduledPickupDate:  &schedDate,
 		}
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -699,16 +747,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
+		suite.NotNil(responsePayload.ScheduledPickupDate)
 
 		// Let's double check our maths.
-		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
-		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
+		actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -741,10 +791,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			StreetAddress2: akAddress.StreetAddress2,
 			StreetAddress3: akAddress.StreetAddress3,
 		}
+		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.MTOShipment{
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			ScheduledPickupDate:  &schedDate,
 		}
 		payload.DestinationAddress.Address = payloadAKAddress
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
@@ -769,16 +820,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
+		suite.NotNil(responsePayload.ScheduledPickupDate)
 
 		// Let's double check our maths.
-		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
-		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
+		actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
 
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
@@ -812,11 +865,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			StreetAddress2: adakAddress.StreetAddress2,
 			StreetAddress3: adakAddress.StreetAddress3,
 		}
-
+		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.MTOShipment{
 			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
-			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			ScheduledPickupDate:  &schedDate,
 		}
 		payload.DestinationAddress.Address = payloadAdakAddress
 
@@ -842,16 +895,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		responsePayload := okResponse.Payload
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
+		suite.NotNil(responsePayload.ScheduledPickupDate)
 
 		// Let's double check our maths.
-		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
-		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
+		actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
 		suite.Equal(expectedRDD.Year(), actualRDD.Year())
 		suite.Equal(expectedRDD.Month(), actualRDD.Month())
 		suite.Equal(expectedRDD.Day(), actualRDD.Day())
-
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 
 	})
 
@@ -931,7 +985,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func(t *testing.T) {
@@ -1009,7 +1064,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
 	suite.T().Run("Successful case for valid and complete payload including approved date and re service code", func(t *testing.T) {
@@ -1084,7 +1140,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(string(reService.Code), serviceItemDDFSITCode)
 		suite.Equal(oldShipment.ApprovedDate, &now)
 		// Confirm PATCH working as expected; non-updated value still exists
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.NotNil(okResponse.Payload.RequestedPickupDate)
+		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 }
 

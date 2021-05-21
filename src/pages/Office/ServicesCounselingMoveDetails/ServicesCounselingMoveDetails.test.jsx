@@ -252,6 +252,40 @@ describe('MoveDetails page', () => {
       );
     }
   });
+
+  it('renders shipments info even if destination address is missing', async () => {
+    const moveDetailsQuery = {
+      ...newMoveDetailsQuery,
+      mtoShipments: [
+        // Want to create a "new" mtoShipment to be able to delete things without messing up existing tests
+        { ...newMoveDetailsQuery.mtoShipments[0] },
+        newMoveDetailsQuery.mtoShipments[1],
+      ],
+    };
+
+    delete moveDetailsQuery.mtoShipments[0].destinationAddress;
+
+    useMoveDetailsQueries.mockImplementation(() => moveDetailsQuery);
+
+    render(mockedComponent);
+
+    const destinationAddressTerms = screen.getAllByText('Destination address');
+
+    expect(destinationAddressTerms.length).toBe(2);
+
+    expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
+      moveDetailsQuery.order.destinationDutyStation.address.postal_code,
+    );
+
+    const { street_address_1, city, state, postal_code } = moveDetailsQuery.mtoShipments[1].destinationAddress;
+
+    const addressText = destinationAddressTerms[1].nextElementSibling.textContent;
+
+    expect(addressText).toContain(street_address_1);
+    expect(addressText).toContain(city);
+    expect(addressText).toContain(state);
+    expect(addressText).toContain(postal_code);
+  });
   /* eslint-enable camelcase */
 
   it('renders customer info', async () => {

@@ -17,7 +17,11 @@ import (
 
 // AddressModel model
 func AddressModel(address *primemessages.Address) *models.Address {
-	if address == nil {
+	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
+	// We should always have ID if the user intends to update an Address,
+	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
 	modelAddress := &models.Address{
@@ -147,34 +151,14 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 	}
 
 	model := &models.MTOShipment{
-		ID:           uuid.FromStringOrNil(mtoShipment.ID.String()),
-		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
-		Diversion:    bool(mtoShipment.Diversion),
-	}
-
-	scheduledPickupDate := time.Time(mtoShipment.ScheduledPickupDate)
-	if !scheduledPickupDate.IsZero() {
-		model.ScheduledPickupDate = &scheduledPickupDate
-	}
-
-	firstAvailableDeliveryDate := time.Time(mtoShipment.FirstAvailableDeliveryDate)
-	if !firstAvailableDeliveryDate.IsZero() {
-		model.FirstAvailableDeliveryDate = &firstAvailableDeliveryDate
-	}
-
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
-	if !requestedPickupDate.IsZero() {
-		model.RequestedPickupDate = &requestedPickupDate
-	}
-
-	actualPickupDate := time.Time(mtoShipment.ActualPickupDate)
-	if !actualPickupDate.IsZero() {
-		model.ActualPickupDate = &actualPickupDate
-	}
-
-	requiredDeliveryDate := time.Time(mtoShipment.RequiredDeliveryDate)
-	if !requiredDeliveryDate.IsZero() {
-		model.RequiredDeliveryDate = &requiredDeliveryDate
+		ID:                         uuid.FromStringOrNil(mtoShipment.ID.String()),
+		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
+		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
+		RequiredDeliveryDate:       handlers.FmtDatePtrToPopPtr(mtoShipment.RequiredDeliveryDate),
+		RequestedPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.RequestedPickupDate),
+		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
+		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
+		Diversion:                  bool(mtoShipment.Diversion),
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
