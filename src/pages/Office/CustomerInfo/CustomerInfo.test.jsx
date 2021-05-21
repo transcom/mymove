@@ -29,7 +29,7 @@ const mockCustomer = {
 describe('CustomerInfo', () => {
   it('populates initial field values', () => {
     render(
-      <MockProviders initialEntries={['moves/CDG3TR/customer-info']}>
+      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
         <CustomerInfo customer={mockCustomer} isLoading={false} isError={false} />{' '}
       </MockProviders>,
     );

@@ -199,11 +199,7 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 counselorCanEdit && (
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    data-testid="edit=customer-info"
-                    to="customer-info"
-                  >
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="customer">
                     Edit customer info
                   </Link>
                 )
