@@ -122,6 +122,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+		logger.Error("Unauthorized request from a non-office user or an office user without TOO or TIO roles")
 		return mtoserviceitemop.NewListMTOServiceItemsForbidden()
 	}
 
