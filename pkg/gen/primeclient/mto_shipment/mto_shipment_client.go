@@ -192,15 +192,6 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK
 * Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAdress](‘#operation/updateMTOShipmentAdress’) instead.
 These restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.
 
-Only the following fields can be updated using this endpoint:
-
-* `scheduledPickupDate`
-* `actualPickupDate`
-* `firstAvailableDeliveryDate`
-* `primeEstimatedWeight`
-* `primeActualWeight`
-* `shipmentType`
-
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
 
 */
