@@ -192,7 +192,7 @@ const ServicesCounselingMoveDetails = () => {
                 )
               }
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
