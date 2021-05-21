@@ -85,8 +85,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentCreator     services.MTOShipmentCreator
-	mtoAvailabilityChecker services.MoveTaskOrderChecker
+	mtoShipmentCreator services.MTOShipmentCreator
 }
 
 // Handle creates the mto shipment
@@ -106,7 +105,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewCreateMTOShipmentNotFound()
+			payload := ghcmessages.Error{
+				Message: handlers.FmtString(err.Error()),
+			}
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)

@@ -28,7 +28,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
 	"github.com/transcom/mymove/pkg/services/query"
@@ -82,7 +81,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(*shipments[0].CounselorRemarks, string("counselor remark"))
+		suite.Equal(*shipments[0].CounselorRemarks, okResponse.Payload[0].CounselorRemarks)
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
 	})
@@ -466,7 +465,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mtoShipment.MoveTaskOrderID = mto.ID
 
 	builder := query.NewQueryBuilder(suite.DB())
-	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -505,7 +503,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
-			mtoChecker,
 		}
 		response := handler.Handle(params)
 		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
@@ -514,8 +511,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		suite.Require().Equal(createMTOShipmentPayload.Status, ghcmessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, ghcmessages.MTOShipmentTypeHHG, "MTO Shipment should be an HHG")
-		suite.Equal(*createMTOShipmentPayload.CustomerRemarks, string("customer remark"))
-		suite.Equal(*createMTOShipmentPayload.CounselorRemarks, string("counselor remark"))
+		suite.Equal(string("customer remark"), *createMTOShipmentPayload.CustomerRemarks)
+		suite.Equal(string("counselor remark"), *createMTOShipmentPayload.CounselorRemarks)
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
@@ -524,7 +521,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockCreator,
-			mtoChecker,
 		}
 
 		err := errors.New("ServerError")
@@ -546,7 +542,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
-			mtoChecker,
 		}
 
 		badID := params.Body.MoveTaskOrderID
@@ -572,7 +567,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
-			mtoChecker,
 		}
 
 		badParams := params
@@ -591,7 +585,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
-			mtoChecker,
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
@@ -609,7 +602,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
-			mtoChecker,
 		}
 
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
