@@ -3780,11 +3780,19 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ],
+          "x-nullable": true
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -8196,11 +8204,19 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ],
+          "x-nullable": true
         },
         "pickupAddress": {
-          "$ref": "#/definitions/Address"
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "requestedDeliveryDate": {
           "type": "string",

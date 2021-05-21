@@ -578,24 +578,24 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
 	payload := ghcmessages.UpdateShipment{
-		DestinationAddress: &ghcmessages.Address{
-			City:           &destinationAddress.City,
-			Country:        destinationAddress.Country,
-			PostalCode:     &destinationAddress.PostalCode,
-			State:          &destinationAddress.State,
-			StreetAddress1: &destinationAddress.StreetAddress1,
-			StreetAddress2: destinationAddress.StreetAddress2,
-			StreetAddress3: destinationAddress.StreetAddress3,
-		},
-		PickupAddress: &ghcmessages.Address{
-			City:           &pickupAddress.City,
-			Country:        pickupAddress.Country,
-			PostalCode:     &pickupAddress.PostalCode,
-			State:          &pickupAddress.State,
-			StreetAddress1: &pickupAddress.StreetAddress1,
-			StreetAddress2: pickupAddress.StreetAddress2,
-			StreetAddress3: pickupAddress.StreetAddress3,
-		},
+		//DestinationAddress: ghcmessages.Address{
+		//	City:           &destinationAddress.City,
+		//	Country:        destinationAddress.Country,
+		//	PostalCode:     &destinationAddress.PostalCode,
+		//	State:          &destinationAddress.State,
+		//	StreetAddress1: &destinationAddress.StreetAddress1,
+		//	StreetAddress2: destinationAddress.StreetAddress2,
+		//	StreetAddress3: destinationAddress.StreetAddress3,
+		//},
+		//PickupAddress: ghcmessages.Address{
+		//	City:           &pickupAddress.City,
+		//	Country:        pickupAddress.Country,
+		//	PostalCode:     &pickupAddress.PostalCode,
+		//	State:          &pickupAddress.State,
+		//	StreetAddress1: &pickupAddress.StreetAddress1,
+		//	StreetAddress2: pickupAddress.StreetAddress2,
+		//	StreetAddress3: pickupAddress.StreetAddress3,
+		//},
 		RequestedPickupDate:   strfmt.Date(time.Now()),
 		RequestedDeliveryDate: strfmt.Date(time.Now()),
 		ShipmentType:          ghcmessages.MTOShipmentTypeHHG,

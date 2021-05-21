@@ -3,6 +3,8 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -11,7 +13,11 @@ import (
 
 // AddressModel model
 func AddressModel(address *ghcmessages.Address) *models.Address {
-	if address == nil {
+	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
+	// We should always have ID if the user intends to update an Address,
+	// and StreetAddress1 is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
 	return &models.Address{
@@ -109,8 +115,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		Status:                models.MTOShipmentStatus(mtoShipment.Status),
 	}
 
-	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
-	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
+	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

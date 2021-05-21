@@ -2413,9 +2413,11 @@ definitions:
         example: counselor approved
         x-nullable: true
       pickupAddress:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
-        $ref: '#/definitions/Address'
+        allOf:
+          - $ref: '#/definitions/Address'
         x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'

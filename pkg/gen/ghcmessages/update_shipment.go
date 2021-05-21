@@ -27,10 +27,14 @@ type UpdateShipment struct {
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress,omitempty"`
 
 	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress,omitempty"`
 
 	// requested delivery date
 	// Format: date
@@ -107,15 +111,6 @@ func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) err
 		return nil
 	}
 
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -123,15 +118,6 @@ func (m *UpdateShipment) validatePickupAddress(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
-	}
-
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
