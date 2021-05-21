@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(*shipments[0].CounselorRemarks, okResponse.Payload[0].CounselorRemarks)
+		suite.Equal(*shipments[0].CounselorRemarks, *okResponse.Payload[0].CounselorRemarks)
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
 	})
