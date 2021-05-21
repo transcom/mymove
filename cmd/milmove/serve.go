@@ -29,7 +29,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/golang-jwt/jwt"
-
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
@@ -421,6 +420,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
+
+	traceShutdownFn := configureTracing(logger, tracingConfig{
+		enabled: true,
+	})
+	defer traceShutdownFn()
 
 	err = checkServeConfig(v, logger)
 	if err != nil {

@@ -70,6 +70,15 @@ require (
 	github.com/tiaguinho/gosoap v1.4.4
 	github.com/vektra/mockery/v2 v2.9.4
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
+	go.opentelemetry.io/contrib/detectors/aws/ecs v0.20.0
+	go.opentelemetry.io/contrib/propagators/aws v0.20.0
+	go.opentelemetry.io/otel v0.20.0
+	go.opentelemetry.io/otel/exporters/otlp v0.20.0
+	go.opentelemetry.io/otel/exporters/stdout v0.20.0
+	go.opentelemetry.io/otel/metric v0.20.0
+	go.opentelemetry.io/otel/sdk v0.20.0
+	go.opentelemetry.io/otel/sdk/metric v0.20.0
+	go.opentelemetry.io/otel/trace v0.20.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
