@@ -180,7 +180,7 @@ export function updateMTOShipment({
   schemaKey = 'mtoShipment',
   body,
 }) {
-  const operationPath = 'mtoShipment.patchMTOShipment';
+  const operationPath = 'mtoShipment.updateMTOShipment';
   return makeGHCRequest(
     operationPath,
     {
