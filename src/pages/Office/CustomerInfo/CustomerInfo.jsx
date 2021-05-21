@@ -29,7 +29,7 @@ const CustomerInfo = ({ customer, isLoading, isError }) => {
           [`${variables.customerId}`]: updatedCustomer,
         },
       });
-      queryCache.invalidateQueries(CUSTOMER);
+      queryCache.invalidateQueries([CUSTOMER, variables.customerId]);
       handleClose();
     },
     onError: (error) => {
