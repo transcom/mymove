@@ -86,7 +86,7 @@ func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error)
 
 	var originDutyStation models.DutyStation
 
-	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID != uuid.Nil {
+	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID == uuid.Nil {
 		return false, services.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
 	}
 
