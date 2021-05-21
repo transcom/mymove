@@ -217,8 +217,6 @@ paths:
         * `scheduledPickupDate`
         * `actualPickupDate`
         * `firstAvailableDeliveryDate`
-        * `secondaryDeliveryAddress`
-        * `secondaryPickupAddress`
         * `primeEstimatedWeight`
         * `primeActualWeight`
         * `shipmentType`
