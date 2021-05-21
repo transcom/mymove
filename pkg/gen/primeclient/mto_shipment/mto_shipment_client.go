@@ -197,8 +197,6 @@ Only the following fields can be updated using this endpoint:
 * `scheduledPickupDate`
 * `actualPickupDate`
 * `firstAvailableDeliveryDate`
-* `secondaryDeliveryAddress`
-* `secondaryPickupAddress`
 * `primeEstimatedWeight`
 * `primeActualWeight`
 * `shipmentType`
