@@ -81,11 +81,19 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 		}
 
 		if customer.Suffix != nil {
-			existingCustomer.Suffix = customer.Suffix
+			if len(*customer.Suffix) == 0 {
+				existingCustomer.Suffix = nil
+			} else {
+				existingCustomer.Suffix = customer.Suffix
+			}
 		}
 
 		if customer.MiddleName != nil {
-			existingCustomer.MiddleName = customer.MiddleName
+			if len(*customer.MiddleName) == 0 {
+				existingCustomer.MiddleName = nil
+			} else {
+				existingCustomer.MiddleName = customer.MiddleName
+			}
 		}
 
 		// optimistic locking handled before transaction block
