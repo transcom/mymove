@@ -62,6 +62,7 @@ has psql "brew install postgresql"
 has nodenv "brew install nodenv"
 has_path ".nodenv/shims" "nodenv init"
 has node "nodenv local 12.21.0"
+has yq "brew install yq"
 
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then

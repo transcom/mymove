@@ -1,0 +1,29 @@
+receivers:
+  otlp:
+    protocols:
+      grpc: # on port 55680
+      http: # on port 55681
+
+processors:
+  batch:
+
+exporters:
+  otlp:
+    endpoint: "api.honeycomb.io:443"
+    headers:
+      "x-honeycomb-team": "key-placeholder"
+      "x-honeycomb-dataset": "data-placeholder"
+
+extensions:
+  health_check:
+  pprof:
+  zpages:
+
+service:
+  extensions: [health_check,pprof,zpages]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
+

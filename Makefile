@@ -50,6 +50,9 @@ endif
 
 SCHEMASPY_OUTPUT=./tmp/schemaspy
 
+HNY_API_KEY ?= notassigned
+HNY_DATASET ?= devexplore
+
 .PHONY: help
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -1115,6 +1118,22 @@ reviewapp_docker_build:
 
 reviewapp_docker_destroy:
 	docker-compose -f docker-compose.reviewapp.yml down
+
+.PHONY: otel_collect_config
+otel_collect_config:
+	mkdir -p ./tmp
+	@cat ./otel/config.yaml.tmpl | yq eval '.exporters.otlp.headers.x-honeycomb-team = "$(HNY_API_KEY)" | .exporters.otlp.headers.x-honeycomb-dataset = "$(HNY_DATASET)"' - > ./tmp/otel.config.yaml
+
+.PHONY: otel_collect_kill
+otel_collect_kill:  ## Kill the currently running OpenTelemetry Collector if it exists
+	docker kill otelc || true
+	docker rm otelc || true
+
+.PHONY: otel_collect
+otel_collect: otel_collect_kill otel_collect_config ## Start the local OpenTelemetry Collector
+	docker run -d -p 14268:14268 -p 13133:13133 -p 55680-55681:55680-55681 \
+		-v $(PWD)/tmp/otel.config.yaml:/etc/otel/config.yaml \
+		--name otelc otel/opentelemetry-collector-contrib:latest
 
 #
 # ----- END RANDOM TARGETS -----
