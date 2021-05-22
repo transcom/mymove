@@ -172,6 +172,27 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function updateMTOShipment({
+  moveTaskOrderID,
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};

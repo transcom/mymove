@@ -58,9 +58,11 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
         </dl>
         {editURL && (
           <EditButton
-            to={editURL}
+            onClick={() => {
+              window.location.href = editURL;
+            }}
             className={styles.editButton}
-            data-testid="editButton"
+            data-testid={editURL}
             label="Edit shipment"
             secondary
           />
