@@ -2395,9 +2395,11 @@ definitions:
     type: object
     properties:
       status:
-        $ref: '#/definitions/MTOShipmentStatus'
+        allOf:
+          - $ref: '#/definitions/MTOShipmentStatus'
       shipmentType:
-        $ref: '#/definitions/MTOShipmentType'
+        allOf:
+          - $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
         format: date
         type: string
@@ -2420,7 +2422,8 @@ definitions:
           - $ref: '#/definitions/Address'
         x-nullable: true
       agents:
-        $ref: '#/definitions/MTOAgents'
+        allOf:
+          - $ref: '#/definitions/MTOAgents'
         x-nullable: true
   MTOShipments:
     items:
