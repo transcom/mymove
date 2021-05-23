@@ -11,9 +11,9 @@ import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
-import { CUSTOMER } from 'constants/queryKeys';
+import { CUSTOMER, ORDERS } from 'constants/queryKeys';
 
-const CustomerInfo = ({ customer, isLoading, isError }) => {
+const CustomerInfo = ({ customer, isLoading, isError, ordersId }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -30,22 +30,10 @@ const CustomerInfo = ({ customer, isLoading, isError }) => {
         },
       });
       queryCache.invalidateQueries([CUSTOMER, variables.customerId]);
+      queryCache.invalidateQueries([ORDERS, ordersId]);
       handleClose();
     },
-    onError: (error) => {
-      const errorMsg = error?.response?.body;
-      // TODO: Handle error some how
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message from unsuccessful mutation.
-      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
-      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // RA Modified Severity: CAT II
-      // eslint-disable-next-line no-console
-      console.log(errorMsg);
-    },
+    // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -106,5 +94,6 @@ CustomerInfo.propTypes = {
   customer: CustomerShape.isRequired,
   isLoading: PropTypes.bool.isRequired,
   isError: PropTypes.bool.isRequired,
+  ordersId: PropTypes.string.isRequired,
 };
 export default CustomerInfo;

@@ -38,7 +38,7 @@ const ServicesCounselingMoveInfo = () => {
           </Route>
 
           <Route path="/counseling/moves/:moveCode/customer" exact>
-            <CustomerInfo customer={customerData} isLoading={isLoading} isError={isError} />
+            <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
           </Route>
 
           {/* TODO - clarify role/tab access */}

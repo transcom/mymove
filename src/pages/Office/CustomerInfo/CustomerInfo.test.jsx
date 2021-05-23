@@ -30,7 +30,7 @@ describe('CustomerInfo', () => {
   it('populates initial field values', () => {
     render(
       <MockProviders initialEntries={['moves/CDG3TR/customer']}>
-        <CustomerInfo customer={mockCustomer} isLoading={false} isError={false} />{' '}
+        <CustomerInfo customer={mockCustomer} ordersId="abc123" isLoading={false} isError={false} />{' '}
       </MockProviders>,
     );
     expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
