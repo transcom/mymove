@@ -7,6 +7,8 @@ import { GridContainer } from '@trussworks/react-uswds';
 
 import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
 
+import styles from './CustomerInfo.module.scss';
+
 import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -83,10 +85,12 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId }) => {
   };
 
   return (
-    <GridContainer>
-      <h1>Customer Info</h1>
-      <CustomerContactInfoForm initialValues={initialValues} onBack={handleClose} onSubmit={onSubmit} />
-    </GridContainer>
+    <div className={styles.customerInfoPage}>
+      <GridContainer>
+        <h1>Customer Info</h1>
+        <CustomerContactInfoForm initialValues={initialValues} onBack={handleClose} onSubmit={onSubmit} />
+      </GridContainer>
+    </div>
   );
 };
 
