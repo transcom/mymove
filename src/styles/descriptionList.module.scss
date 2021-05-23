@@ -14,12 +14,25 @@
     }
   }
 
+  .rowWithVisualCue::before {
+    @include u-margin-y(0.5);
+    // only valid values were 1px, 2px, 0 and 05
+    // 2px were needed for the outline
+    @include u-outline(2px);
+    // this is to offset the position of the outline
+    // so it lines up next to the row
+    @include u-margin-left(-2px);
+    @include u-margin-right(2px);
+    outline-color: $mm-gold;
+    content: "";
+  }
+
   dt,
   dd {
     @include u-border-top('1px');
     @include u-border-top('base-lighter');
 
-    @include u-padding-x(1);
+    @include u-padding-x(2);
     @include u-padding-y(1.5);
   }
 

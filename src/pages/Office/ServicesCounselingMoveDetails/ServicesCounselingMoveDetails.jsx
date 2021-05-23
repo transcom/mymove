@@ -55,7 +55,9 @@ const ServicesCounselingMoveDetails = () => {
           heading: SHIPMENT_OPTIONS.HHG,
           requestedMoveDate: shipment.requestedPickupDate,
           currentAddress: shipment.pickupAddress,
-          destinationAddress: shipment.destinationAddress,
+          destinationAddress: shipment.destinationAddress || {
+            postal_code: order.destinationDutyStation.address.postal_code,
+          },
           counselorRemarks: shipment.counselorRemarks,
         },
         editURL,
@@ -191,7 +193,7 @@ const ServicesCounselingMoveDetails = () => {
                 )
               }
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">

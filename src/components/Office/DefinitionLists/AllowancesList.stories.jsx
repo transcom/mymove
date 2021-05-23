@@ -6,6 +6,11 @@ import AllowancesList from './AllowancesList';
 export default {
   title: 'Office Components/AllowancesList',
   component: AllowancesList,
+  argTypes: {
+    showVisualCues: {
+      defaultValue: true,
+    },
+  },
 };
 
 const info = {
@@ -22,3 +27,7 @@ const info = {
 };
 
 export const Basic = () => <AllowancesList info={object('info', info)} />;
+
+export const VisualCues = (argTypes) => (
+  <AllowancesList info={object('info', info)} showVisualCues={argTypes.showVisualCues} />
+);

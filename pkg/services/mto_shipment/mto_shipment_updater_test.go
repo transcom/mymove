@@ -484,7 +484,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		suite.Equal(6, len(serviceItems))
 
-		// All ApprovedAt times for service items should be the same, so just get the first one
+		// // All ApprovedAt times for service items should be the same, so just get the first one
 		actualApprovedAt := serviceItems[0].ApprovedAt
 		currentTime := time.Now()
 		diff := currentTime.Sub(*actualApprovedAt)

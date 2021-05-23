@@ -163,10 +163,11 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-testid="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  // we are hardcoding PPM rates so this will never come with this message
+  // cy.get('[data-icon="question-circle"]').click();
+  // cy.get('[data-testid="tooltip"]').contains(
+  //   'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+  // );
   cy.nextPage();
 
   cy.location().should((loc) => {

@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
@@ -10,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	shipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -133,4 +136,66 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 
 	payload := payloads.MTOShipment(shipment)
 	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
+}
+
+// DeleteShipmentHandler soft deletes a shipment
+type DeleteShipmentHandler struct {
+	handlers.HandlerContext
+	services.ShipmentDeleter
+}
+
+// Handle soft deletes a shipment
+func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		logger.Error("user is not authenticated with service counselor office role")
+		return shipmentops.NewDeleteShipmentForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	moveID, err := h.DeleteShipment(shipmentID)
+	if err != nil {
+		logger.Error("Error deleting shipment: ", zap.Error(err))
+
+		switch err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewDeleteShipmentNotFound()
+		case services.ForbiddenError:
+			return shipmentops.NewDeleteShipmentForbidden()
+		default:
+			return shipmentops.NewDeleteShipmentInternalServerError()
+		}
+	}
+
+	// Note that this is currently not sending any notifications because
+	// the move isn't available to the Prime yet. See the objectEventHandler
+	// function in pkg/services/event/notification.go.
+	// We added this now because eventually, we will want to save events in
+	// the DB for auditing purposes. When that happens, this code in the handler
+	// will not change. However, we should make sure to add a test in
+	// mto_shipment_test.go that verifies the audit got saved.
+	h.triggerShipmentDeletionEvent(shipmentID, moveID, params)
+
+	return shipmentops.NewDeleteShipmentNoContent()
+}
+
+func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcDeleteShipmentEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentDeleteEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
+		MtoID:           moveID,                       // ID of the associated Move
+		Request:         params.HTTPRequest,           // Pass on the http.Request
+		DBConnection:    h.DB(),                       // Pass on the pop.Connection
+		HandlerContext:  h,                            // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.DeleteMTOShipmentHandler could not generate the event")
+	}
 }
