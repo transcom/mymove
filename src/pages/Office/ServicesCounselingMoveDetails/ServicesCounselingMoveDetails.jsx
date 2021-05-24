@@ -42,7 +42,7 @@ const ServicesCounselingMoveDetails = () => {
   if (mtoShipments) {
     shipmentsInfo = mtoShipments.map((shipment) => {
       const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,
             shipmentId: shipment.id,
           })

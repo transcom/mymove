@@ -176,8 +176,10 @@ const counselingCompletedMoveDetailsQuery = {
   },
 };
 
+const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
+
 const mockedComponent = (
-  <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
+  <MockProviders initialEntries={[detailsURL]}>
     <ServicesCounselingMoveDetails />
   </MockProviders>
 );
@@ -346,13 +348,13 @@ describe('MoveDetails page', () => {
 
       render(mockedComponent);
 
-      const editShipmentButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
+      const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
 
-      expect(editShipmentButtons.length).toBe(2);
+      expect(shipmentEditButtons.length).toBe(2);
 
-      for (let i = 0; i < editShipmentButtons.length; i += 1) {
-        expect(editShipmentButtons[i].getAttribute('data-testid')).toBe(
-          generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+      for (let i = 0; i < shipmentEditButtons.length; i += 1) {
+        expect(shipmentEditButtons[i].getAttribute('data-testid')).toBe(
+          generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode: mockRequestedMoveCode,
             shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
           }),

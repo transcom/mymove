@@ -187,7 +187,7 @@ export class OfficeApp extends Component {
                     <PrivateRoute
                       key="servicesCounselingEditShipmentDetailsRoute"
                       exact
-                      path={servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH}
+                      path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
                       component={ServicesCounselingEditShipmentDetails}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
