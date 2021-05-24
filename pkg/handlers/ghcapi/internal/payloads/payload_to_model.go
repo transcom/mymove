@@ -5,11 +5,44 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
+
+// MTOAgentModel model
+func MTOAgentModel(mtoAgent *ghcmessages.MTOAgent) *models.MTOAgent {
+	if mtoAgent == nil {
+		return nil
+	}
+
+	return &models.MTOAgent{
+		ID:            uuid.FromStringOrNil(mtoAgent.ID.String()),
+		MTOShipmentID: uuid.FromStringOrNil(mtoAgent.MtoShipmentID.String()),
+		FirstName:     mtoAgent.FirstName,
+		LastName:      mtoAgent.LastName,
+		Email:         mtoAgent.Email,
+		Phone:         mtoAgent.Phone,
+		MTOAgentType:  models.MTOAgentType(mtoAgent.AgentType),
+	}
+}
+
+// MTOAgentsModel model
+func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
+	if mtoAgents == nil {
+		return nil
+	}
+
+	agents := make(models.MTOAgents, len(*mtoAgents))
+
+	for i, m := range *mtoAgents {
+		agents[i] = *MTOAgentModel(m)
+	}
+
+	return &agents
+}
 
 // CustomerToServiceMember transforms UpdateCustomerPayload to ServiceMember model
 func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.ServiceMember {
@@ -77,38 +110,6 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 	return modelAddress
 }
 
-// MTOAgentModel model
-func MTOAgentModel(mtoAgent *ghcmessages.MTOAgent) *models.MTOAgent {
-	if mtoAgent == nil {
-		return nil
-	}
-
-	return &models.MTOAgent{
-		ID:            uuid.FromStringOrNil(mtoAgent.ID.String()),
-		MTOShipmentID: uuid.FromStringOrNil(mtoAgent.MtoShipmentID.String()),
-		FirstName:     mtoAgent.FirstName,
-		LastName:      mtoAgent.LastName,
-		Email:         mtoAgent.Email,
-		Phone:         mtoAgent.Phone,
-		MTOAgentType:  models.MTOAgentType(mtoAgent.AgentType),
-	}
-}
-
-// MTOAgentsModel model
-func MTOAgentsModel(mtoAgents *ghcmessages.MTOAgents) *models.MTOAgents {
-	if mtoAgents == nil {
-		return nil
-	}
-
-	agents := make(models.MTOAgents, len(*mtoAgents))
-
-	for i, m := range *mtoAgents {
-		agents[i] = *MTOAgentModel(m)
-	}
-
-	return &agents
-}
-
 // MTOShipmentModelFromCreate model
 func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -139,6 +140,34 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}
+
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
+	return model
+}
+
+// MTOShipmentModelFromUpdate model
+func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models.MTOShipment {
+	if mtoShipment == nil {
+		return nil
+	}
+
+	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+
+	model := &models.MTOShipment{
+		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		CustomerRemarks:       mtoShipment.CustomerRemarks,
+		CounselorRemarks:      mtoShipment.CounselorRemarks,
+		Status:                models.MTOShipmentStatus(mtoShipment.Status),
+	}
+
+	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
+	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
