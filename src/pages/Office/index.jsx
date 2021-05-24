@@ -192,14 +192,14 @@ export class OfficeApp extends Component {
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
-                      path="/counseling/queue"
+                      path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
                       exact
                       component={ServicesCounselingQueue}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
                       key="servicesCounselingMoveInfoRoute"
-                      path="/counseling/moves/:moveCode"
+                      path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
