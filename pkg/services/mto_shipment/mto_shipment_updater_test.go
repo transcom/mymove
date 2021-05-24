@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/stretchr/testify/mock"
@@ -106,6 +108,54 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	//now := time.Now()
 	primeEstimatedWeight = unit.Pound(4500)
 
+	suite.T().Run("Can retrieve existing shipment", func(t *testing.T) {
+		existingShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment, err := mtoShipmentUpdater.RetrieveMTOShipment(existingShipment.ID)
+
+		suite.NoError(err)
+
+		suite.Equal(existingShipment.ID, shipment.ID)
+		suite.Equal(existingShipment.CreatedAt.UTC(), shipment.CreatedAt.UTC())
+		suite.Equal(existingShipment.ShipmentType, shipment.ShipmentType)
+		suite.Equal(existingShipment.UpdatedAt.UTC(), shipment.UpdatedAt.UTC())
+	})
+
+	servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *servicesCounselor.UserID,
+		OfficeUserID:    servicesCounselor.ID,
+	}
+	session.Roles = append(session.Roles, servicesCounselor.User.Roles...)
+
+	var statusTests = []struct {
+		name      string
+		status    models.MTOShipmentStatus
+		updatable bool
+	}{
+		{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
+		{"Submitted is updatable", models.MTOShipmentStatusSubmitted, true},
+		{"Approved isn't updatable", models.MTOShipmentStatusApproved, false},
+	}
+
+	for _, tt := range statusTests {
+		suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+			shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					Status: tt.status,
+				},
+			})
+
+			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(&shipment, &session)
+
+			suite.NoError(err)
+
+			suite.Equal(tt.updatable, updatable,
+				"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+		})
+	}
+
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
@@ -170,9 +220,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipment(updatedShipment, eTag)
 		suite.NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
+		suite.Equal(newDestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(newPickupAddress.ID, *updatedShipment.PickupAddressID)
+		suite.Equal(newPickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(secondaryPickupAddress.ID, *updatedShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryPickupAddress.StreetAddress1, updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(secondaryDeliveryAddress.ID, *updatedShipment.SecondaryDeliveryAddressID)
+		suite.Equal(secondaryDeliveryAddress.StreetAddress1, updatedShipment.SecondaryDeliveryAddress.StreetAddress1)
 
 	})
 
@@ -193,6 +247,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
+		counselorRemarks := "Counselor approved"
 		updatedShipment := models.MTOShipment{
 			ID:                               oldShipment.ID,
 			DestinationAddress:               &newDestinationAddress,
@@ -213,6 +268,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			Status:                           models.MTOShipmentStatusSubmitted,
 			Diversion:                        true,
 			CustomerRemarks:                  &customerRemarks,
+			CounselorRemarks:                 &counselorRemarks,
 		}
 
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
@@ -227,6 +283,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
+		suite.Equal(counselorRemarks, *newShipment.CounselorRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
 		suite.Equal(true, newShipment.Diversion)
 		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
