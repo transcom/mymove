@@ -362,6 +362,10 @@ paths:
           description: Successfully retrieved all line items for a move task order
           schema:
             $ref: '#/definitions/MTOServiceItems'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -1471,6 +1475,14 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middle_name:
+        type: string
+        example: David
+        x-nullable: true
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -1507,6 +1519,14 @@ definitions:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middle_name:
+        type: string
+        example: David
         x-nullable: true
       current_address:
         x-nullable: true

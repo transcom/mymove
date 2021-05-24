@@ -9,6 +9,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
+import formattedCustomerName from 'utils/formattedCustomerName';
 import 'styles/office.scss';
 import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -65,7 +66,7 @@ const ServicesCounselingMoveDetails = () => {
   }
 
   const customerInfo = {
-    name: `${customer.last_name}, ${customer.first_name}`,
+    name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
     phone: `+1 ${customer.phone}`,
     email: customer.email,
@@ -192,7 +193,7 @@ const ServicesCounselingMoveDetails = () => {
                 )
               }
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
@@ -200,7 +201,7 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="#">
+                  <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="customer">
                     Edit customer info
                   </Link>
                 )

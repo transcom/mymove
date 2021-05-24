@@ -13,6 +13,7 @@ const ServicesCounselingMoveDocumentWrapper = lazy(() =>
 const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
 );
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 
 const ServicesCounselingMoveInfo = () => {
   const { moveCode } = useParams();
@@ -34,6 +35,10 @@ const ServicesCounselingMoveInfo = () => {
 
           <Route path={['/counseling/moves/:moveCode/allowances', '/counseling/moves/:moveCode/orders']} exact>
             <ServicesCounselingMoveDocumentWrapper />
+          </Route>
+
+          <Route path="/counseling/moves/:moveCode/customer" exact>
+            <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
           </Route>
 
           {/* TODO - clarify role/tab access */}

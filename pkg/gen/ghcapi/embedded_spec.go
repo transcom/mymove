@@ -798,6 +798,12 @@ func init() {
               "$ref": "#/definitions/MTOServiceItems"
             }
           },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
           "404": {
             "$ref": "#/responses/NotFound"
           },
@@ -2181,11 +2187,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -3699,11 +3715,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         }
       }
     },
@@ -4969,6 +4995,18 @@ func init() {
             "description": "Successfully retrieved all line items for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOServiceItems"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
@@ -6570,11 +6608,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -8091,11 +8139,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         }
       }
     },

@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{ID: mtoShipmentID},
 	})
-	requestUser := testdatagen.MakeStubbedUser(suite.DB())
+	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	serviceItems := models.MTOServiceItems{serviceItem}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	req = suite.AuthenticateOfficeRequest(req, requestUser)
 
 	params := mtoserviceitemop.ListMTOServiceItemsParams{
 		HTTPRequest:     req,
@@ -119,6 +119,28 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsNotFound{}, response)
+	})
+
+	suite.T().Run("Failure list fetch - 403 Permission Denied", func(t *testing.T) {
+		mockListFetcher := mocks.ListFetcher{}
+		mockFetcher := mocks.Fetcher{}
+		handler := ListMTOServiceItemsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockListFetcher,
+			&mockFetcher,
+		}
+
+		scUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		officeReq := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
+		officeReq = suite.AuthenticateOfficeRequest(officeReq, scUser)
+
+		reqParams := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     officeReq,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
+		}
+
+		response := handler.Handle(reqParams)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsForbidden{}, response)
 	})
 }
 

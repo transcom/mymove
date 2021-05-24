@@ -39,6 +39,8 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 		BackupContacts:     backupContacts,
 		FirstName:          &payload.FirstName,
 		LastName:           &payload.LastName,
+		Suffix:             payload.Suffix,
+		MiddleName:         payload.MiddleName,
 		PersonalEmail:      payload.Email,
 		Telephone:          payload.Phone,
 	}

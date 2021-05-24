@@ -29,6 +29,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -48,6 +49,9 @@ const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
 );
 const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue'));
+const ServicesCounselingEditShipmentDetails = lazy(() =>
+  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
+);
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -180,6 +184,13 @@ export class OfficeApp extends Component {
                     />
 
                     {/* SERVICES_COUNSELOR */}
+                    <PrivateRoute
+                      key="servicesCounselingEditShipmentDetailsRoute"
+                      exact
+                      path={servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH}
+                      component={ServicesCounselingEditShipmentDetails}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
                     <PrivateRoute
                       path="/counseling/queue"
                       exact

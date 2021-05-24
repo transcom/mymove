@@ -92,6 +92,8 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		ID:             strfmt.UUID(customer.ID.String()),
 		LastName:       swag.StringValue(customer.LastName),
 		Phone:          customer.Telephone,
+		Suffix:         customer.Suffix,
+		MiddleName:     customer.MiddleName,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 		BackupContact:  BackupContact(customer.BackupContacts),
@@ -603,7 +605,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
-			ID:                     *handlers.FmtUUID(move.Orders.ID),
+			ID:                     *handlers.FmtUUID(move.ID),
 			Locator:                move.Locator,
 			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
 			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),

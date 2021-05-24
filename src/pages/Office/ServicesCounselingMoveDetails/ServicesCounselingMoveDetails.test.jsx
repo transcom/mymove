@@ -351,7 +351,7 @@ describe('MoveDetails page', () => {
       expect(editShipmentButtons.length).toBe(2);
 
       for (let i = 0; i < editShipmentButtons.length; i += 1) {
-        expect(editShipmentButtons[i].getAttribute('to')).toBe(
+        expect(editShipmentButtons[i].getAttribute('data-testid')).toBe(
           generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
             moveCode: mockRequestedMoveCode,
             shipmentId: newMoveDetailsQuery.mtoShipments[i].id,

@@ -8,6 +8,7 @@ const hhgShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   delivery: OptionalPlaceSchema,
   customerRemarks: Yup.string(),
+  counselorRemarks: Yup.string(),
 });
 
 const ntsShipmentSchema = Yup.object().shape({
