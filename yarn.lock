@@ -8895,10 +8895,10 @@ eslint-plugin-testing-library@^3.9.2:
   dependencies:
     "@typescript-eslint/experimental-utils" "^3.10.1"
 
-eslint-plugin-you-dont-need-lodash-underscore@^6.10.0:
-  version "6.10.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-you-dont-need-lodash-underscore/-/eslint-plugin-you-dont-need-lodash-underscore-6.10.0.tgz#63df0785ee1a07365ef77db907692f1ac928e000"
-  integrity sha512-Zu1KbHiWKf+alVvT+kFX2M5HW1gmtnkfF1l2cjmFozMnG0gbGgXo8oqK7lwk+ygeOXDmVfOyijqBd7SUub9AEQ==
+eslint-plugin-you-dont-need-lodash-underscore@^6.12.0:
+  version "6.12.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-you-dont-need-lodash-underscore/-/eslint-plugin-you-dont-need-lodash-underscore-6.12.0.tgz#7a977c1cf4ba4d26a0484a4c4a2087221cb9bb8a"
+  integrity sha512-WF4mNp+k2532iswT6iUd1BX6qjd3AV4cFy/09VC82GY9SsRtvkxhUIx7JNGSe0/bLyd57oTr4inPFiIaENXhGw==
   dependencies:
     kebab-case "^1.0.0"
 
@@ -19294,10 +19294,10 @@ swagger-client@^3.13.3:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^3.48.0:
-  version "3.48.0"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.48.0.tgz#3d23194d86ec1e76b926a345578c290ef3fc6e98"
-  integrity sha512-UgpKIQW5RAb4nYRG8B615blmQzct0DNuvtX4904Fe2aMWAVfWeKHKl4kwzFXuBJgr2WYWTwM1PnhZ+qqkLrpPg==
+swagger-ui-dist@^3.49.0:
+  version "3.49.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.49.0.tgz#8915df662b74a4dbc9583cd6d3d726c3910e3b33"
+  integrity sha512-R1+eT16XNP1bBLfacISifZAkFJlpwvWsS2vVurF5pbIFZnmCasD/hj+9r/q7urYdQyb0B6v11mDnuYU7rUpfQg==
 
 symbol-observable@1.2.0, symbol-observable@^1.1.0:
   version "1.2.0"
