@@ -12,6 +12,10 @@ package supportapi
 import (
 	"net/http/httptest"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -53,6 +57,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	// Update the service item so that it has an existing RejectionReason
 	// because we want to test that it becomes nil when the service item is
 	// approved.
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	reason := "should not update reason"
 	mtoServiceItem.RejectionReason = &reason
 	suite.MustSave(&mtoServiceItem)
@@ -73,7 +78,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// CALL FUNCTION UNDER TEST
@@ -103,6 +108,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 
 	// SETUP
 	// Create a service item on a move
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	mtoServiceItem := suite.createServiceItem()
 
 	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
@@ -120,7 +126,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// CALL FUNCTION UNDER TEST
@@ -149,6 +155,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 
 	// SETUP
 	// Create a service item on a move
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	mtoServiceItem := suite.createServiceItem()
 
 	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
@@ -167,7 +174,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// CALL FUNCTION UNDER TEST

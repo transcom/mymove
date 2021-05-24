@@ -1,8 +1,9 @@
 package internalapi
 
 import (
-	"github.com/transcom/mymove/pkg/services"
 	"time"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"

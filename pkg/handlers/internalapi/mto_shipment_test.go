@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -31,6 +35,7 @@ import (
 //
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
@@ -69,7 +74,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher, moveRouter)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -81,7 +86,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -98,7 +103,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	suite.T().Run("POST failure - 401- permission denied - not authenticated", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher, moveRouter)
 		unauthorizedParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: unauthorizedReq,
 			Body: &internalmessages.CreateShipment{
@@ -133,7 +138,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.T().Run("POST failure - 403- permission denied - wrong application", func(t *testing.T) {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher, moveRouter)
 		unauthorizedReq = suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
@@ -151,7 +156,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
 
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -169,7 +174,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

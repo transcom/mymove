@@ -5,6 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	movePkg "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -154,6 +158,7 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 }
 
 func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
+	moveRouter := movePkg.NewMoveRouter(suite.DB(), zap.NewNop())
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status: models.MoveStatusSUBMITTED,
@@ -167,11 +172,11 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -223,6 +228,7 @@ func (suite *HandlerSuite) moveTaskOrderPopulated(response *movetaskorderops.Cre
 }
 
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
+	moveRouter := movePkg.NewMoveRouter(suite.DB(), zap.NewNop())
 
 	// Create the objects that are already in the db
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -353,11 +359,11 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			IfMatch:         createdMTO.ETag,
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
 

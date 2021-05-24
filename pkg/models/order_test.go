@@ -3,6 +3,10 @@ package models_test
 import (
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
@@ -28,12 +32,14 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 }
 
 func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
+
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.TAC = nil
-	err = move.Submit()
+	err = moveRouter.Submit(&move)
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -49,6 +55,7 @@ func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 	invalidCases := []struct {
@@ -62,7 +69,7 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		order := move.Orders
 		order.OrdersNumber = invalidCase.value
-		err := move.Submit()
+		err := moveRouter.Submit(&move)
 		if err != nil {
 			suite.T().Fatal("Should transition.")
 		}
@@ -79,6 +86,7 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 	emptyString := internalmessages.OrdersTypeDetail("")
@@ -95,7 +103,7 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		order := move.Orders
 
 		order.OrdersTypeDetail = invalidCase.value
-		err := move.Submit()
+		err := moveRouter.Submit(&move)
 		if err != nil {
 			suite.T().Fatal("Should transition.")
 		}
@@ -112,12 +120,13 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.DepartmentIndicator = nil
-	err = move.Submit()
+	err = moveRouter.Submit(&move)
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}

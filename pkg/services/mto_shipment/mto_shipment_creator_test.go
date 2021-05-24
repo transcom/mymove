@@ -4,6 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -20,12 +24,13 @@ import (
 )
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return builder
 	}
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	fetcher := fetch.NewFetcher(builder)
 	creator := mtoShipmentCreator{
 		suite.DB(),

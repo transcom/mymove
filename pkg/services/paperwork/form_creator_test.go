@@ -12,6 +12,10 @@ package paperwork
 import (
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
@@ -30,6 +34,8 @@ import (
 )
 
 func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.ShipmentSummaryWorksheetPage1Values {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
+
 	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
@@ -85,8 +91,10 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
-	ppm.Move.Approve()
+	err := moveRouter.Submit(&move)
+	suite.NoError(err)
+	err = moveRouter.Approve(&move)
+	suite.NoError(err)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())

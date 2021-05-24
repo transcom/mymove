@@ -13,6 +13,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -30,8 +34,9 @@ import (
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
@@ -297,8 +302,9 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 }
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	rejectionReason := swag.String("")
 

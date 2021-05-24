@@ -14,6 +14,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -303,6 +307,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	// Given: a logged in user
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
@@ -384,8 +389,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 
-	move.Submit()
-	suite.MustSave(&move)
+	err := moveRouter.Submit(&move)
+	suite.NoError(err)
+	verrs, err := suite.DB().ValidateAndSave(&move)
+	suite.NoError(err)
+	suite.NoVerrs(verrs)
 
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()

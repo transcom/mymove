@@ -1,9 +1,10 @@
 package internalapi
 
 import (
-	"github.com/transcom/mymove/pkg/services/move"
 	"io"
 	"log"
+
+	"github.com/transcom/mymove/pkg/services/move"
 
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 
@@ -37,6 +38,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.ServeError = handlers.ServeCustomError
 	builder := query.NewQueryBuilder(context.DB())
 	fetcher := fetch.NewFetcher(builder)
+	moveRouter := move.NewMoveRouter(context.DB(), context.Logger())
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context, officeuser.NewOfficeUserFetcherPop(context.DB())}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
@@ -108,10 +110,10 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
 
-	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context, move.NewMoveRouter(context.DB(), context.Logger())}
+	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context, moveRouter}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
-	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context, move.NewMoveRouter(context.DB(), context.Logger())}
+	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context, moveRouter}
 
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{context}
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
@@ -138,7 +140,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		context,
-		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
+		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher, moveRouter),
 	}
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{

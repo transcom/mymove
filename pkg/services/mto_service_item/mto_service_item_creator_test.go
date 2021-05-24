@@ -14,6 +14,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	move "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/query"
@@ -130,8 +134,9 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 // Should return a message stating that service items can't be created if
 // the move is not in approved status.
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	builder := query.NewQueryBuilder(suite.DB())
-	creator := NewMTOServiceItemCreator(builder)
+	creator := NewMTOServiceItemCreator(builder, moveRouter)
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
 	createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemForUnapprovedMove)
@@ -150,10 +155,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	serviceItem := suite.buildValidServiceItemWithValidMove()
 	move := serviceItem.MoveTaskOrder
 	builder := query.NewQueryBuilder(suite.DB())
-	creator := NewMTOServiceItemCreator(builder)
+	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
 	suite.T().Run("success", func(t *testing.T) {
@@ -430,6 +436,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	// Set up data to use for all Origin SIT Service Item tests
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	move.Status = models.MoveStatusAPPROVED
@@ -492,7 +499,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		}
 
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, verr, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -525,7 +532,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		}
 
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
 		suite.NotNil(createdServiceItems)
@@ -562,7 +569,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	suite.T().Run("Create standalone DOASIT item for shipment if existing DOFSIT", func(t *testing.T) {
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
 
@@ -581,7 +588,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	suite.T().Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func(t *testing.T) {
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		// Change pickup address
 		actualPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{Stub: true})
@@ -606,7 +613,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Reason:          &reason,
 		}
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -628,7 +635,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		}
 
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOPSIT)
 
@@ -652,7 +659,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		}
 
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
 
@@ -675,7 +682,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		}
 
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
 
@@ -687,6 +694,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	// Set up data to use for all Origin SIT Service Item tests
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	move.Status = models.MoveStatusAPPROVED
@@ -717,7 +725,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			Reason:          &reason,
 		}
 		builder := query.NewQueryBuilder(suite.DB())
-		creator := NewMTOServiceItemCreator(builder)
+		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
@@ -728,6 +736,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			Status: models.MoveStatusAPPROVED,
@@ -737,7 +746,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		Move: move,
 	})
 	builder := query.NewQueryBuilder(suite.DB())
-	creator := NewMTOServiceItemCreator(builder)
+	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -837,7 +846,6 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			CustomerContacts: contacts,
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
-
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)

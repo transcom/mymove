@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -100,13 +102,14 @@ func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveHandler() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 
 	// Create handler and request:
 	builder := query.NewQueryBuilder(suite.DB())
 	handler := UpdateMoveHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), builder, mtoserviceitem.NewMTOServiceItemCreator(builder)),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), builder, mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), move.NewMoveRouter(suite.DB(), suite.TestLogger())),
 	}
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())

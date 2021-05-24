@@ -12,10 +12,11 @@ package scenario
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/services/move"
 	"log"
 	"net/http/httptest"
 	"time"
+
+	"github.com/transcom/mymove/pkg/services/move"
 
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 
@@ -789,7 +790,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	}
 
 	queryBuilder := query.NewQueryBuilder(db)
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
@@ -878,7 +879,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem

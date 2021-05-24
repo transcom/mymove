@@ -33,13 +33,13 @@ type mtoServiceItemUpdater struct {
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func(db *pop.Connection) mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
 
-	return &mtoServiceItemUpdater{builder: builder, createNewBuilder: createNewBuilder}
+	return &mtoServiceItemUpdater{builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
 }
 
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {

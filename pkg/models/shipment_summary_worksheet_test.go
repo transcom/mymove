@@ -12,6 +12,10 @@ package models_test
 import (
 	"time"
 
+	"go.uber.org/zap"
+
+	move "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gofrs/uuid"
@@ -23,6 +27,7 @@ import (
 )
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
@@ -85,8 +90,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
-	ppm.Move.Approve()
+	err := moveRouter.Submit(&move)
+	suite.NoError(err)
+	err = moveRouter.Approve(&move)
+	suite.NoError(err)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -135,6 +142,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 }
 
 func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
 	//advanceID, _ := uuid.NewV4()
@@ -210,8 +218,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
-	ppm.Move.Approve()
+	err := moveRouter.Submit(&move)
+	suite.NoError(err)
+	err = moveRouter.Approve(&move)
+	suite.NoError(err)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())

@@ -33,7 +33,7 @@ type mtoShipmentCreator struct {
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentCreator {
+func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
@@ -43,7 +43,7 @@ func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBui
 		builder,
 		fetch.NewFetcher(builder),
 		createNewBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder),
+		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
 	}
 }
 

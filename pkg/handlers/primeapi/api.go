@@ -1,9 +1,10 @@
 package primeapi
 
 import (
-	"github.com/transcom/mymove/pkg/services/move"
 	"log"
 	"net/http"
+
+	"github.com/transcom/mymove/pkg/services/move"
 
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 
@@ -26,6 +27,7 @@ import (
 func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	builder := query.NewQueryBuilder(context.DB())
 	fetcher := fetch.NewFetcher(builder)
+	moveRouter := move.NewMoveRouter(context.DB(), context.Logger())
 
 	primeSpec, err := loads.Analyzed(primeapi.SwaggerJSON, "")
 	if err != nil {
@@ -48,13 +50,13 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		context,
-		mtoserviceitem.NewMTOServiceItemCreator(builder),
+		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
 		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
 	}
 
 	primeAPI.MtoServiceItemUpdateMTOServiceItemHandler = UpdateMTOServiceItemHandler{
 		context,
-		mtoserviceitem.NewMTOServiceItemUpdater(builder),
+		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
@@ -82,13 +84,13 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
 		context,
 		fetch.NewFetcher(queryBuilder),
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), move.NewMoveRouter(context.DB(), context.Logger())),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter),
 		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
 	}
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		context,
-		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
+		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher, move.NewMoveRouter(context.DB(), context.Logger())),
 		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
 	}
 
@@ -111,7 +113,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
 		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), context.Planner()),
 	}
 
 	return primeAPI.Serve(nil)

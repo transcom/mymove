@@ -179,7 +179,6 @@ func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMemb
 	}
 
 	move := serviceMember.Orders[0].Moves[0]
-
 	return move.Status == models.MoveStatusDRAFT
 }
 

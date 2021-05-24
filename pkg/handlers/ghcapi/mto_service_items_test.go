@@ -7,6 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	movePkg "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services"
@@ -132,6 +136,7 @@ func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Mo
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
+	moveRouter := movePkg.NewMoveRouter(suite.DB(), suite.TestLogger())
 	moveTaskOrderID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 
@@ -278,7 +283,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -297,6 +302,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// With this we'll do a happy path integration test to ensure that the use of the service object
 	// by the handler is working as expected.
 	suite.T().Run("Successful status update of MTO service item and event trigger", func(t *testing.T) {
+		moveRouter := movePkg.NewMoveRouter(suite.DB(), zap.NewNop())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -315,7 +321,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	move2 "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -389,10 +391,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerPreconditionsFailed() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
+	moveRouter := move2.NewMoveRouter(suite.DB(), suite.TestLogger())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	err := move.Submit()
+	err := moveRouter.Submit(&move)
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -446,6 +449,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerValidationError() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
+	moveRouter := move2.NewMoveRouter(suite.DB(), suite.TestLogger())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.TAC = nil
@@ -502,7 +506,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithoutTac() {
 
 	suite.Run("When Move is no longer in draft status, TAC must be present", func() {
 		// Submit the move to change its status
-		err := move.Submit()
+		err := moveRouter.Submit(&move)
 		if err != nil {
 			suite.T().Fatal("Should transition.")
 		}

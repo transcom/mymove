@@ -5,6 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -21,6 +25,8 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusServiceCounselingCompleted() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
+
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -30,7 +36,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	})
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter)
 
 	suite.T().Run("MTO status is updated succesfully", func(t *testing.T) {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
@@ -73,13 +79,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCounselingInfo() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
+
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter)
 	body := movetaskorderops.UpdateMTOPostCounselingInformationBody{
 		PpmType:            "FULL",
 		PpmEstimatedWeight: 3000,
@@ -117,6 +125,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	// Set up a default move:
 	show := true
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -127,7 +136,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	updater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	updater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter)
 
 	// Case: Move successfully deactivated
 	suite.T().Run("Success - Set show field to false", func(t *testing.T) {
@@ -205,9 +214,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
+	moveRouter := move.NewMoveRouter(suite.DB(), zap.NewNop())
 	mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator)
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
 
 	suite.T().Run("Service item creator is not called if move fails to get approved", func(t *testing.T) {
 		// Create move in DRAFT status, which should fail to get approved

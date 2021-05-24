@@ -25,7 +25,7 @@ type moveTaskOrderUpdater struct {
 	moveTaskOrderFetcher
 	builder            UpdateMoveTaskOrderQueryBuilder
 	serviceItemCreator services.MTOServiceItemCreator
-	moveRouter 			services.MoveRouter
+	moveRouter         services.MoveRouter
 }
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies

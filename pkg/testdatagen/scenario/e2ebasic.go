@@ -12,9 +12,10 @@ package scenario
 
 import (
 	"fmt"
-	move2 "github.com/transcom/mymove/pkg/services/move"
 	"log"
 	"time"
+
+	move2 "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
