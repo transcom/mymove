@@ -32,6 +32,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -41,7 +42,8 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:           models.MTOShipmentStatusSubmitted,
+			CounselorRemarks: handlers.FmtString("counselor remark"),
 		},
 	})
 	mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
@@ -82,6 +84,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(*shipments[0].CounselorRemarks, *okResponse.Payload[0].CounselorRemarks)
 		suite.Equal(mtoAgent.ID.String(), okResponse.Payload[0].MtoAgents[0].ID.String())
 		suite.Equal(mtoServiceItem.ID.String(), okResponse.Payload[0].MtoServiceItems[0].ID.String())
 	})
@@ -549,6 +552,168 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		response := handler.Handle(deletionParams)
 		suite.IsType(&shipmentops.DeleteShipmentForbidden{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        mto,
+		MTOShipment: models.MTOShipment{},
+	})
+
+	mtoShipment.MoveTaskOrderID = mto.ID
+
+	builder := query.NewQueryBuilder(suite.DB())
+
+	req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+	params := mtoshipmentops.CreateMTOShipmentParams{
+		HTTPRequest: req,
+		Body: &ghcmessages.CreateMTOShipment{
+			MoveTaskOrderID:     handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			Agents:              nil,
+			CustomerRemarks:     handlers.FmtString("customer remark"),
+			CounselorRemarks:    handlers.FmtString("counselor remark"),
+			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+		},
+	}
+	params.Body.DestinationAddress.Address = ghcmessages.Address{
+		City:           &destinationAddress.City,
+		Country:        destinationAddress.Country,
+		PostalCode:     &destinationAddress.PostalCode,
+		State:          &destinationAddress.State,
+		StreetAddress1: &destinationAddress.StreetAddress1,
+		StreetAddress2: destinationAddress.StreetAddress2,
+		StreetAddress3: destinationAddress.StreetAddress3,
+	}
+	params.Body.PickupAddress.Address = ghcmessages.Address{
+		City:           &pickupAddress.City,
+		Country:        pickupAddress.Country,
+		PostalCode:     &pickupAddress.PostalCode,
+		State:          &pickupAddress.State,
+		StreetAddress1: &pickupAddress.StreetAddress1,
+		StreetAddress2: pickupAddress.StreetAddress2,
+		StreetAddress3: pickupAddress.StreetAddress3,
+	}
+
+	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+		response := handler.Handle(params)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		createMTOShipmentPayload := okResponse.Payload
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		suite.Require().Equal(createMTOShipmentPayload.Status, ghcmessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, ghcmessages.MTOShipmentTypeHHG, "MTO Shipment should be an HHG")
+		suite.Equal(string("customer remark"), *createMTOShipmentPayload.CustomerRemarks)
+		suite.Equal(string("counselor remark"), *createMTOShipmentPayload.CounselorRemarks)
+	})
+
+	suite.T().Run("POST failure - 500", func(t *testing.T) {
+		mockCreator := mocks.MTOShipmentCreator{}
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockCreator,
+		}
+
+		err := errors.New("ServerError")
+
+		mockCreator.On("CreateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, err)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+	})
+
+	suite.T().Run("POST failure - 422 -- Bad agent IDs set on shipment", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		badID := params.Body.MoveTaskOrderID
+		agent := &ghcmessages.MTOAgent{
+			ID:            *badID,
+			MtoShipmentID: *badID,
+			FirstName:     handlers.FmtString("Mary"),
+		}
+
+		paramsBadIDs := params
+		paramsBadIDs.Body.Agents = ghcmessages.MTOAgents{agent}
+
+		response := handler.Handle(paramsBadIDs)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+		suite.NotEmpty(typedResponse.Payload.InvalidFields)
+	})
+
+	suite.T().Run("POST failure - 422 - invalid input, missing pickup address", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		badParams := params
+		badParams.Body.PickupAddress.Address.StreetAddress1 = nil
+
+		response := handler.Handle(badParams)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+		suite.NotEmpty(typedResponse.Payload.InvalidFields)
+	})
+
+	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
+		badParams := params
+		badParams.Body.MoveTaskOrderID = handlers.FmtUUID(uuid.FromStringOrNil(uuidString))
+
+		response := handler.Handle(badParams)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+		}
+
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+		}
+		response := handler.Handle(paramsNilBody)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 }
 

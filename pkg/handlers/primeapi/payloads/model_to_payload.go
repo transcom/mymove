@@ -346,6 +346,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
+		CounselorRemarks:                 mtoShipment.CounselorRemarks,
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),

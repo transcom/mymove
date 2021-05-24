@@ -85,6 +85,51 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
+// CreateMTOShipmentHandler is the handler to create MTO shipments
+type CreateMTOShipmentHandler struct {
+	handlers.HandlerContext
+	mtoShipmentCreator services.MTOShipmentCreator
+}
+
+// Handle creates the mto shipment
+func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	payload := params.Body
+
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+	}
+
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, nil)
+
+	if err != nil {
+		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			payload := ghcmessages.Error{
+				Message: handlers.FmtString(err.Error()),
+			}
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+		default:
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+		}
+	}
+
+	returnPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+}
+
 // UpdateShipmentHandler updates shipments
 type UpdateShipmentHandler struct {
 	handlers.HandlerContext

@@ -1740,6 +1740,13 @@ func init() {
           "x-omitempty": false,
           "readOnly": true
         },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -4575,6 +4582,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",

@@ -55,6 +55,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
@@ -178,6 +181,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
@@ -304,6 +309,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
 	}
@@ -482,6 +490,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
