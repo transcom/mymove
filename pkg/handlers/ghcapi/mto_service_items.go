@@ -3,8 +3,6 @@ package ghcapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -119,12 +117,7 @@ type ListMTOServiceItemsHandler struct {
 
 // Handle handler that lists mto service items for the move task order
 func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServiceItemsParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
-	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
-		logger.Error("Unauthorized request from a non-office user or an office user without TOO or TIO roles")
-		return mtoserviceitemop.NewListMTOServiceItemsForbidden()
-	}
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	// return any parsing error
