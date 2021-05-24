@@ -62,6 +62,18 @@ func (suite *MoveServiceSuite) TestSubmitted() {
 		suite.Contains(err.Error(), "not found looking for move.OrdersID")
 	})
 
+	suite.Run("returns error when OriginDutyStation is missing", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+		order := move.Orders
+		order.OriginDutyStation = nil
+		order.OriginDutyStationID = nil
+		suite.NoError(suite.DB().Update(&order))
+
+		err := moveRouter.Submit(&move)
+		suite.Error(err)
+		suite.Contains(err.Error(), "orders missing OriginDutyStation")
+	})
+
 	suite.Run("moves going to the TOO return errors if the move doesn't have DRAFT status", func() {
 		move := testdatagen.MakeDefaultMove(suite.DB())
 
