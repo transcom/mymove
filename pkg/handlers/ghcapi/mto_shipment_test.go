@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models/roles"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models/roles"
 
 	movePkg "github.com/transcom/mymove/pkg/services/move"
 

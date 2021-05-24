@@ -25,6 +25,7 @@ import (
 
 // NewGhcAPIHandler returns a handler for the GHC API
 func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
+	moveRouter := move.NewMoveRouter(context.DB(), context.Logger())
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -104,17 +105,17 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, move.NewMoveRouter(context.DB(), context.Logger())), move.NewMoveRouter(context.DB(), context.Logger())),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter),
 	}
 
 	ghcAPI.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler = UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, move.NewMoveRouter(context.DB(), context.Logger())), move.NewMoveRouter(context.DB(), context.Logger())),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter),
 	}
 
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		context,
-		mtoshipment.NewMTOShipmentCreator(context.DB(), queryBuilder, fetch.NewFetcher(queryBuilder)),
+		mtoshipment.NewMTOShipmentCreator(context.DB(), queryBuilder, fetch.NewFetcher(queryBuilder), moveRouter),
 	}
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
@@ -137,7 +138,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchShipmentHandler{
 		context,
 		fetch.NewFetcher(queryBuilder),
-		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, move.NewMoveRouter(context.DB(), context.Logger())), context.Planner()),
+		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), context.Planner()),
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{

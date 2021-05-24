@@ -14,8 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/pkg/services/move"
 

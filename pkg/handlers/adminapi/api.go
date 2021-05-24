@@ -33,6 +33,7 @@ import (
 
 // NewAdminAPIHandler returns a handler for the admin API
 func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
+	moveRouter := move.NewMoveRouter(context.DB(), context.Logger())
 
 	// Wire up the handlers to the publicAPIMux
 	adminSpec, err := loads.Analyzed(adminapi.SwaggerJSON, "")
@@ -187,7 +188,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, move.NewMoveRouter(context.DB(), context.Logger())), move.NewMoveRouter(context.DB(), context.Logger())),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), moveRouter),
 	}
 
 	adminAPI.MoveGetMoveHandler = GetMoveHandler{
