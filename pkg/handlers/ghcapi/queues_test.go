@@ -82,7 +82,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	result := payload.QueueMoves[0]
 	deptIndicator := *result.DepartmentIndicator
 	suite.Len(payload.QueueMoves, 1)
-	suite.Equal(hhgMove.ID.String(), result.ID.String())
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
 	suite.Equal(*order.DepartmentIndicator, string(deptIndicator))
 	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
