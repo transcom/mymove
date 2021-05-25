@@ -2,11 +2,14 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: |
-    The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.
+  description: >
+    The Prime API is a RESTful API that enables the Prime contractor to request
+    information about upcoming moves, update the details and status of those
+    moves, and make payment requests. It uses Mutual TLS for authentication
+    procedures.
+
 
     All endpoints are located at `primelocal/prime/v1/`.
-
   license:
     name: MIT
     url: 'https://opensource.org/licenses/MIT'
@@ -23,17 +26,18 @@ tags:
 x-tagGroups:
   - name: Endpoints
     tags:
-    - moveTaskOrder
-    - mtoShipment
-    - paymentRequest
-    - mtoServiceItem
+      - moveTaskOrder
+      - mtoShipment
+      - paymentRequest
+      - mtoServiceItem
 paths:
   /move-task-orders:
     get:
       summary: fetchMTOUpdates
       description: >
-        Gets all move task orders where `availableToPrimeAt` has been set.
-        This prevents viewing any move task orders that have not been made available to the Prime.
+        Gets all move task orders where `availableToPrimeAt` has been set. This
+        prevents viewing any move task orders that have not been made available
+        to the Prime.
       operationId: fetchMTOUpdates
       tags:
         - moveTaskOrder
@@ -47,7 +51,9 @@ paths:
           description: Only return move task orders updated since this time.
       responses:
         '200':
-          description: Successfully retrieved move task orders where `availableToPrimeAt` has been set.
+          description: >-
+            Successfully retrieved move task orders where `availableToPrimeAt`
+            has been set.
           schema:
             $ref: '#/definitions/MoveTaskOrders'
         '400':
@@ -60,14 +66,17 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/{moveTaskOrderID}:
+  '/move-task-orders/{moveTaskOrderID}':
     get:
       summary: getMoveTaskOrder
-      description: |
+      description: >
         ### Functionality
+
         This endpoint gets an individual MoveTaskOrder by ID.
 
-        It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+        It will provide information about the Customer and any associated
+        MTOShipments, MTOServiceItems and PaymentRequests.
       operationId: getMoveTaskOrder
       tags:
         - moveTaskOrder
@@ -101,12 +110,16 @@ paths:
         type: string
     patch:
       summary: updateMTOPostCounselingInformation
-      description: |
+      description: >
         ### Functionality
-        This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
 
-        PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+        This endpoint **updates** the MoveTaskOrder after the Prime has
+        completed Counseling.
 
+
+        PPM related information is updated here. Most other fields will be found
+        on the specific MTOShipment and updated using
+        [updateMTOShipment](#operation/updateMTOShipment).
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -141,11 +154,15 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
       responses:
         '200':
-          description: Successfully updated move task order with post counseling information.
+          description: >-
+            Successfully updated move task order with post counseling
+            information.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '401':
@@ -160,7 +177,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments':
+  /mto-shipments:
     post:
       summary: createMTOShipment
       description: |
@@ -204,18 +221,35 @@ paths:
   '/mto-shipments/{mtoShipmentID}':
     patch:
       summary: updateMTOShipment
-      description: |
+      description: >
         Updates an existing shipment for a move.
+
 
         Note that there are some restrictions on nested objects:
 
-        * Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
-        * Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
-        * Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
 
-        These restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.
+        * Service items: You cannot add or update service items using this
+        endpoint. Please use
+        [createMTOServiceItem](#operation/createMTOServiceItem) and
+        [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
 
-        Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+        * Agents: You cannot add or update agents using this endpoint. Please
+        use [createMTOAgent](#operation/createMTOAgent) and
+        [updateMTOAgent](#operation/updateMTOAgent) instead.
+
+        * Addresses: You can add new addresses using this endpoint (and must use
+        this endpoint to do so), but you cannot update existing ones. Please use
+        [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
+
+
+        These restrictions are due to our [optimistic locking/concurrency
+        control](https://github.com/transcom/mymove/wiki/use-optimistic-locking)
+        mechanism.
+
+
+        Note that some fields cannot be manually changed but will still be
+        updated automatically, such as `primeEstimatedWeightRecordedDate` and
+        `requiredDeliveryDate`.
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -240,8 +274,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
       responses:
         '200':
           description: Successfully updated the MTO shipment.
@@ -264,22 +300,39 @@ paths:
   '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
     put:
       summary: updateMTOShipmentAddress
-      description: |
+      description: >
         ### Functionality
-        This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
+
+        This endpoint is used to **update** the addresses on an MTO Shipment.
+        The address details completely replace the original, except for the
+        UUID.
+
         Therefore a complete address should be sent in the request.
 
+
         This endpoint **cannot create** an address.
-        To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
+
+        To create an address on an MTO shipment, the caller must use
+        [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment
+        has to be updated with the appropriate link to the address.
+
 
         ### Errors
+
         The address must be associated with the mtoShipment passed in the url.
-        In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.
+
+        In other words, it should be listed as pickupAddress,
+        destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress
+        on the mtoShipment provided.
+
         If it is not, caller will receive a **Conflict** Error.
 
-        The mtoShipment should be associated with an MTO that is available to prime.
-        If the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.
 
+        The mtoShipment should be associated with an MTO that is available to
+        prime.
+
+        If the caller requests an update to an address, and the shipment is not
+        on an available MTO, the caller will receive a **NotFound** Error.
       operationId: updateMTOShipmentAddress
       tags:
         - mtoShipment
@@ -310,8 +363,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
       responses:
         '200':
           description: Successfully updated the address.
@@ -336,17 +391,28 @@ paths:
   '/mto-shipments/{mtoShipmentID}/agents':
     post:
       summary: createMTOAgent
-      description: |
+      description: >
         ### Functionality
-        This endpoint is used to **create** and add agents for an existing MTO Shipment. Only the fields being modified need to be sent in the request body.
+
+        This endpoint is used to **create** and add agents for an existing MTO
+        Shipment. Only the fields being modified need to be sent in the request
+        body.
+
 
         ### Errors
-        The agent must always have a name and at least one method of contact (either `email` or `phone`).
+
+        The agent must always have a name and at least one method of contact
+        (either `email` or `phone`).
+
 
         The agent must be associated with the MTO shipment passed in the url.
 
-        The shipment should be associated with an MTO that is available to the Pime.
-        If the caller requests a new agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
+
+        The shipment should be associated with an MTO that is available to the
+        Pime.
+
+        If the caller requests a new agent, and the shipment is not on an
+        available MTO, the caller will receive a **NotFound** response.
       operationId: createMTOAgent
       tags:
         - mtoShipment
@@ -388,18 +454,27 @@ paths:
   '/mto-shipments/{mtoShipmentID}/agents/{agentID}':
     put:
       summary: updateMTOAgent
-      description: |
+      description: >
         ### Functionality
-        This endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.
+
+        This endpoint is used to **update** the agents for an MTO Shipment. Only
+        the fields being modified need to be sent in the request body.
+
 
         ### Errors:
-        The agent must always have a name and at least one method of contact (either `email` or `phone`).
+
+        The agent must always have a name and at least one method of contact
+        (either `email` or `phone`).
+
 
         The agent must be associated with the MTO shipment passed in the url.
 
-        The shipment should be associated with an MTO that is available to the Prime.
-        If the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
 
+        The shipment should be associated with an MTO that is available to the
+        Prime.
+
+        If the caller requests an update to an agent, and the shipment is not on
+        an available MTO, the caller will receive a **NotFound** response.
       operationId: updateMTOAgent
       tags:
         - mtoShipment
@@ -430,8 +505,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
       responses:
         '200':
           description: Successfully updated the agent.
@@ -454,10 +531,14 @@ paths:
   '/mto-shipments/{mtoShipmentID}/status':
     patch:
       summary: updateMTOShipmentStatus
-      description: |
+      description: >
         ### Functionality
-        This endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment
-        status to be changed to "CANCELED." Currently, the Prime cannot update the shipment to any other status.
+
+        This endpoint should be used by the Prime to confirm the cancellation of
+        a shipment. It allows the shipment
+
+        status to be changed to "CANCELED." Currently, the Prime cannot update
+        the shipment to any other status.
       operationId: updateMTOShipmentStatus
       tags:
         - mtoShipment
@@ -477,8 +558,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
         - in: body
           name: body
           required: true
@@ -505,55 +588,88 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-service-items':
+  /mto-service-items:
     post:
       summary: createMTOServiceItem
-      description: |
-        Creates one or more MTOServiceItems. Not all service items may be created, please see details below.
+      description: >
+        Creates one or more MTOServiceItems. Not all service items may be
+        created, please see details below.
 
-        This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
+
+        This endpoint supports different body definitions. In the modelType
+        field below, select the modelType corresponding
          to the service item you wish to create and the documentation will update with the new definition.
 
-        Upon creation these items are associated with a Move Task Order and an MTO Shipment.
-        The request must include UUIDs for the MTO and MTO Shipment connected to this service item. Some service item types require
-        additional service items to be autogenerated when added - all created service items, autogenerated included,
+        Upon creation these items are associated with a Move Task Order and an
+        MTO Shipment.
+
+        The request must include UUIDs for the MTO and MTO Shipment connected to
+        this service item. Some service item types require
+
+        additional service items to be autogenerated when added - all created
+        service items, autogenerated included,
+
         will be returned in the response.
 
-        To update a service item, please use [updateMTOServiceItem](#operation/updateMTOServiceItem) endpoint.
+
+        To update a service item, please use
+        [updateMTOServiceItem](#operation/updateMTOServiceItem) endpoint.
+
 
         ---
 
+
         **`MTOServiceItemOriginSIT`**
+
 
         MTOServiceItemOriginSIT is a subtype of MTOServiceItem.
 
-        This model type describes a domestic origin SIT service item. Items can be created using this
+
+        This model type describes a domestic origin SIT service item. Items can
+        be created using this
+
         model type with the following codes:
+
 
         **DOFSIT**
 
-        **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+
+        **1st day origin SIT service item**. When a DOFSIT is requested, the API
+        will auto-create the following group of service items:
           * DOFSIT - Domestic origin 1st day SIT
           * DOASIT - Domestic origin Additional day SIT
           * DOPSIT - Domestic origin SIT pickup
 
         **DOASIT**
 
-        **Addt'l days origin SIT service item**. This represents an additional day of storage for the same item.
-        Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.
+
+        **Addt'l days origin SIT service item**. This represents an additional
+        day of storage for the same item.
+
+        Additional DOASIT service items can be created and added to an existing
+        shipment that **includes a DOFSIT service item**.
+
 
         ---
 
+
         **`MTOServiceItemDestSIT`**
+
 
         MTOServiceItemDestSIT is a subtype of MTOServiceItem.
 
-        This model type describes a domestic destination SIT service item. Items can be created using this
+
+        This model type describes a domestic destination SIT service item. Items
+        can be created using this
+
         model type with the following codes:
+
 
         **DDFSIT**
 
-        **1st day origin SIT service item**. The additional fields are required for creating a DDFSIT:
+
+        **1st day origin SIT service item**. The additional fields are required
+        for creating a DDFSIT:
           * `firstAvailableDeliveryDate1`
             * string <date>
             * First available date that Prime can deliver SIT service item.
@@ -567,17 +683,20 @@ paths:
             * string\d{4}Z
             * Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 
-        When a DDFSIT is requested, the API will auto-create the following group of service items:
+        When a DDFSIT is requested, the API will auto-create the following group
+        of service items:
           * DDFSIT - Domestic destination 1st day SIT
           * DDASIT - Domestic destination Additional day SIT
           * DDDSIT - Domestic destination SIT delivery
 
         **DDASIT**
 
-        **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
-        Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
 
+        **Addt'l days destination SIT service item**. This represents an
+        additional day of storage for the same item.
 
+        Additional DDASIT service items can be created and added to an existing
+        shipment that **includes a DDFSIT service item**.
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -614,17 +733,24 @@ paths:
   '/mto-service-items/{mtoServiceItemID}':
     patch:
       summary: updateMTOServiceItem
-      description: |
-        Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
+      description: >
+        Updates MTOServiceItems after creation. Not all service items or fields
+        may be updated, please see details below.
 
-        This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
+
+        This endpoint supports different body definitions. In the modelType
+        field below, select the modelType corresponding
          to the service item you wish to update and the documentation will update with the new definition.
 
-        To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+        To create a service item, please use
+        [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+
 
         ### Errors
 
-        Currently this is not implemented and will generated the NotImplemented error.
+
+        Currently this is not implemented and will generated the NotImplemented
+        error.
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -635,7 +761,7 @@ paths:
       parameters:
         - in: body
           name: body
-          schema: # we use an update specific definition for the request
+          schema:
             $ref: '#/definitions/UpdateMTOServiceItem'
           required: true
         - in: path
@@ -648,8 +774,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
       responses:
         '200':
           description: Successfully updated the MTO service item.
@@ -714,17 +842,21 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /payment-requests/{paymentRequestID}/uploads:
+  '/payment-requests/{paymentRequestID}/uploads':
     post:
       summary: createUpload
-      description: |
+      description: >
         ### Functionality
-        This endpoint **uploads** a Proof of Service document for a PaymentRequest.
+
+        This endpoint **uploads** a Proof of Service document for a
+        PaymentRequest.
+
 
         The PaymentRequest should already exist.
 
-        PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
 
+        PaymentRequests are created with the
+        [createPaymentRequest](#operation/createPaymentRequest) endpoint.
       operationId: createUpload
       tags:
         - paymentRequest
@@ -904,7 +1036,7 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'USA'
+        example: USA
         default: USA
       eTag:
         type: string
@@ -938,20 +1070,24 @@ definitions:
         type: string
       requestedPickupDate:
         description: >
-          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
-          pack date, are derived from this date.
+          The customer's preferred pickup date. Other dates, such as required
+          delivery date and (outside MilMove) the pack date, are derived from
+          this date.
         format: date
         type: string
       primeEstimatedWeight:
         description: >
-          The estimated weight of this shipment, determined by the movers during the pre-move survey.
-          This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
-          the Prime contracter will need to contact the TOO to change it.
+          The estimated weight of this shipment, determined by the movers during
+          the pre-move survey. This value **can only be updated once.** If there
+          was an issue with estimating the weight and a mistake was made, the
+          Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
       customerRemarks:
-        description: |
-          The customer can use the customer remarks field to inform the services counselor and the movers about any
+        description: >
+          The customer can use the customer remarks field to inform the services
+          counselor and the movers about any
+
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
@@ -971,7 +1107,7 @@ definitions:
       pickupAddress:
         description: The address where the movers should pick up this shipment.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
@@ -980,14 +1116,16 @@ definitions:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
         description: >
-          This value indicates whether or not this shipment is part of a diversion.
-          If yes, the shipment can be either the starting or ending segment of the diversion.
+          This value indicates whether or not this shipment is part of a
+          diversion. If yes, the shipment can be either the starting or ending
+          segment of the diversion.
         type: boolean
       pointOfContact:
         type: string
         description: >
-          Email or ID of the person who will be contacted in the event of questions or concerns about this update.
-          May be the person performing the update, or someone else working with the Prime contractor.
+          Email or ID of the person who will be contacted in the event of
+          questions or concerns about this update. May be the person performing
+          the update, or someone else working with the Prime contractor.
     required:
       - moveTaskOrderID
       - requestedPickupDate
@@ -1038,7 +1176,7 @@ definitions:
         example: Petrovna
       branch:
         type: string
-        example: 'COAST_GUARD'
+        example: COAST_GUARD
       phone:
         type: string
         format: telephone
@@ -1153,7 +1291,7 @@ definitions:
         type: string
       moveCode:
         type: string
-        example: 'HYXFJF'
+        example: HYXFJF
         readOnly: true
       createdAt:
         format: date-time
@@ -1245,8 +1383,9 @@ definitions:
     type: object
   MTOAgents:
     description: >
-      A list of the agents for a shipment. Agents are the people who the Prime contractor recognize as permitted to
-      release (in the case of pickup) or receive (on delivery) a shipment.
+      A list of the agents for a shipment. Agents are the people who the Prime
+      contractor recognize as permitted to release (in the case of pickup) or
+      receive (on delivery) a shipment.
     items:
       $ref: '#/definitions/MTOAgent'
     type: array
@@ -1254,15 +1393,17 @@ definitions:
   MTOAgentType:
     title: Agent Type
     description: >
-      The type for this agent. `RELEASING` means they have authority on pickup, `RECEIVING` means they can receive the
-      shipment on delivery.
+      The type for this agent. `RELEASING` means they have authority on pickup,
+      `RECEIVING` means they can receive the shipment on delivery.
     type: string
     example: RELEASING_AGENT
     enum:
       - RELEASING_AGENT
       - RECEIVING_AGENT
   MTOServiceItem:
-    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    description: >-
+      MTOServiceItem describes a base type of a service item. Polymorphic type.
+      Both Move Task Orders and MTO Shipments will have MTO Service Items.
     type: object
     discriminator: modelType
     properties:
@@ -1293,7 +1434,7 @@ definitions:
         x-nullable: true
         readOnly: true
         description: Reason the service item was rejected by the TOO
-      modelType: # Base type and sub-types of MTOServiceItem
+      modelType:
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
@@ -1302,7 +1443,7 @@ definitions:
     required:
       - modelType
       - moveTaskOrderID
-  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1312,8 +1453,10 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
-  MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
+  MTOServiceItemDestSIT:
+    description: >-
+      Describes a domestic destination SIT service item. Subtype of a
+      MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1322,12 +1465,14 @@ definitions:
             type: string
             description: Service code allowed for this model type.
             enum:
-              - DDFSIT # Domestic Destination First Day SIT
-              - DDASIT # Domestic Destination Additional SIT
+              - DDFSIT
+              - DDASIT
           timeMilitary1:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
+              in military format.
             pattern: '\d{4}Z'
             x-nullable: true
           firstAvailableDeliveryDate1:
@@ -1338,7 +1483,9 @@ definitions:
           timeMilitary2:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
+              in military format.
             pattern: '\d{4}Z'
             x-nullable: true
           firstAvailableDeliveryDate2:
@@ -1353,7 +1500,10 @@ definitions:
           sitDepartureDate:
             format: date
             type: string
-            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
             x-nullable: true
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
@@ -1389,8 +1539,10 @@ definitions:
       - length
       - width
       - height
-  MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
+  MTOServiceItemDomesticCrating:
+    description: >-
+      Describes a domestic crating/uncrating service item subtype of a
+      MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1399,9 +1551,9 @@ definitions:
             type: string
             description: Service codes allowed for this model type.
             enum:
-              - DCRT # Domestic Crating
-              - DCRTSA # Domestic Crating - Standalone
-              - DUCRT # Domestic Uncrating
+              - DCRT
+              - DCRTSA
+              - DUCRT
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:
@@ -1415,17 +1567,18 @@ definitions:
           - crate
           - description
   MTOServiceItemModelType:
-    description: |
+    description: >
       Describes all model sub-types for a MTOServiceItem model.
 
-      Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
+
+      Using this list, choose the correct modelType in the dropdown,
+      corresponding to the service item type.
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
 
       The documentation will then update with the supported fields.
-
     type: string
     enum:
       - MTOServiceItemBasic
@@ -1433,7 +1586,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
-  MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1443,8 +1596,8 @@ definitions:
             type: string
             description: Service code allowed for this model type.
             enum:
-              - DOFSIT # Domestic Origin First Day SIT
-              - DOASIT # Domestic Origin Additional SIT
+              - DOFSIT
+              - DOASIT
           reason:
             type: string
             example: Storage items need to be picked up
@@ -1462,7 +1615,10 @@ definitions:
             format: date
             type: string
             x-nullable: true
-            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
           sitHHGActualOrigin:
             $ref: '#/definitions/Address'
         required:
@@ -1470,7 +1626,7 @@ definitions:
           - reason
           - sitPostalCode
           - sitEntryDate
-  MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemShuttle:
     description: Describes a shuttle service item.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1480,8 +1636,8 @@ definitions:
             type: string
             description: Service codes allowed for this model type.
             enum:
-              - DOSHUT # Domestic Origin Shuttle Service
-              - DDSHUT # Domestic Destination Shuttle Service
+              - DOSHUT
+              - DDSHUT
           reason:
             type: string
             example: Storage items need to be picked up.
@@ -1517,7 +1673,9 @@ definitions:
         type: string
         readOnly: true
       approvedDate:
-        description: The date when the Transportation Ordering Officer first approved this shipment for the move.
+        description: >-
+          The date when the Transportation Ordering Officer first approved this
+          shipment for the move.
         format: date
         type: string
         readOnly: true
@@ -1525,37 +1683,43 @@ definitions:
         x-nullable: true
       requestedPickupDate:
         description: >
-          The date the customer selects during onboarding as their preferred pickup date. Other dates, such as
-          required delivery date and (outside MilMove) the pack date, are derived from this date.
+          The date the customer selects during onboarding as their preferred
+          pickup date. Other dates, such as required delivery date and (outside
+          MilMove) the pack date, are derived from this date.
         format: date
         type: string
         readOnly: true
         x-omitempty: false
         x-nullable: true
       scheduledPickupDate:
-        description: The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
+        description: >-
+          The date the Prime contractor scheduled to pick up this shipment after
+          consultation with the customer.
         format: date
         type: string
         x-omitempty: false
         x-nullable: true
       actualPickupDate:
-        description: The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
+        description: >-
+          The date when the Prime contractor actually picked up the shipment.
+          Updated after-the-fact.
         format: date
         type: string
         x-omitempty: false
         x-nullable: true
       firstAvailableDeliveryDate:
         description: >
-          The date the Prime provides to the customer as the first possible delivery date so that they can plan their
-          travel accordingly.
+          The date the Prime provides to the customer as the first possible
+          delivery date so that they can plan their travel accordingly.
         format: date
         type: string
         x-omitempty: false
         x-nullable: true
       requiredDeliveryDate:
         description: >
-          The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is
-          calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.
+          The latest date by which the Prime can deliver a customer's shipment
+          without violating the contract. This is calculated based on weight,
+          distance, and the scheduled pickup date. It cannot be modified.
         format: date
         type: string
         readOnly: true
@@ -1563,25 +1727,32 @@ definitions:
         x-nullable: true
       primeEstimatedWeight:
         description: >
-          The estimated weight of this shipment, determined by the movers during the pre-move survey.
-          This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
-          the Prime contracter will need to contact the TOO to change it.
+          The estimated weight of this shipment, determined by the movers during
+          the pre-move survey. This value **can only be updated once.** If there
+          was an issue with estimating the weight and a mistake was made, the
+          Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
       primeEstimatedWeightRecordedDate:
-        description: The date when the Prime contractor recorded the shipment's estimated weight.
+        description: >-
+          The date when the Prime contractor recorded the shipment's estimated
+          weight.
         format: date
         type: string
         readOnly: true
         x-omitempty: false
         x-nullable: true
       primeActualWeight:
-        description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
+        description: >-
+          The actual weight of the shipment, provided after the Prime packs,
+          picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
       customerRemarks:
-        description: |
-          The customer can use the customer remarks field to inform the services counselor and the movers about any
+        description: >
+          The customer can use the customer remarks field to inform the services
+          counselor and the movers about any
+
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
@@ -1593,14 +1764,17 @@ definitions:
         x-nullable: true
         readOnly: true
       counselorRemarks:
-        description: |
-          The counselor can use the counselor remarks field to inform the movers about any
+        description: >
+          The counselor can use the counselor remarks field to inform the movers
+          about any
+
           special circumstances for this shipment. Typical examples:
             * bulky or fragile items,
             * weapons,
             * access info for their address.
 
-          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+          Counselors enters this information when creating or editing an MTO
+          Shipment. Optional field.
         type: string
         example: handle with care
         x-nullable: true
@@ -1614,38 +1788,48 @@ definitions:
         type: array
       pickupAddress:
         description: >
-          The address where the movers should pick up this shipment, entered by the customer during onboarding
-          when they enter shipment details.
+          The address where the movers should pick up this shipment, entered by
+          the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
-        description: |
-          Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
+        description: >
+          Where the movers should deliver this shipment. Often provided by the
+          customer when they enter shipment details
+
           during onboarding, if they know their new address already.
 
-          May be blank when entered by the customer, required when entered by the Prime. May not represent the true
+
+          May be blank when entered by the customer, required when entered by
+          the Prime. May not represent the true
+
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        description: A second pickup address for this shipment, if the customer entered one. An optional field.
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
         allOf:
-            - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        description: A second delivery address for this shipment, if the customer entered one. An optional field.
+        description: >-
+          A second delivery address for this shipment, if the customer entered
+          one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
         description: >
-          This value indicates whether or not this shipment is part of a diversion.
-          If yes, the shipment can be either the starting or ending segment of the diversion.
+          This value indicates whether or not this shipment is part of a
+          diversion. If yes, the shipment can be either the starting or ending
+          segment of the diversion.
         type: boolean
       status:
         description: >
-          The status of a shipment, indicating where it is in the TOO's approval process.
-          Can only be updated by the Prime in special circumstances.
+          The status of a shipment, indicating where it is in the TOO's approval
+          process. Can only be updated by the Prime in special circumstances.
         type: string
         readOnly: true
         enum:
@@ -1662,7 +1846,9 @@ definitions:
         example: MTO Shipment not good enough
         x-nullable: true
       eTag:
-        description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
         type: string
         readOnly: true
       createdAt:
@@ -1676,8 +1862,9 @@ definitions:
       pointOfContact:
         type: string
         description: >
-          Email or ID of the person who will be contacted in the event of questions or concerns about this update.
-          May be the person performing the update, or someone else working with the Prime contractor.
+          Email or ID of the person who will be contacted in the event of
+          questions or concerns about this update. May be the person performing
+          the update, or someone else working with the Prime contractor.
   MTOShipments:
     description: A list of shipments.
     items:
@@ -1733,7 +1920,7 @@ definitions:
         $ref: '#/definitions/DutyStation'
       rank:
         type: string
-        example: 'E_5'
+        example: E_5
       reportByDate:
         type: string
         format: date
@@ -1766,7 +1953,7 @@ definitions:
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
-        example: '1234-5678-1'
+        example: 1234-5678-1
         readOnly: true
         type: string
       proofOfServiceDocs:
@@ -1879,9 +2066,12 @@ definitions:
     type: object
   ReServiceCode:
     type: string
-    description: |
-      This is the full list of service items that can be found on a shipment. Not all service items
+    description: >
+      This is the full list of service items that can be found on a shipment.
+      Not all service items
+
       may be requested by the Prime, but may be returned in a response.
+
 
       Documentation of all the service items will be provided.
     enum:
@@ -2036,7 +2226,9 @@ definitions:
       - TIMESTAMP
       - PaymentServiceItemUUID
   UpdateMTOServiceItem:
-    description: UpdateMTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    description: >-
+      UpdateMTOServiceItem describes a base type of a service item. Polymorphic
+      type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
     type: object
     discriminator: modelType
     properties:
@@ -2045,13 +2237,14 @@ definitions:
         format: uuid
         type: string
         description: ID of the service item. Must match path.
-      modelType: # Base type and sub-types of MTOServiceItem
+      modelType:
         $ref: '#/definitions/UpdateMTOServiceItemModelType'
     required:
       - modelType
   UpdateMTOServiceItemModelType:
-    description: |
-      Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
+    description: >
+      Using this list, choose the correct modelType in the dropdown,
+      corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
 
@@ -2059,9 +2252,11 @@ definitions:
     type: string
     enum:
       - UpdateMTOServiceItemSIT
-  UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: |
-      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
+  UpdateMTOServiceItemSIT:
+    description: >
+      Subtype used to provide the departure date for origin or destination SIT.
+      This is not creating a new service item but rather updating and existing
+      service item.
     allOf:
       - $ref: '#/definitions/UpdateMTOServiceItem'
       - type: object
@@ -2070,16 +2265,20 @@ definitions:
             type: string
             description: Service code allowed for this model type.
             enum:
-              - DDDSIT # Domestic Destination SIT Delivery
-              - DOPSIT # Domestic Origin SIT Pickup
+              - DDDSIT
+              - DOPSIT
           sitDepartureDate:
             format: date
             type: string
-            description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination.
           sitDestinationFinalAddress:
             $ref: '#/definitions/Address'
   UpdateMTOShipmentStatus:
-    description: Contains the statuses available to the Prime when updating the state of a shipment.
+    description: >-
+      Contains the statuses available to the Prime when updating the state of a
+      shipment.
     type: object
     properties:
       status:
@@ -2134,7 +2333,9 @@ responses:
     schema:
       $ref: '#/definitions/ClientError'
   Conflict:
-    description: 'The request could not be processed because of conflict in the current state of the resource.'
+    description: >-
+      The request could not be processed because of conflict in the current
+      state of the resource.
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:
@@ -2150,7 +2351,9 @@ responses:
     schema:
       $ref: '#/definitions/Error'
   PreconditionFailed:
-    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+    description: >-
+      Precondition failed, likely due to a stale eTag (If-Match). Fetch the
+      request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/ClientError'
   UnprocessableEntity:

@@ -2,10 +2,13 @@ swagger: '2.0'
 info:
   contact:
     email: dp3@truss.works
-  description: |
-    The Milmove Support API gives you programmatic access to support functionality useful for testing and debug.
+  description: >
+    The Milmove Support API gives you programmatic access to support
+    functionality useful for testing and debug.
+
 
     This API is not available in production.
+
 
     All endpoints are located at `primelocal/support/v1/`.
   license:
@@ -23,15 +26,18 @@ tags:
   - name: mtoShipment
   - name: webhook
 paths:
-  '/move-task-orders':
+  /move-task-orders:
     get:
       summary: listMTOs
-      description: |
+      description: >
         ### Functionality
-        This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
 
-        It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+        This endpoint lists all MoveTaskOrders regardless of whether or not they
+        have been made available to Prime.
 
+
+        It will provide nested information about the Customer and any associated
+        MTOShipments, MTOServiceItems and PaymentRequests.
       operationId: listMTOs
       tags:
         - moveTaskOrder
@@ -60,18 +66,31 @@ paths:
           $ref: '#/responses/ServerError'
     post:
       summary: createMoveTaskOrder
-      description: |
+      description: >
         Creates an instance of moveTaskOrder.
+
         Currently this will also create a number of nested objects but not all.
+
         It will currently create
+
         * MoveTaskOrder
+
         * Order
+
         * Customer
+
         * User
+
         * Entitlement
 
-        It will not create addresses, duty stations, shipments, payment requests or service items. It requires an existing contractor ID, destination duty station ID,
-        origin duty station ID, and an uploaded orders ID to be passed into the request.
+
+        It will not create addresses, duty stations, shipments, payment requests
+        or service items. It requires an existing contractor ID, destination
+        duty station ID,
+
+        origin duty station ID, and an uploaded orders ID to be passed into the
+        request.
+
 
         This is a support endpoint and will not be available in production.
       operationId: createMoveTaskOrder
@@ -113,11 +132,15 @@ paths:
         type: string
     get:
       summary: getMoveTaskOrder
-      description: |
+      description: >
         ### Functionality
+
         This endpoint gets an individual MoveTaskOrder by ID.
 
-        It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+        It will provide nested information about the Customer and any associated
+        MTOShipments, MTOServiceItems and PaymentRequests.
+
 
         This is a support endpoint and is not available in production.
       operationId: getMoveTaskOrder
@@ -148,9 +171,12 @@ paths:
         type: string
     patch:
       summary: makeMoveTaskOrderAvailable
-      description: |
-        Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
+      description: >
+        Updates move task order `availableToPrimeAt` to make it available to
+        prime. No request body required. <br />
+
         <br />
+
         This is a support endpoint and will not be available in production.
       operationId: makeMoveTaskOrderAvailable
       tags:
@@ -165,8 +191,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
       responses:
         '200':
           description: Successfully made MTO available to Prime.
@@ -186,13 +214,16 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/hide':
+  /move-task-orders/hide:
     parameters: []
     patch:
       summary: hideNonFakeMoveTaskOrders
-      description: |
-        Updates move task order without fake user data `show` to false. No request body required. <br />
+      description: >
+        Updates move task order without fake user data `show` to false. No
+        request body required. <br />
+
         <br />
+
         This is a support endpoint and will not be available in production.
       operationId: hideNonFakeMoveTaskOrders
       tags:
@@ -222,16 +253,18 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/{moveTaskOrderID}/payment-requests:
+  '/move-task-orders/{moveTaskOrderID}/payment-requests':
     get:
       summary: listMTOPaymentRequests
-      description: |
+      description: >
         ### Functionality
 
-        This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
+
+        This endpoint lists all PaymentRequests associated with a given
+        MoveTaskOrder.
+
 
         This is a support endpoint and is not available in production.
-
       operationId: listMTOPaymentRequests
       tags:
         - paymentRequest
@@ -246,7 +279,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Successfully retrieved payment requests associated with a given move task order
+          description: >-
+            Successfully retrieved payment requests associated with a given move
+            task order
           schema:
             $ref: '#/definitions/PaymentRequests'
         '400':
@@ -269,10 +304,14 @@ paths:
         type: string
     patch:
       summary: updatePaymentRequestStatus
-      description: |
-        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
+      description: >
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX,
+        RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or
+        EDI_ERROR.
+
 
         A status of REVIEWED can optionally have a `rejectionReason`.
+
 
         This is a support endpoint and is not available in production.
       operationId: updatePaymentRequestStatus
@@ -288,8 +327,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
         - in: body
           name: body
           required: true
@@ -325,9 +366,12 @@ paths:
         type: string
     patch:
       summary: updateMTOServiceItemStatus
-      description: |
-        Updates the status of a service item for a move to APPROVED or REJECTED. <br />
+      description: >
+        Updates the status of a service item for a move to APPROVED or REJECTED.
         <br />
+
+        <br />
+
         This is a support endpoint and will not be available in production.
       operationId: updateMTOServiceItemStatus
       tags:
@@ -342,8 +386,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
         - in: body
           name: body
           required: true
@@ -381,11 +427,11 @@ paths:
     patch:
       summary: updateMTOShipmentStatus
       description: >
-        Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED,
-        `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in
-        `rejectionReason` is required. <br />
-        <br />
-        This is a support endpoint and will not be available in production.
+        Updates a shipment's status to APPROVED or REJECTED for the purpose of
+        testing the Prime API. If APPROVED, `rejectionReason` should be blank
+        and any value passed through the body will be ignored. If REJECTED, a
+        value in `rejectionReason` is required. <br /> <br /> This is a support
+        endpoint and will not be available in production.
       operationId: updateMTOShipmentStatus
       tags:
         - mtoShipment
@@ -399,8 +445,10 @@ paths:
           type: string
           required: true
           description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+            Optimistic locking is implemented via the `If-Match` header. If the
+            ETag header does not match the value of the resource on the server,
+            the server rejects the change with a `412 Precondition Failed`
+            error.
         - in: body
           name: body
           required: true
@@ -427,12 +475,13 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/webhook-notifications':
+  /webhook-notifications:
     post:
       summary: Test endpoint for creating webhook notifications
       description: >
-        This endpoint creates a webhook notification in the database.
-        If the webhook client is running, it may send the notification soon after creation.
+        This endpoint creates a webhook notification in the database. If the
+        webhook client is running, it may send the notification soon after
+        creation.
       operationId: createWebhookNotification
       tags:
         - webhook
@@ -455,15 +504,18 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/webhook-notify':
+  /webhook-notify:
     post:
       summary: Test endpoint for receiving messages from our own webhook-client
       description: >
-        This endpoint receives a notification that matches the webhook notification model.
-        This is a test endpoint that represents a receiving server. In production, the Prime will set up a receiving endpoint.
-        In testing, this server accepts notifications at this endpoint and simply responds with success and logs them.
-        The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
-        sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+        This endpoint receives a notification that matches the webhook
+        notification model. This is a test endpoint that represents a receiving
+        server. In production, the Prime will set up a receiving endpoint. In
+        testing, this server accepts notifications at this endpoint and simply
+        responds with success and logs them. The `webhook-client` is responsible
+        for retrieving messages from the webhook_notifications table and sending
+        them to the Prime (this endpoint in our testing case) via an mTLS
+        connection.
       operationId: receiveWebhookNotification
       tags:
         - webhook
@@ -501,10 +553,16 @@ paths:
         type: string
     get:
       summary: getPaymentRequestEDI
-      description: |
-        Returns the EDI (Electronic Data Interchange) message for the payment request identified
-        by the given payment request ID. Note that the EDI returned in the JSON payload will have \n where there
-        would normally be line breaks (due to JSON not allowing line breaks in a string).
+      description: >
+        Returns the EDI (Electronic Data Interchange) message for the payment
+        request identified
+
+        by the given payment request ID. Note that the EDI returned in the JSON
+        payload will have \n where there
+
+        would normally be line breaks (due to JSON not allowing line breaks in a
+        string).
+
 
         This is a support endpoint and will not be available in production.
       operationId: getPaymentRequestEDI
@@ -514,7 +572,9 @@ paths:
         - application/json
       responses:
         '200':
-          description: Successfully retrieved payment requests associated with a given move task order
+          description: >-
+            Successfully retrieved payment requests associated with a given move
+            task order
           schema:
             $ref: '#/definitions/PaymentRequestEDI'
         '400':
@@ -531,12 +591,15 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/process-reviewed':
+  /payment-requests/process-reviewed:
     patch:
       summary: processReviewedPaymentRequests
-      description: |
-        Updates the status of reviewed payment requests and sends PRs to Syncada if
+      description: >
+        Updates the status of reviewed payment requests and sends PRs to Syncada
+        if
+
         the SendToSyncada flag is set
+
 
         This is a support endpoint and will not be available in production.
       operationId: processReviewedPaymentRequests
@@ -554,7 +617,9 @@ paths:
             $ref: '#/definitions/ProcessReviewedPaymentRequests'
       responses:
         '200':
-          description: Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
+          description: >-
+            Successfully updated status of reviewed payment request and sent to
+            Syncada if that flag is set
           schema:
             $ref: '#/definitions/PaymentRequests'
         '400':
@@ -715,7 +780,7 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'USA'
+        example: USA
         default: USA
     required:
       - streetAddress1
@@ -939,19 +1004,24 @@ definitions:
         example: 1001-3456
         type: string
         readOnly: true
-        description: |
+        description: >
           Unique ID associated with this Order.
 
+
           No two MoveTaskOrders may have the same ID.
-          Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
+
+          Attempting to create a MoveTaskOrder may fail if this referenceId has
+          been used already.
       availableToPrimeAt:
         format: date-time
         type: string
         x-nullable: true
-        description: |
+        description: >
           Indicates this MoveTaskOrder is available for Prime API handling.
 
-          In production, only MoveTaskOrders for which this is set will be available to the API.
+
+          In production, only MoveTaskOrders for which this is set will be
+          available to the API.
       contractorID:
         type: string
         format: uuid
@@ -975,20 +1045,25 @@ definitions:
       selectedMoveType:
         $ref: '#/definitions/SelectedMoveType'
       ppmType:
-        description: If the move is a PPM, indicates whether it is full or partial.
+        description: 'If the move is a PPM, indicates whether it is full or partial.'
         type: string
         enum:
           - FULL
           - PARTIAL
       ppmEstimatedWeight:
-        description: If the move is a PPM, this is the estimated weight in lbs.
+        description: 'If the move is a PPM, this is the estimated weight in lbs.'
         type: integer
       eTag:
-        description: |
-          Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
+        description: >
+          Uniquely identifies the state of the MoveTaskOrder object (but not the
+          nested objects)
 
-          It will change everytime the object is updated. Client should store the value.
-          Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
+
+          It will change everytime the object is updated. Client should store
+          the value.
+
+          Updates to this MoveTaskOrder will require that this eTag be passed in
+          with the If-Match header.
         type: string
         readOnly: true
       status:
@@ -1071,7 +1146,9 @@ definitions:
         x-nullable: true
         description: Reason the move was selected to be hidden
   MTOHideMovesResponse:
-    description: describes the moves that were hidden that contained non-approved fake data to use in the MilMove system.
+    description: >-
+      describes the moves that were hidden that contained non-approved fake data
+      to use in the MilMove system.
     type: object
     properties:
       numberMovesHidden:
@@ -1083,7 +1160,9 @@ definitions:
         items:
           $ref: '#/definitions/MTOHideMove'
   MTOServiceItem:
-    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    description: >-
+      MTOServiceItem describes a base type of a service item. Polymorphic type.
+      Both Move Task Orders and MTO Shipments will have MTO Service Items.
     type: object
     discriminator: modelType
     properties:
@@ -1113,7 +1192,7 @@ definitions:
         type: string
         x-nullable: true
         description: Reason the service item was rejected by the TOO
-      modelType: # Base type and sub-types of MTOServiceItem
+      modelType:
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
@@ -1122,7 +1201,7 @@ definitions:
     required:
       - modelType
       - moveTaskOrderID
-  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1132,8 +1211,10 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
-  MTOServiceItemDestSIT: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
+  MTOServiceItemDestSIT:
+    description: >-
+      Describes a domestic destination SIT service item. Subtype of a
+      MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1142,12 +1223,14 @@ definitions:
             type: string
             description: Service code allowed for this model type.
             enum:
-              - DDFSIT # Domestic Destination First Day SIT
-              - DDASIT # Domestic Destination Additional SIT
+              - DDFSIT
+              - DDASIT
           timeMilitary1:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate1`,
+              in military format.
             pattern: '\d{4}Z'
           firstAvailableDeliveryDate1:
             format: date
@@ -1156,7 +1239,9 @@ definitions:
           timeMilitary2:
             type: string
             example: 1400Z
-            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            description: >-
+              Time of delivery corresponding to `firstAvailableDeliveryDate2`,
+              in military format.
             pattern: '\d{4}Z'
           firstAvailableDeliveryDate2:
             format: date
@@ -1169,7 +1254,10 @@ definitions:
           sitDepartureDate:
             format: date
             type: string
-            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
             x-nullable: true
         required:
           - reServiceCode
@@ -1207,8 +1295,10 @@ definitions:
       - length
       - width
       - height
-  MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
-    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
+  MTOServiceItemDomesticCrating:
+    description: >-
+      Describes a domestic crating/uncrating service item subtype of a
+      MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
       - type: object
@@ -1217,9 +1307,9 @@ definitions:
             type: string
             description: Service codes allowed for this model type.
             enum:
-              - DCRT # Domestic Crating
-              - DCRTSA # Domestic Crating - Standalone
-              - DUCRT # Domestic Uncrating
+              - DCRT
+              - DCRTSA
+              - DUCRT
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
           crate:
@@ -1233,17 +1323,18 @@ definitions:
           - crate
           - description
   MTOServiceItemModelType:
-    description: |
+    description: >
       Describes all model sub-types for a MTOServiceItem model.
 
-      Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
+
+      Using this list, choose the correct modelType in the dropdown,
+      corresponding to the service item type.
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
 
       The documentation will then update with the supported fields.
-
     type: string
     enum:
       - MTOServiceItemBasic
@@ -1251,7 +1342,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
-  MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1261,8 +1352,8 @@ definitions:
             type: string
             description: Service code allowed for this model type.
             enum:
-              - DOFSIT # Domestic Origin First Day SIT
-              - DOASIT # Domestic Origin Additional SIT
+              - DOFSIT
+              - DOASIT
           reason:
             type: string
             example: Storage items need to be picked up
@@ -1280,13 +1371,16 @@ definitions:
             format: date
             type: string
             x-nullable: true
-            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+            description: >-
+              Departure date for SIT. This is the end date of the SIT at either
+              origin or destination. This is optional as it can be updated using
+              the UpdateMTOServiceItemSIT modelType at a later date.
         required:
           - reServiceCode
           - reason
           - sitPostalCode
           - sitEntryDate
-  MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+  MTOServiceItemShuttle:
     description: Describes a shuttle service item.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1296,8 +1390,8 @@ definitions:
             type: string
             description: Service codes allowed for this model type.
             enum:
-              - DOSHUT # Domestic Origin Shuttle Service
-              - DDSHUT # Domestic Destination Shuttle Service
+              - DOSHUT
+              - DDSHUT
           reason:
             type: string
             example: Storage items need to be picked up.
@@ -1439,10 +1533,13 @@ definitions:
       customer:
         $ref: '#/definitions/Customer'
       customerID:
-        description: |
+        description: >
           ID of the Customer this Order belongs to.
 
-          If creating a MoveTaskOrder. either an existing customerID should be provided or the nested customer object should be populated for creation.
+
+          If creating a MoveTaskOrder. either an existing customerID should be
+          provided or the nested customer object should be populated for
+          creation.
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -1455,10 +1552,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-        description: |
+        description: >
           ID of the destination duty station.
 
-          If creating a MoveTaskOrder, this should match an existing duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty
+          station.
       ordersType:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
@@ -1469,10 +1568,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-        description: |
+        description: >
           ID of the origin duty station.
 
-          If creating a MoveTaskOrder, this should match an existing duty station.
+
+          If creating a MoveTaskOrder, this should match an existing duty
+          station.
       rank:
         $ref: '#/definitions/Rank'
       reportByDate:
@@ -1484,7 +1585,7 @@ definitions:
       tac:
         type: string
         title: TAC
-        example: 'F8J1'
+        example: F8J1
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       uploadedOrders:
@@ -1498,17 +1599,22 @@ definitions:
         description: ID of the military orders associated with this move.
         type: string
         x-nullable: true
-        example: '030-00362'
+        example: 030-00362
       issueDate:
         description: The date the orders were issued.
         type: string
         format: date
       eTag:
-        description: |
-          Uniquely identifies the state of the Order object (but not the nested objects)
+        description: >
+          Uniquely identifies the state of the Order object (but not the nested
+          objects)
 
-          It will change everytime the object is updated. Client should store the value.
-          Updates to this Order will require that this eTag be passed in with the If-Match header.
+
+          It will change everytime the object is updated. Client should store
+          the value.
+
+          Updates to this Order will require that this eTag be passed in with
+          the If-Match header.
         type: string
         readOnly: true
     type: object
@@ -1667,7 +1773,7 @@ definitions:
         type: array
     type: object
   Rank:
-    description: Rank of the service member, must match specific list of available ranks.
+    description: 'Rank of the service member, must match specific list of available ranks.'
     type: string
     enum:
       - E_1
@@ -1700,9 +1806,12 @@ definitions:
       - MIDSHIPMAN
   ReServiceCode:
     type: string
-    description: |
-      This is the full list of service items that can be found on a shipment. Not all service items
+    description: >
+      This is the full list of service items that can be found on a shipment.
+      Not all service items
+
       may be requested by the Prime, but may be returned in a response.
+
 
       Documentation of all the service items will be provided.
     enum:
@@ -1804,7 +1913,11 @@ definitions:
       eTag:
         type: string
         readOnly: true
-        description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
+        description: >-
+          Attribute of the payment request object that automatically changes
+          when the request is updated. This matches the value passed in the
+          header for `If-Match`. Required when sending PUT or PATCH requests to
+          prevent updating stale data.
     type: object
   Upload:
     type: object
@@ -1816,7 +1929,7 @@ definitions:
       url:
         type: string
         format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
       filename:
         type: string
         example: filename.pdf
@@ -1871,7 +1984,7 @@ definitions:
       eventKey:
         type: string
         description: Name of event triggered
-        example: 'PaymentRequest.Update'
+        example: PaymentRequest.Update
       createdAt:
         type: string
         format: date-time
@@ -1885,7 +1998,9 @@ definitions:
       firstAttemptedAt:
         type: string
         format: date-time
-        description: Time representing when the system firstAttempted to send this notification
+        description: >-
+          Time representing when the system firstAttempted to send this
+          notification
         readOnly: true
         x-nullable: true
       traceID:
@@ -1940,7 +2055,9 @@ responses:
     schema:
       $ref: '#/definitions/ValidationError'
   PreconditionFailed:
-    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+    description: >-
+      Precondition failed, likely due to a stale eTag (If-Match). Fetch the
+      request again to get the updated eTag value.
     schema:
       $ref: '#/definitions/ClientError'
   Conflict:
