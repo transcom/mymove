@@ -288,7 +288,7 @@ func MakeMTOServiceItemDomesticCrating(db *pop.Connection, assertions Assertions
 
 	mtoServiceItem := MakeMTOServiceItem(db, assertions)
 
-	// Create crating item
+	// Create item
 	MakeMTOServiceItemDimension(db, Assertions{
 		MTOServiceItem: mtoServiceItem,
 		MTOServiceItemDimension: models.MTOServiceItemDimension{
