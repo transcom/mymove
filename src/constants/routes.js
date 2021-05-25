@@ -29,7 +29,15 @@ export const customerRoutes = {
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
 };
 
+const BASE_MOVE_PATH = '/counseling/moves/:moveCode';
+
 export const servicesCounselingRoutes = {
-  EDIT_SHIPMENT_INFO_PATH: '/counseling/moves/:moveCode/:shipmentId/edit',
-  MOVE_DETAILS_INFO_PATH: '/counseling/moves/:moveCode/details',
+  ALLOWANCES_EDIT_PATH: `${BASE_MOVE_PATH}/allowances`,
+  BASE_MOVE_PATH,
+  CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVE_PATH}/customer`,
+  MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
+  ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
+  QUEUE_VIEW_PATH: '/counseling/queue',
+  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-HHG`,
+  SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/:shipmentId/edit`,
 };

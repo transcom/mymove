@@ -89,7 +89,7 @@ const ServicesCounselingShipmentForm = ({
       body: pendingMtoShipment,
     };
 
-    const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_DETAILS_INFO_PATH, { moveCode });
+    const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
     if (isCreatePage) {
       createMTOShipment(pendingMtoShipment)
