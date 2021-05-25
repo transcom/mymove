@@ -65,7 +65,7 @@ repos:
     rev: v0.26.0
     hooks:
       - id: markdownlint
-        entry: markdownlint --ignore .github/*.md
+        entry: markdownlint --ignore .github/*.md --ignore swagger-def
 
   - repo: git://github.com/detailyang/pre-commit-shell
     rev: 1.0.5
@@ -104,6 +104,7 @@ repos:
         language: script
         files: swagger/*
         types: [yaml]
+        exclude: swagger-def/*
 
   - repo: local
     hooks:
