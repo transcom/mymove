@@ -48,6 +48,12 @@ describe('Office authorization', () => {
     cy.url().should('eq', officeBaseURL + '/');
   });
 
+  it('redirects Services Counselor to Services Counselor homepage', () => {
+    cy.signInAsNewServicesCounselorUser();
+    cy.contains('Moves');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
+
   it('redirects PPM office user to old office queue', () => {
     cy.signInAsNewPPMOfficeUser();
     cy.contains('New moves');
