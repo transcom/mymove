@@ -52,7 +52,9 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
-
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -184,6 +186,14 @@ export class OfficeApp extends Component {
                     />
 
                     {/* SERVICES_COUNSELOR */}
+                    <PrivateRoute
+                      key="servicesCounselingAddShipment"
+                      exact
+                      path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
+                      component={ServicesCounselingAddShipment}
+                      requiredROles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
                     <PrivateRoute
                       key="servicesCounselingEditShipmentDetailsRoute"
                       exact

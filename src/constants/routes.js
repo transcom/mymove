@@ -31,5 +31,6 @@ export const customerRoutes = {
 
 export const servicesCounselingRoutes = {
   EDIT_SHIPMENT_INFO_PATH: '/counseling/moves/:moveCode/:shipmentId/edit',
+  SHIPMENT_ADD_PATH: '/counseling/moves/:moveCode/new-HHG',
   MOVE_DETAILS_INFO_PATH: '/counseling/moves/:moveCode/details',
 };

@@ -168,7 +168,7 @@ const ServicesCounselingShipmentForm = ({
             <div className={styles.ServicesCounselingShipmentForm}>
               <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
-              <h1>Edit shipment details</h1>
+              <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
 
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
