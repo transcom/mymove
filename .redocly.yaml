@@ -1,7 +1,7 @@
 # See https://redoc.ly/docs/cli/configuration/ for more information.
 apiDefinitions:
-  prime: swagger/schema/prime.yaml
-  support: swagger/schema/support.yaml
+  prime: swagger-def/prime.yaml
+  support: swagger-def/support.yaml
 lint:
   extends:
     - recommended
