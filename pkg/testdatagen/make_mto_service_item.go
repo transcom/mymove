@@ -282,30 +282,18 @@ func MakeMTOServiceItemDomesticCrating(db *pop.Connection, assertions Assertions
 		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
 	}
 
-	// Add description
-	description := "Decorated horse head to be crated."
-	assertions.MTOServiceItem.Description = &description
-
 	mtoServiceItem := MakeMTOServiceItem(db, assertions)
 
 	// Create item
 	MakeMTOServiceItemDimension(db, Assertions{
 		MTOServiceItem: mtoServiceItem,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	// Creat crate
 	MakeMTOServiceItemDimension(db, Assertions{
 		MTOServiceItem: mtoServiceItem,
 		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Type:   models.DimensionTypeCrate,
-			Length: 11000,
-			Height: 6000,
-			Width:  3500,
+			Type: models.DimensionTypeCrate,
 		},
 	})
 
