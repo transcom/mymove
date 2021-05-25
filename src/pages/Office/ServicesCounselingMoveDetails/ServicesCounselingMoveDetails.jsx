@@ -9,7 +9,6 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import formattedCustomerName from 'utils/formattedCustomerName';
 import 'styles/office.scss';
 import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -25,6 +24,7 @@ import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import formattedCustomerName from 'utils/formattedCustomerName';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
@@ -42,7 +42,7 @@ const ServicesCounselingMoveDetails = () => {
   if (mtoShipments) {
     shipmentsInfo = mtoShipments.map((shipment) => {
       const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,
             shipmentId: shipment.id,
           })
@@ -151,7 +151,20 @@ const ServicesCounselingMoveDetails = () => {
           </Grid>
 
           <div className={styles.section} id="shipments">
-            <DetailsPanel title="Shipments" className={scMoveDetailsStyles.noPaddingBottom}>
+            <DetailsPanel
+              className={scMoveDetailsStyles.noPaddingBottom}
+              editButton={
+                counselorCanEdit && (
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode })}
+                  >
+                    Add a new shipment
+                  </Link>
+                )
+              }
+              title="Shipments"
+            >
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
@@ -173,7 +186,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Orders"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="orders">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
+                  >
                     View and edit orders
                   </Link>
                 )
@@ -187,7 +203,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Allowances"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="allowances">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
+                  >
                     Edit allowances
                   </Link>
                 )
@@ -201,7 +220,11 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="customer">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit-customer-info"
+                    to={generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, { moveCode })}
+                  >
                     Edit customer info
                   </Link>
                 )
