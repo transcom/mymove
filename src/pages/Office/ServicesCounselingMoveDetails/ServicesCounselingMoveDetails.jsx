@@ -186,7 +186,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Orders"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="orders">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
+                  >
                     View and edit orders
                   </Link>
                 )
@@ -200,7 +203,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Allowances"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="allowances">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
+                  >
                     Edit allowances
                   </Link>
                 )
@@ -214,7 +220,11 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="customer">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit-customer-info"
+                    to={generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, { moveCode })}
+                  >
                     Edit customer info
                   </Link>
                 )
