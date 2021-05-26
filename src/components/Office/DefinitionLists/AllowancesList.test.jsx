@@ -73,4 +73,12 @@ describe('AllowancesList', () => {
     render(<AllowancesList info={withUnauthorizedOcie} />);
     expect(screen.getByTestId('ocie').textContent).toEqual('Unauthorized');
   });
+
+  it('renders visual cues classname', () => {
+    render(<AllowancesList info={info} showVisualCues />);
+    expect(screen.getByText('Pro-gear').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('Spouse pro-gear').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('RME').parentElement.className).toContain('rowWithVisualCue');
+    expect(screen.getByText('OCIE').parentElement.className).toContain('rowWithVisualCue');
+  });
 });

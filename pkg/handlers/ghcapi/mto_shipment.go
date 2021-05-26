@@ -85,6 +85,174 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
 
+// CreateMTOShipmentHandler is the handler to create MTO shipments
+type CreateMTOShipmentHandler struct {
+	handlers.HandlerContext
+	mtoShipmentCreator services.MTOShipmentCreator
+}
+
+// Handle creates the mto shipment
+func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	payload := params.Body
+
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+	}
+
+	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, nil)
+
+	if err != nil {
+		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			payload := ghcmessages.Error{
+				Message: handlers.FmtString(err.Error()),
+			}
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+		default:
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
+		}
+	}
+
+	returnPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+}
+
+// UpdateShipmentHandler updates shipments
+type UpdateShipmentHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MTOShipmentUpdater
+}
+
+// Handle updates shipments
+func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	payload := params.Body
+	if payload == nil {
+		logger.Error("Invalid mto shipment: params Body is nil")
+
+		payload := payloadForValidationError(
+			"Empty body error",
+			"The MTO Shipment request body cannot be empty.",
+			h.GetTraceID(),
+			validate.NewErrors(),
+		)
+
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(shipmentID)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		default:
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		}
+	}
+
+	updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(oldShipment, session)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+		return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+			&ghcmessages.Error{Message: &msg},
+		)
+	}
+
+	if !updateable {
+		msg := fmt.Sprintf("%v is not updatable", shipmentID)
+		return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
+			&ghcmessages.Error{Message: &msg},
+		)
+	}
+
+	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+	mtoShipment.ID = shipmentID
+
+	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		case services.InvalidInputError:
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(
+				payloadForValidationError(
+					handlers.ValidationErrMessage,
+					err.Error(),
+					h.GetTraceID(),
+					e.ValidationErrors,
+				),
+			)
+		case services.PreconditionFailedError:
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
+			}
+
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		default:
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+				&ghcmessages.Error{Message: &msg},
+			)
+		}
+	}
+
+	_, err = event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateMTOShipmentEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MTOShipmentUpdateEventKey,    // Event that you want to trigger
+		UpdatedObjectID: updatedMtoShipment.ID,              // ID of the updated logical object
+		MtoID:           updatedMtoShipment.MoveTaskOrderID, // ID of the associated Move
+		Request:         params.HTTPRequest,                 // Pass on the http.Request
+		DBConnection:    h.DB(),                             // Pass on the pop.Connection
+		HandlerContext:  h,                                  // Pass on the handlerContext
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateMTOShipment could not generate the event")
+	}
+
+	returnPayload := payloads.MTOShipment(updatedMtoShipment)
+	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
+}
+
 // PatchShipmentHandler patches shipments
 type PatchShipmentHandler struct {
 	handlers.HandlerContext

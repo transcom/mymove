@@ -92,6 +92,8 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		ID:             strfmt.UUID(customer.ID.String()),
 		LastName:       swag.StringValue(customer.LastName),
 		Phone:          customer.Telephone,
+		Suffix:         customer.Suffix,
+		MiddleName:     customer.MiddleName,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 		BackupContact:  BackupContact(customer.BackupContacts),
@@ -277,8 +279,9 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             mtoShipment.ShipmentType,
+		ShipmentType:             ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
 		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
+		CounselorRemarks:         mtoShipment.CounselorRemarks,
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
@@ -301,6 +304,10 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 
 	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
 		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
+	}
+
+	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
+		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
 	if mtoShipment.ApprovedDate != nil {

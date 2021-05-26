@@ -35,6 +35,17 @@ type MTOShipment struct {
 	// Format: date
 	ApprovedDate *strfmt.Date `json:"approvedDate"`
 
+	// The counselor can use the counselor remarks field to inform the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//   * bulky or fragile items,
+	//   * weapons,
+	//   * access info for their address.
+	//
+	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+	//
+	// Read Only: true
+	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -172,6 +183,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ApprovedDate *strfmt.Date `json:"approvedDate"`
 
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
@@ -253,6 +266,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// approvedDate
 	result.ApprovedDate = data.ApprovedDate
+
+	// counselorRemarks
+	result.CounselorRemarks = data.CounselorRemarks
 
 	// createdAt
 	result.CreatedAt = data.CreatedAt
@@ -339,6 +355,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ApprovedDate *strfmt.Date `json:"approvedDate"`
 
+		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
+
 		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
@@ -397,6 +415,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		Agents: m.Agents,
 
 		ApprovedDate: m.ApprovedDate,
+
+		CounselorRemarks: m.CounselorRemarks,
 
 		CreatedAt: m.CreatedAt,
 

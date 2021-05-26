@@ -3,14 +3,17 @@ package services
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment
 //go:generate mockery --name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
-	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	CheckIfMTOShipmentCanBeUpdated(mtoShipment *models.MTOShipment, session *auth.Session) (bool, error)
 	MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error)
+	RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error)
+	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentDeleter is the service object interface for DeleteShipment

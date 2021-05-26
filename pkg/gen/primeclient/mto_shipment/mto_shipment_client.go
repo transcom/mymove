@@ -185,19 +185,15 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK
 /*
   UpdateMTOShipment updates m t o shipment
 
-  Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+  Updates an existing shipment for a move.
 
-* `scheduledPickupDate`
-* `actualPickupDate`
-* `firstAvailableDeliveryDate`
-* `destinationAddress`
-* `pickupAddress`
-* `secondaryDeliveryAddress`
-* `secondaryPickupAddress`
-* `primeEstimatedWeight`
-* `primeActualWeight`
-* `shipmentType`
-* `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+Note that there are some restrictions on nested objects:
+
+* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
+* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
+* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
+
+These restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
 
