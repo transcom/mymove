@@ -2,7 +2,7 @@ allOf:
   - $ref: 'ClientError.yaml'
   - type: object
     properties:
-      invalidFields:
+      invalid_fields:
         type: object
         additionalProperties:
           description: List of errors for the field
@@ -10,4 +10,4 @@ allOf:
           items:
             type: string
     required:
-      - invalidFields
+      - invalid_fields
