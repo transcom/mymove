@@ -126,6 +126,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
 	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
@@ -145,7 +146,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdateReviewedPaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
