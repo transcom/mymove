@@ -295,8 +295,12 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
+.PHONY: swagger_generate
+swagger_generate: ## Bundles the API definition files into a complete specification
+	yarn build-redoc
+
 .PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
+server_generate: swagger_generate .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
@@ -310,7 +314,7 @@ server_run_standalone: check_log_dir server_build client_build db_dev_run redis_
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
-	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
+	find ./swagger-def -type f | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
