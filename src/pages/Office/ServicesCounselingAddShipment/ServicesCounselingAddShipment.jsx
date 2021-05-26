@@ -17,7 +17,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 
 const ServicesCounselingAddShipment = ({ match }) => {
-  const { moveCode, shipmentId } = useParams();
+  const { moveCode } = useParams();
   const history = useHistory();
   const { order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMTOShipment] = useMutation(updateMTOShipment, {
@@ -32,7 +32,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
-  const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
   return (
@@ -51,7 +50,6 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}
-                  mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                 />
               </Grid>

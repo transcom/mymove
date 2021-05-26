@@ -17,7 +17,7 @@ import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfo
 import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { createMTOShipment, getResponseError } from 'services/internalApi';
+import { createMTOShipment } from 'services/ghcApi';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -92,27 +92,21 @@ const ServicesCounselingShipmentForm = ({
     const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
     if (isCreatePage) {
-      createMTOShipment(pendingMtoShipment)
+      createMTOShipment({ body: pendingMtoShipment, normalize: false })
         .then((response) => {
           updateMTOShipment(response);
           history.push(moveDetailsPath);
         })
-        .catch((e) => {
-          const { response } = e;
-          const error = getResponseError(response, 'failed to create MTO shipment due to server error');
-
-          setErrorMessage(error);
+        .catch(() => {
+          setErrorMessage(`failed to create MTO shipment due to server error`);
         });
     } else {
       updateMTOShipment(updateMTOShipmentPayload)
         .then(() => {
           history.push(moveDetailsPath);
         })
-        .catch((e) => {
-          const { response } = e;
-          const error = getResponseError(response, 'failed to update MTO shipment due to server error');
-
-          setErrorMessage(error);
+        .catch(() => {
+          setErrorMessage('failed to update MTO shipment due to server error');
         });
     }
   };
@@ -198,7 +192,7 @@ const ServicesCounselingShipmentForm = ({
                           <>
                             <Checkbox
                               data-testid="useCurrentResidence"
-                              label="Use my current address"
+                              label="Use current address"
                               name="useCurrentResidence"
                               onChange={handleUseCurrentResidenceChange}
                               id="useCurrentResidenceCheckbox"
