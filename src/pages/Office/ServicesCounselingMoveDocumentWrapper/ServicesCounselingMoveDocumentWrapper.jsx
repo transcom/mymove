@@ -4,11 +4,12 @@ import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styles from './ServicesCounselingMoveDocumentWrapper.module.scss';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import ServicesCounselingMoveAllowances from 'pages/Office/ServicesCounselingMoveAllowances/ServicesCounselingMoveAllowances';
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const ServicesCounselingMoveDocumentWrapper = () => {
   const { moveCode } = useParams();
@@ -22,7 +23,7 @@ const ServicesCounselingMoveDocumentWrapper = () => {
   const documentsForViewer = Object.values(upload);
 
   const showOrders = matchPath(pathname, {
-    path: '/counseling/moves/:moveCode/orders',
+    path: servicesCounselingRoutes.ORDERS_EDIT_PATH,
     exact: true,
   });
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -79,10 +80,18 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 	}
 
 	transactionError := e.db.Transaction(func(tx *pop.Connection) error {
-		err = tx.Save(&prToICN)
-		if err != nil {
-			e.logger.Error("failure saving payment request to interchange control number", zap.Error(err))
-			return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
+		lookupErr := tx.Where("payment_request_id = ? and interchange_control_number = ? and edi_type = ?", prToICN.PaymentRequestID, prToICN.InterchangeControlNumber, prToICN.EDIType).First(&prToICN)
+		if lookupErr != nil {
+			e.logger.Error("failure looking up payment request to interchange control number", zap.Error(err))
+		}
+		if prToICN.ID == uuid.Nil {
+			err = tx.Save(&prToICN)
+			if err != nil {
+				e.logger.Error("failure saving payment request to interchange control number", zap.Error(err))
+				return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
+			}
+		} else {
+			e.logger.Info(fmt.Sprintf("duplicate EDI %s processed for payment request: %s with ICN: %d", prToICN.EDIType, prToICN.PaymentRequestID, prToICN.InterchangeControlNumber))
 		}
 		err = edi997.Validate()
 		if err != nil {
