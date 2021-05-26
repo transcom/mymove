@@ -1,5 +1,10 @@
 swagger: '2.0'
 info:
+  title: Milmove Support API
+  version: 0.0.1
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
   contact:
     email: dp3@truss.works
   description: |
@@ -8,11 +13,6 @@ info:
     This API is not available in production.
 
     All endpoints are located at `primelocal/support/v1/`.
-  license:
-    name: MIT
-    url: 'https://opensource.org/licenses/MIT'
-  title: Milmove Support API
-  version: 0.0.1
 basePath: /support/v1
 schemes:
   - http
