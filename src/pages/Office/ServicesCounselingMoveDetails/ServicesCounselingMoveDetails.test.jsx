@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { generatePath } from 'react-router';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
@@ -11,7 +11,7 @@ import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
-import { MockProviders } from 'testUtils';
+import { MockProviders, renderWithRouter } from 'testUtils';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -176,16 +176,18 @@ const counselingCompletedMoveDetailsQuery = {
   },
 };
 
+const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
+
 const renderMockedComponent = (props) => {
   return render(
-    <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
+    <MockProviders initialEntries={[detailsURL]}>
       <ServicesCounselingMoveDetails {...props} />
     </MockProviders>,
   );
 };
 
 const mockedComponent = (
-  <MockProviders initialEntries={[`counseling/moves/${mockRequestedMoveCode}/details`]}>
+  <MockProviders initialEntries={[detailsURL]}>
     <ServicesCounselingMoveDetails />
   </MockProviders>
 );
@@ -354,18 +356,43 @@ describe('MoveDetails page', () => {
       expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 }));
     });
 
+    it.each([
+      ['Add a new shipment', servicesCounselingRoutes.SHIPMENT_ADD_PATH],
+      ['View and edit orders', servicesCounselingRoutes.ORDERS_EDIT_PATH],
+      ['Edit allowances', servicesCounselingRoutes.ALLOWANCES_EDIT_PATH],
+      ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
+    ])('shows the "%s" link as expected: %s', async (linkText, route) => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+      const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
+
+      const link = await screen.findByRole('link', { name: linkText });
+
+      expect(link).toBeInTheDocument();
+
+      userEvent.click(link);
+
+      const path = generatePath(route, {
+        moveCode: mockRequestedMoveCode,
+      });
+
+      await waitFor(() => {
+        expect(history.location.pathname).toEqual(path);
+      });
+    });
+
     it('shows the edit shipment buttons', async () => {
       useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 
       render(mockedComponent);
 
-      const editShipmentButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
+      const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
 
-      expect(editShipmentButtons.length).toBe(2);
+      expect(shipmentEditButtons.length).toBe(2);
 
-      for (let i = 0; i < editShipmentButtons.length; i += 1) {
-        expect(editShipmentButtons[i].getAttribute('data-testid')).toBe(
-          generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+      for (let i = 0; i < shipmentEditButtons.length; i += 1) {
+        expect(shipmentEditButtons[i].getAttribute('data-testid')).toBe(
+          generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode: mockRequestedMoveCode,
             shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
           }),
@@ -375,16 +402,17 @@ describe('MoveDetails page', () => {
   });
 
   describe('service counseling completed', () => {
-    it('hides submit and view/edit buttons', async () => {
+    it('hides submit and view/edit buttons/links', async () => {
       useMoveDetailsQueries.mockImplementation(() => counselingCompletedMoveDetailsQuery);
 
       render(mockedComponent);
 
       expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Add a new shipment' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'View and edit orders' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Edit allowances' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Edit customer info' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
     });
   });
 });
