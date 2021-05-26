@@ -1782,20 +1782,6 @@ definitions:
         readOnly: true
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
-  ValidationError:
-    allOf:
-      - $ref: '#/definitions/ClientError'
-      - type: object
-    properties:
-      invalidFields:
-        type: object
-        additionalProperties:
-          description: List of errors for the field
-          type: array
-          items:
-            type: string
-    required:
-      - invalidFields
   WebhookNotification:
     type: object
     properties:
@@ -1874,7 +1860,7 @@ responses:
   UnprocessableEntity:
     description: The payload was unprocessable.
     schema:
-      $ref: '#/definitions/ValidationError'
+      $ref: 'definitions/ValidationError.yaml'
   PreconditionFailed:
     description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
     schema:

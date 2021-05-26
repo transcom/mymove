@@ -1887,20 +1887,6 @@ definitions:
           header for `If-Match`. Required when sending PUT or PATCH requests to
           prevent updating stale data.
     type: object
-  ValidationError:
-    allOf:
-      - $ref: '#/definitions/ClientError'
-      - type: object
-    properties:
-      invalidFields:
-        type: object
-        additionalProperties:
-          description: List of errors for the field
-          type: array
-          items:
-            type: string
-    required:
-      - invalidFields
   WebhookNotification:
     type: object
     properties:
@@ -1999,6 +1985,20 @@ definitions:
       - filename
       - contentType
       - bytes
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+        properties:
+          invalidFields:
+            type: object
+            additionalProperties:
+              description: List of errors for the field
+              type: array
+              items:
+                type: string
+        required:
+          - invalidFields
 responses:
   InvalidRequest:
     description: The request payload is invalid.
