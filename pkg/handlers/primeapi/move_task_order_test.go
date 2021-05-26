@@ -303,17 +303,6 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 	return move
 }
 
-func (suite *HandlerSuite) equalAddress(expected models.Address, actual *primemessages.Address) {
-	suite.Equal(expected.ID.String(), actual.ID.String())
-	suite.Equal(expected.StreetAddress1, *actual.StreetAddress1)
-	suite.Equal(*expected.StreetAddress2, *actual.StreetAddress2)
-	suite.Equal(*expected.StreetAddress3, *actual.StreetAddress3)
-	suite.Equal(expected.City, *actual.City)
-	suite.Equal(expected.State, *actual.State)
-	suite.Equal(expected.PostalCode, *actual.PostalCode)
-	suite.Equal(*expected.Country, *actual.Country)
-}
-
 func (suite *HandlerSuite) equalPaymentRequest(expected models.PaymentRequest, actual *primemessages.PaymentRequest) {
 	suite.Equal(expected.ID.String(), actual.ID.String())
 	suite.Equal(expected.MoveTaskOrderID.String(), actual.MoveTaskOrderID.String())
@@ -386,8 +375,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 		move2Payload = moveTaskOrdersPayload[0]
 	}
 
-	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address)
-	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address)
+	suite.EqualAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address)
+	suite.EqualAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address)
 
 	// Check the two payment requests across the second move.
 	// NOTE: The payload isn't ordered, so I have to associate the correct payment request.

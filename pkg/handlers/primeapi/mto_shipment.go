@@ -220,7 +220,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 
 		var dbShipment models.MTOShipment
-		err := h.DB().Eager("PickupAddress", "DestinationAddress").Find(&dbShipment, params.MtoShipmentID)
+		err := h.DB().EagerPreload("PickupAddress", "DestinationAddress", "MTOAgents").Find(&dbShipment, params.MtoShipmentID)
 		if err != nil {
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		}
@@ -271,6 +271,7 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		mtoShipment.RequestedPickupDate = requestedPickupDate
 	}
 
+	// Prime can update the estimated weight once.
 	if mtoShipment.PrimeEstimatedWeight != nil {
 		if dbShipment.PrimeEstimatedWeight != nil {
 			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
@@ -279,6 +280,8 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		if mtoShipment.ScheduledPickupDate != nil {
 			scheduledPickupDate = mtoShipment.ScheduledPickupDate
 		}
+		// There's a set range of time that prime can update the estimated weight.
+		// If it's expired, they can no longer update it.
 		now := time.Now()
 		if dbShipment.ApprovedDate != nil && scheduledPickupDate != nil {
 			err := validatePrimeEstimatedWeightRecordedDate(now, *scheduledPickupDate, *dbShipment.ApprovedDate)
@@ -289,25 +292,35 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		} else if scheduledPickupDate == nil {
 			verrs.Add("primeEstimatedWeight", "the scheduled pickup date must be set before estimating the weight")
 		}
+		// If they can update it, we also record the date at which it happened
 		mtoShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
+	// Prime can create a new address, but cannot update it.
+	// So if address exists, return an error. But also set the local pointer to nil, so we don't recalculate requiredDeliveryDate
 	pickupAddress := dbShipment.PickupAddress
-	if mtoShipment.PickupAddress != nil {
+	if dbShipment.PickupAddress != nil && mtoShipment.PickupAddress != nil {
+		verrs.Add("pickupAddress", "the pickup address already exists and cannot be updated with this endpoint")
+		pickupAddress = nil
+	} else if dbShipment.PickupAddress == nil && mtoShipment.PickupAddress != nil {
 		pickupAddress = mtoShipment.PickupAddress
 	}
+
 	destinationAddress := dbShipment.DestinationAddress
-	if mtoShipment.DestinationAddress != nil {
-		destinationAddress = mtoShipment.DestinationAddress
+	if dbShipment.DestinationAddress != nil && mtoShipment.DestinationAddress != nil {
+		verrs.Add("destinationAddress", "the destination address already exists and cannot be updated with this endpoint")
+		destinationAddress = nil
 	}
 	// Updated based on existing fields that may have been updated:
 	if mtoShipment.ScheduledPickupDate != nil && mtoShipment.PrimeEstimatedWeight != nil && pickupAddress != nil && destinationAddress != nil {
-
+		fmt.Println("\n >>> updating rdd for shipment from ", pickupAddress.StreetAddress1, " to ", destinationAddress.StreetAddress1)
 		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(h.Planner(), h.DB(), *pickupAddress,
 			*destinationAddress, *mtoShipment.ScheduledPickupDate, mtoShipment.PrimeEstimatedWeight.Int())
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
 		}
 		mtoShipment.RequiredDeliveryDate = requiredDeliveryDate
+	} else {
+		fmt.Println("\n >>> RDD not recalculated")
 	}
 
 	if len(mtoShipment.MTOAgents) > 0 {

@@ -412,3 +412,15 @@ func RandomName() (first string, last string) {
 
 	return fakeNames[index].first, fakeNames[index].last
 }
+
+/*
+RandomStreetAddress - randomly selects a street address from the fakeAddress slice
+*/
+func RandomStreetAddress() string {
+	index, err := random.GetRandomInt(len(fakeAddress))
+	if err != nil {
+		return fakeAddress[0]
+	}
+
+	return fakeAddress[index]
+}
