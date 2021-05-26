@@ -143,7 +143,7 @@ const ServicesCounselingMoveDetails = () => {
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
-                <Button type="button" onClick={handleShowCancellationModal}>
+                <Button disabled={!mtoShipments.length} type="button" onClick={handleShowCancellationModal}>
                   Submit move details
                 </Button>
               )}
