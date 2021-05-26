@@ -2259,8 +2259,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"
@@ -4969,8 +4967,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
         "filename",
         "contentType",
         "bytes"

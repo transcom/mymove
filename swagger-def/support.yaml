@@ -792,7 +792,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/Upload'
+          $ref: 'definitions/Upload.yaml'
     required:
       - id
       - serviceMemberID
@@ -1639,7 +1639,7 @@ definitions:
         type: string
       uploads:
         items:
-          $ref: '#/definitions/Upload'
+          $ref: 'definitions/Upload.yaml'
         type: array
     type: object
   Rank:
@@ -1782,46 +1782,6 @@ definitions:
         readOnly: true
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
-  Upload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-      filename:
-        type: string
-        example: filename.pdf
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-      bytes:
-        type: integer
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'

@@ -708,7 +708,7 @@ paths:
         '201':
           description: Successfully created upload of digital file.
           schema:
-            $ref: '#/definitions/Upload'
+            $ref: 'definitions/Upload.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1835,7 +1835,7 @@ definitions:
     properties:
       uploads:
         items:
-          $ref: '#/definitions/Upload'
+          $ref: 'definitions/Upload.yaml'
         type: array
     type: object
   ReServiceCode:
@@ -2047,30 +2047,6 @@ definitions:
         type: string
         enum:
           - CANCELED
-  Upload:
-    type: object
-    properties:
-      bytes:
-        type: integer
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-      filename:
-        example: filename.pdf
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-    required:
-      - filename
-      - contentType
-      - bytes
 responses:
   InvalidRequest:
     description: The request payload is invalid.

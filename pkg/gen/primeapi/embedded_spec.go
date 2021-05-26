@@ -2481,10 +2481,28 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -5336,10 +5354,28 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
