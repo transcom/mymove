@@ -1,6 +1,8 @@
 package paymentrequest
 
 import (
+	"time"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
@@ -21,6 +23,61 @@ type paymentRequestStatusUpdater struct {
 // NewPaymentRequestStatusUpdater returns a new payment request status updater
 func NewPaymentRequestStatusUpdater(builder paymentRequestStatusQueryBuilder) services.PaymentRequestStatusUpdater {
 	return &paymentRequestStatusUpdater{builder}
+}
+
+func (p *paymentRequestStatusUpdater) UpdateReviewedPaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
+	id := paymentRequest.ID
+	status := paymentRequest.Status
+
+	// Prevent changing status to REVIEWED if any service items are not reviewed
+	if status == models.PaymentRequestStatusReviewed {
+		var paymentServiceItems models.PaymentServiceItems
+		serviceItemFilter := []services.QueryFilter{
+			query.NewQueryFilter("payment_request_id", "=", id),
+			query.NewQueryFilter("status", "=", models.PaymentServiceItemStatusRequested),
+		}
+		error := p.builder.FetchMany(&paymentServiceItems, serviceItemFilter, nil, nil, nil)
+
+		if error != nil {
+			return nil, error
+		}
+
+		if len(paymentServiceItems) > 0 {
+			return nil, services.NewConflictError(id, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
+		}
+	}
+
+	if status != models.PaymentRequestStatusReviewed && status != models.PaymentRequestStatusReviewedAllRejected {
+		return nil, services.NewInvalidInputError(id, nil, nil, "Payment Request status can only be updated to REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED")
+	}
+
+	now := time.Now()
+	paymentRequest.ReviewedAt = &now
+
+	var verrs *validate.Errors
+	var err error
+	if eTag == "" {
+		verrs, err = p.builder.UpdateOne(paymentRequest, nil)
+	} else {
+		verrs, err = p.builder.UpdateOne(paymentRequest, &eTag)
+	}
+
+	if verrs != nil && verrs.HasAny() {
+		return nil, services.NewInvalidInputError(id, err, verrs, "")
+	}
+
+	if err != nil {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(id, "")
+		}
+
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return &models.PaymentRequest{}, services.NewPreconditionFailedError(id, err)
+		}
+	}
+
+	return paymentRequest, err
 }
 
 func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
