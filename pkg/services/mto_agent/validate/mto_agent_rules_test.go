@@ -145,7 +145,10 @@ func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData() {
 			AvailabilityChecker: checker,
 			Verrs:               validate.NewErrors(),
 		}
-		_ = agentData.checkShipmentID() // this test should pass regardless of potential errors here
+		// We don't need or want to check the errors here because our goal with this test is to look for
+		// validation errors in particular.
+		// Even if we get errors back, we don't care as long as getVerrs doesn't give us an InputError afterwards.
+		_ = agentData.checkShipmentID()
 		_ = agentData.checkContactInfo()
 		err := agentData.getVerrs()
 
@@ -161,7 +164,10 @@ func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData() {
 			AvailabilityChecker: checker,
 			Verrs:               validate.NewErrors(),
 		}
-		_ = agentData.checkShipmentID() // this test should pass regardless of potential errors here
+		// We don't need or want to check the errors here because our goal with this test is to look for
+		// validation errors in particular.
+		// Even if we get errors back here, we don't care as long as getVerrs gives us an InputError afterwards.
+		_ = agentData.checkShipmentID()
 		_ = agentData.checkContactInfo()
 		err := agentData.getVerrs()
 
@@ -251,13 +257,12 @@ func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData_checkAgentID(
 	})
 
 	suite.T().Run("FAIL - Old and new IDs do not match for update", func(t *testing.T) {
-		randomUUID, _ := uuid.NewV4()
 		agentData := AgentValidationData{
 			NewAgent: models.MTOAgent{
-				// nil UUID, doesn't match
+				ID: uuid.Nil,
 			},
 			OldAgent: &models.MTOAgent{
-				ID: randomUUID,
+				ID: uuid.Must(uuid.NewV4()),
 			},
 			Verrs: validate.NewErrors(),
 		}
