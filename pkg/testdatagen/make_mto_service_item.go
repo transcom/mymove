@@ -287,17 +287,19 @@ func MakeMTOServiceItemDomesticCrating(db *pop.Connection, assertions Assertions
 	})
 
 	// Create item
-	MakeMTOServiceItemDimension(db, Assertions{
+	dimensionItem := MakeMTOServiceItemDimension(db, Assertions{
 		MTOServiceItemDimension: assertions.MTOServiceItemDimension,
 		MTOServiceItem:          mtoServiceItem,
 	})
 
 	// Creat crate
 	assertions.MTOServiceItemCrate.Type = models.DimensionTypeCrate
-	MakeMTOServiceItemDimension(db, Assertions{
+	crateItem := MakeMTOServiceItemDimension(db, Assertions{
 		MTOServiceItemDimension: assertions.MTOServiceItemCrate,
 		MTOServiceItem:          mtoServiceItem,
 	})
+
+	mtoServiceItem.Dimensions = append(mtoServiceItem.Dimensions, dimensionItem, crateItem)
 
 	return mtoServiceItem
 }
