@@ -90,6 +90,8 @@ func (e *edi997Processor) ProcessFile(path string, stringEDI997 string) error {
 				e.logger.Error("failure saving payment request to interchange control number", zap.Error(err))
 				return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
 			}
+		} else {
+			e.logger.Info(fmt.Sprintf("duplicate EDI %s processed for payment request: %s with ICN: %d", prToICN.EDIType, prToICN.PaymentRequestID, prToICN.InterchangeControlNumber))
 		}
 		err = edi997.Validate()
 		if err != nil {
