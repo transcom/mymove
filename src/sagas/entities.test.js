@@ -54,7 +54,7 @@ describe('watchUpdateEntities', () => {
 describe('updateServiceMember', () => {
   const testAction = {
     payload: {
-      service_member: {
+      serviceMember: {
         id: 'testServiceMemberId',
         orders: [{ id: 'testorder1' }, { id: 'testorder2' }],
       },

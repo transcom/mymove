@@ -197,7 +197,7 @@ describe('requireCustomerState BackupContact', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -239,7 +239,7 @@ describe('requireCustomerState BackupContact', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {
@@ -284,7 +284,7 @@ describe('requireCustomerState BackupContact', () => {
           testUserId: {
             id: 'testUserId',
             email: 'testuser@example.com',
-            service_member: 'testServiceMemberId',
+            serviceMember: 'testServiceMemberId',
           },
         },
         serviceMembers: {

@@ -2991,7 +2991,7 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "$ref": "#/definitions/LoggedInUserPayload"
+              "$ref": "#/definitions/LoggedInUser"
             }
           },
           "400": {
@@ -4092,7 +4092,7 @@ func init() {
         }
       }
     },
-    "LoggedInUserPayload": {
+    "LoggedInUser": {
       "type": "object",
       "required": [
         "id"
@@ -4105,7 +4105,7 @@ func init() {
           "readOnly": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "readOnly": true,
           "example": "John"
@@ -4115,7 +4115,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "office_user": {
+        "officeUser": {
           "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
@@ -4125,7 +4125,7 @@ func init() {
             "$ref": "#/definitions/Role"
           }
         },
-        "service_member": {
+        "serviceMember": {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
@@ -9482,7 +9482,7 @@ func init() {
           "200": {
             "description": "Currently logged in user",
             "schema": {
-              "$ref": "#/definitions/LoggedInUserPayload"
+              "$ref": "#/definitions/LoggedInUser"
             }
           },
           "400": {
@@ -10598,7 +10598,7 @@ func init() {
         }
       }
     },
-    "LoggedInUserPayload": {
+    "LoggedInUser": {
       "type": "object",
       "required": [
         "id"
@@ -10611,7 +10611,7 @@ func init() {
           "readOnly": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
+        "firstName": {
           "type": "string",
           "readOnly": true,
           "example": "John"
@@ -10621,7 +10621,7 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "office_user": {
+        "officeUser": {
           "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
@@ -10631,7 +10631,7 @@ func init() {
             "$ref": "#/definitions/Role"
           }
         },
-        "service_member": {
+        "serviceMember": {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }

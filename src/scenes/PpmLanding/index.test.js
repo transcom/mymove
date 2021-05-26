@@ -25,7 +25,7 @@ describe('PPM landing page tests', () => {
   });
 
   describe('When loggedIn', () => {
-    let service_member = { id: 'foo' };
+    let serviceMember = { id: 'foo' };
     it('renders without crashing', () => {
       const div = document.createElement('div');
       wrapper = shallow(<PpmLanding isLoggedIn={true} {...minProps} />, div);
@@ -37,7 +37,7 @@ describe('PPM landing page tests', () => {
         const div = document.createElement('div');
         wrapper = shallow(
           <PpmLanding
-            serviceMember={service_member}
+            serviceMember={serviceMember}
             isLoggedIn={true}
             loggedInUserSuccess={true}
             isProfileComplete={false}

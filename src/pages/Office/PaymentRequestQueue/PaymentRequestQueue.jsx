@@ -95,12 +95,12 @@ const columns = (showBranchFilter = true) => [
 const PaymentRequestQueue = ({ history }) => {
   const {
     // eslint-disable-next-line camelcase
-    data: { office_user },
+    data: { officeUser },
     isLoading,
     isError,
   } = useUserQueries();
 
-  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
+  const showBranchFilter = officeUser?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
     history.push(`/moves/${values.locator}/payment-requests`);

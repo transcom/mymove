@@ -18,8 +18,8 @@ export const selectLoggedInUser = (state) => {
 /** Service Member */
 export const selectServiceMemberFromLoggedInUser = (state) => {
   const user = selectLoggedInUser(state);
-  if (!user || !user.service_member) return null;
-  return state.entities.serviceMembers?.[`${user.service_member}`] || null;
+  if (!user || !user.serviceMember) return null;
+  return state.entities.serviceMembers?.[`${user.serviceMember}`] || null;
 };
 
 export const selectCurrentDutyStation = (state) => {
@@ -59,7 +59,7 @@ export const selectServiceMemberProfileState = createSelector(selectServiceMembe
   /* eslint-enable camelcase */
 });
 
-// TODO: this is similar to service_member.isProfileComplete and we should figure out how to use just one if possible
+// TODO: this is similar to serviceMember.isProfileComplete and we should figure out how to use just one if possible
 export const selectIsProfileComplete = createSelector(
   selectServiceMemberFromLoggedInUser,
   (serviceMember) =>

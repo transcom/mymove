@@ -24,7 +24,7 @@ type ShowLoggedInUserHandler struct {
 }
 
 // decoratePayloadWithRoles will add session roles to the logged in user payload and return it
-func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
+func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUser) {
 	for _, role := range s.Roles {
 		p.Roles = append(p.Roles, &internalmessages.Role{
 			ID:        handlers.FmtUUID(s.UserID),
@@ -50,7 +50,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			}
 		}
 
-		userPayload := internalmessages.LoggedInUserPayload{
+		userPayload := internalmessages.LoggedInUser{
 			ID:         handlers.FmtUUID(session.UserID),
 			FirstName:  session.FirstName,
 			Email:      session.Email,
@@ -134,7 +134,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	userPayload := internalmessages.LoggedInUserPayload{
+	userPayload := internalmessages.LoggedInUser{
 		ID:            handlers.FmtUUID(session.UserID),
 		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
 		FirstName:     session.FirstName,

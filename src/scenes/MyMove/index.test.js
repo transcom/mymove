@@ -32,7 +32,7 @@ describe('ConnectedCustomerApp tests', () => {
           user: {
             userId123: {
               id: 'userId123',
-              service_member: 'serviceMemberId456',
+              serviceMember: 'serviceMemberId456',
             },
           },
           serviceMembers: {

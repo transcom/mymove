@@ -14,10 +14,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// LoggedInUserPayload logged in user payload
+// LoggedInUser logged in user
 //
-// swagger:model LoggedInUserPayload
-type LoggedInUserPayload struct {
+// swagger:model LoggedInUser
+type LoggedInUser struct {
 
 	// email
 	// Read Only: true
@@ -26,7 +26,7 @@ type LoggedInUserPayload struct {
 
 	// first name
 	// Read Only: true
-	FirstName string `json:"first_name,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// id
 	// Required: true
@@ -34,17 +34,17 @@ type LoggedInUserPayload struct {
 	ID *strfmt.UUID `json:"id"`
 
 	// office user
-	OfficeUser *OfficeUser `json:"office_user,omitempty"`
+	OfficeUser *OfficeUser `json:"officeUser,omitempty"`
 
 	// roles
 	Roles []*Role `json:"roles"`
 
 	// service member
-	ServiceMember *ServiceMemberPayload `json:"service_member,omitempty"`
+	ServiceMember *ServiceMemberPayload `json:"serviceMember,omitempty"`
 }
 
-// Validate validates this logged in user payload
-func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
+// Validate validates this logged in user
+func (m *LoggedInUser) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateEmail(formats); err != nil {
@@ -73,7 +73,7 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *LoggedInUserPayload) validateEmail(formats strfmt.Registry) error {
+func (m *LoggedInUser) validateEmail(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Email) { // not required
 		return nil
@@ -86,7 +86,7 @@ func (m *LoggedInUserPayload) validateEmail(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *LoggedInUserPayload) validateID(formats strfmt.Registry) error {
+func (m *LoggedInUser) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
@@ -99,7 +99,7 @@ func (m *LoggedInUserPayload) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error {
+func (m *LoggedInUser) validateOfficeUser(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OfficeUser) { // not required
 		return nil
@@ -108,7 +108,7 @@ func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error 
 	if m.OfficeUser != nil {
 		if err := m.OfficeUser.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("office_user")
+				return ve.ValidateName("officeUser")
 			}
 			return err
 		}
@@ -117,7 +117,7 @@ func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *LoggedInUserPayload) validateRoles(formats strfmt.Registry) error {
+func (m *LoggedInUser) validateRoles(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Roles) { // not required
 		return nil
@@ -142,7 +142,7 @@ func (m *LoggedInUserPayload) validateRoles(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) error {
+func (m *LoggedInUser) validateServiceMember(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ServiceMember) { // not required
 		return nil
@@ -151,7 +151,7 @@ func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) err
 	if m.ServiceMember != nil {
 		if err := m.ServiceMember.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("service_member")
+				return ve.ValidateName("serviceMember")
 			}
 			return err
 		}
@@ -161,7 +161,7 @@ func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) err
 }
 
 // MarshalBinary interface implementation
-func (m *LoggedInUserPayload) MarshalBinary() ([]byte, error) {
+func (m *LoggedInUser) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -169,8 +169,8 @@ func (m *LoggedInUserPayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *LoggedInUserPayload) UnmarshalBinary(b []byte) error {
-	var res LoggedInUserPayload
+func (m *LoggedInUser) UnmarshalBinary(b []byte) error {
+	var res LoggedInUser
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
