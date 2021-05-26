@@ -145,13 +145,14 @@ func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData() {
 			AvailabilityChecker: checker,
 			Verrs:               validate.NewErrors(),
 		}
-		// We don't need or want to check the errors here because our goal with this test is to look for
-		// validation errors in particular.
-		// Even if we get errors back, we don't care as long as getVerrs doesn't give us an InputError afterwards.
-		_ = agentData.checkShipmentID()
-		_ = agentData.checkContactInfo()
-		err := agentData.getVerrs()
+		// These checks should not fail with an error
+		err := agentData.checkShipmentID()
+		suite.FatalNoError(err)
 
+		err = agentData.checkContactInfo()
+		suite.FatalNoError(err)
+
+		err = agentData.getVerrs()
 		suite.NoError(err)
 		suite.NoVerrs(agentData.Verrs)
 	})
@@ -164,13 +165,14 @@ func (suite *MTOAgentValidateServiceSuite) TestAgentValidationData() {
 			AvailabilityChecker: checker,
 			Verrs:               validate.NewErrors(),
 		}
-		// We don't need or want to check the errors here because our goal with this test is to look for
-		// validation errors in particular.
-		// Even if we get errors back here, we don't care as long as getVerrs gives us an InputError afterwards.
-		_ = agentData.checkShipmentID()
-		_ = agentData.checkContactInfo()
-		err := agentData.getVerrs()
+		// These checks will find validation errors, but should not return other errors
+		err := agentData.checkShipmentID()
+		suite.FatalNoError(err)
 
+		err = agentData.checkContactInfo()
+		suite.FatalNoError(err)
+
+		err = agentData.getVerrs()
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
 		suite.True(agentData.Verrs.HasAny())
