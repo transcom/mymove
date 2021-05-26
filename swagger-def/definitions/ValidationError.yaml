@@ -1,0 +1,13 @@
+allOf:
+  - $ref: 'ClientError.yaml'
+  - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
+    required:
+      - invalidFields

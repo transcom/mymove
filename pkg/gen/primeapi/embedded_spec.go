@@ -2489,29 +2489,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
+      ]
     }
   },
   "parameters": {
@@ -5344,32 +5344,29 @@ func init() {
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "$ref": "#/definitions/ValidationErrorAllOf1"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
-    },
-    "ValidationErrorAllOf1": {
-      "type": "object"
+      ]
     }
   },
   "parameters": {
