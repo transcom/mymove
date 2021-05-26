@@ -278,23 +278,25 @@ func MakeRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.Re
 // MakeMTOServiceItemDomesticCrating makes a domestic crating service item and its associated item and crate
 func MakeMTOServiceItemDomesticCrating(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
 	// Set service item type
-	assertions.ReService = models.ReService{
+	assertions.MTOServiceItem.ReService = models.ReService{
 		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
 	}
 
-	mtoServiceItem := MakeMTOServiceItem(db, assertions)
+	mtoServiceItem := MakeMTOServiceItem(db, Assertions{
+		MTOServiceItem: assertions.MTOServiceItem,
+	})
 
 	// Create item
 	MakeMTOServiceItemDimension(db, Assertions{
-		MTOServiceItem: mtoServiceItem,
+		MTOServiceItemDimension: assertions.MTOServiceItemDimension,
+		MTOServiceItem:          mtoServiceItem,
 	})
 
 	// Creat crate
+	assertions.MTOServiceItemCrate.Type = models.DimensionTypeCrate
 	MakeMTOServiceItemDimension(db, Assertions{
-		MTOServiceItem: mtoServiceItem,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Type: models.DimensionTypeCrate,
-		},
+		MTOServiceItemDimension: assertions.MTOServiceItemCrate,
+		MTOServiceItem:          mtoServiceItem,
 	})
 
 	return mtoServiceItem
