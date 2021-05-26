@@ -18,6 +18,13 @@
       @include u-margin-top(2);
       @include u-margin-bottom(3);
     }
+    display: flex;
+    justify-content: space-between;
+
+    button {
+      padding: 0;
+      font-size: 13px;
+    }
   }
 
   :global(h2) {

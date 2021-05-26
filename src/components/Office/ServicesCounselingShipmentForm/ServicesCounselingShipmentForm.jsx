@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { bool, func, number, shape, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
+import { useMutation } from 'react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 
+import { SCRequestShipmentCancellationModal } from '../ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
 import styles from './ServicesCounselingShipmentForm.module.scss';
@@ -25,6 +27,7 @@ import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
+import { deleteShipment } from 'services/ghcApi';
 
 const ServicesCounselingShipmentForm = ({
   match,
@@ -37,7 +40,28 @@ const ServicesCounselingShipmentForm = ({
   currentResidence,
   updateMTOShipment,
 }) => {
-  const [errorMessage, setErrorMessage] = React.useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+
+  const [mutateMTOShipmentStatus] = useMutation(deleteShipment, {
+    onSuccess: () => {
+      history.goBack();
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
 
   const getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
@@ -46,6 +70,16 @@ const ServicesCounselingShipmentForm = ({
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');
     return shipmentNumber;
+  };
+
+  const handleDeleteShipment = (shipmentID) => {
+    mutateMTOShipmentStatus({
+      shipmentID,
+    });
+  };
+
+  const handleShowCancellationModal = () => {
+    setIsCancelModalVisible(true);
   };
 
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
@@ -159,6 +193,13 @@ const ServicesCounselingShipmentForm = ({
 
         return (
           <>
+            {isCancelModalVisible && (
+              <SCRequestShipmentCancellationModal
+                shipmentID={mtoShipment.id}
+                onClose={setIsCancelModalVisible}
+                onSubmit={handleDeleteShipment}
+              />
+            )}
             {errorMessage && (
               <Alert type="error" heading="An error occurred">
                 {errorMessage}
@@ -168,7 +209,18 @@ const ServicesCounselingShipmentForm = ({
             <div className={styles.ServicesCounselingShipmentForm}>
               <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
-              <h1>Edit shipment details</h1>
+              <h1>
+                <span>Edit shipment details</span>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    handleShowCancellationModal();
+                  }}
+                  unstyled
+                >
+                  Delete shipment
+                </Button>
+              </h1>
 
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
