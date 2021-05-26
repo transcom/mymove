@@ -24,6 +24,7 @@ import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import formattedCustomerName from 'utils/formattedCustomerName';
 
 const ServicesCounselingMoveDetails = () => {
   const { moveCode } = useParams();
@@ -41,7 +42,7 @@ const ServicesCounselingMoveDetails = () => {
   if (mtoShipments) {
     shipmentsInfo = mtoShipments.map((shipment) => {
       const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,
             shipmentId: shipment.id,
           })
@@ -54,7 +55,9 @@ const ServicesCounselingMoveDetails = () => {
           heading: SHIPMENT_OPTIONS.HHG,
           requestedMoveDate: shipment.requestedPickupDate,
           currentAddress: shipment.pickupAddress,
-          destinationAddress: shipment.destinationAddress,
+          destinationAddress: shipment.destinationAddress || {
+            postal_code: order.destinationDutyStation.address.postal_code,
+          },
           counselorRemarks: shipment.counselorRemarks,
         },
         editURL,
@@ -63,7 +66,7 @@ const ServicesCounselingMoveDetails = () => {
   }
 
   const customerInfo = {
-    name: `${customer.last_name}, ${customer.first_name}`,
+    name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
     phone: `+1 ${customer.phone}`,
     email: customer.email,
@@ -148,7 +151,20 @@ const ServicesCounselingMoveDetails = () => {
           </Grid>
 
           <div className={styles.section} id="shipments">
-            <DetailsPanel title="Shipments" className={scMoveDetailsStyles.noPaddingBottom}>
+            <DetailsPanel
+              className={scMoveDetailsStyles.noPaddingBottom}
+              editButton={
+                counselorCanEdit && (
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode })}
+                  >
+                    Add a new shipment
+                  </Link>
+                )
+              }
+              title="Shipments"
+            >
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
@@ -170,7 +186,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Orders"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="orders">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
+                  >
                     View and edit orders
                   </Link>
                 )
@@ -184,13 +203,16 @@ const ServicesCounselingMoveDetails = () => {
               title="Allowances"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="allowances">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
+                  >
                     Edit allowances
                   </Link>
                 )
               }
             >
-              <AllowancesList info={allowancesInfo} />
+              <AllowancesList info={allowancesInfo} showVisualCues />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
@@ -198,7 +220,11 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="#">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit-customer-info"
+                    to={generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, { moveCode })}
+                  >
                     Edit customer info
                   </Link>
                 )

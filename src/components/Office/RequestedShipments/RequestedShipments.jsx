@@ -168,12 +168,18 @@ const RequestedShipments = ({
                       name="shipmentManagementFee"
                       onChange={formik.handleChange}
                     />
-                    <Checkbox
-                      id="counselingFee"
-                      label={serviceItemCodes.CS}
-                      name="counselingFee"
-                      onChange={formik.handleChange}
-                    />
+                    {moveTaskOrder.serviceCounselingCompletedAt ? (
+                      <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
+                        The customer has received counseling for this move.
+                      </p>
+                    ) : (
+                      <Checkbox
+                        id="counselingFee"
+                        label={serviceItemCodes.CS}
+                        name="counselingFee"
+                        onChange={formik.handleChange}
+                      />
+                    )}
                   </Fieldset>
                 </>
               )}

@@ -36,8 +36,8 @@ const defaultProps = {
     destinationAddress: undefined,
   },
   serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
+    weightAllotment: {
+      totalWeightSelf: 5000,
     },
   },
   isCreatePage: true,

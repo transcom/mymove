@@ -205,19 +205,15 @@ paths:
     patch:
       summary: updateMTOShipment
       description: |
-        Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+        Updates an existing shipment for a move.
 
-        * `scheduledPickupDate`
-        * `actualPickupDate`
-        * `firstAvailableDeliveryDate`
-        * `destinationAddress`
-        * `pickupAddress`
-        * `secondaryDeliveryAddress`
-        * `secondaryPickupAddress`
-        * `primeEstimatedWeight`
-        * `primeActualWeight`
-        * `shipmentType`
-        * `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+        Note that there are some restrictions on nested objects:
+
+        * Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
+        * Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
+        * Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
+
+        These restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.
 
         Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
       operationId: updateMTOShipment
@@ -1525,6 +1521,8 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       requestedPickupDate:
         description: >
           The date the customer selects during onboarding as their preferred pickup date. Other dates, such as
@@ -1532,20 +1530,28 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       scheduledPickupDate:
         description: The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
         format: date
         type: string
+        x-omitempty: false
+        x-nullable: true
       actualPickupDate:
         description: The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
         format: date
         type: string
+        x-omitempty: false
+        x-nullable: true
       firstAvailableDeliveryDate:
         description: >
           The date the Prime provides to the customer as the first possible delivery date so that they can plan their
           travel accordingly.
         format: date
         type: string
+        x-omitempty: false
+        x-nullable: true
       requiredDeliveryDate:
         description: >
           The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is
@@ -1553,6 +1559,8 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       primeEstimatedWeight:
         description: >
           The estimated weight of this shipment, determined by the movers during the pre-move survey.
@@ -1565,6 +1573,8 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-omitempty: false
+        x-nullable: true
       primeActualWeight:
         description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
         type: integer
@@ -1578,6 +1588,19 @@ definitions:
             * access info for their address.
 
           Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+        readOnly: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
         type: string
         example: handle with care
         x-nullable: true

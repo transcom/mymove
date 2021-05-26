@@ -40,6 +40,9 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			CounselorRemarks: handlers.FmtString("counselor remarks"),
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -56,6 +59,17 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 		HandlerContext:       context,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
 	}
+
+	suite.T().Run("mto shipment has relevant fields", func(t *testing.T) {
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
+		suite.Equal(string("counselor remarks"), *moveTaskOrdersPayload[0].MtoShipments[0].CounselorRemarks)
+	})
 
 	suite.T().Run("with mto service item dimensions", func(t *testing.T) {
 		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{

@@ -389,7 +389,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "patch": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -1725,7 +1725,9 @@ func init() {
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -1734,7 +1736,16 @@ func init() {
           "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -1768,7 +1779,9 @@ func init() {
         "firstAvailableDeliveryDate": {
           "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "description": "The ID of the shipment.",
@@ -1817,6 +1830,8 @@ func init() {
           "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "rejectionReason": {
@@ -1830,18 +1845,24 @@ func init() {
           "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "requiredDeliveryDate": {
           "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
@@ -3067,7 +3088,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "patch": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -4547,7 +4568,9 @@ func init() {
         "actualPickupDate": {
           "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
@@ -4556,7 +4579,16 @@ func init() {
           "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -4590,7 +4622,9 @@ func init() {
         "firstAvailableDeliveryDate": {
           "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "id": {
           "description": "The ID of the shipment.",
@@ -4639,6 +4673,8 @@ func init() {
           "description": "The date when the Prime contractor recorded the shipment's estimated weight.",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "rejectionReason": {
@@ -4652,18 +4688,24 @@ func init() {
           "description": "The date the customer selects during onboarding as their preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "requiredDeliveryDate": {
           "description": "The latest date by which the Prime can deliver a customer's shipment without violating the contract. This is calculated based on weight, distance, and the scheduled pickup date. It cannot be modified.\n",
           "type": "string",
           "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "scheduledPickupDate": {
           "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",

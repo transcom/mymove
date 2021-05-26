@@ -334,16 +334,24 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
-		ID:              strfmt.UUID(mtoShipment.ID.String()),
-		Agents:          *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID: strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:    primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks: mtoShipment.CustomerRemarks,
-		Status:          string(mtoShipment.Status),
-		Diversion:       bool(mtoShipment.Diversion),
-		CreatedAt:       strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:       strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:            etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                               strfmt.UUID(mtoShipment.ID.String()),
+		ActualPickupDate:                 handlers.FmtDatePtr(mtoShipment.ActualPickupDate),
+		ApprovedDate:                     handlers.FmtDatePtr(mtoShipment.ApprovedDate),
+		FirstAvailableDeliveryDate:       handlers.FmtDatePtr(mtoShipment.FirstAvailableDeliveryDate),
+		PrimeEstimatedWeightRecordedDate: handlers.FmtDatePtr(mtoShipment.PrimeEstimatedWeightRecordedDate),
+		RequestedPickupDate:              handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
+		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
+		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:                  mtoShipment.CustomerRemarks,
+		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		Status:                           string(mtoShipment.Status),
+		Diversion:                        bool(mtoShipment.Diversion),
+		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	// Set up address payloads
@@ -361,40 +369,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	}
 
 	if mtoShipment.MTOServiceItems != nil {
-		// sets MTOServiceItems
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
-	}
-
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
-	}
-
-	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
-	}
-
-	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
-	}
-
-	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
-		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
-	}
-
-	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
-		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
-	}
-
-	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
-		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
-	}
-
-	if mtoShipment.PrimeEstimatedWeightRecordedDate != nil && !mtoShipment.PrimeEstimatedWeightRecordedDate.IsZero() {
-		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {

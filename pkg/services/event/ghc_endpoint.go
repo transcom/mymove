@@ -37,8 +37,14 @@ const GhcCreateMTOServiceItemEndpointKey = "Ghc.CreateMTOServiceItem"
 // GhcListMTOShipmentsEndpointKey is the key for the listMTOShipments endpoint in ghc
 const GhcListMTOShipmentsEndpointKey = "Ghc.ListMTOShipments"
 
+// GhcUpdateMTOShipmentEndpointKey is the key for the updateMTOShipment endpoint in ghc
+const GhcUpdateMTOShipmentEndpointKey = "Ghc.UpdateMTOShipment"
+
 // GhcPatchMTOShipmentStatusEndpointKey is the key for the patchMTOShipmentStatus endpoint in ghc
 const GhcPatchMTOShipmentStatusEndpointKey = "Ghc.PatchMTOShipmentStatus"
+
+// GhcDeleteShipmentEndpointKey is the key for the deleteShipment endpoint in ghc
+const GhcDeleteShipmentEndpointKey = "Ghc.DeleteShipment"
 
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
@@ -121,9 +127,17 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "listMTOShipments",
 	},
+	GhcUpdateMTOShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "updateMTOShipment",
+	},
 	GhcPatchMTOShipmentStatusEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "patchMTOShipmentStatus",
+	},
+	GhcDeleteShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "deleteShipment",
 	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,

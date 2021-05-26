@@ -125,6 +125,11 @@ export async function updateAllowance({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
+  const operationPath = 'customer.updateCustomer';
+  return makeGHCRequest(operationPath, { customerID: customerId, 'If-Match': ifMatchETag, body });
+}
+
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {
   const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return makeGHCRequest(
@@ -167,6 +172,27 @@ export function updateMTOShipmentStatus({
       shipmentID,
       'If-Match': ifMatchETag,
       body: { status: shipmentStatus, rejectionReason },
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function updateMTOShipment({
+  moveTaskOrderID,
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body,
     },
     { schemaKey, normalize },
   );
