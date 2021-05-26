@@ -3867,6 +3867,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -8429,6 +8431,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }

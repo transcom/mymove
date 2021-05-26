@@ -1976,6 +1976,8 @@ definitions:
       tac:
         type: string
         title: TAC
+        minLength: 4
+        maxLength: 4
         example: 'F8J1'
         x-nullable: true
       sac:

@@ -58,6 +58,8 @@ type UpdateOrderPayload struct {
 	Sac *string `json:"sac,omitempty"`
 
 	// TAC
+	// Max Length: 4
+	// Min Length: 4
 	Tac *string `json:"tac,omitempty"`
 }
 
@@ -90,6 +92,10 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -193,6 +199,23 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateTac(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Tac) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("tac", "body", string(*m.Tac), 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("tac", "body", string(*m.Tac), 4); err != nil {
 		return err
 	}
 
