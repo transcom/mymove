@@ -1550,10 +1550,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        x-nullable: true
         $ref: '#/definitions/Address'
       backup_contact:
-        x-nullable: true
         $ref: '#/definitions/BackupContact'
       id:
         type: string

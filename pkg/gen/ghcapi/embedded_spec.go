@@ -2226,11 +2226,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -6787,11 +6785,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
