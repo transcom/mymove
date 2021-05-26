@@ -153,5 +153,5 @@ repos:
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
-        files: swagger/(support|prime).yaml
+        files: swagger/(support|prime).yaml swagger-def/*.yaml
         types: [yaml]

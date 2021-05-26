@@ -17,6 +17,6 @@ do
 done
 
 # Lint them with spectral
-yarn spectral  -F error -r swagger/.spectral.yml lint "$@"
+yarn spectral  -F error -r swagger-def/.spectral.yml lint "$@"
 exit $?
 
