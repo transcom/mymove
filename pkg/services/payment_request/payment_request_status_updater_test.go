@@ -12,70 +12,23 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
+func (suite *PaymentRequestServiceSuite) TestUpdateProcessedPaymentRequestStatus() {
 	builder := query.NewQueryBuilder(suite.DB())
 
-	suite.T().Run("If we get a payment request pointer with a status it should update and return no error", func(t *testing.T) {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		paymentRequest.Status = models.PaymentRequestStatusReviewed
+	suite.T().Run("If we get a payment request pointer with a valid status it should update and return no error", func(t *testing.T) {
+		// Payment request being updated with the UpdateProcessedPaymentRequestStatus can only be:
+		// "SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", or "EDI_ERROR"
+		approvedPRStatuses := [4]models.PaymentRequestStatus{"SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", "EDI_ERROR"}
+		for _, approvedPRStatus := range approvedPRStatuses {
+			paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
-		updater := NewPaymentRequestStatusUpdater(builder)
+			paymentRequest.Status = approvedPRStatus
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
-		suite.NoError(err)
-	})
+			updater := NewPaymentRequestStatusUpdater(builder)
 
-	suite.T().Run("Should return a ConflictError if the payment request has any service items that have not been reviewed", func(t *testing.T) {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-
-		psiCost := unit.Cents(10000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusRequested,
-			},
-			PaymentRequest: paymentRequest,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusApproved,
-			},
-			PaymentRequest: paymentRequest,
-		})
-
-		paymentRequest.Status = models.PaymentRequestStatusReviewed
-		updater := NewPaymentRequestStatusUpdater(builder)
-
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-	})
-
-	suite.T().Run("Should update and return no error if the payment request has service items that have all been reviewed", func(t *testing.T) {
-		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-
-		psiCost := unit.Cents(10000)
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusApproved,
-			},
-			PaymentRequest: paymentRequest,
-		})
-		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentServiceItem: models.PaymentServiceItem{
-				PriceCents: &psiCost,
-				Status:     models.PaymentServiceItemStatusDenied,
-			},
-			PaymentRequest: paymentRequest,
-		})
-
-		paymentRequest.Status = models.PaymentRequestStatusReviewed
-		updater := NewPaymentRequestStatusUpdater(builder)
-
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
-		suite.NoError(err)
+			_, err := updater.UpdateProcessedPaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+			suite.NoError(err)
+		}
 	})
 
 	suite.T().Run("Should return a PreconditionFailedError with a stale etag", func(t *testing.T) {
@@ -84,7 +37,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
+		_, err := updater.UpdateProcessedPaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
@@ -164,7 +117,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdateReviewedPaymentRequestStatus(
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
+		_, err := updater.UpdateProcessedPaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
