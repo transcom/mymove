@@ -160,13 +160,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully made MTO available to Prime.
@@ -283,13 +277,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: body
           required: true
@@ -337,13 +325,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: body
           required: true
@@ -394,13 +376,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: body
           required: true

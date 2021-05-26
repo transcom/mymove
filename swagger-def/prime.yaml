@@ -133,13 +133,7 @@ paths:
               pointOfContact:
                 type: string
                 description: Email or id of a contact person for this update.
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated move task order with post counseling information.
@@ -232,13 +226,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/MTOShipment'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated the MTO shipment.
@@ -302,13 +290,7 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/Address'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated the address.
@@ -422,13 +404,7 @@ paths:
           name: body
           schema:
             $ref: '#/definitions/MTOAgent'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated the agent.
@@ -469,13 +445,7 @@ paths:
           required: true
           format: uuid
           type: string
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
         - in: body
           name: body
           required: true
@@ -640,13 +610,7 @@ paths:
           type: string
           description: UUID of service item to update.
           required: true
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
           description: Successfully updated the MTO service item.
