@@ -1,9 +1,16 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import CustomerInfo from './CustomerInfo';
 
 import { MockProviders } from 'testUtils';
+import { updateCustomerInfo } from 'services/ghcApi';
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  updateCustomerInfo: jest.fn(),
+}));
 
 const mockCustomer = {
   backup_contact: {
@@ -52,5 +59,49 @@ describe('CustomerInfo', () => {
     expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
     expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postal_code);
     expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
+  });
+
+  it('calls onUpdate prop with success on successful form submission', async () => {
+    const mockUpdate = jest.fn();
+    updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
+    render(
+      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
+        <CustomerInfo
+          customer={mockCustomer}
+          ordersId="abc123"
+          isLoading={false}
+          isError={false}
+          onUpdate={mockUpdate}
+        />
+      </MockProviders>,
+    );
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith('success');
+    });
+  });
+
+  it('calls onUpdate prop with error on unsuccessful form submission', async () => {
+    const mockUpdate = jest.fn();
+    updateCustomerInfo.mockImplementation(() => Promise.reject());
+    render(
+      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
+        <CustomerInfo
+          customer={mockCustomer}
+          ordersId="abc123"
+          isLoading={false}
+          isError={false}
+          onUpdate={mockUpdate}
+        />
+      </MockProviders>,
+    );
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith('error');
+    });
   });
 });
