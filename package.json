@@ -4,6 +4,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.3",
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
     "@fortawesome/react-fontawesome": "^0.1.14",
+    "@redocly/openapi-cli": "^1.0.0-beta.48",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer",
     "@trussworks/react-uswds": "^1.16.0",
     "bytes": "^3.0.0",
@@ -104,7 +105,8 @@
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
     "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
+    "preview-redoc": "openapi preview-docs"
   },
   "version": "0.1.0",
   "devDependencies": {
