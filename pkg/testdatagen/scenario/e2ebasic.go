@@ -46,6 +46,15 @@ var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDat
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	var allDutyStations []models.DutyStation
+	db.All(&allDutyStations)
+
+	var originDutyStationsInGBLOC []models.DutyStation
+	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		All(&originDutyStationsInGBLOC)
+
 	/*
 	 * Basic user with office access
 	 */
@@ -2315,4 +2324,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	// Create a move specific for Services Counselor role
+	validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling}
+	createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move: models.Move{
+			Locator: "SCE2ET", // Services counselor e2e test
+		},
+	})
 }
