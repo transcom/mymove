@@ -1,20 +1,18 @@
 {
-  "plugins": [
-    {
+  "plugins": [{
       "name": "@zeplin/cli-connect-react-plugin"
     },
     {
       "name": "@zeplin/cli-connect-storybook-plugin",
       "config": {
-        "url": "https://storybook.dp3.us/",
+        "url": "localhost:6006",
         "format": "new",
         "startScript": "storybook"
       }
     }
   ],
   "projects": ["5f7cbab735d969035eb65339"],
-  "components": [
-    {
+  "components": [{
       "path": "src/stories/buttons.stories.jsx",
       "zeplinIds": [
         "608c656d466485913303e418",
