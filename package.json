@@ -123,7 +123,7 @@
     "@testing-library/react-hooks": "^5.1.2",
     "@testing-library/user-event": "^13.1.5",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.1",
-    "@zeplin/cli": "1.1.11",
+    "@zeplin/cli": "^1.1.11",
     "@zeplin/cli-connect-react-plugin": "^1.1.1",
     "@zeplin/cli-connect-storybook-plugin": "0.5.3",
     "cypress": "^7.2.0",

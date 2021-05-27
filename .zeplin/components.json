@@ -1,18 +1,20 @@
 {
-  "plugins": [{
+  "plugins": [
+    {
       "name": "@zeplin/cli-connect-react-plugin"
     },
     {
       "name": "@zeplin/cli-connect-storybook-plugin",
       "config": {
-        "url": "localhost:6006",
-        "format": "new",
-        "startScript": "storybook"
+        "url": "http://localhost:6006", // Defaults to http://localhost:6006
+        "startScript": "yarn storybook",
+        "targetUrl": "https://storybook.dp3.us"
       }
     }
   ],
   "projects": ["5f7cbab735d969035eb65339"],
-  "components": [{
+  "components": [
+    {
       "path": "src/stories/buttons.stories.jsx",
       "zeplinIds": [
         "608c656d466485913303e418",
@@ -45,7 +47,7 @@
     },
     {
       "path": "src/components/FOUOHeader/index.jsx",
-      "zeplinIds": []
+      "zeplinIds": ["5f9c9dc4dec7a31d9ad7338f"]
     },
     {
       "path": "src/components/CustomerHeader/index.jsx",
@@ -98,6 +100,10 @@
         "60ad25ddeb5c64a12946a1d8",
         "60ad25dd2db66c9fd417d7e9"
       ]
+    },
+    {
+      "path": "src/components/LeftNav/index.jsx",
+      "zeplinIds": ["60ad25de9ac851a4da109888"]
     }
   ],
   "github": {
