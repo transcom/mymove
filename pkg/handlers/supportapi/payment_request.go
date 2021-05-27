@@ -30,15 +30,15 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
-// UpdatePaymentRequestStatusHandler updates payment requests status
-type UpdatePaymentRequestStatusHandler struct {
+// UpdateReviewedPaymentRequestStatusHandler updates payment requests status
+type UpdateReviewedPaymentRequestStatusHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }
 
 // Handle updates payment requests status
-func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
+func (h UpdateReviewedPaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 

@@ -101,15 +101,15 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 	return response
 }
 
-// UpdatePaymentRequestStatusHandler updates payment requests status
-type UpdatePaymentRequestStatusHandler struct {
+// UpdateReviewedPaymentRequestStatusHandler updates payment requests status
+type UpdateReviewedPaymentRequestStatusHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }
 
 // Handle updates payment requests status
-func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
+func (h UpdateReviewedPaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {

@@ -43,7 +43,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
+func (suite *HandlerSuite) TestUpdateReviewedPaymentRequestStatusHandler() {
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 	paymentRequestID := paymentRequest.ID
 
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(suite.DB()),
@@ -92,7 +92,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(suite.DB()),
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
