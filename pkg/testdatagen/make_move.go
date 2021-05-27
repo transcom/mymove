@@ -118,8 +118,8 @@ func MakeAvailableMove(db *pop.Connection) models.Move {
 	return move
 }
 
-// MakeStubbedMoveWithStatus makes a stubbed Move that is available to the prime at
-// the time of its creation
+// MakeStubbedMoveWithStatus makes a stubbed Move that can be set to any status
+// by passing it into the function
 func MakeStubbedMoveWithStatus(db *pop.Connection, status models.MoveStatus) models.Move {
 	stubbedServiceMember := MakeStubbedServiceMember(db)
 	stubbedEntitlement := MakeEntitlement(db, Assertions{

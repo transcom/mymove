@@ -97,8 +97,8 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		}
 	}
 
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		return handleError(services.NewForbiddenError("is not a TOO"))
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+		return handleError(services.NewForbiddenError("is not a TXO"))
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())

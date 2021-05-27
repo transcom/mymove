@@ -212,7 +212,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.Sac, ordersPayload.Sac)
 	})
 
-	suite.T().Run("Returns a 403 when the user does not have TOO role", func(t *testing.T) {
+	suite.T().Run("Returns a 403 when the user does not have TXO role", func(t *testing.T) {
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -237,6 +237,34 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&orderop.UpdateOrderForbidden{}, response)
+	})
+
+	// We need to confirm whether a user who only has the TIO role should indeed
+	// be authorized to update orders. If not, we also need to prevent them from
+	// clicking the Edit Orders button in the frontend.
+	suite.T().Run("Allows a TIO to update orders", func(t *testing.T) {
+		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		updater := &mocks.OrderUpdater{}
+		handler := UpdateOrderHandler{
+			context,
+			updater,
+		}
+
+		updater.On("UpdateOrderAsTOO", order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateOrderOK{}, response)
 	})
 
 	suite.T().Run("Returns 404 when updater returns NotFoundError", func(t *testing.T) {

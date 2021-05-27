@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -270,7 +269,6 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID, error) {
 	handleError := func(verrs *validate.Errors, err error) error {
 		if verrs != nil && verrs.HasAny() {
-			fmt.Println("verrs exist:", verrs)
 			return services.NewInvalidInputError(order.ID, nil, verrs, "")
 		}
 		if err != nil {

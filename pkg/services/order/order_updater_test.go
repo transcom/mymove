@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -17,55 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-// func (suite *OrderServiceSuite) TestOrderUpdater() {
-// 	orderUpdater := NewOrderUpdater(suite.DB())
-
-// 	suite.T().Run("Transaction rolled back after Order model validation error", func(t *testing.T) {
-// 		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-// 		serviceMember := defaultOrder.ServiceMember
-
-// 		// update service member to compare after a failed transaction
-// 		updateAffiliation := models.AffiliationCOASTGUARD
-// 		serviceMember.Affiliation = &updateAffiliation
-
-// 		emptyStrSAC := ""
-// 		newOrder := models.Order{
-// 			ID:                  defaultOrder.ID,
-// 			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-// 			NewDutyStationID:    defaultOrder.NewDutyStationID,
-// 			IssueDate:           defaultOrder.IssueDate,
-// 			ReportByDate:        defaultOrder.ReportByDate,
-// 			OrdersType:          defaultOrder.OrdersType,
-// 			Entitlement: &models.Entitlement{ // try to update entitlement and see that it's not updated after failed transaction
-// 				DBAuthorizedWeight:   swag.Int(20000),
-// 				DependentsAuthorized: swag.Bool(false),
-// 			},
-// 			ServiceMember: serviceMember, // this is to make sure we're updating other models so we can check after a failed transaction
-// 			SAC:           &emptyStrSAC,  // this will trigger validation error on Order model
-// 		}
-
-// 		updatedOrder := defaultOrder
-// 		testdatagen.MergeModels(&updatedOrder, &newOrder)
-// 		actualOrder, err := orderUpdater.UpdateOrderAsTOO(updatedOrder)
-
-// 		// check that we get back a validation error
-// 		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultOrder.ID))
-// 		suite.Nil(actualOrder)
-
-// 		// make sure that service member is not updated as well
-// 		// we expect the affiliation to not have been updated, which is expected to be ARMY
-// 		fetchedSM := models.ServiceMember{}
-// 		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
-// 		suite.EqualValues(models.AffiliationARMY, *fetchedSM.Affiliation)
-
-// 		// check that entitlement is not updated as well
-// 		fetchedEntitlement := models.Entitlement{}
-// 		_ = suite.DB().Find(&fetchedEntitlement, defaultOrder.Entitlement.ID)
-// 		suite.NotEqual(20000, *fetchedEntitlement.DBAuthorizedWeight)
-// 		suite.EqualValues(true, *fetchedEntitlement.DependentsAuthorized)
-// 	})
-// }
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
@@ -180,6 +132,41 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.EqualValues(&updatedOriginDutyStation.ID, fetchedSM.DutyStationID)
 		suite.EqualValues(updatedOriginDutyStation.ID, fetchedSM.DutyStation.ID)
 		suite.EqualValues(updatedOriginDutyStation.Name, fetchedSM.DutyStation.Name)
+	})
+
+	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+
+		emptyStrSAC := ""
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ordersType,
+			OrdersTypeDetail:    &ordersTypeDetail,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString("E19A"),
+			Sac:                 &emptyStrSAC, // this will trigger a validation error on Order model
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+
+		// check that we get back a validation error
+		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", order.ID))
+		suite.Nil(updatedOrder)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 }
 

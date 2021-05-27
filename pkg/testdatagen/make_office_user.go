@@ -110,6 +110,7 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 	officeUser := MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
 			User: tioUser,
 		},
 		Stub: assertions.Stub,
