@@ -12,13 +12,13 @@ type PaymentRequestStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdatePaymentRequestStatus provides a mock function with given fields: paymentRequest, eTag
-func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
-	ret := _m.Called(paymentRequest, eTag)
+// UpdatePaymentRequestStatus provides a mock function with given fields: paymentRequest, eTag, statusType
+func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string, statusType string) (*models.PaymentRequest, error) {
+	ret := _m.Called(paymentRequest, eTag, statusType)
 
 	var r0 *models.PaymentRequest
-	if rf, ok := ret.Get(0).(func(*models.PaymentRequest, string) *models.PaymentRequest); ok {
-		r0 = rf(paymentRequest, eTag)
+	if rf, ok := ret.Get(0).(func(*models.PaymentRequest, string, string) *models.PaymentRequest); ok {
+		r0 = rf(paymentRequest, eTag, statusType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequest)
@@ -26,8 +26,8 @@ func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.PaymentRequest, string) error); ok {
-		r1 = rf(paymentRequest, eTag)
+	if rf, ok := ret.Get(1).(func(*models.PaymentRequest, string, string) error); ok {
+		r1 = rf(paymentRequest, eTag, statusType)
 	} else {
 		r1 = ret.Error(1)
 	}

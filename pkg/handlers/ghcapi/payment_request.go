@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"fmt"
 	"reflect"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -133,17 +132,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
-	now := time.Now()
 	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
-
-	if existingPaymentRequest.Status != models.PaymentRequestStatusReviewed && existingPaymentRequest.Status != models.PaymentRequestStatusReviewedAllRejected {
-		payload := payloadForValidationError("Unable to complete request",
-			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED instead it was: %s", existingPaymentRequest.Status.String()),
-			h.GetTraceID(), validate.NewErrors())
-		return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
-	}
-
-	existingPaymentRequest.ReviewedAt = &now
 
 	// If we got a rejection reason let's use it
 	if params.Body.RejectionReason != nil {
@@ -158,7 +147,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch, "reviewed")
 
 	if err != nil {
 		switch err.(type) {

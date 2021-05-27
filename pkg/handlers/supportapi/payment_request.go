@@ -56,71 +56,16 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
 	}
 
-	status := existingPaymentRequest.Status
 	mtoID := existingPaymentRequest.MoveTaskOrderID
-
-	var reviewedDate time.Time
-	var recGexDate time.Time
-	var sentGexDate time.Time
-	var paidAtDate time.Time
-
-	if existingPaymentRequest.ReviewedAt != nil {
-		reviewedDate = *existingPaymentRequest.ReviewedAt
-	}
-	if existingPaymentRequest.ReceivedByGexAt != nil {
-		recGexDate = *existingPaymentRequest.ReceivedByGexAt
-	}
-	if existingPaymentRequest.SentToGexAt != nil {
-		sentGexDate = *existingPaymentRequest.SentToGexAt
-	}
-	if existingPaymentRequest.PaidAt != nil {
-		paidAtDate = *existingPaymentRequest.PaidAt
-	}
-
-	// Let's map the incoming status to our enumeration type
-	switch params.Body.Status {
-	case "PENDING":
-		status = models.PaymentRequestStatusPending
-	case "REVIEWED":
-		status = models.PaymentRequestStatusReviewed
-		reviewedDate = time.Now()
-	case "SENT_TO_GEX":
-		status = models.PaymentRequestStatusSentToGex
-		sentGexDate = time.Now()
-	case "RECEIVED_BY_GEX":
-		status = models.PaymentRequestStatusReceivedByGex
-		recGexDate = time.Now()
-	case "PAID":
-		status = models.PaymentRequestStatusPaid
-		paidAtDate = time.Now()
-	case "EDI_ERROR":
-		status = models.PaymentRequestStatusEDIError
-	}
+	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
 
 	// If we got a rejection reason let's use it
-	rejectionReason := existingPaymentRequest.RejectionReason
 	if params.Body.RejectionReason != nil {
-		rejectionReason = params.Body.RejectionReason
-	}
-
-	paymentRequestForUpdate := models.PaymentRequest{
-		ID:                   existingPaymentRequest.ID,
-		MoveTaskOrder:        existingPaymentRequest.MoveTaskOrder,
-		MoveTaskOrderID:      existingPaymentRequest.MoveTaskOrderID,
-		IsFinal:              existingPaymentRequest.IsFinal,
-		Status:               status,
-		RejectionReason:      rejectionReason,
-		RequestedAt:          existingPaymentRequest.RequestedAt,
-		ReviewedAt:           &reviewedDate,
-		SentToGexAt:          &sentGexDate,
-		ReceivedByGexAt:      &recGexDate,
-		PaidAt:               &paidAtDate,
-		PaymentRequestNumber: existingPaymentRequest.PaymentRequestNumber,
-		SequenceNumber:       existingPaymentRequest.SequenceNumber,
+		existingPaymentRequest.RejectionReason = params.Body.RejectionReason
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch, "reviewed")
 
 	if err != nil {
 		switch err.(type) {
@@ -273,7 +218,6 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	sendToSyncada := params.Body.SendToSyncada
 	readFromSyncada := params.Body.ReadFromSyncada
 	deleteFromSyncada := params.Body.DeleteFromSyncada
-	paymentRequestStatus := params.Body.Status
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
 
@@ -350,38 +294,11 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 		// Update each payment request to have the given status
 		for _, pr := range paymentRequests {
-			switch paymentRequestStatus {
-			case "PENDING":
-				pr.Status = models.PaymentRequestStatusPending
-			case "REVIEWED":
-				reviewedAt := time.Now()
-				pr.Status = models.PaymentRequestStatusReviewed
-				pr.ReviewedAt = &reviewedAt
-			case "SENT_TO_GEX":
-				sentToGex := time.Now()
-				pr.Status = models.PaymentRequestStatusSentToGex
-				pr.SentToGexAt = &sentToGex
-			case "RECEIVED_BY_GEX":
-				recByGex := time.Now()
-				pr.Status = models.PaymentRequestStatusReceivedByGex
-				pr.ReceivedByGexAt = &recByGex
-			case "PAID":
-				paidAt := time.Now()
-				pr.Status = models.PaymentRequestStatusPaid
-				pr.PaidAt = &paidAt
-			case "EDI_ERROR":
-				pr.Status = models.PaymentRequestStatusEDIError
-			case "":
-				sentToGex := time.Now()
-				pr.Status = models.PaymentRequestStatusSentToGex
-				pr.SentToGexAt = &sentToGex
-			default:
-				return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, an invalid status type was used", h.GetTraceID()))
-			}
-
 			newPr := pr
+			newPr.Status = models.PaymentRequestStatus(params.Body.Status)
+
 			var nilEtag string
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&newPr, nilEtag)
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&newPr, nilEtag, "processed")
 
 			if err != nil {
 				switch err.(type) {
