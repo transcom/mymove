@@ -33,7 +33,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdateProcessedPaymentRequestStatus
 
 	suite.T().Run("Should return a PreconditionFailedError with a stale etag", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		paymentRequest.Status = models.PaymentRequestStatusReviewed
+		paymentRequest.Status = models.PaymentRequestStatusSentToGex
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
@@ -117,7 +117,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdateReviewedPaymentRequestStatus(
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdateProcessedPaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
+		_, err := updater.UpdateReviewedPaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})

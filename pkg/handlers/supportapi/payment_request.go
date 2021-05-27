@@ -65,7 +65,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdateProcessedPaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
@@ -326,7 +326,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 			newPr := pr
 			var nilEtag string
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&newPr, nilEtag)
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdateProcessedPaymentRequestStatus(&newPr, nilEtag)
 
 			if err != nil {
 				switch err.(type) {

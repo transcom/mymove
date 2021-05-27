@@ -12,8 +12,8 @@ type PaymentRequestStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdatePaymentRequestStatus provides a mock function with given fields: paymentRequest, eTag
-func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
+// UpdateProcessedPaymentRequestStatus provides a mock function with given fields: paymentRequest, eTag
+func (_m *PaymentRequestStatusUpdater) UpdateProcessedPaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
 	ret := _m.Called(paymentRequest, eTag)
 
 	var r0 *models.PaymentRequest
