@@ -104,12 +104,14 @@
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
     "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
+    "preview-redoc": "openapi preview-docs"
   },
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "~7.14.2",
     "@dump247/storybook-state": "^1.6.1",
+    "@redocly/openapi-cli": "^1.0.0-beta.48",
     "@stoplight/spectral": "^5.9.1",
     "@storybook/addon-a11y": "^6.2.9",
     "@storybook/addon-essentials": "^6.2.9",

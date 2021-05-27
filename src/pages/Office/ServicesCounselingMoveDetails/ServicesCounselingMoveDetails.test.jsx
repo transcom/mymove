@@ -307,6 +307,15 @@ describe('MoveDetails page', () => {
       expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
     });
 
+    it('submit move details button is disabled when there are no shipments', async () => {
+      useMoveDetailsQueries.mockImplementation(() => ({ ...newMoveDetailsQuery, mtoShipments: [] }));
+
+      render(mockedComponent);
+
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+    });
+
     it('renders the Orders Definition List', async () => {
       useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 

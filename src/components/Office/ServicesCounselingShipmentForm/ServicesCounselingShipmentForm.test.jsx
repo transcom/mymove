@@ -58,6 +58,22 @@ const mockMtoShipment = {
     state: 'WA',
     postal_code: '98421',
   },
+  mtoAgents: [
+    {
+      agentType: 'RELEASING_AGENT',
+      email: 'jasn@email.com',
+      firstName: 'Jason',
+      lastName: 'Ash',
+      phone: '999-999-9999',
+    },
+    {
+      agentType: 'RECEIVING_AGENT',
+      email: 'rbaker@email.com',
+      firstName: 'Riley',
+      lastName: 'Baker',
+      phone: '863-555-9664',
+    },
+  ],
 };
 
 describe('ServicesCounselingShipmentForm component', () => {
@@ -168,6 +184,10 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
+      expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
+      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('9999999999'); // formatAgentForDisplay removes '-'
+      expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
@@ -175,6 +195,10 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
       expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
+      expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
+      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('8635559664'); // formatAgentForDisplay removes '-'
+      expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
       expect(screen.getByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
@@ -318,6 +342,22 @@ describe('ServicesCounselingShipmentForm component', () => {
             postal_code: '78234',
             street_address_2: '',
           },
+          agents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              email: 'jasn@email.com',
+              firstName: 'Jason',
+              lastName: 'Ash',
+              phone: '999-999-9999',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              email: 'rbaker@email.com',
+              firstName: 'Riley',
+              lastName: 'Baker',
+              phone: '863-555-9664',
+            },
+          ],
           requestedDeliveryDate: '2020-03-30',
           requestedPickupDate: '2020-03-01',
           shipmentType: 'HHG',

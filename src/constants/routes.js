@@ -39,5 +39,5 @@ export const servicesCounselingRoutes = {
   ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
   QUEUE_VIEW_PATH: '/counseling/queue',
   SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-HHG`,
-  SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/:shipmentId/edit`,
+  SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
 };

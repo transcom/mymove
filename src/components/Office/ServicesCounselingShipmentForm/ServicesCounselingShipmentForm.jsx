@@ -53,9 +53,9 @@ const ServicesCounselingShipmentForm = ({
   const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? getShipmentNumber() : null;
-
-  const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
-
+  const initialValues = formatMtoShipmentForDisplay(
+    isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
+  );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
   const submitMTOShipment = ({
