@@ -504,7 +504,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		fmt.Println("afer", minimalShipment.UpdatedAt)
 
 	})
-	suite.T().Run("PATCH failure cannot update primeEstimatedWeight again", func(t *testing.T) {
+	suite.T().Run("PATCH failure 422 cannot update primeEstimatedWeight again", func(t *testing.T) {
 		// Under test: Handle function
 		// Mocked:     Planner
 		// Set up:     Use previously created shipment with estimated weight
@@ -643,7 +643,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("PATCH success returns all nested objects", func(t *testing.T) {
+	suite.T().Run("PATCH success 200 returns all nested objects", func(t *testing.T) {
 		// Under test: Handle function
 		// Mocked:     Planner
 		// Set up:     We add service items to the shipment in the DB
@@ -652,7 +652,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Expected outcome:
 		//             Handler returns OK, all service items, agents and addresses are
 		//             populated.
-		// MYTODO agents
 
 		// Add service items to our shipment
 		// Create a service item in the db, associate with the shipment
