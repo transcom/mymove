@@ -36,6 +36,7 @@ const defaultProps = {
       totalWeightSelf: 5000,
     },
   },
+  moveTaskOrderID: 'mock move id',
 };
 
 const mockMtoShipment = {
@@ -69,7 +70,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -112,7 +113,7 @@ describe('ServicesCounselingShipmentForm component', () => {
     it('uses the current residence address for pickup address when checked', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByLabelText('Use my current address'));
+      userEvent.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
         defaultProps.currentResidence.street_address_1,
@@ -161,7 +162,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
@@ -188,7 +189,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -322,6 +323,7 @@ describe('ServicesCounselingShipmentForm component', () => {
           shipmentType: 'HHG',
         },
         shipmentID: 'shipment123',
+        moveTaskOrderID: 'mock move id',
         normalize: false,
       };
 

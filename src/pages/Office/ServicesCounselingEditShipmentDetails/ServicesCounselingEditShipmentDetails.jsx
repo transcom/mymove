@@ -19,7 +19,7 @@ import { updateMTOShipment } from 'services/ghcApi';
 const ServicesCounselingEditShipmentDetails = ({ match }) => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
-  const { order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
+  const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
   const [mutateMTOShipment] = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
@@ -53,6 +53,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
+                  moveTaskOrderID={move.id}
                 />
               </Grid>
             </Grid>

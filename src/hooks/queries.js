@@ -121,6 +121,7 @@ export const useEditShipmentQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, mtoShipmentQuery]);
 
   return {
+    move,
     order,
     mtoShipments,
     isLoading,

@@ -31,6 +31,11 @@ jest.mock('hooks/queries', () => ({
   useEditShipmentQueries: jest
     .fn(() => {
       return {
+        move: {
+          id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+          ordersId: '1',
+          status: 'NEEDS SERVICE COUNSELING',
+        },
         order: {
           id: '1',
           originDutyStation: {
@@ -207,8 +212,6 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
   });
 
   it('routes to the previous page when the cancel button is clicked', async () => {
-    updateMTOShipment.mockImplementation(() => Promise.resolve());
-
     render(<ServicesCounselingEditShipmentDetails {...props} />);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });

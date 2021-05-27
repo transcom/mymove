@@ -36,6 +36,7 @@ const ServicesCounselingShipmentForm = ({
   serviceMember,
   currentResidence,
   updateMTOShipment,
+  moveTaskOrderID,
 }) => {
   const [errorMessage, setErrorMessage] = React.useState(null);
 
@@ -81,32 +82,31 @@ const ServicesCounselingShipmentForm = ({
       delivery: deliveryDetails,
     });
 
-    const updateMTOShipmentPayload = {
-      moveTaskOrderID: mtoShipment?.moveTaskOrderID,
-      shipmentID: mtoShipment.id,
-      ifMatchETag: mtoShipment.eTag,
-      normalize: false,
-      body: pendingMtoShipment,
-    };
-
     const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
     if (isCreatePage) {
-      createMTOShipment({ body: pendingMtoShipment, normalize: false })
-        .then((response) => {
-          updateMTOShipment(response);
+      const body = { ...pendingMtoShipment, moveTaskOrderID };
+      createMTOShipment({ body, normalize: false })
+        .then(() => {
           history.push(moveDetailsPath);
         })
         .catch(() => {
-          setErrorMessage(`failed to create MTO shipment due to server error`);
+          setErrorMessage(`A server error occurred adding the shipment`);
         });
     } else {
+      const updateMTOShipmentPayload = {
+        moveTaskOrderID,
+        shipmentID: mtoShipment.id,
+        ifMatchETag: mtoShipment.eTag,
+        normalize: false,
+        body: pendingMtoShipment,
+      };
       updateMTOShipment(updateMTOShipmentPayload)
         .then(() => {
           history.push(moveDetailsPath);
         })
         .catch(() => {
-          setErrorMessage('failed to update MTO shipment due to server error');
+          setErrorMessage('A server error occurred editing the shipment details');
         });
     }
   };
@@ -349,6 +349,7 @@ ServicesCounselingShipmentForm.propTypes = {
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
+  moveTaskOrderID: string.isRequired,
   serviceMember: shape({
     weightAllotment: shape({
       totalWeightSelf: number,
