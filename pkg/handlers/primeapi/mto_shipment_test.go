@@ -296,11 +296,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeActualWeight := unit.Pound(600)
 
 	// Create an available shipment in DB
+	now := time.Now()
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
+			Status:       models.MTOShipmentStatusApproved,
+			ApprovedDate: &now,
 		},
 	})
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
@@ -314,37 +316,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		},
 	})
 	minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
-
-	// ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-	// 	MaxDaysTransitTime: 12,
-	// 	WeightLbsLower:     0,
-	// 	WeightLbsUpper:     10000,
-	// 	DistanceMilesLower: 0,
-	// 	DistanceMilesUpper: 10000,
-	// }
-	// _, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-
-	// testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-	// 	MTOAgent: models.MTOAgent{
-	// 		MTOShipment:   mtoShipment,
-	// 		MTOShipmentID: mtoShipment.ID,
-	// 		FirstName:     swag.String("Test"),
-	// 		LastName:      swag.String("Agent"),
-	// 		Email:         swag.String("test@test.email.com"),
-	// 		MTOAgentType:  models.MTOAgentReceiving,
-	// 	},
-	// })
-
-	// testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-	// 	MTOAgent: models.MTOAgent{
-	// 		MTOShipment:   mtoShipment,
-	// 		MTOShipmentID: mtoShipment.ID,
-	// 		FirstName:     swag.String("Test"),
-	// 		LastName:      swag.String("Agent"),
-	// 		Email:         swag.String("test@test.email.com"),
-	// 		MTOAgentType:  models.MTOAgentReleasing,
-	// 	},
-	// })
 
 	// CREATE HANDLER OBJECT
 	builder := query.NewQueryBuilder(suite.DB())
@@ -461,7 +432,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure 404 not found because not available to prime", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: Handle function
-		// Mocked:     None
+		// Mocked:     Planner
 		// Set up:     We provide an update with minimal changes to a shipment
 		//             whose associated move isn't available to prime
 		// Expected outcome:
@@ -672,80 +643,107 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("PATCH success maximal update with service items", func(t *testing.T) {
-		mto := testdatagen.MakeAvailableMove(suite.DB())
+	suite.T().Run("PATCH success returns all nested objects", func(t *testing.T) {
+		// Under test: Handle function
+		// Mocked:     Planner
+		// Set up:     We add service items to the shipment in the DB
+		//             We provide an almost empty update so as to check that the
+		//             nested objects in the response are fully populated
+		// Expected outcome:
+		//             Handler returns OK, all service items, agents and addresses are
+		//             populated.
+		// MYTODO agents
 
+		// Add service items to our shipment
+		// Create a service item in the db, associate with the shipment
 		reService := testdatagen.MakeDDFSITReService(suite.DB())
-
-		now := time.Now()
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: mto.ID,
-				Status:          "APPROVED",
-				ApprovedDate:    &now,
-			},
-		})
-
 		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Move:        mto,
-			MTOShipment: oldShipment,
+			Move:        move,
+			MTOShipment: shipment,
 			ReService:   reService,
 			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: mto.ID,
+				MoveTaskOrderID: move.ID,
 				ReServiceID:     reService.ID,
-				MTOShipmentID:   &oldShipment.ID,
+				MTOShipmentID:   &shipment.ID,
 			},
 		})
-		serviceItems := models.MTOServiceItems{mtoServiceItem1}
-		oldShipment.MTOServiceItems = serviceItems
+		// Associate locally as well
+		shipment.MTOServiceItems = models.MTOServiceItems{mtoServiceItem1}
 
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		// Add agents associated to our shipment
+		agent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				FirstName:    swag.String("Test1"),
+				LastName:     swag.String("Agent"),
+				Email:        swag.String("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReceiving,
+			},
+			MTOShipment: shipment,
+		})
+		agent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				FirstName:    swag.String("Test2"),
+				LastName:     swag.String("Agent"),
+				Email:        swag.String("test@test.email.com"),
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+			MTOShipment: shipment,
+		})
 
-		payload := primemessages.MTOShipment{
-			ID:             strfmt.UUID(oldShipment.ID.String()),
+		// Create an almost empty update
+		// We only want to see the response payload to make sure it is populated correctly
+		update := primemessages.MTOShipment{
 			PointOfContact: "John McRand",
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
-			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
-			Body:          &payload,
-			IfMatch:       eTag,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &update,
+			IfMatch:       etag.GenerateEtag(shipment.UpdatedAt),
 		}
 
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		handler := UpdateMTOShipmentHandler{
-			context,
-			updater,
-		}
-
+		// Call the handler
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
+
+		// Check response
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 
-		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
-		responsePayload := okResponse.Payload
+		// Check that there's one service item of model type DestSIT in the payload
+		suite.Equal(1, len(okPayload.MtoServiceItems()))
+		serviceItem := okPayload.MtoServiceItems()[0]
+		suite.Equal(primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT, serviceItem.ModelType())
 
-		suite.Equal(1, len(responsePayload.MtoServiceItems()))
-		var serviceItemDDFSIT *primemessages.MTOServiceItemDestSIT
-		var serviceItemDDFSITCode string
+		// Check the reServiceCode string
+		serviceItemDestSIT := serviceItem.(*primemessages.MTOServiceItemDestSIT)
+		suite.Equal(string(reService.Code), *serviceItemDestSIT.ReServiceCode)
 
-		for _, item := range responsePayload.MtoServiceItems() {
-			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT {
-				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDestSIT)
-				serviceItemDDFSITCode = *serviceItemDDFSIT.ReServiceCode
-				break
+		// Check that there's 2 agents, then check them against the ones we created
+		suite.Equal(2, len(okPayload.Agents))
+		for _, item := range okPayload.Agents {
+			if item.AgentType == primemessages.MTOAgentType(agent1.MTOAgentType) {
+				suite.Equal(agent1.FirstName, item.FirstName)
 			}
-
+			if item.AgentType == primemessages.MTOAgentType(agent2.MTOAgentType) {
+				suite.Equal(agent2.FirstName, item.FirstName)
+			}
 		}
-		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
-		suite.Equal(string(reService.Code), serviceItemDDFSITCode)
-		suite.Equal(oldShipment.ApprovedDate, &now)
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+
+		// Check all dates and addresses in the payload
+		suite.equalDatePtr(shipment.ApprovedDate, okPayload.ApprovedDate)
+		suite.equalDatePtr(shipment.FirstAvailableDeliveryDate, okPayload.FirstAvailableDeliveryDate)
+		suite.equalDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
+		suite.equalDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
+		suite.equalDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
+
+		suite.EqualAddress(*shipment.PickupAddress, &okPayload.PickupAddress.Address, true)
+		suite.EqualAddress(*shipment.DestinationAddress, &okPayload.DestinationAddress.Address, true)
+		suite.EqualAddress(*shipment.SecondaryDeliveryAddress, &okPayload.SecondaryDeliveryAddress.Address, true)
+		suite.EqualAddress(*shipment.SecondaryPickupAddress, &okPayload.SecondaryPickupAddress.Address, true)
+
 	})
 }
 
@@ -778,7 +776,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		updater,
 	}
 
-	suite.T().Run("PATCH Success 200 create addresses", func(t *testing.T) {
+	suite.T().Run("PATCH success 200 create addresses", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: Handle function, addresses mechanism - we can create but not update
 		// Mocked:     Planner
@@ -817,7 +815,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 
 	})
 
-	suite.T().Run("PATCH Fail 422 update addresses not allowed", func(t *testing.T) {
+	suite.T().Run("PATCH failure 422 update addresses not allowed", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: Handle function, addresses mechanism - we cannot update addresses
 		// Mocked:     Planner
@@ -1572,12 +1570,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 
 // Compares the time.Time from the model with the strfmt.date from the payload
 // If one is nil, both should be nil, else they should match in value
+// This is to be strictly used for dates as it drops any time parameters in the comparison
 func (suite *HandlerSuite) equalDatePtr(expected *time.Time, actual *strfmt.Date) {
 	if expected == nil || actual == nil {
 		suite.Nil(expected)
 		suite.Nil(actual)
 	} else {
-		suite.Equal(expected.Format(time.ANSIC), time.Time(*actual).Format(time.ANSIC))
+		isoDate := "2006-01-02" // Create a date format
+		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
 	}
 }
 

@@ -146,7 +146,6 @@ func UpdateMTOShipmentModel(mtoShipmentID strfmt.UUID, payload *primemessages.MT
 	}
 	if payload.CustomerRemarks != nil {
 		fieldsInError.Add("customerRemarks", "cannot be updated")
-		fmt.Println("\n\n lasjdfl", *payload.CustomerRemarks)
 	}
 
 	if payload.Agents != nil {
@@ -196,7 +195,6 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	fmt.Println("\n\n START HANDLER")
 	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
 	// Check that MTO is available to prime
@@ -247,7 +245,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 
 		eTag := params.IfMatch
-		fmt.Println("\n\n END HANDLER")
 
 		logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 		mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
