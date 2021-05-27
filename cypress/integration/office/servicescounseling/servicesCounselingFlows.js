@@ -7,15 +7,17 @@ describe('Services counselor user', () => {
 
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedOrders');
-    // cy.intercept('**/ghc/v1/move/**').as('getMoves');
-    // cy.intercept('**/ghc/v1/orders/**').as('getOrders');
-    // cy.intercept('**/ghc/v1/orders/**/move-task-orders').as('getMoveTaskOrders');
-    // cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    // cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    // cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
-    // cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
-    // cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=SCE2ET').as(
+      'getFilterSortedMoves',
+    );
+    cy.intercept('**/ghc/v1/move/**').as('getMoves');
+    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('**/ghc/v1/move-task-orders/**/status/service-counseling-completed').as(
+      'patchServiceCounselingCompleted',
+    );
 
     const userId = 'a6c8663f-998f-4626-a978-ad60da2476ec';
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
