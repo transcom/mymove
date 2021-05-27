@@ -4888,7 +4888,7 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@zeplin/cli-connect-react-plugin@1.1.1":
+"@zeplin/cli-connect-react-plugin@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@zeplin/cli-connect-react-plugin/-/cli-connect-react-plugin-1.1.1.tgz#3aba24e1df3fd7e97d9be4074049944e131de4c0"
   integrity sha512-RzNCaoB9cp2ihtguZ0YNRI+PISM020e8L1gcKOSr8CgkL0vR213PQXBm08v7r0pME0sAlbjge81sB+abEP31LA==
