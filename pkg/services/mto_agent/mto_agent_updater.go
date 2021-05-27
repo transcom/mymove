@@ -3,8 +3,9 @@ package mtoagent
 import (
 	"fmt"
 
+	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validate"
+
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
@@ -26,12 +27,12 @@ func NewMTOAgentUpdater(db *pop.Connection) services.MTOAgentUpdater {
 
 // UpdateMTOAgentBasic updates the MTO Agent using base validators
 func (f *mtoAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentBasicValidator)
+	return f.UpdateMTOAgent(mtoAgent, eTag, mtoagentvalidate.BasicAgentValidatorKey)
 }
 
 // UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
 func (f *mtoAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentPrimeValidator)
+	return f.UpdateMTOAgent(mtoAgent, eTag, mtoagentvalidate.PrimeAgentValidatorKey)
 }
 
 // UpdateMTOAgent updates the MTO Agent
@@ -39,20 +40,15 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 	oldAgent := models.MTOAgent{}
 
 	// Find the agent, return error if not found
-	err := f.db.Eager("MTOShipment").Find(&oldAgent, mtoAgent.ID)
+	err := f.db.Eager("MTOShipment.MTOAgents").Find(&oldAgent, mtoAgent.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
-	checker := movetaskorder.NewMoveTaskOrderChecker(f.db)
-	agentData := updateMTOAgentData{
-		updatedAgent:        *mtoAgent,
-		oldAgent:            oldAgent,
-		availabilityChecker: checker,
-		verrs:               validate.NewErrors(),
-	}
-
-	newAgent, err := ValidateUpdateMTOAgent(&agentData, validatorKey)
+	agentData := mtoagentvalidate.NewUpdateAgentValidationData(
+		*mtoAgent, &oldAgent, &oldAgent.MTOShipment, movetaskorder.NewMoveTaskOrderChecker(f.db),
+	)
+	newAgent, err := mtoagentvalidate.ValidateAgent(&agentData, validatorKey)
 	if err != nil {
 		return nil, err
 	}
@@ -74,33 +70,11 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		return nil, services.NewQueryError("MTOAgent", err, "")
 	}
 
-	// Get the updated address and return
+	// Get the updated agent and return
 	updatedAgent := models.MTOAgent{}
 	err = f.db.Find(&updatedAgent, newAgent.ID)
 	if err != nil {
 		return nil, services.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
 	return &updatedAgent, nil
-}
-
-// ValidateUpdateMTOAgent checks the provided agentData struct against the validator indicated by validatorKey.
-// Defaults to base validation if the empty string is entered as the key.
-// Returns an MTOAgent that has been set up for update.
-func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
-	if validatorKey == "" {
-		validatorKey = UpdateMTOAgentBasicValidator
-	}
-	validator, ok := UpdateMTOAgentValidators[validatorKey]
-	if !ok {
-		err := fmt.Errorf("validator key %s was not found in update MTO Agent validators", validatorKey)
-		return nil, err
-	}
-	err := validator.validate(agentData)
-	if err != nil {
-		return nil, err
-	}
-
-	newAgent := agentData.setNewMTOAgent()
-
-	return newAgent, nil
 }
