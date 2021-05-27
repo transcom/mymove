@@ -44,7 +44,7 @@ type MTOShipment struct {
 
 	// deleted at
 	// Format: date-time
-	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
+	DeletedAt *strfmt.DateTime `json:"deletedAt,omitempty"`
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`

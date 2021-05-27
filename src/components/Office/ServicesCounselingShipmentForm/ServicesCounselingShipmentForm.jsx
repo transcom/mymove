@@ -49,13 +49,15 @@ const ServicesCounselingShipmentForm = ({
 
   const [mutateMTOShipmentStatus] = useMutation(deleteShipment, {
     onSuccess: (_, variables) => {
-      shipments[shipments.findIndex((shipment) => shipment.id === mtoShipment.id)] = mtoShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, mtoShipment.moveTaskOrderID, false], shipments);
+      const updatedMTOShipment = mtoShipment;
+      // Update mtoShipments with our updated status and set query data to match
+      shipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
       queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
 
-      // history.goBack();
+      history.goBack();
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;

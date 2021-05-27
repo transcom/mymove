@@ -2833,7 +2833,8 @@ func init() {
         },
         "deletedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationAddress": {
           "x-nullable": true,
@@ -7396,7 +7397,8 @@ func init() {
         },
         "deletedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationAddress": {
           "x-nullable": true,
