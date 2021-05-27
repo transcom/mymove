@@ -30,6 +30,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
+	_ "github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -461,17 +463,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		//             Handler returns Not Found error
 
 		// Create a shipment unavailable to Prime in DB
-		// MYTODO remove extra move likely not needed
-		moveNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
 		shipmentNotAvailable := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: moveNotAvailable,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},
 		})
+		suite.Nil(shipmentNotAvailable.MoveTaskOrder.AvailableToPrimeAt)
 
 		// Create params
-		eTag := etag.GenerateEtag(shipmentNotAvailable.UpdatedAt)
 		notAvReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipmentNotAvailable.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   notAvReq,
@@ -479,7 +478,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Body: &primemessages.MTOShipment{
 				Diversion: true,
 			},
-			IfMatch: eTag,
+			IfMatch: etag.GenerateEtag(shipmentNotAvailable.UpdatedAt),
 		}
 
 		// CALL FUNCTION UNDER TEST
@@ -709,18 +708,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		updater,
 	}
 
+	// var to store last successful payload
+	var okPayload *primemessages.MTOShipment
+
 	suite.T().Run("PATCH Success 200 create addresses", func(t *testing.T) {
 		// TESTCASE SCENARIO
 		// Under test: Handle function, addresses mechanism - we can create but not update
-		// Mocked:     None
+		// Mocked:     Planner
 		// Set up:     We use a shipment with minimal info, no addresses
 		//             Update with PickupAddress, DestinationAddress, SecondaryPickupAddress, SecondaryDeliveryAddress
 		//             Expected: Handler should return OK, new addresses created
-
-		//             Second call - update with new addresses again
-		//             Expected: Handler should return unprocessable entity error. addresses cannot be updated
-		//             Third call - update with no addresses
-		//             Expected: Handler should return OK, previous addresses should exist
 
 		// CREATE REQUEST
 		// Create an update message with all addresses provided
@@ -743,15 +740,86 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 
 		// CHECK RESPONSE
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
-		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+		okPayload = response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 
 		// Check that addresses match what was sent
 		suite.EqualAddressPayload(&update.PickupAddress.Address, &okPayload.PickupAddress.Address, false)
 		suite.EqualAddressPayload(&update.DestinationAddress.Address, &okPayload.DestinationAddress.Address, false)
 		suite.EqualAddressPayload(&update.SecondaryPickupAddress.Address, &okPayload.SecondaryPickupAddress.Address, false)
 		suite.EqualAddressPayload(&update.SecondaryDeliveryAddress.Address, &okPayload.SecondaryDeliveryAddress.Address, false)
+
 	})
 
+	suite.T().Run("PATCH Fail 422 update addresses not allowed", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: Handle function, addresses mechanism - we cannot update addresses
+		// Mocked:     Planner
+		// Set up:     We use a shipment with addresses
+		//             Update with PickupAddress, DestinationAddress, SecondaryPickupAddress, SecondaryDeliveryAddress
+		// Expected:   Handler should return unprocessable entity error. All addresses cannot be updated and should
+		//             be listed in errors
+
+		// CREATE REQUEST
+		// Create an update message with all new addresses provided
+		update := primemessages.MTOShipment{
+			PickupAddress:            getFakeAddress(),
+			DestinationAddress:       getFakeAddress(),
+			SecondaryPickupAddress:   getFakeAddress(),
+			SecondaryDeliveryAddress: getFakeAddress(),
+		}
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &update,
+			IfMatch:       string(etag.GenerateEtag(time.Time(okPayload.UpdatedAt))),
+		}
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+		errPayload := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity).Payload
+		suite.NotEmpty(errPayload.InvalidFields)
+		suite.Contains(errPayload.InvalidFields, "pickupAddress")
+		suite.Contains(errPayload.InvalidFields, "destinationAddress")
+		suite.Contains(errPayload.InvalidFields, "secondaryPickupAddress")
+		suite.Contains(errPayload.InvalidFields, "secondaryDeliveryAddress")
+
+	})
+
+	suite.T().Run("PATCH success 200 nil doesn't clear addresses", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: Handle function, addresses mechanism - we can create but not update
+		// Mocked:     Planner
+		// Set up:     We use a shipment with addresses
+		//             Update with nil for the addresses
+		// Expected:   Handler should return OK, addresses should be unchanged.
+		//             This endpoint was previously blanking out addresses which is why we have this test.
+
+		// CREATE REQUEST
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &primemessages.MTOShipment{}, // Empty payload
+			IfMatch:       string(etag.GenerateEtag(time.Time(okPayload.UpdatedAt))),
+		}
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		newPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Check that addresses match what was returned previously in the last successful payload
+		suite.EqualAddressPayload(&okPayload.PickupAddress.Address, &newPayload.PickupAddress.Address, true)
+		suite.EqualAddressPayload(&okPayload.DestinationAddress.Address, &newPayload.DestinationAddress.Address, true)
+		suite.EqualAddressPayload(&okPayload.SecondaryPickupAddress.Address, &newPayload.SecondaryPickupAddress.Address, true)
+		suite.EqualAddressPayload(&okPayload.SecondaryDeliveryAddress.Address, &newPayload.SecondaryDeliveryAddress.Address, true)
+	})
 }
 func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
@@ -908,7 +976,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	})
 
-	suite.T().Run("Successful case if scheduled pickup is changed. RequiredDeliveryDate should be generated.", func(t *testing.T) {
+	suite.T().Run("PATCH Success 200 RequiredDeliveryDate regenerated if scheduledPickupDate is changed", func(t *testing.T) {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
@@ -957,44 +1025,96 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	})
 
-	suite.T().Run("Successful case if in Alaska, should add an extra 10 days to required delivery date", func(t *testing.T) {
+	suite.T().Run("PATCH Success 200 RequiredDeliveryDate updated if delivery address is added.", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: Handle function, RequiredDeliveryDate logic
+		// Mocked:     Planner
+		// Set up:     We use a shipment with primeEstimatedWeight and ScheduledPickupDate set
+		//             Update with new DestinationAddress
+		// Expected:   Handler should return OK, new DestinationAddress should be saved
+		//             requiredDeliveryDate should be set to 12 days from scheduledPickupDate
+
+		// Create shipment with populated estimated weight and scheduled date
 		tenDaysFromNow := now.AddDate(0, 0, 11)
-		akAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
+		pickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:               "APPROVED",
+				ApprovedDate:         &now,
+				PrimeEstimatedWeight: &primeEstimatedWeight,
+				ScheduledPickupDate:  &tenDaysFromNow,
+				PickupAddress:        &pickupAddress,
+			},
+		})
+
+		// CREATE REQUEST
+		// Update destination address
+		update := primemessages.MTOShipment{
+			DestinationAddress: getFakeAddress(),
+		}
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &update,
+			IfMatch:       etag.GenerateEtag(oldShipment.UpdatedAt),
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESPONSE
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		responsePayload := okResponse.Payload
+
+		// Confirm destination address in payload
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.EqualAddressPayload(&update.DestinationAddress.Address, &responsePayload.DestinationAddress.Address, false)
+
+		// Confirm that auto-generated requiredDeliveryDate matches expected value
+		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
+		suite.equalDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
+
+	})
+
+	suite.T().Run("PATCH Success 200 RequiredDeliveryDate for Alaska", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: Handle function, RequiredDeliveryDate logic
+		// Mocked:     Planner
+		// Set up:     We use a shipment with an Alaska Address
+		//             Update with new DestinationAddress
+		// Expected:   Handler should return OK, new DestinationAddress should be saved
+		//             requiredDeliveryDate should be set to 12 + 10 = 22 days from scheduledPickupDate
+		//             which is a special rule for Alaska
+
+		// Create shipment with Alaska destination
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:       "APPROVED",
+				ApprovedDate: &now,
+			},
+			DestinationAddress: models.Address{
 				PostalCode: "12345",
 				State:      "AK",
 			},
 		})
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: move,
-			MTOShipment: models.MTOShipment{
-				Status:               "APPROVED",
-				ApprovedDate:         &now,
-				DestinationAddress:   &akAddress,
-				DestinationAddressID: &akAddress.ID,
-			},
-		})
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		payloadAKAddress := primemessages.Address{
-			City:           &akAddress.City,
-			Country:        akAddress.Country,
-			ETag:           eTag,
-			ID:             strfmt.UUID(akAddress.ID.String()),
-			PostalCode:     &akAddress.PostalCode,
-			State:          &akAddress.State,
-			StreetAddress1: &akAddress.StreetAddress1,
-			StreetAddress2: akAddress.StreetAddress2,
-			StreetAddress3: akAddress.StreetAddress3,
-		}
+
+		// CREATE REQUEST
+		// Update with scheduledPickupDate and PrimeEstimatedWeight
+		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.MTOShipment{
-			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 			ScheduledPickupDate:  &schedDate,
 		}
-		payload.DestinationAddress.Address = payloadAKAddress
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1002,68 +1122,60 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
+
+		// Check that updated fields are saved
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		suite.NotNil(responsePayload.ScheduledPickupDate)
 
-		// Let's double check our maths.
+		// Check that RDD is set to 12 + 10 days after scheduled pickup date
 		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
-		actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
-		suite.Equal(expectedRDD.Year(), actualRDD.Year())
-		suite.Equal(expectedRDD.Month(), actualRDD.Month())
-		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+		suite.equalDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
 
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
 	})
 
-	suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
-		tenDaysFromNow := now.AddDate(0, 0, 11)
-		adakAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: "99546",
-				State:      "AK",
-				City:       "Adak",
-			},
-		})
+	suite.T().Run("PATCH Success 200 RequiredDeliveryDate for Adak, Alaska", func(t *testing.T) {
+		// TESTCASE SCENARIO
+		// Under test: Handle function, RequiredDeliveryDate logic
+		// Mocked:     Planner
+		// Set up:     We use a shipment with an Alaska Address, specifically Adak
+		//             Update with new DestinationAddress
+		// Expected:   Handler should return OK, new DestinationAddress should be saved
+		//             requiredDeliveryDate should be set to 12 + 20 = 32 days from scheduledPickupDate,
+		//             which is a special rule for Adak (look at it on a map!)
+
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status:               "APPROVED",
-				ApprovedDate:         &now,
-				DestinationAddress:   &adakAddress,
-				DestinationAddressID: &adakAddress.ID,
+				Status:       "APPROVED",
+				ApprovedDate: &now,
+			},
+			DestinationAddress: models.Address{
+				PostalCode: "99546",
+				City:       "Adak",
+				State:      "AK",
 			},
 		})
-		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
-		payloadAdakAddress := primemessages.Address{
-			City:           &adakAddress.City,
-			Country:        adakAddress.Country,
-			ETag:           eTag,
-			ID:             strfmt.UUID(adakAddress.ID.String()),
-			PostalCode:     &adakAddress.PostalCode,
-			State:          &adakAddress.State,
-			StreetAddress1: &adakAddress.StreetAddress1,
-			StreetAddress2: adakAddress.StreetAddress2,
-			StreetAddress3: adakAddress.StreetAddress3,
-		}
+		// CREATE REQUEST
+		// Update with scheduledPickupDate and PrimeEstimatedWeight
+		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
 		payload := primemessages.MTOShipment{
-			ID:                   strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 			ScheduledPickupDate:  &schedDate,
 		}
-		payload.DestinationAddress.Address = payloadAdakAddress
 
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
-
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1071,24 +1183,23 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			IfMatch:       eTag,
 		}
 
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
+
+		// Check that updated fields are saved
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 		suite.NotNil(responsePayload.ScheduledPickupDate)
 
-		// Let's double check our maths.
+		// Check that RDD is set to 12 + 20 days after scheduled pickup date
 		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
-		actualRDD := time.Time(*responsePayload.RequiredDeliveryDate)
-		suite.Equal(expectedRDD.Year(), actualRDD.Year())
-		suite.Equal(expectedRDD.Month(), actualRDD.Month())
-		suite.Equal(expectedRDD.Day(), actualRDD.Day())
-		// Confirm PATCH working as expected; non-updated value still exists
-		suite.NotNil(okResponse.Payload.RequestedPickupDate)
-		suite.Equal(oldShipment.RequestedPickupDate.Format(time.ANSIC), time.Time(*okResponse.Payload.RequestedPickupDate).Format(time.ANSIC))
+		suite.equalDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
 
 	})
 
