@@ -53,6 +53,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
+                  mtoShipments={mtoShipments}
                 />
               </Grid>
             </Grid>

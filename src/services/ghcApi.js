@@ -198,11 +198,15 @@ export function updateMTOShipment({
   );
 }
 
-export function deleteShipment({ shipmentID }) {
+export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shipment' }) {
   const operationPath = 'shipment.deleteShipment';
-  return makeGHCRequest(operationPath, {
-    shipmentID,
-  });
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
+    },
+    { schemaKey, normalize },
+  );
 }
 
 export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {

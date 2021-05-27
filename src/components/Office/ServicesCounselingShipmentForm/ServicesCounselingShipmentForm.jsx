@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { bool, func, number, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
-import { useMutation } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 
 import { SCRequestShipmentCancellationModal } from '../ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
@@ -10,6 +10,7 @@ import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOption
 
 import styles from './ServicesCounselingShipmentForm.module.scss';
 
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
@@ -23,7 +24,7 @@ import { createMTOShipment, getResponseError } from 'services/internalApi';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
+import { HhgShipmentShape, HistoryShape, MtoShipmentShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
@@ -36,6 +37,7 @@ const ServicesCounselingShipmentForm = ({
   selectedMoveType,
   isCreatePage,
   mtoShipment,
+  mtoShipments,
   serviceMember,
   currentResidence,
   updateMTOShipment,
@@ -43,9 +45,17 @@ const ServicesCounselingShipmentForm = ({
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
+  const shipments = mtoShipments;
+
   const [mutateMTOShipmentStatus] = useMutation(deleteShipment, {
-    onSuccess: () => {
-      history.goBack();
+    onSuccess: (_, variables) => {
+      shipments[shipments.findIndex((shipment) => shipment.id === mtoShipment.id)] = mtoShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, mtoShipment.moveTaskOrderID, false], shipments);
+      // InvalidateQuery tells other components using this data that they need to re-fetch
+      // This allows the requestCancellation button to update immediately
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+
+      // history.goBack();
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -407,6 +417,7 @@ ServicesCounselingShipmentForm.propTypes = {
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   serviceMember: shape({
     weightAllotment: shape({
       totalWeightSelf: number,

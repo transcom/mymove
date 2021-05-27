@@ -42,6 +42,10 @@ type MTOShipment struct {
 	// customer remarks
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
+	// deleted at
+	// Format: date-time
+	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
+
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
@@ -120,6 +124,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -214,6 +222,19 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateDeletedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DeletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 
