@@ -1,4 +1,4 @@
-import { ServicesCounselorOfficeUserType } from 'cypress/support/constants';
+import { ServicesCounselorOfficeUserType } from '../../../support/constants';
 
 describe('Services counselor user', () => {
   before(() => {
