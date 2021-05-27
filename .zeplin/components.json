@@ -86,6 +86,10 @@
         "609d43b43c56665c63841dd6",
         "609d43b4c16efd6cd9fce3f6"
       ]
+    },
+    {
+      "path": "src/stories/tags.stories.jsx",
+      "zeplinIds": ["609d444b49f4326e7f5c3356", "609d444bca15bd5f051541c2", "609d444ca261c35bd1b5aa09"]
     }
   ],
   "github": {
