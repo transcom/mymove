@@ -23,7 +23,7 @@ describe('Services counselor user', () => {
     cy.apiSignInAsUser(userId, ServicesCounselorOfficeUserType);
   });
 
-  it('is able to click on move after using the move code filter', () => {
+  it('is able to click on move and submit after using the move code filter', () => {
     const moveLocator = 'SCE2ET';
 
     /**
