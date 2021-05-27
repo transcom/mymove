@@ -20,7 +20,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape } from 'types/customerShapes';
+import { HhgShipmentShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
@@ -56,6 +56,8 @@ const ServicesCounselingShipmentForm = ({
     isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
+  const { moveCode } = match.params;
+  const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
   const submitMTOShipment = ({
     shipmentOption,
@@ -65,8 +67,6 @@ const ServicesCounselingShipmentForm = ({
     customerRemarks,
     counselorRemarks,
   }) => {
-    const { moveCode } = match.params;
-
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
       delete deliveryDetails.address;
@@ -80,8 +80,6 @@ const ServicesCounselingShipmentForm = ({
       pickup,
       delivery: deliveryDetails,
     });
-
-    const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
@@ -326,7 +324,13 @@ const ServicesCounselingShipmentForm = ({
                   <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
                     Save
                   </Button>
-                  <Button type="button" secondary onClick={history.goBack}>
+                  <Button
+                    type="button"
+                    secondary
+                    onClick={() => {
+                      history.push(moveDetailsPath);
+                    }}
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -341,7 +345,9 @@ const ServicesCounselingShipmentForm = ({
 
 ServicesCounselingShipmentForm.propTypes = {
   match: MatchShape,
-  history: HistoryShape,
+  history: shape({
+    push: func.isRequired,
+  }),
   submitHandler: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
@@ -359,7 +365,7 @@ ServicesCounselingShipmentForm.propTypes = {
 ServicesCounselingShipmentForm.defaultProps = {
   isCreatePage: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
-  history: { goBack: () => {}, push: () => {} },
+  history: { push: () => {} },
   newDutyStationAddress: {
     city: '',
     state: '',

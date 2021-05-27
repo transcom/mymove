@@ -7,16 +7,14 @@ import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
+const mockPush = jest.fn();
+
 const defaultProps = {
   isCreatePage: true,
-  pageList: ['page1', 'anotherPage/:foo/:bar'],
-  pageKey: 'page1',
   match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipementId: 'shipment123' } },
   history: {
-    goBack: jest.fn(),
-    push: jest.fn(),
+    push: mockPush,
   },
-  showLoggedInUser: jest.fn(),
   submitHandler: jest.fn(),
   newDutyStationAddress: {
     city: 'Fort Benning',

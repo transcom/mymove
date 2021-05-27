@@ -8,7 +8,6 @@ import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipm
 import { updateMTOShipment } from 'services/ghcApi';
 
 const mockPush = jest.fn();
-const mockGoBack = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -17,7 +16,6 @@ jest.mock('react-router-dom', () => ({
   }),
   useHistory: () => ({
     push: mockPush,
-    goBack: mockGoBack,
   }),
   useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentId: 'shipment123' }),
 }));
@@ -211,7 +209,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     });
   });
 
-  it('routes to the previous page when the cancel button is clicked', async () => {
+  it('routes to the move details page when the cancel button is clicked', async () => {
     render(<ServicesCounselingEditShipmentDetails {...props} />);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
@@ -221,7 +219,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     userEvent.click(cancelButton);
 
     await waitFor(() => {
-      expect(mockGoBack).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
     });
   });
 });
