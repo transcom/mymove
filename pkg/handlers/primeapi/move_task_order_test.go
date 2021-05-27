@@ -375,8 +375,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 		move2Payload = moveTaskOrdersPayload[0]
 	}
 
-	suite.EqualAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address)
-	suite.EqualAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address)
+	suite.EqualAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address, true)
+	suite.EqualAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address, true)
 
 	// Check the two payment requests across the second move.
 	// NOTE: The payload isn't ordered, so I have to associate the correct payment request.

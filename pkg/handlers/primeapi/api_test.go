@@ -57,8 +57,10 @@ func TestHandlerSuite(t *testing.T) {
 }
 
 // EqualAddress compares a model address against a payload address
-func (suite *HandlerSuite) EqualAddress(expected models.Address, actual *primemessages.Address) {
-	suite.Equal(expected.ID.String(), actual.ID.String())
+func (suite *HandlerSuite) EqualAddress(expected models.Address, actual *primemessages.Address, checkID bool) {
+	if checkID == true {
+		suite.Equal(expected.ID.String(), actual.ID.String())
+	}
 	suite.Equal(expected.StreetAddress1, *actual.StreetAddress1)
 	suite.Equal(*expected.StreetAddress2, *actual.StreetAddress2)
 	suite.Equal(*expected.StreetAddress3, *actual.StreetAddress3)
