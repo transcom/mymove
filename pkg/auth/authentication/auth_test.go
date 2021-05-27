@@ -69,7 +69,7 @@ type AuthSuite struct {
 }
 
 func (suite *AuthSuite) SetupTest() {
-	err := suite.TruncateAll()
+	err := suite.DB().TruncateAll()
 	suite.FatalNoError(err)
 	gob.Register(auth.Session{})
 }
