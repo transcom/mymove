@@ -219,10 +219,12 @@ const ServicesCounselingShipmentForm = ({
             )}
 
             <div className={styles.ServicesCounselingShipmentForm}>
-              <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+              <div className={styles.headerWrapper}>
+                <div>
+                  <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
-              <h1>
-                <span>Edit shipment details</span>
+                  <h1>Edit shipment details</h1>
+                </div>
                 <Button
                   type="button"
                   onClick={() => {
@@ -232,7 +234,7 @@ const ServicesCounselingShipmentForm = ({
                 >
                   Delete shipment
                 </Button>
-              </h1>
+              </div>
 
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
