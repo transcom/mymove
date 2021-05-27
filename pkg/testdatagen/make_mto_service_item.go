@@ -293,9 +293,9 @@ func MakeMTOServiceItemDomesticCrating(db *pop.Connection, assertions Assertions
 	})
 
 	// Creat crate
-	assertions.MTOServiceItemCrate.Type = models.DimensionTypeCrate
+	assertions.MTOServiceItemDimensionCrate.Type = models.DimensionTypeCrate
 	crateItem := MakeMTOServiceItemDimension(db, Assertions{
-		MTOServiceItemDimension: assertions.MTOServiceItemCrate,
+		MTOServiceItemDimension: assertions.MTOServiceItemDimensionCrate,
 		MTOServiceItem:          mtoServiceItem,
 	})
 
