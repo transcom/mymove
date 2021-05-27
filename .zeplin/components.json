@@ -90,6 +90,16 @@
     {
       "path": "src/stories/tags.stories.jsx",
       "zeplinIds": ["609d444b49f4326e7f5c3356", "609d444bca15bd5f051541c2", "609d444ca261c35bd1b5aa09"]
+    },
+    {
+      "path": "src/components/TabNav/index.jsx",
+      "zeplinIds": [
+        "60ad25dd039a1da1defd0973",
+        "60ad25de27ab3aa32facc669",
+        "60ad25ddba12a1a1b7fb1c46",
+        "60ad25ddeb5c64a12946a1d8",
+        "60ad25dd2db66c9fd417d7e9"
+      ]
     }
   ],
   "github": {
