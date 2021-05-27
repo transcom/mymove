@@ -11,10 +11,10 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// UpdatePaymentRequestStatus update payment request status
+// UpdateProcessedPaymentRequestStatus update processed payment request status
 //
-// swagger:model UpdatePaymentRequestStatus
-type UpdatePaymentRequestStatus struct {
+// swagger:model UpdateProcessedPaymentRequestStatus
+type UpdateProcessedPaymentRequestStatus struct {
 
 	// Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
 	// Read Only: true
@@ -24,11 +24,11 @@ type UpdatePaymentRequestStatus struct {
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
-	Status PaymentRequestStatus `json:"status,omitempty"`
+	Status ProcessedPaymentRequestStatus `json:"status,omitempty"`
 }
 
-// Validate validates this update payment request status
-func (m *UpdatePaymentRequestStatus) Validate(formats strfmt.Registry) error {
+// Validate validates this update processed payment request status
+func (m *UpdateProcessedPaymentRequestStatus) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateStatus(formats); err != nil {
@@ -41,7 +41,7 @@ func (m *UpdatePaymentRequestStatus) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdatePaymentRequestStatus) validateStatus(formats strfmt.Registry) error {
+func (m *UpdateProcessedPaymentRequestStatus) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -58,7 +58,7 @@ func (m *UpdatePaymentRequestStatus) validateStatus(formats strfmt.Registry) err
 }
 
 // MarshalBinary interface implementation
-func (m *UpdatePaymentRequestStatus) MarshalBinary() ([]byte, error) {
+func (m *UpdateProcessedPaymentRequestStatus) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -66,8 +66,8 @@ func (m *UpdatePaymentRequestStatus) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UpdatePaymentRequestStatus) UnmarshalBinary(b []byte) error {
-	var res UpdatePaymentRequestStatus
+func (m *UpdateProcessedPaymentRequestStatus) UnmarshalBinary(b []byte) error {
+	var res UpdateProcessedPaymentRequestStatus
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

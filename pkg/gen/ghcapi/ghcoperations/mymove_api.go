@@ -142,11 +142,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderUpdateOrderHandler: order.UpdateOrderHandlerFunc(func(params order.UpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateOrder has not yet been implemented")
 		}),
-		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_requests.UpdatePaymentRequestStatus has not yet been implemented")
-		}),
 		PaymentServiceItemUpdatePaymentServiceItemStatusHandler: payment_service_item.UpdatePaymentServiceItemStatusHandlerFunc(func(params payment_service_item.UpdatePaymentServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_service_item.UpdatePaymentServiceItemStatus has not yet been implemented")
+		}),
+		PaymentRequestsUpdateReviewedPaymentRequestStatusHandler: payment_requests.UpdateReviewedPaymentRequestStatusHandlerFunc(func(params payment_requests.UpdateReviewedPaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.UpdateReviewedPaymentRequestStatus has not yet been implemented")
 		}),
 	}
 }
@@ -239,10 +239,10 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 	// OrderUpdateOrderHandler sets the operation handler for the update order operation
 	OrderUpdateOrderHandler order.UpdateOrderHandler
-	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
-	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
+	// PaymentRequestsUpdateReviewedPaymentRequestStatusHandler sets the operation handler for the update reviewed payment request status operation
+	PaymentRequestsUpdateReviewedPaymentRequestStatusHandler payment_requests.UpdateReviewedPaymentRequestStatusHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -396,11 +396,11 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderUpdateOrderHandler == nil {
 		unregistered = append(unregistered, "order.UpdateOrderHandler")
 	}
-	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
-		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestStatusHandler")
-	}
 	if o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "payment_service_item.UpdatePaymentServiceItemStatusHandler")
+	}
+	if o.PaymentRequestsUpdateReviewedPaymentRequestStatusHandler == nil {
+		unregistered = append(unregistered, "payment_requests.UpdateReviewedPaymentRequestStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -609,11 +609,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_requests.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestsUpdatePaymentRequestStatusHandler)
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"] = payment_service_item.NewUpdatePaymentServiceItemStatus(o.context, o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"] = payment_service_item.NewUpdatePaymentServiceItemStatus(o.context, o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler)
+	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status/reviewed"] = payment_requests.NewUpdateReviewedPaymentRequestStatus(o.context, o.PaymentRequestsUpdateReviewedPaymentRequestStatusHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

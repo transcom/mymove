@@ -58,7 +58,7 @@ func UpdatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var paymentReqParams paymentrequestclient.UpdatePaymentRequestStatusParams
+	var paymentReqParams paymentrequestclient.UpdateReviewedPaymentRequestStatusParams
 	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentReqParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -80,7 +80,7 @@ func UpdatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API Call
-	resp, err := supportGateway.PaymentRequest.UpdatePaymentRequestStatus(&paymentReqParams)
+	resp, err := supportGateway.PaymentRequest.UpdateReviewedPaymentRequestStatus(&paymentReqParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}

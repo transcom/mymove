@@ -98,9 +98,14 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
 		})
 	}
-	if api.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
-		api.PaymentRequestUpdatePaymentRequestStatusHandler = payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
+	if api.PaymentRequestUpdateProcessedPaymentRequestStatusHandler == nil {
+		api.PaymentRequestUpdateProcessedPaymentRequestStatusHandler = payment_request.UpdateProcessedPaymentRequestStatusHandlerFunc(func(params payment_request.UpdateProcessedPaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.UpdateProcessedPaymentRequestStatus has not yet been implemented")
+		})
+	}
+	if api.PaymentRequestUpdateReviewedPaymentRequestStatusHandler == nil {
+		api.PaymentRequestUpdateReviewedPaymentRequestStatusHandler = payment_request.UpdateReviewedPaymentRequestStatusHandlerFunc(func(params payment_request.UpdateReviewedPaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.UpdateReviewedPaymentRequestStatus has not yet been implemented")
 		})
 	}
 

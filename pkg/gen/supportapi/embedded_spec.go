@@ -583,9 +583,9 @@ func init() {
         }
       ]
     },
-    "/payment-requests/{paymentRequestID}/status": {
+    "/payment-requests/{paymentRequestID}/status/processed": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to SENT_TO_GEX, RECEIVED_BY_GEX, EDI_ERROR or PAID\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -595,8 +595,8 @@ func init() {
         "tags": [
           "paymentRequest"
         ],
-        "summary": "updatePaymentRequestStatus",
-        "operationId": "updatePaymentRequestStatus",
+        "summary": "updateProcessedPaymentRequestStatus",
+        "operationId": "updateProcessedPaymentRequestStatus",
         "parameters": [
           {
             "type": "string",
@@ -610,7 +610,82 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+              "$ref": "#/definitions/UpdateProcessedPaymentRequestStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of payment request.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/status/reviewed": {
+      "patch": {
+        "description": "Updates status of a payment request to REVIEWED, or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "updateReviewedPaymentRequestStatus",
+        "operationId": "updateReviewedPaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateReviewedPaymentRequestStatus"
             }
           }
         ],
@@ -2051,9 +2126,6 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PENDING",
-        "REVIEWED",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
@@ -2096,9 +2168,22 @@ func init() {
           "example": true
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/ReviewedPaymentRequestStatus"
         }
       }
+    },
+    "ProcessedPaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "SENT_TO_GEX",
+        "PENDING",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "EDI_ERROR"
+      ]
     },
     "ProofOfServicePackage": {
       "type": "object",
@@ -2206,6 +2291,14 @@ func init() {
         "NSTUB"
       ]
     },
+    "ReviewedPaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+      ]
+    },
     "SelectedMoveType": {
       "type": "string",
       "title": "Selected Move Type",
@@ -2253,7 +2346,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatus": {
+    "UpdateProcessedPaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -2268,7 +2361,26 @@ func init() {
           "example": "documentation was incomplete"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/ProcessedPaymentRequestStatus"
+        }
+      }
+    },
+    "UpdateReviewedPaymentRequestStatus": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
+          "type": "string",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/ReviewedPaymentRequestStatus"
         }
       }
     },
@@ -3242,9 +3354,9 @@ func init() {
         }
       ]
     },
-    "/payment-requests/{paymentRequestID}/status": {
+    "/payment-requests/{paymentRequestID}/status/processed": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to SENT_TO_GEX, RECEIVED_BY_GEX, EDI_ERROR or PAID\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -3254,8 +3366,8 @@ func init() {
         "tags": [
           "paymentRequest"
         ],
-        "summary": "updatePaymentRequestStatus",
-        "operationId": "updatePaymentRequestStatus",
+        "summary": "updateProcessedPaymentRequestStatus",
+        "operationId": "updateProcessedPaymentRequestStatus",
         "parameters": [
           {
             "type": "string",
@@ -3269,7 +3381,106 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatus"
+              "$ref": "#/definitions/UpdateProcessedPaymentRequestStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated payment request status.",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "There was a conflict with the request.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of payment request.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/status/reviewed": {
+      "patch": {
+        "description": "Updates status of a payment request to REVIEWED, or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "updateReviewedPaymentRequestStatus",
+        "operationId": "updateReviewedPaymentRequestStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateReviewedPaymentRequestStatus"
             }
           }
         ],
@@ -4752,9 +4963,6 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PENDING",
-        "REVIEWED",
-        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
         "PAID",
@@ -4797,9 +5005,22 @@ func init() {
           "example": true
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/ReviewedPaymentRequestStatus"
         }
       }
+    },
+    "ProcessedPaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
+        "SENT_TO_GEX",
+        "PENDING",
+        "RECEIVED_BY_GEX",
+        "PAID",
+        "EDI_ERROR"
+      ]
     },
     "ProofOfServicePackage": {
       "type": "object",
@@ -4907,6 +5128,14 @@ func init() {
         "NSTUB"
       ]
     },
+    "ReviewedPaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+      ]
+    },
     "SelectedMoveType": {
       "type": "string",
       "title": "Selected Move Type",
@@ -4954,7 +5183,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatus": {
+    "UpdateProcessedPaymentRequestStatus": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -4969,7 +5198,26 @@ func init() {
           "example": "documentation was incomplete"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/ProcessedPaymentRequestStatus"
+        }
+      }
+    },
+    "UpdateReviewedPaymentRequestStatus": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
+          "type": "string",
+          "readOnly": true
+        },
+        "rejectionReason": {
+          "description": "A written reason to provide context for the status.",
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/ReviewedPaymentRequestStatus"
         }
       }
     },

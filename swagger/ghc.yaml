@@ -981,7 +981,7 @@ paths:
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).
-  '/payment-requests/{paymentRequestID}/status':
+  '/payment-requests/{paymentRequestID}/status/reviewed':
     patch:
       consumes:
         - application/json
@@ -998,14 +998,14 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
+            $ref: '#/definitions/UpdateReviewedPaymentRequestStatusPayload'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
         '200':
-          description: updated payment request
+          description: updates payment request to REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
@@ -1025,7 +1025,7 @@ paths:
       tags:
         - paymentRequests
       description: Updates status of a payment request by id
-      operationId: updatePaymentRequestStatus
+      operationId: updateReviewedPaymentRequestStatus
       summary: Updates status of a payment request by id
   /documents/{documentId}:
     get:
@@ -2358,6 +2358,12 @@ definitions:
       - EDI_ERROR
     title: Payment Request Status
     type: string
+  ReviewedPaymentRequestStatus:
+    enum:
+      - REVIEWED
+      - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+    title: Payment Request Status
+    type: string
   ProofOfServiceDocs:
     items:
       $ref: '#/definitions/ProofOfServiceDoc'
@@ -2775,14 +2781,14 @@ definitions:
     required:
       - isValid
     type: object
-  UpdatePaymentRequestStatusPayload:
+  UpdateReviewedPaymentRequestStatusPayload:
     properties:
       rejectionReason:
         example: documentation was incomplete
         type: string
         x-nullable: true
       status:
-        $ref: '#/definitions/PaymentRequestStatus'
+        $ref: '#/definitions/ReviewedPaymentRequestStatus'
       eTag:
         type: string
     type: object

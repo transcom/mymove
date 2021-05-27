@@ -60,7 +60,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
 
-	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+	ghcAPI.PaymentRequestsUpdateReviewedPaymentRequestStatusHandler = UpdateReviewedPaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
