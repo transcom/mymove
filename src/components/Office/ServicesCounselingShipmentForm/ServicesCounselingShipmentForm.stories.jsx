@@ -41,7 +41,7 @@ const defaultProps = {
     },
   },
   isCreatePage: true,
-  updateMTOShipment: action('update MTO shipment'),
+  submitHandler: action('submit MTO Shipment for create or update'),
 };
 
 const mockMtoShipment = {

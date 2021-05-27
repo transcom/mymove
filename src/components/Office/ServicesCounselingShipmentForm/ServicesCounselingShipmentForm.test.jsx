@@ -17,8 +17,7 @@ const defaultProps = {
     push: jest.fn(),
   },
   showLoggedInUser: jest.fn(),
-  createMTOShipment: jest.fn(),
-  updateMTOShipment: jest.fn(),
+  submitHandler: jest.fn(),
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -282,8 +281,8 @@ describe('ServicesCounselingShipmentForm component', () => {
   });
 
   describe('filling the form', () => {
-    it('shows an error if the updateMTOShipment returns an error', async () => {
-      const mockUpdateMTOShipment = jest.fn(() =>
+    it('shows an error if the submitHandler returns an error', async () => {
+      const mockSubmitHandler = jest.fn(() =>
         // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
         // eslint-disable-next-line prefer-promise-reject-errors
         Promise.reject({
@@ -301,7 +300,7 @@ describe('ServicesCounselingShipmentForm component', () => {
           {...defaultProps}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
-          updateMTOShipment={mockUpdateMTOShipment}
+          submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
       );
@@ -313,7 +312,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalled();
+        expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
       expect(await screen.findByText('A server error occurred editing the shipment details')).toBeInTheDocument();
@@ -373,14 +372,14 @@ describe('ServicesCounselingShipmentForm component', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
       };
 
-      const mockUpdateMTOShipment = jest.fn(() => Promise.resolve(patchResponse));
+      const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
 
       render(
         <ServicesCounselingShipmentForm
           {...defaultProps}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
-          updateMTOShipment={mockUpdateMTOShipment}
+          submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
       );
@@ -404,7 +403,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledWith(expectedPayload);
+        expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);
       });
     });
   });

@@ -17,7 +17,6 @@ import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfo
 import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { createMTOShipment } from 'services/ghcApi';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -33,9 +32,9 @@ const ServicesCounselingShipmentForm = ({
   selectedMoveType,
   isCreatePage,
   mtoShipment,
+  submitHandler,
   serviceMember,
   currentResidence,
-  updateMTOShipment,
   moveTaskOrderID,
 }) => {
   const [errorMessage, setErrorMessage] = React.useState(null);
@@ -86,7 +85,7 @@ const ServicesCounselingShipmentForm = ({
 
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
-      createMTOShipment({ body, normalize: false })
+      submitHandler({ body, normalize: false })
         .then(() => {
           history.push(moveDetailsPath);
         })
@@ -101,7 +100,7 @@ const ServicesCounselingShipmentForm = ({
         normalize: false,
         body: pendingMtoShipment,
       };
-      updateMTOShipment(updateMTOShipmentPayload)
+      submitHandler(updateMTOShipmentPayload)
         .then(() => {
           history.push(moveDetailsPath);
         })
@@ -343,7 +342,7 @@ const ServicesCounselingShipmentForm = ({
 ServicesCounselingShipmentForm.propTypes = {
   match: MatchShape,
   history: HistoryShape,
-  updateMTOShipment: func.isRequired,
+  submitHandler: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,

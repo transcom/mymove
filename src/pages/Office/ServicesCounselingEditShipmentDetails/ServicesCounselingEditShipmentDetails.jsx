@@ -46,7 +46,7 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
                 <ServicesCounselingShipmentForm
                   match={match}
                   history={history}
-                  updateMTOShipment={mutateMTOShipment}
+                  submitHandler={mutateMTOShipment}
                   isCreatePage={false}
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
