@@ -1,55 +1,89 @@
 {
-  "plugins": [
-    {
-      "name": "@zeplin/cli-connect-react-plugin"
+    "plugins": [
+        {
+            "name": "@zeplin/cli-connect-react-plugin"
+        },
+        {
+            "name": "@zeplin/cli-connect-storybook-plugin",
+            "config": {
+                "url": "https://storybook.dp3.us/",
+                "format": "new",
+                "startScript": "storybook"
+            }
+        }
+    ],
+    "projects": [
+        "5f7cbab735d969035eb65339"
+    ],
+    "components": [
+        {
+            "path": "src/stories/buttons.stories.jsx",
+            "zeplinIds": [
+                "608c656d466485913303e418",
+                "608c67322649c8096e018479",
+                "609d44965ebfe95ce73d6bdb",
+                "609d4499e043556bf244ac1f",
+                "609d4495fdc0c16a6309dcf3",
+                "609d4497c205a86d8f466aa1",
+                "609d449640772d6ca739b267",
+                "609d4497041c926b4b0ad84d",
+                "609d4496b2d0886a74ad2941",
+                "609d449577dc426bd024cd83",
+                "609d4495bfbb316a9d5ced6e",
+                "609d44965e36406a5a963b36",
+                "609d449750de2d6b3b79d28c",
+                "609d4498a1f3646ace9fc1b7",
+                "609d4497f92b416cc628f63e",
+                "609d4498d154626fc196f846",
+                "609d44998eebd25d9f8b90d7",
+                "609d449a3fef766c8ad35872",
+                "609d449822423f6b866ebf4a",
+                "609d4498680b3b5d398d7dc7",
+                "609d44994a34506a48976270",
+                "609d4498b705d26a86cf118d",
+                "609d4499071a236cffdf16c7",
+                "609d449a6cd31c5a0a1f7316",
+                "609d449949f4326e7f5c3555",
+                "609d449afc3ae85a542a4e8d"
+            ]
+        },
+        {
+            "path": "src/components/FOUOHeader/index.jsx",
+            "zeplinIds": []
+        },
+        {
+            "path": "src/components/CustomerHeader/index.jsx",
+            "zeplinIds": [
+                "5f9c9d9f9e653cb5360df985"
+            ]
+        },
+        {
+            "path": "src/components/form/fields/TextField.jsx",
+            "zeplinIds": [
+                "608c6ae5400618288e0259d8"
+            ]
+        },
+        {
+            "path": "src/components/FOUOHeader/FOUOHeader.stories.jsx",
+            "zeplinIds": [
+                "5f9c9dc4dec7a31d9ad7338f"
+            ]
+        },
+        {
+            "path": "src/stories/containers.stories.jsx",
+            "zeplinIds": [
+                "60ad19209ac851a4da1032e5",
+                "60ad1921bbeb1fa1355e1b31",
+                "60ad1921e24000a50229f7d9",
+                "60ad19219eddcea2a5a6cb5f",
+                "60ad1920e2ca53a4a2fe96ae"
+            ]
+        }
+    ],
+    "github": {
+        "repository": "transcom/mymove"
     },
-    {
-      "name": "@zeplin/cli-connect-storybook-plugin",
-      "config": {
-        "url": "https://storybook.dp3.us/",
-        "format": "new",
-        "startScript": "storybook"
-      }
-    }
-  ],
-  "projects": [
-    "5f7cbab735d969035eb65339"
-  ],
-  "components": [
-    {
-      "path": "src/stories/buttons.stories.jsx",
-      "zeplinIds": [
-        "608c656d466485913303e418",
-        "608c67322649c8096e018479"
-      ]
-    },
-    {
-      "path": "src/components/FOUOHeader/index.jsx",
-      "zeplinIds": []
-    },
-    {
-      "path": "src/components/CustomerHeader/index.jsx",
-      "zeplinIds": [
-        "5f9c9d9f9e653cb5360df985"
-      ]
-    },
-    {
-      "path": "src/components/form/fields/TextField.jsx",
-      "zeplinIds": [
-        "608c6ae5400618288e0259d8"
-      ]
-    },
-    {
-      "path": "src/components/FOUOHeader/FOUOHeader.stories.jsx",
-      "zeplinIds": [
-        "5f9c9dc4dec7a31d9ad7338f"
-      ]
-    }
-  ],
-  "github": {
-    "repository": "transcom/mymove"
-  },
-  "styleguides": [
-    "5f8482beb303e1283ee53ba7"
-  ]
+    "styleguides": [
+        "5f8482beb303e1283ee53ba7"
+    ]
 }
