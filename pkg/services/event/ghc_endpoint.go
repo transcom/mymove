@@ -82,8 +82,14 @@ const GhcUpdatePaymentRequestStatusEndpointKey = "Ghc.UpdatePaymentRequestStatus
 // GhcUpdateOrderEndpointKey is the key for the updateOrder endpoint in ghc
 const GhcUpdateOrderEndpointKey = "Ghc.UpdateOrder"
 
+// GhcCounselingUpdateOrderEndpointKey is the key for the counselingUpdateOrder endpoint in ghc
+const GhcCounselingUpdateOrderEndpointKey = "Ghc.CounselingUpdateOrder"
+
 // GhcUpdateAllowanceEndpointKey is the key for the updateAllowance endpoint in ghc
 const GhcUpdateAllowanceEndpointKey = "Ghc.UpdateAllowance"
+
+// GhcCounselingUpdateAllowanceEndpointKey is the key for the counselingUpdateAllowance endpoint in ghc
+const GhcCounselingUpdateAllowanceEndpointKey = "Ghc.CounselingUpdateAllowance"
 
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
@@ -187,8 +193,16 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "updateOrder",
 	},
+	GhcCounselingUpdateOrderEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "counselingUpdateOrder",
+	},
 	GhcUpdateAllowanceEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "updateAllowance",
+	},
+	GhcCounselingUpdateAllowanceEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "counselingUpdateAllowance",
 	},
 }

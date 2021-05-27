@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateAllowance } from 'services/ghcApi';
+import { counselingUpdateAllowance } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -50,7 +50,7 @@ const ServicesCounselingMoveAllowances = () => {
     history.push(`/counseling/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const [mutateOrders] = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

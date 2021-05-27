@@ -17,7 +17,7 @@ describe('TOO user', () => {
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
 
-    const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
+    const userId = '8d78c849-0853-4eb8-a7a7-73055db7a6a8';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
   });
 

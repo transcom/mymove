@@ -120,8 +120,18 @@ export async function updateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.counselingUpdateOrder';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateAllowance';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function counselingUpdateAllowance({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.counselingUpdateAllowance';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 

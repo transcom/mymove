@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 
-import { updateOrder } from 'services/ghcApi';
+import { counselingUpdateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
@@ -42,7 +42,7 @@ const ServicesCounselingOrders = () => {
     history.push(`/counseling/moves/${moveCode}/details`);
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(counselingUpdateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

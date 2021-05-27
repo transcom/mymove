@@ -266,6 +266,41 @@ func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.Off
 	})
 }
 
+// MakeOfficeUserWithMultipleRoles makes an OfficeUser with Counselor and TXO roles
+func MakeOfficeUserWithMultipleRoles(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	multipleRoleUser := models.User{
+		Roles: []roles.Role{tooRole, tioRole, servicesRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: multipleRoleUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
 // MakeStubbedOfficeUser returns a user without hitting the DB
 func MakeStubbedOfficeUser(db *pop.Connection) models.OfficeUser {
 	return MakeOfficeUser(db, Assertions{
