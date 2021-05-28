@@ -11,13 +11,18 @@ import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
-import { MockProviders, renderWithRouter } from 'testUtils';
+import { MockProviders } from 'testUtils';
 
 const mockRequestedMoveCode = 'LR4T8V';
+
+const mockReplace = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
+  useHistory: () => ({
+    replace: mockReplace,
+  }),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -373,7 +378,11 @@ describe('MoveDetails page', () => {
     ])('shows the "%s" link as expected: %s', async (linkText, route) => {
       useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 
-      const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
+      render(
+        <MockProviders initialEntries={[detailsURL]}>
+          <ServicesCounselingMoveDetails />
+        </MockProviders>,
+      );
 
       const link = await screen.findByRole('link', { name: linkText });
 
@@ -386,7 +395,8 @@ describe('MoveDetails page', () => {
       });
 
       await waitFor(() => {
-        expect(history.location.pathname).toEqual(path);
+        expect(mockReplace).toHaveBeenCalledWith(path);
+        // expect(history.location.pathname).toEqual(path);
       });
     });
 

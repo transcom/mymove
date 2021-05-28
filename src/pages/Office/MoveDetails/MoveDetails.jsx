@@ -12,7 +12,6 @@ import 'styles/office.scss';
 import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import LeftNav from 'components/LeftNav';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
@@ -187,7 +186,6 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-          <ConnectedFlashMessage />
           <h1>Move details</h1>
           {/* TODO - RequestedShipments could be simplified, if extra time we could tackle this or just write a story to track */}
           {submittedShipments.length > 0 && (
