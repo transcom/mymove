@@ -17,7 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
 
-const CustomerInfo = ({ customer, isLoading, isError, ordersId }) => {
+const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -35,9 +35,14 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId }) => {
       });
       queryCache.invalidateQueries([CUSTOMER, variables.customerId]);
       queryCache.invalidateQueries([ORDERS, ordersId]);
+      onUpdate('success');
       handleClose();
     },
-    // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
+    onError: () => {
+      // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
+      onUpdate('error');
+      handleClose();
+    },
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -101,5 +106,6 @@ CustomerInfo.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   isError: PropTypes.bool.isRequired,
   ordersId: PropTypes.string.isRequired,
+  onUpdate: PropTypes.func.isRequired,
 };
 export default CustomerInfo;

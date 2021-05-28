@@ -1033,14 +1033,13 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 
 	// setup service item
-	reService := models.ReService{
-		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
-	}
-	testdatagen.MergeModels(&reService, assertions.ReService)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	mtoServiceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
-		ReService:   reService,
 	})
 
 	// using handler to create service item params
@@ -1377,26 +1376,12 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
-			Description: &dcrtDescription,
+			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 }
 
@@ -1924,27 +1909,13 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.Must(uuid.NewV4()),
-			Status:      models.MTOServiceItemStatusApproved,
-			Description: &dcrtDescription,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        move,
 		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	dcrtCost := unit.Cents(55555)
@@ -2374,27 +2345,13 @@ func createMoveWith2ShipmentsAndPaymentRequest(db *pop.Connection, userUploader 
 		},
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.Must(uuid.NewV4()),
-			Status:      models.MTOServiceItemStatusApproved,
-			Description: &dcrtDescription,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        move,
 		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	dcrtCost := unit.Cents(55555)
