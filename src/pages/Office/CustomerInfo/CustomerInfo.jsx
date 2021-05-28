@@ -1,26 +1,28 @@
 /* eslint-disable camelcase */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useHistory, useParams } from 'react-router-dom';
 import { queryCache, useMutation } from 'react-query';
+import { generatePath } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 
 import CustomerContactInfoForm from '../../../components/Office/CustomerContactInfoForm/CustomerContactInfoForm';
 
 import styles from './CustomerInfo.module.scss';
 
+import { CUSTOMER, ORDERS } from 'constants/queryKeys';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { updateCustomerInfo } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { CustomerShape } from 'types/order';
-import { CUSTOMER, ORDERS } from 'constants/queryKeys';
 
-const CustomerInfo = ({ customer, isLoading, isError, ordersId }) => {
+const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
   const handleClose = () => {
-    history.push(`/counseling/moves/${moveCode}/details`);
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
   const [mutateCustomerInfo] = useMutation(updateCustomerInfo, {
@@ -33,9 +35,14 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId }) => {
       });
       queryCache.invalidateQueries([CUSTOMER, variables.customerId]);
       queryCache.invalidateQueries([ORDERS, ordersId]);
+      onUpdate('success');
       handleClose();
     },
-    // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
+    onError: () => {
+      // TODO: Handle error some how - see https://dp3.atlassian.net/browse/MB-5597
+      onUpdate('error');
+      handleClose();
+    },
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -99,5 +106,6 @@ CustomerInfo.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   isError: PropTypes.bool.isRequired,
   ordersId: PropTypes.string.isRequired,
+  onUpdate: PropTypes.func.isRequired,
 };
 export default CustomerInfo;

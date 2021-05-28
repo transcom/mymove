@@ -67,13 +67,14 @@
     "regenerator-runtime": "^0.13.7",
     "reselect": "^4.0.0",
     "swagger-client": "^3.13.3",
-    "swagger-ui-dist": "^3.48.0",
+    "swagger-ui-dist": "^3.49.0",
     "uswds": "2.10.3",
     "uuid": "^8.3.2",
     "yup": "^0.32.9"
   },
   "resolutions": {
     "babel-loader": "~8.1.0",
+    "dns-packet": "^5.2.2",
     "kind-of": "^6.0.2",
     "selfsigned": "^1.10.8",
     "immer": "^8.0.1",
@@ -103,12 +104,14 @@
     "happo": "happo",
     "happo-ci-github-actions": "happo-ci-github-actions",
     "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions",
-    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts"
+    "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
+    "preview-redoc": "openapi preview-docs"
   },
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "~7.14.2",
     "@dump247/storybook-state": "^1.6.1",
+    "@redocly/openapi-cli": "^1.0.0-beta.48",
     "@stoplight/spectral": "^5.9.1",
     "@storybook/addon-a11y": "^6.2.9",
     "@storybook/addon-essentials": "^6.2.9",
