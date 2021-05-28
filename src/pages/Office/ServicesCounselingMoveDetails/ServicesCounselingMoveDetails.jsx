@@ -24,9 +24,10 @@ import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 
-const ServicesCounselingMoveDetails = () => {
+const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -40,7 +41,9 @@ const ServicesCounselingMoveDetails = () => {
   let shipmentsInfo = [];
 
   if (mtoShipments) {
-    shipmentsInfo = mtoShipments.map((shipment) => {
+    const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+
+    shipmentsInfo = submittedShipments.map((shipment) => {
       const editURL = counselorCanEdit
         ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,
@@ -135,6 +138,13 @@ const ServicesCounselingMoveDetails = () => {
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
                 <Alert slim type={alertType}>
                   {alertMessage}
+                </Alert>
+              </Grid>
+            )}
+            {customerEditAlert && (
+              <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
+                <Alert slim type={customerEditAlert.alertType}>
+                  {customerEditAlert.message}
                 </Alert>
               </Grid>
             )}
@@ -239,6 +249,12 @@ const ServicesCounselingMoveDetails = () => {
   );
 };
 
-ServicesCounselingMoveDetails.propTypes = {};
+ServicesCounselingMoveDetails.propTypes = {
+  customerEditAlert: AlertStateShape,
+};
+
+ServicesCounselingMoveDetails.defaultProps = {
+  customerEditAlert: null,
+};
 
 export default ServicesCounselingMoveDetails;

@@ -2831,6 +2831,11 @@ func init() {
           "x-nullable": true,
           "example": "handle with care"
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -7389,6 +7394,11 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationAddress": {
           "x-nullable": true,
