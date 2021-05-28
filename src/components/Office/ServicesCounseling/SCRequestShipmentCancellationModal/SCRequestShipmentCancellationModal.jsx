@@ -27,7 +27,7 @@ export const SCRequestShipmentCancellationModal = ({ onClose, onSubmit, shipment
             onClick={() => onClose()}
             data-testid="modalBackButton"
           >
-            Keep Shipment
+            Keep shipment
           </Button>
         </ModalActions>
       </Modal>
