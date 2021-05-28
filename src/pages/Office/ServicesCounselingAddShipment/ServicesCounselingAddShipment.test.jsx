@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
 import { createMTOShipment } from 'services/ghcApi';
+import { MockProviders } from 'testUtils';
 
 const mockPush = jest.fn();
 
@@ -172,14 +173,22 @@ describe('ServicesCounselingAddShipment component', () => {
   */
   describe('check different component states - ORDER MATTERS see comment in tests', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      render(<ServicesCounselingAddShipment {...props} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingAddShipment {...props} />
+        </MockProviders>,
+      );
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      render(<ServicesCounselingAddShipment {...props} />);
+      render(
+        <MockProviders>
+          <ServicesCounselingAddShipment {...props} />
+        </MockProviders>,
+      );
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -187,7 +196,11 @@ describe('ServicesCounselingAddShipment component', () => {
   });
 
   it('renders the Services Counseling Shipment Form', async () => {
-    render(<ServicesCounselingAddShipment {...props} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingAddShipment {...props} />
+      </MockProviders>,
+    );
 
     const h1 = await screen.getByRole('heading', { name: 'Add shipment details', level: 1 });
     expect(h1).toBeInTheDocument();
@@ -196,7 +209,11 @@ describe('ServicesCounselingAddShipment component', () => {
   it('routes to the move details page when the save button is clicked', async () => {
     createMTOShipment.mockImplementation(() => Promise.resolve());
 
-    render(<ServicesCounselingAddShipment {...props} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingAddShipment {...props} />
+      </MockProviders>,
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -227,7 +244,11 @@ describe('ServicesCounselingAddShipment component', () => {
   });
 
   it('routes to the move details page when the cancel button is clicked', async () => {
-    render(<ServicesCounselingAddShipment {...props} />);
+    render(
+      <MockProviders>
+        <ServicesCounselingAddShipment {...props} />
+      </MockProviders>,
+    );
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 

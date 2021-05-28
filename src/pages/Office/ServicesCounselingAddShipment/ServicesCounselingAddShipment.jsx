@@ -1,7 +1,9 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { withRouter, useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { connect } from 'react-redux';
 import { queryCache, useMutation } from 'react-query';
+import { func } from 'prop-types';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
@@ -12,11 +14,12 @@ import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
+import { setFlashMessage } from 'store/flash/actions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const ServicesCounselingAddShipment = ({ match }) => {
+const ServicesCounselingAddShipment = ({ match, setMessage }) => {
   const { moveCode } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -25,6 +28,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
       mtoShipments.push(newMTOShipment);
       queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
+      setMessage(`NEW_SHIPMENT_CREATED`, 'success', 'Your changes were saved.', '', true);
     },
   });
 
@@ -64,6 +68,11 @@ const ServicesCounselingAddShipment = ({ match }) => {
 
 ServicesCounselingAddShipment.propTypes = {
   match: MatchShape.isRequired,
+  setMessage: func.isRequired,
 };
 
-export default ServicesCounselingAddShipment;
+const mapDispatchToProps = {
+  setMessage: setFlashMessage,
+};
+
+export default withRouter(connect(() => ({}), mapDispatchToProps)(ServicesCounselingAddShipment));
