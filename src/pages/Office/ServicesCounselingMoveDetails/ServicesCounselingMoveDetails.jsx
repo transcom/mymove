@@ -13,7 +13,6 @@ import 'styles/office.scss';
 import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import ServicesCounselingOrdersList from 'components/Office/DefinitionLists/ServicesCounselingOrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
@@ -133,9 +132,6 @@ const ServicesCounselingMoveDetails = ({ editAlert }) => {
 
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <Grid row className={scMoveDetailsStyles.pageHeader}>
-            <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-              <ConnectedFlashMessage />
-            </Grid>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
                 <Alert slim type={alertType}>

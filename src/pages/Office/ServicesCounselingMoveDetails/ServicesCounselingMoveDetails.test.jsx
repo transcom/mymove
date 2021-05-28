@@ -11,7 +11,7 @@ import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
-import { MockProviders } from 'testUtils';
+import { MockProviders, renderWithRouter } from 'testUtils';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -378,11 +378,7 @@ describe('MoveDetails page', () => {
     ])('shows the "%s" link as expected: %s', async (linkText, route) => {
       useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
 
-      render(
-        <MockProviders initialEntries={[detailsURL]}>
-          <ServicesCounselingMoveDetails />
-        </MockProviders>,
-      );
+      const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
 
       const link = await screen.findByRole('link', { name: linkText });
 
@@ -395,8 +391,7 @@ describe('MoveDetails page', () => {
       });
 
       await waitFor(() => {
-        expect(mockReplace).toHaveBeenCalledWith(path);
-        // expect(history.location.pathname).toEqual(path);
+        expect(history.location.pathname).toEqual(path);
       });
     });
 
