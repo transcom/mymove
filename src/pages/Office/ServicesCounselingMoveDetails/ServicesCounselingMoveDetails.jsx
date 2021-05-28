@@ -28,7 +28,7 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 
-const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
+const ServicesCounselingMoveDetails = ({ editAlert }) => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -143,10 +143,10 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
                 </Alert>
               </Grid>
             )}
-            {customerEditAlert && (
+            {editAlert && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
-                <Alert slim type={customerEditAlert.alertType}>
-                  {customerEditAlert.message}
+                <Alert slim type={editAlert.alertType}>
+                  {editAlert.message}
                 </Alert>
               </Grid>
             )}
@@ -252,11 +252,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
 };
 
 ServicesCounselingMoveDetails.propTypes = {
-  customerEditAlert: AlertStateShape,
+  editAlert: AlertStateShape,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {
-  customerEditAlert: null,
+  editAlert: null,
 };
 
 export default ServicesCounselingMoveDetails;

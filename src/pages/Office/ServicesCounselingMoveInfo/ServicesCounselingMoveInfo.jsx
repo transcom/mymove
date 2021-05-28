@@ -15,6 +15,12 @@ const ServicesCounselingMoveDetails = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDetails/ServicesCounselingMoveDetails'),
 );
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
+const ServicesCounselingEditShipmentDetails = lazy(() =>
+  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
+);
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
+);
 
 const ServicesCounselingMoveInfo = () => {
   const [customerEditAlert, setCustomerEditAlert] = useState(null);
@@ -60,7 +66,7 @@ const ServicesCounselingMoveInfo = () => {
         <Switch>
           {/* TODO - Routes not finalized, revisit */}
           <Route path={servicesCounselingRoutes.MOVE_VIEW_PATH} exact>
-            <ServicesCounselingMoveDetails customerEditAlert={customerEditAlert} />
+            <ServicesCounselingMoveDetails editAlert={customerEditAlert} />
           </Route>
 
           <Route
@@ -78,6 +84,14 @@ const ServicesCounselingMoveInfo = () => {
               isError={isError}
               onUpdate={onCustomerInfoUpdate}
             />
+          </Route>
+
+          <Route key="servicesCounselingAddShipment" path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}>
+            <ServicesCounselingAddShipment onUpdate={onCustomerInfoUpdate} />
+          </Route>
+
+          <Route key="servicesCounselingEditShipmentDetailsRoute" path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}>
+            <ServicesCounselingEditShipmentDetails />
           </Route>
 
           {/* TODO - clarify role/tab access */}

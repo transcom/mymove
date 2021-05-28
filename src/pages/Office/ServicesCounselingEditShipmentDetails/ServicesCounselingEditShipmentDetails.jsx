@@ -6,17 +6,15 @@ import { queryCache, useMutation } from 'react-query';
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
-import CustomerHeader from 'components/CustomerHeader';
 import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { updateMTOShipment } from 'services/ghcApi';
 
-const ServicesCounselingEditShipmentDetails = ({ match }) => {
+const ServicesCounselingEditShipmentDetails = () => {
   const { moveCode, shipmentId } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -37,14 +35,12 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
                 <ServicesCounselingShipmentForm
-                  match={match}
                   history={history}
                   submitHandler={mutateMTOShipment}
                   isCreatePage={false}
@@ -62,10 +58,6 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
       </div>
     </>
   );
-};
-
-ServicesCounselingEditShipmentDetails.propTypes = {
-  match: MatchShape.isRequired,
 };
 
 export default ServicesCounselingEditShipmentDetails;

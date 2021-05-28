@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { bool, func, number, shape, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
@@ -22,11 +23,9 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
 
 const ServicesCounselingShipmentForm = ({
-  match,
   history,
   newDutyStationAddress,
   selectedMoveType,
@@ -56,7 +55,7 @@ const ServicesCounselingShipmentForm = ({
     isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
-  const { moveCode } = match.params;
+  const { moveCode } = useParams();
   const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
   const submitMTOShipment = ({
@@ -344,7 +343,6 @@ const ServicesCounselingShipmentForm = ({
 };
 
 ServicesCounselingShipmentForm.propTypes = {
-  match: MatchShape,
   history: shape({
     push: func.isRequired,
   }),
@@ -364,7 +362,6 @@ ServicesCounselingShipmentForm.propTypes = {
 
 ServicesCounselingShipmentForm.defaultProps = {
   isCreatePage: false,
-  match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
   history: { push: () => {} },
   newDutyStationAddress: {
     city: '',

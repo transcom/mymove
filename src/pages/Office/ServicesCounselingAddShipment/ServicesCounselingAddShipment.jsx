@@ -1,25 +1,21 @@
 import React from 'react';
-import { withRouter, useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { connect } from 'react-redux';
 import { queryCache, useMutation } from 'react-query';
 import { func } from 'prop-types';
 
 import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.scss';
 
 import 'styles/office.scss';
-import CustomerHeader from 'components/CustomerHeader';
 import ServicesCounselingShipmentForm from 'components/Office/ServicesCounselingShipmentForm/ServicesCounselingShipmentForm';
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
-import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { createMTOShipment } from 'services/ghcApi';
-import { setFlashMessage } from 'store/flash/actions';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const ServicesCounselingAddShipment = ({ match, setMessage }) => {
+const ServicesCounselingAddShipment = ({ onUpdate }) => {
   const { moveCode } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
@@ -28,7 +24,7 @@ const ServicesCounselingAddShipment = ({ match, setMessage }) => {
       mtoShipments.push(newMTOShipment);
       queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
-      setMessage(`NEW_SHIPMENT_CREATED`, 'success', 'Your changes were saved.', '', true);
+      onUpdate('success');
     },
   });
 
@@ -40,14 +36,12 @@ const ServicesCounselingAddShipment = ({ match, setMessage }) => {
 
   return (
     <>
-      <CustomerHeader order={order} customer={customer} moveCode={moveCode} />
       <div className={styles.tabContent}>
         <div className={styles.container}>
           <GridContainer className={styles.gridContainer}>
             <Grid row>
               <Grid col desktop={{ col: 8, offset: 2 }}>
                 <ServicesCounselingShipmentForm
-                  match={match}
                   history={history}
                   submitHandler={mutateMTOShipments}
                   isCreatePage
@@ -67,12 +61,7 @@ const ServicesCounselingAddShipment = ({ match, setMessage }) => {
 };
 
 ServicesCounselingAddShipment.propTypes = {
-  match: MatchShape.isRequired,
-  setMessage: func.isRequired,
+  onUpdate: func.isRequired,
 };
 
-const mapDispatchToProps = {
-  setMessage: setFlashMessage,
-};
-
-export default withRouter(connect(() => ({}), mapDispatchToProps)(ServicesCounselingAddShipment));
+export default ServicesCounselingAddShipment;
