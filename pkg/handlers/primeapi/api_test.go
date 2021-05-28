@@ -61,13 +61,13 @@ func (suite *HandlerSuite) EqualAddress(expected models.Address, actual *primeme
 	if checkID == true {
 		suite.Equal(expected.ID.String(), actual.ID.String())
 	}
-	suite.Equal(expected.StreetAddress1, *actual.StreetAddress1)
-	suite.Equal(*expected.StreetAddress2, *actual.StreetAddress2)
-	suite.Equal(*expected.StreetAddress3, *actual.StreetAddress3)
-	suite.Equal(expected.City, *actual.City)
-	suite.Equal(expected.State, *actual.State)
-	suite.Equal(expected.PostalCode, *actual.PostalCode)
-	suite.Equal(*expected.Country, *actual.Country)
+	suite.Equal(&expected.StreetAddress1, actual.StreetAddress1)
+	suite.Equal(expected.StreetAddress2, actual.StreetAddress2)
+	suite.Equal(expected.StreetAddress3, actual.StreetAddress3)
+	suite.Equal(&expected.City, actual.City)
+	suite.Equal(&expected.State, actual.State)
+	suite.Equal(&expected.PostalCode, actual.PostalCode)
+	suite.Equal(expected.Country, actual.Country)
 }
 
 // EqualAddressPayload compares a payload address against a payload address

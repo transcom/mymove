@@ -812,6 +812,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		suite.EqualAddressPayload(&update.SecondaryPickupAddress.Address, &okPayload.SecondaryPickupAddress.Address, false)
 		suite.EqualAddressPayload(&update.SecondaryDeliveryAddress.Address, &okPayload.SecondaryDeliveryAddress.Address, false)
 
+		shipment = suite.refreshFromDB(shipment.ID)
+
 	})
 
 	suite.T().Run("PATCH failure 422 update addresses not allowed", func(t *testing.T) {

@@ -348,15 +348,12 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 
 	// If we have all the data, calculate RDD
 	if latestSchedPickupDate != nil && latestEstimatedWeight != nil && latestPickupAddress != nil && latestDestinationAddress != nil {
-		fmt.Println("\n >>> updating rdd for shipment from ", latestPickupAddress.StreetAddress1, " to ", latestDestinationAddress.StreetAddress1)
 		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(h.Planner(), h.DB(), *latestPickupAddress,
 			*latestDestinationAddress, *latestSchedPickupDate, latestEstimatedWeight.Int())
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
 		}
 		mtoShipment.RequiredDeliveryDate = requiredDeliveryDate
-	} else {
-		fmt.Println("\n >>> RDD not recalculated")
 	}
 
 	return mtoShipment, verrs
