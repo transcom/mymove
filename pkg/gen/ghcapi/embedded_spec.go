@@ -2082,22 +2082,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -2226,11 +2228,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -3751,6 +3751,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -3758,9 +3759,10 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "x-formatting": "weight",
           "x-nullable": true,
-          "example": 2000
+          "example": 500
         },
         "requiredMedicalEquipmentWeight": {
           "description": "unit is in lbs",
@@ -3774,11 +3776,9 @@ func init() {
       "type": "object",
       "properties": {
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "email": {
@@ -3872,6 +3872,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -6646,22 +6648,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -6790,11 +6794,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -8315,6 +8317,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,
@@ -8323,10 +8326,11 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,
-          "example": 2000
+          "example": 500
         },
         "requiredMedicalEquipmentWeight": {
           "description": "unit is in lbs",
@@ -8341,11 +8345,9 @@ func init() {
       "type": "object",
       "properties": {
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "email": {
@@ -8439,6 +8441,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }

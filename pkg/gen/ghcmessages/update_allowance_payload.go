@@ -34,10 +34,12 @@ type UpdateAllowancePayload struct {
 	OrganizationalClothingAndIndividualEquipment *bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
 
 	// unit is in lbs
+	// Maximum: 2000
 	// Minimum: 0
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
 	// unit is in lbs
+	// Maximum: 500
 	// Minimum: 0
 	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse,omitempty"`
 
@@ -137,6 +139,10 @@ func (m *UpdateAllowancePayload) validateProGearWeight(formats strfmt.Registry) 
 		return err
 	}
 
+	if err := validate.MaximumInt("proGearWeight", "body", int64(*m.ProGearWeight), 2000, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -147,6 +153,10 @@ func (m *UpdateAllowancePayload) validateProGearWeightSpouse(formats strfmt.Regi
 	}
 
 	if err := validate.MinimumInt("proGearWeightSpouse", "body", int64(*m.ProGearWeightSpouse), 0, false); err != nil {
+		return err
+	}
+
+	if err := validate.MaximumInt("proGearWeightSpouse", "body", int64(*m.ProGearWeightSpouse), 500, false); err != nil {
 		return err
 	}
 

@@ -1497,17 +1497,18 @@ definitions:
     properties:
       name:
         type: string
-        x-nullable: true
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        x-nullable: true
       phone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        x-nullable: true
+    required:
+      - name
+      - email
+      - phone
   Contractor:
     properties:
       contractNumber:
@@ -1550,10 +1551,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        x-nullable: true
         $ref: '#/definitions/Address'
       backup_contact:
-        x-nullable: true
         $ref: '#/definitions/BackupContact'
       id:
         type: string
@@ -1595,10 +1594,8 @@ definitions:
         example: David
         x-nullable: true
       current_address:
-        x-nullable: true
         $ref: '#/definitions/Address'
       backup_contact:
-        x-nullable: true
         $ref: '#/definitions/BackupContact'
   DutyStation:
     type: object
@@ -1976,6 +1973,8 @@ definitions:
       tac:
         type: string
         title: TAC
+        minLength: 4
+        maxLength: 4
         example: 'F8J1'
         x-nullable: true
       sac:
@@ -1996,9 +1995,9 @@ definitions:
     type: object
     properties:
       authorizedWeight:
-        minimum: 1
         description: unit is in lbs
         example: 2000
+        minimum: 1
         type: integer
         x-formatting: weight
         x-nullable: true
@@ -2011,24 +2010,26 @@ definitions:
         description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
       proGearWeight:
-        minimum: 0
         description: unit is in lbs
         example: 2000
         type: integer
+        minimum: 0
+        maximum: 2000
         x-formatting: weight
         x-nullable: true
       proGearWeightSpouse:
-        minimum: 0
         description: unit is in lbs
-        example: 2000
+        example: 500
         type: integer
+        minimum: 0
+        maximum: 500
         x-formatting: weight
         x-nullable: true
       requiredMedicalEquipmentWeight:
-        minimum: 0
         description: unit is in lbs
         example: 2000
         type: integer
+        minimum: 0
         x-formatting: weight
       organizationalClothingAndIndividualEquipment:
         description: only for Army

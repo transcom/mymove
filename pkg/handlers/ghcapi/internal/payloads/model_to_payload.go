@@ -610,7 +610,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
-			ID:                     *handlers.FmtUUID(move.Orders.ID),
+			ID:                     *handlers.FmtUUID(move.ID),
 			Locator:                move.Locator,
 			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
 			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),
