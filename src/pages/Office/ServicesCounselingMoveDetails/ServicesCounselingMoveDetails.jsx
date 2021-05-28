@@ -41,7 +41,9 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   let shipmentsInfo = [];
 
   if (mtoShipments) {
-    shipmentsInfo = mtoShipments.map((shipment) => {
+    const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+
+    shipmentsInfo = submittedShipments.map((shipment) => {
       const editURL = counselorCanEdit
         ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,

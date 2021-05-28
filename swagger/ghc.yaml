@@ -2384,6 +2384,10 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      deletedAt:
+        x-nullable: true
+        format: date-time
+        type: string
       primeEstimatedWeight:
         x-nullable: true
         example: 2000

@@ -10,6 +10,17 @@
     margin-top: 20px; // + global 20px padding = 40px = 5 units
   }
 
+  .headerWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: last baseline;
+
+    button {
+      padding: 0;
+      font-size: 13px;
+    }
+  }
+
   h1 {
     @include u-margin-top(1);
     @include u-margin-bottom(2);
