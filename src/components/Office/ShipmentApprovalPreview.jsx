@@ -1,4 +1,4 @@
-import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -12,6 +12,7 @@ import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import { MTOShipmentShape, OrdersInfoShape } from 'types/order';
 import { formatAddress } from 'utils/shipmentDisplay';
 

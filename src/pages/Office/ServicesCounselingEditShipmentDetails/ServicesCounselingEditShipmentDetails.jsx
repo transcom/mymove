@@ -50,6 +50,7 @@ const ServicesCounselingEditShipmentDetails = () => {
                   mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
+                  mtoShipments={mtoShipments}
                 />
               </Grid>
             </Grid>

@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { bool, func, number, shape, string } from 'prop-types';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router';
+import { queryCache, useMutation } from 'react-query';
 import { Alert, Button, Checkbox, Fieldset, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 
 import getShipmentOptions from '../../Customer/MtoShipmentForm/getShipmentOptions';
 
 import styles from './ServicesCounselingShipmentForm.module.scss';
 
+import { MTO_SHIPMENTS } from 'constants/queryKeys';
+import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
 import formStyles from 'styles/form.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { Form } from 'components/form/Form';
@@ -21,9 +24,10 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape } from 'types/customerShapes';
+import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { validateDate } from 'utils/validation';
+import { deleteShipment } from 'services/ghcApi';
 
 const ServicesCounselingShipmentForm = ({
   history,
@@ -32,11 +36,33 @@ const ServicesCounselingShipmentForm = ({
   isCreatePage,
   mtoShipment,
   submitHandler,
+  mtoShipments,
   serviceMember,
   currentResidence,
   moveTaskOrderID,
 }) => {
-  const [errorMessage, setErrorMessage] = React.useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+
+  const shipments = mtoShipments;
+
+  const [mutateMTOShipmentStatus] = useMutation(deleteShipment, {
+    onSuccess: (_, variables) => {
+      const updatedMTOShipment = mtoShipment;
+      // Update mtoShipments with our updated status and set query data to match
+      shipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      // InvalidateQuery tells other components using this data that they need to re-fetch
+      // This allows the requestCancellation button to update immediately
+      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+
+      history.goBack();
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      setErrorMessage(errorMsg);
+    },
+  });
 
   const getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
@@ -45,6 +71,16 @@ const ServicesCounselingShipmentForm = ({
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');
     return shipmentNumber;
+  };
+
+  const handleDeleteShipment = (shipmentID) => {
+    mutateMTOShipmentStatus({
+      shipmentID,
+    });
+  };
+
+  const handleShowCancellationModal = () => {
+    setIsCancelModalVisible(true);
   };
 
   const shipmentType = mtoShipment.shipmentType || selectedMoveType;
@@ -149,6 +185,13 @@ const ServicesCounselingShipmentForm = ({
 
         return (
           <>
+            {isCancelModalVisible && (
+              <SCRequestShipmentCancellationModal
+                shipmentID={mtoShipment.id}
+                onClose={setIsCancelModalVisible}
+                onSubmit={handleDeleteShipment}
+              />
+            )}
             {errorMessage && (
               <Alert type="error" heading="An error occurred">
                 {errorMessage}
@@ -156,9 +199,21 @@ const ServicesCounselingShipmentForm = ({
             )}
 
             <div className={styles.ServicesCounselingShipmentForm}>
-              <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
-
-              <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
+              <div className={styles.headerWrapper}>
+                <div>
+                  <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+                  <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    handleShowCancellationModal();
+                  }}
+                  unstyled
+                >
+                  Delete shipment
+                </Button>
+              </div>
 
               <SectionWrapper className={styles.weightAllowance}>
                 <p>
@@ -353,6 +408,7 @@ ServicesCounselingShipmentForm.propTypes = {
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
   moveTaskOrderID: string.isRequired,
+  mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   serviceMember: shape({
     weightAllotment: shape({
       totalWeightSelf: number,
