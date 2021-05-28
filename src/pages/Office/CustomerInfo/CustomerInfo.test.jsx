@@ -1,15 +1,27 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { generatePath } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
 import CustomerInfo from './CustomerInfo';
 
 import { MockProviders } from 'testUtils';
 import { updateCustomerInfo } from 'services/ghcApi';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateCustomerInfo: jest.fn(),
+}));
+
+const mockRequestedMoveCode = 'LR4T8V';
+const customerInfoEditURL = generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, {
+  moveCode: mockRequestedMoveCode,
+});
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
 }));
 
 const mockCustomer = {
@@ -36,7 +48,7 @@ const mockCustomer = {
 describe('CustomerInfo', () => {
   it('populates initial field values', () => {
     render(
-      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
+      <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo customer={mockCustomer} ordersId="abc123" isLoading={false} isError={false} />{' '}
       </MockProviders>,
     );
@@ -65,7 +77,7 @@ describe('CustomerInfo', () => {
     const mockUpdate = jest.fn();
     updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
     render(
-      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
+      <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo
           customer={mockCustomer}
           ordersId="abc123"
@@ -87,7 +99,7 @@ describe('CustomerInfo', () => {
     const mockUpdate = jest.fn();
     updateCustomerInfo.mockImplementation(() => Promise.reject());
     render(
-      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
+      <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo
           customer={mockCustomer}
           ordersId="abc123"
