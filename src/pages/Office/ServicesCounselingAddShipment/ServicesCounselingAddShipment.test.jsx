@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
-// import { createMTOShipment } from 'services/ghcApi';
+import { createMTOShipment } from 'services/ghcApi';
 
 const mockPush = jest.fn();
 
@@ -193,7 +193,6 @@ describe('ServicesCounselingAddShipment component', () => {
     expect(h1).toBeInTheDocument();
   });
 
-  /*
   it('routes to the move details page when the save button is clicked', async () => {
     createMTOShipment.mockImplementation(() => Promise.resolve());
 
@@ -201,7 +200,24 @@ describe('ServicesCounselingAddShipment component', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    expect(saveButton).not.toBeDisabled();
+    expect(saveButton).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(saveButton).toBeDisabled();
+    });
+
+    expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+
+    userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
+    userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
+    userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
+    userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
+    userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
+    userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled();
+    });
 
     userEvent.click(saveButton);
 
@@ -209,7 +225,6 @@ describe('ServicesCounselingAddShipment component', () => {
       expect(mockPush).toHaveBeenCalledWith('/counseling/moves/move123/details');
     });
   });
-*/
 
   it('routes to the move details page when the cancel button is clicked', async () => {
     render(<ServicesCounselingAddShipment {...props} />);
