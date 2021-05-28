@@ -24,9 +24,10 @@ import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
 
-const ServicesCounselingMoveDetails = () => {
+const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -138,6 +139,13 @@ const ServicesCounselingMoveDetails = () => {
                 </Alert>
               </Grid>
             )}
+            {customerEditAlert && (
+              <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
+                <Alert slim type={customerEditAlert.alertType}>
+                  {customerEditAlert.message}
+                </Alert>
+              </Grid>
+            )}
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
@@ -239,6 +247,12 @@ const ServicesCounselingMoveDetails = () => {
   );
 };
 
-ServicesCounselingMoveDetails.propTypes = {};
+ServicesCounselingMoveDetails.propTypes = {
+  customerEditAlert: AlertStateShape,
+};
+
+ServicesCounselingMoveDetails.defaultProps = {
+  customerEditAlert: null,
+};
 
 export default ServicesCounselingMoveDetails;

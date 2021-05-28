@@ -178,6 +178,14 @@ const counselingCompletedMoveDetailsQuery = {
 
 const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
 
+const renderMockedComponent = (props) => {
+  return render(
+    <MockProviders initialEntries={[detailsURL]}>
+      <ServicesCounselingMoveDetails {...props} />
+    </MockProviders>,
+  );
+};
+
 const mockedComponent = (
   <MockProviders initialEntries={[detailsURL]}>
     <ServicesCounselingMoveDetails />
@@ -296,6 +304,11 @@ describe('MoveDetails page', () => {
     render(mockedComponent);
 
     expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
+  });
+
+  it('renders customer edit alert', () => {
+    renderMockedComponent({ customerEditAlert: { alertType: 'success', message: 'great success!' } });
+    expect(screen.getByText('great success!')).toBeInTheDocument();
   });
 
   describe('new move - needs service counseling', () => {

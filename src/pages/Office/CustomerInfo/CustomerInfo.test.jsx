@@ -1,9 +1,28 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { generatePath } from 'react-router';
+import userEvent from '@testing-library/user-event';
 
 import CustomerInfo from './CustomerInfo';
 
 import { MockProviders } from 'testUtils';
+import { updateCustomerInfo } from 'services/ghcApi';
+import { servicesCounselingRoutes } from 'constants/routes';
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  updateCustomerInfo: jest.fn(),
+}));
+
+const mockRequestedMoveCode = 'LR4T8V';
+const customerInfoEditURL = generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, {
+  moveCode: mockRequestedMoveCode,
+});
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'LR4T8V' }),
+}));
 
 const mockCustomer = {
   backup_contact: {
@@ -29,7 +48,7 @@ const mockCustomer = {
 describe('CustomerInfo', () => {
   it('populates initial field values', () => {
     render(
-      <MockProviders initialEntries={['moves/CDG3TR/customer']}>
+      <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo customer={mockCustomer} ordersId="abc123" isLoading={false} isError={false} />{' '}
       </MockProviders>,
     );
@@ -52,5 +71,49 @@ describe('CustomerInfo', () => {
     expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
     expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postal_code);
     expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
+  });
+
+  it('calls onUpdate prop with success on successful form submission', async () => {
+    const mockUpdate = jest.fn();
+    updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
+    render(
+      <MockProviders initialEntries={[customerInfoEditURL]}>
+        <CustomerInfo
+          customer={mockCustomer}
+          ordersId="abc123"
+          isLoading={false}
+          isError={false}
+          onUpdate={mockUpdate}
+        />
+      </MockProviders>,
+    );
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith('success');
+    });
+  });
+
+  it('calls onUpdate prop with error on unsuccessful form submission', async () => {
+    const mockUpdate = jest.fn();
+    updateCustomerInfo.mockImplementation(() => Promise.reject());
+    render(
+      <MockProviders initialEntries={[customerInfoEditURL]}>
+        <CustomerInfo
+          customer={mockCustomer}
+          ordersId="abc123"
+          isLoading={false}
+          isError={false}
+          onUpdate={mockUpdate}
+        />
+      </MockProviders>,
+    );
+    const saveBtn = screen.getByRole('button', { name: 'Save' });
+    userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith('error');
+    });
   });
 });
