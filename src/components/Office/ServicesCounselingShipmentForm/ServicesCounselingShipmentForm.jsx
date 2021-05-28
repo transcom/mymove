@@ -20,11 +20,10 @@ import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfo
 import Hint from 'components/Hint/index';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { createMTOShipment, getResponseError } from 'services/internalApi';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, HistoryShape, MtoShipmentShape } from 'types/customerShapes';
+import { HhgShipmentShape, MtoShipmentShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 import { MatchShape } from 'types/officeShapes';
 import { validateDate } from 'utils/validation';
@@ -37,10 +36,11 @@ const ServicesCounselingShipmentForm = ({
   selectedMoveType,
   isCreatePage,
   mtoShipment,
+  submitHandler,
   mtoShipments,
   serviceMember,
   currentResidence,
-  updateMTOShipment,
+  moveTaskOrderID,
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -92,6 +92,8 @@ const ServicesCounselingShipmentForm = ({
     isCreatePage ? {} : { agents: mtoShipment.mtoAgents, ...mtoShipment },
   );
   const optionalLabel = <span className={formStyles.optional}>Optional</span>;
+  const { moveCode } = match.params;
+  const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
 
   const submitMTOShipment = ({
     shipmentOption,
@@ -101,8 +103,6 @@ const ServicesCounselingShipmentForm = ({
     customerRemarks,
     counselorRemarks,
   }) => {
-    const { moveCode } = match.params;
-
     const deliveryDetails = delivery;
     if (hasDeliveryAddress === 'no') {
       delete deliveryDetails.address;
@@ -117,38 +117,29 @@ const ServicesCounselingShipmentForm = ({
       delivery: deliveryDetails,
     });
 
-    const updateMTOShipmentPayload = {
-      moveTaskOrderID: mtoShipment?.moveTaskOrderID,
-      shipmentID: mtoShipment.id,
-      ifMatchETag: mtoShipment.eTag,
-      normalize: false,
-      body: pendingMtoShipment,
-    };
-
-    const moveDetailsPath = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode });
-
     if (isCreatePage) {
-      createMTOShipment(pendingMtoShipment)
-        .then((response) => {
-          updateMTOShipment(response);
-          history.push(moveDetailsPath);
-        })
-        .catch((e) => {
-          const { response } = e;
-          const error = getResponseError(response, 'failed to create MTO shipment due to server error');
-
-          setErrorMessage(error);
-        });
-    } else {
-      updateMTOShipment(updateMTOShipmentPayload)
+      const body = { ...pendingMtoShipment, moveTaskOrderID };
+      submitHandler({ body, normalize: false })
         .then(() => {
           history.push(moveDetailsPath);
         })
-        .catch((e) => {
-          const { response } = e;
-          const error = getResponseError(response, 'failed to update MTO shipment due to server error');
-
-          setErrorMessage(error);
+        .catch(() => {
+          setErrorMessage(`A server error occurred adding the shipment`);
+        });
+    } else {
+      const updateMTOShipmentPayload = {
+        moveTaskOrderID,
+        shipmentID: mtoShipment.id,
+        ifMatchETag: mtoShipment.eTag,
+        normalize: false,
+        body: pendingMtoShipment,
+      };
+      submitHandler(updateMTOShipmentPayload)
+        .then(() => {
+          history.push(moveDetailsPath);
+        })
+        .catch(() => {
+          setErrorMessage('A server error occurred editing the shipment details');
         });
     }
   };
@@ -213,7 +204,7 @@ const ServicesCounselingShipmentForm = ({
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
 
-                  <h1>Edit shipment details</h1>
+                  <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
                 <Button
                   type="button"
@@ -254,7 +245,7 @@ const ServicesCounselingShipmentForm = ({
                           <>
                             <Checkbox
                               data-testid="useCurrentResidence"
-                              label="Use my current address"
+                              label="Use current address"
                               name="useCurrentResidence"
                               onChange={handleUseCurrentResidenceChange}
                               id="useCurrentResidenceCheckbox"
@@ -389,7 +380,13 @@ const ServicesCounselingShipmentForm = ({
                   <Button disabled={isSubmitting || !isValid} type="submit" onClick={handleSubmit}>
                     Save
                   </Button>
-                  <Button type="button" secondary onClick={history.goBack}>
+                  <Button
+                    type="button"
+                    secondary
+                    onClick={() => {
+                      history.push(moveDetailsPath);
+                    }}
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -404,13 +401,16 @@ const ServicesCounselingShipmentForm = ({
 
 ServicesCounselingShipmentForm.propTypes = {
   match: MatchShape,
-  history: HistoryShape,
-  updateMTOShipment: func.isRequired,
+  history: shape({
+    push: func.isRequired,
+  }),
+  submitHandler: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
+  moveTaskOrderID: string.isRequired,
   mtoShipments: arrayOf(MtoShipmentShape).isRequired,
   serviceMember: shape({
     weightAllotment: shape({
@@ -422,7 +422,7 @@ ServicesCounselingShipmentForm.propTypes = {
 ServicesCounselingShipmentForm.defaultProps = {
   isCreatePage: false,
   match: { isExact: false, params: { moveCode: '', shipmentId: '' } },
-  history: { goBack: () => {}, push: () => {} },
+  history: { push: () => {} },
   newDutyStationAddress: {
     city: '',
     state: '',

@@ -11,20 +11,20 @@ import ServicesCounselingShipmentForm from 'components/Office/ServicesCounseling
 import { MTO_SHIPMENTS } from 'constants/queryKeys';
 import { MatchShape } from 'types/officeShapes';
 import { useEditShipmentQueries } from 'hooks/queries';
+import { createMTOShipment } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { updateMTOShipment } from 'services/ghcApi';
 
-const ServicesCounselingEditShipmentDetails = ({ match }) => {
-  const { moveCode, shipmentId } = useParams();
+const ServicesCounselingAddShipment = ({ match }) => {
+  const { moveCode } = useParams();
   const history = useHistory();
   const { move, order, mtoShipments, isLoading, isError } = useEditShipmentQueries(moveCode);
-  const [mutateMTOShipment] = useMutation(updateMTOShipment, {
-    onSuccess: (updatedMTOShipment) => {
-      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+  const [mutateMTOShipments] = useMutation(createMTOShipment, {
+    onSuccess: (newMTOShipment) => {
+      mtoShipments.push(newMTOShipment);
+      queryCache.setQueryData([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID, false], mtoShipments);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, newMTOShipment.moveTaskOrderID]);
     },
   });
 
@@ -32,7 +32,6 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
-  const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
   return (
@@ -46,15 +45,13 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
                 <ServicesCounselingShipmentForm
                   match={match}
                   history={history}
-                  submitHandler={mutateMTOShipment}
-                  isCreatePage={false}
+                  submitHandler={mutateMTOShipments}
+                  isCreatePage
                   currentResidence={customer.current_address}
                   newDutyStationAddress={order.destinationDutyStation?.address}
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}
-                  mtoShipment={matchingShipment}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
-                  mtoShipments={mtoShipments}
                 />
               </Grid>
             </Grid>
@@ -65,8 +62,8 @@ const ServicesCounselingEditShipmentDetails = ({ match }) => {
   );
 };
 
-ServicesCounselingEditShipmentDetails.propTypes = {
+ServicesCounselingAddShipment.propTypes = {
   match: MatchShape.isRequired,
 };
 
-export default ServicesCounselingEditShipmentDetails;
+export default ServicesCounselingAddShipment;

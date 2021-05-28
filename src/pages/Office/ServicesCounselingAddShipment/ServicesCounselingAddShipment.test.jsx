@@ -3,9 +3,9 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
+import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
-import { updateMTOShipment } from 'services/ghcApi';
+import { createMTOShipment } from 'services/ghcApi';
 
 const mockPush = jest.fn();
 
@@ -17,12 +17,12 @@ jest.mock('react-router-dom', () => ({
   useHistory: () => ({
     push: mockPush,
   }),
-  useParams: jest.fn().mockReturnValue({ moveCode: 'move123', shipmentId: 'shipment123' }),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'move123' }),
 }));
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
-  updateMTOShipment: jest.fn(),
+  createMTOShipment: jest.fn(),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -158,11 +158,11 @@ const props = {
     path: '',
     isExact: false,
     url: '',
-    params: { moveCode: 'move123', shipmentId: 'shipment123' },
+    params: { moveCode: 'move123' },
   },
 };
 
-describe('ServicesCounselingEditShipmentDetails component', () => {
+describe('ServicesCounselingAddShipment component', () => {
   /*
   The order in which these mockImplementationOnce is directly correlated to the
   order in which the tests are run. This is because different data should be
@@ -172,14 +172,14 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
   */
   describe('check different component states - ORDER MATTERS see comment in tests', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
+      render(<ServicesCounselingAddShipment {...props} />);
 
       const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      render(<ServicesCounselingEditShipmentDetails {...props} />);
+      render(<ServicesCounselingAddShipment {...props} />);
 
       const errorMessage = await screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
@@ -187,20 +187,37 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
   });
 
   it('renders the Services Counseling Shipment Form', async () => {
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    render(<ServicesCounselingAddShipment {...props} />);
 
-    const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
+    const h1 = await screen.getByRole('heading', { name: 'Add shipment details', level: 1 });
     expect(h1).toBeInTheDocument();
   });
 
   it('routes to the move details page when the save button is clicked', async () => {
-    updateMTOShipment.mockImplementation(() => Promise.resolve());
+    createMTOShipment.mockImplementation(() => Promise.resolve());
 
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    render(<ServicesCounselingAddShipment {...props} />);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
-    expect(saveButton).not.toBeDisabled();
+    expect(saveButton).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(saveButton).toBeDisabled();
+    });
+
+    expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+
+    userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
+    userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
+    userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
+    userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
+    userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
+    userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled();
+    });
 
     userEvent.click(saveButton);
 
@@ -210,7 +227,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
   });
 
   it('routes to the move details page when the cancel button is clicked', async () => {
-    render(<ServicesCounselingEditShipmentDetails {...props} />);
+    render(<ServicesCounselingAddShipment {...props} />);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 

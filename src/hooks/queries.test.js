@@ -578,6 +578,11 @@ describe('useEditShipmentQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
       order: {
         id: '4321',
         customerID: '2468',

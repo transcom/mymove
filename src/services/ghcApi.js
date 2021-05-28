@@ -177,6 +177,11 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function createMTOShipment({ body, normalize = true, schemaKey = 'mtoShipment' }) {
+  const operationPath = 'mtoShipment.createMTOShipment';
+  return makeGHCRequest(operationPath, { body }, { schemaKey, normalize });
+}
+
 export function updateMTOShipment({
   moveTaskOrderID,
   shipmentID,
