@@ -191,7 +191,7 @@ export class OfficeApp extends Component {
                       exact
                       path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
                       component={ServicesCounselingAddShipment}
-                      requiredROles={[roleTypes.SERVICES_COUNSELOR]}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
 
                     <PrivateRoute
