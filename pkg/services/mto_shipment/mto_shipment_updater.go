@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
@@ -759,8 +760,9 @@ func CalculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 		distance, distance, weight, weight).First(&ghcDomesticTransitTime)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Errorf("failed to find transit time for shipment of %d lbs weight and %d mile distance", weight, distance)
 	}
+
 	// Add the max transit time to the pickup date to get the new required delivery date
 	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 
