@@ -158,6 +158,8 @@ func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
 
 // MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
 // through milmove UI.
+// It does create an associated move
+// It does not create associated addresses.
 func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {

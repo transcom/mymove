@@ -3,13 +3,17 @@ package primeapi
 import (
 	"log"
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
@@ -52,4 +56,50 @@ func TestHandlerSuite(t *testing.T) {
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
+}
+
+// EqualAddress compares a model address against a payload address
+func (suite *HandlerSuite) EqualAddress(expected models.Address, actual *primemessages.Address, checkID bool) {
+	if checkID == true {
+		suite.Equal(expected.ID.String(), actual.ID.String())
+	}
+	suite.Equal(&expected.StreetAddress1, actual.StreetAddress1)
+	suite.Equal(expected.StreetAddress2, actual.StreetAddress2)
+	suite.Equal(expected.StreetAddress3, actual.StreetAddress3)
+	suite.Equal(&expected.City, actual.City)
+	suite.Equal(&expected.State, actual.State)
+	suite.Equal(&expected.PostalCode, actual.PostalCode)
+	suite.Equal(expected.Country, actual.Country)
+}
+
+// EqualAddressPayload compares a payload address against a payload address
+// If you don't want to compare IDs set checkID to false
+func (suite *HandlerSuite) EqualAddressPayload(expected *primemessages.Address, actual *primemessages.Address, checkID bool) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	}
+	if checkID == true {
+		suite.Equal(expected.ID.String(), actual.ID.String())
+	}
+	suite.Equal(expected.StreetAddress1, actual.StreetAddress1)
+	suite.Equal(expected.StreetAddress2, actual.StreetAddress2)
+	suite.Equal(expected.StreetAddress3, actual.StreetAddress3)
+	suite.Equal(expected.City, actual.City)
+	suite.Equal(expected.State, actual.State)
+	suite.Equal(expected.PostalCode, actual.PostalCode)
+	suite.Equal(expected.Country, actual.Country)
+}
+
+// EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
+// If one is nil, both should be nil, else they should match in value
+// This is to be strictly used for dates as it drops any time parameters in the comparison
+func (suite *HandlerSuite) EqualDatePtr(expected *time.Time, actual *strfmt.Date) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		isoDate := "2006-01-02" // Create a date format
+		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
+	}
 }

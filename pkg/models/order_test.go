@@ -28,18 +28,10 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 }
 
 func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
 	order.TAC = nil
-	err = move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
-	err = suite.DB().Load(&order, "Moves")
-	suite.NoError(err)
+	order.Moves = append(order.Moves, move)
 
 	expErrors := map[string][]string{
 		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
@@ -48,9 +40,52 @@ func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
 	suite.verifyValidationErrors(&order, expErrors)
 }
 
+func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
+	validStatuses := []struct {
+		desc  string
+		value MoveStatus
+	}{
+		{"Draft", MoveStatusDRAFT},
+		{"NeedsServiceCounseling", MoveStatusNeedsServiceCounseling},
+	}
+	for _, validStatus := range validStatuses {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), validStatus.value)
+		order := move.Orders
+		order.TAC = nil
+		order.Moves = append(order.Moves, move)
+
+		expErrors := map[string][]string{}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
+func (suite *ModelSuite) TestTacFormat() {
+	invalidCases := []struct {
+		desc string
+		tac  string
+	}{
+		{"TestOneCharacter", "A"},
+		{"TestTwoCharacters", "AB"},
+		{"TestThreeCharacters", "ABC"},
+		{"TestGreaterThanFourChars", "ABCD1"},
+		{"TestNonAlphaNumChars", "AB-C"},
+	}
+	for _, invalidCase := range invalidCases {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+		order := move.Orders
+		order.TAC = &invalidCase.tac
+		order.Moves = append(order.Moves, move)
+
+		expErrors := map[string][]string{
+			"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
 func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	invalidCases := []struct {
 		desc  string
 		value *string
@@ -59,16 +94,10 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 		{"Nil", nil},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 		order := move.Orders
 		order.OrdersNumber = invalidCase.value
-		err := move.Submit()
-		if err != nil {
-			suite.T().Fatal("Should transition.")
-		}
-		suite.MustSave(&move)
-		err = suite.DB().Load(&order, "Moves")
-		suite.NoError(err)
+		order.Moves = append(order.Moves, move)
 
 		expErrors := map[string][]string{
 			"orders_number": {"OrdersNumber cannot be blank."},
@@ -79,8 +108,6 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	emptyString := internalmessages.OrdersTypeDetail("")
 
 	invalidCases := []struct {
@@ -91,17 +118,10 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		{"Nil", nil},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 		order := move.Orders
-
 		order.OrdersTypeDetail = invalidCase.value
-		err := move.Submit()
-		if err != nil {
-			suite.T().Fatal("Should transition.")
-		}
-		suite.MustSave(&move)
-		err = suite.DB().Load(&order, "Moves")
-		suite.NoError(err)
+		order.Moves = append(order.Moves, move)
 
 		expErrors := map[string][]string{
 			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
@@ -112,18 +132,10 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
 	order.DepartmentIndicator = nil
-	err = move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
-	err = suite.DB().Load(&order, "Moves")
-	suite.NoError(err)
+	order.Moves = append(order.Moves, move)
 
 	expErrors := map[string][]string{
 		"department_indicator": {"DepartmentIndicator cannot be blank."},

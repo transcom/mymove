@@ -55,6 +55,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
+		}),
+		OrderCounselingUpdateOrderHandler: order.CounselingUpdateOrderHandlerFunc(func(params order.CounselingUpdateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
+		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
@@ -181,6 +187,10 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
+	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
+	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
+	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
@@ -309,6 +319,12 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.OrderCounselingUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
+	}
+	if o.OrderCounselingUpdateOrderHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateOrderHandler")
+	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
@@ -490,6 +506,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}/allowances"] = order.NewCounselingUpdateAllowance(o.context, o.OrderCounselingUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}"] = order.NewCounselingUpdateOrder(o.context, o.OrderCounselingUpdateOrderHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
