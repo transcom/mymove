@@ -424,11 +424,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(shipment.ID.String(), okPayload.ID.String())
 
 		// Confirm PATCH working as expected; non-updated values still exist
-		suite.equalDatePtr(shipment.ApprovedDate, okPayload.ApprovedDate)
-		suite.equalDatePtr(shipment.FirstAvailableDeliveryDate, okPayload.FirstAvailableDeliveryDate)
-		suite.equalDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
-		suite.equalDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
-		suite.equalDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
+		suite.EqualDatePtr(shipment.ApprovedDate, okPayload.ApprovedDate)
+		suite.EqualDatePtr(shipment.FirstAvailableDeliveryDate, okPayload.FirstAvailableDeliveryDate)
+		suite.EqualDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
+		suite.EqualDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
+		suite.EqualDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
 
 		suite.EqualAddress(*shipment.PickupAddress, &okPayload.PickupAddress.Address, true)
 		suite.EqualAddress(*shipment.DestinationAddress, &okPayload.DestinationAddress.Address, true)
@@ -514,7 +514,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotNil(okPayload.PrimeEstimatedWeightRecordedDate)
 		// Confirm PATCH working as expected; non-updated value still exists
 		suite.NotNil(okPayload.RequestedPickupDate)
-		suite.equalDatePtr(minimalShipment.RequestedPickupDate, okPayload.RequestedPickupDate)
+		suite.EqualDatePtr(minimalShipment.RequestedPickupDate, okPayload.RequestedPickupDate)
 
 		// refresh shipment from DB for getting the updated eTag
 		minimalShipment = suite.refreshFromDB(minimalShipment.ID)
@@ -744,11 +744,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// Check all dates and addresses in the payload
-		suite.equalDatePtr(shipment.ApprovedDate, okPayload.ApprovedDate)
-		suite.equalDatePtr(shipment.FirstAvailableDeliveryDate, okPayload.FirstAvailableDeliveryDate)
-		suite.equalDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
-		suite.equalDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
-		suite.equalDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
+		suite.EqualDatePtr(shipment.ApprovedDate, okPayload.ApprovedDate)
+		suite.EqualDatePtr(shipment.FirstAvailableDeliveryDate, okPayload.FirstAvailableDeliveryDate)
+		suite.EqualDatePtr(shipment.RequestedPickupDate, okPayload.RequestedPickupDate)
+		suite.EqualDatePtr(shipment.RequiredDeliveryDate, okPayload.RequiredDeliveryDate)
+		suite.EqualDatePtr(shipment.ScheduledPickupDate, okPayload.ScheduledPickupDate)
 
 		suite.EqualAddress(*shipment.PickupAddress, &okPayload.PickupAddress.Address, true)
 		suite.EqualAddress(*shipment.DestinationAddress, &okPayload.DestinationAddress.Address, true)
@@ -1107,7 +1107,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		// Confirm that auto-generated requiredDeliveryDate matches expected value
 		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
-		suite.equalDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
+		suite.EqualDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
 
 	})
 
@@ -1167,7 +1167,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		// Check that RDD is set to 12 + 10 days after scheduled pickup date
 		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
-		suite.equalDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
+		suite.EqualDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
 
 	})
 
@@ -1227,7 +1227,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 		// Check that RDD is set to 12 + 20 days after scheduled pickup date
 		expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
-		suite.equalDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
+		suite.EqualDatePtr(&expectedRDD, responsePayload.RequiredDeliveryDate)
 
 	})
 
@@ -1516,19 +1516,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		// Run swagger validations - should fail
 		suite.Error(params.Body.Validate(strfmt.Default))
 	})
-}
-
-// Compares the time.Time from the model with the strfmt.date from the payload
-// If one is nil, both should be nil, else they should match in value
-// This is to be strictly used for dates as it drops any time parameters in the comparison
-func (suite *HandlerSuite) equalDatePtr(expected *time.Time, actual *strfmt.Date) {
-	if expected == nil || actual == nil {
-		suite.Nil(expected)
-		suite.Nil(actual)
-	} else {
-		isoDate := "2006-01-02" // Create a date format
-		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
-	}
 }
 
 func getFakeAddress() struct{ primemessages.Address } {
