@@ -1,8 +1,8 @@
-import React, { Suspense } from 'react';
-import { mount } from 'enzyme';
+import React from 'react';
+import { shallow } from 'enzyme';
+import { useLocation } from 'react-router-dom';
 
-import ServicesCounselingMoveDocumentWrapper from 'pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper';
-import { MockProviders } from 'testUtils';
+import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
 
 const mockOriginDutyStation = {
   address: {
@@ -107,23 +107,26 @@ const testMoveId = '10000';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn().mockReturnValue({ orderId: testMoveId }),
+  useLocation: jest.fn(),
 }));
 
-describe('MoveDocumentWrapper', () => {
-  const wrapper = mount(
-    <MockProviders initialEntries={[`/counseling/moves/${testMoveId}/orders`]}>
-      <Suspense fallback={<div>Loading</div>}>
-        <ServicesCounselingMoveDocumentWrapper />
-      </Suspense>
-    </MockProviders>,
-  );
+describe('ServicesCounselingMoveDocumentWrapper', () => {
+  it('renders the document viewer', () => {
+    useLocation.mockImplementation(() => ({ pathname: `/counseling/moves/${testMoveId}/orders` }));
+    const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
 
-  it('renders the orders document viewer', () => {
     expect(wrapper.find('DocumentViewer').exists()).toBe(true);
   });
 
-  it('renders the sidebar services counseling move allowances form', async () => {
-    await wrapper.update();
+  it('renders the sidebar ServicesCounselingOrders component', () => {
+    useLocation.mockImplementation(() => ({ pathname: `/counseling/moves/${testMoveId}/orders` }));
+    const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
+    expect(wrapper.find('ServicesCounselingOrders').exists()).toBe(true);
+  });
+
+  it('renders the sidebar ServicesCounselingMoveAllowances component', () => {
+    useLocation.mockImplementation(() => ({ pathname: `/counseling/moves/${testMoveId}/allowances` }));
+    const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
     expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
   });
 });

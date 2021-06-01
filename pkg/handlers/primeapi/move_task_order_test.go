@@ -32,21 +32,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestTruncateAll() {
-
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	fmt.Println("created move", move.ID, move.ContractorID)
-
-	err := suite.DB().TruncateAll()
-	fmt.Println(err)
-	fmt.Println("truncated db")
-
-	foundMove := models.Move{}
-	err = suite.DB().Find(&foundMove, move.ID.String())
-	fmt.Println(err)
-	fmt.Println("found move", foundMove.ID, foundMove.ContractorID)
-}
-
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	// unavailable MTO
 	testdatagen.MakeDefaultMove(suite.DB())
@@ -55,6 +40,9 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			CounselorRemarks: handlers.FmtString("counselor remarks"),
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -71,6 +59,17 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 		HandlerContext:       context,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
 	}
+
+	suite.T().Run("mto shipment has relevant fields", func(t *testing.T) {
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
+		suite.Equal(string("counselor remarks"), *moveTaskOrdersPayload[0].MtoShipments[0].CounselorRemarks)
+	})
 
 	suite.T().Run("with mto service item dimensions", func(t *testing.T) {
 		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{

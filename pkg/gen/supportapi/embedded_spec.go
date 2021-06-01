@@ -1086,6 +1086,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -1101,6 +1105,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -1666,7 +1675,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -2223,9 +2235,6 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
-        "diversion": {
-          "type": "boolean"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2238,6 +2247,7 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
+            "CANCELED",
             "DIVERSION_REQUESTED"
           ]
         }
@@ -3777,6 +3787,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -3792,6 +3806,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -4357,7 +4376,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4914,9 +4936,6 @@ func init() {
     },
     "UpdateMTOShipmentStatus": {
       "properties": {
-        "diversion": {
-          "type": "boolean"
-        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -4929,6 +4948,7 @@ func init() {
             "APPROVED",
             "SUBMITTED",
             "CANCELLATION_REQUESTED",
+            "CANCELED",
             "DIVERSION_REQUESTED"
           ]
         }

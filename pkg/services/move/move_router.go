@@ -1,30 +1,35 @@
 package move
 
 import (
+	"database/sql"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
-
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type moveRouter struct {
-	db *pop.Connection
+	db     *pop.Connection
+	logger Logger
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter(db *pop.Connection) services.MoveRouter {
-	return &moveRouter{db}
+func NewMoveRouter(db *pop.Connection, logger Logger) services.MoveRouter {
+	return &moveRouter{db, logger}
+}
+
+// InitNewMoveRouter initialize NewMoveRouter
+func InitNewMoveRouter(db *pop.Connection, logger Logger) (services.MoveRouter, error) {
+	return NewMoveRouter(
+		db,
+		logger), nil
 }
 
 // Submit is called when the customer submits their move. It determines whether
@@ -33,49 +38,82 @@ func NewMoveRouter(db *pop.Connection) services.MoveRouter {
 // "Submitted".
 func (router moveRouter) Submit(move *models.Move) error {
 	var err error
+	router.logMove(move)
 
-	if router.needsServiceCounseling() {
-		err = router.sendToServiceCounselor(move)
-	} else {
-		err = router.sendNewMoveToOfficeUser(move)
-	}
+	needsServicesCounseling, err := router.needsServiceCounseling(move)
 	if err != nil {
+		router.logger.Error("failure determining if a move needs services counseling", zap.Error(err))
 		return err
 	}
+	router.logger.Info("SUCCESS: Determining if move needs services counseling or not")
+
+	if needsServicesCounseling {
+		err = router.sendToServiceCounselor(move)
+		if err != nil {
+			router.logger.Error("failure routing move to services counseling", zap.Error(err))
+			return err
+		}
+		router.logger.Info("SUCCESS: Move sent to services counseling")
+	} else {
+		err = router.sendNewMoveToOfficeUser(move)
+		if err != nil {
+			router.logger.Error("failure routing move to office user / TOO queue", zap.Error(err))
+			return err
+		}
+		router.logger.Info("SUCCESS: Move sent to office user / TOO queue")
+	}
+
+	router.logger.Info("SUCCESS: Move submitted and routed to the appropriate queue")
 	return nil
 }
 
-// TODO: Replace the code in this function to determine whether or not the move
-// needs service counseling based on the service member's origin duty station.
-// Then remove all code related to the service counseling feature flag here and
-// in pkg/cli/featureflag.go, and remove any references to
-// `FEATURE_FLAG_SERVICE_COUNSELING` from the entire project.
-// You'll need to update the test setup in TestSubmitMoveForServiceCounselingHandler
-// so that the move's origin duty station will trigger service counseling.
-func (router moveRouter) needsServiceCounseling() bool {
-	logger := zap.NewNop()
-	flag := pflag.CommandLine
-	v := viper.New()
-	err := v.BindPFlags(flag)
-	if err != nil {
-		logger.Fatal("could not bind flags", zap.Error(err))
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
+func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error) {
+	var orders models.Order
+	err := router.db.Q().
+		Where("orders.id = ?", move.OrdersID).
+		First(&orders)
 
-	return v.GetBool(cli.FeatureFlagServiceCounseling)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			router.logger.Error("failure finding move", zap.Error(err))
+			return false, services.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+		default:
+			router.logger.Error("failure encountered querying for orders associated with the move", zap.Error(err))
+			return false, fmt.Errorf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID)
+		}
+	}
+
+	var originDutyStation models.DutyStation
+
+	if orders.OriginDutyStationID == nil || *orders.OriginDutyStationID == uuid.Nil {
+		return false, services.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
+	}
+
+	originDutyStation, err = models.FetchDutyStation(router.db, *orders.OriginDutyStationID)
+	if err != nil {
+		router.logger.Error("failure finding the origin duty station", zap.Error(err))
+		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+	}
+	return originDutyStation.ProvidesServicesCounseling, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
+		router.logger.Warn(fmt.Sprintf(
+			"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is: %s",
+			move.Status,
+		))
+
 		return errors.Wrap(
 			models.ErrInvalidTransition, fmt.Sprintf(
-				"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s",
+				"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is: %s",
 				move.Status,
 			),
 		)
 	}
+
 	move.Status = models.MoveStatusNeedsServiceCounseling
 	now := time.Now()
 	move.SubmittedAt = &now
@@ -87,7 +125,13 @@ func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
 // The Submitted status indicates to the TOO that this is a new move.
 func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
-		return errors.Wrap(models.ErrInvalidTransition, "Submit")
+		router.logger.Warn(fmt.Sprintf(
+			"Cannot move to Submitted state for TOO review when the Move is not in Draft status. Its current status is: %s",
+			move.Status))
+
+		return errors.Wrap(models.ErrInvalidTransition, fmt.Sprintf(
+			"Cannot move to Submitted state for TOO review when the Move is not in Draft status. Its current status is: %s",
+			move.Status))
 	}
 	move.Status = models.MoveStatusSUBMITTED
 	now := time.Now()
@@ -98,6 +142,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 		ppm := &move.PersonallyProcuredMoves[i]
 		err := ppm.Submit(now)
 		if err != nil {
+			router.logger.Error("Failure submitting ppm", zap.Error(err))
 			return err
 		}
 	}
@@ -106,6 +151,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
 			if err != nil {
+				router.logger.Error("Failure requesting reimbursement for ppm", zap.Error(err))
 				return err
 			}
 		}
@@ -123,6 +169,12 @@ func (router moveRouter) Approve(move *models.Move) error {
 	if router.alreadyApproved(move) {
 		return nil
 	}
+
+	router.logger.Warn(fmt.Sprintf(
+		"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
+		validStatusesBeforeApproval, move.Status,
+	))
+
 	return errors.Wrap(
 		models.ErrInvalidTransition, fmt.Sprintf(
 			"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
@@ -220,4 +272,13 @@ func (router moveRouter) CompleteServiceCounseling(move *models.Move) error {
 	move.Status = models.MoveStatusServiceCounselingCompleted
 
 	return nil
+}
+
+func (router moveRouter) logMove(move *models.Move) {
+	router.logger.Info("Move log",
+		zap.String("Move.ID", move.ID.String()),
+		zap.String("Move.Locator", move.Locator),
+		zap.String("Move.Status", string(move.Status)),
+		zap.String("Move.OrdersID", move.OrdersID.String()),
+	)
 }

@@ -29,6 +29,7 @@ import { roleTypes } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
+import { servicesCounselingRoutes } from 'constants/routes';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -48,7 +49,12 @@ const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
 );
 const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue'));
-
+const ServicesCounselingEditShipmentDetails = lazy(() =>
+  import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
+);
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -181,14 +187,29 @@ export class OfficeApp extends Component {
 
                     {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
-                      path="/counseling/queue"
+                      key="servicesCounselingAddShipment"
+                      exact
+                      path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
+                      component={ServicesCounselingAddShipment}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
+                    <PrivateRoute
+                      key="servicesCounselingEditShipmentDetailsRoute"
+                      exact
+                      path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
+                      component={ServicesCounselingEditShipmentDetails}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+                    <PrivateRoute
+                      path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
                       exact
                       component={ServicesCounselingQueue}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
                       key="servicesCounselingMoveInfoRoute"
-                      path="/counseling/moves/:moveCode"
+                      path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />

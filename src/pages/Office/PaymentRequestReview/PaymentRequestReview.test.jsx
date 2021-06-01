@@ -73,6 +73,7 @@ jest.mock('hooks/queries', () => ({
             street_address_3: 'c/o Some Person',
           },
           id: 'a1',
+          status: 'CANCELED',
           moveTaskOrderID: '123',
           pickupAddress: {
             city: 'Beverly Hills',
@@ -186,6 +187,7 @@ describe('PaymentRequestReview', () => {
           mtoShipmentID: 'a1',
           mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoServiceItemName: 'Test Service Item',
+          mtoShipmentModificationType: 'CANCELED',
           mtoShipmentDepartureDate: '2021-05-04',
           mtoShipmentDestinationAddress: 'Fairfield, CA 94535',
           mtoShipmentPickupAddress: 'Beverly Hills, CA 90210',
@@ -198,6 +200,7 @@ describe('PaymentRequestReview', () => {
           mtoShipmentID: 'b2',
           mtoShipmentType: SHIPMENT_OPTIONS.NTSR,
           mtoServiceItemName: 'Test Service Item 2',
+          mtoShipmentModificationType: '',
           mtoShipmentDepartureDate: '2021-05-04',
           mtoShipmentDestinationAddress: 'Fairfield, CA 94535',
           mtoShipmentPickupAddress: 'Beverly Hills, CA 90210',
@@ -209,6 +212,7 @@ describe('PaymentRequestReview', () => {
           mtoShipmentID: 'a1',
           mtoShipmentType: SHIPMENT_OPTIONS.HHG,
           mtoServiceItemName: 'Test Service Item 3',
+          mtoShipmentModificationType: 'CANCELED',
           mtoShipmentDepartureDate: '2021-05-04',
           mtoShipmentDestinationAddress: 'Fairfield, CA 94535',
           mtoShipmentPickupAddress: 'Beverly Hills, CA 90210',
@@ -219,7 +223,6 @@ describe('PaymentRequestReview', () => {
         {
           id: '4',
           mtoServiceItemName: 'Test Service Item 4',
-
           amount: 999.99,
           createdAt: '2020-01-01T00:09:00.999Z',
         },

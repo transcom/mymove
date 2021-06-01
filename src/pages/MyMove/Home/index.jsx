@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { arrayOf, bool, shape, string, node, func } from 'prop-types';
+import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Button } from '@trussworks/react-uswds';
@@ -26,22 +26,22 @@ import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import {
-  selectServiceMemberFromLoggedInUser,
-  selectIsProfileComplete,
-  selectCurrentOrders,
   selectCurrentMove,
+  selectCurrentOrders,
   selectCurrentPPM,
+  selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
+  selectServiceMemberFromLoggedInUser,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
 } from 'shared/Entities/modules/signed_certifications';
-import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { MtoShipmentShape, UploadShape, HistoryShape, MoveShape, OrdersShape } from 'types/customerShapes';
+import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 

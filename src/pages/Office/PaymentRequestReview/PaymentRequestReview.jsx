@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMutation, queryCache } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
-import { formatPaymentRequestReviewAddressString } from 'utils/shipmentDisplay';
+import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MatchShape, HistoryShape } from 'types/router';
+import { HistoryShape, MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
@@ -119,6 +119,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       mtoShipmentDestinationAddress: selectedShipment
         ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
         : undefined,
+      mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
       mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,

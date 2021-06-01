@@ -4,15 +4,13 @@ import { Checkbox } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
-import ShipmentContainer from '../ShipmentContainer';
-
-import styles from './ShipmentDisplay.module.scss';
-
 import { EditButton } from 'components/form/IconButtons';
-import { AddressShape } from 'types/address';
-import { formatAddress } from 'utils/shipmentDisplay';
+import ShipmentContainer from 'components/Office/ShipmentContainer';
+import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
+import { AddressShape } from 'types/address';
+import { formatAddress } from 'utils/shipmentDisplay';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -60,9 +58,11 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
         </dl>
         {editURL && (
           <EditButton
-            to={editURL}
+            onClick={() => {
+              window.location.href = editURL;
+            }}
             className={styles.editButton}
-            data-testid="editButton"
+            data-testid={editURL}
             label="Edit shipment"
             secondary
           />

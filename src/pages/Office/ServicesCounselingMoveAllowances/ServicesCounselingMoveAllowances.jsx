@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { generatePath } from 'react-router';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
@@ -10,13 +11,14 @@ import * as Yup from 'yup';
 import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateOrder } from 'services/ghcApi';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS } from 'constants/queryKeys';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { useOrdersDocumentQueries } from 'hooks/queries';
+import { counselingUpdateAllowance } from 'services/ghcApi';
+import { dropdownInputOptions } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { dropdownInputOptions } from 'shared/formatters';
-import { ORDERS } from 'constants/queryKeys';
 
 const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -47,10 +49,10 @@ const ServicesCounselingMoveAllowances = () => {
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/counseling/moves/${moveCode}/details`);
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
@@ -145,8 +147,13 @@ const ServicesCounselingMoveAllowances = () => {
                   <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                 </Button>
                 <h2 className={documentWrapperStyles.header} data-testid="allowances-header">
-                  View Allowances
+                  View allowances
                 </h2>
+                <div>
+                  <Link className={documentWrapperStyles.viewAllowances} data-testid="view-orders" to="orders">
+                    View orders
+                  </Link>
+                </div>
               </div>
               <div className={documentWrapperStyles.body}>
                 <AllowancesDetailForm

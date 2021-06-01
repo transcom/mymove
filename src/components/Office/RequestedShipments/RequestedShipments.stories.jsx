@@ -287,60 +287,70 @@ const serviceItems = [
   },
 ];
 
+const moveTaskOrders = [{}, { serviceCounselingCompletedAt: '2020-10-02T19:20:08.481139Z' }];
+
 export default {
   title: 'Office Components/RequestedShipments',
 };
 
 export const withOneShipment = () => (
-  <div style={{ padding: '20px' }}>
-    <RequestedShipments
-      mtoShipments={[shipments[0]]}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoAgents={agents}
-      shipmentsStatus="SUBMITTED"
-    />
-  </div>
+  <RequestedShipments
+    mtoShipments={[shipments[0]]}
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    customerInfo={customerInfo}
+    mtoAgents={agents}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrders[0]}
+  />
+);
+
+export const withCompletedServicesCounseling = () => (
+  <RequestedShipments
+    mtoShipments={[shipments[0]]}
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    customerInfo={customerInfo}
+    mtoAgents={agents}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrders[1]}
+  />
 );
 
 export const withMultipleShipments = () => (
-  <div style={{ position: 'relative', padding: '20px' }}>
-    <RequestedShipments
-      mtoShipments={shipments}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoAgents={agents}
-      shipmentsStatus="SUBMITTED"
-    />
-  </div>
+  <RequestedShipments
+    mtoShipments={shipments}
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    customerInfo={customerInfo}
+    mtoAgents={agents}
+    shipmentsStatus="SUBMITTED"
+    moveTaskOrder={moveTaskOrders[0]}
+  />
 );
 
 export const withOneApprovedShipment = () => (
-  <div style={{ position: 'relative', padding: '20px' }}>
-    <RequestedShipments
-      mtoShipments={[shipments[0]]}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoAgents={agents}
-      shipmentsStatus="APPROVED"
-      mtoServiceItems={serviceItems}
-    />
-  </div>
+  <RequestedShipments
+    mtoShipments={[shipments[0]]}
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    customerInfo={customerInfo}
+    mtoAgents={agents}
+    shipmentsStatus="APPROVED"
+    mtoServiceItems={serviceItems}
+    moveTaskOrder={moveTaskOrders[0]}
+  />
 );
 
 export const withMultipleApprovedShipments = () => (
-  <div style={{ position: 'relative', padding: '20px' }}>
-    <RequestedShipments
-      mtoShipments={shipments}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoAgents={agents}
-      shipmentsStatus="APPROVED"
-      mtoServiceItems={serviceItems}
-    />
-  </div>
+  <RequestedShipments
+    mtoShipments={shipments}
+    ordersInfo={ordersInfo}
+    allowancesInfo={allowancesInfo}
+    customerInfo={customerInfo}
+    mtoAgents={agents}
+    shipmentsStatus="APPROVED"
+    mtoServiceItems={serviceItems}
+    moveTaskOrder={moveTaskOrders[0]}
+  />
 );
