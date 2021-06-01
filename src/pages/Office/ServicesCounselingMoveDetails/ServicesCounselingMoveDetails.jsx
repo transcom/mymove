@@ -125,6 +125,8 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
     setIsSubmitModalVisible(false);
   };
 
+  const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -153,7 +155,11 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
-                <Button disabled={!mtoShipments.length} type="button" onClick={handleShowCancellationModal}>
+                <Button
+                  disabled={!mtoShipments.length || allShipmentsDeleted}
+                  type="button"
+                  onClick={handleShowCancellationModal}
+                >
                   Submit move details
                 </Button>
               )}
