@@ -9582,10 +9582,10 @@ filepond-polyfill@^1.0.2:
   resolved "https://registry.yarnpkg.com/filepond-polyfill/-/filepond-polyfill-1.0.4.tgz#cd816b4eb595dabd4baff215a797cb57ee1997ed"
   integrity sha512-ERBcCzqXadQB4mUaG34IOCsLStVpuG3F4a/nyYYeJLAfBIkT9DbQcJpIqcRQM+T3DyiNi1iZnq3rusFcQRaSMg==
 
-filepond@^4.27.1:
-  version "4.27.1"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.27.1.tgz#2fdbb2a2e49b32feb978ef41752a1d84bc68f222"
-  integrity sha512-L4DQgywbI68L+Qtp+1Wo6ZuzxtsfnxPMssTV4tyV0Sm9+9SOhwX5Dmx7y9RE5I8E7OnKKugxuUSakXUPS689Zg==
+filepond@^4.27.3:
+  version "4.27.3"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.27.3.tgz#7fe54cad8967d8518336f1934ad7792e2a5e0a43"
+  integrity sha512-3LYjT/YiVj1rnvtM8zo7k8sjrpDj3dLgiZ1SsL4c7Bx/ywT+LwGxeK+VAG+pqSwl7I8+2D5kcuKAgcnYF+EcTQ==
 
 filesize@6.1.0:
   version "6.1.0"
@@ -16935,10 +16935,10 @@ react-highlight-words@^0.17.0:
     memoize-one "^4.0.0"
     prop-types "^15.5.8"
 
-react-idle-timer@^4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.2.tgz#25196471b4ebd33b128afe5ab080b96b1b681a66"
-  integrity sha512-EaP/yEhlwdwjd0Jckkg/gxgwLi646S6M9rSDl8/LW18uPoV+vSWS2BLy/ouoNHwpjSIKbO/jn0k+lPODg38XtA==
+react-idle-timer@^4.6.4:
+  version "4.6.4"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.6.4.tgz#71ba954ba6f464df24d46a94e63c5ef19f7319dc"
+  integrity sha512-iq61dPud8fgj7l1KOJEY5pyiD532fW0KcIe/5XUe/0lB/4Vytoy4tZBlLGSiYodPzKxTL6HyKoOmG6tyzjD7OQ==
 
 react-imask@^6.0.7:
   version "6.0.7"
