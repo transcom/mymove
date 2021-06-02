@@ -15,7 +15,7 @@ import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { updateAllowance } from 'services/ghcApi';
+import { counselingUpdateAllowance } from 'services/ghcApi';
 import { dropdownInputOptions } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -52,7 +52,7 @@ const ServicesCounselingMoveAllowances = () => {
     history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const [mutateOrders] = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

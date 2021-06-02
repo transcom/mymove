@@ -16,10 +16,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
-
-	"github.com/transcom/mymove/pkg/random"
-
 	"github.com/stretchr/testify/mock"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
@@ -1033,14 +1029,13 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 
 	// setup service item
-	reService := models.ReService{
-		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
-	}
-	testdatagen.MergeModels(&reService, assertions.ReService)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	mtoServiceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
-		ReService:   reService,
 	})
 
 	// using handler to create service item params
@@ -1377,26 +1372,12 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
-			Description: &dcrtDescription,
+			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 }
 
@@ -1924,27 +1905,13 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.Must(uuid.NewV4()),
-			Status:      models.MTOServiceItemStatusApproved,
-			Description: &dcrtDescription,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        move,
 		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	dcrtCost := unit.Cents(55555)
@@ -2374,27 +2341,13 @@ func createMoveWith2ShipmentsAndPaymentRequest(db *pop.Connection, userUploader 
 		},
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.Must(uuid.NewV4()),
-			Status:      models.MTOServiceItemStatusApproved,
-			Description: &dcrtDescription,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        move,
 		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	dcrtCost := unit.Cents(55555)
@@ -3442,107 +3395,6 @@ func createHHGNeedsServicesCounseling(db *pop.Connection) {
 	})
 }
 
-func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, allDutyStations []models.DutyStation, dutyStationsInGBLOC []models.DutyStation, assertions testdatagen.Assertions) {
-	randDays, err := random.GetRandomInt(366)
-	if err != nil {
-		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(err))
-	}
-	submittedAt := time.Now().AddDate(0, 0, randDays*-1)
-
-	if assertions.ServiceMember.Affiliation == nil {
-		randomAffiliation, err := random.GetRandomInt(5)
-		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for affiliation"), zap.Error(err))
-		}
-		assertions.ServiceMember.Affiliation = &[]models.ServiceMemberAffiliation{
-			models.AffiliationARMY,
-			models.AffiliationAIRFORCE,
-			models.AffiliationNAVY,
-			models.AffiliationCOASTGUARD,
-			models.AffiliationMARINES}[randomAffiliation]
-	}
-
-	dutyStationCount := len(allDutyStations)
-	if assertions.Order.OriginDutyStationID == nil {
-		// We can pick any origin duty station not only one in the office user's GBLOC
-		if *assertions.ServiceMember.Affiliation == models.AffiliationMARINES {
-			randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
-			if err != nil {
-				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
-			}
-			assertions.Order.OriginDutyStation = &allDutyStations[randDutyStaionIndex]
-			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
-		} else {
-			randDutyStaionIndex, err := random.GetRandomInt(len(dutyStationsInGBLOC))
-			if err != nil {
-				log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
-			}
-			assertions.Order.OriginDutyStation = &dutyStationsInGBLOC[randDutyStaionIndex]
-			assertions.Order.OriginDutyStationID = &assertions.Order.OriginDutyStation.ID
-		}
-	}
-
-	if assertions.Order.NewDutyStationID == uuid.Nil {
-		randDutyStaionIndex, err := random.GetRandomInt(dutyStationCount)
-		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for duty station"), zap.Error(err))
-		}
-		assertions.Order.NewDutyStation = allDutyStations[randDutyStaionIndex]
-		assertions.Order.NewDutyStationID = assertions.Order.NewDutyStation.ID
-	}
-
-	randomFirst, randomLast := fakedata.RandomName()
-	assertions.ServiceMember.FirstName = &randomFirst
-	assertions.ServiceMember.LastName = &randomLast
-
-	orders := testdatagen.MakeOrderWithoutDefaults(db, assertions)
-
-	if assertions.Move.SubmittedAt == nil {
-		assertions.Move.SubmittedAt = &submittedAt
-	}
-
-	if assertions.Move.Status == "" {
-		randStatusIndex, err := random.GetRandomInt(len(possibleStatuses))
-		if err != nil {
-			log.Panic(fmt.Errorf("Unable to generate random integer for move status"), zap.Error(err))
-		}
-		assertions.Move.Status = possibleStatuses[randStatusIndex]
-
-		if assertions.Move.Status == models.MoveStatusServiceCounselingCompleted {
-			counseledAt := submittedAt.Add(3 * 24 * time.Hour)
-			assertions.Move.ServiceCounselingCompletedAt = &counseledAt
-		}
-	}
-	move := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move:  assertions.Move,
-		Order: orders,
-	})
-
-	laterRequestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
-	laterRequestedDeliveryDate := laterRequestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &laterRequestedPickupDate,
-			RequestedDeliveryDate: &laterRequestedDeliveryDate,
-		},
-	})
-
-	earlierRequestedPickupDate := submittedAt.Add(30 * 24 * time.Hour)
-	earlierRequestedDeliveryDate := earlierRequestedPickupDate.Add(7 * 24 * time.Hour)
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: move,
-		MTOShipment: models.MTOShipment{
-			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:   &earlierRequestedPickupDate,
-			RequestedDeliveryDate: &earlierRequestedDeliveryDate,
-		},
-	})
-}
-
 func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uploader.UserUploader) {
 
 	marineCorps := models.AffiliationMARINES
@@ -3654,6 +3506,24 @@ func createHHGServicesCounselingCompleted(db *pop.Connection) {
 	})
 }
 
+func createHHGNoShipments(db *pop.Connection) {
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "NOSHIP",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
@@ -3684,6 +3554,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createHHGNeedsServicesCounselingUSMC(db, userUploader)
 	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
 	createHHGServicesCounselingCompleted(db)
+	createHHGNoShipments(db)
 
 	for i := 0; i < 12; i++ {
 		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}

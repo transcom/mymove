@@ -166,12 +166,56 @@ IEA*1*000000995
 		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
 	})
 
+	suite.T().Run("does not error out if edi with same icn is processed for the same payment request", func(t *testing.T) {
+		sample997EDIString := `
+ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|
+GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
+ST*997*0001
+AK1*SI*100001254
+AK2*858*0001
+
+AK5*A
+AK9*A*1*1*1
+SE*6*0001
+GE*1*220001
+IEA*1*000000995
+	`
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				Status: models.PaymentRequestStatusSentToGex,
+			},
+		})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 995,
+				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType997,
+			},
+		})
+		testdatagen.MakePaymentRequestToInterchangeControlNumber(suite.DB(), testdatagen.Assertions{
+			PaymentRequestToInterchangeControlNumber: models.PaymentRequestToInterchangeControlNumber{
+				PaymentRequestID:         paymentRequest.ID,
+				InterchangeControlNumber: 100001254,
+				PaymentRequest:           paymentRequest,
+				EDIType:                  models.EDIType858,
+			},
+		})
+		err := edi997Processor.ProcessFile("", sample997EDIString)
+		suite.NoError(err)
+
+		var updatedPR models.PaymentRequest
+		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
+		suite.FatalNoError(err)
+		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+	})
+
 	suite.T().Run("doesn't update a payment request status after processing an invalid EDI997", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
 GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
 ST*997*0001
-AK1*SI*100001251
+AK1*SI*100001255
 AK2*858*0001
 
 AK5*A
@@ -217,7 +261,7 @@ IEA*1*000000022
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
 ST*997*0001
-AK1*SI*100001254
+AK1*SI*100001256
 AK2*858*0001
 
 AK5*A
@@ -236,7 +280,7 @@ IEA*1*000000022
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000009*0*T*|
 GS*SI*MILMOVE*8004171844*20190903*1617*9999*X*004010
 ST*997*0001
-AK1*SI*100001254
+AK1*SI*100001257
 AK2*858*0001
 
 AK5*A

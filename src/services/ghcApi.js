@@ -120,8 +120,18 @@ export async function updateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.counselingUpdateOrder';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateAllowance';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function counselingUpdateAllowance({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.counselingUpdateAllowance';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
@@ -177,6 +187,11 @@ export function updateMTOShipmentStatus({
   );
 }
 
+export function createMTOShipment({ body, normalize = true, schemaKey = 'mtoShipment' }) {
+  const operationPath = 'mtoShipment.createMTOShipment';
+  return makeGHCRequest(operationPath, { body }, { schemaKey, normalize });
+}
+
 export function updateMTOShipment({
   moveTaskOrderID,
   shipmentID,
@@ -193,6 +208,17 @@ export function updateMTOShipment({
       shipmentID,
       'If-Match': ifMatchETag,
       body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shipment' }) {
+  const operationPath = 'shipment.deleteShipment';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
     },
     { schemaKey, normalize },
   );

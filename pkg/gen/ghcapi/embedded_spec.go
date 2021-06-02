@@ -36,6 +36,136 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/counseling/orders/{orderID}": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order (performed by a services counselor)",
+        "operationId": "counselingUpdateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to update",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/counseling/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "counselingUpdateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -1220,9 +1350,6 @@ func init() {
           "400": {
             "$ref": "#/responses/InvalidRequest"
           },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
           "403": {
             "$ref": "#/responses/PermissionDenied"
           },
@@ -1287,12 +1414,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Order"
             }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/Unauthorized"
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
@@ -2082,22 +2203,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -2155,6 +2278,86 @@ func init() {
         },
         "type": {
           "type": "string"
+        }
+      }
+    },
+    "CounselingUpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "CounselingUpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "originDutyStationId",
+        "newDutyStationId"
+      ],
+      "properties": {
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
         }
       }
     },
@@ -2226,11 +2429,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -2830,6 +3031,11 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationAddress": {
           "x-nullable": true,
@@ -3746,6 +3952,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2000
@@ -3753,9 +3960,10 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "x-formatting": "weight",
           "x-nullable": true,
-          "example": 2000
+          "example": 500
         },
         "requiredMedicalEquipmentWeight": {
           "description": "unit is in lbs",
@@ -3769,11 +3977,9 @@ func init() {
       "type": "object",
       "properties": {
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "email": {
@@ -3867,6 +4073,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -4112,6 +4320,166 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/counseling/orders/{orderID}": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order (performed by a services counselor)",
+        "operationId": "counselingUpdateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to update",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/counseling/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "counselingUpdateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -5647,12 +6015,6 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
           "403": {
             "description": "The request was denied",
             "schema": {
@@ -5731,18 +6093,6 @@ func init() {
             "description": "updated instance of allowance",
             "schema": {
               "$ref": "#/definitions/Order"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was unauthorized",
-            "schema": {
-              "$ref": "#/definitions/Error"
             }
           },
           "403": {
@@ -6641,22 +6991,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -6714,6 +7066,89 @@ func init() {
         },
         "type": {
           "type": "string"
+        }
+      }
+    },
+    "CounselingUpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "CounselingUpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "originDutyStationId",
+        "newDutyStationId"
+      ],
+      "properties": {
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
         }
       }
     },
@@ -6785,11 +7220,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -7389,6 +7822,11 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "handle with care"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "destinationAddress": {
           "x-nullable": true,
@@ -8305,6 +8743,7 @@ func init() {
         "proGearWeight": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 2000,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,
@@ -8313,10 +8752,11 @@ func init() {
         "proGearWeightSpouse": {
           "description": "unit is in lbs",
           "type": "integer",
+          "maximum": 500,
           "minimum": 0,
           "x-formatting": "weight",
           "x-nullable": true,
-          "example": 2000
+          "example": 500
         },
         "requiredMedicalEquipmentWeight": {
           "description": "unit is in lbs",
@@ -8331,11 +8771,9 @@ func init() {
       "type": "object",
       "properties": {
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "email": {
@@ -8429,6 +8867,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }

@@ -24,6 +24,75 @@ jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
 }));
 
+const mtoShipments = [
+  {
+    customerRemarks: 'please treat gently',
+    counselorRemarks: 'all good',
+    destinationAddress: {
+      city: 'Fairfield',
+      country: 'US',
+      id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+      postal_code: '94535',
+      state: 'CA',
+      street_address_1: '987 Any Avenue',
+      street_address_2: 'P.O. Box 9876',
+      street_address_3: 'c/o Some Person',
+    },
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+    id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+    moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    pickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+      postal_code: '90210',
+      state: 'CA',
+      street_address_1: '123 Any Street',
+      street_address_2: 'P.O. Box 12345',
+      street_address_3: 'c/o Some Person',
+    },
+    requestedPickupDate: '2020-06-04',
+    scheduledPickupDate: '2020-06-05',
+    shipmentType: 'HHG',
+    status: 'SUBMITTED',
+    updatedAt: '2020-05-10T15:58:02.404031Z',
+  },
+  {
+    customerRemarks: 'do not drop!',
+    counselorRemarks: '',
+    destinationAddress: {
+      city: 'Fairfield',
+      country: 'US',
+      id: '672ff379-f6e3-48b4-a87d-752463f8f997',
+      postal_code: '94534',
+      state: 'CA',
+      street_address_1: '111 Everywhere',
+      street_address_2: 'Apt #1',
+      street_address_3: '',
+    },
+    eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
+    id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
+    moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    pickupAddress: {
+      city: 'Austin',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-b3c9-c0f467d13c55',
+      postal_code: '78712',
+      state: 'TX',
+      street_address_1: '888 Lucky Street',
+      street_address_2: '#4',
+      street_address_3: 'c/o rabbit',
+    },
+    requestedPickupDate: '2020-06-05',
+    scheduledPickupDate: '2020-06-06',
+    shipmentType: 'HHG',
+    status: 'SUBMITTED',
+    updatedAt: '2020-05-15T15:58:02.404031Z',
+  },
+];
+
 const newMoveDetailsQuery = {
   move: {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -92,74 +161,7 @@ const newMoveDetailsQuery = {
     order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
     tac: '9999',
   },
-  mtoShipments: [
-    {
-      customerRemarks: 'please treat gently',
-      counselorRemarks: 'all good',
-      destinationAddress: {
-        city: 'Fairfield',
-        country: 'US',
-        id: '672ff379-f6e3-48b4-a87d-796713f8f997',
-        postal_code: '94535',
-        state: 'CA',
-        street_address_1: '987 Any Avenue',
-        street_address_2: 'P.O. Box 9876',
-        street_address_3: 'c/o Some Person',
-      },
-      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
-      id: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-      pickupAddress: {
-        city: 'Beverly Hills',
-        country: 'US',
-        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
-        id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
-        postal_code: '90210',
-        state: 'CA',
-        street_address_1: '123 Any Street',
-        street_address_2: 'P.O. Box 12345',
-        street_address_3: 'c/o Some Person',
-      },
-      requestedPickupDate: '2020-06-04',
-      scheduledPickupDate: '2020-06-05',
-      shipmentType: 'HHG',
-      status: 'SUBMITTED',
-      updatedAt: '2020-05-10T15:58:02.404031Z',
-    },
-    {
-      customerRemarks: 'do not drop!',
-      counselorRemarks: '',
-      destinationAddress: {
-        city: 'Fairfield',
-        country: 'US',
-        id: '672ff379-f6e3-48b4-a87d-752463f8f997',
-        postal_code: '94534',
-        state: 'CA',
-        street_address_1: '111 Everywhere',
-        street_address_2: 'Apt #1',
-        street_address_3: '',
-      },
-      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
-      id: 'ce01a5b8-9b44-8799-8a8d-edb60f2a4aee',
-      moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-      pickupAddress: {
-        city: 'Austin',
-        country: 'US',
-        eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
-        id: '1686751b-ab36-43cf-b3c9-c0f467d13c55',
-        postal_code: '78712',
-        state: 'TX',
-        street_address_1: '888 Lucky Street',
-        street_address_2: '#4',
-        street_address_3: 'c/o rabbit',
-      },
-      requestedPickupDate: '2020-06-05',
-      scheduledPickupDate: '2020-06-06',
-      shipmentType: 'HHG',
-      status: 'SUBMITTED',
-      updatedAt: '2020-05-15T15:58:02.404031Z',
-    },
-  ],
+  mtoShipments,
   mtoServiceItems: [],
   mtoAgents: [],
   isLoading: false,
@@ -177,6 +179,14 @@ const counselingCompletedMoveDetailsQuery = {
 };
 
 const detailsURL = generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: mockRequestedMoveCode });
+
+const renderMockedComponent = (props) => {
+  return render(
+    <MockProviders initialEntries={[detailsURL]}>
+      <ServicesCounselingMoveDetails {...props} />
+    </MockProviders>,
+  );
+};
 
 const mockedComponent = (
   <MockProviders initialEntries={[detailsURL]}>
@@ -298,6 +308,11 @@ describe('MoveDetails page', () => {
     expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
   });
 
+  it('renders customer edit alert', () => {
+    renderMockedComponent({ customerEditAlert: { alertType: 'success', message: 'great success!' } });
+    expect(screen.getByText('great success!')).toBeInTheDocument();
+  });
+
   describe('new move - needs service counseling', () => {
     it('submit move details button is on page', async () => {
       useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
@@ -305,6 +320,46 @@ describe('MoveDetails page', () => {
       render(mockedComponent);
 
       expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+    });
+
+    it('submit move details button is disabled when there are no shipments', async () => {
+      useMoveDetailsQueries.mockImplementation(() => ({ ...newMoveDetailsQuery, mtoShipments: [] }));
+
+      render(mockedComponent);
+
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+    });
+
+    it('submit move details button is disabled when all shipments are deleted', async () => {
+      const deletedMtoShipments = mtoShipments.map((shipment) => ({ ...shipment, deletedAt: new Date() }));
+      useMoveDetailsQueries.mockImplementation(() => ({
+        ...newMoveDetailsQuery,
+        mtoShipments: deletedMtoShipments,
+      }));
+
+      render(mockedComponent);
+
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+    });
+
+    it('submit move details button is not disabled when some shipments are deleted', async () => {
+      const deletedMtoShipments = mtoShipments.map((shipment, index) => {
+        if (index > 0) {
+          return { ...shipment, deletedAt: new Date() };
+        }
+        return shipment;
+      });
+      useMoveDetailsQueries.mockImplementation(() => ({
+        ...newMoveDetailsQuery,
+        mtoShipments: deletedMtoShipments,
+      }));
+
+      render(mockedComponent);
+
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeDisabled();
     });
 
     it('renders the Orders Definition List', async () => {

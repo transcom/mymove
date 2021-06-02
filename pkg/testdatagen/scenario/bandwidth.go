@@ -166,12 +166,9 @@ func makePaymentRequestForShipment(move models.Move, shipment models.MTOShipment
 	})
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		Move:        move,
 		MTOShipment: shipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
-		},
 	})
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
