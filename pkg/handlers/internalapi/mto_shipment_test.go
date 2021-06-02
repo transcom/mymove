@@ -501,7 +501,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 
-	altPickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+	pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 	secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "123 Nowhere",
@@ -513,16 +513,17 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			Country:        swag.String("US"),
 		},
 	})
-	altDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+
+	deliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status:                 models.MTOShipmentStatusSubmitted,
 			RequestedPickupDate:    &requestedPickupDate,
-			PickupAddress:          &altPickupAddress,
+			PickupAddress:          &pickupAddress,
 			SecondaryPickupAddress: &secondaryPickupAddress,
-			DestinationAddress:     &altDeliveryAddress,
+			DestinationAddress:     &deliveryAddress,
 		},
 	})
 
