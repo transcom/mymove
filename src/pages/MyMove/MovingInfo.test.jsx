@@ -17,19 +17,17 @@ describe('MovingInfo component', () => {
   };
 
   it('renders the expected content', () => {
-    const { queryAllByTestId, queryByText } = render(<MovingInfo {...testProps} />);
+    const { queryByText, queryAllByRole } = render(<MovingInfo {...testProps} />);
 
-    expect(queryByText('Tips for planning your shipments')).toBeInTheDocument();
-    expect(queryAllByTestId('shipmentsAlert').length).toBe(1);
+    expect(queryByText('Things to know about selecting shipments')).toBeInTheDocument();
     expect(queryByText(/7,000 lbs/)).toBeInTheDocument();
-    expect(queryAllByTestId('shipmentsSubHeader').length).toBe(4);
+    expect(queryAllByRole('heading').length).toBe(6);
   });
 
   it('renders with no errors when entitlement weight is 0', () => {
-    const { queryAllByTestId, queryByText } = render(<MovingInfo {...testProps} entitlementWeight={0} />);
+    const { queryByText, queryAllByRole } = render(<MovingInfo {...testProps} entitlementWeight={0} />);
 
-    expect(queryByText('Tips for planning your shipments')).toBeInTheDocument();
-    expect(queryAllByTestId('shipmentsAlert').length).toBe(0);
-    expect(queryAllByTestId('shipmentsSubHeader').length).toBe(4);
+    expect(queryByText('Things to know about selecting shipments')).toBeInTheDocument();
+    expect(queryAllByRole('heading').length).toBe(5);
   });
 });
