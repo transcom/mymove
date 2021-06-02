@@ -514,15 +514,27 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		},
 	})
 	altDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+	secondaryDeliveryAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "5432 Everywhere",
+			StreetAddress2: swag.String("P.O. Box 111"),
+			StreetAddress3: swag.String("c/o Some Other Person"),
+			City:           "Portsmouth",
+			State:          "NH",
+			PostalCode:     "03801",
+			Country:        swag.String("US"),
+		},
+	})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:                 models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:    &requestedPickupDate,
-			PickupAddress:          &altPickupAddress,
-			SecondaryPickupAddress: &secondaryPickupAddress,
-			DestinationAddress:     &altDeliveryAddress,
+			Status:                   models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:      &requestedPickupDate,
+			PickupAddress:            &altPickupAddress,
+			SecondaryPickupAddress:   &secondaryPickupAddress,
+			DestinationAddress:       &altDeliveryAddress,
+			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
 		},
 	})
 
@@ -588,6 +600,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.DestinationAddress.City, *returnedShipment.DestinationAddress.City)
 			suite.Equal(expectedShipment.DestinationAddress.State, *returnedShipment.DestinationAddress.State)
 			suite.Equal(expectedShipment.DestinationAddress.PostalCode, *returnedShipment.DestinationAddress.PostalCode)
+
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
+			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
+			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
 		}
 	})
 
