@@ -73,6 +73,7 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 

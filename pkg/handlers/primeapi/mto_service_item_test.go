@@ -766,6 +766,45 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		Body:        payloads.MTOServiceItem(&mtoServiceItem),
 	}
 
+	suite.T().Run("POST failure - 422 Cannot create DDFSIT with missing fields", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a DDFSIT MTOServiceItem missing Customer Contact fields
+		// Expected outcome:
+		//             Receive a 422 - Unprocessable Entity
+		// SETUP
+		// Create the payload
+
+		mtoServiceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID: mto.ID,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeDDFSIT},
+			Description:     handlers.FmtString("description"),
+			SITEntryDate:    &sitEntryDate,
+		}
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req = httptest.NewRequest("POST", "/mto-service-items", nil)
+		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
+		}
+
+		// Run swagger validations
+		suite.NoError(paramsDDFSIT.Body.Validate(strfmt.Default))
+
+		// CHECK RESULTS
+		response := handler.Handle(paramsDDFSIT)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+
+	})
+
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 		handler := CreateMTOServiceItemHandler{

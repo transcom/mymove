@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/certs"
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
@@ -31,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	moves "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -153,7 +153,14 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler struct {
 	handlers.HandlerContext
-	services.MoveRouter
+	// Unable to get logger to pass in for the instantiation of
+	// move.InitNewMoveRouter(h.DB(), logger),
+	// This limitation has come up a few times
+	// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
+	// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600
+	// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
+	// As a temporary workaround move.InitNewMoveRouter
+	// is called directly in the handler
 }
 
 // Handle ... submit a move to TOO for approval
@@ -168,7 +175,14 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	err = h.MoveRouter.Submit(move)
+	moveRouter, err := moves.InitNewMoveRouter(h.DB(), logger)
+	if err != nil {
+		msg := "failed to initialize InitNewMoveRouter"
+		logger.Error(msg, zap.Error(err))
+		return moveop.NewSubmitMoveForApprovalInternalServerError()
+	}
+
+	err = moveRouter.Submit(move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

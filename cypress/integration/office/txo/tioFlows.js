@@ -30,6 +30,9 @@ describe('TIO user', () => {
     );
     cy.intercept('**/ghc/v1/moves/**/payment-requests').as('getMovePaymentRequests');
     cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
+    cy.intercept('**/ghc/v1/move/**').as('getMoves');
+    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('**/ghc/v1/documents/**').as('getDocuments');
 
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
@@ -58,6 +61,7 @@ describe('TIO user', () => {
     // View Orders page
     cy.contains('View orders').click();
 
+    cy.wait(['@getMoves', '@getOrders', '@getDocuments']);
     cy.get('form').within(($form) => {
       cy.get('input[name="tac"]').click().clear().type('E15A');
       cy.get('input[name="sac"]').click().clear().type('4K988AS098F');

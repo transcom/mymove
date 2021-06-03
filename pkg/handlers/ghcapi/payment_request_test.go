@@ -301,6 +301,34 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.NotNil(payload.ReviewedAt)
 	})
 
+	suite.T().Run("prevent handler from updating payment request status to unapproved statuses", func(t *testing.T) {
+		nonApprovedPRStatuses := [5]ghcmessages.PaymentRequestStatus{"SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", "EDI_ERROR", "PENDING"}
+
+		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
+			pendingPaymentRequest := testdatagen.MakeStubbedPaymentRequest(suite.DB())
+
+			paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+			paymentRequestFetcher.On("FetchPaymentRequest", pendingPaymentRequest.ID).Return(pendingPaymentRequest, nil).Once()
+
+			req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
+			req = suite.AuthenticateOfficeRequest(req, officeUser)
+			params := paymentrequestop.UpdatePaymentRequestStatusParams{
+				HTTPRequest:      req,
+				Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: nonApprovedPRStatus, RejectionReason: nil, ETag: etag.GenerateEtag(paymentRequest.UpdatedAt)},
+				PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
+			}
+
+			handler := UpdatePaymentRequestStatusHandler{
+				HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+				PaymentRequestStatusUpdater: statusUpdater,
+				PaymentRequestFetcher:       paymentRequestFetcher,
+			}
+
+			response := handler.Handle(params)
+			suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
+		}
+	})
+
 	suite.T().Run("failed status update of payment request - forbidden", func(t *testing.T) {
 		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{

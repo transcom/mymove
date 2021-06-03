@@ -53,10 +53,10 @@ func (suite *ModelSuite) TestBasicReimbursement() {
 	// nolint:errcheck
 	reimbursement.Request()
 
-	verrs, err := suite.DB().ValidateAndCreate(&reimbursement)
+	verrs, err := reimbursement.Validate(nil)
+
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
-
 	suite.NotNil(reimbursement.ID)
 
 	since := time.Since(*reimbursement.RequestedDate)

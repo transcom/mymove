@@ -269,7 +269,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 
 		suite.Assertions.IsType(&move_task_order.UpdateMTOStatusServiceCounselingCompletedOK{}, response)
 		suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
-		suite.Nil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
+		suite.NotNil(moveTaskOrderPayload.ServiceCounselingCompletedAt)
 		suite.EqualValues(models.MoveStatusServiceCounselingCompleted, moveTaskOrderPayload.Status)
 	})
 

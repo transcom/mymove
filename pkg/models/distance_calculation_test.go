@@ -9,10 +9,8 @@ import (
 )
 
 func (suite *ModelSuite) Test_DistanceCalculationCreate() {
-	t := suite.T()
-
-	address1 := testdatagen.MakeDefaultAddress(suite.DB())
-	address2 := testdatagen.MakeDefaultAddress(suite.DB())
+	address1 := testdatagen.MakeStubbedAddress(suite.DB())
+	address2 := testdatagen.MakeStubbedAddress(suite.DB())
 
 	distanceCalculation := models.DistanceCalculation{
 		OriginAddress:        address1,
@@ -22,15 +20,10 @@ func (suite *ModelSuite) Test_DistanceCalculationCreate() {
 		DistanceMiles:        1044,
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&distanceCalculation)
+	verrs, err := distanceCalculation.Validate(nil)
 
-	if err != nil {
-		t.Fatalf("could not save DistanceCalculation: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect validation errors: %v", verrs)
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) Test_DistanceCalculationValidations() {
@@ -46,8 +39,8 @@ func (suite *ModelSuite) Test_DistanceCalculationValidations() {
 }
 
 func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {
-	address1 := testdatagen.MakeDefaultAddress(suite.DB())
-	address2 := testdatagen.MakeDefaultAddress(suite.DB())
+	address1 := testdatagen.MakeStubbedAddress(suite.DB())
+	address2 := testdatagen.MakeStubbedAddress(suite.DB())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		address1.PostalCode,

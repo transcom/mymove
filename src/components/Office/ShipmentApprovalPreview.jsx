@@ -1,20 +1,20 @@
-import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { MTOShipmentShape, OrdersInfoShape } from '../../types/order';
-import { formatAddress } from '../../utils/shipmentDisplay';
-
 import styles from './shipmentApprovalPreview.module.scss';
-import AllowancesList from './DefinitionLists/AllowancesList';
-import CustomerInfoList from './DefinitionLists/CustomerInfoList';
-import ShipmentContainer from './ShipmentContainer';
-import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
-import { mtoShipmentTypes } from 'constants/shipments';
 import { serviceItemCodes } from 'content/serviceItems';
+import { mtoShipmentTypes } from 'constants/shipments';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
+import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
+import { MTOShipmentShape, OrdersInfoShape } from 'types/order';
+import { formatAddress } from 'utils/shipmentDisplay';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,

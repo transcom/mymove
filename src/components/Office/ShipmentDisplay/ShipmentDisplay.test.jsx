@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import ShipmentDisplay from './ShipmentDisplay';

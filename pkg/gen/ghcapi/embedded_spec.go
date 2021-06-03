@@ -36,6 +36,136 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/counseling/orders/{orderID}": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order (performed by a services counselor)",
+        "operationId": "counselingUpdateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to update",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/counseling/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "counselingUpdateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -204,40 +334,6 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Deletes a move by ID",
-        "operationId": "deleteMoveTaskOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -466,40 +562,6 @@ func init() {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
               "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a line item by ID for a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Deletes a line item by ID for a move by ID",
-        "operationId": "deleteMTOServiceItem",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
@@ -928,6 +990,83 @@ func init() {
         }
       ]
     },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
       "get": {
         "description": "Fetches a list of agents associated with a move task order.",
@@ -1092,6 +1231,51 @@ func init() {
         }
       ]
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateMTOShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -1166,8 +1350,70 @@ func init() {
           "400": {
             "$ref": "#/responses/InvalidRequest"
           },
-          "401": {
+          "403": {
             "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "updateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
@@ -1708,6 +1954,43 @@ func init() {
         }
       }
     },
+    "/shipments/{shipmentID}": {
+      "delete": {
+        "description": "Soft deletes a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Soft deletes a shipment by ID",
+        "operationId": "deleteShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be deleted",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -1920,22 +2203,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -1996,6 +2281,146 @@ func init() {
         }
       }
     },
+    "CounselingUpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "CounselingUpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "originDutyStationId",
+        "newDutyStationId"
+      ],
+      "properties": {
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        }
+      }
+    },
+    "CreateMTOShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "requestedPickupDate",
+        "pickupAddress",
+        "destinationAddress"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedPickupDate": {
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -2004,11 +2429,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -2036,11 +2459,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -2575,9 +3008,20 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
           "format": "date"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -2588,9 +3032,18 @@ func init() {
           "x-nullable": true,
           "example": "handle with care"
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean",
+          "example": true
         },
         "eTag": {
           "type": "string"
@@ -2629,6 +3082,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "MTO Shipment not good enough"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -3465,15 +3922,64 @@ func init() {
         }
       }
     },
+    "UpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 2000,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "email": {
@@ -3490,11 +3996,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         }
       }
     },
@@ -3505,32 +4021,12 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId",
-        "agency"
+        "originDutyStationId"
       ],
       "properties": {
-        "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "grade": {
-          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -3556,29 +4052,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "organizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -3586,12 +4063,6 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
-        },
-        "requiredMedicalEquipmentWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -3602,6 +4073,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -3620,6 +4093,54 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "UpdateShipment": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ],
+          "x-nullable": true
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -3734,6 +4255,12 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     },
+    "Unauthorized": {
+      "description": "The request was unauthorized",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "UnprocessableEntity": {
       "description": "The payload was unprocessable.",
       "schema": {
@@ -3793,6 +4320,166 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/counseling/orders/{orderID}": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order (performed by a services counselor)",
+        "operationId": "counselingUpdateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to update",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/counseling/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "counselingUpdateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -4018,55 +4705,6 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Deletes a move by ID",
-        "operationId": "deleteMoveTaskOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -4367,55 +5005,6 @@ func init() {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
               "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a line item by ID for a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Deletes a line item by ID for a move by ID",
-        "operationId": "deleteMTOServiceItem",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
@@ -4979,6 +5568,104 @@ func init() {
         }
       ]
     },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
       "get": {
         "description": "Fetches a list of agents associated with a move task order.",
@@ -5179,6 +5866,63 @@ func init() {
         }
       ]
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateMTOShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/orders/{orderID}": {
       "get": {
         "description": "Gets an order",
@@ -5271,10 +6015,84 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
-          "401": {
+          "403": {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "updateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
             }
           },
           "403": {
@@ -5900,6 +6718,52 @@ func init() {
         }
       }
     },
+    "/shipments/{shipmentID}": {
+      "delete": {
+        "description": "Soft deletes a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Soft deletes a shipment by ID",
+        "operationId": "deleteShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be deleted",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -6127,22 +6991,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -6203,6 +7069,149 @@ func init() {
         }
       }
     },
+    "CounselingUpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "CounselingUpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "originDutyStationId",
+        "newDutyStationId"
+      ],
+      "properties": {
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        }
+      }
+    },
+    "CreateMTOShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "requestedPickupDate",
+        "pickupAddress",
+        "destinationAddress"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedPickupDate": {
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -6211,11 +7220,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -6243,11 +7250,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -6782,9 +7799,20 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
           "format": "date"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -6795,9 +7823,18 @@ func init() {
           "x-nullable": true,
           "example": "handle with care"
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean",
+          "example": true
         },
         "eTag": {
           "type": "string"
@@ -6836,6 +7873,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "MTO Shipment not good enough"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -7672,15 +8713,67 @@ func init() {
         }
       }
     },
+    "UpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 2000,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "email": {
@@ -7697,11 +8790,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         }
       }
     },
@@ -7712,32 +8815,12 @@ func init() {
         "reportByDate",
         "ordersType",
         "newDutyStationId",
-        "originDutyStationId",
-        "agency"
+        "originDutyStationId"
       ],
       "properties": {
-        "agency": {
-          "description": "the branch that the service member belongs to",
-          "$ref": "#/definitions/Branch"
-        },
-        "authorizedWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 1,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
         "departmentIndicator": {
           "x-nullable": true,
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "x-nullable": true
-        },
-        "grade": {
-          "$ref": "#/definitions/Grade"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -7763,31 +8846,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "organizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -7795,13 +8857,6 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
-        },
-        "requiredMedicalEquipmentWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -7812,6 +8867,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -7830,6 +8887,54 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "UpdateShipment": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ],
+          "x-nullable": true
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -7943,6 +9048,12 @@ func init() {
     },
     "ServerError": {
       "description": "A server error occurred",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "Unauthorized": {
+      "description": "The request was unauthorized",
       "schema": {
         "$ref": "#/definitions/Error"
       }

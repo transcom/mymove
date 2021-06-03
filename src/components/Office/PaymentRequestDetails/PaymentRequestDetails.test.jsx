@@ -4,6 +4,7 @@ import { mount } from 'enzyme';
 import PaymentRequestDetails from './PaymentRequestDetails';
 
 import { PAYMENT_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentModificationTypes } from 'constants/shipments';
 import { MockProviders } from 'testUtils';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 
@@ -156,9 +157,32 @@ const ntsrServiceItems = [
   },
 ];
 
-const shipmentAddressBasic = '';
-const shipmentAddressHHG = 'Beverly Hills, CA 90210 to Fairfield, CA 94535';
-const shipmentAddressNTS = 'Boston, MA 02101 to Princeton, NJ 08540';
+const hhgShipment = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+};
+
+const hhgShipmentCanceled = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.CANCELED,
+};
+
+const hhgShipmentDiversion = {
+  address: 'Beverly Hills, CA 90210 to Fairfield, CA 94535',
+  departureDate: '2020-12-01T00:00:00.000Z',
+  modificationType: shipmentModificationTypes.DIVERSION,
+};
+
+const basicShipment = {
+  address: '',
+  departureDate: '',
+};
+
+const ntsShipment = {
+  address: 'Boston, MA 02101 to Princeton, NJ 08540',
+  departureDate: '020-12-01T00:00:00.000Z',
+};
 
 const testMoveLocator = 'AF7K1P';
 
@@ -168,7 +192,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={basicServiceItems}
-          shipmentAddress={shipmentAddressBasic}
+          shipment={basicShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
@@ -200,8 +224,9 @@ describe('PaymentRequestDetails', () => {
       expect(serviceItemStatuses.at(1).text().includes('Rejected')).toBeTruthy();
     });
 
-    it('does not render the Pickup Address and Destination Address', async () => {
+    it('does not render the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).length).toBe(0);
     });
   });
 
@@ -219,8 +244,9 @@ describe('PaymentRequestDetails', () => {
       expect(wrapper.text().includes('Basic service items (1 item)')).toBeTruthy();
     });
 
-    it('does not render the Pickup Address and Destination Address', async () => {
+    it('does not render the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' }).length).toBe(0);
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).length).toBe(0);
     });
   });
 
@@ -229,21 +255,22 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
     );
 
     it('renders the expected table title', () => {
-      expect(wrapper.text().includes('Household goods (6 items)')).toBeTruthy();
+      expect(wrapper.text().includes('HHG (6 items)')).toBeTruthy();
     });
 
-    it('does renders the Pickup Address and Destination Address', async () => {
+    it('does renders the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
       expect(
         wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Fairfield, CA 94535'),
       ).toBeTruthy();
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).text().includes('Departed')).toBeTruthy();
     });
 
     it('renders the service item names', () => {
@@ -282,7 +309,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={ntsrServiceItems}
-          shipmentAddress={shipmentAddressNTS}
+          shipment={ntsShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -292,11 +319,12 @@ describe('PaymentRequestDetails', () => {
       expect(wrapper.text().includes('Non-temp storage release (5 items)')).toBeTruthy();
     });
 
-    it('does renders the Pickup Address and Destination Address', async () => {
+    it('does renders the Departure Date, Pickup Address, and Destination Address', async () => {
       expect(wrapper.find({ 'data-testid': 'pickup-to-destination' })).toBeTruthy();
       expect(
         wrapper.find({ 'data-testid': 'pickup-to-destination' }).at(0).text().includes('Princeton, NJ 08540'),
       ).toBeTruthy();
+      expect(wrapper.find({ 'data-testid': 'departure-date' }).text().includes('Departed')).toBeTruthy();
     });
 
     it('renders the service item names', () => {
@@ -332,7 +360,7 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
         />
       </MockProviders>,
@@ -347,13 +375,43 @@ describe('PaymentRequestDetails', () => {
       <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
         <PaymentRequestDetails
           serviceItems={hhgServiceItems}
-          shipmentAddress={shipmentAddressHHG}
+          shipment={hhgShipment}
           paymentRequestStatus={PAYMENT_REQUEST_STATUSES.REVIEWED}
         />
       </MockProviders>,
     );
     it('disables expanding the service item pricer calculations', () => {
       expect(wrapper.find('ExpandableServiceItemRow').at(0).prop('disableExpansion')).toBe(false);
+    });
+  });
+
+  describe('When a payment request has a shipment that was canceled ', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipment={hhgShipmentCanceled}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('there is a canceled tag displayed', () => {
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.CANCELED);
+    });
+  });
+
+  describe('When a payment request has a shipment that was diverted ', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipment={hhgShipmentDiversion}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+        />
+      </MockProviders>,
+    );
+    it('there is a diversion tag displayed', () => {
+      expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.DIVERSION);
     });
   });
 });

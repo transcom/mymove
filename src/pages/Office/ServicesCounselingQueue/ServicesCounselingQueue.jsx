@@ -1,21 +1,23 @@
 import React from 'react';
+import { generatePath } from 'react-router';
 import { useHistory } from 'react-router-dom';
 
 import styles from './ServicesCounselingQueue.module.scss';
 
-import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import TableQueue from 'components/Table/TableQueue';
 import {
   BRANCH_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_OPTIONS,
   GBLOC,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
 } from 'constants/queues';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { useServicesCounselingQueueQueries, useUserQueries } from 'hooks/queries';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'shared/formatters';
-import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
-import SelectFilter from 'components/Table/Filters/SelectFilter';
-import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -113,7 +115,7 @@ const ServicesCounselingQueue = () => {
   const isMarineCorpsUser = office_user?.transportation_office?.gbloc === GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/counseling/moves/${values.locator}/details`);
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode: values.locator }));
   };
 
   if (isLoading) return <LoadingPlaceholder />;

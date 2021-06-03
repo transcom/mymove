@@ -30,6 +30,9 @@ describe('Office Home Page', function () {
 describe('Office authorization', () => {
   before(() => {
     cy.prepareOfficeApp();
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as(
+      'getCounselingSortedOrders',
+    );
   });
 
   beforeEach(() => {
@@ -45,6 +48,15 @@ describe('Office authorization', () => {
   it('redirects TIO to TIO homepage', () => {
     cy.signInAsNewTIOUser();
     cy.contains('Payment requests');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
+
+  it('redirects Services Counselor to Services Counselor homepage', () => {
+    cy.signInAsNewServicesCounselorUser();
+    cy.waitFor('@getCounselingSortedOrders');
+
+    cy.contains('Moves');
+    cy.contains('Needs counseling');
     cy.url().should('eq', officeBaseURL + '/');
   });
 

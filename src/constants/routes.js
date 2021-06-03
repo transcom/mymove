@@ -28,3 +28,16 @@ export const customerRoutes = {
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
 };
+
+const BASE_MOVE_PATH = '/counseling/moves/:moveCode';
+
+export const servicesCounselingRoutes = {
+  ALLOWANCES_EDIT_PATH: `${BASE_MOVE_PATH}/allowances`,
+  BASE_MOVE_PATH,
+  CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVE_PATH}/customer`,
+  MOVE_VIEW_PATH: `${BASE_MOVE_PATH}/details`,
+  ORDERS_EDIT_PATH: `${BASE_MOVE_PATH}/orders`,
+  QUEUE_VIEW_PATH: '/counseling/queue',
+  SHIPMENT_ADD_PATH: `${BASE_MOVE_PATH}/new-HHG`,
+  SHIPMENT_EDIT_PATH: `${BASE_MOVE_PATH}/shipments/:shipmentId`,
+};

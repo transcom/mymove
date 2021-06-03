@@ -101,50 +101,6 @@ func (o *UpdateOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
-// UpdateOrderUnauthorizedCode is the HTTP code returned for type UpdateOrderUnauthorized
-const UpdateOrderUnauthorizedCode int = 401
-
-/*UpdateOrderUnauthorized The request was denied
-
-swagger:response updateOrderUnauthorized
-*/
-type UpdateOrderUnauthorized struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewUpdateOrderUnauthorized creates UpdateOrderUnauthorized with default headers values
-func NewUpdateOrderUnauthorized() *UpdateOrderUnauthorized {
-
-	return &UpdateOrderUnauthorized{}
-}
-
-// WithPayload adds the payload to the update order unauthorized response
-func (o *UpdateOrderUnauthorized) WithPayload(payload *ghcmessages.Error) *UpdateOrderUnauthorized {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the update order unauthorized response
-func (o *UpdateOrderUnauthorized) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UpdateOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(401)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // UpdateOrderForbiddenCode is the HTTP code returned for type UpdateOrderForbidden
 const UpdateOrderForbiddenCode int = 403
 

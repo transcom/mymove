@@ -20,7 +20,7 @@ type CreateServiceMemberPayload struct {
 	// affiliation
 	Affiliation *Affiliation `json:"affiliation,omitempty"`
 
-	// Backup Mailing Address
+	// backup mailing address
 	BackupMailingAddress *Address `json:"backup_mailing_address,omitempty"`
 
 	// current station id
@@ -55,7 +55,7 @@ type CreateServiceMemberPayload struct {
 	// rank
 	Rank *ServiceMemberRank `json:"rank,omitempty"`
 
-	// Residential Address
+	// residential address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 
 	// Alternate phone

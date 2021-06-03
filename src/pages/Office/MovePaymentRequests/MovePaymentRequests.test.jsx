@@ -88,6 +88,7 @@ const multiplePaymentRequests = {
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-09T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -112,6 +113,7 @@ const multiplePaymentRequests = {
       id: '3',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-10T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -136,6 +138,7 @@ const multiplePaymentRequests = {
       id: '4',
       moveTaskOrderID: '1',
       status: shipmentStatuses.SUBMITTED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -193,6 +196,7 @@ const singleReviewedPaymentRequest = {
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [

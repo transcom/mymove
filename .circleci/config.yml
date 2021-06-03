@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
 
   postgres: &postgres postgres:12.4
 
@@ -556,7 +556,7 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
-      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "mocks" -exec echo -n '{} ' \;)
+      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:

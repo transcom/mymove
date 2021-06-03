@@ -12,6 +12,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/random"
 )
 
 type fakeName struct {
@@ -396,4 +398,29 @@ func IsValidFakeDataEmail(email string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+/*
+RandomName - randomly selects a name from the fakeNames slice and returns the first and last name
+"Jason", "Ash"
+*/
+func RandomName() (first string, last string) {
+	index, err := random.GetRandomInt(len(fakeNames))
+	if err != nil {
+		return fakeNames[0].first, fakeNames[0].last
+	}
+
+	return fakeNames[index].first, fakeNames[index].last
+}
+
+/*
+RandomStreetAddress - randomly selects a street address from the fakeAddress slice
+*/
+func RandomStreetAddress() string {
+	index, err := random.GetRandomInt(len(fakeAddress))
+	if err != nil {
+		return fakeAddress[0]
+	}
+
+	return fakeAddress[index]
 }

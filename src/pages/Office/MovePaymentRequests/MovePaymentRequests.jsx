@@ -9,7 +9,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
-import { formatPaymentRequestAddressString } from 'utils/shipmentDisplay';
+import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
@@ -51,13 +51,15 @@ const MovePaymentRequests = ({
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const shipmentAddresses = [];
+  const shipmentsInfo = [];
 
   if (paymentRequests.length) {
     mtoShipments.forEach((shipment) => {
-      shipmentAddresses.push({
+      shipmentsInfo.push({
         mtoShipmentID: shipment.id,
-        shipmentAddress: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
+        address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
+        departureDate: shipment.actualPickupDate,
+        modificationType: getShipmentModificationType(shipment),
       });
     });
   }
@@ -69,11 +71,7 @@ const MovePaymentRequests = ({
 
         {paymentRequests.length ? (
           paymentRequests.map((paymentRequest) => (
-            <PaymentRequestCard
-              paymentRequest={paymentRequest}
-              shipmentAddresses={shipmentAddresses}
-              key={paymentRequest.id}
-            />
+            <PaymentRequestCard paymentRequest={paymentRequest} shipmentsInfo={shipmentsInfo} key={paymentRequest.id} />
           ))
         ) : (
           <div className={txoStyles.emptyMessage}>
