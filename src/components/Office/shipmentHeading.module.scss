@@ -6,6 +6,18 @@
   h3 {
     @include u-margin-bottom(0);
   }
+
+  .shipmentHeadingType {
+    @include u-display(flex)
+
+    :global(.usa-tag) {
+      @include u-font-size('body', 3xs);
+      @include u-margin-left(1);
+      background-color: $info-light;
+      align-self: center;
+    }
+  }
+
   small {
     @include u-text('base-light');
   }

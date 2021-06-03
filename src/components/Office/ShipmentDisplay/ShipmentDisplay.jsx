@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
+import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
@@ -32,9 +32,12 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           )}
 
           {showIcon && !isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
-          <h3>
-            <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-          </h3>
+          <div className={styles.headingTagWrapper}>
+            <h3>
+              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+            </h3>
+            {displayInfo.isDiversion && <Tag>diversion</Tag>}
+          </div>
 
           <FontAwesomeIcon icon="chevron-down" />
         </div>
@@ -85,6 +88,7 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
+    isDiversion: PropTypes.bool,
     requestedMoveDate: PropTypes.string.isRequired,
     currentAddress: AddressShape.isRequired,
     destinationAddress: AddressShape,

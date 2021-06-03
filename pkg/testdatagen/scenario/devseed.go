@@ -3596,6 +3596,20 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	createMoveWithPPMAndHHG(db, userUploader)
 
+	// Create diverted shipments that needs TOO approval
+	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move:         models.Move{Status: models.MoveStatusAPPROVALSREQUESTED, Locator: "DVRS0N"},
+		MTOShipment:  models.MTOShipment{Diversion: true},
+	})
+
+	// Create diverted shipments that are approved an appear on the Move Task Order page
+	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move:         models.Move{Status: models.MoveStatusAPPROVED, Locator: "APRDVS"},
+		MTOShipment:  models.MTOShipment{Diversion: true, Status: models.MTOShipmentStatusApproved},
+	})
+
 	// A move with missing required order fields
 	createMoveWithHHGMissingOrdersInfo(db, userUploader)
 
