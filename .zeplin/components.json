@@ -114,7 +114,11 @@
     },
     {
       "path": "src/stories/tags.stories.jsx",
-      "zeplinNames": ["tag-number", "tag", "tag--large"]
+      "zeplinNames": ["tag-number", "tag", "tag--large"],
+      "storybook": {
+        "kind": "Components/Tags",
+        "stories": ["all"]
+      }
     }
   ],
   "github": {
