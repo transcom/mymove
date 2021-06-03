@@ -59,31 +59,40 @@ export class MovingInfo extends Component {
                   icon="weight-hanging"
                   headline={`You can move ${formatWeight(entitlementWeight)} in this move.`}
                 >
-                  You’ll have to pay for any excess weight the government moves.
+                  <p>You&apos;ll have to pay for any excess weight the government moves.</p>
                 </IconSection>
               )}
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
-                After you submit this information, you’ll talk to a move counselor. They will verify your choices and
-                help identify more complicated situations.
-                <br />
-                <br />
-                If you use movers, they will be your point of contact throughout your move and can also help you make
-                changes to your shipments.
+                <p>
+                  After you submit this information, you&apos;ll talk to a move counselor. They will verify your choices
+                  and help identify more complicated situations.
+                </p>
+                <p>
+                  If you use movers, they will be your point of contact throughout your move and can also help you make
+                  changes to your shipments.
+                </p>
               </IconSection>
               <IconSection icon="truck-moving" headline="If you use movers, they will:">
-                <ul>
-                  <li>Help estimate how much your belongings weigh</li>
-                  <li>Set pack and pickup dates based on your preferred pickup date</li>
-                  <li>Contact you after you talk to a move counselor</li>
-                  <li>Be your main point of contact during your move</li>
-                </ul>
+                <p>
+                  <ul>
+                    <li>Help estimate how much your belongings weigh</li>
+                    <li>Set pack and pickup dates based on your preferred pickup date</li>
+                    <li>Contact you after you talk to a move counselor</li>
+                    <li>Be your main point of contact during your move</li>
+                  </ul>
+                </p>
               </IconSection>
               <IconSection icon="car" headline="It's common to move some things yourself.">
-                Most people doing a PCS have professionals move most of their things, but handle a few important things
-                themselves.
+                <p>
+                  Most people doing a PCS have professionals move most of their things, but handle a few important
+                  things themselves.
+                </p>
               </IconSection>
               <IconSection icon="hand-holding-usd" headline="You can get paid for things you move yourself.">
-                The government will pay you for moving belongings that you document by weight. (This is a PPM, or DITY.)
+                <p>
+                  The government will pay you for moving belongings that you document by weight. (This is a PPM, or
+                  DITY.)
+                </p>
               </IconSection>
             </SectionWrapper>
 

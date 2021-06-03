@@ -31,12 +31,26 @@
 
   ul {
     margin-inline-start: 20px;
+    @include u-margin-y('0');
+  }
+
+  p {
+    @include u-margin-y('0');
+
+    @media (max-width: $tablet) {
+      display: inline;
+    }
+
+    & + p {
+      @include u-margin-top('1');
+    }
   }
 }
 
 .SectionHeadline {
   font-weight: bold;
   font-size: 1.1em;
+  @include u-margin-bottom('1');
 
   @media (max-width: $tablet) {
     display: inline;
