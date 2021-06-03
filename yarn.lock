@@ -4971,7 +4971,7 @@
     react-docgen-typescript "^1.20.5"
     update-notifier "^5.0.1"
 
-"@zeplin/cli-connect-storybook-plugin@0.5.3":
+"@zeplin/cli-connect-storybook-plugin@^0.5.3":
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/@zeplin/cli-connect-storybook-plugin/-/cli-connect-storybook-plugin-0.5.3.tgz#03c0ad12690a9faa540521fd11c4cc7d70c43374"
   integrity sha512-NTIMjkj5JL78rnrOC7EpmEmm3uNbaJqRwE3WPrHzwFnjVtcqQL3XGY1r2hegGO/zxe9+I481jyz/NrNe+3FgNQ==

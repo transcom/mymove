@@ -79,6 +79,12 @@
         "tag",
         "tag--large"
       ]
+    },
+    {
+      "path": "src/components/TabNav/index.jsx",
+      "zeplinNames": [
+        "Tab nav/tab-nav"
+      ]
     }
   ],
   "github": {
