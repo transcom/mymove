@@ -197,6 +197,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mock.Anything,
 	).Return(1000, nil)
 
+	var nilString *string
+
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -228,10 +230,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, internalServerErr)
 
 		response := handler.Handle(params)
@@ -248,10 +250,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -268,10 +270,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
@@ -288,10 +290,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -308,10 +310,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, mtoshipment.ConflictStatusError{})
 
 		response := handler.Handle(params)
@@ -335,6 +337,14 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			},
 		})
 
+		params = mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusAPPROVED},
+			IfMatch:         eTag,
+		}
+
 		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
@@ -346,10 +356,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(&mtoShipment, nil)
 
 		// Call the handler
@@ -378,6 +388,14 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			},
 		})
 
+		params = mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusAPPROVED},
+			IfMatch:         eTag,
+		}
+
 		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
@@ -389,10 +407,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(&mtoShipment, nil)
 
 		// Call the handler

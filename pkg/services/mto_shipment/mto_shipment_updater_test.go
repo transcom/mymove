@@ -561,13 +561,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Equal(models.MoveStatusAPPROVED, fetchedMove.Status)
 	})
 
-	//suite.T().Run("If we are approving a shipment but are missing key information (estimated weight and pickup date) it should fail", func(t *testing.T) {
-	//	eTag = etag.GenerateEtag(shipment2.UpdatedAt)
-	//	_, err := updater.UpdateMTOShipmentStatus(shipment2.ID, status, nil, eTag)
-	//	fmt.Printf("%#v", err)
-	//	suite.NotNil(err)
-	//})
-
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
 		estimatedWeight := unit.Pound(11000)
 		shipmentHeavy := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
