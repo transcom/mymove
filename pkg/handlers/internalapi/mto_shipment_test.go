@@ -226,14 +226,24 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
+	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
+		FirstName: mtoAgent.FirstName,
+		LastName:  mtoAgent.LastName,
+		Email:     mtoAgent.Email,
+		Phone:     mtoAgent.Phone,
+		AgentType: internalmessages.MTOAgentType(mtoAgent.MTOAgentType),
+	}}
+
+	customerRemarks := ""
+
 	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
-	customerRemarks := ""
-
 	payload := internalmessages.UpdateShipment{
+		Agents:          agents,
 		CustomerRemarks: &customerRemarks,
 		DestinationAddress: &internalmessages.Address{
 			City:           &destinationAddress.City,
@@ -309,6 +319,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *updatedShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
+
+		suite.Equal(params.Body.Agents[0].FirstName, updatedShipment.Agents[0].FirstName)
+		suite.Equal(params.Body.Agents[0].LastName, updatedShipment.Agents[0].LastName)
+		suite.Equal(params.Body.Agents[0].Email, updatedShipment.Agents[0].Email)
+		suite.Equal(params.Body.Agents[0].Phone, updatedShipment.Agents[0].Phone)
+		suite.Equal(params.Body.Agents[0].AgentType, updatedShipment.Agents[0].AgentType)
+		suite.Equal(oldShipment.ID.String(), string(updatedShipment.Agents[0].MtoShipmentID))
+		suite.NotEmpty(updatedShipment.Agents[0].ID)
 	})
 
 	suite.T().Run("Successful PATCH - Can update shipment status", func(t *testing.T) {
