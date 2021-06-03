@@ -6,8 +6,8 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer",
     "@trussworks/react-uswds": "^1.16.0",
-    "@zeplin/cli": "^1.1.12",
-    "@zeplin/cli-connect-storybook-plugin": "^0.5.3",
+    "@zeplin/cli": "1.1.12",
+    "@zeplin/cli-connect-storybook-plugin": "0.5.3",
     "bytes": "^3.0.0",
     "classnames": "^2.3.1",
     "connected-react-router": "^6.9.1",
@@ -107,7 +107,9 @@
     "happo-ci-github-actions": "happo-ci-github-actions",
     "spellcheck": "mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions",
     "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
-    "preview-redoc": "openapi preview-docs"
+    "preview-redoc": "openapi preview-docs",
+    "zeplin-connect": "zeplin connect",
+    "zeplin-connect-dev-mode": "zeplin connect --dev"
   },
   "version": "0.1.0",
   "devDependencies": {
@@ -127,6 +129,7 @@
     "@testing-library/react-hooks": "^7.0.0",
     "@testing-library/user-event": "^13.1.9",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.1",
+    "@zeplin/cli-connect-react-plugin": "1.1.1",
     "cypress": "^7.3.0",
     "cypress-audit": "^0.3.0",
     "cypress-wait-until": "^1.7.1",

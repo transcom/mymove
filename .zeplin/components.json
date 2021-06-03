@@ -1,0 +1,29 @@
+{
+  "plugins": [
+    {
+      "name": "@zeplin/cli-connect-react-plugin"
+    },
+    {
+      "name": "@zeplin/cli-connect-storybook-plugin",
+      "config": {
+        "url": "http://localhost:6006/",
+        "format": "new",
+        "startScript": "storybook"
+      }
+    }
+  ],
+  "styleguides": [
+    "5f8482beb303e1283ee53ba7"
+  ],
+  "components": [
+    {
+      "path": "src/components/LeftNav/index.jsx",
+      "zeplinIds": [
+        "60ad25de9ac851a4da109888"
+      ]
+    }
+  ],
+  "github": {
+    "repository": "transcom/mymove"
+  }
+}
