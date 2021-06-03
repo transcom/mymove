@@ -47,12 +47,12 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dt>Current address</dt>
             <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
           </div>
-          {displayInfo.secondaryPickupAddress && [
+          {displayInfo.secondaryPickupAddress && (
             <div className={styles.row}>
               <dt>Second pickup address</dt>
-              <dd>{displayInfo.secondaryPickupAddress && formatAddress(displayInfo.secondaryPickupAddress)}</dd>
-            </div>,
-          ]}
+              <dd>{formatAddress(displayInfo.secondaryPickupAddress)}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>
             <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>

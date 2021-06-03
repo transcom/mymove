@@ -23,27 +23,13 @@ const info = {
 };
 
 const secondaryAddressInfo = {
-  heading: 'HHG',
-  requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
-    street_address_1: '812 S 129th St',
-    city: 'San Antonio',
-    state: 'TX',
-    postal_code: '78234',
-  },
+  info,
   secondaryAddress: {
     street_address_1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
     postal_code: '78234',
   },
-  destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
-    city: 'Tacoma',
-    state: 'WA',
-    postal_code: '98421',
-  },
-  counselorRemarks: 'counselor approved',
 };
 
 const postalOnly = {
