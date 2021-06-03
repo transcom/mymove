@@ -133,30 +133,39 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	payload := params.User
 
-	// Check that the uuid provided is valid
+	// Check that the uuid provided is valid and get user model
 	userID, err := uuid.FromString(params.UserID.String())
-	if err != nil {
-		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.UserID.String()), zap.Error(err))
+	dbUser := models.User{}
+	if err == nil {
+		err = h.DB().Find(&dbUser, userID)
 	}
+	if err != nil {
+		err = fmt.Errorf(fmt.Sprintf("No user found for ID: %s", params.UserID.String()))
+		logger.Error("updateUserHandler Error", zap.String("error", err.Error()))
+		return userop.NewUpdateUserNotFound()
+	}
+
 	// Update all properties from the payload that are not related to revoking a session.
 	// Currently, only updating the Active property is supported.
 	// If you want to add support for additional properties, edit UpdateUser.
-	user, verrs := payloads.UserModel(payload, userID)
-
-	if err != nil {
-		logger.Error(fmt.Sprintf("User Model Parsing for %s", params.UserID.String()), zap.Error(verrs))
+	// Also we need to retrieve the user's original status from the db to correctly create the update model
+	user, verrs := payloads.UserModel(payload, userID, dbUser.Active)
+	if verrs != nil && verrs.HasAny() {
+		err = fmt.Errorf(fmt.Sprintf("Could not parse payload: %s", verrs.String()))
+		logger.Error("updateUserHandler Error", zap.String("error", err.Error()))
+		return userop.NewUpdateUserUnprocessableEntity()
 	}
 
 	_, verrs, err = h.UpdateUser(userID, user)
-
 	if verrs != nil || err != nil {
 		logger.Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
 	}
+	// We don't return because we should still try to revoke sessions
 
 	// If we've set the user's active status to false, we should also revoke their sessions.
 	// Update the payload properties so session revocation is triggered.
 	// Even if updating the active status fails, we can try to revoke their session.
-	if !(user.Active) {
+	if !user.Active {
 		revoke := true
 
 		payload.RevokeAdminSession = &revoke

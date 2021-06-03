@@ -10,7 +10,7 @@ import (
 
 // UserModel represents the user
 // This does not copy over session IDs to the model
-func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID) (*models.User, *validate.Errors) {
+func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID, userOriginalActive bool) (*models.User, *validate.Errors) {
 	verrs := validate.NewErrors()
 
 	if user == nil {
@@ -21,7 +21,9 @@ func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID) (*models.Use
 		ID: uuid.FromStringOrNil(id.String()),
 	}
 
-	if user.Active != nil {
+	if user.Active == nil { // active status was nil in payload
+		model.Active = userOriginalActive
+	} else { // active status was provided in payload
 		model.Active = *user.Active
 	}
 
