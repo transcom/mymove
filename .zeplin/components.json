@@ -52,7 +52,11 @@
         "unlabeled",
         "unlabeled:hover",
         "unlabeled:disabled"
-      ]
+      ],
+      "storybook": {
+        "kind": "Components/Button",
+        "stories": ["Default", "Active", "Hover", "Focus", "Disabled"]
+      }
     },
     {
       "path": "src/stories/containers.stories.jsx",
@@ -62,23 +66,51 @@
         "containers/block-solid",
         "containers/block-popout",
         "containers/block-accented"
-      ]
+      ],
+      "storybook": {
+        "kind": "Components/Containers",
+        "stories": ["all"]
+      }
     },
     {
       "path": "src/stories/alerts.stories.jsx",
-      "zeplinNames": [
-        "success-slim--noIcon",
-        "success-slim",
-        "success",
-        "warning-slim",
-        "warning",
-        "error-slim",
-        "error",
-        "info-slim",
-        "info-slim_sans-icon",
-        "info",
-        "system-error"
-      ]
+      "zeplinNames": ["success-slim--noIcon", "success-slim", "success"],
+      "storybook": {
+        "kind": "Components/Alerts",
+        "stories": ["success"]
+      }
+    },
+    {
+      "path": "src/stories/alerts.stories.jsx",
+      "zeplinNames": ["warning-slim", "warning"],
+      "storybook": {
+        "kind": "Components/Alerts",
+        "stories": ["warning"]
+      }
+    },
+    {
+      "path": "src/stories/alerts.stories.jsx",
+      "zeplinNames": ["error-slim", "error"],
+      "storybook": {
+        "kind": "Components/Alerts",
+        "stories": ["error"]
+      }
+    },
+    {
+      "path": "src/stories/alerts.stories.jsx",
+      "zeplinNames": ["info-slim_sans-icon", "info-slim", "info"],
+      "storybook": {
+        "kind": "Components/Alerts",
+        "stories": ["info"]
+      }
+    },
+    {
+      "path": "src/stories/alerts.stories.jsx",
+      "zeplinNames": ["system-error"],
+      "storybook": {
+        "kind": "Components/Alerts",
+        "stories": ["systemError"]
+      }
     },
     {
       "path": "src/stories/tags.stories.jsx",
