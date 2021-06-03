@@ -84,15 +84,26 @@ func CaptureAccountStatus(model interface{}, payload interface{}, logger Logger,
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
 		logItems = extractRecordInformation(item, model, logItems)
 
-		// Create log message
-		activeMessage := "enabled"
-		if false {
-			activeMessage = "disabled"
+		// Create log message and view value of active
+		elem := reflect.ValueOf(model).Elem()
+		var activeValue bool
+		if elem.FieldByName("Active").IsValid() {
+			activeValue = elem.FieldByName("Active").Bool()
+		} else {
+			msg += " invalid model interface received from request handler - active not in model"
+			logItems = append(logItems,
+				zap.Error(err),
+			)
 		}
 
-		logItems = append(logItems, zap.String("active_value", strconv.FormatBool(false)))
+		activeMessage := "disabled"
+		if activeValue {
+			activeMessage = "enabled"
+		}
 
-		msg += fmt.Sprintf(" account %s 🎉", activeMessage)
+		logItems = append(logItems, zap.String("active_value", strconv.FormatBool(activeValue)))
+
+		msg += fmt.Sprintf(" - account %s 🎉🍑", activeMessage)
 	} else {
 		msg += " invalid or zero or nil model interface received from request handler"
 		logItems = append(logItems,

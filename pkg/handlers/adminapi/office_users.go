@@ -243,6 +243,14 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		}
 	}
 
+	// Log if the account was enabled or disabled (POAM requirement)
+	if payload.Active != nil {
+		_, err = audit.CaptureAccountStatus(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Error capturing account status audit record", zap.Error(err))
+		}
+	}
+
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Error capturing audit record", zap.Error(err))
