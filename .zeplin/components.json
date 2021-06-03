@@ -1,20 +1,28 @@
 {
-  "plugins": [{
-    "name": "@zeplin/cli-connect-storybook-plugin",
-    "config": {
-      "url": "https://storybook.dp3.us",
-      "format": "new",
-      "startScript": "storybook"
+  "plugins": [
+    {
+      "name": "@zeplin/cli-connect-storybook-plugin",
+      "config": {
+        "url": "https://storybook.dp3.us",
+        "format": "new",
+        "startScript": "storybook"
+      }
     }
-  }],
-  "styleguides": [
-    "5f8482beb303e1283ee53ba7"
   ],
-  "components": [{
+  "styleguides": ["5f8482beb303e1283ee53ba7"],
+  "components": [
+    {
       "path": "src/components/LeftNav/index.jsx",
-      "zeplinNames": [
-        "Side nav/sidenav"
-      ]
+      "zeplinNames": ["Side nav/sidenav"]
+    },
+    {
+      "path": "src/components/TabNav/index.jsx",
+      "zeplinNames": ["Tab nav/tab", "Tab nav/tab:hover", "Tab nav/tab:selected", "Tab nav/tab--with-tag:selected"],
+      "storybook": {
+        "kind": "Components/Tab Navigation",
+        "stories": ["Default", "withTag"]
+      },
+      "zeplinIds": ["60ad25dd039a1da1defd0973"]
     },
     {
       "path": "src/stories/buttons.stories.jsx",
@@ -74,17 +82,7 @@
     },
     {
       "path": "src/stories/tags.stories.jsx",
-      "zeplinNames": [
-        "tag-number",
-        "tag",
-        "tag--large"
-      ]
-    },
-    {
-      "path": "src/components/TabNav/index.jsx",
-      "zeplinNames": [
-        "Tab nav/tab-nav"
-      ]
+      "zeplinNames": ["tag-number", "tag", "tag--large"]
     }
   ],
   "github": {
