@@ -48,6 +48,16 @@
                 "unlabeled:hover",
                 "unlabeled:disabled"
             ]
+        },
+        {
+            "path": "src/stories/containers.stories.jsx",
+            "zeplinNames": [
+                "containers/block-default",
+                "containers/block-default--gray",
+                "containers/block-solid",
+                "containers/block-popout",
+                "containers/block-accented"
+            ]
         }
     ],
     "github": {
