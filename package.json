@@ -9,7 +9,7 @@
     "bytes": "^3.0.0",
     "classnames": "^2.3.1",
     "connected-react-router": "^6.9.1",
-    "core-js": "^3.12.1",
+    "core-js": "^3.13.1",
     "filepond": "^4.27.3",
     "filepond-plugin-file-validate-size": "^2.2.4",
     "filepond-plugin-file-validate-type": "^1.2.6",
