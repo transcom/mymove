@@ -26,7 +26,27 @@
                 "primary:hover",
                 "primary:active",
                 "primary:disabled",
-                "primary--with-icon"
+                "primary--with-icon",
+                "secondary",
+                "secondary:hover",
+                "secondary:active",
+                "secondary:disabled",
+                "tertiary",
+                "tertiary:hover",
+                "tertiary:active",
+                "tertiary:disabled",
+                "primary--small",
+                "primary--small--with-icon",
+                "primary--small--with-icon:active",
+                "primary--small:disabled",
+                "secondary--small",
+                "secondary--small--with-icon",
+                "unstyled",
+                "unstyled:hover",
+                "unstyled:disabled",
+                "unlabeled",
+                "unlabeled:hover",
+                "unlabeled:disabled"
             ]
         }
     ],
