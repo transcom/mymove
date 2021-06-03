@@ -1,82 +1,87 @@
 {
-    "plugins": [
-        {
-            "name": "@zeplin/cli-connect-storybook-plugin",
-            "config": {
-                "url": "https://storybook.dp3.us",
-                "format": "new",
-                "startScript": "storybook"
-            }
-        }
-    ],
-    "styleguides": [
-        "5f8482beb303e1283ee53ba7"
-    ],
-    "components": [
-        {
-            "path": "src/components/LeftNav/index.jsx",
-            "zeplinNames": [
-                "Side nav/sidenav"
-            ]
-        },
-        {
-            "path": "src/stories/buttons.stories.jsx",
-            "zeplinNames": [
-                "primary",
-                "primary:hover",
-                "primary:active",
-                "primary:disabled",
-                "primary--with-icon",
-                "secondary",
-                "secondary:hover",
-                "secondary:active",
-                "secondary:disabled",
-                "tertiary",
-                "tertiary:hover",
-                "tertiary:active",
-                "tertiary:disabled",
-                "primary--small",
-                "primary--small--with-icon",
-                "primary--small--with-icon:active",
-                "primary--small:disabled",
-                "secondary--small",
-                "secondary--small--with-icon",
-                "unstyled",
-                "unstyled:hover",
-                "unstyled:disabled",
-                "unlabeled",
-                "unlabeled:hover",
-                "unlabeled:disabled"
-            ]
-        },
-        {
-            "path": "src/stories/containers.stories.jsx",
-            "zeplinNames": [
-                "containers/block-default",
-                "containers/block-default--gray",
-                "containers/block-solid",
-                "containers/block-popout",
-                "containers/block-accented"
-            ]
-        },
-        {
-            "path": "src/stories/alerts.stories.jsx",
-            "zeplinNames": [
-                "success-slim--noIcon",
-                "success-slim",
-                "success",
-                "warning-slim",
-                "warning",
-                "error-slim",
-                "error",
-                "info-slim",
-                "info-slim_sans-icon",
-                "info",
-                "system-error"
-            ]
-        }
-    ],
-    "github": {
-        "repository": "transcom/mymove"
+  "plugins": [{
+    "name": "@zeplin/cli-connect-storybook-plugin",
+    "config": {
+      "url": "https://storybook.dp3.us",
+      "format": "new",
+      "startScript": "storybook"
     }
+  }],
+  "styleguides": [
+    "5f8482beb303e1283ee53ba7"
+  ],
+  "components": [{
+      "path": "src/components/LeftNav/index.jsx",
+      "zeplinNames": [
+        "Side nav/sidenav"
+      ]
+    },
+    {
+      "path": "src/stories/buttons.stories.jsx",
+      "zeplinNames": [
+        "primary",
+        "primary:hover",
+        "primary:active",
+        "primary:disabled",
+        "primary--with-icon",
+        "secondary",
+        "secondary:hover",
+        "secondary:active",
+        "secondary:disabled",
+        "tertiary",
+        "tertiary:hover",
+        "tertiary:active",
+        "tertiary:disabled",
+        "primary--small",
+        "primary--small--with-icon",
+        "primary--small--with-icon:active",
+        "primary--small:disabled",
+        "secondary--small",
+        "secondary--small--with-icon",
+        "unstyled",
+        "unstyled:hover",
+        "unstyled:disabled",
+        "unlabeled",
+        "unlabeled:hover",
+        "unlabeled:disabled"
+      ]
+    },
+    {
+      "path": "src/stories/containers.stories.jsx",
+      "zeplinNames": [
+        "containers/block-default",
+        "containers/block-default--gray",
+        "containers/block-solid",
+        "containers/block-popout",
+        "containers/block-accented"
+      ]
+    },
+    {
+      "path": "src/stories/alerts.stories.jsx",
+      "zeplinNames": [
+        "success-slim--noIcon",
+        "success-slim",
+        "success",
+        "warning-slim",
+        "warning",
+        "error-slim",
+        "error",
+        "info-slim",
+        "info-slim_sans-icon",
+        "info",
+        "system-error"
+      ]
+    },
+    {
+      "path": "src/stories/tags.stories.jsx",
+      "zeplinNames": [
+        "tag-number",
+        "tag",
+        "tag--large"
+      ]
+    }
+  ],
+  "github": {
+    "repository": "transcom/mymove"
+  }
 }
