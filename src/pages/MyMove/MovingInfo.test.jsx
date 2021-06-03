@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import { MovingInfo } from './MovingInfo';
 
@@ -17,17 +17,21 @@ describe('MovingInfo component', () => {
   };
 
   it('renders the expected content', () => {
-    const { queryByText, queryAllByRole } = render(<MovingInfo {...testProps} />);
+    render(<MovingInfo {...testProps} />);
 
-    expect(queryByText('Things to know about selecting shipments')).toBeInTheDocument();
-    expect(queryByText(/7,000 lbs/)).toBeInTheDocument();
-    expect(queryAllByRole('heading').length).toBe(6);
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /7,000 lbs/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading').length).toBe(6);
   });
 
   it('renders with no errors when entitlement weight is 0', () => {
-    const { queryByText, queryAllByRole } = render(<MovingInfo {...testProps} entitlementWeight={0} />);
+    render(<MovingInfo {...testProps} entitlementWeight={0} />);
 
-    expect(queryByText('Things to know about selecting shipments')).toBeInTheDocument();
-    expect(queryAllByRole('heading').length).toBe(5);
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('heading').length).toBe(5);
   });
 });
