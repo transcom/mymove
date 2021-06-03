@@ -33,13 +33,30 @@ import (
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMove(suite.DB())
+
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	secondaryPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+
+	destinationAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: models.MTOShipment{},
 	})
 	mtoShipment.MoveTaskOrderID = mto.ID
+
+	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
+	agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
+		FirstName: mtoAgent.FirstName,
+		LastName:  mtoAgent.LastName,
+		Email:     mtoAgent.Email,
+		Phone:     mtoAgent.Phone,
+		AgentType: internalmessages.MTOAgentType(mtoAgent.MTOAgentType),
+	}}
+
+	customerRemarks := "I have some grandfather clocks."
 
 	builder := query.NewQueryBuilder(suite.DB())
 
@@ -51,8 +68,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		HTTPRequest: req,
 		Body: &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-			Agents:          internalmessages.MTOAgents{},
-			CustomerRemarks: nil,
+			Agents:          agents,
+			CustomerRemarks: &customerRemarks,
 			PickupAddress: &internalmessages.Address{
 				City:           &pickupAddress.City,
 				Country:        pickupAddress.Country,
@@ -61,6 +78,24 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress1: &pickupAddress.StreetAddress1,
 				StreetAddress2: pickupAddress.StreetAddress2,
 				StreetAddress3: pickupAddress.StreetAddress3,
+			},
+			SecondaryPickupAddress: &internalmessages.Address{
+				City:           &secondaryPickupAddress.City,
+				Country:        secondaryPickupAddress.Country,
+				PostalCode:     &secondaryPickupAddress.PostalCode,
+				State:          &secondaryPickupAddress.State,
+				StreetAddress1: &secondaryPickupAddress.StreetAddress1,
+				StreetAddress2: secondaryPickupAddress.StreetAddress2,
+				StreetAddress3: secondaryPickupAddress.StreetAddress3,
+			},
+			DestinationAddress: &internalmessages.Address{
+				City:           &destinationAddress.City,
+				Country:        destinationAddress.Country,
+				PostalCode:     &destinationAddress.PostalCode,
+				State:          &destinationAddress.State,
+				StreetAddress1: &destinationAddress.StreetAddress1,
+				StreetAddress2: destinationAddress.StreetAddress2,
+				StreetAddress3: destinationAddress.StreetAddress3,
 			},
 			RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
 			RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
@@ -78,6 +113,25 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
+		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(params.Body.RequestedPickupDate.String(), createdShipment.RequestedPickupDate.String())
+		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
+
+		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)
+		suite.Equal(params.Body.Agents[0].LastName, createdShipment.Agents[0].LastName)
+		suite.Equal(params.Body.Agents[0].Email, createdShipment.Agents[0].Email)
+		suite.Equal(params.Body.Agents[0].Phone, createdShipment.Agents[0].Phone)
+		suite.Equal(params.Body.Agents[0].AgentType, createdShipment.Agents[0].AgentType)
+		suite.Equal(createdShipment.ID.String(), string(createdShipment.Agents[0].MtoShipmentID))
+		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
 	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {

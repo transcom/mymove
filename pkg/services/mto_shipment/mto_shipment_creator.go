@@ -128,6 +128,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
+		if shipment.SecondaryPickupAddress != nil {
+			verrs, err = txBuilder.CreateOne(shipment.SecondaryPickupAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+			}
+			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+		}
+
 		if shipment.DestinationAddress != nil {
 			verrs, err = txBuilder.CreateOne(shipment.DestinationAddress)
 			if verrs != nil || err != nil {
