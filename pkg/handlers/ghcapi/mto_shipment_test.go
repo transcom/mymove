@@ -808,7 +808,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+		suite.Equal(params.Body.CustomerRemarks, updatedShipment.CustomerRemarks)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(params.Body.DestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)

@@ -216,8 +216,13 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
+
+	secondaryPickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	secondaryPickupAddress.StreetAddress1 = "89999 Other Test St NW"
+
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
@@ -226,7 +231,10 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
 
+	customerRemarks := ""
+
 	payload := internalmessages.UpdateShipment{
+		CustomerRemarks: &customerRemarks,
 		DestinationAddress: &internalmessages.Address{
 			City:           &destinationAddress.City,
 			Country:        destinationAddress.Country,
@@ -244,6 +252,15 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 			StreetAddress1: &pickupAddress.StreetAddress1,
 			StreetAddress2: pickupAddress.StreetAddress2,
 			StreetAddress3: pickupAddress.StreetAddress3,
+		},
+		SecondaryPickupAddress: &internalmessages.Address{
+			City:           &secondaryPickupAddress.City,
+			Country:        secondaryPickupAddress.Country,
+			PostalCode:     &secondaryPickupAddress.PostalCode,
+			State:          &secondaryPickupAddress.State,
+			StreetAddress1: &secondaryPickupAddress.StreetAddress1,
+			StreetAddress2: secondaryPickupAddress.StreetAddress2,
+			StreetAddress3: secondaryPickupAddress.StreetAddress3,
 		},
 		RequestedPickupDate:   strfmt.Date(*originalShipment.RequestedPickupDate),
 		RequestedDeliveryDate: strfmt.Date(*originalShipment.RequestedDeliveryDate),
@@ -282,6 +299,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
+		suite.Equal(*params.Body.CustomerRemarks, *updatedShipment.CustomerRemarks)
+		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *updatedShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *updatedShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *updatedShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())
+		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 	})
 
 	suite.T().Run("Successful PATCH - Can update shipment status", func(t *testing.T) {
