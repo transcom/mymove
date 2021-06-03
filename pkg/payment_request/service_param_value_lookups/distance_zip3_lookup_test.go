@@ -22,7 +22,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	key := models.ServiceItemParamNameDistanceZip3
 
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "33607",
+					},
+				}),
+				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "90210",
+					},
+				}),
+			}),
+		})
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -45,9 +58,57 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.Equal(unit.Miles(defaultZip3Distance), *mtoShipment.Distance)
 	})
 
-	suite.T().Run("Calculate zip3 distance with param cache", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+	suite.T().Run("Doesn't update mtoShipment distance when the pickup and destination zip3s are the same", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "90211",
+					},
+				}),
+				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "90210",
+					},
+				}),
+			}),
+		})
 
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		distanceStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultZip3Distance)
+		suite.Equal(expected, distanceStr)
+
+		var mtoShipment models.MTOShipment
+		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		suite.Nil(mtoShipment.Distance)
+	})
+
+	suite.T().Run("Calculate zip3 distance with param cache", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "33607",
+					},
+				}),
+				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "90210",
+					},
+				}),
+			}),
+		})
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
 				PaymentRequest: models.PaymentRequest{
