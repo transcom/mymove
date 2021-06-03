@@ -58,6 +58,22 @@
                 "containers/block-popout",
                 "containers/block-accented"
             ]
+        },
+        {
+            "path": "src/stories/alerts.stories.jsx",
+            "zeplinNames": [
+                "success-slim--noIcon",
+                "success-slim",
+                "success",
+                "warning-slim",
+                "warning",
+                "error-slim",
+                "error",
+                "info-slim",
+                "info-slim_sans-icon",
+                "info",
+                "system-error"
+            ]
         }
     ],
     "github": {
