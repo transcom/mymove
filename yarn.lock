@@ -2776,12 +2776,12 @@
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-"@redocly/openapi-cli@^1.0.0-beta.48":
-  version "1.0.0-beta.48"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.48.tgz#db0352366d097e58cf162c540dfda4310f5ef156"
-  integrity sha512-i3CXnZoDO7a8jemcEKlaRPp/nwQ9noI13VE7VaQYz9rs3hwdJHlLsQKxtt2k74QyicP84aFw/CsQzEZuvXVLLA==
+"@redocly/openapi-cli@^1.0.0-beta.49":
+  version "1.0.0-beta.49"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.49.tgz#c5c31e6adbc663a75bf132b3eb3ef11b54f4447a"
+  integrity sha512-KeWFoAH5U12HMwCproSAmGkuGN9QPtmi4IqOmE0yMRGTkIpxW4ZCR3WlknRuyJHGF0rHUII5OrwN/B9ywpmq9A==
   dependencies:
-    "@redocly/openapi-core" "^1.0.0-beta.48"
+    "@redocly/openapi-core" "^1.0.0-beta.49"
     "@types/node" "^14.11.8"
     assert-node-version "^1.0.3"
     chokidar "^3.4.0"
@@ -2789,20 +2789,21 @@
     glob "^7.1.6"
     glob-promise "^3.4.0"
     handlebars "^4.7.6"
+    js-yaml "^3.14.1"
     portfinder "^1.0.26"
     simple-websocket "^9.0.0"
     yargs "17.0.1"
 
-"@redocly/openapi-core@^1.0.0-beta.48":
-  version "1.0.0-beta.48"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.48.tgz#89b2535d59331dbedb446207f12a7396c998b4a7"
-  integrity sha512-rlus9qQC4Pkzz2Ljcv+jQjFdKOYSWnsYXWN6zNik9iiiQtMmGEdszsERCbSAYw/CZ5DRCAHMeKrh8f4LBCpx1A==
+"@redocly/openapi-core@^1.0.0-beta.49":
+  version "1.0.0-beta.49"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.49.tgz#acb244add181f59411939bc6e18586ef4df597e3"
+  integrity sha512-SwCtQeyovcV7cS6YQoe5GWX3hWXAZrnrZQtQv0YW91CtrZMBdk5qA5eQ9Mkkbk6YOKKCWkc8yD+KdkRATlyPNw==
   dependencies:
     "@redocly/ajv" "^6.12.3"
     "@types/node" "^14.11.8"
     colorette "^1.2.0"
     js-levenshtein "^1.1.6"
-    js-yaml "^3.14.0"
+    js-yaml "^3.14.1"
     lodash.isequal "^4.5.0"
     minimatch "^3.0.4"
     node-fetch "^2.6.1"
@@ -4063,24 +4064,10 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@testing-library/dom@>=7":
+"@testing-library/dom@>=7", "@testing-library/dom@^7.28.1":
   version "7.30.3"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.30.3.tgz#779ea9bbb92d63302461800a388a5a890ac22519"
   integrity sha512-7JhIg2MW6WPwyikH2iL3o7z+FTVgSOd2jqCwTAHqK7Qal2gRRYiUQyURAxtbK9VXm/UTyG9bRihv8C5Tznr2zw==
-  dependencies:
-    "@babel/code-frame" "^7.10.4"
-    "@babel/runtime" "^7.12.5"
-    "@types/aria-query" "^4.2.0"
-    aria-query "^4.2.2"
-    chalk "^4.1.0"
-    dom-accessibility-api "^0.5.4"
-    lz-string "^1.4.4"
-    pretty-format "^26.6.2"
-
-"@testing-library/dom@^7.28.1":
-  version "7.30.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.30.0.tgz#53697851f7708a1448cc30b74a2ea056dd709cd6"
-  integrity sha512-v4GzWtltaiDE0yRikLlcLAfEiiK8+ptu6OuuIebm9GdC2XlZTNDPGEfM2UkEtnH7hr9TRq2sivT5EA9P1Oy7bw==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.12.5"
@@ -4116,10 +4103,10 @@
     "@types/react-test-renderer" ">=16.9.0"
     react-error-boundary "^3.1.0"
 
-"@testing-library/react@^11.2.6":
-  version "11.2.6"
-  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-11.2.6.tgz#586a23adc63615985d85be0c903f374dab19200b"
-  integrity sha512-TXMCg0jT8xmuU8BkKMtp8l7Z50Ykew5WNX8UoIKTaLFwKkP2+1YDhOLA2Ga3wY4x29jyntk7EWfum0kjlYiSjQ==
+"@testing-library/react@^11.2.7":
+  version "11.2.7"
+  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-11.2.7.tgz#b29e2e95c6765c815786c0bc1d5aed9cb2bf7818"
+  integrity sha512-tzRNp7pzd5QmbtXNG/mhdcl7Awfu/Iz1RaVHY75zTdOkmHCuzMhRL83gWHSgOAcjS3CCbyfwUHMZgRJb4kAfpA==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^7.28.1"
@@ -4361,12 +4348,7 @@
     "@types/node" "*"
     form-data "^3.0.0"
 
-"@types/node@*", "@types/node@>= 8", "@types/node@^14.0.10", "@types/node@^14.14.31":
-  version "14.14.37"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.37.tgz#a3dd8da4eb84a996c36e331df98d82abd76b516e"
-  integrity sha512-XYmBiy+ohOR4Lh5jE379fV2IU+6Jn4g5qASinhitfyO71b/sCo6MKsMLF5tc7Zf2CE8hViVQyYSobJNke8OvUw==
-
-"@types/node@^14.11.8":
+"@types/node@*", "@types/node@>= 8", "@types/node@^14.0.10", "@types/node@^14.11.8", "@types/node@^14.14.31":
   version "14.17.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.17.1.tgz#5e07e0cb2ff793aa7a1b41deae76221e6166049f"
   integrity sha512-/tpUyFD7meeooTRwl3sYlihx2BrJE7q9XF71EguPFIySj9B7qgnRtHsHTho+0AUm4m1SvWGm6uSncrR94q6Vtw==
@@ -6606,7 +6588,7 @@ chokidar@^2.1.8:
   optionalDependencies:
     fsevents "^1.2.7"
 
-chokidar@^3.4.0, chokidar@^3.4.2:
+chokidar@^3.4.0, chokidar@^3.4.1, chokidar@^3.4.2:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.1.tgz#ee9ce7bbebd2b79f49f304799d5468e31e14e68a"
   integrity sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw==
@@ -6620,21 +6602,6 @@ chokidar@^3.4.0, chokidar@^3.4.2:
     readdirp "~3.5.0"
   optionalDependencies:
     fsevents "~2.3.1"
-
-chokidar@^3.4.1:
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.4.3.tgz#c1df38231448e45ca4ac588e6c79573ba6a57d5b"
-  integrity sha512-DtM3g7juCXQxFVSNPNByEC2+NImtBuxQQvWlHunpJIS5Ocr0lG306cC7FCi7cEA0fzmybPUIl4txBIobk1gGOQ==
-  dependencies:
-    anymatch "~3.1.1"
-    braces "~3.0.2"
-    glob-parent "~5.1.0"
-    is-binary-path "~2.1.0"
-    is-glob "~4.0.1"
-    normalize-path "~3.0.0"
-    readdirp "~3.5.0"
-  optionalDependencies:
-    fsevents "~2.1.2"
 
 chownr@^1.1.1:
   version "1.1.4"
@@ -9995,11 +9962,6 @@ fsevents@^2.1.2, fsevents@^2.1.3:
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.2.1.tgz#1fb02ded2036a8ac288d507a65962bd87b97628d"
   integrity sha512-bTLYHSeC0UH/EFXS9KqWnXuOl/wHK5Z/d+ghd5AsFMYN7wIGkUCOJyzy88+wJKkZPGON8u4Z9f6U4FdgURE9qA==
 
-fsevents@~2.1.2:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.1.3.tgz#fb738703ae8d2f9fe900c33836ddebee8b97f23e"
-  integrity sha512-Auw9a4AxqWpa9GUfj370BMPzzyncfBABW8Mab7BGWBYDj4Isgq+cDKtx0i6u9jcX9pQDnswsaaOTgTmA5pEjuQ==
-
 fsevents@~2.3.1:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.2.tgz#8a526f78b8fdf4623b709e0b975c52c24c02fd1a"
@@ -12546,7 +12508,7 @@ js-string-escape@^1.0.1:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@^3.10.0, js-yaml@^3.13.1, js-yaml@^3.14.0:
+js-yaml@^3.10.0, js-yaml@^3.13.1, js-yaml@^3.14.0, js-yaml@^3.14.1:
   version "3.14.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.1.tgz#dae812fdb3825fa306609a8717383c50c36a0537"
   integrity sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==
@@ -19362,10 +19324,10 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.13.3:
-  version "3.13.3"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.3.tgz#e9e54a0979419bd1cca67babf9f4c5a8a44ffcfd"
-  integrity sha512-8ZVm0NIhmAiHaBwDibkX76W3jvs3h1Okb41iyeSG8TPXwuZbeS5tEpOkqgUMdK48dKs0S8VMu5ldkak79MFVMw==
+swagger-client@^3.13.5:
+  version "3.13.5"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.5.tgz#39528db74007a2b3c946fa5392ee2d1a64aa9414"
+  integrity sha512-n4+yS0+jvx7PNq95TulWhjN+v9Cz6GRkdloF3LL0JV2eQ8E8a3a+0/XEppsYGIzb7i2/h7ZMcM5hIxIr7Gr1RA==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     btoa "^1.2.1"
