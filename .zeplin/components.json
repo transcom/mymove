@@ -119,6 +119,32 @@
         "kind": "Components/Tags",
         "stories": ["all"]
       }
+    },
+    {
+      "path": "src/stories/forms.stories.jsx",
+      "zeplinNames": [
+        "Radio buttons/radio-item:selected",
+        "Radio buttons/radio-item:disabled",
+        "Radio buttons/radio-button-field",
+        "Radio buttons/radio-item",
+        "Radio buttons/radioButtonField--hint",
+        "Checkbox/checkbox-item",
+        "Checkbox/checkbox-item:selected",
+        "Checkbox/checkbox-item:disabled",
+        "Checkbox/checkbox-field",
+        "Checkbox/checkboxField--hint",
+        "Dropdown/Elements/dropdown-item",
+        "Dropdown/Elements/dropdown.is-closed",
+        "Dropdown/Elements/dropdown.is-closed:hover",
+        "Dropdown/Elements/dropdown.is-closed:disabled",
+        "Dropdown/dropdown.is-open",
+        "Dropdown/dropdown.is-closed",
+        "Dropdown/dropdown--hint.is-closed"
+      ],
+      "storybook": {
+        "kind": "Components/Forms",
+        "stories": ["FormElements", "KitchenSinkForm"]
+      }
     }
   ],
   "github": {
