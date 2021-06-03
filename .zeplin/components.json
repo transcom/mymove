@@ -1,153 +1,246 @@
 {
-  "plugins": [
-    {
-      "name": "@zeplin/cli-connect-storybook-plugin",
-      "config": {
-        "url": "https://storybook.dp3.us",
-        "format": "new",
-        "startScript": "storybook"
-      }
+    "plugins": [
+        {
+            "name": "@zeplin/cli-connect-storybook-plugin",
+            "config": {
+                "url": "https://storybook.dp3.us",
+                "format": "new",
+                "startScript": "storybook"
+            }
+        }
+    ],
+    "styleguides": [
+        "5f8482beb303e1283ee53ba7"
+    ],
+    "components": [
+        {
+            "path": "src/components/LeftNav/index.jsx",
+            "zeplinNames": [
+                "Side nav/sidenav"
+            ]
+        },
+        {
+            "path": "src/components/TabNav/index.jsx",
+            "zeplinNames": [
+                "Tab nav/tab",
+                "Tab nav/tab:hover",
+                "Tab nav/tab:selected",
+                "Tab nav/tab--with-tag:selected"
+            ],
+            "storybook": {
+                "kind": "Components/Tab Navigation",
+                "stories": [
+                    "Default",
+                    "withTag"
+                ]
+            },
+            "zeplinIds": [
+                "60ad25dd039a1da1defd0973"
+            ]
+        },
+        {
+            "path": "src/stories/buttons.stories.jsx",
+            "zeplinNames": [
+                "primary",
+                "primary:hover",
+                "primary:active",
+                "primary:disabled",
+                "primary--with-icon",
+                "secondary",
+                "secondary:hover",
+                "secondary:active",
+                "secondary:disabled",
+                "tertiary",
+                "tertiary:hover",
+                "tertiary:active",
+                "tertiary:disabled",
+                "primary--small",
+                "primary--small--with-icon",
+                "primary--small--with-icon:active",
+                "primary--small:disabled",
+                "secondary--small",
+                "secondary--small--with-icon",
+                "unstyled",
+                "unstyled:hover",
+                "unstyled:disabled",
+                "unlabeled",
+                "unlabeled:hover",
+                "unlabeled:disabled"
+            ],
+            "storybook": {
+                "kind": "Components/Button",
+                "stories": [
+                    "Default",
+                    "Active",
+                    "Hover",
+                    "Focus",
+                    "Disabled"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/containers.stories.jsx",
+            "zeplinNames": [
+                "containers/block-default",
+                "containers/block-default--gray",
+                "containers/block-solid",
+                "containers/block-popout",
+                "containers/block-accented"
+            ],
+            "storybook": {
+                "kind": "Components/Containers",
+                "stories": [
+                    "all"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/alerts.stories.jsx",
+            "zeplinNames": [
+                "success-slim--noIcon",
+                "success-slim",
+                "success"
+            ],
+            "storybook": {
+                "kind": "Components/Alerts",
+                "stories": [
+                    "success"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/alerts.stories.jsx",
+            "zeplinNames": [
+                "warning-slim",
+                "warning"
+            ],
+            "storybook": {
+                "kind": "Components/Alerts",
+                "stories": [
+                    "warning"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/alerts.stories.jsx",
+            "zeplinNames": [
+                "error-slim",
+                "error"
+            ],
+            "storybook": {
+                "kind": "Components/Alerts",
+                "stories": [
+                    "error"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/alerts.stories.jsx",
+            "zeplinNames": [
+                "info-slim_sans-icon",
+                "info-slim",
+                "info"
+            ],
+            "storybook": {
+                "kind": "Components/Alerts",
+                "stories": [
+                    "info"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/alerts.stories.jsx",
+            "zeplinNames": [
+                "system-error"
+            ],
+            "storybook": {
+                "kind": "Components/Alerts",
+                "stories": [
+                    "systemError"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/tags.stories.jsx",
+            "zeplinNames": [
+                "tag-number",
+                "tag",
+                "tag--large"
+            ],
+            "storybook": {
+                "kind": "Components/Tags",
+                "stories": [
+                    "all"
+                ]
+            }
+        },
+        {
+            "path": "src/stories/forms.stories.jsx",
+            "zeplinNames": [
+                "Radio buttons/radio-item:selected",
+                "Radio buttons/radio-item:disabled",
+                "Radio buttons/radio-button-field",
+                "Radio buttons/radio-item",
+                "Radio buttons/radioButtonField--hint",
+                "Checkbox/checkbox-item",
+                "Checkbox/checkbox-item:selected",
+                "Checkbox/checkbox-item:disabled",
+                "Checkbox/checkbox-field",
+                "Checkbox/checkboxField--hint",
+                "Dropdown/Elements/dropdown-item",
+                "Dropdown/Elements/dropdown.is-closed",
+                "Dropdown/Elements/dropdown.is-closed:hover",
+                "Dropdown/Elements/dropdown.is-closed:disabled",
+                "Dropdown/dropdown.is-open",
+                "Dropdown/dropdown.is-closed",
+                "Dropdown/dropdown--hint.is-closed",
+                "Text input/Elements/text-input--filled",
+                "Text input/Elements/text-input",
+                "Text input/Elements/text-input--ffilled:focus",
+                "Text input/Elements/date-input--filled",
+                "Text input/Elements/text-input--small",
+                "Text input/Elements/text-input--small--filled",
+                "Text input/Elements/date-input--small--filled",
+                "Text input/text-input",
+                "Text input/text-input--filled",
+                "Text input/text-input--filled:focus",
+                "Text input/text-input--filled:error",
+                "Text input/textInput--hint:filled",
+                "Text input/text-input--small--optional--filled"
+            ],
+            "storybook": {
+                "kind": "Components/Forms",
+                "stories": [
+                    "FormElements",
+                    "KitchenSinkForm"
+                ]
+            }
+        },
+        {
+            "path": "src/components/Customer/SelectableCard.jsx",
+            "zeplinIds": [
+                "609d497537440a6dd42de334",
+                "609d4977fdc0c16a630a342a",
+                "609d497614eafc5bbd092099",
+                "609d49765e7a135c8d521b46",
+                "609d4976ee6b3f6da7857054",
+                "609d4979f3bc396c5acd358f",
+                "609d4976f406696bccd5be75",
+                "609d4978c205a86d8f46a352",
+                "609d4977e0f49c6d6221ef35",
+                "609d4979225c5c5be5549ad8",
+                "609d49784aaf876a0b6a938f",
+                "609d4978a2611e6bbb82ae1d",
+                "609d49781de2b26c46134489",
+                "609d497ab705d26a86cf2f7f",
+                "609d497a2ad0f76a16687317",
+                "609d4979a84c746b12f39afa",
+                "609d497a041c926b4b0afbb1",
+                "609d4978f841db6d1385c0dc"
+            ]
+        }
+    ],
+    "github": {
+        "repository": "transcom/mymove"
     }
-  ],
-  "styleguides": ["5f8482beb303e1283ee53ba7"],
-  "components": [
-    {
-      "path": "src/components/LeftNav/index.jsx",
-      "zeplinNames": ["Side nav/sidenav"]
-    },
-    {
-      "path": "src/components/TabNav/index.jsx",
-      "zeplinNames": ["Tab nav/tab", "Tab nav/tab:hover", "Tab nav/tab:selected", "Tab nav/tab--with-tag:selected"],
-      "storybook": {
-        "kind": "Components/Tab Navigation",
-        "stories": ["Default", "withTag"]
-      },
-      "zeplinIds": ["60ad25dd039a1da1defd0973"]
-    },
-    {
-      "path": "src/stories/buttons.stories.jsx",
-      "zeplinNames": [
-        "primary",
-        "primary:hover",
-        "primary:active",
-        "primary:disabled",
-        "primary--with-icon",
-        "secondary",
-        "secondary:hover",
-        "secondary:active",
-        "secondary:disabled",
-        "tertiary",
-        "tertiary:hover",
-        "tertiary:active",
-        "tertiary:disabled",
-        "primary--small",
-        "primary--small--with-icon",
-        "primary--small--with-icon:active",
-        "primary--small:disabled",
-        "secondary--small",
-        "secondary--small--with-icon",
-        "unstyled",
-        "unstyled:hover",
-        "unstyled:disabled",
-        "unlabeled",
-        "unlabeled:hover",
-        "unlabeled:disabled"
-      ],
-      "storybook": {
-        "kind": "Components/Button",
-        "stories": ["Default", "Active", "Hover", "Focus", "Disabled"]
-      }
-    },
-    {
-      "path": "src/stories/containers.stories.jsx",
-      "zeplinNames": [
-        "containers/block-default",
-        "containers/block-default--gray",
-        "containers/block-solid",
-        "containers/block-popout",
-        "containers/block-accented"
-      ],
-      "storybook": {
-        "kind": "Components/Containers",
-        "stories": ["all"]
-      }
-    },
-    {
-      "path": "src/stories/alerts.stories.jsx",
-      "zeplinNames": ["success-slim--noIcon", "success-slim", "success"],
-      "storybook": {
-        "kind": "Components/Alerts",
-        "stories": ["success"]
-      }
-    },
-    {
-      "path": "src/stories/alerts.stories.jsx",
-      "zeplinNames": ["warning-slim", "warning"],
-      "storybook": {
-        "kind": "Components/Alerts",
-        "stories": ["warning"]
-      }
-    },
-    {
-      "path": "src/stories/alerts.stories.jsx",
-      "zeplinNames": ["error-slim", "error"],
-      "storybook": {
-        "kind": "Components/Alerts",
-        "stories": ["error"]
-      }
-    },
-    {
-      "path": "src/stories/alerts.stories.jsx",
-      "zeplinNames": ["info-slim_sans-icon", "info-slim", "info"],
-      "storybook": {
-        "kind": "Components/Alerts",
-        "stories": ["info"]
-      }
-    },
-    {
-      "path": "src/stories/alerts.stories.jsx",
-      "zeplinNames": ["system-error"],
-      "storybook": {
-        "kind": "Components/Alerts",
-        "stories": ["systemError"]
-      }
-    },
-    {
-      "path": "src/stories/tags.stories.jsx",
-      "zeplinNames": ["tag-number", "tag", "tag--large"],
-      "storybook": {
-        "kind": "Components/Tags",
-        "stories": ["all"]
-      }
-    },
-    {
-      "path": "src/stories/forms.stories.jsx",
-      "zeplinNames": [
-        "Radio buttons/radio-item:selected",
-        "Radio buttons/radio-item:disabled",
-        "Radio buttons/radio-button-field",
-        "Radio buttons/radio-item",
-        "Radio buttons/radioButtonField--hint",
-        "Checkbox/checkbox-item",
-        "Checkbox/checkbox-item:selected",
-        "Checkbox/checkbox-item:disabled",
-        "Checkbox/checkbox-field",
-        "Checkbox/checkboxField--hint",
-        "Dropdown/Elements/dropdown-item",
-        "Dropdown/Elements/dropdown.is-closed",
-        "Dropdown/Elements/dropdown.is-closed:hover",
-        "Dropdown/Elements/dropdown.is-closed:disabled",
-        "Dropdown/dropdown.is-open",
-        "Dropdown/dropdown.is-closed",
-        "Dropdown/dropdown--hint.is-closed"
-      ],
-      "storybook": {
-        "kind": "Components/Forms",
-        "stories": ["FormElements", "KitchenSinkForm"]
-      }
-    }
-  ],
-  "github": {
-    "repository": "transcom/mymove"
-  }
 }
