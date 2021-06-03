@@ -55,7 +55,10 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", err
 	}
 
-	if distanceMiles >= 50 {
+	pickupZip3 := pickupZip[:3]
+	destinationZip3 := destinationZip[:3]
+
+	if pickupZip3 != destinationZip3 {
 		miles := unit.Miles(distanceMiles)
 		mtoShipment.Distance = &miles
 		err = db.Save(&mtoShipment)
