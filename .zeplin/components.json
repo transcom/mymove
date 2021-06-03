@@ -1,29 +1,36 @@
 {
-  "plugins": [{
-    "name": "@zeplin/cli-connect-storybook-plugin",
-    "config": {
-      "url": "https://storybook.dp3.us",
-      "format": "new",
-      "startScript": "storybook"
+    "plugins": [
+        {
+            "name": "@zeplin/cli-connect-storybook-plugin",
+            "config": {
+                "url": "https://storybook.dp3.us",
+                "format": "new",
+                "startScript": "storybook"
+            }
+        }
+    ],
+    "styleguides": [
+        "5f8482beb303e1283ee53ba7"
+    ],
+    "components": [
+        {
+            "path": "src/components/LeftNav/index.jsx",
+            "zeplinNames": [
+                "Side nav/sidenav"
+            ]
+        },
+        {
+            "path": "src/stories/buttons.stories.jsx",
+            "zeplinNames": [
+                "primary",
+                "primary:hover",
+                "primary:active",
+                "primary:disabled",
+                "primary--with-icon"
+            ]
+        }
+    ],
+    "github": {
+        "repository": "transcom/mymove"
     }
-  }],
-  "styleguides": [
-    "5f8482beb303e1283ee53ba7"
-  ],
-  "components": [{
-      "path": "src/components/LeftNav/index.jsx",
-      "zeplinNames": [
-        "Side nav/sidenav"
-      ]
-    },
-    {
-      "path": "src/stories/buttons.stories.jsx",
-      "zeplinNames": [
-        "primary"
-      ]
-    }
-  ],
-  "github": {
-    "repository": "transcom/mymove"
-  }
 }
