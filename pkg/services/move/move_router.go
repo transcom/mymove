@@ -162,6 +162,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 // Approve makes the Move available to the Prime. The Prime cannot create
 // Service Items unless the Move is approved.
 func (router moveRouter) Approve(move *models.Move) error {
+	router.logMove(move)
 	if router.approvable(move) {
 		move.Status = models.MoveStatusAPPROVED
 		return nil
