@@ -42,6 +42,25 @@ const postalOnly = {
   },
 };
 
+const diversion = {
+  heading: 'HHG',
+  isDiversion: true,
+  requestedMoveDate: '26 Mar 2020',
+  currentAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+  counselorRemarks: 'counselor approved',
+};
+
 describe('Shipment Container', () => {
   it('renders the container successfully', () => {
     const wrapper = shallow(
@@ -66,5 +85,9 @@ describe('Shipment Container', () => {
   it('renders without edit button', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
     expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
+  });
+  it('renders with diversion tag', () => {
+    render(<ShipmentDisplay shipmentId="1" displayInfo={diversion} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.getByText('diversion')).toBeInTheDocument();
   });
 });

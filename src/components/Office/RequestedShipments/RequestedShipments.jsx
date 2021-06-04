@@ -147,6 +147,7 @@ const RequestedShipments = ({
                     isSubmitted
                     displayInfo={{
                       heading: shipmentTypeLabels[shipment.shipmentType],
+                      isDiversion: shipment.diversion,
                       requestedMoveDate: shipment.requestedPickupDate,
                       originAddress: shipment.pickupAddress,
                       destinationAddress: shipment.destinationAddress || dutyStationPostal,
@@ -209,6 +210,7 @@ const RequestedShipments = ({
                   shipmentType={shipment.shipmentType}
                   displayInfo={{
                     heading: shipmentTypeLabels[shipment.shipmentType],
+                    isDiversion: shipment.diversion,
                     requestedMoveDate: shipment.requestedPickupDate,
                     originAddress: shipment.pickupAddress,
                     destinationAddress: shipment.destinationAddress || dutyStationPostal,
