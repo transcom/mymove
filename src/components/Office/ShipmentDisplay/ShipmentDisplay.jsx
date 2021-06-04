@@ -47,13 +47,21 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dd>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Current address</dt>
-            <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
+            <dt>Origin address</dt>
+            <dd>{displayInfo.originAddress && formatAddress(displayInfo.originAddress)}</dd>
           </div>
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>
             <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
           </div>
+          {displayInfo.secondDestinationAddress && (
+            <div className={styles.row}>
+              <dt className={styles.label}>Second destination address</dt>
+              <dd data-testid="shipmentSecondDestinationAddress">
+                {formatAddress(displayInfo.secondDestinationAddress)}
+              </dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt className={styles.label}>Counselor remarks</dt>
             <dd data-testid="counselorRemarks">{displayInfo.counselorRemarks || '—'}</dd>
@@ -90,8 +98,9 @@ ShipmentDisplay.propTypes = {
     heading: PropTypes.string.isRequired,
     isDiversion: PropTypes.bool,
     requestedMoveDate: PropTypes.string.isRequired,
-    currentAddress: AddressShape.isRequired,
+    originAddress: AddressShape.isRequired,
     destinationAddress: AddressShape,
+    secondDestinationAddress: AddressShape,
     counselorRemarks: PropTypes.string,
   }).isRequired,
   showIcon: PropTypes.bool,

@@ -70,6 +70,8 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryAssociation("MTOAgents"),
 		query.NewQueryAssociation("PickupAddress"),
 		query.NewQueryAssociation("DestinationAddress"),
+		query.NewQueryAssociation("SecondaryPickupAddress"),
+		query.NewQueryAssociation("SecondaryDeliveryAddress"),
 	})
 
 	var shipments models.MTOShipments

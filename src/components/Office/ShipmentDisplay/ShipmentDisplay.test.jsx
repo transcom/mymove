@@ -7,7 +7,7 @@ import ShipmentDisplay from './ShipmentDisplay';
 const info = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
+  originAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -19,13 +19,19 @@ const info = {
     state: 'WA',
     postal_code: '98421',
   },
+  secondDestinationAddress: {
+    street_address_1: '987 Fairway Dr',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
   counselorRemarks: 'counselor approved',
 };
 
 const postalOnly = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
+  originAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',

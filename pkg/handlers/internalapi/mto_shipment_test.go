@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -498,8 +499,44 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		Move: mto,
 	})
 
+	requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
+
+	pickupAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+	secondaryPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "123 Nowhere",
+			StreetAddress2: swag.String("P.O. Box 5555"),
+			StreetAddress3: swag.String("c/o Some Other Person"),
+			City:           "El Paso",
+			State:          "TX",
+			PostalCode:     "79916",
+			Country:        swag.String("US"),
+		},
+	})
+
+	deliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
+	secondaryDeliveryAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "5432 Everywhere",
+			StreetAddress2: swag.String("P.O. Box 111"),
+			StreetAddress3: swag.String("c/o Some Other Person"),
+			City:           "Portsmouth",
+			State:          "NH",
+			PostalCode:     "03801",
+			Country:        swag.String("US"),
+		},
+	})
+
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status:                   models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:      &requestedPickupDate,
+			PickupAddress:            &pickupAddress,
+			SecondaryPickupAddress:   &secondaryPickupAddress,
+			DestinationAddress:       &deliveryAddress,
+			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+		},
 	})
 
 	shipments := models.MTOShipments{mtoShipment, mtoShipment2}
@@ -527,26 +564,51 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
+
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
 
-		firstCreatedShipment := mtoShipment
-		nextCreatedShipment := mtoShipment2
-		if mtoShipment2.CreatedAt.Before(mtoShipment.CreatedAt) {
-			firstCreatedShipment = mtoShipment2
-			nextCreatedShipment = mtoShipment
-		}
-		actualCreatedAt0, err := time.Parse(time.RFC3339, okResponse.Payload[0].CreatedAt.String())
-		if err != nil {
-			suite.TestLogger().Fatal("unable to parse string time")
-		}
+		firstShipmentReturned := okResponse.Payload[0]
+		secondShipmentReturned := okResponse.Payload[1]
 
-		actualCreatedAt1, err := time.Parse(time.RFC3339, okResponse.Payload[1].CreatedAt.String())
-		if err != nil {
-			suite.TestLogger().Fatal("unable to parse string time")
+		// we expect the shipment that was created first to come first in the response
+		suite.Equal(mtoShipment.ID.String(), firstShipmentReturned.ID.String())
+		suite.Equal(mtoShipment2.ID.String(), secondShipmentReturned.ID.String())
+
+		for i, returnedShipment := range okResponse.Payload {
+			expectedShipment := shipments[i]
+
+			suite.Equal(expectedShipment.Status, models.MTOShipmentStatus(returnedShipment.Status))
+
+			suite.EqualDatePtr(expectedShipment.RequestedPickupDate, returnedShipment.RequestedPickupDate)
+
+			suite.Equal(expectedShipment.PickupAddress.StreetAddress1, *returnedShipment.PickupAddress.StreetAddress1)
+			suite.Equal(*expectedShipment.PickupAddress.StreetAddress2, *returnedShipment.PickupAddress.StreetAddress2)
+			suite.Equal(*expectedShipment.PickupAddress.StreetAddress3, *returnedShipment.PickupAddress.StreetAddress3)
+			suite.Equal(expectedShipment.PickupAddress.City, *returnedShipment.PickupAddress.City)
+			suite.Equal(expectedShipment.PickupAddress.State, *returnedShipment.PickupAddress.State)
+			suite.Equal(expectedShipment.PickupAddress.PostalCode, *returnedShipment.PickupAddress.PostalCode)
+
+			suite.Equal(expectedShipment.SecondaryPickupAddress.StreetAddress1, *returnedShipment.SecondaryPickupAddress.StreetAddress1)
+			suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress2, *returnedShipment.SecondaryPickupAddress.StreetAddress2)
+			suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress3, *returnedShipment.SecondaryPickupAddress.StreetAddress3)
+			suite.Equal(expectedShipment.SecondaryPickupAddress.City, *returnedShipment.SecondaryPickupAddress.City)
+			suite.Equal(expectedShipment.SecondaryPickupAddress.State, *returnedShipment.SecondaryPickupAddress.State)
+			suite.Equal(expectedShipment.SecondaryPickupAddress.PostalCode, *returnedShipment.SecondaryPickupAddress.PostalCode)
+
+			suite.Equal(expectedShipment.DestinationAddress.StreetAddress1, *returnedShipment.DestinationAddress.StreetAddress1)
+			suite.Equal(*expectedShipment.DestinationAddress.StreetAddress2, *returnedShipment.DestinationAddress.StreetAddress2)
+			suite.Equal(*expectedShipment.DestinationAddress.StreetAddress3, *returnedShipment.DestinationAddress.StreetAddress3)
+			suite.Equal(expectedShipment.DestinationAddress.City, *returnedShipment.DestinationAddress.City)
+			suite.Equal(expectedShipment.DestinationAddress.State, *returnedShipment.DestinationAddress.State)
+			suite.Equal(expectedShipment.DestinationAddress.PostalCode, *returnedShipment.DestinationAddress.PostalCode)
+
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
+			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
+			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
+			suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
 		}
-		suite.True(firstCreatedShipment.CreatedAt.Before(actualCreatedAt1))
-		suite.True(nextCreatedShipment.CreatedAt.After(actualCreatedAt0))
 	})
 
 	suite.T().Run("POST failure - 400 - Bad Request", func(t *testing.T) {
