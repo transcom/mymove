@@ -265,3 +265,31 @@ func TestExtractResponsibleUser(t *testing.T) {
 		}
 	})
 }
+
+func TestExtractRecordInformation(t *testing.T) {
+	uuidStringUser := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fb"
+	userID, _ := uuid.FromString(uuidStringUser)
+
+	model := &models.OfficeUser{
+		CreatedAt: time.Now(),
+		ID:        userID,
+		UpdatedAt: time.Now(),
+	}
+
+	item, _ := validateInterface(model)
+	var zapFields []zap.Field
+	t.Run("Returns the require fields", func(t *testing.T) {
+		zapFields = extractRecordInformation(item, model, zapFields)
+
+		if assert.NotEmpty(t, zapFields) {
+			assert.Equal(t, "record_id", zapFields[0].Key)
+			assert.Equal(t, uuidStringUser, zapFields[0].String)
+			assert.Equal(t, "record_type", zapFields[1].Key)
+			assert.Equal(t, "OfficeUser", zapFields[1].String)
+			assert.Equal(t, "record_created_at", zapFields[2].Key)
+			assert.Equal(t, model.CreatedAt.String(), zapFields[2].String)
+			assert.Equal(t, "record_updated_at", zapFields[3].Key)
+			assert.Equal(t, model.UpdatedAt.String(), zapFields[3].String)
+		}
+	})
+}

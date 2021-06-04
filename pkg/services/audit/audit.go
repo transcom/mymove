@@ -81,6 +81,8 @@ func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, se
 	logItems = extractResponsibleUser(logItems, session)
 
 	item, err := validateInterface(model)
+	fmt.Print("TESTTEST")
+	fmt.Printf("%+v\n", model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
 		logItems = extractRecordInformation(item, model, logItems)
 
@@ -129,8 +131,8 @@ func extractRecordInformation(item reflect.Type, model interface{}, logItems []z
 	}
 
 	var updatedAt string
-	if elem.FieldByName("updatedAt").IsValid() {
-		updatedAt = elem.FieldByName("updatedAt").Interface().(time.Time).String()
+	if elem.FieldByName("UpdatedAt").IsValid() {
+		updatedAt = elem.FieldByName("UpdatedAt").Interface().(time.Time).String()
 	} else {
 		updatedAt = time.Now().String()
 	}
