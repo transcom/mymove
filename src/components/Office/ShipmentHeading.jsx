@@ -22,7 +22,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <div className={styles.shipmentHeadingType}>
-        <h3 data-testid="office-shipment-heading-h2">{shipmentInfo.shipmentType}</h3>
+        <h3>{shipmentInfo.shipmentType}</h3>
         {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
       </div>
       <div className={styles.row}>
