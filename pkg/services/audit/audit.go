@@ -72,7 +72,7 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 }
 
 // CaptureAccountStatus captures an audit record when a user account is enabled or disabled
-func CaptureAccountStatus(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
+func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
 	var logItems []zap.Field
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
@@ -85,24 +85,12 @@ func CaptureAccountStatus(model interface{}, payload interface{}, logger Logger,
 		logItems = extractRecordInformation(item, model, logItems)
 
 		// Create log message and view value of active
-		elem := reflect.ValueOf(model).Elem()
-		var activeValue bool
-		if elem.FieldByName("Active").IsValid() {
-			activeValue = elem.FieldByName("Active").Bool()
-		} else {
-			msg += " invalid model interface received from request handler - active not in model"
-			logItems = append(logItems,
-				zap.Error(err),
-			)
-		}
-
 		activeMessage := "disabled"
 		if activeValue {
 			activeMessage = "enabled"
 		}
 
 		logItems = append(logItems, zap.String("active_value", strconv.FormatBool(activeValue)))
-
 		msg += fmt.Sprintf(" - account %s 🎉🍑", activeMessage)
 	} else {
 		msg += " invalid or zero or nil model interface received from request handler"
@@ -112,7 +100,6 @@ func CaptureAccountStatus(model interface{}, payload interface{}, logger Logger,
 	}
 
 	logger.Info(msg, logItems...)
-
 	return logItems, nil
 }
 

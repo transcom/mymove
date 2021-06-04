@@ -164,3 +164,88 @@ func TestCapture(t *testing.T) {
 		}
 	})
 }
+
+func TestCaptureAccountStatus(t *testing.T) {
+	uuidStringOffice := "1127bdbd-0610-4e52-9f10-1fa3c063bad3"
+	officeUserID, _ := uuid.FromString(uuidStringOffice)
+	model := models.OfficeUser{
+		ID:        officeUserID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	logger := zap.NewNop()
+
+	t.Run("Sucessfully logs account enabled", func(t *testing.T) {
+		uuidStringAdmin := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fc"
+		adminUserID, _ := uuid.FromString(uuidStringAdmin)
+
+		session := auth.Session{
+			AdminUserID: adminUserID,
+		}
+
+		req := &http.Request{
+			URL: &url.URL{
+				Path: "/admin/v1/admin_users",
+			},
+			Method: "POST",
+		}
+
+		zapFields, _ := CaptureAccountStatus(&model, true, logger, &session, req)
+		var eventType string
+		var activeValue string
+		for _, field := range zapFields {
+			if field.Key == "event_type" {
+				eventType = field.String
+			}
+			if field.Key == "active_value" {
+				activeValue = field.String
+			}
+		}
+
+		if assert.NotEmpty(t, zapFields) {
+			assert.Equal(t, "event_type", zapFields[0].Key)
+			assert.Equal(t, "audit_post_admin_users", eventType)
+			assert.Equal(t, "responsible_user_id", zapFields[1].Key)
+			assert.Equal(t, "record_id", zapFields[4].Key)
+			assert.Equal(t, "active_value", zapFields[8].Key)
+			assert.Equal(t, "true", activeValue)
+		}
+	})
+
+	t.Run("Sucessfully logs account enabled", func(t *testing.T) {
+		uuidStringAdmin := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fc"
+		adminUserID, _ := uuid.FromString(uuidStringAdmin)
+
+		session := auth.Session{
+			AdminUserID: adminUserID,
+		}
+
+		req := &http.Request{
+			URL: &url.URL{
+				Path: "/admin/v1/admin_users",
+			},
+			Method: "POST",
+		}
+
+		zapFields, _ := CaptureAccountStatus(&model, false, logger, &session, req)
+		var eventType string
+		var activeValue string
+		for _, field := range zapFields {
+			if field.Key == "event_type" {
+				eventType = field.String
+			}
+			if field.Key == "active_value" {
+				activeValue = field.String
+			}
+		}
+
+		if assert.NotEmpty(t, zapFields) {
+			assert.Equal(t, "event_type", zapFields[0].Key)
+			assert.Equal(t, "audit_post_admin_users", eventType)
+			assert.Equal(t, "responsible_user_id", zapFields[1].Key)
+			assert.Equal(t, "record_id", zapFields[4].Key)
+			assert.Equal(t, "active_value", zapFields[8].Key)
+			assert.Equal(t, "false", activeValue)
+		}
+	})
+}
