@@ -363,7 +363,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mtoShipment.ID,
+			shipment.ID,
 			models.MTOShipmentStatusApproved,
 			nilString,
 			eTag,

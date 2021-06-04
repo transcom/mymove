@@ -537,13 +537,19 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return nil, err
 	}
 
-	verrs, err := o.builder.UpdateOne(shipment, &eTag)
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		err = o.createServiceItems(shipment)
+		if err != nil {
+			return nil, err
+		}
 
-	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
-
-		return &models.MTOShipment{}, invalidInputError
+		err = o.setRequiredDeliveryDate(shipment)
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	verrs, err := o.builder.UpdateOne(shipment, &eTag)
 
 	if err != nil {
 		switch err.(type) {
@@ -554,32 +560,10 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		}
 	}
 
-	if shipment.Status == models.MTOShipmentStatusApproved {
-		if shipment.ScheduledPickupDate != nil &&
-			shipment.RequiredDeliveryDate == nil &&
-			shipment.PrimeEstimatedWeight != nil {
-			requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
-			if calcErr != nil {
-				return nil, calcErr
-			}
-			shipment.RequiredDeliveryDate = requiredDeliveryDate
-		}
+	if verrs != nil && verrs.HasAny() {
+		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 
-		reServiceCodes := reServiceCodesForShipment(*shipment)
-		serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
-		for _, serviceItem := range serviceItemsToCreate {
-			copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
-			_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
-
-			if verrs != nil && verrs.HasAny() {
-				invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
-				return &models.MTOShipment{}, invalidInputError
-			}
-
-			if err != nil {
-				return nil, err
-			}
-		}
+		return &models.MTOShipment{}, invalidInputError
 	}
 
 	return shipment, nil
@@ -598,6 +582,41 @@ func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) 
 	}
 
 	return &shipment, nil
+}
+
+func (o *mtoShipmentStatusUpdater) createServiceItems(shipment *models.MTOShipment) error {
+	reServiceCodes := reServiceCodesForShipment(*shipment)
+	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
+	for _, serviceItem := range serviceItemsToCreate {
+		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
+		_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
+
+		if verrs != nil && verrs.HasAny() {
+			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
+			return invalidInputError
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(shipment *models.MTOShipment) error {
+	if shipment.ScheduledPickupDate != nil &&
+		shipment.RequiredDeliveryDate == nil &&
+		shipment.PrimeEstimatedWeight != nil {
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		if calcErr != nil {
+			return calcErr
+		}
+
+		shipment.RequiredDeliveryDate = requiredDeliveryDate
+	}
+
+	return nil
 }
 
 func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {

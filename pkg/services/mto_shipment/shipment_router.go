@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
-	//"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -127,27 +126,3 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 
 	return nil
 }
-
-// func (router *shipmentRouter) findShipment(shipment *models.MTOShipment) (*error) {
-// 	var shipment *models.MTOShipment
-// 	err := router.db.Q().Eager("MoveTaskOrder").Find(&shipment, shipmentID)
-
-// 	if err != nil {
-// 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-// 			return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
-// 		}
-
-// 		return nil, err
-// 	}
-
-// 	return &shipment, nil
-// }
-
-// func (router shipmentRouter) logMove(shipment *models.MTOShipment) {
-// 	router.logger.Info("Move log",
-// 		zap.String("Move.ID", move.ID.String()),
-// 		zap.String("Move.Locator", move.Locator),
-// 		zap.String("Move.Status", string(move.Status)),
-// 		zap.String("Move.OrdersID", move.OrdersID.String()),
-// 	)
-// }
