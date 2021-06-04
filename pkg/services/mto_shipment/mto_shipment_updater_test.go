@@ -786,8 +786,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		diversionRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()),
 			MTOShipment: models.MTOShipment{
-				Status:    models.MTOShipmentStatusDiversionRequested,
-				Diversion: true,
+				Status: models.MTOShipmentStatusDiversionRequested,
 			},
 		})
 		eTag = etag.GenerateEtag(diversionRequestedShipment.UpdatedAt)
