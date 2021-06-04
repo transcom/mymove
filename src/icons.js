@@ -44,6 +44,11 @@ import {
   faCaretDown,
   faCopy,
   faEquals,
+  faPencilAlt,
+  faWeightHanging,
+  faTruckMoving,
+  faCar,
+  faHandHoldingUsd,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -89,4 +94,9 @@ library.add(
   faCopy,
   faEquals,
   faUser,
+  faPencilAlt,
+  faWeightHanging,
+  faTruckMoving,
+  faCar,
+  faHandHoldingUsd,
 );
