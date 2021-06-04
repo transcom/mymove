@@ -224,7 +224,6 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusDiversionRequested, shipment.Status)
-			suite.Equal(true, shipment.Diversion)
 		}
 	})
 

@@ -516,6 +516,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		rejectionReason = nil
 	}
 
+	// here we determine if the current shipment status is diversion requested before updating
+	wasShipmentDiversionRequested := shipment.Status == models.MTOShipmentStatusDiversionRequested
 	shipmentRouter := NewShipmentRouter(o.db)
 
 	switch status {
@@ -563,10 +565,10 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	// after updating shipment
-	// create shipment level service items if it is not a diversion
-	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !shipment.Diversion
+	// create shipment level service items if shipment status was NOT diversion requested before it was updated
+	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !wasShipmentDiversionRequested
 	if createSSI {
-		err := o.createShipmentServiceItems(shipment)
+		err = o.createShipmentServiceItems(shipment)
 		if err != nil {
 			return nil, err
 		}

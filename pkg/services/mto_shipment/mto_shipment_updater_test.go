@@ -803,7 +803,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		err = suite.DB().Where("mto_shipment_id = $1", updatedShipment.ID).All(&shipmentServiceItems)
 		suite.NoError(err)
 		suite.Len(shipmentServiceItems, 0, "should not have created shipment level service items for diversion shipment after approving")
-
 	})
 }
 
