@@ -234,15 +234,14 @@ describe('MoveDetails page', () => {
       );
     }
 
-    const currentAddressTerms = screen.getAllByText('Current address');
+    const originAddressTerms = screen.getAllByText('Origin address');
 
-    expect(currentAddressTerms.length).toBe(3); // Third one is in customer info section
+    expect(originAddressTerms.length).toBe(2);
 
-    // only loop through the ones in the shipments section
     for (let i = 0; i < 2; i += 1) {
       const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
 
-      const addressText = currentAddressTerms[i].nextElementSibling.textContent;
+      const addressText = originAddressTerms[i].nextElementSibling.textContent;
 
       expect(addressText).toContain(street_address_1);
       expect(addressText).toContain(city);

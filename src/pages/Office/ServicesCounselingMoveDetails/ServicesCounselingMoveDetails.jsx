@@ -57,7 +57,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           id: shipment.id,
           heading: SHIPMENT_OPTIONS.HHG,
           requestedMoveDate: shipment.requestedPickupDate,
-          currentAddress: shipment.pickupAddress,
+          originAddress: shipment.pickupAddress,
           destinationAddress: shipment.destinationAddress || {
             postal_code: order.destinationDutyStation.address.postal_code,
           },

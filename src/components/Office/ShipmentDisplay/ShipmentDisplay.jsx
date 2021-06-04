@@ -44,8 +44,8 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dd>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Current address</dt>
-            <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
+            <dt>Origin address</dt>
+            <dd>{displayInfo.originAddress && formatAddress(displayInfo.originAddress)}</dd>
           </div>
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>
@@ -94,7 +94,7 @@ ShipmentDisplay.propTypes = {
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     requestedMoveDate: PropTypes.string.isRequired,
-    currentAddress: AddressShape.isRequired,
+    originAddress: AddressShape.isRequired,
     destinationAddress: AddressShape,
     secondDestinationAddress: AddressShape,
     counselorRemarks: PropTypes.string,

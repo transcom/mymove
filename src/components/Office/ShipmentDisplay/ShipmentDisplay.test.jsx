@@ -7,7 +7,7 @@ import ShipmentDisplay from './ShipmentDisplay';
 const info = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
+  originAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -31,7 +31,7 @@ const info = {
 const postalOnly = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
+  originAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
