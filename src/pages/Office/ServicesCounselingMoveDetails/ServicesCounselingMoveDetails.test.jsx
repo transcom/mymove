@@ -52,6 +52,17 @@ const mtoShipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
+    secondaryDeliveryAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-eeee-c0f467d13c19',
+      postal_code: '90215',
+      state: 'CA',
+      street_address_1: '123 Any Street',
+      street_address_2: 'P.O. Box 12345',
+      street_address_3: 'c/o Some Person',
+    },
     requestedPickupDate: '2020-06-04',
     scheduledPickupDate: '2020-06-05',
     shipmentType: 'HHG',
@@ -223,15 +234,14 @@ describe('MoveDetails page', () => {
       );
     }
 
-    const currentAddressTerms = screen.getAllByText('Current address');
+    const originAddressTerms = screen.getAllByText('Origin address');
 
-    expect(currentAddressTerms.length).toBe(3); // Third one is in customer info section
+    expect(originAddressTerms.length).toBe(2);
 
-    // only loop through the ones in the shipments section
     for (let i = 0; i < 2; i += 1) {
       const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
 
-      const addressText = currentAddressTerms[i].nextElementSibling.textContent;
+      const addressText = originAddressTerms[i].nextElementSibling.textContent;
 
       expect(addressText).toContain(street_address_1);
       expect(addressText).toContain(city);
@@ -253,6 +263,19 @@ describe('MoveDetails page', () => {
       expect(addressText).toContain(state);
       expect(addressText).toContain(postal_code);
     }
+
+    const secondDestinationAddressTerms = screen.getAllByText('Second destination address');
+
+    // This is not a required field, and only one of our shipments has it filled out:
+    expect(secondDestinationAddressTerms.length).toBe(1);
+
+    const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[0].secondaryDeliveryAddress;
+    const addressText = secondDestinationAddressTerms[0].nextElementSibling.textContent;
+
+    expect(addressText).toContain(street_address_1);
+    expect(addressText).toContain(city);
+    expect(addressText).toContain(state);
+    expect(addressText).toContain(postal_code);
 
     const counselorRemarksTerms = screen.getAllByText('Counselor remarks');
 
