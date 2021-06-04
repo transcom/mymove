@@ -37,15 +37,6 @@ func (router shipmentRouter) Submit(shipment *models.MTOShipment) error {
 
 // Approve is called when the TOO approves the shipment.
 func (router shipmentRouter) Approve(shipment *models.MTOShipment) error {
-	if shipment.Status != models.MTOShipmentStatusSubmitted {
-		return ConflictStatusError{
-			id:                        shipment.ID,
-			transitionFromStatus:      shipment.Status,
-			transitionToStatus:        models.MTOShipmentStatusApproved,
-			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted},
-		}
-	}
-
 	// When a shipment is approved, service items automatically get created, but
 	// service items can only be created if a Move's status is either Approved
 	// or Approvals Requested, so check and fail early.
@@ -57,11 +48,20 @@ func (router shipmentRouter) Approve(shipment *models.MTOShipment) error {
 		)
 	}
 
-	shipment.Status = models.MTOShipmentStatusApproved
-	approvedDate := time.Now()
-	shipment.ApprovedDate = &approvedDate
+	if router.approvable(shipment) {
+		shipment.Status = models.MTOShipmentStatusApproved
+		approvedDate := time.Now()
+		shipment.ApprovedDate = &approvedDate
 
-	return nil
+		return nil
+	}
+
+	return ConflictStatusError{
+		id:                        shipment.ID,
+		transitionFromStatus:      shipment.Status,
+		transitionToStatus:        models.MTOShipmentStatusApproved,
+		transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted, models.MTOShipmentStatusDiversionRequested},
+	}
 }
 
 // RequestCancellation is called when the TOO has requested that the Prime cancel the shipment.
@@ -125,4 +125,22 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 	shipment.Status = models.MTOShipmentStatusDiversionRequested
 
 	return nil
+}
+
+func (router shipmentRouter) approvable(shipment *models.MTOShipment) bool {
+	return statusSliceContains(validStatusesBeforeApproval, shipment.Status)
+}
+
+func statusSliceContains(statusSlice []models.MTOShipmentStatus, status models.MTOShipmentStatus) bool {
+	for _, validStatus := range statusSlice {
+		if status == validStatus {
+			return true
+		}
+	}
+	return false
+}
+
+var validStatusesBeforeApproval = []models.MTOShipmentStatus{
+	models.MTOShipmentStatusSubmitted,
+	models.MTOShipmentStatusDiversionRequested,
 }
