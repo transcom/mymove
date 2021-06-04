@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -27,7 +28,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				}),
 			}),
 		})
-
+		fmt.Printf("dafs")
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
 				Move: mtoServiceItem.MoveTaskOrder,
@@ -42,17 +43,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.Equal(expected, distanceStr)
 
 		var mtoShipment models.MTOShipment
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-		//RA: in a unit test, then there is no risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: Mitigated
-		//RA Modified Severity: N/A
-		// nolint:errcheck
-		suite.DB().
+		err = suite.DB().
 			Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		suite.NoError(err)
 		suite.Equal(unit.Miles(defaultZip5Distance), *mtoShipment.Distance)
 	})
 
@@ -86,17 +79,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.Equal(expected, distanceStr)
 
 		var mtoShipment models.MTOShipment
-		//RA Summary: gosec - errcheck - Unchecked return value
-		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-		//RA: in a unit test, then there is no risk
-		//RA Developer Status: Mitigated
-		//RA Validator Status: Mitigated
-		//RA Modified Severity: N/A
-		// nolint:errcheck
-		suite.DB().
+		err = suite.DB().
 			Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		suite.NoError(err)
 		suite.Nil(mtoShipment.Distance)
 	})
 }

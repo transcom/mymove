@@ -2,6 +2,7 @@ package serviceparamvaluelookups
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 
 	"github.com/gofrs/uuid"
@@ -55,9 +56,12 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", err
 	}
 
+	if len(pickupZip) != 5 || len(destinationZip) != 5 {
+		return "", services.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf("Shipment must have valid pickup and destination zip codes"), nil, "")
+	}
+
 	pickupZip3 := pickupZip[:3]
 	destinationZip3 := destinationZip[:3]
-
 	if pickupZip3 != destinationZip3 {
 		miles := unit.Miles(distanceMiles)
 		mtoShipment.Distance = &miles
