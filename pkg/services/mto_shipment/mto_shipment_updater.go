@@ -569,6 +569,37 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	return shipment, nil
 }
 
+// calculateRequiredDeliveryDate calculates the required delivery date for a shipment
+func (o *mtoShipmentStatusUpdater) calculateRequiredDeliveryDate(shipment *models.MTOShipment) (*time.Time, error) {
+	requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+	if calcErr != nil {
+		return nil, calcErr
+	}
+
+	return requiredDeliveryDate, nil
+}
+
+// createShipmentServiceItems creates shipment level service items
+func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(shipment *models.MTOShipment) error {
+	reServiceCodes := reServiceCodesForShipment(*shipment)
+	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
+	for _, serviceItem := range serviceItemsToCreate {
+		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
+		_, verrs, err := o.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
+
+		if verrs != nil && verrs.HasAny() {
+			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")
+			return invalidInputError
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
