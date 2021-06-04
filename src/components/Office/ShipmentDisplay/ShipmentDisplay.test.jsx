@@ -3,7 +3,6 @@ import { mount, shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import ShipmentDisplay from './ShipmentDisplay';
-// import { text } from '@storybook/addon-knobs';
 
 const info = {
   heading: 'HHG',
