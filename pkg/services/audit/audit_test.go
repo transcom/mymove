@@ -192,12 +192,12 @@ func TestCaptureAccountStatus(t *testing.T) {
 	t.Run("Sucessfully logs account enabled", func(t *testing.T) {
 		zapFields, _ := CaptureAccountStatus(&model, true, logger, &session, req)
 
-		fieldsMap := map[string]string{}
-		for _, f := range zapFields {
-			fieldsMap[f.Key] = f.String
-		}
-
 		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
 			assert.Equal(t, "audit_post_admin_users_active_status_changed", fieldsMap["event_type"])
 			assert.Equal(t, "true", fieldsMap["active_value"])
 		}
@@ -206,12 +206,12 @@ func TestCaptureAccountStatus(t *testing.T) {
 	t.Run("Sucessfully logs account disabled", func(t *testing.T) {
 		zapFields, _ := CaptureAccountStatus(&model, false, logger, &session, req)
 
-		fieldsMap := map[string]string{}
-		for _, f := range zapFields {
-			fieldsMap[f.Key] = f.String
-		}
-
 		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
 			assert.Equal(t, "audit_post_admin_users_active_status_changed", fieldsMap["event_type"])
 			assert.Equal(t, "false", fieldsMap["active_value"])
 		}
@@ -239,12 +239,12 @@ func TestExtractResponsibleUser(t *testing.T) {
 	t.Run("Returns the require fields", func(t *testing.T) {
 		zapFields = extractResponsibleUser(&session)
 
-		fieldsMap := map[string]string{}
-		for _, f := range zapFields {
-			fieldsMap[f.Key] = f.String
-		}
-
 		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
 			assert.Equal(t, uuidStringUser, fieldsMap["responsible_user_id"])
 			assert.Equal(t, userEmail, fieldsMap["responsible_user_email"])
 			assert.Equal(t, "John Doe", fieldsMap["responsible_user_name"])
@@ -267,12 +267,12 @@ func TestExtractRecordInformation(t *testing.T) {
 	t.Run("Returns the require fields", func(t *testing.T) {
 		zapFields = extractRecordInformation(item, model)
 
-		fieldsMap := map[string]string{}
-		for _, f := range zapFields {
-			fieldsMap[f.Key] = f.String
-		}
-
 		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
 			assert.Equal(t, uuidStringUser, fieldsMap["record_id"])
 			assert.Equal(t, "OfficeUser", fieldsMap["record_type"])
 			assert.Equal(t, model.CreatedAt.String(), fieldsMap["record_created_at"])
