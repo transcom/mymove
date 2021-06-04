@@ -91,7 +91,7 @@ func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, se
 		}
 
 		logItems = append(logItems, zap.String("active_value", strconv.FormatBool(activeValue)))
-		msg += fmt.Sprintf(" - account %s 🎉🍑", activeMessage)
+		msg += fmt.Sprintf(" - account %s", activeMessage)
 	} else {
 		msg += " invalid or zero or nil model interface received from request handler"
 		logItems = append(logItems,

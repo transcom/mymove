@@ -265,29 +265,3 @@ func TestExtractResponsibleUser(t *testing.T) {
 		}
 	})
 }
-
-func TestExtractRecordInformation(t *testing.T) {
-	uuidStringUser := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fb"
-
-	model := map[string]interface{}{
-		"CreatedAt": "userID",
-		"ID":        uuidStringUser,
-		"UpdatedAt": "userID",
-	}
-
-	item, _ := validateInterface(model)
-
-	var zapFields []zap.Field
-	t.Run("Returns the require fields", func(t *testing.T) {
-		zapFields = extractRecordInformation(item, model, zapFields)
-
-		if assert.NotEmpty(t, zapFields) {
-			assert.Equal(t, "record_id", zapFields[1].Key)
-			assert.Equal(t, uuidStringUser, zapFields[1].String)
-			assert.Equal(t, "record_created_at", zapFields[2].Key)
-			assert.Equal(t, "", zapFields[2].String)
-			assert.Equal(t, "record_updated_at", zapFields[3].Key)
-			assert.Equal(t, "John Doe", zapFields[3].String)
-		}
-	})
-}
