@@ -79,9 +79,7 @@ const ShipmentApprovalPreview = ({
                             <td>{shipment.requestedPickupDate}</td>
                           </tr>
                           <tr>
-                            <th scope="row">
-                              Origin Address
-                            </th>
+                            <th scope="row">Origin Address</th>
                             <td>{shipment.pickupAddress && formatAddress(shipment.pickupAddress)}</td>
                           </tr>
                           <tr>
