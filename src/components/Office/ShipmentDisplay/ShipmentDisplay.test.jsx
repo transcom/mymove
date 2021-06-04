@@ -19,6 +19,12 @@ const info = {
     state: 'WA',
     postal_code: '98421',
   },
+  secondDestinationAddress: {
+    street_address_1: '987 Fairway Dr',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
   counselorRemarks: 'counselor approved',
 };
 
