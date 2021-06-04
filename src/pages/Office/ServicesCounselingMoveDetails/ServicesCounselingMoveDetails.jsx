@@ -61,6 +61,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           destinationAddress: shipment.destinationAddress || {
             postal_code: order.destinationDutyStation.address.postal_code,
           },
+          secondDestinationAddress: shipment.secondaryDeliveryAddress,
           counselorRemarks: shipment.counselorRemarks,
         },
         editURL,

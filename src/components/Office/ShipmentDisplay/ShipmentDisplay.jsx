@@ -51,6 +51,14 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dt className={styles.label}>Destination address</dt>
             <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
           </div>
+          {displayInfo.secondDestinationAddress && (
+            <div className={styles.row}>
+              <dt className={styles.label}>Second destination address</dt>
+              <dd data-testid="shipmentSecondDestinationAddress">
+                {formatAddress(displayInfo.secondDestinationAddress)}
+              </dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt className={styles.label}>Counselor remarks</dt>
             <dd data-testid="counselorRemarks">{displayInfo.counselorRemarks || '—'}</dd>
@@ -88,6 +96,7 @@ ShipmentDisplay.propTypes = {
     requestedMoveDate: PropTypes.string.isRequired,
     currentAddress: AddressShape.isRequired,
     destinationAddress: AddressShape,
+    secondDestinationAddress: AddressShape,
     counselorRemarks: PropTypes.string,
   }).isRequired,
   showIcon: PropTypes.bool,
