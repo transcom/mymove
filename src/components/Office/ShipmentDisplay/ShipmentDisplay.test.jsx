@@ -3,6 +3,7 @@ import { mount, shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 
 import ShipmentDisplay from './ShipmentDisplay';
+// import { text } from '@storybook/addon-knobs';
 
 const info = {
   heading: 'HHG',
@@ -54,10 +55,14 @@ describe('Shipment Container', () => {
     expect(wrapper.find('div[data-testid="shipment-display"]').exists()).toBe(true);
   });
   it('renders secondary address info when present', () => {
-    const wrapper = shallow(
+    render(
       <ShipmentDisplay shipmentId="1" displayInfo={secondaryAddressInfo} onChange={jest.fn()} isSubmitted={false} />,
     );
-    expect(wrapper.find('div[data-testid="shipment-display"]').exists()).toBe(true);
+    expect(screen.getByText('Second pickup address')).toBeInTheDocument();
+  });
+  it('renders no secondary address info when it is not present', () => {
+    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.getByText('Second pickup address')).not.toBeInTheDocument();
   });
   it('renders with postal only address', () => {
     const wrapper = mount(
