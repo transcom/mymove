@@ -84,4 +84,33 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.NoError(err)
 		suite.Nil(mtoShipment.Distance)
 	})
+
+	suite.T().Run("returns invalid input error if the pickup or destination zips aren't 5 digits", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "33",
+					},
+				}),
+				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "9010",
+					},
+				}),
+			}),
+		})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Invalid Input")
+	})
 }
