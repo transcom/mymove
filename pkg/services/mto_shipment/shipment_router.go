@@ -123,6 +123,7 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 		}
 	}
 	shipment.Status = models.MTOShipmentStatusDiversionRequested
+	shipment.Diversion = true
 
 	return nil
 }
