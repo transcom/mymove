@@ -763,12 +763,12 @@ type ConflictStatusError struct {
 
 // Error is the string representation of the error
 func (e ConflictStatusError) Error() string {
-	// var allowedStatusMsg string
-	// if e.transitionAllowedStatuses != nil {
-	// 	allowedStatusMsg = fmt.Sprintf(" May only transition to: %+q.", *e.transitionAllowedStatuses)
-	// }
-	return fmt.Sprintf("Shipment with id '%s' can only transition to status '%s' from '%+q', but its current status is %s",
-		e.id.String(), e.transitionToStatus, *e.transitionAllowedStatuses, e.transitionFromStatus)
+	if e.transitionAllowedStatuses != nil {
+		return fmt.Sprintf("Shipment with id '%s' can only transition to status '%s' from %+q, but its current status is '%s's",
+			e.id.String(), e.transitionToStatus, *e.transitionAllowedStatuses, e.transitionFromStatus)
+	}
+
+	return ""
 }
 
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
