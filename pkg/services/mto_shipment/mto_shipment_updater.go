@@ -537,6 +537,14 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return nil, err
 	}
 
+	// calculate required delivery date to save it with the shipment
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		err = o.setRequiredDeliveryDate(shipment)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	verrs, err := o.builder.UpdateOne(shipment, &eTag)
 
 	if err != nil {
@@ -555,21 +563,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	// after updating shipment
-	// calculate required delivery date
-	calculateRDD := shipment.Status == models.MTOShipmentStatusApproved && shipment.ScheduledPickupDate != nil &&
-		shipment.RequiredDeliveryDate == nil &&
-		shipment.PrimeEstimatedWeight != nil
 	// create shipment level service items if it is not a diversion
 	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !shipment.Diversion
-
-	if calculateRDD {
-		requiredDeliveryDate, err := o.calculateRequiredDeliveryDate(shipment)
-		if err != nil {
-			return nil, err
-		}
-		shipment.RequiredDeliveryDate = requiredDeliveryDate
-	}
-
 	if createSSI {
 		err := o.createShipmentServiceItems(shipment)
 		if err != nil {
@@ -580,14 +575,20 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	return shipment, nil
 }
 
-// calculateRequiredDeliveryDate calculates the required delivery date for a shipment
-func (o *mtoShipmentStatusUpdater) calculateRequiredDeliveryDate(shipment *models.MTOShipment) (*time.Time, error) {
-	requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
-	if calcErr != nil {
-		return nil, calcErr
+// setRequiredDeliveryDate set the calculated delivery date for the shipment
+func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(shipment *models.MTOShipment) error {
+	if shipment.ScheduledPickupDate != nil &&
+		shipment.RequiredDeliveryDate == nil &&
+		shipment.PrimeEstimatedWeight != nil {
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		if calcErr != nil {
+			return calcErr
+		}
+
+		shipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
-	return requiredDeliveryDate, nil
+	return nil
 }
 
 // createShipmentServiceItems creates shipment level service items
@@ -625,7 +626,6 @@ func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) 
 
 	return &shipment, nil
 }
-
 
 func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
 	// We will detect the type of shipment we're working with and then call a helper with the correct
