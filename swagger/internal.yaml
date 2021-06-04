@@ -2630,6 +2630,8 @@ definitions:
         x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
       agents:
@@ -2655,6 +2657,8 @@ definitions:
         example: handle with care
         x-nullable: true
       pickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
