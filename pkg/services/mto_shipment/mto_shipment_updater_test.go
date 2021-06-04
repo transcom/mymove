@@ -781,6 +781,30 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NoError(err)
 		suite.Equal(models.MTOShipmentStatusDiversionRequested, shipmentToDivert.Status)
 	})
+
+	suite.T().Run("A DIVERSION_REQUESTED shipment can change to APPROVED", func(t *testing.T) {
+		diversionRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			MTOShipment: models.MTOShipment{
+				Status:    models.MTOShipmentStatusDiversionRequested,
+				Diversion: true,
+			},
+		})
+		eTag = etag.GenerateEtag(diversionRequestedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			diversionRequestedShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+
+		suite.NoError(err)
+		suite.NotNil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusApproved, updatedShipment.Status)
+
+		var shipmentServiceItems models.MTOServiceItems
+		err = suite.DB().Where("mto_shipment_id = $1", updatedShipment.ID).All(&shipmentServiceItems)
+		suite.NoError(err)
+		suite.Len(shipmentServiceItems, 0, "should not have created shipment level service items for diversion shipment after approving")
+
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
