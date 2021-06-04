@@ -566,6 +566,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 
 	// after updating shipment
 	// create shipment level service items if shipment status was NOT diversion requested before it was updated
+	// and current status is approved
 	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !wasShipmentDiversionRequested
 	if createSSI {
 		err = o.createShipmentServiceItems(shipment)
