@@ -280,6 +280,19 @@
           "TableElements"
         ]
       }
+    },
+    {
+      "path": "src/components/Customer/Review/ShipmentCard/ShipmentCard.stories.jsx",
+      "zeplinNames": [
+        "Shipment card/m_shipment-card",
+        "Shipment card/d_shipment-card"
+      ],
+      "storybook": {
+        "kind": "Customer Components / ShipmentCard",
+        "stories": [
+          "HHGShipment", "NTSShipment", "NTSRShipment", "PPMShipment"
+        ]
+      }
     }
   ],
   "github": {
