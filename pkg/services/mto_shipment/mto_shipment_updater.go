@@ -519,8 +519,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	shipmentRouter := NewShipmentRouter(o.db)
 
 	switch status {
-	case models.MTOShipmentStatusSubmitted:
-		err = shipmentRouter.Submit(shipment)
 	case models.MTOShipmentStatusCancellationRequested:
 		err = shipmentRouter.RequestCancellation(shipment)
 	case models.MTOShipmentStatusApproved:

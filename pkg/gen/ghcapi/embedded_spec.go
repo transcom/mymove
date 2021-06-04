@@ -3126,7 +3126,9 @@ func init() {
         "SUBMITTED",
         "REJECTED",
         "APPROVED",
-        "CANCELLATION_REQUESTED"
+        "CANCELLATION_REQUESTED",
+        "CANCELED",
+        "DIVERSION_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -3480,7 +3482,14 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "CANCELED",
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED",
+            "REJECTED"
+          ]
         }
       }
     },
@@ -7917,7 +7926,9 @@ func init() {
         "SUBMITTED",
         "REJECTED",
         "APPROVED",
-        "CANCELLATION_REQUESTED"
+        "CANCELLATION_REQUESTED",
+        "CANCELED",
+        "DIVERSION_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -8271,7 +8282,14 @@ func init() {
           "example": "MTO Shipment not good enough"
         },
         "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "CANCELED",
+            "CANCELLATION_REQUESTED",
+            "DIVERSION_REQUESTED",
+            "REJECTED"
+          ]
         }
       }
     },
