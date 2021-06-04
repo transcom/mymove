@@ -176,7 +176,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	if payload.Active != nil {
 		_, err = audit.CaptureAccountStatus(updatedUser, *payload.Active, logger, session, params.HTTPRequest)
 		if err != nil {
-			logger.Error("Error capturing account status audit record", zap.Error(err))
+			logger.Error("Error capturing account status audit record in UpdateUserHandler", zap.Error(err))
 		}
 	}
 

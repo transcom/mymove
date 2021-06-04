@@ -247,7 +247,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	if payload.Active != nil {
 		_, err = audit.CaptureAccountStatus(updatedOfficeUser, *payload.Active, logger, session, params.HTTPRequest)
 		if err != nil {
-			logger.Error("Error capturing account status audit record", zap.Error(err))
+			logger.Error("Error capturing account status audit record in UpdateOfficeUserHandler", zap.Error(err))
 		}
 	}
 

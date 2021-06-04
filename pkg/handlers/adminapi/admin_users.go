@@ -175,7 +175,7 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 	if payload.Active != nil {
 		_, err = audit.CaptureAccountStatus(updatedAdminUser, *payload.Active, logger, session, params.HTTPRequest)
 		if err != nil {
-			logger.Error("Error capturing account status audit record", zap.Error(err))
+			logger.Error("Error capturing account status audit record in UpdateAdminUserHandler", zap.Error(err))
 		}
 	}
 
