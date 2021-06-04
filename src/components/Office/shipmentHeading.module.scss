@@ -8,7 +8,7 @@
   }
 
   .shipmentHeadingType {
-    @include u-display(flex)
+    @include u-display(flex);
 
     :global(.usa-tag) {
       @include u-font-size('body', 3xs);
