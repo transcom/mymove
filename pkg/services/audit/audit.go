@@ -74,7 +74,7 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 // CaptureAccountStatus captures an audit record when a user account is enabled or disabled
 func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
 	var logItems []zap.Field
-	eventType := extractEventType(request)
+	eventType := extractEventType(request) + "_active_status_changed"
 	msg := flect.Titleize(eventType)
 	logItems = append(logItems, zap.String("event_type", eventType))
 	logItems = append(logItems, extractResponsibleUser(session)...)
