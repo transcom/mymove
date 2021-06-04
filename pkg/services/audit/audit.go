@@ -25,11 +25,11 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	msg := flect.Titleize(eventType)
 
 	logItems = append(logItems, zap.String("event_type", eventType))
-	logItems = extractResponsibleUser(logItems, session)
+	logItems = append(logItems, extractResponsibleUser(session)...)
 
 	item, err := validateInterface(model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
-		logItems = extractRecordInformation(item, model, logItems)
+		logItems = append(logItems, extractRecordInformation(item, model)...)
 
 		if payload != nil {
 			_, err = validateInterface(payload)
@@ -77,12 +77,11 @@ func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, se
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
 	logItems = append(logItems, zap.String("event_type", eventType))
-
-	logItems = extractResponsibleUser(logItems, session)
+	logItems = append(logItems, extractResponsibleUser(session)...)
 
 	item, err := validateInterface(model)
 	if err == nil && reflect.ValueOf(model).IsValid() && !reflect.ValueOf(model).IsNil() && !reflect.ValueOf(model).IsZero() {
-		logItems = extractRecordInformation(item, model, logItems)
+		logItems = append(logItems, extractRecordInformation(item, model)...)
 
 		// Create log message and view value of active
 		activeMessage := "disabled"
@@ -103,7 +102,8 @@ func CaptureAccountStatus(model interface{}, activeValue bool, logger Logger, se
 	return logItems, nil
 }
 
-func extractResponsibleUser(logItems []zap.Field, session *auth.Session) []zap.Field {
+func extractResponsibleUser(session *auth.Session) []zap.Field {
+	var logItems []zap.Field
 	logItems = append(logItems,
 		zap.String("responsible_user_id", session.UserID.String()),
 		zap.String("responsible_user_email", session.Email),
@@ -117,7 +117,8 @@ func extractResponsibleUser(logItems []zap.Field, session *auth.Session) []zap.F
 	return logItems
 }
 
-func extractRecordInformation(item reflect.Type, model interface{}, logItems []zap.Field) []zap.Field {
+func extractRecordInformation(item reflect.Type, model interface{}) []zap.Field {
+	var logItems []zap.Field
 	recordType := parseRecordType(item.String())
 	elem := reflect.ValueOf(model).Elem()
 

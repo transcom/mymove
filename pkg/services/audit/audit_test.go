@@ -34,7 +34,7 @@ func TestCapture(t *testing.T) {
 		adminUserID, _ := uuid.FromString(uuidString)
 
 		session := auth.Session{
-			UserID: adminUserID,
+			AdminUserID: adminUserID,
 		}
 
 		req := &http.Request{
@@ -253,7 +253,7 @@ func TestExtractResponsibleUser(t *testing.T) {
 	var zapFields []zap.Field
 
 	t.Run("Returns the require fields", func(t *testing.T) {
-		zapFields = extractResponsibleUser(zapFields, &session)
+		zapFields = extractResponsibleUser(&session)
 
 		if assert.NotEmpty(t, zapFields) {
 			assert.Equal(t, "responsible_user_id", zapFields[0].Key)
@@ -279,7 +279,7 @@ func TestExtractRecordInformation(t *testing.T) {
 	item, _ := validateInterface(model)
 	var zapFields []zap.Field
 	t.Run("Returns the require fields", func(t *testing.T) {
-		zapFields = extractRecordInformation(item, model, zapFields)
+		zapFields = extractRecordInformation(item, model)
 
 		if assert.NotEmpty(t, zapFields) {
 			assert.Equal(t, "record_id", zapFields[0].Key)
