@@ -69,7 +69,10 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryAssociation("MTOServiceItems.ReService"),
 		query.NewQueryAssociation("MTOAgents"),
 		query.NewQueryAssociation("PickupAddress"),
+		query.NewQueryAssociation("SecondaryPickupAddress"),
 		query.NewQueryAssociation("DestinationAddress"),
+		query.NewQueryAssociation("SecondaryPickupAddress"),
+		query.NewQueryAssociation("SecondaryDeliveryAddress"),
 	})
 
 	var shipments models.MTOShipments
@@ -265,7 +268,8 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	status := models.MTOShipmentStatus(params.Body.Status)
+	bodyStatus := params.Body.Status
+	status := models.MTOShipmentStatus(*bodyStatus)
 	rejectionReason := params.Body.RejectionReason
 	eTag := params.IfMatch
 	shipment, err := h.UpdateMTOShipmentStatus(shipmentID, status, rejectionReason, eTag)

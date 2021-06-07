@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/notifications"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -218,7 +219,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -272,7 +273,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -322,7 +323,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

@@ -143,7 +143,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchShipmentHandler{
 		context,
 		fetch.NewFetcher(queryBuilder),
-		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
+		mtoshipment.NewMTOShipmentStatusUpdater(
+			context.DB(),
+			queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
+			context.Planner(),
+		),
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{

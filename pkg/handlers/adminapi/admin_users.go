@@ -171,6 +171,14 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		return adminuserop.NewUpdateAdminUserInternalServerError()
 	}
 
+	// Log if the account was enabled or disabled (POAM requirement)
+	if payload.Active != nil {
+		_, err = audit.CaptureAccountStatus(updatedAdminUser, *payload.Active, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Error capturing account status audit record in UpdateAdminUserHandler", zap.Error(err))
+		}
+	}
+
 	_, err = audit.Capture(updatedAdminUser, payload, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Error capturing audit record", zap.Error(err))

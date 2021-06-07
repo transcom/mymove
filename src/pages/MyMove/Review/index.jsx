@@ -35,8 +35,8 @@ const Review = ({ push, canMoveNext }) => {
             <div className={styles.reviewMoveHeaderContainer}>
               <h1 data-testid="review-move-header">Review your details</h1>
               <p>
-                You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
-                on to the final step.
+                You’re almost done setting up your move. Double&#8209;check that your information is accurate, add more
+                shipments if needed, then move on to the final step.
               </p>
             </div>
             <ConnectedSummary />
