@@ -29,13 +29,13 @@ const info = {
 };
 
 const secondPickupAddressInfo = {
-  info,
   secondPickupAddress: {
     street_address_1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
     postal_code: '78234',
   },
+  ...info,
 };
 
 const postalOnly = {
@@ -83,10 +83,6 @@ describe('Shipment Container', () => {
       <ShipmentDisplay shipmentId="1" displayInfo={secondPickupAddressInfo} onChange={jest.fn()} isSubmitted={false} />,
     );
     expect(screen.getByText('Second pickup address')).toBeInTheDocument();
-  });
-  it('renders no secondary address info when it is not present', () => {
-    render(<ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />);
-    expect(screen.getByText('Second pickup address')).not.toBeInTheDocument();
   });
   it('renders with postal only address', () => {
     const wrapper = mount(
