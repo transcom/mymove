@@ -50,6 +50,12 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dt>Origin address</dt>
             <dd>{displayInfo.originAddress && formatAddress(displayInfo.originAddress)}</dd>
           </div>
+          {displayInfo.secondPickupAddress && (
+            <div className={styles.row}>
+              <dt>Second pickup address</dt>
+              <dd>{formatAddress(displayInfo.secondPickupAddress)}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>
             <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
@@ -99,6 +105,7 @@ ShipmentDisplay.propTypes = {
     isDiversion: PropTypes.bool,
     requestedMoveDate: PropTypes.string.isRequired,
     originAddress: AddressShape.isRequired,
+    secondPickupAddress: AddressShape,
     destinationAddress: AddressShape,
     secondDestinationAddress: AddressShape,
     counselorRemarks: PropTypes.string,

@@ -52,6 +52,17 @@ const mtoShipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
+    secondaryPickupAddress: {
+      city: 'Los Angeles',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: 'b941a74a-e77e-4575-bea3-e7e01b226422',
+      postal_code: '90222',
+      state: 'CA',
+      street_address_1: '456 Any Street',
+      street_address_2: 'P.O. Box 67890',
+      street_address_3: 'c/o A Friendly Person',
+    },
     secondaryDeliveryAddress: {
       city: 'Beverly Hills',
       country: 'US',
@@ -242,6 +253,21 @@ describe('MoveDetails page', () => {
       const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
 
       const addressText = originAddressTerms[i].nextElementSibling.textContent;
+
+      expect(addressText).toContain(street_address_1);
+      expect(addressText).toContain(city);
+      expect(addressText).toContain(state);
+      expect(addressText).toContain(postal_code);
+    }
+
+    const secondAddressTerms = screen.getAllByText('Second pickup address');
+
+    expect(secondAddressTerms.length).toBe(1);
+
+    for (let i = 0; i < 1; i += 1) {
+      const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].secondaryPickupAddress;
+
+      const addressText = secondAddressTerms[0].nextElementSibling.textContent;
 
       expect(addressText).toContain(street_address_1);
       expect(addressText).toContain(city);

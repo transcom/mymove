@@ -28,6 +28,16 @@ const info = {
   counselorRemarks: 'counselor approved',
 };
 
+const secondPickupAddressInfo = {
+  secondPickupAddress: {
+    street_address_1: '800 S 2nd St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  ...info,
+};
+
 const postalOnly = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
@@ -67,6 +77,12 @@ describe('Shipment Container', () => {
       <ShipmentDisplay shipmentId="1" displayInfo={info} onChange={jest.fn()} isSubmitted={false} />,
     );
     expect(wrapper.find('div[data-testid="shipment-display"]').exists()).toBe(true);
+  });
+  it('renders secondary address info when present', () => {
+    render(
+      <ShipmentDisplay shipmentId="1" displayInfo={secondPickupAddressInfo} onChange={jest.fn()} isSubmitted={false} />,
+    );
+    expect(screen.getByText('Second pickup address')).toBeInTheDocument();
   });
   it('renders with postal only address', () => {
     const wrapper = mount(
