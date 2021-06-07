@@ -3,11 +3,9 @@ package primeapi
 import (
 	"log"
 	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -89,17 +87,4 @@ func (suite *HandlerSuite) EqualAddressPayload(expected *primemessages.Address, 
 	suite.Equal(expected.State, actual.State)
 	suite.Equal(expected.PostalCode, actual.PostalCode)
 	suite.Equal(expected.Country, actual.Country)
-}
-
-// EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
-// If one is nil, both should be nil, else they should match in value
-// This is to be strictly used for dates as it drops any time parameters in the comparison
-func (suite *HandlerSuite) EqualDatePtr(expected *time.Time, actual *strfmt.Date) {
-	if expected == nil || actual == nil {
-		suite.Nil(expected)
-		suite.Nil(actual)
-	} else {
-		isoDate := "2006-01-02" // Create a date format
-		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
-	}
 }

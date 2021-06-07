@@ -57,11 +57,12 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           id: shipment.id,
           heading: SHIPMENT_OPTIONS.HHG,
           requestedMoveDate: shipment.requestedPickupDate,
-          currentAddress: shipment.pickupAddress,
+          originAddress: shipment.pickupAddress,
           secondaryPickupAddress: shipment.secondaryPickupAddress,
           destinationAddress: shipment.destinationAddress || {
             postal_code: order.destinationDutyStation.address.postal_code,
           },
+          secondDestinationAddress: shipment.secondaryDeliveryAddress,
           counselorRemarks: shipment.counselorRemarks,
         },
         editURL,

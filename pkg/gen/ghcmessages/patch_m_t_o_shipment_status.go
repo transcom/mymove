@@ -6,9 +6,12 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // PatchMTOShipmentStatus patch m t o shipment status
@@ -21,7 +24,8 @@ type PatchMTOShipmentStatus struct {
 
 	// status
 	// Required: true
-	Status MTOShipmentStatus `json:"status"`
+	// Enum: [APPROVED CANCELED CANCELLATION_REQUESTED DIVERSION_REQUESTED REJECTED]
+	Status *string `json:"status"`
 }
 
 // Validate validates this patch m t o shipment status
@@ -38,12 +42,52 @@ func (m *PatchMTOShipmentStatus) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+var patchMTOShipmentStatusTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["APPROVED","CANCELED","CANCELLATION_REQUESTED","DIVERSION_REQUESTED","REJECTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		patchMTOShipmentStatusTypeStatusPropEnum = append(patchMTOShipmentStatusTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// PatchMTOShipmentStatusStatusAPPROVED captures enum value "APPROVED"
+	PatchMTOShipmentStatusStatusAPPROVED string = "APPROVED"
+
+	// PatchMTOShipmentStatusStatusCANCELED captures enum value "CANCELED"
+	PatchMTOShipmentStatusStatusCANCELED string = "CANCELED"
+
+	// PatchMTOShipmentStatusStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
+	PatchMTOShipmentStatusStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
+
+	// PatchMTOShipmentStatusStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
+	PatchMTOShipmentStatusStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
+
+	// PatchMTOShipmentStatusStatusREJECTED captures enum value "REJECTED"
+	PatchMTOShipmentStatusStatusREJECTED string = "REJECTED"
+)
+
+// prop value enum
+func (m *PatchMTOShipmentStatus) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, patchMTOShipmentStatusTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *PatchMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
 
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
-		}
+	if err := validate.Required("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
 		return err
 	}
 

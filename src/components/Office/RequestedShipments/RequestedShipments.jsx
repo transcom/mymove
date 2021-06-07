@@ -147,8 +147,9 @@ const RequestedShipments = ({
                     isSubmitted
                     displayInfo={{
                       heading: shipmentTypeLabels[shipment.shipmentType],
+                      isDiversion: shipment.diversion,
                       requestedMoveDate: shipment.requestedPickupDate,
-                      currentAddress: shipment.pickupAddress,
+                      originAddress: shipment.pickupAddress,
                       destinationAddress: shipment.destinationAddress || dutyStationPostal,
                     }}
                     /* eslint-disable-next-line react/jsx-props-no-spreading */
@@ -209,8 +210,9 @@ const RequestedShipments = ({
                   shipmentType={shipment.shipmentType}
                   displayInfo={{
                     heading: shipmentTypeLabels[shipment.shipmentType],
+                    isDiversion: shipment.diversion,
                     requestedMoveDate: shipment.requestedPickupDate,
-                    currentAddress: shipment.pickupAddress,
+                    originAddress: shipment.pickupAddress,
                     destinationAddress: shipment.destinationAddress || dutyStationPostal,
                   }}
                   isSubmitted={false}

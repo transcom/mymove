@@ -21,7 +21,7 @@ const hhgInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
   requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
+  originAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -39,7 +39,7 @@ const ntsInfo = {
   heading: 'NTS',
   requestedMoveDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
-  currentAddress: {
+  originAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -57,6 +57,22 @@ const postalOnlyInfo = {
   heading: 'HHG',
   requestedMoveDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
+  originAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    postal_code: '98421',
+  },
+};
+
+const diversionInfo = {
+  heading: 'HHG',
+  shipmentId: 'testShipmentId394',
+  isDiversion: true,
+  requestedMoveDate: '26 Mar 2020',
   currentAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
@@ -64,6 +80,9 @@ const postalOnlyInfo = {
     postal_code: '78234',
   },
   destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
     postal_code: '98421',
   },
 };
@@ -116,5 +135,11 @@ export const ApprovedShipment = () => (
 export const PostalOnlyDestination = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay displayInfo={object('displayInfo', postalOnlyInfo)} isSubmitted />
+  </div>
+);
+
+export const DivertedShipment = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay shipmentId="1" displayInfo={object('displayInfo', diversionInfo)} isSubmitted />
   </div>
 );

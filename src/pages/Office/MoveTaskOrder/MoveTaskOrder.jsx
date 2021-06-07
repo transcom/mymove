@@ -346,6 +346,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   shipmentInfo={{
                     shipmentID: mtoShipment.id,
                     shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
+                    isDiversion: mtoShipment.diversion,
                     originCity: pickupAddress?.city,
                     originState: pickupAddress?.state,
                     originPostalCode: pickupAddress?.postal_code,

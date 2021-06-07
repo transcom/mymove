@@ -1,7 +1,6 @@
 package adminapi
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/services/audit"
@@ -60,11 +59,20 @@ type IndexUsersHandler struct {
 	services.NewPagination
 }
 
+var usersFilterConverters = map[string]func(string) []services.QueryFilter{
+	"search": func(content string) []services.QueryFilter {
+		if _, err := uuid.FromString(content); err != nil {
+			return []services.QueryFilter{query.NewQueryFilter("login_gov_email", "=", content)}
+		}
+		return []services.QueryFilter{query.NewQueryFilter("id", "=", content)}
+	},
+}
+
 // Handle lists all users
 func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := h.generateQueryFilters(params.Filter, logger)
+	queryFilters := generateQueryFilters(logger, params.Filter, usersFilterConverters)
 
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 	pagination := h.NewPagination(params.Page, params.PerPage)
@@ -89,35 +97,6 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 	}
 
 	return userop.NewIndexUsersOK().WithContentRange(fmt.Sprintf("users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedUsersCount, totalUsersCount)).WithPayload(payload)
-}
-
-func (h IndexUsersHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
-	type Filter struct {
-		Search string `json:"search"`
-	}
-
-	f := Filter{}
-	var queryFilters []services.QueryFilter
-	if filters == nil {
-		return queryFilters
-	}
-	b := []byte(*filters)
-	err := json.Unmarshal(b, &f)
-	if err != nil {
-		fs := fmt.Sprintf("%v", filters)
-		logger.Warn("unable to decode param", zap.Error(err),
-			zap.String("filters", fs))
-	}
-
-	if f.Search != "" {
-		_, err := uuid.FromString(f.Search)
-		if err != nil {
-			queryFilters = append(queryFilters, query.NewQueryFilter("login_gov_email", "=", f.Search))
-		} else {
-			queryFilters = append(queryFilters, query.NewQueryFilter("id", "=", f.Search))
-		}
-	}
-	return queryFilters
 }
 
 // UpdateUserHandler is the handler for updating users.
@@ -170,6 +149,14 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 		fmt.Printf("%#v", validationErrors)
 		logger.Error("Error revoking user session", zap.Error(revokeErr))
 		return userop.NewUpdateUserInternalServerError()
+	}
+
+	// Log if the account was enabled or disabled (POAM requirement)
+	if payload.Active != nil {
+		_, err = audit.CaptureAccountStatus(updatedUser, *payload.Active, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Error capturing account status audit record in UpdateUserHandler", zap.Error(err))
+		}
 	}
 
 	_, err = audit.Capture(updatedUser, params.User, logger, session, params.HTTPRequest)
