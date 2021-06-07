@@ -6,11 +6,10 @@ import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentInfoList from 'components/Office/ShipmentInfoList/ShipmentInfoList';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types/address';
-import { formatAddress } from 'utils/shipmentDisplay';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -41,38 +40,15 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
 
           <FontAwesomeIcon icon="chevron-down" />
         </div>
-        <dl>
-          <div className={styles.row}>
-            <dt>Requested move date</dt>
-            <dd>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</dd>
-          </div>
-          <div className={styles.row}>
-            <dt>Origin address</dt>
-            <dd>{displayInfo.originAddress && formatAddress(displayInfo.originAddress)}</dd>
-          </div>
-          {displayInfo.secondPickupAddress && (
-            <div className={styles.row}>
-              <dt>Second pickup address</dt>
-              <dd>{formatAddress(displayInfo.secondPickupAddress)}</dd>
-            </div>
-          )}
-          <div className={styles.row}>
-            <dt className={styles.label}>Destination address</dt>
-            <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
-          </div>
-          {displayInfo.secondDestinationAddress && (
-            <div className={styles.row}>
-              <dt className={styles.label}>Second destination address</dt>
-              <dd data-testid="shipmentSecondDestinationAddress">
-                {formatAddress(displayInfo.secondDestinationAddress)}
-              </dd>
-            </div>
-          )}
-          <div className={styles.row}>
-            <dt className={styles.label}>Counselor remarks</dt>
-            <dd data-testid="counselorRemarks">{displayInfo.counselorRemarks || '—'}</dd>
-          </div>
-        </dl>
+        <ShipmentInfoList
+          className={styles.shipmentDisplayInfo}
+          requestedMoveDate={displayInfo.requestedMoveDate}
+          originAddress={displayInfo.originAddress}
+          secondPickupAddress={displayInfo.secondPickupAddress}
+          destinationAddress={displayInfo.destinationAddress}
+          secondDestinationAddress={displayInfo.secondDestinationAddress}
+          counselorRemarks={displayInfo.counselorRemarks}
+        />
         {editURL && (
           <EditButton
             onClick={() => {
