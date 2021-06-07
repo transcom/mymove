@@ -128,7 +128,17 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 }
 
 func (router shipmentRouter) approvable(shipment *models.MTOShipment) bool {
-	return statusSliceContains(validStatusesBeforeApproval, shipment.Status)
+	// first check if the status is in list
+	isApprovable := statusSliceContains(validStatusesBeforeApproval, shipment.Status)
+
+	// then check special case for diversion requested status
+	if shipment.Status == models.MTOShipmentStatusDiversionRequested {
+		// a shipment is considered diverted or part of a diversion if
+		// the prime sets the Diversion field to true
+		isApprovable = shipment.Diversion
+	}
+
+	return isApprovable
 }
 
 func statusSliceContains(statusSlice []models.MTOShipmentStatus, status models.MTOShipmentStatus) bool {

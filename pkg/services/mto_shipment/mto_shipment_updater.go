@@ -516,6 +516,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		rejectionReason = nil
 	}
 
+	// here we determine if the current shipment status is diversion requested before updating
+	wasShipmentDiversionRequested := shipment.Status == models.MTOShipmentStatusDiversionRequested
 	shipmentRouter := NewShipmentRouter(o.db)
 
 	switch status {
@@ -537,12 +539,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return nil, err
 	}
 
+	// calculate required delivery date to save it with the shipment
 	if shipment.Status == models.MTOShipmentStatusApproved {
-		err = o.createServiceItems(shipment)
-		if err != nil {
-			return nil, err
-		}
-
 		err = o.setRequiredDeliveryDate(shipment)
 		if err != nil {
 			return nil, err
@@ -566,25 +564,22 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return &models.MTOShipment{}, invalidInputError
 	}
 
+	// after updating shipment
+	// create shipment level service items if shipment status was NOT diversion requested before it was updated
+	// and current status is approved
+	createSSI := shipment.Status == models.MTOShipmentStatusApproved && !wasShipmentDiversionRequested
+	if createSSI {
+		err = o.createShipmentServiceItems(shipment)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return shipment, nil
 }
 
-func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", shipmentID),
-	}
-	err := builder.FetchOne(&shipment, queryFilters)
-
-	if err != nil {
-		return &shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
-	}
-
-	return &shipment, nil
-}
-
-func (o *mtoShipmentStatusUpdater) createServiceItems(shipment *models.MTOShipment) error {
+// createShipmentServiceItems creates shipment level service items
+func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(shipment *models.MTOShipment) error {
 	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
@@ -604,6 +599,7 @@ func (o *mtoShipmentStatusUpdater) createServiceItems(shipment *models.MTOShipme
 	return nil
 }
 
+// setRequiredDeliveryDate set the calculated delivery date for the shipment
 func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
@@ -617,6 +613,21 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(shipment *models.MTOS
 	}
 
 	return nil
+}
+
+func fetchShipment(shipmentID uuid.UUID, builder UpdateMTOShipmentQueryBuilder) (*models.MTOShipment, error) {
+	var shipment models.MTOShipment
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", shipmentID),
+	}
+	err := builder.FetchOne(&shipment, queryFilters)
+
+	if err != nil {
+		return &shipment, services.NewNotFoundError(shipmentID, "Shipment not found")
+	}
+
+	return &shipment, nil
 }
 
 func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
