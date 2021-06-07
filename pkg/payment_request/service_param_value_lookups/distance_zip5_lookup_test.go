@@ -1,7 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 
@@ -28,7 +27,6 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				}),
 			}),
 		})
-		fmt.Printf("dafs")
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
 				Move: mtoServiceItem.MoveTaskOrder,
@@ -85,7 +83,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 		suite.Nil(mtoShipment.Distance)
 	})
 
-	suite.T().Run("returns invalid input error if the pickup or destination zips aren't 5 digits", func(t *testing.T) {
+	suite.T().Run("returns error if the pickup zipcode isn't at least 5 digits", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -95,7 +93,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				}),
 				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 					Address: models.Address{
-						PostalCode: "9010",
+						PostalCode: "90103",
 					},
 				}),
 			}),
@@ -111,6 +109,35 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Invalid Input")
+		suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
+	})
+
+	suite.T().Run("returns error if the destination zipcode isn't at least 5 digits", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "33607",
+					},
+				}),
+				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "901",
+					},
+				}),
+			}),
+		})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
 	})
 }

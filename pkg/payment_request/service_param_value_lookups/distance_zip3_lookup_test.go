@@ -169,7 +169,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.Equal(expected, *paramCacheValue)
 	})
 
-	suite.T().Run("returns invalid input error if the pickup or destination zips aren't 5 digits", func(t *testing.T) {
+	suite.T().Run("returns error if the pickup zipcode isn't at least 5 digits", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
@@ -179,7 +179,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				}),
 				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 					Address: models.Address{
-						PostalCode: "90103434",
+						PostalCode: "90103",
 					},
 				}),
 			}),
@@ -195,6 +195,35 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Invalid Input")
+		suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
+	})
+
+	suite.T().Run("returns error if the destination zipcode isn't at least 5 digits", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				PickupAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "33607",
+					},
+				}),
+				DestinationAddress: testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+					Address: models.Address{
+						PostalCode: "901",
+					},
+				}),
+			}),
+		})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		_, err = paramLookup.ServiceParamValue(key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
 	})
 }
