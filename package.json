@@ -125,7 +125,7 @@
     "@testing-library/react-hooks": "^7.0.0",
     "@testing-library/user-event": "^13.1.9",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.1",
-    "cypress": "^7.3.0",
+    "cypress": "^7.4.0",
     "cypress-audit": "^0.3.0",
     "cypress-wait-until": "^1.7.1",
     "danger": "^10.6.4",
