@@ -135,13 +135,14 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 
 	// Check that the uuid provided is valid and get user model
 	userID, err := uuid.FromString(params.UserID.String())
-	dbUser := models.User{}
-	if err == nil {
-		err = h.DB().Find(&dbUser, userID)
-	}
 	if err != nil {
-		err = fmt.Errorf(fmt.Sprintf("No user found for ID: %s", params.UserID.String()))
-		logger.Error("updateUserHandler Error", zap.String("error", err.Error()))
+		logger.Error("updateUserHandler Error", zap.Error(fmt.Errorf("Could not parse ID: %s", params.UserID.String())))
+		return userop.NewUpdateUserUnprocessableEntity()
+	}
+	dbUser := models.User{}
+	err = h.DB().Find(&dbUser, userID)
+	if err != nil {
+		logger.Error("updateUserHandler Error", zap.Error(fmt.Errorf("No user found for ID: %s", params.UserID.String())))
 		return userop.NewUpdateUserNotFound()
 	}
 
@@ -149,14 +150,13 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	// Currently, only updating the Active property is supported.
 	// If you want to add support for additional properties, edit UpdateUser.
 	// Also we need to retrieve the user's original status from the db to correctly create the update model
-	user, verrs := payloads.UserModel(payload, userID, dbUser.Active)
-	if verrs != nil && verrs.HasAny() {
-		err = fmt.Errorf(fmt.Sprintf("Could not parse payload: %s", verrs.String()))
-		logger.Error("updateUserHandler Error", zap.String("error", err.Error()))
+	user, err := payloads.UserModel(payload, userID, dbUser.Active)
+	if err != nil {
+		logger.Error("updateUserHandler Error", zap.Error(err))
 		return userop.NewUpdateUserUnprocessableEntity()
 	}
 
-	_, verrs, err = h.UpdateUser(userID, user)
+	_, verrs, err := h.UpdateUser(userID, user)
 	if verrs != nil || err != nil {
 		logger.Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
 	}

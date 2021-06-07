@@ -1,7 +1,8 @@
 package payloads
 
 import (
-	"github.com/gobuffalo/validate/v3"
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -10,12 +11,9 @@ import (
 
 // UserModel represents the user
 // This does not copy over session IDs to the model
-func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID, userOriginalActive bool) (*models.User, *validate.Errors) {
-	verrs := validate.NewErrors()
-
+func UserModel(user *adminmessages.UserUpdatePayload, id uuid.UUID, userOriginalActive bool) (*models.User, error) {
 	if user == nil {
-		verrs.Add("User", "payload is nil") // does this make sense
-		return nil, verrs
+		return nil, fmt.Errorf("User payload is nil")
 	}
 	model := &models.User{
 		ID: uuid.FromStringOrNil(id.String()),
