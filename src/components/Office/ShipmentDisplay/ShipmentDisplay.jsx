@@ -47,10 +47,10 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dt>Current address</dt>
             <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
           </div>
-          {displayInfo.secondaryPickupAddress && (
+          {displayInfo.secondPickupAddress && (
             <div className={styles.row}>
               <dt>Second pickup address</dt>
-              <dd>{formatAddress(displayInfo.secondaryPickupAddress)}</dd>
+              <dd>{formatAddress(displayInfo.secondPickupAddress)}</dd>
             </div>
           )}
           <div className={styles.row}>
@@ -93,7 +93,7 @@ ShipmentDisplay.propTypes = {
     heading: PropTypes.string.isRequired,
     requestedMoveDate: PropTypes.string.isRequired,
     currentAddress: AddressShape.isRequired,
-    secondaryPickupAddress: AddressShape,
+    secondPickupAddress: AddressShape,
     destinationAddress: AddressShape,
     counselorRemarks: PropTypes.string,
   }).isRequired,
