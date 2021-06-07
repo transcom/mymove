@@ -267,7 +267,8 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	status := models.MTOShipmentStatus(params.Body.Status)
+	bodyStatus := params.Body.Status
+	status := models.MTOShipmentStatus(*bodyStatus)
 	rejectionReason := params.Body.RejectionReason
 	eTag := params.IfMatch
 	shipment, err := h.UpdateMTOShipmentStatus(shipmentID, status, rejectionReason, eTag)

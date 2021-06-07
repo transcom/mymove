@@ -38,3 +38,14 @@ type MTOShipmentCreator interface {
 type MTOShipmentAddressUpdater interface {
 	UpdateMTOShipmentAddress(newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error)
 }
+
+// ShipmentRouter is used for setting the status on shipments at different stages
+//go:generate mockery --name ShipmentRouter
+type ShipmentRouter interface {
+	Submit(shipment *models.MTOShipment) error
+	Approve(shipment *models.MTOShipment) error
+	RequestCancellation(shipment *models.MTOShipment) error
+	Cancel(shipment *models.MTOShipment) error
+	Reject(shipment *models.MTOShipment, rejectionReason *string) error
+	RequestDiversion(shipment *models.MTOShipment) error
+}

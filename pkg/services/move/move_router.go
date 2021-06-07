@@ -25,13 +25,6 @@ func NewMoveRouter(db *pop.Connection, logger Logger) services.MoveRouter {
 	return &moveRouter{db, logger}
 }
 
-// InitNewMoveRouter initialize NewMoveRouter
-func InitNewMoveRouter(db *pop.Connection, logger Logger) (services.MoveRouter, error) {
-	return NewMoveRouter(
-		db,
-		logger), nil
-}
-
 // Submit is called when the customer submits their move. It determines whether
 // to send the move to Service Counseling or directly to the TOO. If it goes to
 // Service Counseling, its status becomes "Needs Service Counseling", otherwise,
@@ -162,6 +155,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(move *models.Move) error {
 // Approve makes the Move available to the Prime. The Prime cannot create
 // Service Items unless the Move is approved.
 func (router moveRouter) Approve(move *models.Move) error {
+	router.logMove(move)
 	if router.approvable(move) {
 		move.Status = models.MoveStatusAPPROVED
 		return nil
