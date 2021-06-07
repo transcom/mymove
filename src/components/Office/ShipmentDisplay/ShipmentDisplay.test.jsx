@@ -28,9 +28,9 @@ const info = {
   counselorRemarks: 'counselor approved',
 };
 
-const secondaryAddressInfo = {
+const secondPickupAddressInfo = {
   info,
-  secondaryAddress: {
+  secondPickupAddress: {
     street_address_1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
@@ -80,7 +80,7 @@ describe('Shipment Container', () => {
   });
   it('renders secondary address info when present', () => {
     render(
-      <ShipmentDisplay shipmentId="1" displayInfo={secondaryAddressInfo} onChange={jest.fn()} isSubmitted={false} />,
+      <ShipmentDisplay shipmentId="1" displayInfo={secondPickupAddressInfo} onChange={jest.fn()} isSubmitted={false} />,
     );
     expect(screen.getByText('Second pickup address')).toBeInTheDocument();
   });
