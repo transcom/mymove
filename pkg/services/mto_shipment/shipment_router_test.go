@@ -27,6 +27,8 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		}
 		for _, validStatus := range validStatuses {
 			shipment.Status = validStatus.status
+			// special case for diversion requested
+			shipment.Diversion = true
 
 			err := shipmentRouter.Approve(&shipment)
 

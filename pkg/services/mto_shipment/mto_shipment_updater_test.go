@@ -782,11 +782,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Equal(models.MTOShipmentStatusDiversionRequested, shipmentToDivert.Status)
 	})
 
-	suite.T().Run("A DIVERSION_REQUESTED shipment can change to APPROVED", func(t *testing.T) {
+	suite.T().Run("A diversion or diverted shipment can change to APPROVED", func(t *testing.T) {
+		// a diversion or diverted shipment is when the PRIME sets the diversion field to true
+		// the status must also be in diversion requested status to be approvable as well
 		diversionRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()),
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
+				Status:    models.MTOShipmentStatusDiversionRequested,
+				Diversion: true,
 			},
 		})
 		eTag = etag.GenerateEtag(diversionRequestedShipment.UpdatedAt)
