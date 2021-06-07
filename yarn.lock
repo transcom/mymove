@@ -11102,10 +11102,10 @@ imask@^6.0.7:
   resolved "https://registry.yarnpkg.com/imask/-/imask-6.0.7.tgz#20a626a80e277231d7d5c27cf45d816c035b748e"
   integrity sha512-zyiKRSzuocb2adasVSz0ku9xxejDRs5wME7Dt5Uk1l83HGBFUP7A8y8Z6TytLCtCiS/A1aArlCTqLcOkoVNbNQ==
 
-immer@8.0.1, immer@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/immer/-/immer-8.0.1.tgz#9c73db683e2b3975c424fb0572af5889877ae656"
-  integrity sha512-aqXhGP7//Gui2+UrEtvxZxSquQVXTpZ7KDxfCcKAF3Vysvw0CViVaW9RZ1j1xlIYqaaaipBoqdqeibkc18PNvA==
+immer@8.0.1, immer@^8.0.1, immer@^9.0.2:
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-9.0.2.tgz#83e4593df9914acaecfd9fac6a8601ef44d883fc"
+  integrity sha512-mkcmzLtIfSp40vAqteRr1MbWNSoI7JE+/PB36FNPoSfJ9RQRmNKuTYCjKkyXyuq3Dgn07HuJBrwJd4ZSk2yUbw==
 
 "immutable@^3.8.1 || ^4.0.0-rc.1":
   version "4.0.0-rc.12"
