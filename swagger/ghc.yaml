@@ -666,6 +666,46 @@ paths:
       description: Updates a shipment's status
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
+  '/shipments/{shipmentID}/approve':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - mtoShipment
+      description: Approves a shipment
+      operationId: approveShipment
+      summary: Approves a shipment
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -3134,10 +3174,6 @@ responses:
       $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
-    schema:
-      $ref: '#/definitions/Error'
-  Unauthorized:
-    description: The request was unauthorized
     schema:
       $ref: '#/definitions/Error'
   ServerError:

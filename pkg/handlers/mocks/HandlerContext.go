@@ -207,6 +207,22 @@ func (_m *HandlerContext) IWSPersonLookup() iws.PersonLookup {
 	return r0
 }
 
+// Logger provides a mock function with given fields:
+func (_m *HandlerContext) Logger() handlers.Logger {
+	ret := _m.Called()
+
+	var r0 handlers.Logger
+	if rf, ok := ret.Get(0).(func() handlers.Logger); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(handlers.Logger)
+		}
+	}
+
+	return r0
+}
+
 // LoggerFromContext provides a mock function with given fields: ctx
 func (_m *HandlerContext) LoggerFromContext(ctx context.Context) handlers.Logger {
 	ret := _m.Called(ctx)

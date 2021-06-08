@@ -22,6 +22,12 @@ type ShipmentDeleter interface {
 	DeleteShipment(shipmentID uuid.UUID) (uuid.UUID, error)
 }
 
+//ShipmentApprover is the service object interface for DeleteShipment
+//go:generate mockery --name ShipmentApprover
+type ShipmentApprover interface {
+	ApproveShipment(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}
+
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {

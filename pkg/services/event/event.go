@@ -57,6 +57,9 @@ const MTOShipmentUpdateEventKey KeyType = "MTOShipment.Update"
 // ShipmentDeleteEventKey is a key containing Shipment.Delete
 const ShipmentDeleteEventKey KeyType = "Shipment.Delete"
 
+// ShipmentApproveEventKey is a key containing Shipment.Approve
+const ShipmentApproveEventKey KeyType = "Shipment.Approve"
+
 // MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
 const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
 
@@ -85,6 +88,7 @@ var eventModels = map[KeyType]eventModel{
 	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
 	MTOShipmentUpdateEventKey:    {MTOShipmentUpdateEventKey, models.MTOShipment{}},
 	ShipmentDeleteEventKey:       {ShipmentDeleteEventKey, models.MTOShipment{}},
+	ShipmentApproveEventKey:      {ShipmentApproveEventKey, models.MTOShipment{}},
 	MTOServiceItemCreateEventKey: {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
 	MTOServiceItemUpdateEventKey: {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
