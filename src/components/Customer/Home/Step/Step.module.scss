@@ -4,7 +4,7 @@
 .step-container {
   @include u-margin-bottom(6);
 
-  // .amend-orders {
+  &.step-amended-orders {
     p {
       margin-bottom: 0;
     }
@@ -13,7 +13,7 @@
       margin-top: 0;
       font-size: 1rem;
     }
-  // }
+  }
 }
 
 .step-header-container {
@@ -28,6 +28,7 @@
     cursor: not-allowed;
   }
 }
+
 
 .accept {
   display: inline-block;

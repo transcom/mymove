@@ -64,7 +64,7 @@ export const OrdersUploaded = () => (
 );
 
 export const OrdersAmended = () => (
-  <div className="grid-container amend-orders">
+  <div className="grid-container">
     <h3>Orders</h3>
     <Step
       complete={boolean('Complete', true)}
@@ -73,6 +73,7 @@ export const OrdersAmended = () => (
       headerText={text('Header Text', 'Orders')}
       onEditBtnClick={() => {}}
       step={text('Step', '2')}
+      containerClassName="step-amended-orders"
     >
       <p>If you receive amended orders:</p>
       <ul>
