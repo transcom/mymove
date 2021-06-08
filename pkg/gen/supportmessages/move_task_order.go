@@ -81,10 +81,9 @@ type MoveTaskOrder struct {
 	// Enum: [FULL PARTIAL]
 	PpmType string `json:"ppmType,omitempty"`
 
-	// Unique ID associated with this Order.
+	// Unique ID associated with this Order. Generated upon creation of a MoveTaskOrder
 	//
 	// No two MoveTaskOrders may have the same ID.
-	// Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
 	//
 	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`

@@ -456,38 +456,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal((models.MoveStatus)(responsePayload.Status), models.MoveStatusCANCELED)
 
 	})
-	suite.T().Run("Success createMoveTaskOrder discarded readOnly referenceID", func(t *testing.T) {
-
-		// TESTCASE SCENARIO
-		// Under test: CreateMoveTaskOrderHandler.Handle and MoveTaskOrderCreator.CreateMoveTaskOrder
-		// Mocked:     None
-		// Set up:     We pass in a new moveTaskOrder, order, and existing customer.
-		//             We use a nonsense referenceID. ReferenceID is readOnly, this should not be applied.
-		// Expected outcome:
-		//             A new referenceID is generated.
-		//             Default status is draft.
-
-		// Running the same request should result in the same reference id
-		mtoPayload.ReferenceID = "some terrible reference id"
-		params := movetaskorderops.CreateMoveTaskOrderParams{
-			HTTPRequest: request,
-			Body:        mtoPayload,
-		}
-
-		// CALL FUNCTION UNDER TEST
-		suite.NoError(params.Body.Validate(strfmt.Default))
-		response := handler.Handle(params)
-
-		// VERIFY RESULTS
-		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
-		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
-		responsePayload := moveTaskOrdersResponse.Payload
-
-		// Check that the referenceID DOES NOT match what was sent in
-		suite.NotEqual(mtoPayload.ReferenceID, responsePayload.ReferenceID)
-		// Check that moveTaskOrder was populated, including nested objects
-		suite.moveTaskOrderPopulated(moveTaskOrdersResponse, &destinationDutyStation, &originDutyStation)
-	})
 
 	suite.T().Run("Failed createMoveTaskOrder 422 UnprocessableEntity due to no customer", func(t *testing.T) {
 

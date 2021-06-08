@@ -940,10 +940,9 @@ definitions:
         type: string
         readOnly: true
         description: |
-          Unique ID associated with this Order.
+          Unique ID associated with this Order. Generated upon creation of a MoveTaskOrder
 
           No two MoveTaskOrders may have the same ID.
-          Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
       availableToPrimeAt:
         format: date-time
         type: string

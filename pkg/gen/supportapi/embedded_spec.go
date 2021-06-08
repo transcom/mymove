@@ -1804,7 +1804,7 @@ func init() {
           ]
         },
         "referenceId": {
-          "description": "Unique ID associated with this Order.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
+          "description": "Unique ID associated with this Order. Generated upon creation of a MoveTaskOrder\n\nNo two MoveTaskOrders may have the same ID.\n",
           "type": "string",
           "readOnly": true,
           "example": "1001-3456"
@@ -4505,7 +4505,7 @@ func init() {
           ]
         },
         "referenceId": {
-          "description": "Unique ID associated with this Order.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
+          "description": "Unique ID associated with this Order. Generated upon creation of a MoveTaskOrder\n\nNo two MoveTaskOrders may have the same ID.\n",
           "type": "string",
           "readOnly": true,
           "example": "1001-3456"
