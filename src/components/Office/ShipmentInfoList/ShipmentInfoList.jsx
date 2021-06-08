@@ -1,7 +1,8 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import classNames from 'classnames';
 
-import styles from 'components/Office/ShipmentInfoList/ShipmentInfoList.module.scss';
+import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
@@ -19,7 +20,10 @@ const ShipmentInfoList = ({
   customerRemarks,
 }) => {
   return (
-    <dl className={`${styles.ShipmentInfoList} ${className}`} data-testid="shipment-info-list">
+    <dl
+      className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
+      data-testid="shipment-info-list"
+    >
       <div className={styles.row}>
         <dt>Requested move date</dt>
         <dd>{formatDate(requestedMoveDate, 'DD MMM YYYY')}</dd>
