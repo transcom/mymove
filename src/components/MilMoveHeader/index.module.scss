@@ -138,6 +138,7 @@
 
       :global(.usa-nav__primary-item):last-child {
         @include u-margin-right(2);
+        @include u-margin-left(2);
       }
     }
   }
