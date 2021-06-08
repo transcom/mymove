@@ -8,8 +8,29 @@ import styles from './SelectableCard.module.scss';
 
 const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked, onHelpClick }) => {
   return (
-    <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
-      <div className={styles.cardTitle}>
+    <div>
+      <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
+        <div className={styles.cardTitle}>
+          <Radio
+            id={id}
+            label={label}
+            value={value}
+            name={name}
+            onChange={onChange}
+            checked={checked}
+            disabled={disabled}
+          />
+          {onHelpClick && (
+            <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+              <FontAwesomeIcon icon={['far', 'question-circle']} />
+            </Button>
+          )}
+        </div>
+        <div data-testid="selectableCardText" className={styles.cardText}>
+          {cardText}
+        </div>
+      </div>
+      <div>
         <Radio
           id={id}
           label={label}
@@ -18,15 +39,9 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           onChange={onChange}
           checked={checked}
           disabled={disabled}
+          labelDescription={cardText}
+          tile
         />
-        {onHelpClick && (
-          <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
-            <FontAwesomeIcon icon={['far', 'question-circle']} />
-          </Button>
-        )}
-      </div>
-      <div data-testid="selectableCardText" className={styles.cardText}>
-        {cardText}
       </div>
     </div>
   );
