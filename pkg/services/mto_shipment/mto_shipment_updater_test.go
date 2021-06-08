@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/stretchr/testify/mock"
@@ -106,6 +108,54 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	//now := time.Now()
 	primeEstimatedWeight = unit.Pound(4500)
 
+	suite.T().Run("Can retrieve existing shipment", func(t *testing.T) {
+		existingShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment, err := mtoShipmentUpdater.RetrieveMTOShipment(existingShipment.ID)
+
+		suite.NoError(err)
+
+		suite.Equal(existingShipment.ID, shipment.ID)
+		suite.Equal(existingShipment.CreatedAt.UTC(), shipment.CreatedAt.UTC())
+		suite.Equal(existingShipment.ShipmentType, shipment.ShipmentType)
+		suite.Equal(existingShipment.UpdatedAt.UTC(), shipment.UpdatedAt.UTC())
+	})
+
+	servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *servicesCounselor.UserID,
+		OfficeUserID:    servicesCounselor.ID,
+	}
+	session.Roles = append(session.Roles, servicesCounselor.User.Roles...)
+
+	var statusTests = []struct {
+		name      string
+		status    models.MTOShipmentStatus
+		updatable bool
+	}{
+		{"Draft isn't updatable", models.MTOShipmentStatusDraft, false},
+		{"Submitted is updatable", models.MTOShipmentStatusSubmitted, true},
+		{"Approved isn't updatable", models.MTOShipmentStatusApproved, false},
+	}
+
+	for _, tt := range statusTests {
+		suite.T().Run(fmt.Sprintf("Updatable status returned as expected: %v", tt.name), func(t *testing.T) {
+			shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					Status: tt.status,
+				},
+			})
+
+			updatable, err := mtoShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(&shipment, &session)
+
+			suite.NoError(err)
+
+			suite.Equal(tt.updatable, updatable,
+				"Expected updatable to be %v when status is %v. Got %v", tt.updatable, tt.status, updatable)
+		})
+	}
+
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
@@ -170,9 +220,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipment(updatedShipment, eTag)
 		suite.NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
+		suite.Equal(newDestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(newPickupAddress.ID, *updatedShipment.PickupAddressID)
+		suite.Equal(newPickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(secondaryPickupAddress.ID, *updatedShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryPickupAddress.StreetAddress1, updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(secondaryDeliveryAddress.ID, *updatedShipment.SecondaryDeliveryAddressID)
+		suite.Equal(secondaryDeliveryAddress.StreetAddress1, updatedShipment.SecondaryDeliveryAddress.StreetAddress1)
 
 	})
 
@@ -193,6 +247,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
+		counselorRemarks := "Counselor approved"
 		updatedShipment := models.MTOShipment{
 			ID:                               oldShipment.ID,
 			DestinationAddress:               &newDestinationAddress,
@@ -211,7 +266,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			FirstAvailableDeliveryDate:       &firstAvailableDeliveryDate,
 			PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightRecordedDate,
 			Status:                           models.MTOShipmentStatusSubmitted,
+			Diversion:                        true,
 			CustomerRemarks:                  &customerRemarks,
+			CounselorRemarks:                 &counselorRemarks,
 		}
 
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
@@ -226,7 +283,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
+		suite.Equal(counselorRemarks, *newShipment.CounselorRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
+		suite.Equal(true, newShipment.Diversion)
 		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
@@ -441,23 +500,10 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	).Return(500, nil)
 	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
 
-	suite.T().Run("If we get a mto shipment pointer with a status it should update and return no error", func(t *testing.T) {
-		_, err := updater.UpdateMTOShipmentStatus(shipment.ID, status, nil, eTag)
-		suite.NoError(err)
-		serviceItems := models.MTOServiceItems{}
-		_ = suite.DB().All(&serviceItems)
-		fetchedShipment := models.MTOShipment{}
-		err = suite.DB().Find(&fetchedShipment, shipment.ID)
-		suite.NoError(err)
-		// We also should have a required delivery date
-		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
-	})
-
 	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
 		shipmentForAutoApproveEtag := etag.GenerateEtag(shipmentForAutoApprove.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
-		fetchedMove := models.Move{}
 		var expectedReServiceCodes []models.ReServiceCode
 		expectedReServiceCodes = append(expectedReServiceCodes,
 			models.ReServiceCodeDLH,
@@ -484,38 +530,39 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		// All ApprovedAt times for service items should be the same, so just get the first one
 		actualApprovedAt := serviceItems[0].ApprovedAt
-		currentTime := time.Now()
-		diff := currentTime.Sub(*actualApprovedAt)
-		diffInSeconds := diff.Seconds()
-		oneSecond := 1.000000
 		// If we've gotten the shipment updated and fetched it without error then we can inspect the
 		// service items created as a side effect to see if they are approved.
 		for i := range serviceItems {
 			suite.Equal(models.MTOServiceItemStatusApproved, serviceItems[i].Status)
 			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
-			// Test that service item was approved within a few seconds of the current
-			suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+			// Test that service item was approved within a few seconds of the current time
+			suite.Assertions.WithinDuration(time.Now(), *actualApprovedAt, 2*time.Second)
 		}
-
-		err = suite.DB().Find(&fetchedMove, mto.ID)
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusAPPROVED, fetchedMove.Status)
-	})
-
-	suite.T().Run("If we are approving a shipment but are missing key information (estimated weight and pickup date) it should fail", func(t *testing.T) {
-		_, err := updater.UpdateMTOShipmentStatus(shipment2.ID, status, nil, eTag)
-		suite.NotNil(err)
 	})
 
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
+		// This is testing that the Required Delivery Date is calculated correctly.
+		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
+		// 1. The shipment is moving to the APPROVED status
+		// 2. The shipment must already have the following fields present:
+		// ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, DestinationAddress
+		// 3. The shipment must not already have a Required Delivery Date
+		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
+		// is present, therefore we need to use MakeMTOShipmentMinimal and add the Pickup and Destination addresses
 		estimatedWeight := unit.Pound(11000)
-		shipmentHeavy := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		destinationAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		shipmentHeavy := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			Move: mto,
 			MTOShipment: models.MTOShipment{
 				ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 				PrimeEstimatedWeight: &estimatedWeight,
 				Status:               models.MTOShipmentStatusSubmitted,
+				DestinationAddress:   &destinationAddress,
+				DestinationAddressID: &destinationAddress.ID,
+				PickupAddress:        &pickupAddress,
+				PickupAddressID:      &pickupAddress.ID,
 			},
 		})
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
@@ -524,72 +571,92 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		serviceItems := models.MTOServiceItems{}
 		_ = suite.DB().All(&serviceItems)
 		fetchedShipment := models.MTOShipment{}
-		err = suite.DB().Find(&fetchedShipment, shipment.ID)
+		err = suite.DB().Find(&fetchedShipment, shipmentHeavy.ID)
 		suite.NoError(err)
 		// We also should have a required delivery date
 		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
 	})
 
-	suite.T().Run("Update MTO Shipment status DRAFT to SUBMITTED should return no error", func(t *testing.T) {
+	suite.T().Run("Cannot set SUBMITTED status on shipment via UpdateMTOShipmentStatus", func(t *testing.T) {
+		// The only time a shipment gets set to the SUBMITTED status is when it is created, whether by the customer
+		// or the Prime. This happens in the internal and prime API in the CreateMTOShipmentHandler. In that case,
+		// the handlers will call ShipmentRouter.Submit().
 		eTag = etag.GenerateEtag(draftShipment.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(draftShipment.ID, "SUBMITTED", nil, eTag)
+
+		suite.Error(err)
+		suite.IsType(ConflictStatusError{}, err)
+
+		err = suite.DB().Find(&draftShipment, draftShipment.ID)
+
 		suite.NoError(err)
+		suite.EqualValues(models.MTOShipmentStatusDraft, draftShipment.Status)
 	})
 
-	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
+	suite.T().Run("Rejecting a shipment in SUBMITTED status with a rejection reason should return no error", func(t *testing.T) {
 		eTag = etag.GenerateEtag(shipment2.UpdatedAt)
 		rejectionReason := "Rejection reason"
 		returnedShipment, err := updater.UpdateMTOShipmentStatus(shipment2.ID, "REJECTED", &rejectionReason, eTag)
+
 		suite.NoError(err)
 		suite.NotNil(returnedShipment)
-		suite.Equal(models.MTOShipmentStatusRejected, returnedShipment.Status)
-		suite.Equal(&rejectionReason, returnedShipment.RejectionReason)
-		// Since this is a rejection we should not generate a required delivery date
-		suite.Nil(returnedShipment.RequiredDeliveryDate)
+
+		err = suite.DB().Find(&shipment2, shipment2.ID)
+
+		suite.NoError(err)
+		suite.EqualValues(models.MTOShipmentStatusRejected, shipment2.Status)
+		suite.Equal(&rejectionReason, shipment2.RejectionReason)
 	})
 
-	suite.T().Run("Update MTO Shipment status to REJECTED with no rejection reason should return error", func(t *testing.T) {
+	suite.T().Run("Rejecting a shipment with no rejection reason returns an InvalidInputError", func(t *testing.T) {
 		eTag = etag.GenerateEtag(shipment3.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(shipment3.ID, "REJECTED", nil, eTag)
+
 		suite.Error(err)
-		fmt.Printf("%#v", err)
 		suite.IsType(services.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Update MTO Shipment in APPROVED status should return error", func(t *testing.T) {
+	suite.T().Run("Rejecting a shipment in APPROVED status returns a ConflictStatusError", func(t *testing.T) {
+		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
 		rejectionReason := "Rejection reason"
 		_, err := updater.UpdateMTOShipmentStatus(approvedShipment.ID, "REJECTED", &rejectionReason, eTag)
+
 		suite.Error(err)
+		suite.IsType(ConflictStatusError{}, err)
 	})
 
-	suite.T().Run("Update MTO Shipment in REJECTED status should return error", func(t *testing.T) {
+	suite.T().Run("Approving a shipment in REJECTED status returns a ConflictStatusError", func(t *testing.T) {
+		eTag = etag.GenerateEtag(rejectedShipment.UpdatedAt)
 		_, err := updater.UpdateMTOShipmentStatus(rejectedShipment.ID, "APPROVED", nil, eTag)
+
 		suite.Error(err)
+		suite.IsType(ConflictStatusError{}, err)
 	})
 
-	suite.T().Run("Passing in a stale identifier", func(t *testing.T) {
+	suite.T().Run("Passing in a stale identifier returns a PreconditionFailedError", func(t *testing.T) {
 		staleETag := etag.GenerateEtag(time.Now())
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "APPROVED", nil, staleETag)
+
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
-	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
+	suite.T().Run("Passing in an invalid status returns a ConflictStatus error", func(t *testing.T) {
 		eTag = etag.GenerateEtag(shipment4.UpdatedAt)
 
 		_, err := updater.UpdateMTOShipmentStatus(shipment4.ID, "invalid", nil, eTag)
+
 		suite.Error(err)
-		fmt.Printf("%#v", err)
 		suite.IsType(ConflictStatusError{}, err)
 	})
 
-	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {
+	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
 		_, err := updater.UpdateMTOShipmentStatus(badShipmentID, "APPROVED", nil, eTag)
+
 		suite.Error(err)
-		fmt.Printf("%#v", err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
@@ -603,7 +670,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		eTag = etag.GenerateEtag(shipment5.UpdatedAt)
 
 		suite.Nil(shipment5.ApprovedDate)
+
 		_, err := updater.UpdateMTOShipmentStatus(shipment5.ID, models.MTOShipmentStatusApproved, nil, eTag)
+
 		suite.NoError(err)
 		suite.DB().Find(&shipment5, shipment5.ID)
 		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
@@ -621,11 +690,13 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		rejectionReason := "reason"
 
 		suite.Nil(shipment6.ApprovedDate)
+
 		_, err := updater.UpdateMTOShipmentStatus(shipment6.ID, models.MTOShipmentStatusRejected, &rejectionReason, eTag)
+
 		suite.NoError(err)
 		suite.DB().Find(&shipment6, shipment6.ID)
 		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)
-		suite.Nil(shipment3.ApprovedDate)
+		suite.Nil(shipment6.ApprovedDate)
 	})
 
 	suite.T().Run("When move is not yet approved, cannot approve shipment", func(t *testing.T) {
@@ -644,22 +715,96 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("An approved shipment can change to CANCELLATION_REQUESTED", func(t *testing.T) {
-		approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		approvedShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()),
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
 		})
-		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+		eTag = etag.GenerateEtag(approvedShipment2.UpdatedAt)
 
 		updatedShipment, err := updater.UpdateMTOShipmentStatus(
-			approvedShipment.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
-		suite.DB().Find(&approvedShipment, approvedShipment.ID)
+			approvedShipment2.ID, models.MTOShipmentStatusCancellationRequested, nil, eTag)
+		suite.DB().Find(&approvedShipment2, approvedShipment2.ID)
 
 		suite.NoError(err)
 		suite.NotNil(updatedShipment)
 		suite.Equal(models.MTOShipmentStatusCancellationRequested, updatedShipment.Status)
-		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusCancellationRequested, approvedShipment2.Status)
+	})
+
+	suite.T().Run("A CANCELLATION_REQUESTED shipment can change to CANCELED", func(t *testing.T) {
+		cancellationRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusCancellationRequested,
+			},
+		})
+		eTag = etag.GenerateEtag(cancellationRequestedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			cancellationRequestedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
+		suite.DB().Find(&cancellationRequestedShipment, cancellationRequestedShipment.ID)
+
+		suite.NoError(err)
+		suite.NotNil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusCanceled, updatedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusCanceled, cancellationRequestedShipment.Status)
+	})
+
+	suite.T().Run("An APPROVED shipment CANNOT change to CANCELED - ERROR", func(t *testing.T) {
+		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			approvedShipment.ID, models.MTOShipmentStatusCanceled, nil, eTag)
+		suite.DB().Find(&approvedShipment, approvedShipment.ID)
+
+		suite.Error(err)
+		suite.Nil(updatedShipment)
+		suite.IsType(ConflictStatusError{}, err)
+		suite.Equal(models.MTOShipmentStatusApproved, approvedShipment.Status)
+	})
+
+	suite.T().Run("An APPROVED shipment CAN change to Diversion Requested", func(t *testing.T) {
+		shipmentToDivert := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		})
+		eTag = etag.GenerateEtag(shipmentToDivert.UpdatedAt)
+
+		_, err := updater.UpdateMTOShipmentStatus(
+			shipmentToDivert.ID, models.MTOShipmentStatusDiversionRequested, nil, eTag)
+		suite.DB().Find(&shipmentToDivert, shipmentToDivert.ID)
+
+		suite.NoError(err)
+		suite.Equal(models.MTOShipmentStatusDiversionRequested, shipmentToDivert.Status)
+	})
+
+	suite.T().Run("A diversion or diverted shipment can change to APPROVED", func(t *testing.T) {
+		// a diversion or diverted shipment is when the PRIME sets the diversion field to true
+		// the status must also be in diversion requested status to be approvable as well
+		diversionRequestedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: testdatagen.MakeAvailableMove(suite.DB()),
+			MTOShipment: models.MTOShipment{
+				Status:    models.MTOShipmentStatusDiversionRequested,
+				Diversion: true,
+			},
+		})
+		eTag = etag.GenerateEtag(diversionRequestedShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(
+			diversionRequestedShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+
+		suite.NoError(err)
+		suite.NotNil(updatedShipment)
+		suite.Equal(models.MTOShipmentStatusApproved, updatedShipment.Status)
+
+		var shipmentServiceItems models.MTOServiceItems
+		err = suite.DB().Where("mto_shipment_id = $1", updatedShipment.ID).All(&shipmentServiceItems)
+		suite.NoError(err)
+		suite.Len(shipmentServiceItems, 0, "should not have created shipment level service items for diversion shipment after approving")
 	})
 }
 

@@ -46,11 +46,10 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, associations, pagination, ordering)
+	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -170,6 +169,14 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		fmt.Printf("%#v", verrs)
 		logger.Error("Error saving user", zap.Error(err))
 		return adminuserop.NewUpdateAdminUserInternalServerError()
+	}
+
+	// Log if the account was enabled or disabled (POAM requirement)
+	if payload.Active != nil {
+		_, err = audit.CaptureAccountStatus(updatedAdminUser, *payload.Active, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Error capturing account status audit record in UpdateAdminUserHandler", zap.Error(err))
+		}
 	}
 
 	_, err = audit.Capture(updatedAdminUser, payload, logger, session, params.HTTPRequest)

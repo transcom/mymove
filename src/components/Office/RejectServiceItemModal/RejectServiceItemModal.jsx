@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
-import { Modal, Button, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -10,6 +10,7 @@ import styles from './RejectServiceItemModal.module.scss';
 
 import { Form } from 'components/form';
 import TextField from 'components/form/fields/TextField';
+import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';

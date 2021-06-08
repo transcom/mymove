@@ -82,13 +82,48 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
+  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery]);
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
+    enabled: !!mtoID,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery, mtoShipmentQuery]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
+    mtoShipments,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useEditShipmentQueries = (moveCode) => {
+  // Get the orders info
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveId = move?.id;
+  const orderId = move?.ordersId;
+
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
+    enabled: !!orderId,
+  });
+
+  const order = Object.values(orders || {})?.[0];
+
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, mtoShipmentQuery]);
+
+  return {
+    move,
+    order,
+    mtoShipments,
     isLoading,
     isError,
     isSuccess,

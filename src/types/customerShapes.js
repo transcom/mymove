@@ -1,4 +1,4 @@
-import { arrayOf, bool, func, string, shape, object, number } from 'prop-types';
+import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
 import { DutyStationShape } from 'types/dutyStation';
@@ -84,6 +84,7 @@ export const MtoShipmentFormValuesShape = shape({
 export const MtoShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
+  counselorRemarks: string,
   shipmentType: string,
   requestedPickupDate: string,
   pickupAddress: AddressShape,

@@ -47,6 +47,9 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// diversion
+	Diversion bool `json:"diversion,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
@@ -113,7 +116,7 @@ type MTOShipment struct {
 
 	// status
 	// Read Only: true
-	// Enum: [APPROVED SUBMITTED REJECTED]
+	// Enum: [APPROVED SUBMITTED REJECTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -146,6 +149,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
+		Diversion bool `json:"diversion,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
@@ -221,6 +226,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
+
+	// diversion
+	result.Diversion = data.Diversion
 
 	// eTag
 	result.ETag = data.ETag
@@ -301,6 +309,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+		Diversion bool `json:"diversion,omitempty"`
+
 		ETag string `json:"eTag,omitempty"`
 
 		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
@@ -349,6 +359,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		Diversion: m.Diversion,
 
 		ETag: m.ETag,
 
@@ -746,7 +758,7 @@ var mTOShipmentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -764,6 +776,15 @@ const (
 
 	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
 	MTOShipmentStatusREJECTED string = "REJECTED"
+
+	// MTOShipmentStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
+	MTOShipmentStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
+
+	// MTOShipmentStatusCANCELED captures enum value "CANCELED"
+	MTOShipmentStatusCANCELED string = "CANCELED"
+
+	// MTOShipmentStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
+	MTOShipmentStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
 )
 
 // prop value enum

@@ -121,10 +121,8 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var totalWeight int64
 	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
 		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
 	var authorizedWeight *int64
@@ -141,17 +139,19 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	return &primemessages.Entitlements{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  int64(entitlement.ProGearWeight),
+		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
+		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
+		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
+		StorageInTransit: sit,
+		TotalDependents:  totalDependents,
+		TotalWeight:      totalWeight,
+		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -334,56 +334,46 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	payload := &primemessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		Status:                   string(mtoShipment.Status),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                               strfmt.UUID(mtoShipment.ID.String()),
+		ActualPickupDate:                 handlers.FmtDatePtr(mtoShipment.ActualPickupDate),
+		ApprovedDate:                     handlers.FmtDatePtr(mtoShipment.ApprovedDate),
+		FirstAvailableDeliveryDate:       handlers.FmtDatePtr(mtoShipment.FirstAvailableDeliveryDate),
+		PrimeEstimatedWeightRecordedDate: handlers.FmtDatePtr(mtoShipment.PrimeEstimatedWeightRecordedDate),
+		RequestedPickupDate:              handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
+		RequiredDeliveryDate:             handlers.FmtDatePtr(mtoShipment.RequiredDeliveryDate),
+		ScheduledPickupDate:              handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate),
+		Agents:                           *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:                  strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                     primemessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:                  mtoShipment.CustomerRemarks,
+		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		Status:                           string(mtoShipment.Status),
+		Diversion:                        bool(mtoShipment.Diversion),
+		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
+	}
+
+	// Set up address payloads
+	if mtoShipment.PickupAddress != nil {
+		payload.PickupAddress.Address = *Address(mtoShipment.PickupAddress)
+	}
+	if mtoShipment.DestinationAddress != nil {
+		payload.DestinationAddress.Address = *Address(mtoShipment.DestinationAddress)
+	}
+	if mtoShipment.SecondaryPickupAddress != nil {
+		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
+	}
+	if mtoShipment.SecondaryDeliveryAddress != nil {
+		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
 
 	if mtoShipment.MTOServiceItems != nil {
-		// sets MTOServiceItems
 		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
-	}
-
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
-	}
-
-	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
-	}
-
-	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
-	}
-
-	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
-		payload.ActualPickupDate = strfmt.Date(*mtoShipment.ActualPickupDate)
-	}
-
-	if mtoShipment.FirstAvailableDeliveryDate != nil && !mtoShipment.FirstAvailableDeliveryDate.IsZero() {
-		payload.FirstAvailableDeliveryDate = strfmt.Date(*mtoShipment.FirstAvailableDeliveryDate)
-	}
-
-	if mtoShipment.RequiredDeliveryDate != nil && !mtoShipment.RequiredDeliveryDate.IsZero() {
-		payload.RequiredDeliveryDate = strfmt.Date(*mtoShipment.RequiredDeliveryDate)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
 		payload.PrimeEstimatedWeight = int64(*mtoShipment.PrimeEstimatedWeight)
-	}
-
-	if mtoShipment.PrimeEstimatedWeightRecordedDate != nil && !mtoShipment.PrimeEstimatedWeightRecordedDate.IsZero() {
-		payload.PrimeEstimatedWeightRecordedDate = strfmt.Date(*mtoShipment.PrimeEstimatedWeightRecordedDate)
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {
@@ -423,19 +413,32 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitHHGActualOrigin: Address(mtoServiceItem.SITOriginHHGActualAddress),
 		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
-		var sitDepartureDate time.Time
+		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2 time.Time
+		var timeMilitary1, timeMilitary2 *string
+
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
 		}
+
 		firstContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := GetCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
+		timeMilitary1 = &firstContact.TimeMilitary
+		timeMilitary2 = &secondContact.TimeMilitary
+
+		if !firstContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate1 = firstContact.FirstAvailableDeliveryDate
+		}
+
+		if !secondContact.FirstAvailableDeliveryDate.IsZero() {
+			firstAvailableDeliveryDate2 = firstContact.FirstAvailableDeliveryDate
+		}
 
 		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
-			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
-			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
-			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			TimeMilitary1:               handlers.FmtStringPtrNonEmpty(timeMilitary1),
+			FirstAvailableDeliveryDate1: handlers.FmtDate(firstAvailableDeliveryDate1),
+			TimeMilitary2:               handlers.FmtStringPtrNonEmpty(timeMilitary2),
+			FirstAvailableDeliveryDate2: handlers.FmtDate(firstAvailableDeliveryDate2),
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),

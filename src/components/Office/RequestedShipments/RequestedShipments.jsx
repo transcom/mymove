@@ -4,15 +4,15 @@ import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
-
 import styles from './RequestedShipments.module.scss';
 
-import { shipmentTypeLabels } from 'content/shipments';
 import { serviceItemCodes } from 'content/serviceItems';
-import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { shipmentTypeLabels } from 'content/shipments';
+import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
+import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -137,7 +137,7 @@ const RequestedShipments = ({
 
           <form onSubmit={formik.handleSubmit}>
             <h2>Requested shipments</h2>
-            <div className={styles.shipmentCards}>
+            <div className={shipmentCardsStyles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
                   <ShipmentDisplay
@@ -147,8 +147,9 @@ const RequestedShipments = ({
                     isSubmitted
                     displayInfo={{
                       heading: shipmentTypeLabels[shipment.shipmentType],
+                      isDiversion: shipment.diversion,
                       requestedMoveDate: shipment.requestedPickupDate,
-                      currentAddress: shipment.pickupAddress,
+                      originAddress: shipment.pickupAddress,
                       destinationAddress: shipment.destinationAddress || dutyStationPostal,
                     }}
                     /* eslint-disable-next-line react/jsx-props-no-spreading */
@@ -168,12 +169,18 @@ const RequestedShipments = ({
                       name="shipmentManagementFee"
                       onChange={formik.handleChange}
                     />
-                    <Checkbox
-                      id="counselingFee"
-                      label={serviceItemCodes.CS}
-                      name="counselingFee"
-                      onChange={formik.handleChange}
-                    />
+                    {moveTaskOrder.serviceCounselingCompletedAt ? (
+                      <p className={styles.serviceCounselingCompleted} data-testid="services-counseling-completed-text">
+                        The customer has received counseling for this move.
+                      </p>
+                    ) : (
+                      <Checkbox
+                        id="counselingFee"
+                        label={serviceItemCodes.CS}
+                        name="counselingFee"
+                        onChange={formik.handleChange}
+                      />
+                    )}
                   </Fieldset>
                 </>
               )}
@@ -194,7 +201,7 @@ const RequestedShipments = ({
       {shipmentsStatus === 'APPROVED' && (
         <>
           <h2>Approved shipments</h2>
-          <div className={styles.shipmentCards}>
+          <div className={shipmentCardsStyles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
                 <ShipmentDisplay
@@ -203,8 +210,9 @@ const RequestedShipments = ({
                   shipmentType={shipment.shipmentType}
                   displayInfo={{
                     heading: shipmentTypeLabels[shipment.shipmentType],
+                    isDiversion: shipment.diversion,
                     requestedMoveDate: shipment.requestedPickupDate,
-                    currentAddress: shipment.pickupAddress,
+                    originAddress: shipment.pickupAddress,
                     destinationAddress: shipment.destinationAddress || dutyStationPostal,
                   }}
                   isSubmitted={false}

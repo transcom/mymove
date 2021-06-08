@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 )
 
@@ -54,11 +55,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		MtoServiceItemDeleteMTOServiceItemHandler: mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_service_item.DeleteMTOServiceItem has not yet been implemented")
+		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
 		}),
-		MoveTaskOrderDeleteMoveTaskOrderHandler: move_task_order.DeleteMoveTaskOrderHandlerFunc(func(params move_task_order.DeleteMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.DeleteMoveTaskOrder has not yet been implemented")
+		OrderCounselingUpdateOrderHandler: order.CounselingUpdateOrderHandlerFunc(func(params order.CounselingUpdateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
+		}),
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		}),
+		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
 		MtoAgentFetchMTOAgentListHandler: mto_agent.FetchMTOAgentListHandlerFunc(func(params mto_agent.FetchMTOAgentListParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_agent.FetchMTOAgentList has not yet been implemented")
@@ -114,11 +121,20 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
+		OrderUpdateAllowanceHandler: order.UpdateAllowanceHandlerFunc(func(params order.UpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UpdateAllowance has not yet been implemented")
+		}),
+		CustomerUpdateCustomerHandler: customer.UpdateCustomerHandlerFunc(func(params customer.UpdateCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.UpdateCustomer has not yet been implemented")
+		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
+		}),
+		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler: move_task_order.UpdateMTOStatusServiceCounselingCompletedHandlerFunc(func(params move_task_order.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMTOStatusServiceCounselingCompleted has not yet been implemented")
@@ -171,10 +187,14 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// MtoServiceItemDeleteMTOServiceItemHandler sets the operation handler for the delete m t o service item operation
-	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
-	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
-	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
+	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
+	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
+	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
+	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
+	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
@@ -211,10 +231,16 @@ type MymoveAPI struct {
 	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
+	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
+	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
+	// CustomerUpdateCustomerHandler sets the operation handler for the update customer operation
+	CustomerUpdateCustomerHandler customer.UpdateCustomerHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
+	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
+	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler sets the operation handler for the update m t o status service counseling completed operation
 	MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
@@ -293,11 +319,17 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MtoServiceItemDeleteMTOServiceItemHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.DeleteMTOServiceItemHandler")
+	if o.OrderCounselingUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
 	}
-	if o.MoveTaskOrderDeleteMoveTaskOrderHandler == nil {
-		unregistered = append(unregistered, "move_task_order.DeleteMoveTaskOrderHandler")
+	if o.OrderCounselingUpdateOrderHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateOrderHandler")
+	}
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.ShipmentDeleteShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
 	}
 	if o.MtoAgentFetchMTOAgentListHandler == nil {
 		unregistered = append(unregistered, "mto_agent.FetchMTOAgentListHandler")
@@ -353,11 +385,20 @@ func (o *MymoveAPI) Validate() error {
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
 	}
+	if o.OrderUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.UpdateAllowanceHandler")
+	}
+	if o.CustomerUpdateCustomerHandler == nil {
+		unregistered = append(unregistered, "customer.UpdateCustomerHandler")
+	}
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
+	}
+	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
 	}
 	if o.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler")
@@ -465,14 +506,22 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}/allowances"] = order.NewCounselingUpdateAllowance(o.context, o.OrderCounselingUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}"] = order.NewCounselingUpdateOrder(o.context, o.OrderCounselingUpdateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewDeleteMTOServiceItem(o.context, o.MtoServiceItemDeleteMTOServiceItemHandler)
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewDeleteMoveTaskOrder(o.context, o.MoveTaskOrderDeleteMoveTaskOrderHandler)
+	o.handlers["DELETE"]["/shipments/{shipmentID}"] = shipment.NewDeleteShipment(o.context, o.ShipmentDeleteShipmentHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -548,11 +597,23 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/orders/{orderID}/allowances"] = order.NewUpdateAllowance(o.context, o.OrderUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/customer/{customerID}"] = customer.NewUpdateCustomer(o.context, o.CustomerUpdateCustomerHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewUpdateMTOServiceItem(o.context, o.MtoServiceItemUpdateMTOServiceItemHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemStatus(o.context, o.MtoServiceItemUpdateMTOServiceItemStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

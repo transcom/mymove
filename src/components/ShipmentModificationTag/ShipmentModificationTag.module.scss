@@ -1,0 +1,10 @@
+@import '../../shared/styles/colors';
+
+.ShipmentModificationTag {
+  background-color: $info-light;
+  display: inline-block;
+  font-size: 13px;
+  line-height: 1.38;
+  height: 18px;
+  width: 89px;
+}

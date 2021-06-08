@@ -23,7 +23,7 @@ type UpdateMTOShipmentStatus struct {
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
-	// Enum: [REJECTED APPROVED SUBMITTED CANCELLATION_REQUESTED]
+	// Enum: [REJECTED APPROVED SUBMITTED CANCELLATION_REQUESTED CANCELED DIVERSION_REQUESTED]
 	Status string `json:"status,omitempty"`
 }
 
@@ -45,7 +45,7 @@ var updateMTOShipmentStatusTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["REJECTED","APPROVED","SUBMITTED","CANCELLATION_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["REJECTED","APPROVED","SUBMITTED","CANCELLATION_REQUESTED","CANCELED","DIVERSION_REQUESTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -66,6 +66,12 @@ const (
 
 	// UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED captures enum value "CANCELLATION_REQUESTED"
 	UpdateMTOShipmentStatusStatusCANCELLATIONREQUESTED string = "CANCELLATION_REQUESTED"
+
+	// UpdateMTOShipmentStatusStatusCANCELED captures enum value "CANCELED"
+	UpdateMTOShipmentStatusStatusCANCELED string = "CANCELED"
+
+	// UpdateMTOShipmentStatusStatusDIVERSIONREQUESTED captures enum value "DIVERSION_REQUESTED"
+	UpdateMTOShipmentStatusStatusDIVERSIONREQUESTED string = "DIVERSION_REQUESTED"
 )
 
 // prop value enum

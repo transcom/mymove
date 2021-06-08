@@ -9,7 +9,9 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
@@ -52,4 +54,37 @@ func TestHandlerSuite(t *testing.T) {
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
+}
+
+// EqualAddress compares a model address against a payload address
+func (suite *HandlerSuite) EqualAddress(expected models.Address, actual *primemessages.Address, checkID bool) {
+	if checkID == true {
+		suite.Equal(expected.ID.String(), actual.ID.String())
+	}
+	suite.Equal(&expected.StreetAddress1, actual.StreetAddress1)
+	suite.Equal(expected.StreetAddress2, actual.StreetAddress2)
+	suite.Equal(expected.StreetAddress3, actual.StreetAddress3)
+	suite.Equal(&expected.City, actual.City)
+	suite.Equal(&expected.State, actual.State)
+	suite.Equal(&expected.PostalCode, actual.PostalCode)
+	suite.Equal(expected.Country, actual.Country)
+}
+
+// EqualAddressPayload compares a payload address against a payload address
+// If you don't want to compare IDs set checkID to false
+func (suite *HandlerSuite) EqualAddressPayload(expected *primemessages.Address, actual *primemessages.Address, checkID bool) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	}
+	if checkID == true {
+		suite.Equal(expected.ID.String(), actual.ID.String())
+	}
+	suite.Equal(expected.StreetAddress1, actual.StreetAddress1)
+	suite.Equal(expected.StreetAddress2, actual.StreetAddress2)
+	suite.Equal(expected.StreetAddress3, actual.StreetAddress3)
+	suite.Equal(expected.City, actual.City)
+	suite.Equal(expected.State, actual.State)
+	suite.Equal(expected.PostalCode, actual.PostalCode)
+	suite.Equal(expected.Country, actual.Country)
 }

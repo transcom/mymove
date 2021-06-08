@@ -144,10 +144,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var totalWeight int64
 	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
 		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
 	var authorizedWeight *int64
@@ -164,17 +162,18 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	return &supportmessages.Entitlement{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  int64(entitlement.ProGearWeight),
+		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
+		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
+		StorageInTransit:               sit,
+		TotalDependents:                totalDependents,
+		TotalWeight:                    totalWeight,
+		ETag:                           etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

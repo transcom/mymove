@@ -15,6 +15,12 @@ import (
 
 // MTOShipmentType Shipment Type
 //
+// The type of shipment.
+//   * `HHG` = Household goods move
+//   * `NTS` = Non-temporary storage
+//   * `UB` = Unaccompanied baggage
+//
+//
 // swagger:model MTOShipmentType
 type MTOShipmentType string
 
@@ -23,11 +29,32 @@ const (
 	// MTOShipmentTypeHHG captures enum value "HHG"
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
 
+	// MTOShipmentTypeHHGLONGHAULDOMESTIC captures enum value "HHG_LONGHAUL_DOMESTIC"
+	MTOShipmentTypeHHGLONGHAULDOMESTIC MTOShipmentType = "HHG_LONGHAUL_DOMESTIC"
+
+	// MTOShipmentTypeHHGSHORTHAULDOMESTIC captures enum value "HHG_SHORTHAUL_DOMESTIC"
+	MTOShipmentTypeHHGSHORTHAULDOMESTIC MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
+
+	// MTOShipmentTypeHHGINTONTSDOMESTIC captures enum value "HHG_INTO_NTS_DOMESTIC"
+	MTOShipmentTypeHHGINTONTSDOMESTIC MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+
+	// MTOShipmentTypeHHGOUTOFNTSDOMESTIC captures enum value "HHG_OUTOF_NTS_DOMESTIC"
+	MTOShipmentTypeHHGOUTOFNTSDOMESTIC MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+
 	// MTOShipmentTypeINTERNATIONALHHG captures enum value "INTERNATIONAL_HHG"
 	MTOShipmentTypeINTERNATIONALHHG MTOShipmentType = "INTERNATIONAL_HHG"
 
 	// MTOShipmentTypeINTERNATIONALUB captures enum value "INTERNATIONAL_UB"
 	MTOShipmentTypeINTERNATIONALUB MTOShipmentType = "INTERNATIONAL_UB"
+
+	// MTOShipmentTypeMOTORHOME captures enum value "MOTORHOME"
+	MTOShipmentTypeMOTORHOME MTOShipmentType = "MOTORHOME"
+
+	// MTOShipmentTypeBOATHAULAWAY captures enum value "BOAT_HAUL_AWAY"
+	MTOShipmentTypeBOATHAULAWAY MTOShipmentType = "BOAT_HAUL_AWAY"
+
+	// MTOShipmentTypeBOATTOWAWAY captures enum value "BOAT_TOW_AWAY"
+	MTOShipmentTypeBOATTOWAWAY MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
 // for schema
@@ -35,7 +62,7 @@ var mTOShipmentTypeEnum []interface{}
 
 func init() {
 	var res []MTOShipmentType
-	if err := json.Unmarshal([]byte(`["HHG","INTERNATIONAL_HHG","INTERNATIONAL_UB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["HHG","HHG_LONGHAUL_DOMESTIC","HHG_SHORTHAUL_DOMESTIC","HHG_INTO_NTS_DOMESTIC","HHG_OUTOF_NTS_DOMESTIC","INTERNATIONAL_HHG","INTERNATIONAL_UB","MOTORHOME","BOAT_HAUL_AWAY","BOAT_TOW_AWAY"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

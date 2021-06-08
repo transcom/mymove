@@ -44,7 +44,7 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(pickupPath string
 			ProcessEndedAt:   time.Now(),
 			NumEDIsProcessed: numProcessed,
 		}
-		s.logger.Info("EDIs processed", zap.Object("EDIs processed", &ediProcessing))
+		s.logger.Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
 
 		verrs, err := s.db.ValidateAndCreate(&ediProcessing)
 		if err != nil {
@@ -91,6 +91,8 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(pickupPath string
 				} else {
 					s.logger.Info("Deleted Syncada file", zap.String("path", filePath))
 				}
+			} else {
+				s.logger.Info("Delete sftp files: false", zap.String("path", filePath))
 			}
 		}
 	}

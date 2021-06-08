@@ -69,7 +69,7 @@ type PatchMTOShipmentStatusNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusNotFound creates PatchMTOShipmentStatusNotFound with default headers values
@@ -79,13 +79,13 @@ func NewPatchMTOShipmentStatusNotFound() *PatchMTOShipmentStatusNotFound {
 }
 
 // WithPayload adds the payload to the patch m t o shipment status not found response
-func (o *PatchMTOShipmentStatusNotFound) WithPayload(payload interface{}) *PatchMTOShipmentStatusNotFound {
+func (o *PatchMTOShipmentStatusNotFound) WithPayload(payload *ghcmessages.Error) *PatchMTOShipmentStatusNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status not found response
-func (o *PatchMTOShipmentStatusNotFound) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusNotFound) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -93,9 +93,11 @@ func (o *PatchMTOShipmentStatusNotFound) SetPayload(payload interface{}) {
 func (o *PatchMTOShipmentStatusNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -111,7 +113,7 @@ type PatchMTOShipmentStatusConflict struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusConflict creates PatchMTOShipmentStatusConflict with default headers values
@@ -121,13 +123,13 @@ func NewPatchMTOShipmentStatusConflict() *PatchMTOShipmentStatusConflict {
 }
 
 // WithPayload adds the payload to the patch m t o shipment status conflict response
-func (o *PatchMTOShipmentStatusConflict) WithPayload(payload interface{}) *PatchMTOShipmentStatusConflict {
+func (o *PatchMTOShipmentStatusConflict) WithPayload(payload *ghcmessages.Error) *PatchMTOShipmentStatusConflict {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status conflict response
-func (o *PatchMTOShipmentStatusConflict) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusConflict) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -135,9 +137,11 @@ func (o *PatchMTOShipmentStatusConflict) SetPayload(payload interface{}) {
 func (o *PatchMTOShipmentStatusConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(409)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -153,7 +157,7 @@ type PatchMTOShipmentStatusPreconditionFailed struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusPreconditionFailed creates PatchMTOShipmentStatusPreconditionFailed with default headers values
@@ -163,13 +167,13 @@ func NewPatchMTOShipmentStatusPreconditionFailed() *PatchMTOShipmentStatusPrecon
 }
 
 // WithPayload adds the payload to the patch m t o shipment status precondition failed response
-func (o *PatchMTOShipmentStatusPreconditionFailed) WithPayload(payload interface{}) *PatchMTOShipmentStatusPreconditionFailed {
+func (o *PatchMTOShipmentStatusPreconditionFailed) WithPayload(payload *ghcmessages.Error) *PatchMTOShipmentStatusPreconditionFailed {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status precondition failed response
-func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -177,16 +181,18 @@ func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload interface{
 func (o *PatchMTOShipmentStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(412)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // PatchMTOShipmentStatusUnprocessableEntityCode is the HTTP code returned for type PatchMTOShipmentStatusUnprocessableEntity
 const PatchMTOShipmentStatusUnprocessableEntityCode int = 422
 
-/*PatchMTOShipmentStatusUnprocessableEntity Validation error
+/*PatchMTOShipmentStatusUnprocessableEntity The payload was unprocessable.
 
 swagger:response patchMTOShipmentStatusUnprocessableEntity
 */
@@ -239,7 +245,7 @@ type PatchMTOShipmentStatusInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.Error `json:"body,omitempty"`
 }
 
 // NewPatchMTOShipmentStatusInternalServerError creates PatchMTOShipmentStatusInternalServerError with default headers values
@@ -249,13 +255,13 @@ func NewPatchMTOShipmentStatusInternalServerError() *PatchMTOShipmentStatusInter
 }
 
 // WithPayload adds the payload to the patch m t o shipment status internal server error response
-func (o *PatchMTOShipmentStatusInternalServerError) WithPayload(payload interface{}) *PatchMTOShipmentStatusInternalServerError {
+func (o *PatchMTOShipmentStatusInternalServerError) WithPayload(payload *ghcmessages.Error) *PatchMTOShipmentStatusInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch m t o shipment status internal server error response
-func (o *PatchMTOShipmentStatusInternalServerError) SetPayload(payload interface{}) {
+func (o *PatchMTOShipmentStatusInternalServerError) SetPayload(payload *ghcmessages.Error) {
 	o.Payload = payload
 }
 
@@ -263,8 +269,10 @@ func (o *PatchMTOShipmentStatusInternalServerError) SetPayload(payload interface
 func (o *PatchMTOShipmentStatusInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

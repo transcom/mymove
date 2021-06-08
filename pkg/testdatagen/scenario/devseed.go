@@ -1029,14 +1029,13 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 	})
 
 	// setup service item
-	reService := models.ReService{
-		ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating, Default
-	}
-	testdatagen.MergeModels(&reService, assertions.ReService)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	mtoServiceItem := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
+		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
-		ReService:   reService,
 	})
 
 	// using handler to create service item params
@@ -1373,26 +1372,12 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
-			Description: &dcrtDescription,
+			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 }
 
@@ -1920,27 +1905,13 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.Must(uuid.NewV4()),
-			Status:      models.MTOServiceItemStatusApproved,
-			Description: &dcrtDescription,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        move,
 		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	dcrtCost := unit.Cents(55555)
@@ -2370,27 +2341,13 @@ func createMoveWith2ShipmentsAndPaymentRequest(db *pop.Connection, userUploader 
 		},
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.Must(uuid.NewV4()),
-			Status:      models.MTOServiceItemStatusApproved,
-			Description: &dcrtDescription,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        move,
 		MTOShipment: hhgShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	dcrtCost := unit.Cents(55555)
@@ -3398,7 +3355,12 @@ func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
 
 func createHHGNeedsServicesCounseling(db *pop.Connection) {
 	submittedAt := time.Now()
-	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{})
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator:     "SRVCSL",
@@ -3439,6 +3401,9 @@ func createHHGNeedsServicesCounselingUSMC(db *pop.Connection, userUploader *uplo
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Move: models.Move{
 			Locator:     "USMCSS",
 			Status:      models.MoveStatusNeedsServiceCounseling,
@@ -3483,6 +3448,9 @@ func createHHGNeedsServicesCounselingUSMC2(db *pop.Connection, userUploader *upl
 	submittedAt := time.Now()
 
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Move: models.Move{
 			Locator:     "USMCSC",
 			Status:      models.MoveStatusNeedsServiceCounseling,
@@ -3518,6 +3486,9 @@ func createHHGServicesCounselingCompleted(db *pop.Connection) {
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Move: models.Move{
 			Locator:                      "CSLCMP",
 			Status:                       models.MoveStatusServiceCounselingCompleted,
@@ -3535,8 +3506,35 @@ func createHHGServicesCounselingCompleted(db *pop.Connection) {
 	})
 }
 
+func createHHGNoShipments(db *pop.Connection) {
+	submittedAt := time.Now()
+	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     "NOSHIP",
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: orders,
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
+	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	var allDutyStations []models.DutyStation
+	db.All(&allDutyStations)
+
+	var originDutyStationsInGBLOC []models.DutyStation
+	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		All(&originDutyStationsInGBLOC)
+
 	// PPM Office Queue
 	createPPMOfficeUser(db)
 	createPPMWithAdvance(db, userUploader)
@@ -3556,6 +3554,14 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createHHGNeedsServicesCounselingUSMC(db, userUploader)
 	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
 	createHHGServicesCounselingCompleted(db)
+	createHHGNoShipments(db)
+
+	for i := 0; i < 12; i++ {
+		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
+		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+			UserUploader: userUploader,
+		})
+	}
 
 	// TXO Queues
 	createTOO(db)
@@ -3589,6 +3595,20 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createHHGWithPaymentServiceItems(db, userUploader, primeUploader, routePlanner, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{})
 
 	createMoveWithPPMAndHHG(db, userUploader)
+
+	// Create diverted shipments that needs TOO approval
+	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move:         models.Move{Status: models.MoveStatusAPPROVALSREQUESTED, Locator: "DVRS0N"},
+		MTOShipment:  models.MTOShipment{Diversion: true},
+	})
+
+	// Create diverted shipments that are approved an appear on the Move Task Order page
+	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move:         models.Move{Status: models.MoveStatusAPPROVED, Locator: "APRDVS"},
+		MTOShipment:  models.MTOShipment{Diversion: true, Status: models.MTOShipmentStatusApproved},
+	})
 
 	// A move with missing required order fields
 	createMoveWithHHGMissingOrdersInfo(db, userUploader)

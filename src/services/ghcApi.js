@@ -120,6 +120,26 @@ export async function updateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.counselingUpdateOrder';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function updateAllowance({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateAllowance';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function counselingUpdateAllowance({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.counselingUpdateAllowance';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
+  const operationPath = 'customer.updateCustomer';
+  return makeGHCRequest(operationPath, { customerID: customerId, 'If-Match': ifMatchETag, body });
+}
+
 export function updateMoveStatus({ moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes, normalize = true }) {
   const operationPath = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return makeGHCRequest(
@@ -162,6 +182,43 @@ export function updateMTOShipmentStatus({
       shipmentID,
       'If-Match': ifMatchETag,
       body: { status: shipmentStatus, rejectionReason },
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function createMTOShipment({ body, normalize = true, schemaKey = 'mtoShipment' }) {
+  const operationPath = 'mtoShipment.createMTOShipment';
+  return makeGHCRequest(operationPath, { body }, { schemaKey, normalize });
+}
+
+export function updateMTOShipment({
+  moveTaskOrderID,
+  shipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shipment' }) {
+  const operationPath = 'shipment.deleteShipment';
+  return makeGHCRequest(
+    operationPath,
+    {
+      shipmentID,
     },
     { schemaKey, normalize },
   );

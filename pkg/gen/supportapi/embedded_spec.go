@@ -1086,6 +1086,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -1101,6 +1105,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -1583,6 +1592,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -1663,7 +1675,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -2231,7 +2246,9 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
@@ -3770,6 +3787,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -3785,6 +3806,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -4267,6 +4293,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "diversion": {
+          "type": "boolean"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -4347,7 +4376,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4915,7 +4947,9 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }

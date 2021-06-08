@@ -10,16 +10,16 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
 import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
-import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { shipmentStatuses } from 'constants/shipments';
 import LeftNav from 'components/LeftNav';
-import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
-import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
+import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
+import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
+import { useMoveDetailsQueries } from 'hooks/queries';
+import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -85,7 +85,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     },
   });
 
-  const submittedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED);
+  const submittedShipments = mtoShipments?.filter(
+    (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
+  );
   const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
 
   useEffect(() => {

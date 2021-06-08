@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/certs"
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
@@ -31,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 

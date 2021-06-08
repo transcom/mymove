@@ -7,12 +7,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeUser creates a single User.
+// MakeUser creates a single User
+// It will not replace a true assertion with false.
 func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 
 	user := models.User{
 		LoginGovEmail: "first.last@login.gov.test",
-		Active:        true,
+		Active:        false,
 	}
 
 	// Overwrite values with those from assertions
@@ -29,11 +30,17 @@ func MakeDefaultUser(db *pop.Connection) models.User {
 	return MakeUser(db, Assertions{
 		User: models.User{
 			LoginGovUUID: &lgu,
+			Active:       true,
 		},
 	})
 }
 
 // MakeStubbedUser returns a user without hitting the DB
 func MakeStubbedUser(db *pop.Connection) models.User {
-	return MakeUser(db, Assertions{Stub: true})
+	return MakeUser(db, Assertions{
+		User: models.User{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
 }

@@ -12,6 +12,8 @@ import (
 )
 
 func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -37,6 +39,8 @@ func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 }
 
 func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -63,6 +67,8 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 }
 
 func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -79,6 +85,8 @@ func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
 }
 
 func (suite *ModelSuite) TestShowPPMQueue() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	all := map[string]bool{
 		string(models.PPMStatusAPPROVED):         true,
 		string(models.PPMStatusPAYMENTREQUESTED): true,

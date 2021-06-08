@@ -8,15 +8,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestElectronicOrdersRevisionValidateAndCreate() {
+func (suite *ModelSuite) TestElectronicOrdersRevisionValidate() {
 	order := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
+		ID:           uuid.Must(uuid.NewV4()),
 	}
-	verrs, err := models.CreateElectronicOrder(suite.DB(), &order)
-	suite.NoError(err)
-	suite.NoVerrs(verrs)
 
 	rev := models.ElectronicOrdersRevision{
 		ElectronicOrderID: order.ID,
@@ -35,7 +33,8 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidateAndCreate() {
 		HasDependents:     true,
 	}
 
-	verrs, err = suite.DB().ValidateAndCreate(&rev)
+	verrs, err := rev.Validate(nil)
+
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
@@ -123,18 +122,19 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidations() {
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
-	order := models.ElectronicOrder{
+	order := &models.ElectronicOrder{
+		ID:           uuid.Must(uuid.NewV4()),
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
-	verrs, err := models.CreateElectronicOrder(suite.DB(), &order)
+	verrs, err := order.Validate(nil)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
-	rev := models.ElectronicOrdersRevision{
+	rev := &models.ElectronicOrdersRevision{
 		ElectronicOrderID: order.ID,
-		ElectronicOrder:   order,
+		ElectronicOrder:   *order,
 		SeqNum:            0,
 		GivenName:         "First",
 		FamilyName:        "Last",
@@ -149,24 +149,22 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
 		HasDependents:     true,
 	}
 
-	verrs, err = models.CreateElectronicOrdersRevision(suite.DB(), &rev)
+	verrs, err = rev.Validate(nil)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
-	order := models.ElectronicOrder{
+	order := &models.ElectronicOrder{
+		ID:           uuid.Must(uuid.NewV4()),
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
-	verrs, err := models.CreateElectronicOrder(suite.DB(), &order)
-	suite.NoError(err)
-	suite.NoVerrs(verrs)
 
-	rev0 := models.ElectronicOrdersRevision{
+	rev0 := &models.ElectronicOrdersRevision{
 		ElectronicOrderID: order.ID,
-		ElectronicOrder:   order,
+		ElectronicOrder:   *order,
 		SeqNum:            0,
 		GivenName:         "First",
 		FamilyName:        "Last",
@@ -181,13 +179,9 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		HasDependents:     true,
 	}
 
-	verrs, err = models.CreateElectronicOrdersRevision(suite.DB(), &rev0)
-	suite.NoError(err)
-	suite.NoVerrs(verrs)
-
-	rev1 := models.ElectronicOrdersRevision{
+	rev1 := &models.ElectronicOrdersRevision{
 		ElectronicOrderID: order.ID,
-		ElectronicOrder:   order,
+		ElectronicOrder:   *order,
 		SeqNum:            1,
 		GivenName:         "First",
 		FamilyName:        "Last",
@@ -202,7 +196,15 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		HasDependents:     true,
 	}
 
-	verrs, err = models.CreateElectronicOrdersRevision(suite.DB(), &rev1)
+	verrs, err := suite.DB().ValidateAndCreate(order)
+	suite.NoError(err)
+	suite.NoVerrs(verrs)
+
+	verrs, err = suite.DB().ValidateAndCreate(rev0)
+	suite.NoError(err)
+	suite.NoVerrs(verrs)
+
+	verrs, err = suite.DB().ValidateAndCreate(rev1)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 

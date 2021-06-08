@@ -28,22 +28,61 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 }
 
 func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
 	order.TAC = nil
-	err := move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
-	err = suite.DB().Load(&order, "Moves")
-	suite.NoError(err)
+	order.Moves = append(order.Moves, move)
 
 	expErrors := map[string][]string{
 		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
 	}
 
 	suite.verifyValidationErrors(&order, expErrors)
+}
+
+func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
+	validStatuses := []struct {
+		desc  string
+		value MoveStatus
+	}{
+		{"Draft", MoveStatusDRAFT},
+		{"NeedsServiceCounseling", MoveStatusNeedsServiceCounseling},
+	}
+	for _, validStatus := range validStatuses {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), validStatus.value)
+		order := move.Orders
+		order.TAC = nil
+		order.Moves = append(order.Moves, move)
+
+		expErrors := map[string][]string{}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
+func (suite *ModelSuite) TestTacFormat() {
+	invalidCases := []struct {
+		desc string
+		tac  string
+	}{
+		{"TestOneCharacter", "A"},
+		{"TestTwoCharacters", "AB"},
+		{"TestThreeCharacters", "ABC"},
+		{"TestGreaterThanFourChars", "ABCD1"},
+		{"TestNonAlphaNumChars", "AB-C"},
+	}
+	for _, invalidCase := range invalidCases {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+		order := move.Orders
+		order.TAC = &invalidCase.tac
+		order.Moves = append(order.Moves, move)
+
+		expErrors := map[string][]string{
+			"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
 }
 
 func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
@@ -55,16 +94,10 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 		{"Nil", nil},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 		order := move.Orders
 		order.OrdersNumber = invalidCase.value
-		err := move.Submit()
-		if err != nil {
-			suite.T().Fatal("Should transition.")
-		}
-		suite.MustSave(&move)
-		err = suite.DB().Load(&order, "Moves")
-		suite.NoError(err)
+		order.Moves = append(order.Moves, move)
 
 		expErrors := map[string][]string{
 			"orders_number": {"OrdersNumber cannot be blank."},
@@ -85,17 +118,10 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		{"Nil", nil},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 		order := move.Orders
-
 		order.OrdersTypeDetail = invalidCase.value
-		err := move.Submit()
-		if err != nil {
-			suite.T().Fatal("Should transition.")
-		}
-		suite.MustSave(&move)
-		err = suite.DB().Load(&order, "Moves")
-		suite.NoError(err)
+		order.Moves = append(order.Moves, move)
 
 		expErrors := map[string][]string{
 			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
@@ -106,16 +132,10 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
 	order.DepartmentIndicator = nil
-	err := move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
-	err = suite.DB().Load(&order, "Moves")
-	suite.NoError(err)
+	order.Moves = append(order.Moves, move)
 
 	expErrors := map[string][]string{
 		"department_indicator": {"DepartmentIndicator cannot be blank."},
@@ -125,6 +145,8 @@ func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
@@ -206,6 +228,8 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
@@ -253,6 +277,8 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -287,7 +313,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	suite.MustSave(&order)
 
 	// Submit Orders
-	err := order.Submit()
+	err = order.Submit()
 	suite.NoError(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
@@ -297,64 +323,9 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
 }
 
-func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
-
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	hasDependents := true
-	spouseHasProGear := true
-	uploadedOrder := Document{
-		ServiceMember:   serviceMember1,
-		ServiceMemberID: serviceMember1.ID,
-	}
-	deptIndicator := testdatagen.DefaultDepartmentIndicator
-	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.MustSave(&uploadedOrder)
-	orders := Order{
-		ServiceMemberID:     serviceMember1.ID,
-		ServiceMember:       serviceMember1,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyStation.ID,
-		NewDutyStation:      dutyStation,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		TAC:                 &TAC,
-		DepartmentIndicator: &deptIndicator,
-	}
-	suite.MustSave(&orders)
-
-	selectedMoveType := SelectedMoveTypeHHGPPM
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	move.Orders = orders
-	suite.MustSave(move)
-
-	err = move.Submit()
-	suite.NoError(err)
-
-	reason := "Mistaken identity"
-	err = move.Cancel(reason)
-	suite.NoError(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
-
-}
-
 func (suite *ModelSuite) TestSaveOrder() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 

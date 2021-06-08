@@ -164,3 +164,119 @@ func TestCapture(t *testing.T) {
 		}
 	})
 }
+
+func TestCaptureAccountStatus(t *testing.T) {
+	uuidStringOffice := "1127bdbd-0610-4e52-9f10-1fa3c063bad3"
+	officeUserID, _ := uuid.FromString(uuidStringOffice)
+	model := models.OfficeUser{
+		ID:        officeUserID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	logger := zap.NewNop()
+
+	uuidStringAdmin := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fc"
+	adminUserID, _ := uuid.FromString(uuidStringAdmin)
+
+	session := auth.Session{
+		AdminUserID: adminUserID,
+	}
+
+	req := &http.Request{
+		URL: &url.URL{
+			Path: "/admin/v1/admin_users",
+		},
+		Method: "POST",
+	}
+
+	t.Run("Sucessfully logs account enabled", func(t *testing.T) {
+		zapFields, _ := CaptureAccountStatus(&model, true, logger, &session, req)
+
+		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
+			assert.Equal(t, "audit_post_admin_users_active_status_changed", fieldsMap["event_type"])
+			assert.Equal(t, "true", fieldsMap["active_value"])
+		}
+	})
+
+	t.Run("Sucessfully logs account disabled", func(t *testing.T) {
+		zapFields, _ := CaptureAccountStatus(&model, false, logger, &session, req)
+
+		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
+			assert.Equal(t, "audit_post_admin_users_active_status_changed", fieldsMap["event_type"])
+			assert.Equal(t, "false", fieldsMap["active_value"])
+		}
+	})
+}
+
+func TestExtractResponsibleUser(t *testing.T) {
+	uuidStringAdmin := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fc"
+	adminUserID, _ := uuid.FromString(uuidStringAdmin)
+	uuidStringUser := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fb"
+	userID, _ := uuid.FromString(uuidStringUser)
+
+	userEmail := "test@fake.com"
+
+	session := auth.Session{
+		AdminUserID: adminUserID,
+		UserID:      userID,
+		Email:       userEmail,
+		FirstName:   "John",
+		LastName:    "Doe",
+	}
+
+	var zapFields []zap.Field
+
+	t.Run("Returns the require fields", func(t *testing.T) {
+		zapFields = extractResponsibleUser(&session)
+
+		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
+			assert.Equal(t, uuidStringUser, fieldsMap["responsible_user_id"])
+			assert.Equal(t, userEmail, fieldsMap["responsible_user_email"])
+			assert.Equal(t, "John Doe", fieldsMap["responsible_user_name"])
+		}
+	})
+}
+
+func TestExtractRecordInformation(t *testing.T) {
+	uuidStringUser := "4ad12fe7-1514-4b6b-a35d-ce68e6c5b1fb"
+	userID, _ := uuid.FromString(uuidStringUser)
+
+	model := &models.OfficeUser{
+		CreatedAt: time.Now(),
+		ID:        userID,
+		UpdatedAt: time.Now(),
+	}
+
+	item, _ := validateInterface(model)
+	var zapFields []zap.Field
+	t.Run("Returns the require fields", func(t *testing.T) {
+		zapFields = extractRecordInformation(item, model)
+
+		if assert.NotEmpty(t, zapFields) {
+			fieldsMap := map[string]string{}
+			for _, f := range zapFields {
+				fieldsMap[f.Key] = f.String
+			}
+
+			assert.Equal(t, uuidStringUser, fieldsMap["record_id"])
+			assert.Equal(t, "OfficeUser", fieldsMap["record_type"])
+			assert.Equal(t, model.CreatedAt.String(), fieldsMap["record_created_at"])
+			assert.Equal(t, model.UpdatedAt.String(), fieldsMap["record_updated_at"])
+		}
+	})
+}
