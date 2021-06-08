@@ -30,7 +30,7 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           {cardText}
         </div>
       </div>
-      <div>
+      <div className={styles.cardContainer}>
         <Radio
           id={id}
           label={label}
@@ -42,6 +42,11 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           labelDescription={cardText}
           tile
         />
+        {onHelpClick && (
+          <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+            <FontAwesomeIcon icon={['far', 'question-circle']} />
+          </Button>
+        )}
       </div>
     </div>
   );
