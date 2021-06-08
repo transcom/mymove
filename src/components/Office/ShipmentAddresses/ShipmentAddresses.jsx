@@ -1,6 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../types/address';
 import { formatAddress } from '../../../utils/shipmentDisplay';
@@ -13,7 +14,14 @@ const ShipmentAddresses = ({ pickupAddress, destinationAddress, originDutyStatio
   return (
     <DataPointGroup className={classnames('maxw-tablet', styles.mtoShipmentAddresses)}>
       <DataPoint
-        columnHeaders={['Authorized addresses', '']}
+        columnHeaders={[
+          'Authorized addresses',
+          <div className={styles.rightAlignButton}>
+            <Button type="button" onClick={() => {}} unstyled>
+              Request Diversion
+            </Button>
+          </div>,
+        ]}
         dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
         icon={<FontAwesomeIcon icon="arrow-right" />}
       />
