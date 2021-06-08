@@ -9539,10 +9539,10 @@ filepond-polyfill@^1.0.2:
   resolved "https://registry.yarnpkg.com/filepond-polyfill/-/filepond-polyfill-1.0.4.tgz#cd816b4eb595dabd4baff215a797cb57ee1997ed"
   integrity sha512-ERBcCzqXadQB4mUaG34IOCsLStVpuG3F4a/nyYYeJLAfBIkT9DbQcJpIqcRQM+T3DyiNi1iZnq3rusFcQRaSMg==
 
-filepond@^4.27.3:
-  version "4.27.3"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.27.3.tgz#7fe54cad8967d8518336f1934ad7792e2a5e0a43"
-  integrity sha512-3LYjT/YiVj1rnvtM8zo7k8sjrpDj3dLgiZ1SsL4c7Bx/ywT+LwGxeK+VAG+pqSwl7I8+2D5kcuKAgcnYF+EcTQ==
+filepond@^4.28.1:
+  version "4.28.1"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.28.1.tgz#d8ccdcd958554411434b37f3f828de8ea2563e2d"
+  integrity sha512-vy//xkDOW9xoYJLLZJabkpsZOWoWiKtugmTPXRPkvVMFsjOStYq2A8C/JHVGSYFIOQREE0BirzebN2Pf8OTjcw==
 
 filesize@6.1.0:
   version "6.1.0"
