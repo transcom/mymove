@@ -9,27 +9,6 @@ import styles from './SelectableCard.module.scss';
 const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked, onHelpClick }) => {
   return (
     <div>
-      <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
-        <div className={styles.cardTitle}>
-          <Radio
-            id={id}
-            label={label}
-            value={value}
-            name={name}
-            onChange={onChange}
-            checked={checked}
-            disabled={disabled}
-          />
-          {onHelpClick && (
-            <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
-              <FontAwesomeIcon icon={['far', 'question-circle']} />
-            </Button>
-          )}
-        </div>
-        <div data-testid="selectableCardText" className={styles.cardText}>
-          {cardText}
-        </div>
-      </div>
       <div className={styles.cardContainer}>
         <Radio
           id={id}
@@ -43,7 +22,14 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           tile
         />
         {onHelpClick && (
-          <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+          <Button
+            data-testid="helpButton"
+            type="button"
+            onClick={onHelpClick}
+            unstyled
+            className={styles.helpButton}
+            aria-label="help"
+          >
             <FontAwesomeIcon icon={['far', 'question-circle']} />
           </Button>
         )}
