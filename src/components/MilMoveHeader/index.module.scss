@@ -123,6 +123,11 @@
   // Static text in a nav item that is not a link or button
   .navText {
     @include u-padding-x(2);
+    @include u-font-size('body', '3xs');
+
+    @include at-media(tablet) {
+      @include u-font-size('body', 'xs');
+    }
   }
 
   .userInfo {
