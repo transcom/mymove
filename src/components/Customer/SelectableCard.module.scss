@@ -15,9 +15,11 @@
   :global(.usa-radio__label) {
     font-weight: bold;
   }
+
   :global(.usa-radio__input:disabled + .usa-radio__label) {
     color: $base-darkest;
   }
+
   :global(.usa-radio__label) {
     @include u-margin-top(0);
   }
@@ -38,11 +40,11 @@
   background-color: $info-light;
 }
 
-p + .cardContainer {
+p+.cardContainer {
   margin-top: 0px;
 }
 
-.cardContainer + .cardContainer {
+.cardContainer+.cardContainer {
   @include u-margin-top('105');
 }
 
@@ -52,9 +54,11 @@ p + .cardContainer {
   font-size: 13px;
   line-height: 1.25;
   @include u-padding-top(1);
+
   @media (min-width: $tablet) {
     padding-left: 2rem;
   }
+
   div {
     @include u-margin-bottom(1);
   }
@@ -81,5 +85,34 @@ p + .cardContainer {
     width: 24px !important;
     height: 24px;
     fill: $primary;
+  }
+}
+
+//i added this
+:global(.usa-checkbox__label),
+:global(.usa-radio__label) {
+  @include u-text('bold');
+}
+
+:global(.usa-radio__label):before {
+  @include u-margin-left(1);
+  @include u-margin-top(1);
+}
+
+:global(.usa-checkbox__label-description) {
+  //delete card text
+  font-weight: normal;
+  color: $base;
+  font-size: 13px;
+  line-height: 1.25;
+  @include u-padding-top(1);
+  transform: translate(-24px, -9px);
+
+  @media (min-width: $tablet) {
+    padding-left: 2rem;
+  }
+
+  div {
+    @include u-margin-bottom(1);
   }
 }
