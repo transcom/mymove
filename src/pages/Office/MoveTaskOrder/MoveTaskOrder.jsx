@@ -16,14 +16,12 @@ import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
 import LeftNav from 'components/LeftNav';
-import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
-import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
-import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
@@ -358,20 +356,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
-                <ImportantShipmentDates
-                  requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
-                  scheduledPickupDate={formattedScheduledPickup}
-                />
-                <ShipmentAddresses
-                  pickupAddress={pickupAddress}
-                  destinationAddress={destinationAddress || dutyStationPostal}
-                  originDutyStation={order.originDutyStation?.address}
-                  destinationDutyStation={order.destinationDutyStation?.address}
-                />
-                <ShipmentWeightDetails
-                  estimatedWeight={mtoShipment.primeEstimatedWeight}
-                  actualWeight={mtoShipment.primeActualWeight}
-                />
+                <ShipmentDetails shipment={mtoShipment} order={order} />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={requestedServiceItems}
