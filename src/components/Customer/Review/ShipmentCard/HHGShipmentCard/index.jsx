@@ -15,6 +15,7 @@ import { customerRoutes } from 'constants/routes';
 const HHGShipmentCard = ({
   destinationLocation,
   destinationZIP,
+  secondaryDestinationLocation,
   moveId,
   onEditClick,
   pickupLocation,
@@ -67,6 +68,7 @@ const HHGShipmentCard = ({
             shipmentType={shipmentType}
             requestedDeliveryDate={requestedDeliveryDate}
             destinationLocation={destinationLocation}
+            secondaryDestinationLocation={secondaryDestinationLocation}
             destinationZIP={destinationZIP}
             receivingAgent={receivingAgent}
           />
@@ -91,6 +93,7 @@ HHGShipmentCard.propTypes = {
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
   destinationLocation: AddressShape,
+  secondaryDestinationLocation: AddressShape,
   releasingAgent: shape({
     firstName: string,
     lastName: string,
@@ -111,6 +114,7 @@ HHGShipmentCard.propTypes = {
 
 HHGShipmentCard.defaultProps = {
   destinationLocation: null,
+  secondaryDestinationLocation: null,
   releasingAgent: null,
   receivingAgent: null,
   remarks: '',
