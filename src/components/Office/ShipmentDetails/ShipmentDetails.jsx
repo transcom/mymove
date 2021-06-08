@@ -29,7 +29,7 @@ const ShipmentDetails = ({ shipment, order }) => {
         agents={shipment.mtoAgents || shipment.agents}
         secondaryAddresses={{
           secondaryPickupAddress: shipment.secondaryPickupAddress,
-          secondaryDestinationAddress: shipment.secondaryDestinationAddress,
+          secondaryDestinationAddress: shipment.secondaryDeliveryAddress,
         }}
       />
     </div>

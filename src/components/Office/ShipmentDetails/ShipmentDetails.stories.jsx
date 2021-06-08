@@ -27,7 +27,7 @@ const shipment = {
     state: 'TX',
     postal_code: '78722',
   },
-  secondaryDestinationAddress: {
+  secondaryDeliveryAddress: {
     street_address_1: '17 8th St',
     city: 'Austin',
     state: 'TX',
