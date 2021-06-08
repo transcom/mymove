@@ -10,7 +10,7 @@ import (
 )
 
 // AccessCodeValidator is the service object interface for ValidateAccessCode
-//go:generate mockery --name AccessCodeValidator
+//go:generate mockery --name AccessCodeValidator test
 type AccessCodeValidator interface {
 	ValidateAccessCode(code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error)
 }
