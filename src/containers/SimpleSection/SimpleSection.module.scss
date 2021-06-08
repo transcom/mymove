@@ -3,6 +3,8 @@
 @import 'shared/styles/colors';
 
 .SimpleSection {
+  @include u-line-height('body', 2);
+
   header {
     color: $base-darker;
     @include u-font-size('body', '3xs');
@@ -11,9 +13,7 @@
     @include u-border-bottom('1px');
     @include u-border-bottom('base-lighter');
     @include u-margin-bottom(1);
-
-    @include u-padding-x(1);
-    @include u-padding-y(.5);
+    @include u-padding(1);
   }
 
   > :not(header) {
