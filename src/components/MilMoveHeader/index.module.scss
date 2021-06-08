@@ -129,6 +129,10 @@
     display: flex;
     align-self: stretch;
 
+    :global(.usa-nav__primary button) {
+      @include u-font-size('body', '3xs')
+    }
+
     @include at-media(tablet) {
       border-left: 1px solid $base-dark;
 
@@ -139,6 +143,10 @@
       :global(.usa-nav__primary-item):last-child {
         @include u-margin-right(2);
         @include u-margin-left(2);
+      }
+
+      :global(.usa-nav__primary button) {
+        @include u-font-size('body', 'xs')
       }
     }
   }
