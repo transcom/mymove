@@ -78,7 +78,7 @@ const ShipmentApprovalPreview = ({
                         originAddress={shipment.pickupAddress}
                         secondPickupAddress={shipment.secondaryPickupAddress}
                         destinationAddress={
-                          shipment.destinationAddress || ordersInfo.newDutyStation.address.postal_code
+                          shipment.destinationAddress || { postal_code: ordersInfo.newDutyStation.address.postal_code }
                         }
                         secondDestinationAddress={shipment.secondaryDeliveryAddress}
                         agents={shipment.mtoAgents}
