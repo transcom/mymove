@@ -49,6 +49,7 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[1].phone).toBe('222-555-0101');
     expect(actual.agents[1].agentType).toBe('RECEIVING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
+    expect(actual.secondaryPickupAddress).toBeUndefined();
   });
 
   it('can format an NTSr shipment', () => {
@@ -109,5 +110,56 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.agents[0].phone).toBe('222-555-1234');
     expect(actual.agents[0].agentType).toBe('RECEIVING_AGENT');
     expect(actual.customerRemarks).toBe('some mock remarks');
+  });
+
+  it('can format an HHG shipment with a secondary pickup', () => {
+    const params = {
+      moveId: 'move123',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      customerRemarks: 'some mock remarks',
+      pickup: {
+        requestedDate: 'Jan 7, 2026',
+        address: {
+          street_address_1: '123 main',
+          city: 'legit human city',
+          state: 'DC',
+          postal_code: '20017',
+        },
+        agent: {
+          firstName: 'mockFirstName',
+          lastName: 'mockLastName',
+          email: 'mockAgentEmail@example.com',
+          phone: '2225551234',
+        },
+      },
+      secondaryPickup: {
+        address: {
+          street_address_1: '142 E Barrel Hoop Circle',
+          street_address_2: '#4A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postal_code: '78412',
+        },
+      },
+      delivery: {
+        requestedDate: 'Jan 27, 2026',
+        address: {
+          street_address_1: '0011100010110101',
+          city: 'R0B0T T0WN',
+          state: 'CP',
+          postal_code: '10101',
+        },
+        agent: {
+          firstName: 'r0b0tBestFr1end',
+          lastName: 'r0b0tBestFr1endLastName',
+          email: 'r0b0t-fr1end@example.com',
+          phone: '2225550101',
+        },
+      },
+    };
+
+    const actual = formatMtoShipmentForAPI(params);
+    expect(actual.secondaryPickupAddress).not.toBeUndefined();
+    expect(actual.secondaryPickupAddress.street_address_1).toEqual('142 E Barrel Hoop Circle');
   });
 });
