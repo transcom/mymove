@@ -9,7 +9,7 @@
     @include u-font('body', 'xs');
     @include u-line-height('body', 2);
 
-    .noborder {
+    .noBorder {
       @include u-border(0);
     }
   }
