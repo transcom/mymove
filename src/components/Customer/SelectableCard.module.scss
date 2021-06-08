@@ -92,6 +92,7 @@ p+.cardContainer {
 :global(.usa-checkbox__label),
 :global(.usa-radio__label) {
   @include u-text('bold');
+  border-radius: 2px;
 }
 
 :global(.usa-radio__label):before {
@@ -124,8 +125,6 @@ p+.cardContainer {
 }
 
 .helpButton {
-  margin: -10px;
-  margin-top: -9px;
   padding: 10px; // Required to get to 44px for touch area
   position: absolute;
   top: 16px;
@@ -148,4 +147,10 @@ p+.cardContainer {
     height: 24px;
     fill: $primary;
   }
+}
+
+:global(.usa-radio__input--tile:checked + .usa-radio__label) {
+  @include u-shadow(2);
+  background-color: $info-light;
+  border: 2px solid $base-lighter;
 }
