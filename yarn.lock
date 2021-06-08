@@ -16427,10 +16427,10 @@ queue-microtask@^1.2.2:
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.2.tgz#abf64491e6ecf0f38a6502403d4cda04f372dfd3"
   integrity sha512-dB15eXv3p2jDlbOiNLyMabYg1/sXvppd8DP2J3EOCQ0AkuSXCW2tP7mnVouVLJKgUMY6yP0kcQDVpLCN13h4Xg==
 
-ra-core@^3.15.2:
-  version "3.15.2"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.15.2.tgz#a1e66d50d028554e4cf6562ad132480837d64f59"
-  integrity sha512-Ba7+j/g3deKj7AgFn0BItC3jDfmpwzojG+v2QlJKx5k9WOf6yu3ZRjBbArn3RVziap4WYmsDYCQPxORC/wWIHA==
+ra-core@^3.15.2, ra-core@^3.16.0:
+  version "3.16.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.16.0.tgz#359ceb23dbbc0cf7159f48c33cefbd871baedd3d"
+  integrity sha512-BskRNU//ZJrP1qoWZl9u7t/PidbKavOUoSrBFqefPYRBdQ+HY+JON2ci0s2ZN6WiHzGVRcOylsiRfSva4AsN2w==
   dependencies:
     classnames "~2.2.5"
     date-fns "^1.29.0"
@@ -16456,12 +16456,12 @@ ra-i18n-polyglot@^3.15.2:
     node-polyglot "^2.2.2"
     ra-core "^3.15.2"
 
-ra-language-english@^3.13.0, ra-language-english@^3.15.2:
-  version "3.15.2"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.15.2.tgz#1eea58e4c8009616c77e4e21b0fe2fae54159f38"
-  integrity sha512-jFSqF8Qsf0ENraw44P5pBYNHXxyPsA48ACbTR95Ds0az2s7BAHRxLL6g57PbCaad5ND6Jl6phjJqbfQt0DizQg==
+ra-language-english@^3.15.2, ra-language-english@^3.16.0:
+  version "3.16.0"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.16.0.tgz#beb245709f69be2dad75d3ea2d27877154ad0d69"
+  integrity sha512-z6dKGwM/J0EFREXTWShm12s/Z/bJH0bhr6EGGzkr2zz68xOVQ4nw6pHSzW2fDY/bDSBcoWcZyr7fbgn5X6hRAw==
   dependencies:
-    ra-core "^3.15.2"
+    ra-core "^3.16.0"
 
 ra-ui-materialui@^3.15.2:
   version "3.15.2"
