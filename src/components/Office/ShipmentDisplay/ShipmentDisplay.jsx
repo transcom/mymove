@@ -6,7 +6,7 @@ import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import ShipmentInfoList from 'components/Office/ShipmentInfoList/ShipmentInfoList';
+import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';

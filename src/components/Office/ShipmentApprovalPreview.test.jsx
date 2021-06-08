@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import ShipmentContainer from './ShipmentContainer';
-import ShipmentInfoList from './ShipmentInfoList/ShipmentInfoList';
+import ShipmentInfoList from './DefinitionLists/ShipmentInfoList';
 import AllowancesList from './DefinitionLists/AllowancesList';
 import CustomerInfoList from './DefinitionLists/CustomerInfoList';
 
