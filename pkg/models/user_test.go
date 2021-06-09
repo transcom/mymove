@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
+	userroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -184,6 +185,73 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
+}
+
+func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
+	err := suite.TruncateAll()
+	suite.FatalNoError(err)
+
+	// creates a custom comparison function for testing the role type
+	compareRoleTypeLists := func(expectedList roles.Roles, actualList roles.Roles) func() (success bool) {
+		return func() (success bool) {
+			// compare length first
+			if len(expectedList) != len(actualList) {
+				return false
+			}
+
+			// then compare the role type
+			// types are unique so we shouldn't run into duplicates
+			for _, expectedRole := range expectedList {
+				roleMatches := false
+				for _, actualRole := range actualList {
+					if expectedRole.RoleType == actualRole.RoleType {
+						roleMatches = true
+						break
+					}
+				}
+
+				if !roleMatches {
+					return false
+				}
+			}
+
+			return true
+		}
+	}
+
+	/*
+		Test that user identity is properly fetched
+	*/
+	// this creates a user with TOO, TIO, and Services Counselor roles
+	multiRoleUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{})
+	identity, err := FetchUserIdentity(suite.DB(), multiRoleUser.User.LoginGovUUID.String())
+	suite.Nil(err, "failed to fetch user identity")
+	suite.Equal(*multiRoleUser.UserID, identity.ID)
+	suite.Condition(compareRoleTypeLists(multiRoleUser.User.Roles, identity.Roles)) //(multiRoleUser.User.Roles, identity.Roles)
+
+	/*
+		Test that user identity is properly fetched after deleting roles
+	*/
+	// then update user roles to soft delete
+	userRoles := userroles.NewUsersRolesCreator(suite.DB())
+	// we'll be soft deleting the services counselor role
+	updateToRoles := []roles.RoleType{
+		roles.RoleTypeTOO,
+		roles.RoleTypeTIO,
+	}
+	_, err = userRoles.UpdateUserRoles(*multiRoleUser.UserID, updateToRoles)
+	suite.NoError(err)
+
+	// re-fetch user identity and check roles
+	identity, err = FetchUserIdentity(suite.DB(), multiRoleUser.User.LoginGovUUID.String())
+	suite.Nil(err, "failed to fetch user identity")
+	suite.Equal(*multiRoleUser.UserID, identity.ID)
+
+	expectedRoles := roles.Roles{
+		roles.Role{RoleType: roles.RoleTypeTOO},
+		roles.Role{RoleType: roles.RoleTypeTIO},
+	}
+	suite.Condition(compareRoleTypeLists(expectedRoles, identity.Roles))
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {
