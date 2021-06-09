@@ -65,41 +65,45 @@ describe('Shipment Info List', () => {
     render(<ShipmentInfoList {...info} />);
 
     const requestedMoveDate = screen.getByText(labels.requestedMoveDate);
-    expect(within(requestedMoveDate.parentElement).getByText('26 Mar 2020')).toBeTruthy();
+    expect(within(requestedMoveDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
 
     const originAddress = screen.getByText(labels.originAddress);
     expect(
       within(originAddress.parentElement).getByText(info.originAddress.street_address_1, { exact: false }),
-    ).toBeTruthy();
+    ).toBeInTheDocument();
 
     const secondPickupAddress = screen.getByText(labels.secondPickupAddress);
     expect(
-      within(secondPickupAddress.parentElement).getByText(info.secondPickupAddress.street_address_1, { exact: false }),
-    ).toBeTruthy();
+      within(secondPickupAddress.parentElement).getByText(info.secondPickupAddress.street_address_1, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
 
     const destinationAddress = screen.getByText(labels.destinationAddress);
     expect(
-      within(destinationAddress.parentElement).getByText(info.destinationAddress.street_address_1, { exact: false }),
-    ).toBeTruthy();
+      within(destinationAddress.parentElement).getByText(info.destinationAddress.street_address_1, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
 
     const secondDestinationAddress = screen.getByText(labels.secondDestinationAddress);
     expect(
       within(secondDestinationAddress.parentElement).getByText(info.secondDestinationAddress.street_address_1, {
         exact: false,
       }),
-    ).toBeTruthy();
+    ).toBeInTheDocument();
 
     const releasingAgent = screen.getByText(labels.agents[0]);
-    expect(within(releasingAgent.parentElement).getByText(info.agents[0].email, { exact: false })).toBeTruthy();
+    expect(within(releasingAgent.parentElement).getByText(info.agents[0].email, { exact: false })).toBeInTheDocument();
 
     const receivingAgent = screen.getByText(labels.agents[1]);
-    expect(within(receivingAgent.parentElement).getByText(info.agents[1].email, { exact: false })).toBeTruthy();
+    expect(within(receivingAgent.parentElement).getByText(info.agents[1].email, { exact: false })).toBeInTheDocument();
 
     const counselorRemarks = screen.getByText(labels.counselorRemarks);
-    expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeTruthy();
+    expect(within(counselorRemarks.parentElement).getByText(info.counselorRemarks)).toBeInTheDocument();
 
     const customerRemarks = screen.getByText(labels.customerRemarks);
-    expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeTruthy();
+    expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 
   it('does not render secondary addresses or agents when not provided', () => {
@@ -111,9 +115,9 @@ describe('Shipment Info List', () => {
       />,
     );
 
-    expect(screen.queryByText(labels.secondPickupAddress)).toBeFalsy();
-    expect(screen.queryByText(labels.secondDestinationAddress)).toBeFalsy();
-    expect(screen.queryByText(labels.agents[0])).toBeFalsy();
-    expect(screen.queryByText(labels.agents[1])).toBeFalsy();
+    expect(screen.queryByText(labels.secondPickupAddress)).toBeNull();
+    expect(screen.queryByText(labels.secondDestinationAddress)).toBeNull();
+    expect(screen.queryByText(labels.agents[0])).toBeNull();
+    expect(screen.queryByText(labels.agents[1])).toBeNull();
   });
 });
