@@ -52,6 +52,9 @@ const GhcApproveShipmentEndpointKey = "Ghc.ApproveShipment"
 // GhcApproveShipmentDiversionEndpointKey is the key for the approveShipmentDiversion endpoint in ghc
 const GhcApproveShipmentDiversionEndpointKey = "Ghc.ApproveShipmentDiversion"
 
+// GhcRejectShipmentEndpointKey is the key for the rejectShipment endpoint in ghc
+const GhcRejectShipmentEndpointKey = "Ghc.RejectShipment"
+
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
 
@@ -158,6 +161,10 @@ var ghcEndpoints = EndpointMapType{
 	GhcApproveShipmentDiversionEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "approveShipmentDiversion",
+	},
+	GhcRejectShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "rejectShipment",
 	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,

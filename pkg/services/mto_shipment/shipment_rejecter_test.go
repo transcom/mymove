@@ -14,30 +14,28 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
+func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 	router := NewShipmentRouter(suite.DB())
-	approver := NewShipmentDiversionApprover(suite.DB(), router)
+	approver := NewShipmentRejecter(suite.DB(), router)
+	reason := "reason"
 
-	suite.T().Run("If the shipment diversion is approved successfully, it should update the shipment status in the DB", func(t *testing.T) {
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
-			},
-		})
+	suite.T().Run("If the shipment rejection is approved successfully, it should update the shipment status in the DB", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		divertedShipment, err := approver.ApproveShipmentDiversion(shipment.ID, shipmentEtag)
+		rejectedShipment, err := approver.RejectShipment(shipment.ID, shipmentEtag, &reason)
 
 		suite.NoError(err)
-		suite.Equal(shipment.MoveTaskOrderID, divertedShipment.MoveTaskOrderID)
+		suite.Equal(shipment.MoveTaskOrderID, rejectedShipment.MoveTaskOrderID)
 
 		err = suite.DB().Find(&fetchedShipment, shipment.ID)
 		suite.NoError(err)
 
-		suite.Equal(models.MTOShipmentStatusApproved, fetchedShipment.Status)
+		suite.Equal(models.MTOShipmentStatusRejected, fetchedShipment.Status)
 		suite.Equal(shipment.ID, fetchedShipment.ID)
-		suite.Equal(divertedShipment.ID, fetchedShipment.ID)
+		suite.Equal(rejectedShipment.ID, fetchedShipment.ID)
+		suite.Equal(&reason, fetchedShipment.RejectionReason)
 	})
 
 	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
@@ -48,7 +46,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err := approver.ApproveShipmentDiversion(rejectedShipment.ID, eTag)
+		_, err := approver.RejectShipment(rejectedShipment.ID, eTag, &reason)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -56,13 +54,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 
 	suite.T().Run("Passing in a stale identifier returns a PreconditionFailedError", func(t *testing.T) {
 		staleETag := etag.GenerateEtag(time.Now())
-		staleShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
-			},
-		})
+		staleShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 
-		_, err := approver.ApproveShipmentDiversion(staleShipment.ID, staleETag)
+		_, err := approver.RejectShipment(staleShipment.ID, staleETag, &reason)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -72,29 +66,36 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err := approver.ApproveShipmentDiversion(badShipmentID, eTag)
+		_, err := approver.RejectShipment(badShipmentID, eTag, &reason)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
-	suite.T().Run("It calls ApproveDiversion on the ShipmentRouter", func(t *testing.T) {
+	suite.T().Run("Passing in an empty rejection reason returns an InvalidInputError", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		emptyReason := ""
+
+		_, err := approver.RejectShipment(shipment.ID, eTag, &emptyReason)
+
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("It calls Reject on the ShipmentRouter", func(t *testing.T) {
 		shipmentRouter := &mocks.ShipmentRouter{}
-		approver := NewShipmentDiversionApprover(suite.DB(), shipmentRouter)
-		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
-			},
-		})
+		rejecter := NewShipmentRejecter(suite.DB(), shipmentRouter)
+		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
 		createdShipment := models.MTOShipment{}
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		shipmentRouter.On("ApproveDiversion", &createdShipment).Return(nil)
+		shipmentRouter.On("Reject", &createdShipment, &reason).Return(nil)
 
-		_, err = approver.ApproveShipmentDiversion(shipment.ID, eTag)
+		_, err = rejecter.RejectShipment(shipment.ID, eTag, &reason)
 
 		suite.NoError(err)
 	})

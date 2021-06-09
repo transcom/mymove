@@ -441,7 +441,7 @@ type ApproveShipmentDiversionHandler struct {
 	services.ShipmentDiversionApprover
 }
 
-// Handle approves a shipment
+// Handle approves a shipment diversion
 func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipmentDiversionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -495,5 +495,69 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(s
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		logger.Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
+	}
+}
+
+// RejectShipmentHandler approves a shipment diversion
+type RejectShipmentHandler struct {
+	handlers.HandlerContext
+	services.ShipmentRejecter
+}
+
+// Handle approves a shipment rejection
+func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("Only TOO role can reject shipments")
+		return shipmentops.NewRejectShipmentForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	eTag := params.IfMatch
+	rejectionReason := params.Body.RejectionReason
+	shipment, err := h.RejectShipment(shipmentID, eTag, rejectionReason)
+
+	if err != nil {
+		logger.Error("ApproveShipment error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewRejectShipmentNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "RejectShipment", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewRejectShipmentUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewRejectShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case mtoshipment.ConflictStatusError:
+			return shipmentops.NewRejectShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewRejectShipmentInternalServerError()
+		}
+	}
+
+	h.triggerShipmentRejectionEvent(shipmentID, shipment.MoveTaskOrderID, params)
+
+	payload := payloads.MTOShipment(shipment)
+	return shipmentops.NewRejectShipmentOK().WithPayload(payload)
+}
+
+func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RejectShipmentParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcRejectShipmentEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentRejectEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
+		MtoID:           moveID,                       // ID of the associated Move
+		Request:         params.HTTPRequest,           // Pass on the http.Request
+		DBConnection:    h.DB(),                       // Pass on the pop.Connection
+		HandlerContext:  h,                            // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.RejectShipmentHandler could not generate the event", zap.Error(err))
 	}
 }

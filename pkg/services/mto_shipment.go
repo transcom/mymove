@@ -34,6 +34,12 @@ type ShipmentDiversionApprover interface {
 	ApproveShipmentDiversion(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
+//ShipmentRejecter is the service object interface for approving a shipment
+//go:generate mockery --name ShipmentRejecter
+type ShipmentRejecter interface {
+	RejectShipment(shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error)
+}
+
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
