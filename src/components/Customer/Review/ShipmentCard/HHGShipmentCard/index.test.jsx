@@ -40,8 +40,8 @@ const defaultProps = {
     'This is 500 characters of customer remarks right here. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
 };
 
-const secondaryDestinationLocation = {
-  secondaryDestinationLocation: {
+const secondaryDeliveryAddress = {
+  secondaryDeliveryAddress: {
     street_address_1: 'Some Street Name',
     city: 'New York',
     state: 'NY',
@@ -115,7 +115,7 @@ describe('HHGShipmentCard component', () => {
   });
 
   it('should render a secondary destination location if provided one', async () => {
-    render(<HHGShipmentCard {...defaultProps} {...secondaryDestinationLocation} />);
+    render(<HHGShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
 
     const secondDestination = await screen.getByText('Second Destination');
     expect(secondDestination).toBeInTheDocument();

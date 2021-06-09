@@ -176,7 +176,7 @@ export class Summary extends Component {
         <HHGShipmentCard
           key={shipment.id}
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
-          secondaryDestinationLocation={shipment?.secondaryDeliveryAddress}
+          secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}

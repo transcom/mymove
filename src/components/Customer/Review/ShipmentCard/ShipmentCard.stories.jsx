@@ -85,8 +85,8 @@ const ppmDefaultProps = {
   originZIP: '00000',
 };
 
-const secondaryDestinationLocation = {
-  secondaryDestinationLocation: {
+const secondaryDeliveryAddress = {
+  secondaryDeliveryAddress: {
     street_address_1: '17 8th St',
     city: 'New York',
     state: 'NY',
@@ -108,7 +108,7 @@ export default {
 export const HHGShipment = () => <HHGShipmentCard {...hhgDefaultProps} />;
 
 export const HHGShipmentWithSecondaryDestinationAddress = () => (
-  <HHGShipmentCard {...hhgDefaultProps} {...secondaryDestinationLocation} />
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryDeliveryAddress} />
 );
 
 export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
@@ -116,7 +116,7 @@ export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
 export const NTSRShipment = () => <NTSRShipmentCard {...ntsrDefaultProps} />;
 
 export const NTSRShipmentWithSecondaryDestinationAddress = () => (
-  <NTSRShipmentCard {...ntsrDefaultProps} {...secondaryDestinationLocation} />
+  <NTSRShipmentCard {...ntsrDefaultProps} {...secondaryDeliveryAddress} />
 );
 
 export const PPMShipment = () => <PPMShipmentCard {...ppmDefaultProps} />;

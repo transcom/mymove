@@ -11,7 +11,7 @@ import { formatCustomerDestination } from 'utils/shipmentDisplay';
 const DeliveryDisplay = ({
   destinationLocation,
   destinationZIP,
-  secondaryDestinationLocation,
+  secondaryDeliveryAddress,
   receivingAgent,
   requestedDeliveryDate,
 }) => {
@@ -25,10 +25,10 @@ const DeliveryDisplay = ({
         <dt>Destination</dt>
         <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
       </div>
-      {secondaryDestinationLocation && (
+      {secondaryDeliveryAddress && (
         <div className={styles.row}>
           <dt>Second Destination</dt>
-          <dd>{formatCustomerDestination(secondaryDestinationLocation)}</dd>
+          <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
         </div>
       )}
 
@@ -56,7 +56,7 @@ const DeliveryDisplay = ({
 
 DeliveryDisplay.propTypes = {
   destinationLocation: AddressShape,
-  secondaryDestinationLocation: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
   requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
   receivingAgent: shape({
@@ -69,7 +69,7 @@ DeliveryDisplay.propTypes = {
 
 DeliveryDisplay.defaultProps = {
   destinationLocation: null,
-  secondaryDestinationLocation: null,
+  secondaryDeliveryAddress: null,
   receivingAgent: null,
 };
 
