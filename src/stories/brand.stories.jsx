@@ -14,7 +14,7 @@ export const MilmoveLogo = () => (
 );
 
 export const TranscomLogo = () => (
-  <div>
+  <div style={{ maxWidth: '300px' }}>
     <TcmLogo />
   </div>
 );

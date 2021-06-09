@@ -409,6 +409,19 @@
         "m_contactInfo",
         "d_contactInfo"
       ]
+    },
+    {
+      "path": "src/stories/brand.stories.jsx",
+      "zeplinNames": [
+        "milmove-logo",
+        "milmove-logo--name"
+      ],
+      "storybook": {
+        "kind": "Global/Brand",
+        "stories": [
+          "MilmoveLogo"
+        ]
+      }
     }
   ],
   "github": {
