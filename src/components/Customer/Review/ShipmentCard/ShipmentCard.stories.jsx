@@ -115,4 +115,8 @@ export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
 
 export const NTSRShipment = () => <NTSRShipmentCard {...ntsrDefaultProps} />;
 
+export const NTSRShipmentWithSecondaryDestinationAddress = () => (
+  <NTSRShipmentCard {...ntsrDefaultProps} {...secondaryDestinationLocation} />
+);
+
 export const PPMShipment = () => <PPMShipmentCard {...ppmDefaultProps} />;
