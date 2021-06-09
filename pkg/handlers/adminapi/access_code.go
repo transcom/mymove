@@ -1,10 +1,7 @@
 package adminapi
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -40,12 +37,21 @@ func payloadForOfficeAccessCodeModel(accessCode models.AccessCode) *adminmessage
 	}
 }
 
+var accessCodeFilterConverters = map[string]func(string) []services.QueryFilter{
+	"move_type": func(content string) []services.QueryFilter {
+		return []services.QueryFilter{query.NewQueryFilter("move_type", "=", content)}
+	},
+	"code": func(content string) []services.QueryFilter {
+		return []services.QueryFilter{query.NewQueryFilter("code", "=", content)}
+	},
+}
+
 // Handle retrieves a list of access codes
 func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
-	queryFilters := h.generateQueryFilters(params.Filter, logger)
+	queryFilters := generateQueryFilters(logger, params.Filter, accessCodeFilterConverters)
 	queryAssociations := []services.QueryAssociation{
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
@@ -69,32 +75,4 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 	}
 
 	return accesscodeop.NewIndexAccessCodesOK().WithContentRange(fmt.Sprintf("access codes %d-%d/%d", pagination.Offset(), pagination.Offset()+accessCodesCount, totalAccessCodeCount)).WithPayload(payload)
-}
-
-// generateQueryFilters is helper to convert filter params from a json string
-// of the form `{"move_type": "PPM" "code": "XYZBCS"}` to an array of services.QueryFilter
-func (h IndexAccessCodesHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
-	type Filter struct {
-		MoveType string `json:"move_type"`
-		Code     string `json:"code"`
-	}
-	f := Filter{}
-	var queryFilters []services.QueryFilter
-	if filters == nil {
-		return queryFilters
-	}
-	b := []byte(*filters)
-	err := json.Unmarshal(b, &f)
-	if err != nil {
-		fs := fmt.Sprintf("%v", filters)
-		logger.Warn("unable to decode param", zap.Error(err),
-			zap.String("filters", fs))
-	}
-	if f.MoveType != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("move_type", "=", f.MoveType))
-	}
-	if f.Code != "" && len(f.Code) == 6 {
-		queryFilters = append(queryFilters, query.NewQueryFilter("code", "=", f.Code))
-	}
-	return queryFilters
 }

@@ -124,15 +124,21 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 		Order: orders,
 	})
 
+	shipmentStatus := models.MTOShipmentStatusSubmitted
+	if assertions.MTOShipment.Status != "" {
+		shipmentStatus = assertions.MTOShipment.Status
+	}
+
 	laterRequestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	laterRequestedDeliveryDate := laterRequestedPickupDate.Add(7 * 24 * time.Hour)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
 			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
+			Status:                shipmentStatus,
 			RequestedPickupDate:   &laterRequestedPickupDate,
 			RequestedDeliveryDate: &laterRequestedDeliveryDate,
+			Diversion:             assertions.MTOShipment.Diversion,
 		},
 	})
 
@@ -142,9 +148,10 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 		Move: move,
 		MTOShipment: models.MTOShipment{
 			ShipmentType:          models.MTOShipmentTypeHHG,
-			Status:                models.MTOShipmentStatusSubmitted,
+			Status:                shipmentStatus,
 			RequestedPickupDate:   &earlierRequestedPickupDate,
 			RequestedDeliveryDate: &earlierRequestedDeliveryDate,
+			Diversion:             assertions.MTOShipment.Diversion,
 		},
 	})
 }

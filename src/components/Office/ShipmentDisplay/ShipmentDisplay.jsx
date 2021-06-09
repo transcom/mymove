@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
+import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
@@ -32,9 +32,12 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           )}
 
           {showIcon && !isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
-          <h3>
-            <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-          </h3>
+          <div className={styles.headingTagWrapper}>
+            <h3>
+              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+            </h3>
+            {displayInfo.isDiversion && <Tag>diversion</Tag>}
+          </div>
 
           <FontAwesomeIcon icon="chevron-down" />
         </div>
@@ -44,13 +47,27 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <dd>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Current address</dt>
-            <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
+            <dt>Origin address</dt>
+            <dd>{displayInfo.originAddress && formatAddress(displayInfo.originAddress)}</dd>
           </div>
+          {displayInfo.secondPickupAddress && (
+            <div className={styles.row}>
+              <dt>Second pickup address</dt>
+              <dd>{formatAddress(displayInfo.secondPickupAddress)}</dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>
             <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
           </div>
+          {displayInfo.secondDestinationAddress && (
+            <div className={styles.row}>
+              <dt className={styles.label}>Second destination address</dt>
+              <dd data-testid="shipmentSecondDestinationAddress">
+                {formatAddress(displayInfo.secondDestinationAddress)}
+              </dd>
+            </div>
+          )}
           <div className={styles.row}>
             <dt className={styles.label}>Counselor remarks</dt>
             <dd data-testid="counselorRemarks">{displayInfo.counselorRemarks || '—'}</dd>
@@ -85,9 +102,12 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
+    isDiversion: PropTypes.bool,
     requestedMoveDate: PropTypes.string.isRequired,
-    currentAddress: AddressShape.isRequired,
+    originAddress: AddressShape.isRequired,
+    secondPickupAddress: AddressShape,
     destinationAddress: AddressShape,
+    secondDestinationAddress: AddressShape,
     counselorRemarks: PropTypes.string,
   }).isRequired,
   showIcon: PropTypes.bool,

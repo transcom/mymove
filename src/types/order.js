@@ -77,6 +77,7 @@ export const MTOShipmentShape = PropTypes.shape({
   requestedPickupDate: PropTypes.string,
   pickupAddress: AddressShape,
   destinationAddress: AddressShape,
+  diversion: PropTypes.bool,
 });
 
 export const MTOAgentShape = PropTypes.shape({

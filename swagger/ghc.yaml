@@ -2709,6 +2709,8 @@ definitions:
       - REJECTED
       - APPROVED
       - CANCELLATION_REQUESTED
+      - CANCELED
+      - DIVERSION_REQUESTED
   MTOShipmentType:
     type: string
     title: Shipment Type
@@ -2728,7 +2730,13 @@ definitions:
   PatchMTOShipmentStatus:
     properties:
       status:
-        $ref: '#/definitions/MTOShipmentStatus'
+        type: string
+        enum:
+          - APPROVED
+          - CANCELED
+          - CANCELLATION_REQUESTED
+          - DIVERSION_REQUESTED
+          - REJECTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough

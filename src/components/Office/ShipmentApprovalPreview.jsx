@@ -1,4 +1,4 @@
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -67,26 +67,23 @@ const ShipmentApprovalPreview = ({
                   className={classNames(styles.previewShipments)}
                 >
                   <div className={styles.innerWrapper}>
-                    <h4 className="text-normal">{mtoShipmentTypes[shipment.shipmentType]}</h4>
-                    <div className="display-flex">
+                    <div className={styles.shipmentTypeHeading}>
+                      <h3>{mtoShipmentTypes[shipment.shipmentType]}</h3>
+                      {shipment.diversion && <Tag>diversion</Tag>}
+                    </div>
+                    <div className={styles.shipmentDetailWrapper}>
                       <table className={classNames('table--stacked', styles.shipmentInfo)}>
                         <tbody>
                           <tr>
-                            <th className="text-bold" scope="row">
-                              Requested Move Date
-                            </th>
+                            <th scope="row">Requested Move Date</th>
                             <td>{shipment.requestedPickupDate}</td>
                           </tr>
                           <tr>
-                            <th className="text-bold" scope="row">
-                              Current Address
-                            </th>
+                            <th scope="row">Origin Address</th>
                             <td>{shipment.pickupAddress && formatAddress(shipment.pickupAddress)}</td>
                           </tr>
                           <tr>
-                            <th className="text-bold" scope="row">
-                              Destination Address
-                            </th>
+                            <th scope="row">Destination Address</th>
                             <td data-testid="destinationAddress">
                               {shipment.destinationAddress
                                 ? formatAddress(shipment.destinationAddress)
@@ -94,9 +91,7 @@ const ShipmentApprovalPreview = ({
                             </td>
                           </tr>
                           <tr>
-                            <th className="text-bold" scope="row">
-                              Customer Remarks
-                            </th>
+                            <th scope="row">Customer Remarks</th>
                             <td>{shipment.customerRemarks}</td>
                           </tr>
                           {shipment.mtoAgents &&
@@ -125,12 +120,12 @@ const ShipmentApprovalPreview = ({
                 </ShipmentContainer>
               ))}
           </div>
-          <div className={classNames(styles.previewContainer, 'container')}>
+          <div className={classNames(styles.previewContainer, styles.basicMoveDetails, 'container')}>
             <h2>Basic move details</h2>
             {(shipmentManagementFee || counselingFee) && (
               <>
-                <h4 className={classNames(styles.tableH4)}>Approved service items for this move</h4>
-                <table className="table--stacked">
+                <h4>Approved service items for this move</h4>
+                <table className={classNames(styles.basicServiceItemsTable, 'table--stacked')}>
                   <tbody>
                     {shipmentManagementFee && (
                       <tr>
@@ -146,9 +141,9 @@ const ShipmentApprovalPreview = ({
                 </table>
               </>
             )}
-            <h2>Allowances</h2>
+            <h4>Allowances</h4>
             <AllowancesList info={allowancesInfo} />
-            <h2>Customer info</h2>
+            <h4>Customer info</h4>
             <CustomerInfoList customerInfo={customerInfo} />
           </div>
         </Modal>

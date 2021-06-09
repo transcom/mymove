@@ -91,6 +91,9 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
+		suite.NotEmpty(createdShipment.PickupAddressID)
+		suite.NotEmpty(createdShipment.SecondaryPickupAddressID)
+		suite.NotEmpty(createdShipment.DestinationAddressID)
 	})
 
 	suite.T().Run("If the shipment is created successfully with submitted status it should be returned", func(t *testing.T) {
@@ -209,8 +212,10 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 		shipment.DestinationAddressID = nil
 		shipment.DestinationAddress.ID = uuid.Nil
 	}
-	shipment.SecondaryPickupAddressID = nil
-	shipment.SecondaryPickupAddress = nil
+	if shipment.SecondaryPickupAddress != nil {
+		shipment.SecondaryPickupAddressID = nil
+		shipment.SecondaryPickupAddress.ID = uuid.Nil
+	}
 	shipment.SecondaryDeliveryAddressID = nil
 	shipment.SecondaryDeliveryAddress = nil
 	shipment.ID = uuid.Nil

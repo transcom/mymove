@@ -1,5 +1,5 @@
 import React from 'react';
-import { text, object, number } from '@storybook/addon-knobs';
+import { text, object, number, boolean } from '@storybook/addon-knobs';
 
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 
@@ -99,6 +99,27 @@ export const MTOAccessorial = () => (
           code: 'FSC',
         }),
       ]}
+    />
+  </ShipmentContainer>
+);
+
+export const HHGDiversion = () => (
+  <ShipmentContainer shipmentType={text('ShipmentContainer.shipmentType', 'HHG')}>
+    <ShipmentHeading
+      shipmentInfo={{
+        shipmentType: text('ShipmentInfo.shipmentType', 'Household Goods'),
+        isDiversion: boolean('ShipmentInfo.isDiversion', true),
+        originCity: text('ShipmentInfo.originCity', 'San Antonio'),
+        originState: text('ShipmentInfo.originState', 'TX'),
+        originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
+        destinationAddress: object('MTOShipment.destinationAddress', {
+          street_address_1: '123 Any Street',
+          city: 'Tacoma',
+          state: 'WA',
+          postal_code: '98421',
+        }),
+        scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
+      }}
     />
   </ShipmentContainer>
 );
