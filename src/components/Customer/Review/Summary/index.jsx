@@ -160,6 +160,7 @@ export class Summary extends Component {
             key={shipment.id}
             destinationLocation={shipment?.destinationAddress}
             destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
             showEditBtn={showEditBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
