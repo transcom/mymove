@@ -151,17 +151,8 @@ class ExpensesUpload extends Component {
 
   render() {
     const { missingReceipt, paymentMethod, haveMoreExpenses, moveDocumentCreateError } = this.state;
-    const {
-      moveDocSchema,
-      formValues,
-      isPublic,
-      handleSubmit,
-      submitting,
-      expenses,
-      expenseSchema,
-      invalid,
-      moveId,
-    } = this.props;
+    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting, expenses, expenseSchema, invalid, moveId } =
+      this.props;
     const nextBtnLabel = haveMoreExpenses === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
     const hasMovingExpenseType = !isEmpty(formValues) && formValues.moving_expense_type !== '';
     const isStorageExpense = this.isStorageExpense(formValues);

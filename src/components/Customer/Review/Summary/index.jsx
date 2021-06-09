@@ -195,16 +195,8 @@ export class Summary extends Component {
   };
 
   render() {
-    const {
-      currentMove,
-      currentOrders,
-      currentPPM,
-      history,
-      match,
-      moveIsApproved,
-      mtoShipments,
-      serviceMember,
-    } = this.props;
+    const { currentMove, currentOrders, currentPPM, history, match, moveIsApproved, mtoShipments, serviceMember } =
+      this.props;
     const { entitlementWarning } = this.state;
 
     const { moveId } = match.params;
