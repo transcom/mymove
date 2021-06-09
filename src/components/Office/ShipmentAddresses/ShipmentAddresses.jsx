@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
@@ -10,14 +11,25 @@ import DataPoint from '../../DataPoint/index';
 
 import styles from './ShipmentAddresses.module.scss';
 
-const ShipmentAddresses = ({ pickupAddress, destinationAddress, originDutyStation, destinationDutyStation }) => {
+const ShipmentAddresses = ({
+  pickupAddress,
+  destinationAddress,
+  originDutyStation,
+  destinationDutyStation,
+  handleDivertShipment,
+  shipmentInfo,
+}) => {
   return (
     <DataPointGroup className={classnames('maxw-tablet', styles.mtoShipmentAddresses)}>
       <DataPoint
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButton}>
-            <Button type="button" onClick={() => {}} unstyled>
+            <Button
+              type="button"
+              onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
+              unstyled
+            >
               Request Diversion
             </Button>
           </div>,
@@ -39,6 +51,11 @@ ShipmentAddresses.propTypes = {
   destinationAddress: AddressShape,
   originDutyStation: AddressShape,
   destinationDutyStation: AddressShape,
+  handleDivertShipment: PropTypes.func.isRequired,
+  shipmentInfo: PropTypes.shape({
+    shipmentID: PropTypes.string.isRequired,
+    ifMatchEtag: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 ShipmentAddresses.defaultProps = {

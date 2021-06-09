@@ -42,7 +42,11 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 function approvedFilter(shipment) {
-  return shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELLATION_REQUESTED;
+  return (
+    shipment.status === shipmentStatuses.APPROVED ||
+    shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+    shipment.status === shipmentStatuses.DIVERSION_REQUESTED
+  );
 }
 
 export const MoveTaskOrder = ({ match, ...props }) => {
@@ -133,13 +137,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(
-        `MSG_CANCEL_SUCCESS_${variables.shipmentID}`,
-        'success',
-        'The request to cancel that shipment has been sent to the movers.',
-        '',
-        true,
-      );
+      setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -156,6 +154,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       console.log(errorMsg);
     },
   });
+  const handleDivertShipment = (mtoShipmentID, eTag) => {
+    mutateMTOShipmentStatus({
+      moveTaskOrderID: moveTaskOrder.id,
+      shipmentID: mtoShipmentID,
+      shipmentStatus: shipmentStatuses.DIVERSION_REQUESTED,
+      ifMatchETag: eTag,
+      onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+    });
+  };
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
@@ -163,6 +170,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       shipmentID: mtoShipmentID,
       shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
       ifMatchETag: eTag,
+      onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
     });
   };
 
@@ -182,7 +190,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     let serviceItemCount = 0;
     const serviceItemsCountForShipment = {};
     mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.status === shipmentStatuses.APPROVED) {
+      if (
+        mtoShipment.status === shipmentStatuses.APPROVED ||
+        mtoShipment.status === shipmentStatuses.DIVERSION_REQUESTED
+      ) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
           (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
         )?.length;
@@ -208,7 +219,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     mtoShipments?.forEach((shipment) => {
       if (
         shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED
+        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+        shipment.status === shipmentStatuses.DIVERSION_REQUESTED
       ) {
         shipmentSections.push({
           id: shipment.id,
@@ -315,7 +327,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
-              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED
+              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
+              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED
             ) {
               return false;
             }
@@ -363,6 +376,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   scheduledPickupDate={formattedScheduledPickup}
                 />
                 <ShipmentAddresses
+                  handleDivertShipment={handleDivertShipment}
+                  shipmentInfo={{ shipmentID: mtoShipment.id, ifMatchEtag: mtoShipment.eTag }}
                   pickupAddress={pickupAddress}
                   destinationAddress={destinationAddress || dutyStationPostal}
                   originDutyStation={order.originDutyStation?.address}
