@@ -250,7 +250,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		verrs.Add("secondaryPickupAddress:id", addressMsg)
 	}
 	if shipment.SecondaryDeliveryAddress != nil && shipment.SecondaryDeliveryAddress.ID != uuid.Nil {
-		verrs.Add("secondaryDestinationAddress:id", addressMsg)
+		verrs.Add("SecondaryDeliveryAddress:id", addressMsg)
 	}
 
 	if verrs.HasAny() {
