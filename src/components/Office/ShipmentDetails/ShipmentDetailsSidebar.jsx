@@ -50,7 +50,7 @@ ShipmentDetailsSidebar.propTypes = {
 ShipmentDetailsSidebar.defaultProps = {
   className: '',
   agents: [],
-  secondaryAddresses: {},
+  secondaryAddresses: null,
 };
 
 export default ShipmentDetailsSidebar;
