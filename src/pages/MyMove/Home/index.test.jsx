@@ -122,9 +122,9 @@ describe('Home component', () => {
       expect(wrapper.find('HelperNeedsOrders').exists()).toBe(true);
     });
 
-    it('Orders Step is not editable, upload documents is offered', () => {
+    it('Orders Step is not editable', () => {
       const ordersStep = wrapper.find('Step[step="2"]');
-      expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(ordersStep.prop('editBtnLabel')).toEqual('');
     });
   });
 
