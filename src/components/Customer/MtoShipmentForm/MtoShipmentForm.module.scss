@@ -19,4 +19,10 @@
       @include u-margin-bottom(3);
     }
   }
+
+  h4 {
+    font-weight: bold;
+    @include u-margin-top(4);
+    @include u-margin-bottom(3);
+  }
 }
