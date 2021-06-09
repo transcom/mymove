@@ -66,11 +66,6 @@ class MtoShipmentForm extends Component {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
-    const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
-      delete deliveryDetails.address;
-    }
-
     const preformattedMtoShipment = {
       shipmentType: shipmentType || selectedMoveType,
       moveId,
