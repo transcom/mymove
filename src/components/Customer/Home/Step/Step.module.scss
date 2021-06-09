@@ -13,6 +13,9 @@
       margin-top: 0;
       font-size: 1rem;
     }
+    .edit-btn {
+      width: auto;
+    }
   }
 }
 
@@ -71,7 +74,7 @@
   text-decoration: none;
   font-size: 15px;
   font-weight: normal;
-  width: auto;
+  width: 42px;
   text-align: center;
   margin-left: auto;
   &:active,
