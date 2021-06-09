@@ -116,8 +116,7 @@ const samplePayload = {
                 filename: 'last vacccination.jpg',
                 id: 'd56df2e3-1481-4dff-9a02-ef5c6bcae491',
                 updated_at: '2018-05-25T21:38:06.235Z',
-                url:
-                  '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/d56df2e3-1481-4dff-9a02-ef5c6bcae491?contentType=image%2Fjpeg',
+                url: '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/d56df2e3-1481-4dff-9a02-ef5c6bcae491?contentType=image%2Fjpeg',
               },
               {
                 bytes: 58036,
@@ -126,8 +125,7 @@ const samplePayload = {
                 filename: 'image (2).png',
                 id: 'e2010a83-ac1e-45a2-9eb1-4e144c443c41',
                 updated_at: '2018-05-25T21:38:57.655Z',
-                url:
-                  '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/e2010a83-ac1e-45a2-9eb1-4e144c443c41?contentType=image%2Fpng',
+                url: '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/e2010a83-ac1e-45a2-9eb1-4e144c443c41?contentType=image%2Fpng',
               },
             ],
           },
@@ -193,8 +191,7 @@ const samplePayload = {
                 filename: 'last vacccination.jpg',
                 id: 'd56df2e3-1481-4dff-9a02-ef5c6bcae491',
                 updated_at: '2018-05-25T21:38:06.235Z',
-                url:
-                  '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/d56df2e3-1481-4dff-9a02-ef5c6bcae491?contentType=image%2Fjpeg',
+                url: '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/d56df2e3-1481-4dff-9a02-ef5c6bcae491?contentType=image%2Fjpeg',
               },
               {
                 bytes: 58036,
@@ -203,8 +200,7 @@ const samplePayload = {
                 filename: 'image (2).png',
                 id: 'e2010a83-ac1e-45a2-9eb1-4e144c443c41',
                 updated_at: '2018-05-25T21:38:57.655Z',
-                url:
-                  '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/e2010a83-ac1e-45a2-9eb1-4e144c443c41?contentType=image%2Fpng',
+                url: '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/e2010a83-ac1e-45a2-9eb1-4e144c443c41?contentType=image%2Fpng',
               },
             ],
           },

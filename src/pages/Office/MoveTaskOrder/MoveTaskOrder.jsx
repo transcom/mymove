@@ -57,9 +57,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
 
-  const { orders = {}, moveTaskOrders, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(
-    moveCode,
-  );
+  const {
+    orders = {},
+    moveTaskOrders,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveTaskOrderQueries(moveCode);
 
   const order = Object.values(orders)?.[0];
   const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
@@ -97,9 +102,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
-      mtoServiceItems[
-        mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)
-      ] = newMTOServiceItem;
+      mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
+        newMTOServiceItem;
       queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, false], mtoServiceItems);
       queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveTaskOrderId]);
       setIsModalVisible(false);
