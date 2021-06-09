@@ -1,8 +1,6 @@
 package mtoshipment
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -31,7 +29,7 @@ func NewShipmentApprover(db *pop.Connection, router services.ShipmentRouter, siC
 	}
 }
 
-// ApproveShipment soft Approves the shipment
+// ApproveShipment Approves the shipment
 func (f *shipmentApprover) ApproveShipment(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := f.findShipment(shipmentID)
 	if err != nil {
@@ -80,7 +78,6 @@ func (f *shipmentApprover) ApproveShipment(shipmentID uuid.UUID, eTag string) (*
 }
 
 func (f *shipmentApprover) findShipment(shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	fmt.Println("findShipment called with id:", shipmentID)
 	var shipment models.MTOShipment
 	err := f.db.Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress").Find(&shipment, shipmentID)
 

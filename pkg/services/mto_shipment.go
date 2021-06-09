@@ -16,16 +16,22 @@ type MTOShipmentUpdater interface {
 	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
-//ShipmentDeleter is the service object interface for DeleteShipment
+//ShipmentDeleter is the service object interface for deleting a shipment
 //go:generate mockery --name ShipmentDeleter
 type ShipmentDeleter interface {
 	DeleteShipment(shipmentID uuid.UUID) (uuid.UUID, error)
 }
 
-//ShipmentApprover is the service object interface for DeleteShipment
+//ShipmentApprover is the service object interface for approving a shipment
 //go:generate mockery --name ShipmentApprover
 type ShipmentApprover interface {
 	ApproveShipment(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}
+
+//ShipmentDiversionApprover is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentDiversionApprover
+type ShipmentDiversionApprover interface {
+	ApproveShipmentDiversion(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
@@ -54,4 +60,5 @@ type ShipmentRouter interface {
 	Cancel(shipment *models.MTOShipment) error
 	Reject(shipment *models.MTOShipment, rejectionReason *string) error
 	RequestDiversion(shipment *models.MTOShipment) error
+	ApproveDiversion(shipment *models.MTOShipment) error
 }

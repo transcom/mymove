@@ -352,49 +352,6 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	return shipmentops.NewDeleteShipmentNoContent()
 }
 
-// ApproveShipmentHandler approves a shipment
-type ApproveShipmentHandler struct {
-	handlers.HandlerContext
-	services.ShipmentApprover
-}
-
-// Handle approves a shipment
-func (h ApproveShipmentHandler) Handle(params mtoshipmentops.ApproveShipmentParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
-	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
-		logger.Error("Only TOO role can approve shipments")
-		return mtoshipmentops.NewApproveShipmentForbidden()
-	}
-
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	eTag := params.IfMatch
-	shipment, err := h.ApproveShipment(shipmentID, eTag)
-
-	if err != nil {
-		logger.Error("ApproveShipment error: ", zap.Error(err))
-
-		switch e := err.(type) {
-		case services.NotFoundError:
-			return mtoshipmentops.NewApproveShipmentNotFound()
-		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceID(), e.ValidationErrors)
-			return mtoshipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
-			return mtoshipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case services.ConflictError, mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return mtoshipmentops.NewApproveShipmentInternalServerError()
-		}
-	}
-
-	h.triggerShipmentApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
-
-	payload := payloads.MTOShipment(shipment)
-	return mtoshipmentops.NewApproveShipmentOK().WithPayload(payload)
-}
-
 func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -411,11 +368,54 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.DeleteMTOShipmentHandler could not generate the event", zap.Error(err))
+		logger.Error("ghcapi.DeleteShipmentHandler could not generate the event", zap.Error(err))
 	}
 }
 
-func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params mtoshipmentops.ApproveShipmentParams) {
+// ApproveShipmentHandler approves a shipment
+type ApproveShipmentHandler struct {
+	handlers.HandlerContext
+	services.ShipmentApprover
+}
+
+// Handle approves a shipment
+func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("Only TOO role can approve shipments")
+		return shipmentops.NewApproveShipmentForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	eTag := params.IfMatch
+	shipment, err := h.ApproveShipment(shipmentID, eTag)
+
+	if err != nil {
+		logger.Error("ApproveShipment error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewApproveShipmentNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ConflictError, mtoshipment.ConflictStatusError:
+			return shipmentops.NewApproveShipmentConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewApproveShipmentInternalServerError()
+		}
+	}
+
+	h.triggerShipmentApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+
+	payload := payloads.MTOShipment(shipment)
+	return shipmentops.NewApproveShipmentOK().WithPayload(payload)
+}
+
+func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -432,5 +432,68 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		logger.Error("ghcapi.ApproveShipmentHandler could not generate the event", zap.Error(err))
+	}
+}
+
+// ApproveShipmentDiversionHandler approves a shipment diversion
+type ApproveShipmentDiversionHandler struct {
+	handlers.HandlerContext
+	services.ShipmentDiversionApprover
+}
+
+// Handle approves a shipment
+func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipmentDiversionParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("Only TOO role can approve shipment diversions")
+		return shipmentops.NewApproveShipmentDiversionForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	eTag := params.IfMatch
+	shipment, err := h.ApproveShipmentDiversion(shipmentID, eTag)
+
+	if err != nil {
+		logger.Error("ApproveShipment error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewApproveShipmentDiversionNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "ApproveShipmentDiversion", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewApproveShipmentDiversionUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewApproveShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case mtoshipment.ConflictStatusError:
+			return shipmentops.NewApproveShipmentDiversionConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewApproveShipmentDiversionInternalServerError()
+		}
+	}
+
+	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+
+	payload := payloads.MTOShipment(shipment)
+	return shipmentops.NewApproveShipmentDiversionOK().WithPayload(payload)
+}
+
+func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcApproveShipmentDiversionEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentApproveDiversionEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
+		MtoID:           moveID,                                 // ID of the associated Move
+		Request:         params.HTTPRequest,                     // Pass on the http.Request
+		DBConnection:    h.DB(),                                 // Pass on the pop.Connection
+		HandlerContext:  h,                                      // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.ApproveShipmentDiversionHandler could not generate the event", zap.Error(err))
 	}
 }

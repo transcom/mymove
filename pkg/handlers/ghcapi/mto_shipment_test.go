@@ -627,14 +627,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			approver,
 		}
 
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentOK{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentOK{}, response)
 		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
@@ -653,14 +653,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerContext,
 			approver,
 		}
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(uuid),
 			IfMatch:     etag.GenerateEtag(time.Now()),
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentForbidden{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentForbidden{}, response)
 	})
 
 	suite.T().Run("Returns 404 when approver returns NotFoundError", func(t *testing.T) {
@@ -679,14 +679,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerContext,
 			approver,
 		}
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentNotFound{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentNotFound{}, response)
 	})
 
 	suite.T().Run("Returns 409 when approver returns Conflict Error", func(t *testing.T) {
@@ -705,14 +705,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerContext,
 			approver,
 		}
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentConflict{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentConflict{}, response)
 	})
 
 	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
@@ -731,14 +731,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerContext,
 			approver,
 		}
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentPreconditionFailed{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentPreconditionFailed{}, response)
 	})
 
 	suite.T().Run("Returns 422 when approver returns validation errors", func(t *testing.T) {
@@ -757,14 +757,14 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerContext,
 			approver,
 		}
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentUnprocessableEntity{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("Returns 500 when approver returns unexpected error", func(t *testing.T) {
@@ -783,14 +783,208 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			handlerContext,
 			approver,
 		}
-		approveParams := mtoshipmentops.ApproveShipmentParams{
+		approveParams := shipmentops.ApproveShipmentParams{
 			HTTPRequest: req,
 			ShipmentID:  *handlers.FmtUUID(shipment.ID),
 			IfMatch:     eTag,
 		}
 
 		response := handler.Handle(approveParams)
-		suite.IsType(&mtoshipmentops.ApproveShipmentInternalServerError{}, response)
+		suite.IsType(&shipmentops.ApproveShipmentInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusDiversionRequested,
+			},
+			Move: move,
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := mtoshipment.NewShipmentDiversionApprover(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.AssertNumberOfCalls(suite.T(), "ApproveShipmentDiversion", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when approver returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when approver returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when approver returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when approver returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionInternalServerError{}, response)
 	})
 }
 

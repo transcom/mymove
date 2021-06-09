@@ -55,8 +55,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		MtoShipmentApproveShipmentHandler: mto_shipment.ApproveShipmentHandlerFunc(func(params mto_shipment.ApproveShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.ApproveShipment has not yet been implemented")
+		ShipmentApproveShipmentHandler: shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
+		}),
+		ShipmentApproveShipmentDiversionHandler: shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
 		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
@@ -190,8 +193,10 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// MtoShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
-	MtoShipmentApproveShipmentHandler mto_shipment.ApproveShipmentHandler
+	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
+	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
+	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
+	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -324,8 +329,11 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.MtoShipmentApproveShipmentHandler == nil {
-		unregistered = append(unregistered, "mto_shipment.ApproveShipmentHandler")
+	if o.ShipmentApproveShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentHandler")
+	}
+	if o.ShipmentApproveShipmentDiversionHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentDiversionHandler")
 	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
@@ -517,7 +525,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/shipments/{shipmentID}/approve"] = mto_shipment.NewApproveShipment(o.context, o.MtoShipmentApproveShipmentHandler)
+	o.handlers["POST"]["/shipments/{shipmentID}/approve"] = shipment.NewApproveShipment(o.context, o.ShipmentApproveShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/approve-diversion"] = shipment.NewApproveShipmentDiversion(o.context, o.ShipmentApproveShipmentDiversionHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
