@@ -69,7 +69,7 @@ DeliveryDisplay.propTypes = {
 
 DeliveryDisplay.defaultProps = {
   destinationLocation: null,
-  secondaryDestinationLocation: '',
+  secondaryDestinationLocation: null,
   receivingAgent: null,
 };
 
