@@ -91,6 +91,7 @@ export const MtoShipmentShape = shape({
   requestedDeliveryDate: string,
   destinationAddress: AddressShape,
   secondaryDeliveryAddress: AddressShape,
+  secondaryPickupAddress: AddressShape,
 });
 
 export const HhgShipmentShape = MtoShipmentShape;

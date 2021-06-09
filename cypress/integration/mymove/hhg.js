@@ -89,7 +89,7 @@ function customerSetsUpAnHHGMove() {
   cy.get('input[name="delivery.requestedDate"]').first().type('09/20/2020').blur();
 
   // checks has delivery address (default does not have delivery address)
-  cy.get('input[type="radio"]').first().check({ force: true });
+  cy.get('input[title="Yes, I know my delivery address"]').check({ force: true });
 
   // delivery location
   cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
