@@ -122,9 +122,9 @@ describe('Home component', () => {
       expect(wrapper.find('HelperNeedsOrders').exists()).toBe(true);
     });
 
-    it('Orders Step is not editable', () => {
+    it('Orders Step is not editable, upload documents is offered', () => {
       const ordersStep = wrapper.find('Step[step="2"]');
-      expect(ordersStep.prop('editBtnLabel')).toEqual('');
+      expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
     });
   });
 
@@ -223,9 +223,9 @@ describe('Home component', () => {
         expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       });
 
-      it('Orders Step is not editable', () => {
+      it('Orders Step is not editable, upload documents is offered', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
-        expect(ordersStep.prop('editBtnLabel')).toEqual('');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
     });
 
@@ -296,9 +296,9 @@ describe('Home component', () => {
         expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       });
 
-      it('Orders Step is not editable', () => {
+      it('Orders Step is not editable, upload documents is offered', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
-        expect(ordersStep.prop('editBtnLabel')).toEqual('');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
 
       it('renders the SubmittedPPM helper', () => {
