@@ -246,9 +246,9 @@ describe('Home component', () => {
         expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       });
 
-      it('Orders Step is not editable', () => {
+      it('Orders Step is not editable, upload documents offered', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
-        expect(ordersStep.prop('editBtnLabel')).toEqual('');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('Upload documents');
       });
     });
 
