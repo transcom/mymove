@@ -764,8 +764,11 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, userUploader *uploader
 	// called using the addresses with origin zip of 90210 and destination zip of 90211
 	planner.On("TransitDistance", mock.Anything, mock.Anything).Return(3, nil).Once()
 
-	// called for domestic linehaul service item
+	// called for zip 3 domestic linehaul service item
 	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
+
+	// called for zip 5 domestic linehaul service item
+	planner.On("Zip5TransitDistance", "94535", "94535").Return(348, nil).Once()
 
 	// called for domestic shorthaul service item
 	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()
