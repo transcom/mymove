@@ -63,7 +63,7 @@ describe('the PPM flow', function () {
 
 function SMSubmitsMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -138,7 +138,7 @@ function SMSubmitsMove() {
 
 function SMCompletesMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
