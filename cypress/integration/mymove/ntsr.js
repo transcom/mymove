@@ -71,7 +71,7 @@ function customerEditsNTSRShipmentFromReviewPage() {
 }
 
 function customerVisitsReviewPage() {
-  cy.get('button[data-testid="review-and-submit-btn"]').contains('Review and submit').click();
+  cy.get('button[data-testid="review-and-submit-btn"]').click();
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 }
 

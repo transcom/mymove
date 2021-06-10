@@ -2315,4 +2315,132 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Locator: "SCE2ET", // Services counselor e2e test
 		},
 	})
+
+	email = "nts.test.user@example.com"
+	uuidStr = "2194daed-3589-408f-b988-e9889c9f120e"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7273579005"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
+			Locator: "NTS000",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user1@example.com"
+	uuidStr = "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("2342122439"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
+			Locator: "PPM001",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user2@example.com"
+	uuidStr = "324dec0a-850c-41c8-976b-068e27121b84"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("6213314987"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
+			Locator: "PPM002",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user3@example.com"
+	uuidStr = "f154929c-5f07-41f5-b90c-d90b83d5773d"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7814245500"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
+			Locator: "PPM003",
+		},
+		UserUploader: userUploader,
+	})
 }
