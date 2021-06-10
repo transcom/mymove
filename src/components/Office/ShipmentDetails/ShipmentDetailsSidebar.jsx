@@ -13,23 +13,24 @@ const ShipmentDetailsSidebar = ({ className, agents, secondaryAddresses }) => {
       {agents &&
         agents.map((agent) => (
           <SimpleSection
-            header={agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}
             key={`${agent.agentType}-${agent.email}`}
+            header={agent.agentType === 'RELEASING_AGENT' ? 'Releasing agent' : 'Receiving agent'}
+            border
           >
             <div>{formatAgent(agent)}</div>
           </SimpleSection>
         ))}
 
       {(secondaryPickupAddress || secondaryDeliveryAddress) && (
-        <SimpleSection header="Secondary addresses">
+        <SimpleSection header="Secondary addresses" border>
           {secondaryPickupAddress && (
-            <SimpleSection header="Pickup" border={false}>
+            <SimpleSection header="Pickup">
               <div>{formatAddress(secondaryPickupAddress)}</div>
             </SimpleSection>
           )}
 
           {secondaryDeliveryAddress && (
-            <SimpleSection header="Destination" border={false}>
+            <SimpleSection header="Destination">
               <div>{formatAddress(secondaryDeliveryAddress)}</div>
             </SimpleSection>
           )}

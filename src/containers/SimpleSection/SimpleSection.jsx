@@ -20,7 +20,7 @@ SimpleSection.propTypes = {
 };
 
 SimpleSection.defaultProps = {
-  border: true,
+  border: false,
 };
 
 export default SimpleSection;
