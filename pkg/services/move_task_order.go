@@ -19,19 +19,19 @@ type HiddenMove struct {
 type HiddenMoves []HiddenMove
 
 // MoveTaskOrderHider is the service object interface for Hide
-//go:generate mockery --name MoveTaskOrderHider
+//go:generate mockery --name MoveTaskOrderHider --disable-version-string
 type MoveTaskOrderHider interface {
 	Hide() (HiddenMoves, error)
 }
 
 // MoveTaskOrderCreator is the service object interface for CreateMoveTaskOrder
-//go:generate mockery --name MoveTaskOrderCreator
+//go:generate mockery --name MoveTaskOrderCreator --disable-version-string
 type MoveTaskOrderCreator interface {
 	CreateMoveTaskOrder(moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error)
 }
 
 // MoveTaskOrderFetcher is the service object interface for FetchMoveTaskOrder
-//go:generate mockery --name MoveTaskOrderFetcher
+//go:generate mockery --name MoveTaskOrderFetcher --disable-version-string
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
 	ListMoveTaskOrders(orderID uuid.UUID, searchParams *MoveTaskOrderFetcherParams) ([]models.Move, error)
@@ -39,7 +39,7 @@ type MoveTaskOrderFetcher interface {
 }
 
 //MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
-//go:generate mockery --name MoveTaskOrderUpdater
+//go:generate mockery --name MoveTaskOrderUpdater --disable-version-string
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
@@ -48,7 +48,7 @@ type MoveTaskOrderUpdater interface {
 }
 
 //MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
-//go:generate mockery --name MoveTaskOrderChecker
+//go:generate mockery --name MoveTaskOrderChecker --disable-version-string
 type MoveTaskOrderChecker interface {
 	MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error)
 }
