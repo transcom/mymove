@@ -177,8 +177,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 		return nil, ErrFetchNotFound
 	}
 	identity := &identities[0]
-	roleError := db.RawQuery(`SELECT *
-									FROM roles AS roles
+	roleError := db.RawQuery(`SELECT * FROM roles
 									WHERE id in (select role_id from users_roles
 										where deleted_at is null and user_id = ?)`, identity.ID).All(&identity.Roles)
 	if roleError != nil {
