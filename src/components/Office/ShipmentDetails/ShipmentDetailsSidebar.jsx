@@ -7,6 +7,7 @@ import { AgentShape } from 'types/agent';
 import { formatAgent, formatAddress } from 'utils/shipmentDisplay';
 
 const ShipmentDetailsSidebar = ({ className, agents, secondaryAddresses }) => {
+  const { secondaryPickupAddress, secondaryDeliveryAddress } = secondaryAddresses;
   return (
     <div className={className}>
       {agents &&
@@ -19,17 +20,17 @@ const ShipmentDetailsSidebar = ({ className, agents, secondaryAddresses }) => {
           </SimpleSection>
         ))}
 
-      {secondaryAddresses && (
+      {(secondaryPickupAddress || secondaryDeliveryAddress) && (
         <SimpleSection header="Secondary addresses">
-          {secondaryAddresses.secondaryPickupAddress && (
+          {secondaryPickupAddress && (
             <SimpleSection header="Pickup" border={false}>
-              <div>{formatAddress(secondaryAddresses.secondaryPickupAddress)}</div>
+              <div>{formatAddress(secondaryPickupAddress)}</div>
             </SimpleSection>
           )}
 
-          {secondaryAddresses.secondaryDeliveryAddress && (
+          {secondaryDeliveryAddress && (
             <SimpleSection header="Destination" border={false}>
-              <div>{formatAddress(secondaryAddresses.secondaryDeliveryAddress)}</div>
+              <div>{formatAddress(secondaryDeliveryAddress)}</div>
             </SimpleSection>
           )}
         </SimpleSection>
@@ -50,7 +51,7 @@ ShipmentDetailsSidebar.propTypes = {
 ShipmentDetailsSidebar.defaultProps = {
   className: '',
   agents: [],
-  secondaryAddresses: null,
+  secondaryAddresses: {},
 };
 
 export default ShipmentDetailsSidebar;
