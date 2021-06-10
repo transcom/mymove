@@ -285,7 +285,7 @@ export class Home extends Component {
                     <Step
                       complete={this.hasOrders}
                       completedHeaderText="Orders uploaded"
-                      editBtnLabel={this.hasOrders && !this.hasSubmittedMove ? 'Edit' : ''}
+                      editBtnLabel={this.hasOrders ? 'Edit' : ''}
                       onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
                       headerText="Upload orders"
                       actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
