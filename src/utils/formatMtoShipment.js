@@ -151,6 +151,7 @@ export function formatMtoShipmentForAPI({
   customerRemarks,
   counselorRemarks,
   secondaryPickup,
+  secondaryDelivery,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -189,6 +190,10 @@ export function formatMtoShipmentForAPI({
 
   if (secondaryPickup?.address) {
     formattedMtoShipment.secondaryPickupAddress = formatAddressForAPI(secondaryPickup.address);
+  }
+
+  if (secondaryDelivery?.address) {
+    formattedMtoShipment.secondaryDeliveryAddress = formatAddressForAPI(secondaryDelivery.address);
   }
 
   if (!formattedMtoShipment.agents?.length) {
