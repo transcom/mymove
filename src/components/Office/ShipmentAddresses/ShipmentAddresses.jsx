@@ -24,7 +24,7 @@ const ShipmentAddresses = ({
       <DataPoint
         columnHeaders={[
           'Authorized addresses',
-          <div className={styles.rightAlignButton}>
+          <div className={styles.rightAlignButtonWrapper}>
             <Button
               type="button"
               onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
