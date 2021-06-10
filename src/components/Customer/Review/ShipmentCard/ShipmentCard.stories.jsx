@@ -85,30 +85,38 @@ const ppmDefaultProps = {
   originZIP: '00000',
 };
 
-export default {
-  title: 'Customer Components / ShipmentCard',
+const secondaryDeliveryAddress = {
+  secondaryDeliveryAddress: {
+    street_address_1: '17 8th St',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
 };
 
-export const HHGShipment = () => (
-  <div style={{ padding: 10 }}>
-    <HHGShipmentCard {...hhgDefaultProps} />
-  </div>
+export default {
+  title: 'Customer Components / ShipmentCard',
+  decorators: [
+    (Story) => (
+      <div style={{ padding: 10 }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const HHGShipment = () => <HHGShipmentCard {...hhgDefaultProps} />;
+
+export const HHGShipmentWithSecondaryDestinationAddress = () => (
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryDeliveryAddress} />
 );
 
-export const NTSShipment = () => (
-  <div style={{ padding: 10 }}>
-    <NTSShipmentCard {...ntsDefaultProps} />
-  </div>
+export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
+
+export const NTSRShipment = () => <NTSRShipmentCard {...ntsrDefaultProps} />;
+
+export const NTSRShipmentWithSecondaryDestinationAddress = () => (
+  <NTSRShipmentCard {...ntsrDefaultProps} {...secondaryDeliveryAddress} />
 );
 
-export const NTSRShipment = () => (
-  <div style={{ padding: 10 }}>
-    <NTSRShipmentCard {...ntsrDefaultProps} />
-  </div>
-);
-
-export const PPMShipment = () => (
-  <div style={{ padding: 10 }}>
-    <PPMShipmentCard {...ppmDefaultProps} />
-  </div>
-);
+export const PPMShipment = () => <PPMShipmentCard {...ppmDefaultProps} />;
