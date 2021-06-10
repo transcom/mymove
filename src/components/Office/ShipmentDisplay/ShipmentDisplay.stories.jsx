@@ -73,7 +73,7 @@ const diversionInfo = {
   shipmentId: 'testShipmentId394',
   isDiversion: true,
   requestedPickupDate: '26 Mar 2020',
-  currentAddress: {
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
