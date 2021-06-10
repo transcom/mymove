@@ -227,7 +227,7 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 	identity, err := FetchUserIdentity(suite.DB(), multiRoleUser.User.LoginGovUUID.String())
 	suite.Nil(err, "failed to fetch user identity")
 	suite.Equal(*multiRoleUser.UserID, identity.ID)
-	suite.Condition(compareRoleTypeLists(multiRoleUser.User.Roles, identity.Roles)) //(multiRoleUser.User.Roles, identity.Roles)
+	suite.Condition(compareRoleTypeLists(multiRoleUser.User.Roles, identity.Roles))
 
 	/*
 		Test that user identity is properly fetched after deleting roles
