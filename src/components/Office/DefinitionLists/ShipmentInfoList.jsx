@@ -4,21 +4,21 @@ import classNames from 'classnames';
 
 import styles from 'styles/descriptionList.module.scss';
 import { formatDate } from 'shared/dates';
-import { AddressShape } from 'types/address';
-import { AgentShape } from 'types/agent';
+import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 
-const ShipmentInfoList = ({
-  className,
-  requestedPickupDate,
-  pickupAddress,
-  secondaryPickupAddress,
-  destinationAddress,
-  secondaryDeliveryAddress,
-  agents,
-  counselorRemarks,
-  customerRemarks,
-}) => {
+const ShipmentInfoList = ({ className, shipment }) => {
+  const {
+    requestedPickupDate,
+    pickupAddress,
+    secondaryPickupAddress,
+    destinationAddress,
+    secondaryDeliveryAddress,
+    agents,
+    counselorRemarks,
+    customerRemarks,
+  } = shipment;
+
   return (
     <dl
       className={classNames(styles.descriptionList, styles.tableDisplay, styles.compact, className)}
@@ -69,24 +69,11 @@ const ShipmentInfoList = ({
 
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
-  requestedPickupDate: PropTypes.string.isRequired,
-  pickupAddress: AddressShape.isRequired,
-  secondaryPickupAddress: AddressShape,
-  destinationAddress: AddressShape,
-  secondaryDeliveryAddress: AddressShape,
-  agents: PropTypes.arrayOf(AgentShape),
-  counselorRemarks: PropTypes.string,
-  customerRemarks: PropTypes.string,
+  shipment: ShipmentShape.isRequired,
 };
 
 ShipmentInfoList.defaultProps = {
   className: '',
-  secondaryPickupAddress: null,
-  destinationAddress: null,
-  secondaryDeliveryAddress: null,
-  agents: [],
-  counselorRemarks: '',
-  customerRemarks: '',
 };
 
 export default ShipmentInfoList;

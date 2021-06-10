@@ -62,7 +62,7 @@ const labels = {
 
 describe('Shipment Info List', () => {
   it('renders all fields when provided', () => {
-    render(<ShipmentInfoList {...info} />);
+    render(<ShipmentInfoList shipment={info} />);
 
     const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
     expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
@@ -109,9 +109,11 @@ describe('Shipment Info List', () => {
   it('does not render secondary addresses or agents when not provided', () => {
     render(
       <ShipmentInfoList
-        requestedPickupDate={info.requestedPickupDate}
-        pickupAddress={info.pickupAddress}
-        destinationAddress={info.destinationAddress}
+        shipment={{
+          requestedPickupDate: info.requestedPickupDate,
+          pickupAddress: info.pickupAddress,
+          destinationAddress: info.destinationAddress,
+        }}
       />,
     );
 

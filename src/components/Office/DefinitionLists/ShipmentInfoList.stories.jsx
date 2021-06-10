@@ -4,7 +4,7 @@ import { object, text } from '@storybook/addon-knobs';
 import ShipmentInfoList from './ShipmentInfoList';
 
 export default {
-  title: 'Office Components/ShipmentInfoList',
+  title: 'Office Components/Shipment Info List',
   component: ShipmentInfoList,
 };
 
@@ -58,50 +58,60 @@ const info = {
 
 export const Basic = () => (
   <ShipmentInfoList
-    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
-    pickupAddress={object('pickupAddress', info.pickupAddress)}
-    destinationAddress={object('destinationAddress', info.destinationAddress)}
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+    }}
   />
 );
 
 export const WithSecondaryAddresses = () => (
   <ShipmentInfoList
-    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
-    pickupAddress={object('pickupAddress', info.pickupAddress)}
-    secondaryPickupAddress={object('secondaryPickupAddress', info.secondaryPickupAddress)}
-    destinationAddress={object('destinationAddress', info.destinationAddress)}
-    secondaryDeliveryAddress={object('secondaryDeliveryAddress', info.secondaryDeliveryAddress)}
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      secondaryPickupAddress: object('secondaryPickupAddress', info.secondaryPickupAddress),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+      secondaryDeliveryAddress: object('secondaryDeliveryAddress', info.secondaryDeliveryAddress),
+    }}
   />
 );
 
 export const WithAgents = () => (
   <ShipmentInfoList
-    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
-    pickupAddress={object('pickupAddress', info.pickupAddress)}
-    destinationAddress={object('destinationAddress', info.destinationAddress)}
-    agents={[object('agent1', info.agents[0]), object('agent2', info.agents[1])]}
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+      agents: [object('agent1', info.agents[0]), object('agent2', info.agents[1])],
+    }}
   />
 );
 
 export const WithRemarks = () => (
   <ShipmentInfoList
-    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
-    pickupAddress={object('pickupAddress', info.pickupAddress)}
-    destinationAddress={object('destinationAddress', info.destinationAddress)}
-    counselorRemarks={text('counselorRemarks', info.counselorRemarks)}
-    customerRemarks={text('customerRemarks', info.customerRemarks)}
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+      counselorRemarks: text('counselorRemarks', info.counselorRemarks),
+      customerRemarks: text('customerRemarks', info.customerRemarks),
+    }}
   />
 );
 
 export const WithAllInfo = () => (
   <ShipmentInfoList
-    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
-    pickupAddress={object('pickupAddress', info.pickupAddress)}
-    secondaryPickupAddress={object('secondaryPickupAddress', info.secondaryPickupAddress)}
-    destinationAddress={object('destinationAddress', info.destinationAddress)}
-    secondaryDeliveryAddress={object('secondaryDeliveryAddress', info.secondaryDeliveryAddress)}
-    agents={[object('agent1', info.agents[0]), object('agent2', info.agents[1])]}
-    counselorRemarks={text('counselorRemarks', info.counselorRemarks)}
-    customerRemarks={text('customerRemarks', info.customerRemarks)}
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      secondaryPickupAddress: object('secondaryPickupAddress', info.secondaryPickupAddress),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+      secondaryDeliveryAddress: object('secondaryDeliveryAddress', info.secondaryDeliveryAddress),
+      agents: [object('agent1', info.agents[0]), object('agent2', info.agents[1])],
+      counselorRemarks: text('counselorRemarks', info.counselorRemarks),
+      customerRemarks: text('customerRemarks', info.customerRemarks),
+    }}
   />
 );

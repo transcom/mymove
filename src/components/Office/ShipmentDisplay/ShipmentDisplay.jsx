@@ -40,15 +40,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
 
           <FontAwesomeIcon icon="chevron-down" />
         </div>
-        <ShipmentInfoList
-          className={styles.shipmentDisplayInfo}
-          requestedPickupDate={displayInfo.requestedPickupDate}
-          pickupAddress={displayInfo.pickupAddress}
-          secondaryPickupAddress={displayInfo.secondaryPickupAddress}
-          destinationAddress={displayInfo.destinationAddress}
-          secondaryDeliveryAddress={displayInfo.secondaryDeliveryAddress}
-          counselorRemarks={displayInfo.counselorRemarks}
-        />
+        <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} />
         {editURL && (
           <EditButton
             onClick={() => {
