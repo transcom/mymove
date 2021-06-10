@@ -175,6 +175,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				if err != nil {
 					return err
 				}
+
+				for _, agentInList := range agentsList {
+					if agentInList.MTOAgentType == copyOfAgent.MTOAgentType {
+						return services.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
+					}
+				}
+
 				agentsList = append(agentsList, copyOfAgent)
 			}
 			shipment.MTOAgents = agentsList
