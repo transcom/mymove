@@ -44,6 +44,10 @@ describe('ShipmentAddresses', () => {
     userEvent.click(requestDiversionBtn);
     await waitFor(() => {
       expect(testProps.handleDivertShipment).toHaveBeenCalled();
+      expect(testProps.handleDivertShipment).toHaveBeenCalledWith(
+        testProps.shipmentInfo.shipmentID,
+        testProps.shipmentInfo.ifMatchEtag,
+      );
     });
   });
 });
