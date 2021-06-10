@@ -27,7 +27,7 @@ const info = {
       state: 'TX',
       postal_code: '78234',
     },
-    secondaryDestinationAddress: {
+    secondaryDeliveryAddress: {
       street_address_1: '7 Q St',
       city: 'Austin',
       state: 'TX',
@@ -52,7 +52,7 @@ describe('Shipment Details Sidebar', () => {
       screen.getByText(info.secondaryAddresses.secondaryPickupAddress.street_address_1, { exact: false }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(info.secondaryAddresses.secondaryDestinationAddress.street_address_1, { exact: false }),
+      screen.getByText(info.secondaryAddresses.secondaryDeliveryAddress.street_address_1, { exact: false }),
     ).toBeInTheDocument();
   });
 

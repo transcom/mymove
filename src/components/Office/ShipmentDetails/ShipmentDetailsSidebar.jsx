@@ -27,9 +27,9 @@ const ShipmentDetailsSidebar = ({ className, agents, secondaryAddresses }) => {
             </SimpleSection>
           )}
 
-          {secondaryAddresses.secondaryDestinationAddress && (
+          {secondaryAddresses.secondaryDeliveryAddress && (
             <SimpleSection header="Destination" border={false}>
-              <div>{formatAddress(secondaryAddresses.secondaryDestinationAddress)}</div>
+              <div>{formatAddress(secondaryAddresses.secondaryDeliveryAddress)}</div>
             </SimpleSection>
           )}
         </SimpleSection>
@@ -43,7 +43,7 @@ ShipmentDetailsSidebar.propTypes = {
   agents: PropTypes.arrayOf(AgentShape),
   secondaryAddresses: PropTypes.shape({
     secondaryPickupAddress: AddressShape,
-    secondaryDestinationAddress: AddressShape,
+    secondaryDeliveryAddress: AddressShape,
   }),
 };
 

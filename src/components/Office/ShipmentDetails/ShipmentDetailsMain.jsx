@@ -20,7 +20,10 @@ const ShipmentDetailsMain = ({ className, shipment, order }) => {
         originDutyStation={order.originDutyStationAddress}
         destinationDutyStation={order.destinationDutyStationAddress}
       />
-      <ShipmentWeightDetails estimatedWeight={shipment.estimatedWeight} actualWeight={shipment.actualWeight} />
+      <ShipmentWeightDetails
+        estimatedWeight={shipment.primeEstimatedWeight}
+        actualWeight={shipment.primeActualWeight}
+      />
     </div>
   );
 };
@@ -32,8 +35,8 @@ ShipmentDetailsMain.propTypes = {
     scheduledPickupDate: PropTypes.string,
     pickupAddress: AddressShape,
     destinationAddress: AddressShape,
-    estimatedWeight: PropTypes.number,
-    actualWeight: PropTypes.number,
+    primeEstimatedWeight: PropTypes.number,
+    primeActualWeight: PropTypes.number,
   }).isRequired,
   order: PropTypes.shape({
     originDutyStationAddress: AddressShape,

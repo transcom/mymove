@@ -16,8 +16,8 @@ const ShipmentDetails = ({ shipment, order }) => {
           scheduledPickupDate: shipment.scheduledPickupDate,
           pickupAddress: shipment.pickupAddress,
           destinationAddress: shipment.destinationAddress,
-          estimatedWeight: shipment.primeEstimatedWeight,
-          actualWeight: shipment.primeActualWeight,
+          primeEstimatedWeight: shipment.primeEstimatedWeight,
+          primeActualWeight: shipment.primeActualWeight,
         }}
         order={{
           originDutyStationAddress: order.originDutyStation?.address,
@@ -29,7 +29,7 @@ const ShipmentDetails = ({ shipment, order }) => {
         agents={shipment.mtoAgents || shipment.agents}
         secondaryAddresses={{
           secondaryPickupAddress: shipment.secondaryPickupAddress,
-          secondaryDestinationAddress: shipment.secondaryDeliveryAddress,
+          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
         }}
       />
     </div>
