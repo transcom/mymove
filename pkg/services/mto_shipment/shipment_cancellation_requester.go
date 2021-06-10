@@ -11,21 +11,21 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type shipmentRejecter struct {
+type shipmentCancellationRequester struct {
 	db     *pop.Connection
 	router services.ShipmentRouter
 }
 
-// NewShipmentRejecter creates a new struct with the service dependencies
-func NewShipmentRejecter(db *pop.Connection, router services.ShipmentRouter) services.ShipmentRejecter {
-	return &shipmentRejecter{
+// NewShipmentCancellationRequester creates a new struct with the service dependencies
+func NewShipmentCancellationRequester(db *pop.Connection, router services.ShipmentRouter) services.ShipmentCancellationRequester {
+	return &shipmentCancellationRequester{
 		db,
 		router,
 	}
 }
 
-// RejectShipment rejects the shipment
-func (f *shipmentRejecter) RejectShipment(shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
+// RequestShipmentCancellation Requests the shipment diversion
+func (f *shipmentCancellationRequester) RequestShipmentCancellation(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	shipment, err := f.findShipment(shipmentID)
 	if err != nil {
 		return nil, err
@@ -36,14 +36,14 @@ func (f *shipmentRejecter) RejectShipment(shipmentID uuid.UUID, eTag string, rea
 		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.Reject(shipment, reason)
+	err = f.router.RequestCancellation(shipment)
 	if err != nil {
 		return nil, err
 	}
 
 	verrs, err := f.db.ValidateAndSave(shipment)
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while rejecting the shipment.")
+		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while requesting the shipment cancellation.")
 
 		return nil, invalidInputError
 	}
@@ -51,7 +51,7 @@ func (f *shipmentRejecter) RejectShipment(shipmentID uuid.UUID, eTag string, rea
 	return shipment, err
 }
 
-func (f *shipmentRejecter) findShipment(shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentCancellationRequester) findShipment(shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 	err := f.db.Q().Find(&shipment, shipmentID)
 

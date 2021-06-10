@@ -127,6 +127,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
+		ShipmentRequestShipmentCancellationHandler: shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
+		}),
 		ShipmentRequestShipmentDiversionHandler: shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
 		}),
@@ -247,6 +250,8 @@ type MymoveAPI struct {
 	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
+	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
 	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
 	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
@@ -410,6 +415,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
+	}
+	if o.ShipmentRequestShipmentCancellationHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentCancellationHandler")
 	}
 	if o.ShipmentRequestShipmentDiversionHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentDiversionHandler")
@@ -634,6 +642,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-cancellation"] = shipment.NewRequestShipmentCancellation(o.context, o.ShipmentRequestShipmentCancellationHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

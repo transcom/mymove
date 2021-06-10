@@ -43,7 +43,7 @@ func (f *shipmentDiversionRequester) RequestShipmentDiversion(shipmentID uuid.UU
 
 	verrs, err := f.db.ValidateAndSave(shipment)
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while approving the diversion.")
+		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while requesting the diversion.")
 
 		return nil, invalidInputError
 	}

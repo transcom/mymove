@@ -472,13 +472,13 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 		}
 	}
 
-	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerRequestShipmentDiversionEvent(shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment)
 	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
 }
 
-func (h RequestShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
+func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -622,5 +622,68 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUI
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		logger.Error("ghcapi.RejectShipmentHandler could not generate the event", zap.Error(err))
+	}
+}
+
+// RequestShipmentCancellationHandler Requests a shipment diversion
+type RequestShipmentCancellationHandler struct {
+	handlers.HandlerContext
+	services.ShipmentCancellationRequester
+}
+
+// Handle Requests a shipment diversion
+func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShipmentCancellationParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("Only TOO role can Request shipment diversions")
+		return shipmentops.NewRequestShipmentCancellationForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	eTag := params.IfMatch
+	shipment, err := h.RequestShipmentCancellation(shipmentID, eTag)
+
+	if err != nil {
+		logger.Error("RequestShipment error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewRequestShipmentCancellationNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "RequestShipmentCancellation", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewRequestShipmentCancellationPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case mtoshipment.ConflictStatusError:
+			return shipmentops.NewRequestShipmentCancellationConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewRequestShipmentCancellationInternalServerError()
+		}
+	}
+
+	h.triggerRequestShipmentCancellationEvent(shipmentID, shipment.MoveTaskOrderID, params)
+
+	payload := payloads.MTOShipment(shipment)
+	return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
+}
+
+func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentCancellationParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcRequestShipmentCancellationEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentRequestCancellationEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                                // ID of the updated logical object
+		MtoID:           moveID,                                    // ID of the associated Move
+		Request:         params.HTTPRequest,                        // Pass on the http.Request
+		DBConnection:    h.DB(),                                    // Pass on the pop.Connection
+		HandlerContext:  h,                                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.RequestShipmentCancellationHandler could not generate the event", zap.Error(err))
 	}
 }

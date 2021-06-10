@@ -69,6 +69,9 @@ const ShipmentApproveDiversionEventKey KeyType = "Shipment.ApproveDiversion"
 // ShipmentRejectEventKey is a key containing Shipment.Reject
 const ShipmentRejectEventKey KeyType = "Shipment.Reject"
 
+// ShipmentRequestCancellationEventKey is a key containing Shipment.RequestCancellation
+const ShipmentRequestCancellationEventKey KeyType = "Shipment.RequestCancellation"
+
 // MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
 const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
 
@@ -91,23 +94,24 @@ const TestUpdateEventKey KeyType = "Test.Update"
 const TestDeleteEventKey KeyType = "Test.Delete"
 
 var eventModels = map[KeyType]eventModel{
-	OrderUpdateEventKey:              {OrderUpdateEventKey, models.Order{}},
-	MoveTaskOrderCreateEventKey:      {MoveTaskOrderCreateEventKey, models.Move{}},
-	MoveTaskOrderUpdateEventKey:      {MoveTaskOrderUpdateEventKey, models.Move{}},
-	MTOShipmentCreateEventKey:        {MTOShipmentCreateEventKey, models.MTOShipment{}},
-	MTOShipmentUpdateEventKey:        {MTOShipmentUpdateEventKey, models.MTOShipment{}},
-	ShipmentDeleteEventKey:           {ShipmentDeleteEventKey, models.MTOShipment{}},
-	ShipmentApproveEventKey:          {ShipmentApproveEventKey, models.MTOShipment{}},
-	ShipmentRequestDiversionEventKey: {ShipmentRequestDiversionEventKey, models.MTOShipment{}},
-	ShipmentApproveDiversionEventKey: {ShipmentApproveDiversionEventKey, models.MTOShipment{}},
-	ShipmentRejectEventKey:           {ShipmentRejectEventKey, models.MTOShipment{}},
-	MTOServiceItemCreateEventKey:     {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
-	MTOServiceItemUpdateEventKey:     {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
-	PaymentRequestCreateEventKey:     {PaymentRequestCreateEventKey, models.PaymentRequest{}},
-	PaymentRequestUpdateEventKey:     {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
-	TestCreateEventKey:               {TestCreateEventKey, nil},
-	TestUpdateEventKey:               {TestUpdateEventKey, nil},
-	TestDeleteEventKey:               {TestDeleteEventKey, nil}}
+	OrderUpdateEventKey:                 {OrderUpdateEventKey, models.Order{}},
+	MoveTaskOrderCreateEventKey:         {MoveTaskOrderCreateEventKey, models.Move{}},
+	MoveTaskOrderUpdateEventKey:         {MoveTaskOrderUpdateEventKey, models.Move{}},
+	MTOShipmentCreateEventKey:           {MTOShipmentCreateEventKey, models.MTOShipment{}},
+	MTOShipmentUpdateEventKey:           {MTOShipmentUpdateEventKey, models.MTOShipment{}},
+	ShipmentDeleteEventKey:              {ShipmentDeleteEventKey, models.MTOShipment{}},
+	ShipmentApproveEventKey:             {ShipmentApproveEventKey, models.MTOShipment{}},
+	ShipmentRequestDiversionEventKey:    {ShipmentRequestDiversionEventKey, models.MTOShipment{}},
+	ShipmentApproveDiversionEventKey:    {ShipmentApproveDiversionEventKey, models.MTOShipment{}},
+	ShipmentRejectEventKey:              {ShipmentRejectEventKey, models.MTOShipment{}},
+	ShipmentRequestCancellationEventKey: {ShipmentRequestCancellationEventKey, models.MTOShipment{}},
+	MTOServiceItemCreateEventKey:        {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
+	MTOServiceItemUpdateEventKey:        {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
+	PaymentRequestCreateEventKey:        {PaymentRequestCreateEventKey, models.PaymentRequest{}},
+	PaymentRequestUpdateEventKey:        {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
+	TestCreateEventKey:                  {TestCreateEventKey, nil},
+	TestUpdateEventKey:                  {TestUpdateEventKey, nil},
+	TestDeleteEventKey:                  {TestDeleteEventKey, nil}}
 
 // IsCreateEvent returns true if this event is a create event
 func IsCreateEvent(e KeyType) (bool, error) {

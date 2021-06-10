@@ -1443,6 +1443,200 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+			Move: move,
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := mtoshipment.NewShipmentCancellationRequester(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.AssertNumberOfCalls(suite.T(), "RequestShipmentCancellation", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when canceler returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when canceler returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when canceler returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when canceler returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationInternalServerError{}, response)
+	})
+}
+
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeAvailableMove(suite.DB())
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
