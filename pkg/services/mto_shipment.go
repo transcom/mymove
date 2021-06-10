@@ -28,6 +28,12 @@ type ShipmentApprover interface {
 	ApproveShipment(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
+//ShipmentDiversionRequester is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentDiversionRequester
+type ShipmentDiversionRequester interface {
+	RequestShipmentDiversion(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}
+
 //ShipmentDiversionApprover is the service object interface for approving a shipment diversion
 //go:generate mockery --name ShipmentDiversionApprover
 type ShipmentDiversionApprover interface {

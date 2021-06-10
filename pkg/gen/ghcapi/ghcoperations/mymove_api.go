@@ -127,6 +127,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
+		ShipmentRequestShipmentDiversionHandler: shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
+		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
@@ -244,6 +247,8 @@ type MymoveAPI struct {
 	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
+	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
@@ -405,6 +410,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
+	}
+	if o.ShipmentRequestShipmentDiversionHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentDiversionHandler")
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
@@ -626,6 +634,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-diversion"] = shipment.NewRequestShipmentDiversion(o.context, o.ShipmentRequestShipmentDiversionHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

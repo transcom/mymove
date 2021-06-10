@@ -435,6 +435,69 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 	}
 }
 
+// RequestShipmentDiversionHandler Requests a shipment diversion
+type RequestShipmentDiversionHandler struct {
+	handlers.HandlerContext
+	services.ShipmentDiversionRequester
+}
+
+// Handle Requests a shipment diversion
+func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipmentDiversionParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("Only TOO role can Request shipment diversions")
+		return shipmentops.NewRequestShipmentDiversionForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	eTag := params.IfMatch
+	shipment, err := h.RequestShipmentDiversion(shipmentID, eTag)
+
+	if err != nil {
+		logger.Error("RequestShipment error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewRequestShipmentDiversionNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "RequestShipmentDiversion", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return shipmentops.NewRequestShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case mtoshipment.ConflictStatusError:
+			return shipmentops.NewRequestShipmentDiversionConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewRequestShipmentDiversionInternalServerError()
+		}
+	}
+
+	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+
+	payload := payloads.MTOShipment(shipment)
+	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
+}
+
+func (h RequestShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcRequestShipmentDiversionEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentRequestDiversionEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
+		MtoID:           moveID,                                 // ID of the associated Move
+		Request:         params.HTTPRequest,                     // Pass on the http.Request
+		DBConnection:    h.DB(),                                 // Pass on the pop.Connection
+		HandlerContext:  h,                                      // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.RequestShipmentDiversionHandler could not generate the event", zap.Error(err))
+	}
+}
+
 // ApproveShipmentDiversionHandler approves a shipment diversion
 type ApproveShipmentDiversionHandler struct {
 	handlers.HandlerContext

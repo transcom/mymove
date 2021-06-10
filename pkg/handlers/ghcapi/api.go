@@ -144,6 +144,14 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		),
 	}
 
+	ghcAPI.ShipmentRequestShipmentDiversionHandler = RequestShipmentDiversionHandler{
+		context,
+		mtoshipment.NewShipmentDiversionRequester(
+			context.DB(),
+			mtoshipment.NewShipmentRouter(context.DB()),
+		),
+	}
+
 	ghcAPI.ShipmentApproveShipmentDiversionHandler = ApproveShipmentDiversionHandler{
 		context,
 		mtoshipment.NewShipmentDiversionApprover(

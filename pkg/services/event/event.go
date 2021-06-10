@@ -60,6 +60,9 @@ const ShipmentDeleteEventKey KeyType = "Shipment.Delete"
 // ShipmentApproveEventKey is a key containing Shipment.Approve
 const ShipmentApproveEventKey KeyType = "Shipment.Approve"
 
+// ShipmentRequestDiversionEventKey is a key containing Shipment.RequestDiversion
+const ShipmentRequestDiversionEventKey KeyType = "Shipment.RequestDiversion"
+
 // ShipmentApproveDiversionEventKey is a key containing Shipment.ApproveDiversion
 const ShipmentApproveDiversionEventKey KeyType = "Shipment.ApproveDiversion"
 
@@ -95,6 +98,7 @@ var eventModels = map[KeyType]eventModel{
 	MTOShipmentUpdateEventKey:        {MTOShipmentUpdateEventKey, models.MTOShipment{}},
 	ShipmentDeleteEventKey:           {ShipmentDeleteEventKey, models.MTOShipment{}},
 	ShipmentApproveEventKey:          {ShipmentApproveEventKey, models.MTOShipment{}},
+	ShipmentRequestDiversionEventKey: {ShipmentRequestDiversionEventKey, models.MTOShipment{}},
 	ShipmentApproveDiversionEventKey: {ShipmentApproveDiversionEventKey, models.MTOShipment{}},
 	ShipmentRejectEventKey:           {ShipmentRejectEventKey, models.MTOShipment{}},
 	MTOServiceItemCreateEventKey:     {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},

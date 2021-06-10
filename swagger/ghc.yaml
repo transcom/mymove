@@ -706,6 +706,46 @@ paths:
       description: Approves a shipment
       operationId: approveShipment
       summary: Approves a shipment
+  '/shipments/{shipmentID}/request-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment diversion
+      operationId: requestShipmentDiversion
+      summary: Requests a shipment diversion
   '/shipments/{shipmentID}/approve-diversion':
     parameters:
       - description: ID of the shipment
