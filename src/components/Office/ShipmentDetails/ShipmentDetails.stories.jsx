@@ -3,7 +3,7 @@ import React from 'react';
 import ShipmentDetails from './ShipmentDetails';
 
 export default {
-  title: 'Office Components/ShipmentDetails',
+  title: 'Office Components/Shipment Details',
 };
 
 const shipment = {

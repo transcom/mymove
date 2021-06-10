@@ -3,42 +3,42 @@ import * as PropTypes from 'prop-types';
 
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
+import { ShipmentShape } from 'types/shipment';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
-const ShipmentDetailsMain = ({ className, shipment, order }) => {
+const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses }) => {
+  const {
+    requestedPickupDate,
+    scheduledPickupDate,
+    pickupAddress,
+    destinationAddress,
+    primeEstimatedWeight,
+    primeActualWeight,
+  } = shipment;
+  const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
   return (
     <div className={className}>
       <ImportantShipmentDates
-        requestedPickupDate={formatDate(shipment.requestedPickupDate)}
-        scheduledPickupDate={formatDate(shipment.scheduledPickupDate)}
+        requestedPickupDate={formatDate(requestedPickupDate)}
+        scheduledPickupDate={formatDate(scheduledPickupDate)}
       />
       <ShipmentAddresses
-        pickupAddress={shipment.pickupAddress}
-        destinationAddress={shipment.destinationAddress || order.destinationDutyStationAddress?.postal_code}
-        originDutyStation={order.originDutyStationAddress}
-        destinationDutyStation={order.destinationDutyStationAddress}
+        pickupAddress={pickupAddress}
+        destinationAddress={destinationAddress || destinationDutyStationAddress?.postal_code}
+        originDutyStation={originDutyStationAddress}
+        destinationDutyStation={destinationDutyStationAddress}
       />
-      <ShipmentWeightDetails
-        estimatedWeight={shipment.primeEstimatedWeight}
-        actualWeight={shipment.primeActualWeight}
-      />
+      <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
     </div>
   );
 };
 
 ShipmentDetailsMain.propTypes = {
   className: PropTypes.string,
-  shipment: PropTypes.shape({
-    requestedPickupDate: PropTypes.string,
-    scheduledPickupDate: PropTypes.string,
-    pickupAddress: AddressShape,
-    destinationAddress: AddressShape,
-    primeEstimatedWeight: PropTypes.number,
-    primeActualWeight: PropTypes.number,
-  }).isRequired,
-  order: PropTypes.shape({
+  shipment: ShipmentShape.isRequired,
+  dutyStationAddresses: PropTypes.shape({
     originDutyStationAddress: AddressShape,
     destinationDutyStationAddress: AddressShape,
   }).isRequired,

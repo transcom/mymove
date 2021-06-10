@@ -4,40 +4,32 @@ import ShipmentDetailsMain from './ShipmentDetailsMain';
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
 
 import styles from 'components/Office/ShipmentDetails/ShipmentDetails.module.scss';
-import { MTOShipmentShape, OrderShape } from 'types';
+import { OrderShape } from 'types';
+import { ShipmentShape } from 'types/shipment';
 
 const ShipmentDetails = ({ shipment, order }) => {
+  const { originDutyStation, destinationDutyStation } = order;
   return (
     <div className={styles.ShipmentDetails}>
       <ShipmentDetailsMain
         className={styles.ShipmentDetailsMain}
-        shipment={{
-          requestedPickupDate: shipment.requestedPickupDate,
-          scheduledPickupDate: shipment.scheduledPickupDate,
-          pickupAddress: shipment.pickupAddress,
-          destinationAddress: shipment.destinationAddress,
-          primeEstimatedWeight: shipment.primeEstimatedWeight,
-          primeActualWeight: shipment.primeActualWeight,
-        }}
-        order={{
-          originDutyStationAddress: order.originDutyStation?.address,
-          destinationDutyStationAddress: order.destinationDutyStation?.address,
+        shipment={shipment}
+        dutyStationAddresses={{
+          originDutyStationAddress: originDutyStation?.address,
+          destinationDutyStationAddress: destinationDutyStation?.address,
         }}
       />
       <ShipmentDetailsSidebar
         className={styles.ShipmentDetailsSidebar}
-        agents={shipment.mtoAgents || shipment.agents}
-        secondaryAddresses={{
-          secondaryPickupAddress: shipment.secondaryPickupAddress,
-          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
-        }}
+        agents={shipment.agents}
+        secondaryAddresses={shipment}
       />
     </div>
   );
 };
 
 ShipmentDetails.propTypes = {
-  shipment: MTOShipmentShape.isRequired,
+  shipment: ShipmentShape.isRequired,
   order: OrderShape.isRequired,
 };
 
