@@ -146,6 +146,7 @@ export class Summary extends Component {
             moveId={moveId}
             onEditClick={this.handleEditClick}
             pickupLocation={shipment.pickupAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
             releasingAgent={releasingAgent}
             remarks={shipment.customerRemarks}
             requestedPickupDate={shipment.requestedPickupDate}
@@ -178,6 +179,7 @@ export class Summary extends Component {
           key={shipment.id}
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
           secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+          secondaryPickupAddress={shipment?.secondaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}

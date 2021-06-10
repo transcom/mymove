@@ -19,6 +19,7 @@ const HHGShipmentCard = ({
   moveId,
   onEditClick,
   pickupLocation,
+  secondaryPickupAddress,
   receivingAgent,
   releasingAgent,
   remarks,
@@ -61,6 +62,7 @@ const HHGShipmentCard = ({
             shipmentType={shipmentType}
             requestedPickupDate={requestedPickupDate}
             pickupLocation={pickupLocation}
+            secondaryPickupAddress={secondaryPickupAddress}
             releasingAgent={releasingAgent}
           />
           <DeliveryDisplay
@@ -92,6 +94,7 @@ HHGShipmentCard.propTypes = {
   showEditBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
+  secondaryPickupAddress: AddressShape,
   destinationLocation: AddressShape,
   secondaryDeliveryAddress: AddressShape,
   releasingAgent: shape({
@@ -114,6 +117,7 @@ HHGShipmentCard.propTypes = {
 
 HHGShipmentCard.defaultProps = {
   destinationLocation: null,
+  secondaryPickupAddress: null,
   secondaryDeliveryAddress: null,
   releasingAgent: null,
   receivingAgent: null,

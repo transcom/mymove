@@ -68,7 +68,7 @@ describe('NTSRShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').length).toBe(0);
   });
 
-  it('should not render without a secondary destination location if not provided one', async () => {
+  it('should not render a secondary destination location if not provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} />);
 
     const secondDestination = await screen.queryByText('Second Destination');

@@ -94,6 +94,15 @@ const secondaryDeliveryAddress = {
   },
 };
 
+const secondaryPickupAddress = {
+  secondaryPickupAddress: {
+    street_address_1: '812 S 129th Street',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
+};
+
 export default {
   title: 'Customer Components / ShipmentCard',
   decorators: [
@@ -111,7 +120,19 @@ export const HHGShipmentWithSecondaryDestinationAddress = () => (
   <HHGShipmentCard {...hhgDefaultProps} {...secondaryDeliveryAddress} />
 );
 
+export const HHGShipmentWithSecondaryPickupAddress = () => (
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryPickupAddress} />
+);
+
+export const HHGShipmentWithSecondaryAddresses = () => (
+  <HHGShipmentCard {...hhgDefaultProps} {...secondaryPickupAddress} {...secondaryDeliveryAddress} />
+);
+
 export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
+
+export const NTSShipmentWithSecondaryPickupAddress = () => (
+  <NTSShipmentCard {...ntsrDefaultProps} {...secondaryPickupAddress} />
+);
 
 export const NTSRShipment = () => <NTSRShipmentCard {...ntsrDefaultProps} />;
 
