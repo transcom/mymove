@@ -144,6 +144,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
 		}
 
+		if shipment.SecondaryDeliveryAddress != nil {
+			verrs, err = txBuilder.CreateOne(shipment.SecondaryDeliveryAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+			}
+			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
+		}
+
 		// check that required items to create shipment are present
 		if shipment.RequestedPickupDate.IsZero() && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
