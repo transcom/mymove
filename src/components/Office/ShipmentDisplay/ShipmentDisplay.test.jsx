@@ -6,8 +6,8 @@ import ShipmentDisplay from './ShipmentDisplay';
 
 const info = {
   heading: 'HHG',
-  requestedMoveDate: '26 Mar 2020',
-  originAddress: {
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -19,7 +19,7 @@ const info = {
     state: 'WA',
     postal_code: '98421',
   },
-  secondDestinationAddress: {
+  secondaryDeliveryAddress: {
     street_address_1: '987 Fairway Dr',
     city: 'Tacoma',
     state: 'WA',
@@ -28,8 +28,8 @@ const info = {
   counselorRemarks: 'counselor approved',
 };
 
-const secondPickupAddressInfo = {
-  secondPickupAddress: {
+const secondaryPickupAddressInfo = {
+  secondaryPickupAddress: {
     street_address_1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
@@ -40,8 +40,8 @@ const secondPickupAddressInfo = {
 
 const postalOnly = {
   heading: 'HHG',
-  requestedMoveDate: '26 Mar 2020',
-  originAddress: {
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -55,7 +55,7 @@ const postalOnly = {
 const diversion = {
   heading: 'HHG',
   isDiversion: true,
-  requestedMoveDate: '26 Mar 2020',
+  requestedPickupDate: '26 Mar 2020',
   currentAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
@@ -80,7 +80,12 @@ describe('Shipment Container', () => {
   });
   it('renders secondary address info when present', () => {
     render(
-      <ShipmentDisplay shipmentId="1" displayInfo={secondPickupAddressInfo} onChange={jest.fn()} isSubmitted={false} />,
+      <ShipmentDisplay
+        shipmentId="1"
+        displayInfo={secondaryPickupAddressInfo}
+        onChange={jest.fn()}
+        isSubmitted={false}
+      />,
     );
     expect(screen.getByText('Second pickup address')).toBeInTheDocument();
   });

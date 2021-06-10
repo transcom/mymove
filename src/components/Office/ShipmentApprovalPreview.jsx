@@ -74,13 +74,13 @@ const ShipmentApprovalPreview = ({
                     <div className={styles.shipmentDetailWrapper}>
                       <ShipmentInfoList
                         className={styles.shipmentInfo}
-                        requestedMoveDate={shipment.requestedPickupDate}
-                        originAddress={shipment.pickupAddress}
-                        secondPickupAddress={shipment.secondaryPickupAddress}
+                        requestedPickupDate={shipment.requestedPickupDate}
+                        pickupAddress={shipment.pickupAddress}
+                        secondaryPickupAddress={shipment.secondaryPickupAddress}
                         destinationAddress={
                           shipment.destinationAddress || { postal_code: ordersInfo.newDutyStation.address.postal_code }
                         }
-                        secondDestinationAddress={shipment.secondaryDeliveryAddress}
+                        secondaryDeliveryAddress={shipment.secondaryDeliveryAddress}
                         agents={shipment.mtoAgents}
                         counselorRemarks={shipment.counselorRemarks}
                         customerRemarks={shipment.customerRemarks}

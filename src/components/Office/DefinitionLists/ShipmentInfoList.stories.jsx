@@ -9,14 +9,14 @@ export default {
 };
 
 const info = {
-  requestedMoveDate: '2021-06-01',
-  originAddress: {
+  requestedPickupDate: '2021-06-01',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
     postal_code: '78234',
   },
-  secondPickupAddress: {
+  secondaryPickupAddress: {
     street_address_1: '444 S 131st St',
     city: 'San Antonio',
     state: 'TX',
@@ -28,7 +28,7 @@ const info = {
     state: 'TX',
     postal_code: '78722',
   },
-  secondDestinationAddress: {
+  secondaryDeliveryAddress: {
     street_address_1: '17 8th St',
     city: 'Austin',
     state: 'TX',
@@ -58,26 +58,26 @@ const info = {
 
 export const Basic = () => (
   <ShipmentInfoList
-    requestedMoveDate={text('requestedMoveDate', info.requestedMoveDate)}
-    originAddress={object('originAddress', info.originAddress)}
+    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
+    pickupAddress={object('pickupAddress', info.pickupAddress)}
     destinationAddress={object('destinationAddress', info.destinationAddress)}
   />
 );
 
 export const WithSecondaryAddresses = () => (
   <ShipmentInfoList
-    requestedMoveDate={text('requestedMoveDate', info.requestedMoveDate)}
-    originAddress={object('originAddress', info.originAddress)}
-    secondPickupAddress={object('secondPickupAddress', info.secondPickupAddress)}
+    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
+    pickupAddress={object('pickupAddress', info.pickupAddress)}
+    secondaryPickupAddress={object('secondaryPickupAddress', info.secondaryPickupAddress)}
     destinationAddress={object('destinationAddress', info.destinationAddress)}
-    secondDestinationAddress={object('secondDestinationAddress', info.secondDestinationAddress)}
+    secondaryDeliveryAddress={object('secondaryDeliveryAddress', info.secondaryDeliveryAddress)}
   />
 );
 
 export const WithAgents = () => (
   <ShipmentInfoList
-    requestedMoveDate={text('requestedMoveDate', info.requestedMoveDate)}
-    originAddress={object('originAddress', info.originAddress)}
+    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
+    pickupAddress={object('pickupAddress', info.pickupAddress)}
     destinationAddress={object('destinationAddress', info.destinationAddress)}
     agents={[object('agent1', info.agents[0]), object('agent2', info.agents[1])]}
   />
@@ -85,8 +85,8 @@ export const WithAgents = () => (
 
 export const WithRemarks = () => (
   <ShipmentInfoList
-    requestedMoveDate={text('requestedMoveDate', info.requestedMoveDate)}
-    originAddress={object('originAddress', info.originAddress)}
+    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
+    pickupAddress={object('pickupAddress', info.pickupAddress)}
     destinationAddress={object('destinationAddress', info.destinationAddress)}
     counselorRemarks={text('counselorRemarks', info.counselorRemarks)}
     customerRemarks={text('customerRemarks', info.customerRemarks)}
@@ -95,11 +95,11 @@ export const WithRemarks = () => (
 
 export const WithAllInfo = () => (
   <ShipmentInfoList
-    requestedMoveDate={text('requestedMoveDate', info.requestedMoveDate)}
-    originAddress={object('originAddress', info.originAddress)}
-    secondPickupAddress={object('secondPickupAddress', info.secondPickupAddress)}
+    requestedPickupDate={text('requestedPickupDate', info.requestedPickupDate)}
+    pickupAddress={object('pickupAddress', info.pickupAddress)}
+    secondaryPickupAddress={object('secondaryPickupAddress', info.secondaryPickupAddress)}
     destinationAddress={object('destinationAddress', info.destinationAddress)}
-    secondDestinationAddress={object('secondDestinationAddress', info.secondDestinationAddress)}
+    secondaryDeliveryAddress={object('secondaryDeliveryAddress', info.secondaryDeliveryAddress)}
     agents={[object('agent1', info.agents[0]), object('agent2', info.agents[1])]}
     counselorRemarks={text('counselorRemarks', info.counselorRemarks)}
     customerRemarks={text('customerRemarks', info.customerRemarks)}

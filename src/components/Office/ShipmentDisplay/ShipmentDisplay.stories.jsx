@@ -20,8 +20,8 @@ export default {
 const hhgInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
-  requestedMoveDate: '26 Mar 2020',
-  originAddress: {
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -37,9 +37,9 @@ const hhgInfo = {
 
 const ntsInfo = {
   heading: 'NTS',
-  requestedMoveDate: '26 Mar 2020',
+  requestedPickupDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
-  originAddress: {
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -55,9 +55,9 @@ const ntsInfo = {
 
 const postalOnlyInfo = {
   heading: 'HHG',
-  requestedMoveDate: '26 Mar 2020',
+  requestedPickupDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
-  originAddress: {
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -72,7 +72,7 @@ const diversionInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
   isDiversion: true,
-  requestedMoveDate: '26 Mar 2020',
+  requestedPickupDate: '26 Mar 2020',
   currentAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',

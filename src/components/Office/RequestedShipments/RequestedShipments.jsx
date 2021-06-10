@@ -38,11 +38,11 @@ const RequestedShipments = ({
     return {
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
-      requestedMoveDate: shipment.requestedPickupDate,
-      originAddress: shipment.pickupAddress,
-      secondPickupAddress: shipment.secondaryPickupAddress,
+      requestedPickupDate: shipment.requestedPickupDate,
+      pickupAddress: shipment.pickupAddress,
+      secondaryPickupAddress: shipment.secondaryPickupAddress,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
-      secondDestinationAddress: shipment.secondaryDeliveryAddress,
+      secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
     };
   };
 

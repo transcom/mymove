@@ -4,14 +4,14 @@ import { render, screen, within } from '@testing-library/react';
 import ShipmentInfoList from './ShipmentInfoList';
 
 const info = {
-  requestedMoveDate: '2020-03-26',
-  originAddress: {
+  requestedPickupDate: '2020-03-26',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
     postal_code: '78234',
   },
-  secondPickupAddress: {
+  secondaryPickupAddress: {
     street_address_1: '800 S 2nd St',
     city: 'San Antonio',
     state: 'TX',
@@ -23,7 +23,7 @@ const info = {
     state: 'WA',
     postal_code: '98421',
   },
-  secondDestinationAddress: {
+  secondaryDeliveryAddress: {
     street_address_1: '987 Fairway Dr',
     city: 'Tacoma',
     state: 'WA',
@@ -50,11 +50,11 @@ const info = {
 };
 
 const labels = {
-  requestedMoveDate: 'Requested move date',
-  originAddress: 'Origin address',
-  secondPickupAddress: 'Second pickup address',
+  requestedPickupDate: 'Requested move date',
+  pickupAddress: 'Origin address',
+  secondaryPickupAddress: 'Second pickup address',
   destinationAddress: 'Destination address',
-  secondDestinationAddress: 'Second destination address',
+  secondaryDeliveryAddress: 'Second destination address',
   agents: ['Releasing agent', 'Receiving agent'],
   counselorRemarks: 'Counselor remarks',
   customerRemarks: 'Customer remarks',
@@ -64,17 +64,17 @@ describe('Shipment Info List', () => {
   it('renders all fields when provided', () => {
     render(<ShipmentInfoList {...info} />);
 
-    const requestedMoveDate = screen.getByText(labels.requestedMoveDate);
-    expect(within(requestedMoveDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
+    const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
+    expect(within(requestedPickupDate.parentElement).getByText('26 Mar 2020')).toBeInTheDocument();
 
-    const originAddress = screen.getByText(labels.originAddress);
+    const pickupAddress = screen.getByText(labels.pickupAddress);
     expect(
-      within(originAddress.parentElement).getByText(info.originAddress.street_address_1, { exact: false }),
+      within(pickupAddress.parentElement).getByText(info.pickupAddress.street_address_1, { exact: false }),
     ).toBeInTheDocument();
 
-    const secondPickupAddress = screen.getByText(labels.secondPickupAddress);
+    const secondaryPickupAddress = screen.getByText(labels.secondaryPickupAddress);
     expect(
-      within(secondPickupAddress.parentElement).getByText(info.secondPickupAddress.street_address_1, {
+      within(secondaryPickupAddress.parentElement).getByText(info.secondaryPickupAddress.street_address_1, {
         exact: false,
       }),
     ).toBeInTheDocument();
@@ -86,9 +86,9 @@ describe('Shipment Info List', () => {
       }),
     ).toBeInTheDocument();
 
-    const secondDestinationAddress = screen.getByText(labels.secondDestinationAddress);
+    const secondaryDeliveryAddress = screen.getByText(labels.secondaryDeliveryAddress);
     expect(
-      within(secondDestinationAddress.parentElement).getByText(info.secondDestinationAddress.street_address_1, {
+      within(secondaryDeliveryAddress.parentElement).getByText(info.secondaryDeliveryAddress.street_address_1, {
         exact: false,
       }),
     ).toBeInTheDocument();
@@ -109,14 +109,14 @@ describe('Shipment Info List', () => {
   it('does not render secondary addresses or agents when not provided', () => {
     render(
       <ShipmentInfoList
-        requestedMoveDate={info.requestedMoveDate}
-        originAddress={info.originAddress}
+        requestedPickupDate={info.requestedPickupDate}
+        pickupAddress={info.pickupAddress}
         destinationAddress={info.destinationAddress}
       />,
     );
 
-    expect(screen.queryByText(labels.secondPickupAddress)).toBeNull();
-    expect(screen.queryByText(labels.secondDestinationAddress)).toBeNull();
+    expect(screen.queryByText(labels.secondaryPickupAddress)).toBeNull();
+    expect(screen.queryByText(labels.secondaryDeliveryAddress)).toBeNull();
     expect(screen.queryByText(labels.agents[0])).toBeNull();
     expect(screen.queryByText(labels.agents[1])).toBeNull();
   });

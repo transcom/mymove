@@ -10,11 +10,11 @@ import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
 
 const ShipmentInfoList = ({
   className,
-  requestedMoveDate,
-  originAddress,
-  secondPickupAddress,
+  requestedPickupDate,
+  pickupAddress,
+  secondaryPickupAddress,
   destinationAddress,
-  secondDestinationAddress,
+  secondaryDeliveryAddress,
   agents,
   counselorRemarks,
   customerRemarks,
@@ -26,26 +26,26 @@ const ShipmentInfoList = ({
     >
       <div className={styles.row}>
         <dt>Requested move date</dt>
-        <dd>{formatDate(requestedMoveDate, 'DD MMM YYYY')}</dd>
+        <dd>{formatDate(requestedPickupDate, 'DD MMM YYYY')}</dd>
       </div>
       <div className={styles.row}>
         <dt>Origin address</dt>
-        <dd>{originAddress && formatAddress(originAddress)}</dd>
+        <dd>{pickupAddress && formatAddress(pickupAddress)}</dd>
       </div>
-      {secondPickupAddress && (
+      {secondaryPickupAddress && (
         <div className={styles.row}>
           <dt>Second pickup address</dt>
-          <dd>{formatAddress(secondPickupAddress)}</dd>
+          <dd>{formatAddress(secondaryPickupAddress)}</dd>
         </div>
       )}
       <div className={styles.row}>
         <dt>Destination address</dt>
         <dd data-testid="shipmentDestinationAddress">{formatAddress(destinationAddress)}</dd>
       </div>
-      {secondDestinationAddress && (
+      {secondaryDeliveryAddress && (
         <div className={styles.row}>
           <dt>Second destination address</dt>
-          <dd data-testid="shipmentSecondDestinationAddress">{formatAddress(secondDestinationAddress)}</dd>
+          <dd>{formatAddress(secondaryDeliveryAddress)}</dd>
         </div>
       )}
       {agents &&
@@ -69,11 +69,11 @@ const ShipmentInfoList = ({
 
 ShipmentInfoList.propTypes = {
   className: PropTypes.string,
-  requestedMoveDate: PropTypes.string.isRequired,
-  originAddress: AddressShape.isRequired,
-  secondPickupAddress: AddressShape,
+  requestedPickupDate: PropTypes.string.isRequired,
+  pickupAddress: AddressShape.isRequired,
+  secondaryPickupAddress: AddressShape,
   destinationAddress: AddressShape,
-  secondDestinationAddress: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
   agents: PropTypes.arrayOf(AgentShape),
   counselorRemarks: PropTypes.string,
   customerRemarks: PropTypes.string,
@@ -81,9 +81,9 @@ ShipmentInfoList.propTypes = {
 
 ShipmentInfoList.defaultProps = {
   className: '',
-  secondPickupAddress: null,
+  secondaryPickupAddress: null,
   destinationAddress: null,
-  secondDestinationAddress: null,
+  secondaryDeliveryAddress: null,
   agents: [],
   counselorRemarks: '',
   customerRemarks: '',

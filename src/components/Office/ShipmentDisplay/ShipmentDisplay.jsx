@@ -42,11 +42,11 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
         </div>
         <ShipmentInfoList
           className={styles.shipmentDisplayInfo}
-          requestedMoveDate={displayInfo.requestedMoveDate}
-          originAddress={displayInfo.originAddress}
-          secondPickupAddress={displayInfo.secondPickupAddress}
+          requestedPickupDate={displayInfo.requestedPickupDate}
+          pickupAddress={displayInfo.pickupAddress}
+          secondaryPickupAddress={displayInfo.secondaryPickupAddress}
           destinationAddress={displayInfo.destinationAddress}
-          secondDestinationAddress={displayInfo.secondDestinationAddress}
+          secondaryDeliveryAddress={displayInfo.secondaryDeliveryAddress}
           counselorRemarks={displayInfo.counselorRemarks}
         />
         {editURL && (
@@ -79,11 +79,11 @@ ShipmentDisplay.propTypes = {
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     isDiversion: PropTypes.bool,
-    requestedMoveDate: PropTypes.string.isRequired,
-    originAddress: AddressShape.isRequired,
-    secondPickupAddress: AddressShape,
+    requestedPickupDate: PropTypes.string.isRequired,
+    pickupAddress: AddressShape.isRequired,
+    secondaryPickupAddress: AddressShape,
     destinationAddress: AddressShape,
-    secondDestinationAddress: AddressShape,
+    secondaryDeliveryAddress: AddressShape,
     counselorRemarks: PropTypes.string,
   }).isRequired,
   showIcon: PropTypes.bool,
