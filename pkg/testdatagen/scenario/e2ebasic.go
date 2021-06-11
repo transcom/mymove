@@ -896,6 +896,91 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	/*
+	 * ANOTHER service member with an NTS, NTS-R shipment, & unsubmitted move
+	 */
+	email = "nts2@ntsr.unsubmitted"
+	uuidStr = "80da86f3-9dac-4298-8b03-b753b443668e"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithNTSID = "947645ca-06d6-4be9-82fe-3d7bd0a5792d"
+	smWithNTS = testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithNTSID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Unsubmitted"),
+			LastName:      models.StringPointer("Nts&Nts-r"),
+			Edipi:         models.StringPointer("0933240105"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	selectedMoveType = models.SelectedMoveTypeNTS
+	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
+			ServiceMember:   smWithNTS,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
+			Locator:          "NTSR02",
+			SelectedMoveType: &selectedMoveType,
+		},
+	})
+
+	estimatedNTSWeight = unit.Pound(1400)
+	actualNTSWeight = unit.Pound(2000)
+	ntsShipment = testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
+			MTOShipment:   ntsShipment,
+			MTOShipmentID: ntsShipment.ID,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	ntsrShipment = testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("2068f14e-4a04-420e-a7e1-b8a89683bbe8"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	/*
 	* Creates two valid, unclaimed access codes
 	 */
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
