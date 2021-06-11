@@ -50,6 +50,48 @@ var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
+func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator string) {
+	submittedAt := time.Now()
+	ordersSC := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
+	moveSC := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     locator,
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: ordersSC,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
@@ -2313,31 +2355,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	customerNeedsServicesCounselling := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fcsc"),
-			DutyStation:   originDutyStationsInGBLOC[0],
-			DutyStationID: &originDutyStationsInGBLOC[0].ID,
-		},
-	})
-	ordersNeedsServicesCounselling := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67sc"),
-			ServiceMemberID: customerNeedsServicesCounselling.ID,
-			ServiceMember:   customerNeedsServicesCounselling,
-		},
-		UserUploader: userUploader,
-	})
-
-	selectedMoveTypeHHG := models.SelectedMoveTypeHHG
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30sc"),
-			Locator:          "SCE2ET",
-			OrdersID:         ordersNeedsServicesCounselling.ID,
-			Status:           models.MoveStatusNeedsServiceCounseling,
-			SelectedMoveType: &selectedMoveTypeHHG,
-		},
-		Order: ordersNeedsServicesCounselling,
-	})
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE1ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE2ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE3ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE4ET")
 }
