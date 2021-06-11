@@ -131,7 +131,7 @@ export const HHGShipmentWithSecondaryAddresses = () => (
 export const NTSShipment = () => <NTSShipmentCard {...ntsDefaultProps} />;
 
 export const NTSShipmentWithSecondaryPickupAddress = () => (
-  <NTSShipmentCard {...ntsrDefaultProps} {...secondaryPickupAddress} />
+  <NTSShipmentCard {...ntsDefaultProps} {...secondaryPickupAddress} />
 );
 
 export const NTSRShipment = () => <NTSRShipmentCard {...ntsrDefaultProps} />;
