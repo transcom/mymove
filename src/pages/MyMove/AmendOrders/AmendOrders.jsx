@@ -45,7 +45,7 @@ const AmendOrders = ({ uploads }) => {
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={onChange}
-                labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+                labelIdle={'Drag files here or <span class="filepond--label-action">choose from folder</span>'}
               />
             </div>
             <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
