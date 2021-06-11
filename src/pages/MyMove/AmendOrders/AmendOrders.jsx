@@ -1,4 +1,5 @@
 import { React, createRef } from 'react';
+import { Link } from 'react-router-dom';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -6,13 +7,13 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ScrollToTop from 'components/ScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { UploadsShape } from 'types/customerShapes';
+import { generalRoutes } from 'constants/routes';
 
 const AmendOrders = ({ uploads }) => {
   const handleDelete = () => {};
   const handleUpload = () => {};
   const onChange = () => {};
-  const handleCancel = () => {};
-  const handleSubmit = () => {};
+  const handleSave = () => {};
 
   const filePondEl = createRef();
 
@@ -48,12 +49,10 @@ const AmendOrders = ({ uploads }) => {
               />
             </div>
             <div style={{ display: 'flex' }}>
-              <Button type="button" onClick={handleSubmit}>
-                Submit
+              <Button type="button" onClick={handleSave}>
+                Save
               </Button>
-              <Button type="button" onClick={handleCancel}>
-                Cancel
-              </Button>
+              <Link to={generalRoutes.HOME_PATH}>Cancel</Link>
             </div>
           </SectionWrapper>
         </Grid>
