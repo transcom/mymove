@@ -250,6 +250,7 @@ export class Home extends Component {
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
 
     return (
@@ -304,8 +305,7 @@ export class Home extends Component {
                       complete={this.hasOrders && this.hasSubmittedMove}
                       completedHeaderText="Orders"
                       editBtnLabel="Upload documents"
-                      // TODO update the orders edit path to wire in the order uploader
-                      onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                      onEditBtnClick={() => this.handleNewPathClick(ordersAmendPath)}
                       headerText="Orders"
                       step="2"
                       containerClassName="step-amended-orders"
