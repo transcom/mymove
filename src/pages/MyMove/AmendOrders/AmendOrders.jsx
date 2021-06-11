@@ -19,7 +19,7 @@ import {
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 
-const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrders }) => {
+export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrders }) => {
   const [isLoading, setLoading] = useState(true);
   const filePondEl = createRef();
 
