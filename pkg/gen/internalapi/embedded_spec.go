@@ -3732,6 +3732,9 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -6262,7 +6265,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -6275,6 +6277,9 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
@@ -10222,6 +10227,9 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -12774,7 +12782,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -12787,6 +12794,9 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
