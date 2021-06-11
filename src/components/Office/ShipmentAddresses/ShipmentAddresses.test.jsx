@@ -39,7 +39,7 @@ const testProps = {
 describe('ShipmentAddresses', () => {
   it('calls props.handleDivertShipment on request diversion button click', async () => {
     const { getByRole } = render(<ShipmentAddresses {...testProps} />);
-    const requestDiversionBtn = getByRole('button', { name: 'Request Diversion' });
+    const requestDiversionBtn = getByRole('button', { name: 'Request diversion' });
 
     userEvent.click(requestDiversionBtn);
     await waitFor(() => {

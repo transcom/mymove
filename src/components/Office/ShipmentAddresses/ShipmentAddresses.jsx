@@ -30,7 +30,7 @@ const ShipmentAddresses = ({
               onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
               unstyled
             >
-              Request Diversion
+              Request diversion
             </Button>
           </div>,
         ]}
