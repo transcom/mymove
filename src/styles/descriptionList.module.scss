@@ -4,27 +4,13 @@
 @import 'shared/styles/colors';
 
 .descriptionList {
-  .row {
-    display: flex;
-    @include u-font('body', 'xs');
-    @include u-line-height('body', 2);
-
-    .noborder {
-      @include u-border(0);
-    }
+  dt {
+    @include u-text('bold');
+    @include u-text('base-darker');
   }
 
-  .rowWithVisualCue::before {
-    @include u-margin-y(0.5);
-    // only valid values were 1px, 2px, 0 and 05
-    // 2px were needed for the outline
-    @include u-outline(2px);
-    // this is to offset the position of the outline
-    // so it lines up next to the row
-    @include u-margin-left(-2px);
-    @include u-margin-right(2px);
-    outline-color: $mm-gold;
-    content: "";
+  dd {
+    @include u-margin(0);
   }
 
   dt,
@@ -36,12 +22,56 @@
     @include u-padding-y(1.5);
   }
 
-  dt {
-    @include u-text('bold');
-    @include u-text('base-darker');
+  .row {
+    display: flex;
+    @include u-font('body', 'xs');
+    @include u-line-height('body', 2);
+
+    .noBorder {
+      @include u-border(0);
+    }
   }
 
+  .rowWithVisualCue::before {
+    @include u-margin-y(0.5);
+
+    // Only valid values were 1px, 2px, 0 and 05
+    // 2px were needed for the outline:
+    @include u-outline(2px);
+
+    // This is to offset the position of the outline
+    // so it lines up next to the row:
+    @include u-margin-left(-2px);
+    @include u-margin-right(2px);
+
+    outline-color: $mm-gold;
+    content: "";
+  }
+}
+
+.tableDisplay {
+  dt,
   dd {
-    @include u-margin(0);
+    display: table-cell;
+  }
+
+  .row {
+    display: table-row;
+  }
+}
+
+.compact {
+  @include u-margin(0);
+
+  dt,
+  dd {
+    @include u-padding-x(1);
+  }
+
+  .row:first-child {
+    dt,
+    dd {
+      @include u-border(0);
+    }
   }
 }
