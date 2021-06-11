@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -22,22 +23,39 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"service_member_id":   {"ServiceMemberID can not be blank."},
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
 		"status":              {"Status can not be blank."},
+		"uploaded_orders_id":  {"UploadedOrdersID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
 }
 
-func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
+func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
-	order.TAC = nil
 	order.Moves = append(order.Moves, move)
 
-	expErrors := map[string][]string{
-		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
-	}
+	suite.T().Run("test valid UploadedAmendedOrdersID", func(t *testing.T) {
+		testUUID := uuid.Must(uuid.NewV4())
+		order.UploadedAmendedOrdersID = &testUUID
 
-	suite.verifyValidationErrors(&order, expErrors)
+		expErrors := map[string][]string{}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	})
+
+	suite.T().Run("test blank fields", func(t *testing.T) {
+		order.TAC = nil
+		order.DepartmentIndicator = nil
+		order.UploadedAmendedOrdersID = &uuid.Nil
+
+		expErrors := map[string][]string{
+			"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
+			"department_indicator":           {"DepartmentIndicator cannot be blank."},
+			"uploaded_amended_orders_id":     {"UploadedAmendedOrdersID can not be blank."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	})
 }
 
 func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
@@ -129,19 +147,6 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 
 		suite.verifyValidationErrors(&order, expErrors)
 	}
-}
-
-func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
-	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
-	order := move.Orders
-	order.DepartmentIndicator = nil
-	order.Moves = append(order.Moves, move)
-
-	expErrors := map[string][]string{
-		"department_indicator": {"DepartmentIndicator cannot be blank."},
-	}
-
-	suite.verifyValidationErrors(&order, expErrors)
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
