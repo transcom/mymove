@@ -62,6 +62,8 @@ class MtoShipmentForm extends Component {
     customerRemarks,
     hasSecondaryPickup,
     secondaryPickup,
+    hasSecondaryDelivery,
+    secondaryDelivery,
   }) => {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
@@ -76,6 +78,7 @@ class MtoShipmentForm extends Component {
         address: hasDeliveryAddress === 'yes' ? delivery.address : undefined,
       },
       secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
+      secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
     };
 
     const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
@@ -150,7 +153,7 @@ class MtoShipmentForm extends Component {
         onSubmit={this.submitMTOShipment}
       >
         {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
-          const { hasDeliveryAddress, hasSecondaryPickup } = values;
+          const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
             const { checked } = e.target;
@@ -334,12 +337,36 @@ class MtoShipmentForm extends Component {
                                   render={(fields) => (
                                     <>
                                       {fields}
-                                      <Hint>
+                                      <h4>Second Destination Location</h4>
+                                      <FormGroup>
                                         <p>
-                                          If you have more things to go to another destination, you can schedule a
-                                          shipment for them later.
+                                          Do you want the movers to deliver any belongings to a second address? (Must be
+                                          near your delivery address. Subject to approval.)
                                         </p>
-                                      </Hint>
+                                        <div className={formStyles.radioGroup}>
+                                          <Field
+                                            as={Radio}
+                                            id="has-secondary-delivery"
+                                            label="Yes"
+                                            name="hasSecondaryDelivery"
+                                            value="yes"
+                                            title="Yes, I have a second destination location"
+                                            checked={hasSecondaryDelivery === 'yes'}
+                                          />
+                                          <Field
+                                            as={Radio}
+                                            id="no-secondary-delivery"
+                                            label="No"
+                                            name="hasSecondaryDelivery"
+                                            value="no"
+                                            title="No, I do not have a second destination location"
+                                            checked={hasSecondaryDelivery !== 'yes'}
+                                          />
+                                        </div>
+                                      </FormGroup>
+                                      {hasSecondaryDelivery === 'yes' && (
+                                        <AddressFields name="secondaryDelivery.address" />
+                                      )}
                                     </>
                                   )}
                                 />

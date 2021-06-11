@@ -76,7 +76,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Second pickup location')).toBeInstanceOf(HTMLHeadingElement);
+      expect(screen.getByRole('heading', { level: 4, name: 'Second pickup location' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second pickup location')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second pickup location')).toBeInstanceOf(HTMLInputElement);
 
@@ -92,6 +92,10 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText('First name')[1]).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -174,6 +178,47 @@ describe('MtoShipmentForm component', () => {
       expect(zip[0]).toHaveAttribute('name', 'pickup.address.postal_code');
       expect(zip[1]).toHaveAttribute('name', 'delivery.address.postal_code');
     });
+
+    it('renders the secondary destination address question once a user says they have a primary destination address', async () => {
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
+
+      userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second Destination Location' })).toBeInTheDocument();
+      expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
+    });
+
+    it('renders another address fieldset when the user has a second destination address', async () => {
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
+      userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+
+      const streetAddress1 = await screen.findAllByLabelText('Address 1');
+      expect(streetAddress1.length).toBe(3);
+      expect(streetAddress1[2]).toHaveAttribute('name', 'secondaryDelivery.address.street_address_1');
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2.length).toBe(3);
+      expect(streetAddress2[2]).toHaveAttribute('name', 'secondaryDelivery.address.street_address_2');
+
+      const city = await screen.findAllByLabelText('City');
+      expect(city.length).toBe(3);
+      expect(city[2]).toHaveAttribute('name', 'secondaryDelivery.address.city');
+
+      const state = await screen.findAllByLabelText('State');
+      expect(state.length).toBe(3);
+      expect(state[2]).toHaveAttribute('name', 'secondaryDelivery.address.state');
+
+      const zip = await screen.findAllByLabelText('ZIP');
+      expect(zip.length).toBe(3);
+      expect(zip[2]).toHaveAttribute('name', 'secondaryDelivery.address.postal_code');
+    });
   });
 
   describe('editing an already existing HHG shipment', () => {
@@ -206,7 +251,7 @@ describe('MtoShipmentForm component', () => {
       ).toHaveValue('mock remarks');
     });
 
-    it('renders the HHG shipment form with a pre-filled secondary address', async () => {
+    it('renders the HHG shipment form with pre-filled secondary addresses', async () => {
       render(
         <MtoShipmentForm
           {...defaultProps}
@@ -221,16 +266,48 @@ describe('MtoShipmentForm component', () => {
               state: 'TX',
               postal_code: '78412',
             },
+            secondaryDeliveryAddress: {
+              street_address_1: '3373 NW Martin Luther King Jr Blvd',
+              street_address_2: '',
+              city: mockMtoShipment.destinationAddress.city,
+              state: mockMtoShipment.destinationAddress.state,
+              postal_code: mockMtoShipment.destinationAddress.postal_code,
+            },
           }}
         />,
       );
 
       expect(await screen.findByTitle('Yes, I have a second pickup location')).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('142 E Barrel Hoop Circle');
-      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('#4A');
-      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Corpus Christi');
-      expect(screen.getAllByLabelText('State')[1]).toHaveValue('TX');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('78412');
+      expect(await screen.findByTitle('Yes, I have a second destination location')).toBeChecked();
+
+      const streetAddress1 = await screen.findAllByLabelText('Address 1');
+      expect(streetAddress1.length).toBe(4);
+
+      const streetAddress2 = await screen.findAllByLabelText(/Address 2/);
+      expect(streetAddress2.length).toBe(4);
+
+      const city = await screen.findAllByLabelText('City');
+      expect(city.length).toBe(4);
+
+      const state = await screen.findAllByLabelText('State');
+      expect(state.length).toBe(4);
+
+      const zip = await screen.findAllByLabelText('ZIP');
+      expect(zip.length).toBe(4);
+
+      // Secondary pickup address should be the 2nd address
+      expect(streetAddress1[1]).toHaveValue('142 E Barrel Hoop Circle');
+      expect(streetAddress2[1]).toHaveValue('#4A');
+      expect(city[1]).toHaveValue('Corpus Christi');
+      expect(state[1]).toHaveValue('TX');
+      expect(zip[1]).toHaveValue('78412');
+
+      // Secondary delivery address should be the 4th address
+      expect(streetAddress1[3]).toHaveValue('3373 NW Martin Luther King Jr Blvd');
+      expect(streetAddress2[3]).toHaveValue('');
+      expect(city[3]).toHaveValue(mockMtoShipment.destinationAddress.city);
+      expect(state[3]).toHaveValue(mockMtoShipment.destinationAddress.state);
+      expect(zip[3]).toHaveValue(mockMtoShipment.destinationAddress.postal_code);
     });
   });
 
