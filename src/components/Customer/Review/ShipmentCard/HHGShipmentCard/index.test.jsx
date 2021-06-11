@@ -49,6 +49,15 @@ const secondaryDeliveryAddress = {
   },
 };
 
+const secondaryPickupAddress = {
+  secondaryPickupAddress: {
+    street_address_1: 'Some Other Street Name',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
+};
+
 function mountHHGShipmentCard(props) {
   return mount(<HHGShipmentCard {...defaultProps} {...props} />);
 }
@@ -107,11 +116,27 @@ describe('HHGShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').length).toBe(0);
   });
 
-  it('should not render without a secondary destination location if not provided one', async () => {
+  it('should not render a secondary pickup location if not provided one', async () => {
+    render(<HHGShipmentCard {...defaultProps} />);
+
+    const secondPickupLocation = await screen.queryByText('Second pickup location');
+    expect(secondPickupLocation).not.toBeInTheDocument();
+  });
+
+  it('should not render a secondary destination location if not provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} />);
 
     const secondDestination = await screen.queryByText('Second Destination');
     expect(secondDestination).not.toBeInTheDocument();
+  });
+
+  it('should render a secondary pickup location if provided one', async () => {
+    render(<HHGShipmentCard {...defaultProps} {...secondaryPickupAddress} />);
+
+    const secondPickupLocation = await screen.getByText('Second pickup location');
+    expect(secondPickupLocation).toBeInTheDocument();
+    const secondPickupLocationInformation = await screen.getByText(/Some Other Street Name/);
+    expect(secondPickupLocationInformation).toBeInTheDocument();
   });
 
   it('should render a secondary destination location if provided one', async () => {
