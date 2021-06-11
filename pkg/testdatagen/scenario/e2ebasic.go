@@ -31,6 +31,12 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+/**************
+
+We should not be creating random data in e2ebasic! Tests should be deterministic.
+
+***************/
+
 // E2eBasicScenario builds a basic set of data for e2e testing
 type e2eBasicScenario NamedScenario
 
@@ -2307,12 +2313,29 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	// Create a move specific for Services Counselor role
-	validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling}
-	createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator: "SCE2ET", // Services counselor e2e test
+	customerNeedsServicesCounselling := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fcsc"),
 		},
 	})
+	ordersNeedsServicesCounselling := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67sc"),
+			ServiceMemberID: customerNeedsServicesCounselling.ID,
+			ServiceMember:   customerNeedsServicesCounselling,
+		},
+		UserUploader: userUploader,
+	})
+
+	selectedMoveTypeHHG := models.SelectedMoveTypeHHG
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30sc"),
+			Locator:          "SCE2ET",
+			OrdersID:         ordersNeedsServicesCounselling.ID,
+			Status:           models.MoveStatusNeedsServiceCounseling,
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+	})
+
 }
