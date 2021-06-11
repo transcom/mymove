@@ -73,6 +73,7 @@ export function formatMtoShipmentForDisplay({
   counselorRemarks,
   moveTaskOrderID,
   secondaryPickupAddress,
+  secondaryDeliveryAddress,
 }) {
   const displayValues = {
     shipmentType,
@@ -92,8 +93,12 @@ export function formatMtoShipmentForDisplay({
     secondaryPickup: {
       address: { ...emptyAddressShape },
     },
+    secondaryDelivery: {
+      address: { ...emptyAddressShape },
+    },
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
+    hasSecondaryDelivery: 'no',
   };
 
   if (agents) {
@@ -130,6 +135,11 @@ export function formatMtoShipmentForDisplay({
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
     displayValues.hasDeliveryAddress = 'yes';
+  }
+
+  if (secondaryDeliveryAddress) {
+    displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
+    displayValues.hasSecondaryDelivery = 'yes';
   }
 
   if (requestedDeliveryDate) {
