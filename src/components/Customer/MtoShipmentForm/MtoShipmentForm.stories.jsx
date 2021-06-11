@@ -118,7 +118,7 @@ export const EditNTSShipment = () =>
     mtoShipment: mockMtoShipment,
   });
 
-export const EditHHGShipmentWithSecondaryPickup = () => {
+export const EditHHGShipmentWithSecondaryAddresses = () => {
   const extendedShipment = {
     ...mockMtoShipment,
     secondaryPickupAddress: {
@@ -127,6 +127,13 @@ export const EditHHGShipmentWithSecondaryPickup = () => {
       city: 'Corpus Christi',
       state: 'TX',
       postal_code: '78412',
+    },
+    secondaryDeliveryAddress: {
+      street_address_1: '3373 NW Martin Luther King Jr Blvd',
+      street_address_2: '',
+      city: mockMtoShipment.destinationAddress.city,
+      state: mockMtoShipment.destinationAddress.state,
+      postal_code: mockMtoShipment.destinationAddress.postal_code,
     },
   };
 
