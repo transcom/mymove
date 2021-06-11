@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import ShipmentContainer from './ShipmentContainer';
+import ShipmentInfoList from './DefinitionLists/ShipmentInfoList';
 import AllowancesList from './DefinitionLists/AllowancesList';
 import CustomerInfoList from './DefinitionLists/CustomerInfoList';
 
@@ -243,6 +244,7 @@ describe('Shipment preview modal', () => {
     );
     expect(wrapper.find(ShipmentApprovalPreview).exists()).toBe(true);
     expect(wrapper.find(ShipmentContainer).exists()).toBe(true);
+    expect(wrapper.find(ShipmentInfoList).exists()).toBe(true);
     expect(wrapper.find(AllowancesList).exists()).toBe(true);
     expect(wrapper.find(CustomerInfoList).exists()).toBe(true);
   });
@@ -304,10 +306,10 @@ describe('Shipment preview modal', () => {
         shipmentManagementFee
       />,
     );
-    expect(wrapper.find('[data-testid="destinationAddress"]').at(0).text()).toEqual(
+    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(0).text()).toEqual(
       '987 Any Avenue, Fairfield, CA 94535',
     );
-    expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual(
+    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyStation.address.postal_code,
     );
   });
