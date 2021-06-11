@@ -1,19 +1,19 @@
 import { React, createRef } from 'react';
-import { Link } from 'react-router-dom';
-import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ScrollToTop from 'components/ScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { UploadsShape } from 'types/customerShapes';
-import { generalRoutes } from 'constants/routes';
 
 const AmendOrders = ({ uploads }) => {
   const handleDelete = () => {};
   const handleUpload = () => {};
   const onChange = () => {};
   const handleSave = () => {};
+  const handleCancel = () => {};
 
   const filePondEl = createRef();
 
@@ -48,12 +48,7 @@ const AmendOrders = ({ uploads }) => {
                 labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
               />
             </div>
-            <div style={{ display: 'flex' }}>
-              <Button type="button" onClick={handleSave}>
-                Save
-              </Button>
-              <Link to={generalRoutes.HOME_PATH}>Cancel</Link>
-            </div>
+            <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
           </SectionWrapper>
         </Grid>
       </Grid>
