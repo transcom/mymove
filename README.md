@@ -68,6 +68,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
   * [GoLand](#goland)
+  * [Storybook](#storybook)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
@@ -587,6 +588,17 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 ### GoLand
 
 * GoLand supports [attaching the debugger to a running process](https://blog.jetbrains.com/go/2019/02/06/debugging-with-goland-getting-started/#debugging-a-running-application-on-the-local-machine), however this requires that the server has been built with specific flags. If you wish to use this feature in development add the following line `export GOLAND=1` to your `.envrc.local`. Once the server starts follow the steps outlined in the article above and you should now be able to set breakpoints using the GoLand debugger.
+
+### Storybook
+
+We use [Storybook](https://storybook.js.org) for reviewing our
+component library. The current components are deployed to
+[https://storybook.dp3.us](https://storybook.dp3.us) after each build
+of the master branch.
+
+Each PR saves storybook as an artifact in CircleCI. Find the
+`build_storybook` task and then go to the "ARTIFACTS" tab. Find the
+link to `storybook/index.html` and click on it.
 
 ### Troubleshooting
 
