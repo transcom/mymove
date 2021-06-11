@@ -2315,7 +2315,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	customerNeedsServicesCounselling := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fcsc"),
+			ID:            uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fcsc"),
+			DutyStation:   originDutyStationsInGBLOC[0],
+			DutyStationID: &originDutyStationsInGBLOC[0].ID,
 		},
 	})
 	ordersNeedsServicesCounselling := testdatagen.MakeOrder(db, testdatagen.Assertions{
@@ -2336,6 +2338,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Status:           models.MoveStatusNeedsServiceCounseling,
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
+		Order: ordersNeedsServicesCounselling,
 	})
-
 }
