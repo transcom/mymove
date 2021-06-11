@@ -1,17 +1,30 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { generatePath } from 'react-router';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { v4 as uuidv4 } from 'uuid';
 
 import MtoShipmentForm from './MtoShipmentForm';
 
+import { customerRoutes } from 'constants/routes';
+import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  createMTOShipment: jest.fn(),
+  getResponseError: jest.fn(),
+  patchMTOShipment: jest.fn(),
+}));
+
+const moveId = uuidv4();
 
 const defaultProps = {
   isCreatePage: true,
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  match: { isExact: false, path: '', url: '', params: { moveId: '' } },
+  match: { isExact: false, path: '', url: '', params: { moveId } },
   history: {
     goBack: jest.fn(),
     push: jest.fn(),
@@ -38,25 +51,7 @@ const defaultProps = {
   },
 };
 
-const mockMtoShipment = {
-  id: 'mock id',
-  moveTaskOrderId: 'mock move id',
-  customerRemarks: 'mock remarks',
-  requestedPickupDate: '2020-03-01',
-  requestedDeliveryDate: '2020-03-30',
-  pickupAddress: {
-    street_address_1: '812 S 129th St',
-    city: 'San Antonio',
-    state: 'TX',
-    postal_code: '78234',
-  },
-  destinationAddress: {
-    street_address_1: '441 SW Rio de la Plata Drive',
-    city: 'Tacoma',
-    state: 'WA',
-    postal_code: '98421',
-  },
-};
+const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
 describe('MtoShipmentForm component', () => {
   describe('when creating a new HHG shipment', () => {
@@ -219,9 +214,179 @@ describe('MtoShipmentForm component', () => {
       expect(zip.length).toBe(3);
       expect(zip[2]).toHaveAttribute('name', 'secondaryDelivery.address.postal_code');
     });
+
+    it('goes back when the back button is clicked', async () => {
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      const backButton = await screen.findByRole('button', { name: 'Back' });
+      userEvent.click(backButton);
+
+      await waitFor(() => {
+        expect(defaultProps.history.goBack).toHaveBeenCalled();
+      });
+    });
+
+    it('can submit a new HHG shipment successfully', async () => {
+      const shipmentInfo = {
+        requestedPickupDate: '07 Jun 2021',
+        pickupAddress: {
+          street_address_1: '812 S 129th St',
+          street_address_2: '#123',
+          city: 'San Antonio',
+          state: 'TX',
+          postal_code: '78234',
+        },
+        requestedDeliveryDate: '14 Jun 2021',
+      };
+
+      const expectedPayload = {
+        moveTaskOrderID: moveId,
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        customerRemarks: '',
+        requestedPickupDate: '2021-06-07',
+        pickupAddress: { ...shipmentInfo.pickupAddress },
+        requestedDeliveryDate: '2021-06-14',
+      };
+
+      const updatedAt = '2021-06-11T18:12:11.918Z';
+      const expectedCreateResponse = {
+        createdAt: '2021-06-11T18:12:11.918Z',
+        customerRemarks: '',
+        eTag: btoa(updatedAt),
+        id: uuidv4(),
+        moveTaskOrderID: moveId,
+        pickupAddress: { ...shipmentInfo.pickupAddress, id: uuidv4() },
+        requestedDeliveryDate: expectedPayload.requestedDeliveryDate,
+        requestedPickupDate: expectedPayload.requestedPickupDate,
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        status: 'SUBMITTED',
+        updatedAt,
+      };
+
+      createMTOShipment.mockImplementation(() => Promise.resolve(expectedCreateResponse));
+
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      const pickupDateInput = await screen.findByLabelText('Requested pickup date');
+      userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
+
+      const pickupAddress1Input = screen.getByLabelText('Address 1');
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+
+      const pickupAddress2Input = screen.getByLabelText(/Address 2/);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+
+      const pickupCityInput = screen.getByLabelText('City');
+      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+
+      const pickupStateInput = screen.getByLabelText('State');
+      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+
+      const pickupPostalCodeInput = screen.getByLabelText('ZIP');
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+
+      const deliveryDateInput = await screen.findByLabelText('Requested delivery date');
+      userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
+
+      const nextButton = await screen.findByRole('button', { name: 'Next' });
+      expect(nextButton).not.toBeDisabled();
+      userEvent.click(nextButton);
+
+      await waitFor(() => {
+        expect(createMTOShipment).toHaveBeenCalledWith(expectedPayload);
+      });
+
+      expect(defaultProps.updateMTOShipment).toHaveBeenCalledWith(expectedCreateResponse);
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(reviewPath);
+    });
+
+    it('shows an error when there is an error with the submission', async () => {
+      const shipmentInfo = {
+        requestedPickupDate: '07 Jun 2021',
+        pickupAddress: {
+          street_address_1: '812 S 129th St',
+          street_address_2: '#123',
+          city: 'San Antonio',
+          state: 'TX',
+          postal_code: '78234',
+        },
+        requestedDeliveryDate: '14 Jun 2021',
+      };
+
+      const errorMessage = 'Something broke!';
+      const errorResponse = { response: { errorMessage } };
+      createMTOShipment.mockImplementation(() => Promise.reject(errorResponse));
+      getResponseError.mockImplementation(() => errorMessage);
+
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+
+      const pickupDateInput = await screen.findByLabelText('Requested pickup date');
+      userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
+
+      const pickupAddress1Input = screen.getByLabelText('Address 1');
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+
+      const pickupAddress2Input = screen.getByLabelText(/Address 2/);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+
+      const pickupCityInput = screen.getByLabelText('City');
+      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+
+      const pickupStateInput = screen.getByLabelText('State');
+      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+
+      const pickupPostalCodeInput = screen.getByLabelText('ZIP');
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+
+      const deliveryDateInput = await screen.findByLabelText('Requested delivery date');
+      userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
+
+      const nextButton = await screen.findByRole('button', { name: 'Next' });
+      expect(nextButton).not.toBeDisabled();
+      userEvent.click(nextButton);
+
+      await waitFor(() => {
+        expect(createMTOShipment).toHaveBeenCalled();
+      });
+
+      expect(getResponseError).toHaveBeenCalledWith(
+        errorResponse.response,
+        'failed to create MTO shipment due to server error',
+      );
+
+      expect(await screen.findByText(errorMessage)).toBeInTheDocument();
+    });
   });
 
   describe('editing an already existing HHG shipment', () => {
+    const updatedAt = '2021-06-11T18:12:11.918Z';
+
+    const mockMtoShipment = {
+      id: uuidv4(),
+      eTag: btoa(updatedAt),
+      createdAt: '2021-06-11T18:12:11.918Z',
+      updatedAt,
+      moveTaskOrderId: moveId,
+      customerRemarks: 'mock remarks',
+      requestedPickupDate: '2021-08-01',
+      requestedDeliveryDate: '2021-08-11',
+      pickupAddress: {
+        id: uuidv4(),
+        street_address_1: '812 S 129th St',
+        city: 'San Antonio',
+        state: 'TX',
+        postal_code: '78234',
+      },
+      destinationAddress: {
+        id: uuidv4(),
+        street_address_1: '441 SW Rio de la Plata Drive',
+        city: 'Tacoma',
+        state: 'WA',
+        postal_code: '98421',
+      },
+    };
+
     it('renders the HHG shipment form with pre-filled values', async () => {
       render(
         <MtoShipmentForm
@@ -232,14 +397,14 @@ describe('MtoShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Aug 2021');
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
@@ -308,6 +473,162 @@ describe('MtoShipmentForm component', () => {
       expect(city[3]).toHaveValue(mockMtoShipment.destinationAddress.city);
       expect(state[3]).toHaveValue(mockMtoShipment.destinationAddress.state);
       expect(zip[3]).toHaveValue(mockMtoShipment.destinationAddress.postal_code);
+    });
+
+    it('goes back when the cancel button is clicked', async () => {
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+      userEvent.click(cancelButton);
+
+      await waitFor(() => {
+        expect(defaultProps.history.goBack).toHaveBeenCalled();
+      });
+    });
+
+    it('can submit edits to an HHG shipment successfully', async () => {
+      const shipmentInfo = {
+        pickupAddress: {
+          street_address_1: '6622 Airport Way S',
+          street_address_2: '#1430',
+          city: 'San Marcos',
+          state: 'TX',
+          postal_code: '78666',
+        },
+      };
+
+      const expectedPayload = {
+        moveTaskOrderID: moveId,
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        pickupAddress: { ...shipmentInfo.pickupAddress },
+        customerRemarks: mockMtoShipment.customerRemarks,
+        requestedPickupDate: mockMtoShipment.requestedPickupDate,
+        requestedDeliveryDate: mockMtoShipment.requestedDeliveryDate,
+        destinationAddress: { ...mockMtoShipment.destinationAddress, street_address_2: '' },
+        secondaryDeliveryAddress: undefined,
+        secondaryPickupAddress: undefined,
+        agents: undefined,
+        counselorRemarks: undefined,
+      };
+      delete expectedPayload.destinationAddress.id;
+
+      const newUpdatedAt = '2021-06-11T21:20:22.150Z';
+      const expectedUpdateResponse = {
+        ...mockMtoShipment,
+        pickupAddress: { ...shipmentInfo.pickupAddress },
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        eTag: btoa(newUpdatedAt),
+        status: 'SUBMITTED',
+      };
+
+      patchMTOShipment.mockImplementation(() => Promise.resolve(expectedUpdateResponse));
+
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
+      userEvent.clear(pickupAddress1Input);
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+
+      const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
+      userEvent.clear(pickupAddress2Input);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+
+      const pickupCityInput = screen.getAllByLabelText('City')[0];
+      userEvent.clear(pickupCityInput);
+      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+
+      const pickupStateInput = screen.getAllByLabelText('State')[0];
+      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+
+      const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
+      userEvent.clear(pickupPostalCodeInput);
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(patchMTOShipment).toHaveBeenCalledWith(mockMtoShipment.id, expectedPayload, mockMtoShipment.eTag);
+      });
+
+      expect(defaultProps.updateMTOShipment).toHaveBeenCalledWith(expectedUpdateResponse);
+
+      expect(defaultProps.history.push).toHaveBeenCalledWith(reviewPath);
+    });
+
+    it('shows an error when there is an error with the submission', async () => {
+      const shipmentInfo = {
+        pickupAddress: {
+          street_address_1: '6622 Airport Way S',
+          street_address_2: '#1430',
+          city: 'San Marcos',
+          state: 'TX',
+          postal_code: '78666',
+        },
+      };
+
+      const errorMessage = 'Something broke!';
+      const errorResponse = { response: { errorMessage } };
+      patchMTOShipment.mockImplementation(() => Promise.reject(errorResponse));
+      getResponseError.mockImplementation(() => errorMessage);
+
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+        />,
+      );
+
+      const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
+      userEvent.clear(pickupAddress1Input);
+      userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.street_address_1);
+
+      const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
+      userEvent.clear(pickupAddress2Input);
+      userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.street_address_2);
+
+      const pickupCityInput = screen.getAllByLabelText('City')[0];
+      userEvent.clear(pickupCityInput);
+      userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+
+      const pickupStateInput = screen.getAllByLabelText('State')[0];
+      userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+
+      const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
+      userEvent.clear(pickupPostalCodeInput);
+      userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
+
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(patchMTOShipment).toHaveBeenCalled();
+      });
+
+      expect(getResponseError).toHaveBeenCalledWith(
+        errorResponse.response,
+        'failed to create MTO shipment due to server error',
+      );
+
+      expect(await screen.findByText(errorMessage)).toBeInTheDocument();
     });
   });
 
