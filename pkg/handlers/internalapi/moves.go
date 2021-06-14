@@ -167,7 +167,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
-
+	h.MoveRouter.SetLogger(logger)
 	err = h.MoveRouter.Submit(move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

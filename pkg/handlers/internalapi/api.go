@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"context"
 	"io"
 	"log"
 
@@ -69,7 +68,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{ctx}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		ctx,
-		move.NewMoveRouter(ctx.DB(), ctx.LoggerFromContext(context.Background())),
+		move.NewMoveRouter(ctx.DB(), ctx.Logger()),
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{ctx}
 
