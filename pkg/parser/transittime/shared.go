@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tealeg/xlsx/v2"
+	"github.com/tealeg/xlsx/v3"
 )
 
 /*************************************************************************/
@@ -17,11 +17,15 @@ import (
 // A way to get a cell value from a sheet
 // return empty string if not found
 func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) string {
-	if sheet != nil {
-		return sheet.Cell(row, col).String()
-	}
-
+	// TODO: Fix to work with xlsx 3.x
 	return ""
+	/*
+		if sheet != nil {
+			return sheet.Cell(row, col).String()
+		}
+
+		return ""
+	*/
 }
 
 // A way to parse domestic header bounds.
