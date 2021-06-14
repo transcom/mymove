@@ -3,7 +3,7 @@ package pricing
 import (
 	"fmt"
 
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v2"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"

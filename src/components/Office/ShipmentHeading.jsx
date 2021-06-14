@@ -24,6 +24,9 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
       <div className={styles.shipmentHeadingType}>
         <h2>{shipmentInfo.shipmentType}</h2>
         {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
+        {!shipmentInfo.isDiversion && shipmentInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
+          <Tag>diversion requested</Tag>
+        )}
       </div>
       <div className={styles.row}>
         <small>

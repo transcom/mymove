@@ -31,4 +31,5 @@ type MoveRouter interface {
 	CompleteServiceCounseling(move *models.Move) error
 	SendToOfficeUserToReviewNewServiceItems(move *models.Move) error
 	Submit(move *models.Move) error
+	SetLogger(logger Logger)
 }

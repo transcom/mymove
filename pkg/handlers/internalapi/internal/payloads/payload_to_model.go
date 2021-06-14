@@ -79,6 +79,7 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
 	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
@@ -107,6 +108,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
 	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

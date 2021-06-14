@@ -51,15 +51,8 @@ export class Orders extends Component {
   }
 
   render() {
-    const {
-      context,
-      currentStation,
-      push,
-      serviceMemberId,
-      currentOrders,
-      updateOrders,
-      updateServiceMember,
-    } = this.props;
+    const { context, currentStation, push, serviceMemberId, currentOrders, updateOrders, updateServiceMember } =
+      this.props;
 
     const { isLoading, serverError } = this.state;
 

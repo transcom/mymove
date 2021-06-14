@@ -124,14 +124,8 @@ class MoveInfo extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      loadBackupContacts,
-      loadOrders,
-      loadMoveIsSuccess,
-      loadServiceMember,
-      ordersId,
-      serviceMemberId,
-    } = this.props;
+    const { loadBackupContacts, loadOrders, loadMoveIsSuccess, loadServiceMember, ordersId, serviceMemberId } =
+      this.props;
     if (loadMoveIsSuccess !== prevProps.loadMoveIsSuccess && loadMoveIsSuccess) {
       loadOrders(ordersId);
       loadServiceMember(serviceMemberId);
