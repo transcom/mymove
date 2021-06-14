@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
@@ -75,8 +76,10 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryAssociation("SecondaryDeliveryAddress"),
 	})
 
+	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
+
 	var shipments models.MTOShipments
-	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, queryAssociations, nil, nil)
+	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, queryAssociations, nil, queryOrder)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto shipments : ", zap.Error(err))
