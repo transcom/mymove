@@ -666,6 +666,211 @@ paths:
       description: Updates a shipment's status
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
+  '/shipments/{shipmentID}/approve':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves a shipment
+      operationId: approveShipment
+      summary: Approves a shipment
+  '/shipments/{shipmentID}/request-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment diversion
+      operationId: requestShipmentDiversion
+      summary: Requests a shipment diversion
+  '/shipments/{shipmentID}/approve-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves a shipment diversion
+      operationId: approveShipmentDiversion
+      summary: Approves a shipment diversion
+  '/shipments/{shipmentID}/reject':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RejectShipment'
+      responses:
+        '200':
+          description: Successfully rejected the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: rejects a shipment
+      operationId: rejectShipment
+      summary: rejects a shipment
+  '/shipments/{shipmentID}/request-cancellation':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment cancellation
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment cancellation
+      operationId: requestShipmentCancellation
+      summary: Requests a shipment cancellation
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -2743,6 +2948,13 @@ definitions:
         x-nullable: true
     required:
       - status
+  RejectShipment:
+    properties:
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+    required:
+      - rejectionReason
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
@@ -3134,10 +3346,6 @@ responses:
       $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
-    schema:
-      $ref: '#/definitions/Error'
-  Unauthorized:
-    description: The request was unauthorized
     schema:
       $ref: '#/definitions/Error'
   ServerError:

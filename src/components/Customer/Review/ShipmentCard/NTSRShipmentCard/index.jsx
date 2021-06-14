@@ -14,6 +14,7 @@ import { customerRoutes } from 'constants/routes';
 const NTSRShipmentCard = ({
   destinationLocation,
   destinationZIP,
+  secondaryDeliveryAddress,
   receivingAgent,
   remarks,
   requestedDeliveryDate,
@@ -54,6 +55,7 @@ const NTSRShipmentCard = ({
             requestedDeliveryDate={requestedDeliveryDate}
             destinationLocation={destinationLocation}
             destinationZIP={destinationZIP}
+            secondaryDeliveryAddress={secondaryDeliveryAddress}
             receivingAgent={receivingAgent}
           />
           {remarks && (
@@ -71,6 +73,7 @@ const NTSRShipmentCard = ({
 NTSRShipmentCard.propTypes = {
   destinationLocation: AddressShape,
   destinationZIP: string.isRequired,
+  secondaryDeliveryAddress: AddressShape,
   moveId: string.isRequired,
   onEditClick: func.isRequired,
   requestedDeliveryDate: string.isRequired,
@@ -90,6 +93,7 @@ NTSRShipmentCard.defaultProps = {
   destinationLocation: null,
   receivingAgent: null,
   remarks: '',
+  secondaryDeliveryAddress: null,
 };
 
 export default NTSRShipmentCard;

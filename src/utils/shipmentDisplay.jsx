@@ -15,6 +15,19 @@ export function formatAddress(address) {
   );
 }
 
+export function formatAgent(agent) {
+  const { firstName, lastName, phone, email } = agent;
+  return (
+    <>
+      <div>
+        {firstName} {lastName}
+      </div>
+      {phone && <div>{phone}</div>}
+      {email && <div>{email}</div>}
+    </>
+  );
+}
+
 export function formatCustomerDestination(destinationLocation, destinationZIP) {
   return destinationLocation ? (
     <>

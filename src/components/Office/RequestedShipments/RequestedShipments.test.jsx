@@ -1,6 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount, shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import { ORDERS_TYPE, ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from '../../../constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from '../../../constants/departmentIndicators';
@@ -387,6 +388,13 @@ describe('RequestedShipments', () => {
     expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyStation.address.postal_code,
     );
+  });
+
+  it('renders the secondary address info if provided', () => {
+    render(requestedShipmentsComponent);
+    // There are three shipments on the screen, but only two have secondary address info
+    expect(screen.getAllByText('Second pickup address')).toHaveLength(2);
+    expect(screen.getAllByText('Second destination address')).toHaveLength(2);
   });
 
   it('enables the modal button when a shipment and service item are checked', async () => {

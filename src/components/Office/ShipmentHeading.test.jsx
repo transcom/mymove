@@ -61,3 +61,15 @@ describe('Shipment Heading with diverted shipment', () => {
     expect(wrapper.find('small').text()).toContain('27 Mar 2020');
   });
 });
+
+describe('Shipment Heading with diversion requested shipment', () => {
+  it('renders the diversion requested tag next to the shipment type', () => {
+    const wrapper = mount(
+      <ShipmentHeading
+        shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: 'DIVERSION_REQUESTED' }}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+      />,
+    );
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('diversion requested');
+  });
+});

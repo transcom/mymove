@@ -63,6 +63,28 @@ export const OrdersUploaded = () => (
   </div>
 );
 
+export const OrdersAmended = () => (
+  <div className="grid-container">
+    <h3>Orders</h3>
+    <Step
+      complete={boolean('Complete', true)}
+      completedHeaderText={text('Complete Header Text', 'Orders')}
+      editBtnLabel={text('Upload documents Button Label', 'Upload documents')}
+      headerText={text('Header Text', 'Orders')}
+      onEditBtnClick={() => {}}
+      step={text('Step', '2')}
+      containerClassName="step-amended-orders"
+    >
+      <p>If you receive amended orders:</p>
+      <ul>
+        <li>Upload the new documents here</li>
+        <li>Talk directly with your movers about changes</li>
+        <li>The transportation office will update your move info to reflect the new orders</li>
+      </ul>
+    </Step>
+  </div>
+);
+
 export const ShipmentSelection = () => (
   <div className="grid-container">
     <h3>Shipment Selection</h3>
