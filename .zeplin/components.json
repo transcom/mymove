@@ -208,7 +208,7 @@
       "storybook": {
         "kind": "Components/Forms",
         "stories": [
-          "FormElements",
+          "form-elements",
           "KitchenSinkForm"
         ]
       }
