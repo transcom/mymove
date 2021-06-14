@@ -22,7 +22,8 @@
         "Tab nav/tab",
         "Tab nav/tab:hover",
         "Tab nav/tab:selected",
-        "Tab nav/tab--with-tag:selected"
+        "Tab nav/tab--with-tag:selected",
+        "Tab nav/tab-nav"
       ],
       "storybook": {
         "kind": "Components/Tab Navigation",
@@ -30,10 +31,7 @@
           "Default",
           "withTag"
         ]
-      },
-      "zeplinIds": [
-        "60ad25dd039a1da1defd0973"
-      ]
+      }
     },
     {
       "path": "src/stories/buttons.stories.jsx",
@@ -422,6 +420,13 @@
           "MilmoveLogo"
         ]
       }
+    },
+    {
+      "path": "src/components/Callout/index.jsx",
+      "zeplinNames": [
+        "m_callout",
+        "d_callout"
+      ]
     }
   ],
   "github": {
