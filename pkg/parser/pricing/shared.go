@@ -1,7 +1,7 @@
 package pricing
 
 import (
-	// "fmt"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -28,12 +28,18 @@ type headerInfo struct {
 /*************************************************************************/
 
 // A safe way to get a cell from a slice of cells, returning empty string if not found
-func getCell(cells []*xlsx.Cell, i int) string {
-	if len(cells) > i {
-		return cells[i].String()
+func getCell(sheet *xlsx.Sheet, rowIdx, colIdx int) string {
+	if rowIdx >= sheet.MaxRow || colIdx >= sheet.MaxCol {
+		return ""
 	}
 
-	return ""
+	cell, err := sheet.Cell(rowIdx, colIdx)
+	if err != nil {
+		// TODO: Is this panic OK? For now, just trying to avoid having to add in error-checking on every
+		//   getCell call.  It's a CLI, so what would we do to react to it other than end the process?
+		panic(err)
+	}
+	return cell.String()
 }
 
 func getInt(from string) (int, error) {
@@ -66,17 +72,13 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-func verifyHeader(row *xlsx.Row, column int, expectedName string) error {
-	// TODO: Fix to work with xlsx 3.x
-	return nil
-	/*
-		actual := getCell(row.Cells, column)
-		if removeWhiteSpace(expectedName) != removeWhiteSpace(actual) {
-			return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", expectedName, actual)
-		}
+func verifyHeader(sheet *xlsx.Sheet, rowIdx, colIdx int, expectedName string) error {
+	actual := getCell(sheet, rowIdx, colIdx)
+	if removeWhiteSpace(expectedName) != removeWhiteSpace(actual) {
+		return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", expectedName, actual)
+	}
 
-		return nil
-	*/
+	return nil
 }
 
 // generateOutputFilename: generates filename using XlsxDataSheetInfo.outputFilename
