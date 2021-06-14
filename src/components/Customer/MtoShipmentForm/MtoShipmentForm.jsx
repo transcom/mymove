@@ -13,7 +13,6 @@ import {
   Radio,
   Textarea,
 } from '@trussworks/react-uswds';
-import { Callout } from 'src/components/Callout/index.jsx';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';

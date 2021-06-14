@@ -6,9 +6,9 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 
 const Callout = ({ children, className, ...props }) => (
-  <div className={classnames(styles.remarksExamples}, className)} {...props}>
+  <div className={classnames(styles.remarksExamples, className)} {...props}>
     {children}
-   </div>;
+  </div>
 );
 
 Callout.propTypes = {
@@ -21,4 +21,3 @@ Callout.defaultProps = {
 };
 
 export default Callout;
-
