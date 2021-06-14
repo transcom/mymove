@@ -1,0 +1,116 @@
+body {
+  font-family: 'Public Sans', Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #dfe1e2;
+}
+
+.navbar-brand {
+  color: inherit;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-right: 1rem;
+}
+
+.navbar-list {
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  margin: 0;
+}
+
+.navbar-list-item {
+  padding-left: 1rem;
+}
+
+.navbar-list-item a {
+  color: #565c65;
+  text-decoration: none;
+}
+
+.navbar-list-item a:hover {
+  color: #0050d8;
+  text-decoration: underline;
+}
+
+.nav-header {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+  margin: 0;
+  list-style: none;
+  background-color: #252f3e;
+  border-top: 1px solid #d9e8f6;
+  margin-top: -1px;
+}
+
+.nav-link {
+  color: #d9e8f6;
+  text-decoration: none;
+  display: block;
+  border-top: 3px solid #252f3e;
+  border-bottom: 4px solid #252f3e;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out;
+  padding: .75rem 2rem;
+}
+
+.nav-link:not(:last-child) {
+  margin-right: 1rem;
+}
+
+.nav-link:hover {
+  color: #b7caf0;
+  border-bottom-color: #b7caf0;
+}
+
+.nav-link.active {
+  color: #252f3e;
+  background-color: white;
+  border-bottom-color: white;
+  border-top-color: #d9e8f6;
+}
+
+#index-main {
+  padding: 1rem;
+}
+
+.link-list {
+  margin: 0;
+}
+
+.link-list-item {
+  font-size: 1.25rem;
+  padding: .5rem .25rem;
+}
+
+.link-list-item > a {
+  color: #1a4480;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 4px solid white;
+  padding-bottom: .25rem;
+}
+
+.link-list-item > a:hover {
+  border-bottom-color: #0050d8;
+}
+
+/* These classes are overriding ReDoc base classes: */
+.api-info > h1 {
+  font-size: 2.25rem;
+}
+
+.menu-content {
+  padding-top: 1rem;
+}
