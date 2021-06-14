@@ -417,7 +417,7 @@
       "storybook": {
         "kind": "Global/Brand",
         "stories": [
-          "MilmoveLogo"
+          "milmove-logo"
         ]
       }
     },
