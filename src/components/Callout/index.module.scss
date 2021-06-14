@@ -3,7 +3,7 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.remarksExamples {
+.callOutContainer {
   color: $base-darker;
   @include u-margin-y('105');
   @include u-padding(2);
