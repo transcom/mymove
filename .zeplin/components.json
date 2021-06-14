@@ -275,7 +275,7 @@
       "storybook": {
         "kind": "Components/Tables",
         "stories": [
-          "TableElements"
+          "table-elements"
         ]
       }
     },
@@ -340,7 +340,7 @@
       "storybook": {
         "kind": "Components/Headers/Milmove Header",
         "stories": [
-          "LoggedOutHeader"
+          "logged-out-header"
         ]
       }
     },
