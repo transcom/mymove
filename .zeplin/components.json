@@ -426,7 +426,13 @@
       "zeplinNames": [
         "m_callout",
         "d_callout"
-      ]
+      ],
+      "storybook": {
+        "kind": "Components/Callout",
+        "stories": [
+          "component"
+        ]
+      }
     }
   ],
   "github": {
