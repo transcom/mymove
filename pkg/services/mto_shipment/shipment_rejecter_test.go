@@ -98,5 +98,6 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		_, err = rejecter.RejectShipment(shipment.ID, eTag, &reason)
 
 		suite.NoError(err)
+		shipmentRouter.AssertNumberOfCalls(t, "Reject", 1)
 	})
 }
