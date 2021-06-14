@@ -1535,7 +1535,7 @@ func init() {
         }
       ]
     },
-    "/payment-requests/{paymentRequestID}/status": {
+    "/payment-requests/{paymentRequestID}/status/reviewed": {
       "patch": {
         "description": "Updates status of a payment request by id",
         "consumes": [
@@ -1548,7 +1548,7 @@ func init() {
           "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
-        "operationId": "updatePaymentRequestStatus",
+        "operationId": "updateReviewedPaymentRequestStatus",
         "parameters": [
           {
             "type": "string",
@@ -1563,7 +1563,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/UpdateReviewedPaymentRequestStatusPayload"
             }
           },
           {
@@ -1575,7 +1575,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated payment request",
+            "description": "updates payment request to REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
@@ -3836,6 +3836,14 @@ func init() {
         }
       }
     },
+    "ReviewedPaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+      ]
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -4089,7 +4097,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdateReviewedPaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -4101,7 +4109,7 @@ func init() {
           "example": "documentation was incomplete"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/ReviewedPaymentRequestStatus"
         }
       }
     },
@@ -6269,7 +6277,7 @@ func init() {
         }
       ]
     },
-    "/payment-requests/{paymentRequestID}/status": {
+    "/payment-requests/{paymentRequestID}/status/reviewed": {
       "patch": {
         "description": "Updates status of a payment request by id",
         "consumes": [
@@ -6282,7 +6290,7 @@ func init() {
           "paymentRequests"
         ],
         "summary": "Updates status of a payment request by id",
-        "operationId": "updatePaymentRequestStatus",
+        "operationId": "updateReviewedPaymentRequestStatus",
         "parameters": [
           {
             "type": "string",
@@ -6297,7 +6305,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/UpdateReviewedPaymentRequestStatusPayload"
             }
           },
           {
@@ -6309,7 +6317,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "updated payment request",
+            "description": "updates payment request to REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
             "schema": {
               "$ref": "#/definitions/PaymentRequest"
             }
@@ -8636,6 +8644,14 @@ func init() {
         }
       }
     },
+    "ReviewedPaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "REVIEWED",
+        "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
+      ]
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -8892,7 +8908,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "UpdateReviewedPaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
         "eTag": {
@@ -8904,7 +8920,7 @@ func init() {
           "example": "documentation was incomplete"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/ReviewedPaymentRequestStatus"
         }
       }
     },

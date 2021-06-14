@@ -83,8 +83,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentUpdateMTOShipmentStatusHandler: mto_shipment.UpdateMTOShipmentStatusHandlerFunc(func(params mto_shipment.UpdateMTOShipmentStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
 		}),
-		PaymentRequestUpdatePaymentRequestStatusHandler: payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
+		PaymentRequestUpdateProcessedPaymentRequestStatusHandler: payment_request.UpdateProcessedPaymentRequestStatusHandlerFunc(func(params payment_request.UpdateProcessedPaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.UpdateProcessedPaymentRequestStatus has not yet been implemented")
+		}),
+		PaymentRequestUpdateReviewedPaymentRequestStatusHandler: payment_request.UpdateReviewedPaymentRequestStatusHandlerFunc(func(params payment_request.UpdateReviewedPaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.UpdateReviewedPaymentRequestStatus has not yet been implemented")
 		}),
 	}
 }
@@ -148,8 +151,10 @@ type MymoveAPI struct {
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
 	// MtoShipmentUpdateMTOShipmentStatusHandler sets the operation handler for the update m t o shipment status operation
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
-	// PaymentRequestUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
-	PaymentRequestUpdatePaymentRequestStatusHandler payment_request.UpdatePaymentRequestStatusHandler
+	// PaymentRequestUpdateProcessedPaymentRequestStatusHandler sets the operation handler for the update processed payment request status operation
+	PaymentRequestUpdateProcessedPaymentRequestStatusHandler payment_request.UpdateProcessedPaymentRequestStatusHandler
+	// PaymentRequestUpdateReviewedPaymentRequestStatusHandler sets the operation handler for the update reviewed payment request status operation
+	PaymentRequestUpdateReviewedPaymentRequestStatusHandler payment_request.UpdateReviewedPaymentRequestStatusHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -252,8 +257,11 @@ func (o *MymoveAPI) Validate() error {
 	if o.MtoShipmentUpdateMTOShipmentStatusHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentStatusHandler")
 	}
-	if o.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
-		unregistered = append(unregistered, "payment_request.UpdatePaymentRequestStatusHandler")
+	if o.PaymentRequestUpdateProcessedPaymentRequestStatusHandler == nil {
+		unregistered = append(unregistered, "payment_request.UpdateProcessedPaymentRequestStatusHandler")
+	}
+	if o.PaymentRequestUpdateReviewedPaymentRequestStatusHandler == nil {
+		unregistered = append(unregistered, "payment_request.UpdateReviewedPaymentRequestStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -394,7 +402,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_request.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestUpdatePaymentRequestStatusHandler)
+	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status/processed"] = payment_request.NewUpdateProcessedPaymentRequestStatus(o.context, o.PaymentRequestUpdateProcessedPaymentRequestStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status/reviewed"] = payment_request.NewUpdateReviewedPaymentRequestStatus(o.context, o.PaymentRequestUpdateReviewedPaymentRequestStatusHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

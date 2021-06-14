@@ -33,7 +33,9 @@ type ClientService interface {
 
 	ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams) (*ProcessReviewedPaymentRequestsOK, error)
 
-	UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams) (*UpdatePaymentRequestStatusOK, error)
+	UpdateProcessedPaymentRequestStatus(params *UpdateProcessedPaymentRequestStatusParams) (*UpdateProcessedPaymentRequestStatusOK, error)
+
+	UpdateReviewedPaymentRequestStatus(params *UpdateReviewedPaymentRequestStatusParams) (*UpdateReviewedPaymentRequestStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -161,43 +163,82 @@ func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRe
 }
 
 /*
-  UpdatePaymentRequestStatus updates payment request status
+  UpdateProcessedPaymentRequestStatus updates processed payment request status
 
-  Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
-
-A status of REVIEWED can optionally have a `rejectionReason`.
+  Updates status of a payment request to SENT_TO_GEX, RECEIVED_BY_GEX, EDI_ERROR or PAID
 
 This is a support endpoint and is not available in production.
 
 */
-func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams) (*UpdatePaymentRequestStatusOK, error) {
+func (a *Client) UpdateProcessedPaymentRequestStatus(params *UpdateProcessedPaymentRequestStatusParams) (*UpdateProcessedPaymentRequestStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdatePaymentRequestStatusParams()
+		params = NewUpdateProcessedPaymentRequestStatusParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updatePaymentRequestStatus",
+		ID:                 "updateProcessedPaymentRequestStatus",
 		Method:             "PATCH",
-		PathPattern:        "/payment-requests/{paymentRequestID}/status",
+		PathPattern:        "/payment-requests/{paymentRequestID}/status/processed",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UpdatePaymentRequestStatusReader{formats: a.formats},
+		Reader:             &UpdateProcessedPaymentRequestStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*UpdatePaymentRequestStatusOK)
+	success, ok := result.(*UpdateProcessedPaymentRequestStatusOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for updatePaymentRequestStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for updateProcessedPaymentRequestStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  UpdateReviewedPaymentRequestStatus updates reviewed payment request status
+
+  Updates status of a payment request to REVIEWED, or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+
+A status of REVIEWED can optionally have a `rejectionReason`.
+
+This is a support endpoint and is not available in production.
+
+*/
+func (a *Client) UpdateReviewedPaymentRequestStatus(params *UpdateReviewedPaymentRequestStatusParams) (*UpdateReviewedPaymentRequestStatusOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateReviewedPaymentRequestStatusParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateReviewedPaymentRequestStatus",
+		Method:             "PATCH",
+		PathPattern:        "/payment-requests/{paymentRequestID}/status/reviewed",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateReviewedPaymentRequestStatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateReviewedPaymentRequestStatusOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateReviewedPaymentRequestStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

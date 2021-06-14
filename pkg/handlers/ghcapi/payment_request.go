@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"fmt"
 	"reflect"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -102,20 +101,20 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 	return response
 }
 
-// UpdatePaymentRequestStatusHandler updates payment requests status
-type UpdatePaymentRequestStatusHandler struct {
+// UpdateReviewedPaymentRequestStatusHandler updates payment requests status
+type UpdateReviewedPaymentRequestStatusHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }
 
 // Handle updates payment requests status
-func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
+func (h UpdateReviewedPaymentRequestStatusHandler) Handle(params paymentrequestop.UpdateReviewedPaymentRequestStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
-		return paymentrequestop.NewUpdatePaymentRequestStatusForbidden()
+		return paymentrequestop.NewUpdateReviewedPaymentRequestStatusForbidden()
 	}
 
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
@@ -127,23 +126,12 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
 	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
-
-	now := time.Now()
-	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
-
-	if existingPaymentRequest.Status != models.PaymentRequestStatusReviewed && existingPaymentRequest.Status != models.PaymentRequestStatusReviewedAllRejected {
-		payload := payloadForValidationError("Unable to complete request",
-			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED instead it was: %s", existingPaymentRequest.Status.String()),
-			h.GetTraceID(), validate.NewErrors())
-		return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
-	}
-
-	existingPaymentRequest.ReviewedAt = &now
 
 	// If we got a rejection reason let's use it
 	if params.Body.RejectionReason != nil {
@@ -154,24 +142,24 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	_, err = audit.Capture(&existingPaymentRequest, nil, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Auditing service error for payment request update.", zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+		return paymentrequestop.NewUpdateReviewedPaymentRequestStatusInternalServerError()
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdateReviewedPaymentRequestStatus(&existingPaymentRequest, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return paymentrequestop.NewUpdateReviewedPaymentRequestStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+			return paymentrequestop.NewUpdateReviewedPaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
-			return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
+			return paymentrequestop.NewUpdateReviewedPaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
-			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+			return paymentrequestop.NewUpdateReviewedPaymentRequestStatusInternalServerError()
 		}
 	}
 
@@ -193,5 +181,5 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
-	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
+	return paymentrequestop.NewUpdateReviewedPaymentRequestStatusOK().WithPayload(returnPayload)
 }

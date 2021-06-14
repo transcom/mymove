@@ -35,7 +35,7 @@ type ProcessReviewedPaymentRequests struct {
 	SendToSyncada *bool `json:"sendToSyncada"`
 
 	// status
-	Status PaymentRequestStatus `json:"status,omitempty"`
+	Status ReviewedPaymentRequestStatus `json:"status,omitempty"`
 }
 
 // Validate validates this process reviewed payment requests
