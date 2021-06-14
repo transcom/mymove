@@ -288,10 +288,10 @@
       "storybook": {
         "kind": "Customer Components / ShipmentCard",
         "stories": [
-          "HHGShipment",
-          "NTSShipment",
-          "NTSRShipment",
-          "PPMShipment"
+          "hhg-shipment",
+          "nts-shipment",
+          "ntsr-shipment",
+          "ppm-shipment"
         ]
       }
     },
