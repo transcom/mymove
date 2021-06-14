@@ -30,7 +30,6 @@ const config = {
 
 // Overriding the default toolbar to add import button
 const ListActions = (props) => {
-  // eslint-disable-next-line react/prop-types
   const { basePath, total, resource, currentSort, filterValues, exporter } = props;
   return (
     <TopToolbar>
