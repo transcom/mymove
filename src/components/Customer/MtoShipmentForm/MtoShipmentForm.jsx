@@ -13,6 +13,7 @@ import {
   Radio,
   Textarea,
 } from '@trussworks/react-uswds';
+import { Callout } from 'src/components/Callout/index.jsx';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
@@ -34,6 +35,7 @@ import { validateDate } from 'utils/validation';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Callout from 'components/Callout';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -359,14 +361,14 @@ class MtoShipmentForm extends Component {
                             Is there anything special about this shipment that the movers should know?
                           </Label>
 
-                          <div className={formStyles.remarksExamples}>
+                          <Callout>
                             Examples
                             <ul>
                               <li>Things that might need special handling</li>
                               <li>Access info for a location</li>
                               <li>Weapons or alcohol</li>
                             </ul>
-                          </div>
+                          </Callout>
 
                           <Field
                             as={Textarea}
