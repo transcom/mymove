@@ -23,6 +23,7 @@ import (
 //go:generate mockery --name HandlerContext
 type HandlerContext interface {
 	DB() *pop.Connection
+	Logger() Logger
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
 	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger)
 	SessionFromRequest(r *http.Request) *auth.Session
@@ -121,6 +122,11 @@ func (hctx *handlerContext) LoggerFromContext(ctx context.Context) Logger {
 	if logger, ok := logging.FromContext(ctx).(Logger); ok {
 		return logger
 	}
+
+	return hctx.logger
+}
+
+func (hctx *handlerContext) Logger() Logger {
 	return hctx.logger
 }
 

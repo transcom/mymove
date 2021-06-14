@@ -642,4 +642,5 @@
 20210514045435_update_payment_request_to_interchange_control_numbers_constraint.up.sql
 20210521220916_remove_old_cac_certs.up.sql
 20210608162156_add_uploaded_amended_orders_id_to_orders.up.sql
+20210611202542_remove_shimona_cac.up.sql
 20210614144532_ronolibert_cac.up.sql

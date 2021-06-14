@@ -8,7 +8,7 @@ import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
-const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses }) => {
+const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handleDivertShipment }) => {
   const {
     requestedPickupDate,
     scheduledPickupDate,
@@ -29,6 +29,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses }) => {
         destinationAddress={destinationAddress || destinationDutyStationAddress?.postal_code}
         originDutyStation={originDutyStationAddress}
         destinationDutyStation={destinationDutyStationAddress}
+        shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag }}
+        handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
     </div>
@@ -42,6 +44,7 @@ ShipmentDetailsMain.propTypes = {
     originDutyStationAddress: AddressShape,
     destinationDutyStationAddress: AddressShape,
   }).isRequired,
+  handleDivertShipment: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {

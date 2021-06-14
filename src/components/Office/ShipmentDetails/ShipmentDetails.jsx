@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropTypes } from 'prop-types';
 
 import ShipmentDetailsMain from './ShipmentDetailsMain';
 import ShipmentDetailsSidebar from './ShipmentDetailsSidebar';
@@ -7,12 +8,13 @@ import styles from 'components/Office/ShipmentDetails/ShipmentDetails.module.scs
 import { OrderShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
 
-const ShipmentDetails = ({ shipment, order }) => {
+const ShipmentDetails = ({ shipment, order, handleDivertShipment }) => {
   const { originDutyStation, destinationDutyStation } = order;
   return (
     <div className={styles.ShipmentDetails}>
       <ShipmentDetailsMain
         className={styles.ShipmentDetailsMain}
+        handleDivertShipment={handleDivertShipment}
         shipment={shipment}
         dutyStationAddresses={{
           originDutyStationAddress: originDutyStation?.address,
@@ -31,6 +33,7 @@ const ShipmentDetails = ({ shipment, order }) => {
 ShipmentDetails.propTypes = {
   shipment: ShipmentShape.isRequired,
   order: OrderShape.isRequired,
+  handleDivertShipment: PropTypes.func.isRequired,
 };
 
 export default ShipmentDetails;

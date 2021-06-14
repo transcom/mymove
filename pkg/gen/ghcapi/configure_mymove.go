@@ -46,6 +46,16 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.ShipmentApproveShipmentHandler == nil {
+		api.ShipmentApproveShipmentHandler = shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
+		})
+	}
+	if api.ShipmentApproveShipmentDiversionHandler == nil {
+		api.ShipmentApproveShipmentDiversionHandler = shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
+		})
+	}
 	if api.OrderCounselingUpdateAllowanceHandler == nil {
 		api.OrderCounselingUpdateAllowanceHandler = order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
@@ -149,6 +159,21 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoShipmentPatchMTOShipmentStatusHandler == nil {
 		api.MtoShipmentPatchMTOShipmentStatusHandler = mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
+		})
+	}
+	if api.ShipmentRejectShipmentHandler == nil {
+		api.ShipmentRejectShipmentHandler = shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
+		})
+	}
+	if api.ShipmentRequestShipmentCancellationHandler == nil {
+		api.ShipmentRequestShipmentCancellationHandler = shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
+		})
+	}
+	if api.ShipmentRequestShipmentDiversionHandler == nil {
+		api.ShipmentRequestShipmentDiversionHandler = shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
 		})
 	}
 	if api.TacTacValidationHandler == nil {
