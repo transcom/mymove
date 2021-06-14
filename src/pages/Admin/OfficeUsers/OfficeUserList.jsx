@@ -12,9 +12,11 @@ import {
   ExportButton,
 } from 'react-admin';
 import { ImportButton } from 'react-admin-import-csv';
+import PropTypes from 'prop-types';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
+// TODO: Update functions to implement parsing functionality. To be completed in MB-8373
 const config = {
   // A function to translate the CSV rows on import
   preCommitCallback: () => {},
@@ -29,9 +31,9 @@ const config = {
 // Overriding the default toolbar to add import button
 const ListActions = (props) => {
   // eslint-disable-next-line react/prop-types
-  const { className, basePath, total, resource, currentSort, filterValues, exporter } = props;
+  const { basePath, total, resource, currentSort, filterValues, exporter } = props;
   return (
-    <TopToolbar className={className}>
+    <TopToolbar>
       <CreateButton basePath={basePath} />
       <ImportButton {...props} {...config} />
       <ExportButton
@@ -76,5 +78,26 @@ const OfficeUserList = (props) => (
     </Datagrid>
   </List>
 );
+
+ListActions.propTypes = {
+  basePath: PropTypes.string,
+  total: PropTypes.number,
+  resource: PropTypes.string.isRequired,
+  currentSort: PropTypes.exact({
+    field: PropTypes.string,
+    order: PropTypes.string,
+  }).isRequired,
+  filterValues: PropTypes.shape({
+    // This will have to be updated if we have any filters besides search added to this page
+    search: PropTypes.string,
+  }),
+  exporter: PropTypes.func.isRequired,
+};
+
+ListActions.defaultProps = {
+  basePath: undefined,
+  total: null,
+  filterValues: {},
+};
 
 export default OfficeUserList;
