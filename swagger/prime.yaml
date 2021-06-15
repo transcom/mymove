@@ -21,6 +21,7 @@ schemes:
   - http
 tags:
   - name: moveTaskOrder
+    description: A military move.
   - name: mtoShipment
   - name: paymentRequest
   - name: mtoServiceItem

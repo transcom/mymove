@@ -13,7 +13,7 @@ basePath: /prime/v1
 schemes:
   - http
 tags:
-  - name: moveTaskOrder
+  - $ref: 'tags/moveTaskOrder.yaml'
   - name: mtoShipment
   - name: paymentRequest
   - name: mtoServiceItem
