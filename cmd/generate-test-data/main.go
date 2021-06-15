@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -30,11 +31,11 @@ const (
 )
 
 type errInvalidScenario struct {
-	Scenario int
+	Name string
 }
 
 func (e *errInvalidScenario) Error() string {
-	return fmt.Sprintf("invalid scenario %d", e.Scenario)
+	return fmt.Sprintf("invalid scenario: %s", e.Name)
 }
 
 func checkConfig(v *viper.Viper, logger logger) error {
@@ -43,7 +44,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	scenario := v.GetInt(scenarioFlag)
 	if scenario < 0 || scenario > 7 {
-		return errors.Wrap(&errInvalidScenario{Scenario: scenario}, fmt.Sprintf("%s is invalid, expected value between 0 and 7 not %d", scenarioFlag, scenario))
+		return errors.Wrap(&errInvalidScenario{Name: strconv.Itoa(scenario)}, fmt.Sprintf("%s is invalid, expected value between 0 and 7 not %d", scenarioFlag, scenario))
 	}
 
 	namedScenario := v.GetString(namedScenarioFlag)
@@ -76,7 +77,7 @@ func checkConfigNamedSubScenarioFlag(v *viper.Viper, namedScenarioStruct *tdgs.N
 
 	// continue, check if named sub scenarios matches expectations
 	if !stringSliceContains(namedScenarioStruct.SubScenarios, namedSubScenario) {
-		return errors.Wrap(&errInvalidScenario{}, fmt.Sprintf("%s is invalid, expected "+
+		return errors.Wrap(&errInvalidScenario{Name: namedSubScenario}, fmt.Sprintf("%s is invalid, expected "+
 			"a value from %v or empty value", namedSubScenario, namedScenarioStruct.SubScenarios))
 	}
 
@@ -127,7 +128,7 @@ func findNamedScenarioByName(name string) (*tdgs.NamedScenario, error) {
 		namedScenarioStringList = append(namedScenarioStringList, namedScenario.Name)
 	}
 
-	return nil, errors.Wrap(&errInvalidScenario{}, fmt.Sprintf("%s is invalid, expected "+
+	return nil, errors.Wrap(&errInvalidScenario{Name: name}, fmt.Sprintf("%s is invalid, expected "+
 		"a value from %v", name, namedScenarioStringList))
 }
 
