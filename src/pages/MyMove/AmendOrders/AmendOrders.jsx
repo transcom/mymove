@@ -60,7 +60,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
       updateOrders(response);
       setLoading(false);
     });
-  });
+  }, [updateOrders, serviceMemberId]);
 
   if (isLoading) return <LoadingPlaceholder />;
 
