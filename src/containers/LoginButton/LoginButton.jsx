@@ -32,14 +32,9 @@ const LoginButton = ({ isLoggedIn, logOut, showDevlocalButton, isProfileComplete
         />
         {showDevlocalButton && (
           <li className="usa-nav__primary-item">
-            <a
-              className="usa-nav__link"
-              data-testid="devlocal-signin"
-              style={{ marginRight: '2em' }}
-              href="/devlocal-auth/login"
-            >
+            <Button aria-label="Local Sign In" className={styles.signIn} data-testid="devlocal-signin" type="button">
               Local Sign In
-            </a>
+            </Button>
           </li>
         )}
         <li className="usa-nav__primary-item">
