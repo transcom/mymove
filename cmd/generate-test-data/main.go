@@ -23,15 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func stringSliceContains(stringSlice []string, value string) bool {
-	for _, x := range stringSlice {
-		if value == x {
-			return true
-		}
-	}
-	return false
-}
-
 const (
 	scenarioFlag         string = "scenario"
 	namedScenarioFlag    string = "named-scenario"
@@ -55,19 +46,38 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return errors.Wrap(&errInvalidScenario{Scenario: scenario}, fmt.Sprintf("%s is invalid, expected value between 0 and 7 not %d", scenarioFlag, scenario))
 	}
 
-	namedScenarios := []string{
-		tdgs.E2eBasicScenario.Name,
-		tdgs.DevSeedScenario.Name,
-		tdgs.BandwidthScenario.Name,
-	}
 	namedScenario := v.GetString(namedScenarioFlag)
-	if !stringSliceContains(namedScenarios, namedScenario) {
-		return errors.Wrap(&errInvalidScenario{Scenario: scenario}, fmt.Sprintf("%s is invalid, expected a value from %v", namedScenarioFlag, namedScenarios))
-	}
-
-	err := cli.CheckDatabase(v, logger)
+	namedScenarioStruct, err := findNamedScenarioByName(namedScenario)
 	if err != nil {
 		return err
+	}
+
+	// check named sub scenario
+	// optional flag
+	if err = checkConfigNamedSubScenarioFlag(v, namedScenarioStruct); err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkConfigNamedSubScenarioFlag(v *viper.Viper, namedScenarioStruct *tdgs.NamedScenario) error {
+	namedSubScenario := v.GetString(namedSubScenarioFlag)
+	// optional flag, ok if value is empty
+	// ok if there are not any named sub scenarios
+	if namedSubScenario == "" || len(namedScenarioStruct.SubScenarios) == 0 {
+		return nil
+	}
+
+	// continue, check if named sub scenarios matches expectations
+	if !stringSliceContains(namedScenarioStruct.SubScenarios, namedSubScenario) {
+		return errors.Wrap(&errInvalidScenario{}, fmt.Sprintf("%s is invalid, expected "+
+			"a value from %v or empty value", namedSubScenario, namedScenarioStruct.SubScenarios))
 	}
 
 	return nil
@@ -92,6 +102,39 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Don't sort flags
 	flag.SortFlags = false
+}
+
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
+}
+
+func findNamedScenarioByName(name string) (*tdgs.NamedScenario, error) {
+	for _, scenario := range namedScenarios {
+		result := scenario
+		if name == scenario.Name {
+			return &result, nil
+		}
+	}
+
+	// to get the list of names
+	var namedScenarioStringList []string
+	for _, namedScenario := range namedScenarios {
+		namedScenarioStringList = append(namedScenarioStringList, namedScenario.Name)
+	}
+
+	return nil, errors.Wrap(&errInvalidScenario{}, fmt.Sprintf("%s is invalid, expected "+
+		"a value from %v", name, namedScenarioStringList))
+}
+
+var namedScenarios = []tdgs.NamedScenario{
+	tdgs.NamedScenario(tdgs.E2eBasicScenario),
+	tdgs.NamedScenario(tdgs.DevSeedScenario),
+	tdgs.NamedScenario(tdgs.BandwidthScenario),
 }
 
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than
