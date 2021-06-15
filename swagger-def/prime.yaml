@@ -305,7 +305,7 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -359,7 +359,7 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -465,7 +465,7 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -573,7 +573,7 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -625,7 +625,7 @@ paths:
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -670,7 +670,7 @@ paths:
           schema:
             $ref: '#/definitions/ClientError'
         '409':
-          $ref: '#/responses/Conflict'
+          $ref: 'responses/Conflict.yaml'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -2054,10 +2054,6 @@ responses:
       $ref: '#/definitions/ClientError'
   NotFound:
     description: The requested resource wasn't found.
-    schema:
-      $ref: '#/definitions/ClientError'
-  Conflict:
-    description: 'The request could not be processed because of conflict in the current state of the resource.'
     schema:
       $ref: '#/definitions/ClientError'
   PermissionDenied:
