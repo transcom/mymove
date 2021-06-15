@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
+import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { FilesShape } from './types';
@@ -72,14 +73,17 @@ const DocumentViewer = ({ files }) => {
 
   const selectedFilename = filenameFromPath(selectedFile.filename);
 
+  const selectedFileDate = moment(selectedFile.createdAt).format('DD MMM YYYY');
+
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
         <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
           <FontAwesomeIcon icon="th-list" />
         </Button>
-
-        <p title={selectedFilename}>{selectedFilename}</p>
+        <p title={selectedFilename} data-testid="documentTitle">
+          {selectedFilename} <span>- Added on {selectedFileDate}</span>
+        </p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>

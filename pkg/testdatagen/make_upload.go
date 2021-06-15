@@ -32,7 +32,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		// If no file is being stored, use asserted fields
 		upload = &models.Upload{}
 
-		filename := "testFile.pdf"
+		filename := "generatedTestFile.pdf"
 		if assertions.Upload.Filename != "" {
 			filename = assertions.Upload.Filename
 		}

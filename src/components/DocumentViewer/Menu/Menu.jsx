@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import moment from 'moment';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -10,35 +11,43 @@ import styles from './Menu.module.scss';
 
 import { filenameFromPath } from 'shared/formatters';
 
-const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
-  <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
-    <div className={styles.menuHeader}>
-      <h3>Documents</h3>
-      <div className={styles.menuControls}>
-        <Button data-testid="closeMenu" type="button" onClick={handleClose} unstyled className={styles.menuClose}>
-          <FontAwesomeIcon icon="times" title="Close menu" aria-label="Close menu" />
-        </Button>
+const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => {
+  const sortedFiles = files.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+
+  return (
+    <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
+      <div className={styles.menuHeader}>
+        <h3>Documents</h3>
+        <div className={styles.menuControls}>
+          <Button data-testid="closeMenu" type="button" onClick={handleClose} unstyled className={styles.menuClose}>
+            <FontAwesomeIcon icon="times" title="Close menu" aria-label="Close menu" />
+          </Button>
+        </div>
       </div>
+      <ul className={styles.menuList}>
+        {sortedFiles.map((file, i) => {
+          const itemClasses = classnames(styles.menuItemBtn, {
+            [styles.active]: i === selectedFileIndex,
+          });
+          const fileName = filenameFromPath(file.filename);
+          const fileDate = moment(file.createdAt).format('DD-MMM-YYYY');
+
+          return (
+            <li key={file.id}>
+              <div title={fileName}>
+                <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
+                  <p>
+                    {fileName} <br /> <span>Uploaded on {fileDate}</span>
+                  </p>
+                </Button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
-    <ul className={styles.menuList}>
-      {files.map((file, i) => {
-        const itemClasses = classnames(styles.menuItemBtn, {
-          [styles.active]: i === selectedFileIndex,
-        });
-        const filename = filenameFromPath(file.filename);
-        return (
-          <li key={file.id}>
-            <div title={filename}>
-              <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
-                <p>{filename}</p>
-              </Button>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  </div>
-);
+  );
+};
 
 DocViewerMenu.propTypes = {
   isOpen: PropTypes.bool,
