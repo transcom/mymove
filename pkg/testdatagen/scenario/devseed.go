@@ -3809,12 +3809,29 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 		RUN ONLY SUB SCENARIO SEED DATA
 	*/
 	if namedSubScenario == subScenarioShipmentHHGCancelled {
-		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-		cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled}
+		logger.Info("start seeding sub scenario: " + namedSubScenario)
+
+		validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
+		// shipment cancelled was approved before
+		approvedDate := time.Now()
+		cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled, ApprovedDate: &approvedDate}
+		affiliationAirForce := models.AffiliationAIRFORCE
+		ordersNumber := "Order1234"
+		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
+		tac := "1234"
+		// make sure to create moves that does not go to US marines affiliation
 		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
-			MTOShipment: cancelledShipment,
+			Order: models.Order{
+				DepartmentIndicator: (*string)(&affiliationAirForce),
+				OrdersNumber:        &ordersNumber,
+				OrdersTypeDetail:    &ordersTypeDetail,
+				TAC:                 &tac,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
+			MTOShipment:   cancelledShipment,
 		})
 
+		logger.Info("finished seeding sub scenario: " + namedSubScenario)
 		// to short circuit Run function
 		return
 	}
