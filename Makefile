@@ -738,6 +738,18 @@ rerun_e2e_tests_with_new_data: db_e2e_up
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
 
+.PHONY: db_dev_e2e_backup
+db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-backup e2e_dev
+
+.PHONY: db_dev_e2e_restore
+db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-restore e2e_dev
+
+.PHONY: db_dev_e2e_cleanup
+db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
+	./scripts/db-cleanup e2e_dev
+
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
 	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-backup e2e_test
