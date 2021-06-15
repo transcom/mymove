@@ -516,6 +516,7 @@ func createUnsubmittedHHGMove(db *pop.Connection) {
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("b67157bd-d2eb-47e2-94b6-3bc90f6fb8fe"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
