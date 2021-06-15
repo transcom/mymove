@@ -11,79 +11,85 @@
   :global(.usa-radio__label) {
     @include u-margin-top(0);
   }
-}
 
-p+.cardContainer {
-  margin-top: 0px;
-}
 
-.cardContainer+.cardContainer {
-  @include u-margin-top('105');
-}
-
-:global(.usa-radio__input--tile + .usa-radio__label) {
-  border-radius: 2px;
-  background-color: $bg-white;
-}
-
-:global(.usa-checkbox__label),
-:global(.usa-radio__label) {
-  @include u-text('bold');
-  @include u-padding-bottom(2);
-}
-
-:global(.usa-radio__label):before {
-  @include u-margin-left(1);
-  margin-top: 7px;
-}
-
-:global(.usa-checkbox__label-description) {
-  font-weight: normal;
-  color: $base;
-  font-size: 13px;
-  line-height: 1.25;
-  @include u-padding-top(1);
-  transform: translate(-24px, -8px);
-
-  @media (min-width: $tablet) {
-    padding-left: 2rem;
+  p+.cardContainer {
+    margin-top: 0px;
   }
 
-  div {
-    @include u-margin-bottom(1);
+  .cardContainer+.cardContainer {
+    @include u-margin-top('105');
   }
-}
 
-.cardContainer {
-  position: relative;
-}
+  :global(.usa-radio__input--tile + .usa-radio__label) {
+    border-radius: 2px;
+    background-color: $bg-white;
+  }
 
-.helpButton {
-  padding: 10px; // Required to get to 44px for touch area
-  position: absolute;
-  top: 8px;
-  right: 8px;
+  :global(.usa-checkbox__label),
+  :global(.usa-radio__label) {
+    @include u-text('bold');
+    @include u-padding-bottom(2);
+  }
 
-  // TODO - needed until we remove some duplicate USWDS CSS in this project
-  &:global(.usa-button) {
+  :global(.usa-radio__label):before {
+    @include u-margin-left(1);
+    margin-top: 7px;
+  }
+
+  :global(.usa-checkbox__label-description) {
+    font-weight: normal;
+    color: $base;
+    font-size: 13px;
+    line-height: 1.25;
+    @include u-padding-top(1);
+    transform: translate(-24px, -8px);
+
+    @media (min-width: $tablet) {
+      padding-left: 2rem;
+    }
+
+    div {
+      @include u-margin-bottom(1);
+    }
+  }
+
+  .cardContainer {
+    position: relative;
+  }
+
+  .helpButton {
     padding: 10px; // Required to get to 44px for touch area
-    min-width: 0;
-    width: auto;
-    flex-shrink: 0;
-    flex-grow: 0;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    // TODO - needed until we remove some duplicate USWDS CSS in this project
+    &:global(.usa-button) {
+      padding: 10px; // Required to get to 44px for touch area
+      min-width: 0;
+      width: auto;
+      flex-shrink: 0;
+      flex-grow: 0;
+    }
+
+    svg {
+      // TODO - temp until we can make icon code more consistent
+      width: 24px !important;
+      height: 24px;
+      fill: $primary;
+    }
   }
 
-  svg {
-    // TODO - temp until we can make icon code more consistent
-    width: 24px !important;
-    height: 24px;
-    fill: $primary;
+  :global(.usa-radio__input--tile:checked + .usa-radio__label) {
+    @include u-shadow(2);
+    background-color: $info-light;
+    border: 2px solid $base-lighter;
+    @include u-padding-bottom('205');
   }
-}
 
-:global(.usa-radio__input--tile:checked + .usa-radio__label) {
-  @include u-shadow(2);
-  background-color: $info-light;
-  border: 2px solid $base-lighter;
-  @include u-padding-bottom('205');
+  :global(.usa-radio__input--tile + .usa-radio__label) {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0);
+    @include u-padding-bottom('205');
+  }
 }
