@@ -212,28 +212,29 @@ class MtoShipmentForm extends Component {
                       {showPickupFields && (
                         <>
                           <SectionWrapper className={formStyles.formSection}>
-                            {showDeliveryFields && <h2>Pickup information</h2>}
-                            <Fieldset legend="Pickup date">
+                            {showDeliveryFields && <h2>Pickup info</h2>}
+                            <Fieldset legend="Date">
                               <DatePickerInput
                                 name="pickup.requestedDate"
-                                label="Requested pickup date"
+                                label="Preferred pickup date"
                                 id="requestedPickupDate"
                                 validate={validateDate}
                               />
                               <Hint id="pickupDateHint">
                                 <p>
-                                  Movers will contact you to schedule the actual pickup date. That date should fall
-                                  within 7 days of your requested date. Tip: Avoid scheduling multiple shipments on the
-                                  same day.
+                                  This is the day movers would put this shipment on their truck. Packing starts earlier.
+                                  Dates will be finalized when you talk to your movers. Your actual pickup date will
+                                  fall within 7 days of your preferred date.
                                 </p>
                               </Hint>
                             </Fieldset>
 
                             <AddressFields
                               name="pickup.address"
-                              legend="Pickup location"
+                              legend="Location"
                               render={(fields) => (
                                 <>
+                                  <p>What address are the movers picking up from?</p>
                                   <Checkbox
                                     data-testid="useCurrentResidence"
                                     label="Use my current address"
@@ -291,23 +292,23 @@ class MtoShipmentForm extends Component {
                       {showDeliveryFields && (
                         <>
                           <SectionWrapper className={formStyles.formSection}>
-                            {showPickupFields && <h2>Delivery information</h2>}
-                            <Fieldset legend="Delivery date">
+                            {showPickupFields && <h2>Destination info</h2>}
+                            <Fieldset legend="Date">
                               <DatePickerInput
                                 name="delivery.requestedDate"
-                                label="Requested delivery date"
+                                label="Preferred delivery date"
                                 id="requestedDeliveryDate"
                                 validate={validateDate}
                               />
                               <Hint>
                                 <p>
-                                  Shipments can take several weeks to arrive, depending on how far they’re going. Your
-                                  movers will contact you close to the date you select to coordinate delivery.
+                                  If you’re not sure, use your report-by date. You’ll finalize an actual delivery date
+                                  later by talking with your movers once the shipment is underway.
                                 </p>
                               </Hint>
                             </Fieldset>
 
-                            <Fieldset legend="Delivery location">
+                            <Fieldset legend="Location">
                               <FormGroup>
                                 <p>Do you know your delivery address yet?</p>
                                 <div className={formStyles.radioGroup}>
@@ -337,7 +338,7 @@ class MtoShipmentForm extends Component {
                                   render={(fields) => (
                                     <>
                                       {fields}
-                                      <h4>Second Destination Location</h4>
+                                      <h4>Second Destination</h4>
                                       <FormGroup>
                                         <p>
                                           Do you want the movers to deliver any belongings to a second address? (Must be
@@ -418,15 +419,15 @@ class MtoShipmentForm extends Component {
                       <SectionWrapper className={formStyles.formSection}>
                         <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
                           <Label htmlFor="customerRemarks">
-                            Is there anything special about this shipment that the movers should know?
+                            Are there things about this shipment that your counselor or movers should discuss with you?
                           </Label>
 
                           <div className={formStyles.remarksExamples}>
                             Examples
                             <ul>
-                              <li>Things that might need special handling</li>
-                              <li>Access info for a location</li>
-                              <li>Weapons or alcohol</li>
+                              <li>Large, bulky, or fragile items</li>
+                              <li>Access info for your origin or destination address</li>
+                              <li>You’re shipping weapons or alcohol</li>
                             </ul>
                           </div>
 
@@ -435,7 +436,7 @@ class MtoShipmentForm extends Component {
                             data-testid="remarks"
                             name="customerRemarks"
                             className={`${formStyles.remarks}`}
-                            placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
+                            placeholder="Don’t itemize your belongings here. Your movers will help do that when they talk to you."
                             id="customerRemarks"
                             maxLength={250}
                           />
@@ -446,11 +447,7 @@ class MtoShipmentForm extends Component {
                       </SectionWrapper>
 
                       <Hint>
-                        <p>
-                          You can change details for your shipment when you talk to your move counselor or the person
-                          who’s your point of contact with the movers. You can also edit in MilMove up to 24 hours
-                          before your final pickup date.
-                        </p>
+                        <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
                       <div className={formStyles.formActions}>
