@@ -276,3 +276,7 @@ func (router moveRouter) logMove(move *models.Move) {
 		zap.String("Move.OrdersID", move.OrdersID.String()),
 	)
 }
+
+func (router *moveRouter) SetLogger(logger services.Logger) {
+	router.logger = logger
+}

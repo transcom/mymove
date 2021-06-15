@@ -146,6 +146,7 @@ export class Summary extends Component {
             moveId={moveId}
             onEditClick={this.handleEditClick}
             pickupLocation={shipment.pickupAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
             releasingAgent={releasingAgent}
             remarks={shipment.customerRemarks}
             requestedPickupDate={shipment.requestedPickupDate}
@@ -160,6 +161,7 @@ export class Summary extends Component {
             key={shipment.id}
             destinationLocation={shipment?.destinationAddress}
             destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
             showEditBtn={showEditBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
@@ -176,6 +178,8 @@ export class Summary extends Component {
         <HHGShipmentCard
           key={shipment.id}
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
+          secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+          secondaryPickupAddress={shipment?.secondaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}
@@ -195,16 +199,8 @@ export class Summary extends Component {
   };
 
   render() {
-    const {
-      currentMove,
-      currentOrders,
-      currentPPM,
-      history,
-      match,
-      moveIsApproved,
-      mtoShipments,
-      serviceMember,
-    } = this.props;
+    const { currentMove, currentOrders, currentPPM, history, match, moveIsApproved, mtoShipments, serviceMember } =
+      this.props;
     const { entitlementWarning } = this.state;
 
     const { moveId } = match.params;
