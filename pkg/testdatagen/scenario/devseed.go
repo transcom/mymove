@@ -3820,7 +3820,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 		tac := "1234"
 		// make sure to create moves that does not go to US marines affiliation
-		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		move := createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
 			Order: models.Order{
 				DepartmentIndicator: (*string)(&affiliationAirForce),
 				OrdersNumber:        &ordersNumber,
@@ -3829,6 +3829,15 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 			},
 			ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
 			MTOShipment:   cancelledShipment,
+		})
+		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
+		testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+			ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
+			MTOServiceItem: models.MTOServiceItem{
+				MoveTaskOrderID: move.ID,
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedDate,
+			},
 		})
 
 		logger.Info("finished seeding sub scenario: " + namedSubScenario)
