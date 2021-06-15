@@ -16,16 +16,46 @@ import PropTypes from 'prop-types';
 
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-// TODO: Update functions to implement parsing functionality. To be completed in MB-8373
+const avaliableRoles = [
+  { roleType: 'customer', name: 'Customer' },
+  { roleType: 'transportation_ordering_officer', name: 'Transportation Ordering Officer' },
+  { roleType: 'transportation_invoicing_officer', name: 'Transportation Invoicing Officer' },
+  { roleType: 'contracting_officer', name: 'Contracting Officer' },
+  { roleType: 'ppm_office_users', name: 'PPM Office Users' },
+  { roleType: 'services_counselor', name: 'Services Counselor' },
+];
+
+const validateRow = async () => {};
+
+const preCommitCallback = (action, rows) => {
+  const alteredRows = [];
+  rows.forEach((row) => {
+    const copyOfRow = row;
+    if (row.roles) {
+      const rolesArray = [];
+
+      // Parse roles from string
+      const parsedRoles = row.roles.split(',');
+      parsedRoles.forEach((parsedRole) => {
+        // Remove any whitespace in the role string
+        const role = parsedRole.replaceAll(/\s/g, '');
+        rolesArray.push(avaliableRoles.find((avaliableRole) => avaliableRole.roleType === role));
+      });
+      copyOfRow.roles = rolesArray;
+    }
+    alteredRows.push(copyOfRow);
+  });
+  return alteredRows;
+};
+
 const config = {
-  // A function to translate the CSV rows on import
-  preCommitCallback: () => {},
-  // A function to handle row errors after import
-  postCommitCallback: () => {},
-  // Transform rows before anything is sent to dataprovider
-  transformRows: () => {},
-  // Async function to Validate a row, reject the promise if it's not valid
-  validateRow: () => {},
+  logging: true,
+  validateRow,
+  preCommitCallback,
+  postCommitCallback: () => {
+    // console.log('reportItems', { reportItems });
+  },
+  disableImportOverwrite: true,
 };
 
 // Overriding the default toolbar to add import button
