@@ -47,6 +47,8 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+var subScenarioShipmentHHGCancelled = "shipment_hhg_cancelled"
+
 // devSeedScenario builds a basic set of data for e2e testing
 type devSeedScenario NamedScenario
 
@@ -54,7 +56,7 @@ type devSeedScenario NamedScenario
 var DevSeedScenario = devSeedScenario{
 	Name: "dev_seed",
 	SubScenarios: []string{
-		"shipment_hhg_cancelled",
+		subScenarioShipmentHHGCancelled,
 	},
 }
 
@@ -3792,7 +3794,8 @@ func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uplo
 }
 
 // Run does that data load thing
-func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
+	routePlanner route.Planner, logger Logger, namedSubScenario string) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
 	var allDutyStations []models.DutyStation
 	db.All(&allDutyStations)
@@ -3801,6 +3804,24 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		All(&originDutyStationsInGBLOC)
+
+	/*
+		RUN ONLY SUB SCENARIO SEED DATA
+	*/
+	if namedSubScenario == subScenarioShipmentHHGCancelled {
+		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
+		cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled}
+		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+			MTOShipment: cancelledShipment,
+		})
+
+		// to short circuit Run function
+		return
+	}
+
+	/*
+		RUN ALL THE SEED DATA
+	*/
 
 	// PPM Office Queue
 	createPPMOfficeUser(db)

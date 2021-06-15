@@ -180,6 +180,7 @@ func main() {
 
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
+	namedSubScenario := v.GetString(namedSubScenarioFlag)
 
 	if scenario == 4 {
 		err = tdgs.RunPPMSITEstimateScenario1(dbConnection)
@@ -253,7 +254,7 @@ func main() {
 				logger.Fatal("Failed to initialize GHC route planner")
 			}
 
-			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger)
+			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger, namedSubScenario)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
 		}
