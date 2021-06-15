@@ -25,6 +25,19 @@ describe('Office Users List Page', function () {
   });
 });
 
+describe('Office Users Bulk Import', function () {
+  before(() => {
+    cy.prepareAdminApp();
+    cy.logout();
+  });
+
+  it('button appears on office user list page', function () {
+    cy.signInAsNewAdminUser();
+    cy.url().should('eq', adminBaseURL + '/system/office_users');
+    cy.get('span[aria-label="Import"]').first().click();
+  });
+});
+
 describe('Office User Create Page', function () {
   before(() => {
     cy.prepareAdminApp();
