@@ -30,7 +30,7 @@ const SignIn = ({ context, location, showLocalDevLogin }) => {
   const { siteName, showLoginWarning } = context;
 
   return (
-    <div className="usa-prose grid-container">
+    <div className="usa-prose grid-container padding-top-3">
       <ConnectedEulaModal
         isOpen={showEula}
         acceptTerms={() => {
