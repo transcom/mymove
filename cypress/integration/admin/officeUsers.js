@@ -34,7 +34,8 @@ describe('Office Users Bulk Import', function () {
   it('button appears on office user list page', function () {
     cy.signInAsNewAdminUser();
     cy.url().should('eq', adminBaseURL + '/system/office_users');
-    cy.contains('Import').to.exist();
+    cy.get('span[aria-label="Import"]').first().click();
+    //cy.contains('span[aria-label="Import"]').to.exist();
   });
 });
 
