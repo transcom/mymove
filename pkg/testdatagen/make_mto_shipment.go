@@ -125,12 +125,14 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		MTOShipment.DestinationAddress = &destinationAddress
 		MTOShipment.DestinationAddressID = &destinationAddress.ID
 		MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+		MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
 	}
 
 	if shipmentHasPickupDetails {
 		MTOShipment.PickupAddress = &pickupAddress
 		MTOShipment.PickupAddressID = &pickupAddress.ID
 		MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
+		MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
