@@ -21,7 +21,8 @@ import (
 
 // NamedScenario is a data generation scenario that has a name
 type NamedScenario struct {
-	Name string
+	Name         string
+	SubScenarios []string
 }
 
 // May15TestYear is a May 15 of TestYear

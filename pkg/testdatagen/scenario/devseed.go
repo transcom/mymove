@@ -50,8 +50,13 @@ import (
 // devSeedScenario builds a basic set of data for e2e testing
 type devSeedScenario NamedScenario
 
-// DevSeedScenario Is the thing
-var DevSeedScenario = devSeedScenario{"dev_seed"}
+// DevSeedScenario setup information for the dev seed
+var DevSeedScenario = devSeedScenario{
+	Name: "dev_seed",
+	SubScenarios: []string{
+		"shipment_hhg_cancelled",
+	},
+}
 
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
