@@ -35,7 +35,6 @@ describe('Office Users Bulk Import', function () {
     cy.signInAsNewAdminUser();
     cy.url().should('eq', adminBaseURL + '/system/office_users');
     cy.get('span[aria-label="Import"]').first().click();
-    //cy.contains('span[aria-label="Import"]').to.exist();
   });
 });
 
