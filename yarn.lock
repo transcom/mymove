@@ -513,7 +513,7 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.12.11.tgz#c9a1f021917dcb5ccf0d4e453e399022981fc9ed"
   integrity sha512-np/lG3uARFybkoHokJUmf1QfEvRVCPbmQeUQpKow5cQ3xWrV9i3rUHodKDJPQfTVX61qKi+UdYk8kik84n7XOw==
 
-"@babel/helper-validator-identifier@^7.14.5":
+"@babel/helper-validator-identifier@^7.14.0", "@babel/helper-validator-identifier@^7.14.5":
   version "7.14.5"
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.14.5.tgz#d0f0e277c512e0c938277faa85a3968c9a44c0e8"
   integrity sha512-5lsetuxCLilmVGyiLEfoHBRX8UCFD+1m2x3Rj97WrW3V7H3u4RWRXA4evMjImCsin2J2YT0QaVDGf+z8ondbAg==
@@ -4780,10 +4780,10 @@
     react-docgen-typescript "^1.20.5"
     update-notifier "^5.0.1"
 
-"@zeplin/cli-connect-storybook-plugin@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@zeplin/cli-connect-storybook-plugin/-/cli-connect-storybook-plugin-0.5.3.tgz#03c0ad12690a9faa540521fd11c4cc7d70c43374"
-  integrity sha512-NTIMjkj5JL78rnrOC7EpmEmm3uNbaJqRwE3WPrHzwFnjVtcqQL3XGY1r2hegGO/zxe9+I481jyz/NrNe+3FgNQ==
+"@zeplin/cli-connect-storybook-plugin@^0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@zeplin/cli-connect-storybook-plugin/-/cli-connect-storybook-plugin-0.5.4.tgz#f9cbdf87c13ab9f4ed06e0b47e96a3312b04f1fa"
+  integrity sha512-nUHCJ/lb1QpVq6uaOsn+Tqswm23iOG+/+Bz/p1iLOOQ7YLbJ2m0Egm3wND0z/y/Fo3VpxKOIsP3PmfHGKPGXVQ==
   dependencies:
     "@storybook/csf" "0.0.1"
     cross-spawn "^7.0.3"
@@ -20091,12 +20091,7 @@ ts-dedent@^1.1.0:
   resolved "https://registry.yarnpkg.com/ts-dedent/-/ts-dedent-1.2.0.tgz#6aa2229d837159bb6d635b6b233002423b91e0b0"
   integrity sha512-6zSJp23uQI+Txyz5LlXMXAHpUhY4Hi0oluXny0OgIR7g/Cromq4vDBnhtbBdyIV34g0pgwxUvnvg+jLJe4c1NA==
 
-ts-dedent@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/ts-dedent/-/ts-dedent-2.0.0.tgz#47c5eb23d9096f3237cc413bc82d387d36dbe690"
-  integrity sha512-DfxKjSFQfw9+uf7N9Cy8Ebx9fv5fquK4hZ6SD3Rzr+1jKP6AVA6H8+B5457ZpUs0JKsGpGqIevbpZ9DMQJDp1A==
-
-ts-dedent@^2.1.0:
+ts-dedent@^2.0.0, ts-dedent@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ts-dedent/-/ts-dedent-2.1.1.tgz#6dd56870bb5493895171334fa5d7e929107e5bbc"
   integrity sha512-riHuwnzAUCfdIeTBNUq7+Yj+ANnrMXo/7+Z74dIdudS7ys2k8aSGMzpJRMFDF7CLwUTbtvi1ZZff/Wl+XxmqIA==
