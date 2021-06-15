@@ -112,7 +112,7 @@ export const WithNoShipments = () => {
   );
 };
 
-export const WithHHGShipmentAsDraft = () => {
+export const WithHHGShipment = () => {
   const props = {
     ...defaultProps,
     mtoShipments: [HHGShipment],
@@ -146,6 +146,30 @@ export const AsSubmitted = () => {
       status: MOVE_STATUSES.SUBMITTED,
     },
     currentPPM: PPMShipment,
+  };
+
+  return (
+    <MockProviders>
+      <Summary {...props} />
+    </MockProviders>
+  );
+};
+
+export const AsApproved = () => {
+  const approvedShipment = {
+    ...HHGShipment,
+    status: MOVE_STATUSES.SUBMITTED,
+  };
+
+  const props = {
+    ...defaultProps,
+    mtoShipments: [approvedShipment],
+    moveIsApproved: true,
+    currentPPM: PPMShipment,
+    currentMove: {
+      ...defaultProps.currentMove,
+      status: MOVE_STATUSES.SUBMITTED,
+    },
   };
 
   return (
