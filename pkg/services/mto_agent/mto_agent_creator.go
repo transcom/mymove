@@ -12,26 +12,28 @@ import (
 
 // mtoAgentCreator sets up the service object
 type mtoAgentCreator struct {
-	db              *pop.Connection
-	mtoAvailChecker mtoAgentValidator
+	db          *pop.Connection
+	basicChecks []mtoAgentValidator
+	primeChecks []mtoAgentValidator
 }
 
 // NewMTOAgentCreator creates a new struct with the service dependencies
 func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.MoveTaskOrderChecker) services.MTOAgentCreator {
 	return &mtoAgentCreator{
-		db,
-		checkPrimeAvailability(mtoAvailabilityChecker),
+		db:          db,
+		basicChecks: basicChecks,
+		primeChecks: append(primeChecks, checkPrimeAvailability(mtoAvailabilityChecker)),
 	}
 }
 
 // CreateMTOAgentBasic passes the Prime validator key to CreateMTOAgent
 func (f *mtoAgentCreator) CreateMTOAgentBasic(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.createMTOAgent(mtoAgent, basicChecks...)
+	return f.createMTOAgent(mtoAgent, f.basicChecks...)
 }
 
 // CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
 func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.createMTOAgent(mtoAgent, append(primeChecks, f.mtoAvailChecker)...)
+	return f.createMTOAgent(mtoAgent, f.primeChecks...)
 }
 
 // CreateMTOAgent creates an MTO Agent

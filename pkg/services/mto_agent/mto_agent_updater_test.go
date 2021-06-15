@@ -8,12 +8,13 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/services"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	// Set up the updater
-	mtoAgentUpdater := NewMTOAgentUpdater(suite.DB())
+	mtoAgentUpdater := NewMTOAgentUpdater(suite.DB(), movetaskorder.NewMoveTaskOrderChecker(suite.DB()))
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 

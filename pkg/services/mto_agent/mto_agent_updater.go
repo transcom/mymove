@@ -13,24 +13,28 @@ import (
 
 // mtoAgentUpdater handles the db connection
 type mtoAgentUpdater struct {
-	db *pop.Connection
+	db          *pop.Connection
+	basicChecks []mtoAgentValidator
+	primeChecks []mtoAgentValidator
 }
 
 // NewMTOAgentUpdater creates a new struct with the service dependencies
-func NewMTOAgentUpdater(db *pop.Connection) services.MTOAgentUpdater {
+func NewMTOAgentUpdater(db *pop.Connection, mtoChecker services.MoveTaskOrderChecker) services.MTOAgentUpdater {
 	return &mtoAgentUpdater{
-		db: db,
+		db:          db,
+		basicChecks: basicChecks,
+		primeChecks: append(primeChecks, checkPrimeAvailability(mtoChecker)),
 	}
 }
 
 // UpdateMTOAgentBasic updates the MTO Agent using base validators
 func (f *mtoAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.updateMTOAgent(mtoAgent, eTag, basicChecks...)
+	return f.updateMTOAgent(mtoAgent, eTag, f.basicChecks...)
 }
 
 // UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
 func (f *mtoAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.updateMTOAgent(mtoAgent, eTag, primeChecks...)
+	return f.updateMTOAgent(mtoAgent, eTag, f.primeChecks...)
 }
 
 // UpdateMTOAgent updates the MTO Agent
