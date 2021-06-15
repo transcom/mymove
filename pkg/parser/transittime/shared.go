@@ -17,15 +17,18 @@ import (
 // A way to get a cell value from a sheet
 // return empty string if not found
 func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) string {
-	// TODO: Fix to work with xlsx 3.x
-	return ""
-	/*
-		if sheet != nil {
-			return sheet.Cell(row, col).String()
+	if sheet != nil {
+		cell, err := sheet.Cell(row, col)
+		if err != nil {
+			// TODO: Is this panic OK? For now, just trying to avoid having to add in error-checking on every
+			//   getValueFromSheet call.  It's a CLI, so what would we do to react to it other than end the process?
+			panic(err)
 		}
 
-		return ""
-	*/
+		return cell.String()
+	}
+
+	return ""
 }
 
 // A way to parse domestic header bounds.
