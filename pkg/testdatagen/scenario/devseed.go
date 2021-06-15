@@ -530,6 +530,70 @@ func createUnsubmittedHHGMove(db *pop.Connection) {
 	})
 }
 
+func createUnsubmittedHHGMoveMultipleDestinations(db *pop.Connection, logger Logger) {
+	/*
+		A service member with an un-submitted move that has an HHG shipment going to multiple destination addresses
+	*/
+	logger.Debug("\n\ncreateUnsubmittedHHGMoveMultipleDestinations - start\n\n")
+	email := "multple-destinations@unsubmitted.hhg"
+	userID := "81fe79a1-faaa-4735-8426-fd159e641002"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(userID)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smID := "af8f37bc-d29a-4a8a-90ac-5336a2a912b3"
+	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smID),
+			UserID:        uuid.FromStringOrNil(userID),
+			FirstName:     models.StringPointer("Unsubmitted"),
+			LastName:      models.StringPointer("Hhg"),
+			Edipi:         models.StringPointer("5833908165"),
+			PersonalEmail: &email,
+		},
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smID),
+			ServiceMember:   smWithHHG,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("c799098d-10f6-4e5a-9c88-a0de961e35b3"),
+			Locator:          "HHGSMA",
+			SelectedMoveType: &hhgMoveType,
+		},
+	})
+
+	pickupAddress1 := testdatagen.MakeAddress(db, testdatagen.Assertions{})
+	pickupAddress2 := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
+
+	//destinationAddress1 := testdatagen.MakeAddress3(db, testdatagen.Assertions{})
+	//destinationAddress2 := testdatagen.MakeAddress4(db, testdatagen.Assertions{})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ID:              uuid.FromStringOrNil("fee1181f-22eb-452d-9252-292066e7b0a5"),
+			ShipmentType:    models.MTOShipmentTypeHHG,
+			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+		},
+		PickupAddress:          pickupAddress1,
+		SecondaryPickupAddress: pickupAddress2,
+	})
+
+	logger.Debug("\n\ncreateUnsubmittedHHGMoveMultipleDestinations - end\n\n")
+}
+
 func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 	/*
 	 * A service member with an NTS, NTS-R shipment, & unsubmitted move
@@ -2922,15 +2986,15 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 // 			SelectedMoveType:   &hhgMoveType,
 // 		},
 // 	})
-
+//
 // 	mtoShipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 // 		Move: mto2,
 // 	})
-
+//
 // 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 // 		Move: mto2,
 // 	})
-
+//
 // 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 // 		MTOAgent: models.MTOAgent{
 // 			MTOShipment:   mtoShipment2,
@@ -2941,7 +3005,7 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 // 			MTOAgentType:  models.MTOAgentReleasing,
 // 		},
 // 	})
-
+//
 // 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 // 		MTOAgent: models.MTOAgent{
 // 			MTOShipment:   mtoShipment2,
@@ -2952,14 +3016,14 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 // 			MTOAgentType:  models.MTOAgentReceiving,
 // 		},
 // 	})
-
+//
 // 	mtoShipment3 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 // 		MTOShipment: models.MTOShipment{
 // 			ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
 // 		},
 // 		Move: mto2,
 // 	})
-
+//
 // 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 // 		MTOAgent: models.MTOAgent{
 // 			MTOShipment:   mtoShipment3,
@@ -2970,7 +3034,7 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 // 			MTOAgentType:  models.MTOAgentReleasing,
 // 		},
 // 	})
-
+//
 // 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 // 		MTOAgent: models.MTOAgent{
 // 			MTOShipment:   mtoShipment3,
@@ -2981,14 +3045,14 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 // 			MTOAgentType:  models.MTOAgentReceiving,
 // 		},
 // 	})
-
+//
 // 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 // 		MTOServiceItem: models.MTOServiceItem{
 // 			ID: uuid.FromStringOrNil("8a625314-1922-4987-93c5-a62c0d13f053"),
 // 		},
 // 		Move: mto2,
 // 	})
-
+//
 // 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 // 		MTOServiceItem: models.MTOServiceItem{
 // 			ID: uuid.FromStringOrNil("3624d82f-fa87-47f5-a09a-2d5639e45c02"),
@@ -3549,6 +3613,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	// Onboarding
 	createUnsubmittedHHGMove(db)
+	createUnsubmittedHHGMoveMultipleDestinations(db, logger)
 	createUnsubmittedMoveWithNTSAndNTSR(db)
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
