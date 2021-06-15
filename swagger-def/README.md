@@ -16,7 +16,7 @@ Both of these YAML files contain references to the entire API definition.
 The sub-folders in `swagger-def` represent the top-level sections of a Swagger (OpenAPI v2.0) specification. These
 sections are:
 
-* [`info`](info/) _[docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object)_ -
+* [`info`](info/) [ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object) ] -
   Contains metadata about the API. In particular, this is where the top-level descriptions for our APIs will live.
 
 * [`tags`](tags/) - Used to organize operations/endpoints. Each tag can have a description that will be visible under
@@ -35,6 +35,7 @@ sections are:
   * request bodies,
   * query strings,
   * path variables. For example, in `/shipments/{shipmentId}`, the path parameter is `shipmentId`.
+
   Parameter component names are `camelCase`
 
 * [`paths`](paths/) - Defines each endpoint/operation. A path can have one operation per HTTP method.
