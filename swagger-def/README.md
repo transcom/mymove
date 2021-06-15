@@ -1,4 +1,4 @@
-## Swagger Definitions
+# Swagger Definitions
 
 This folder contains the files that together define MilMove's APIs. In particular, the API specifications currently
 being built from these files are:
@@ -13,23 +13,27 @@ Their respective entrypoints are:
 
 Both of these YAML files contain references to the entire API definition.
 
+## Contents
+
 The sub-folders in `swagger-def` represent the top-level sections of a Swagger (OpenAPI v2.0) specification. These
 sections are:
 
-* [`info`](info/) [ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object) ] -
+* [`info`](info/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#info-object) ]</small> -
   Contains metadata about the API. In particular, this is where the top-level descriptions for our APIs will live.
 
-* [`tags`](tags/) - Used to organize operations/endpoints. Each tag can have a description that will be visible under
-  the section header in the reference docs. Tag component names are `camelCase`
+* [`tags`](tags/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#tag-object) ]</small> -
+  Used to organize operations/endpoints. Each tag can have a description that will be visible under the section header
+  in the reference docs. Tag component names are `camelCase`
 
-* [`definitions`](definitions/) - Reusable [schema objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#schema-object)
-  that define input/output data types. Some examples of objects that should be placed here are Shipments, Service Items,
-  and Payment Requests. Definition component names are `PascalCase`
+* [`definitions`](definitions/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#schema-object) ]</small> -
+  Reusable schema objects that define input/output data types. Some examples of objects that should be placed here are
+  Shipments, Service Items, and Payment Requests. Definition component names are `PascalCase`
 
-* [`responses`](responses/) - Each file describes a single response from an API Operation. Response component names are
-  `PascalCase`
+* [`responses`](responses/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#response-object) ]</small> -
+  Each file describes a single response from an API Operation. Response component names are `PascalCase`
 
-* [`parameters`](parameters/) - Each file describes a single operation parameter. Operation parameters include:
+* [`parameters`](parameters/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#parameter-object) ]</small> -
+  Each file describes a single operation parameter. Operation parameters include:
   * headers,
   * cookies,
   * request bodies,
@@ -38,7 +42,8 @@ sections are:
 
   Parameter component names are `camelCase`
 
-* [`paths`](paths/) - Defines each endpoint/operation. A path can have one operation per HTTP method.
+* [`paths`](paths/) <small>[ [docs](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#paths-object) ]</small> -
+  Defines each endpoint/operation. A path can have one operation per HTTP method.
 
 Refer to the full [OpenAPI v2.0 Specification](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#openapi-specification)
 for more detail about each section.
