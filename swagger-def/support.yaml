@@ -17,7 +17,7 @@ basePath: /support/v1
 schemes:
   - http
 tags:
-  - name: moveTaskOrder
+  - $ref: 'tags/moveTaskOrder.yaml'
   - name: paymentRequest
   - name: mtoServiceItem
   - name: mtoShipment

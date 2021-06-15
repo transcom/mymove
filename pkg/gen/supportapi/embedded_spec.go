@@ -2459,6 +2459,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "A military move.",
       "name": "moveTaskOrder"
     },
     {
@@ -5167,6 +5168,7 @@ func init() {
   },
   "tags": [
     {
+      "description": "A military move.",
       "name": "moveTaskOrder"
     },
     {
