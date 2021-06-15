@@ -33,8 +33,9 @@ func stringSliceContains(stringSlice []string, value string) bool {
 }
 
 const (
-	scenarioFlag      string = "scenario"
-	namedScenarioFlag string = "named-scenario"
+	scenarioFlag         string = "scenario"
+	namedScenarioFlag    string = "named-scenario"
+	namedSubScenarioFlag string = "named-sub-scenario" // name of the sub scenario in the main scenario
 )
 
 type errInvalidScenario struct {
@@ -77,6 +78,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// Scenario config
 	flag.Int(scenarioFlag, 0, "Specify which scenario you'd like to run. Current options: 1, 2, 3, 4, 5, 6, 7.")
 	flag.String(namedScenarioFlag, "", "It's like a scenario, but more descriptive.")
+	flag.String(namedSubScenarioFlag, "", "Specify a named-sub-scenario after specifying a named-scenario. "+
+		"This is meant to run specific seed data setup in the main named-scenario without having to seed everything.")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
