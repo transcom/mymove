@@ -613,12 +613,37 @@ func createUnsubmittedHHGMoveMultiplePickup(db *pop.Connection) {
 	})
 }
 
-func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
+func getNtsAndNtsrUuids(move int) [7]string {
+	if move == 1 {
+		return [7]string{
+			"583cfbe1-cb34-4381-9e1f-54f68200da1b",
+			"e6e40998-36ff-4d23-93ac-07452edbe806",
+			"f4503551-b636-41ee-b4bb-b05d55d0e856",
+			"06578216-3e9d-4c11-80bf-f7acfd4e7a4f",
+			"1bdbb940-0326-438a-89fb-aa72e46f7c72",
+			"5afaaa39-ca7d-4403-b33a-262586ad64f6",
+			"eecc3b59-7173-4ddd-b826-6f11f15338d9",
+		}
+	}
+
+	return [7]string{
+		"80da86f3-9dac-4298-8b03-b753b443668e",
+		"947645ca-06d6-4be9-82fe-3d7bd0a5792d",
+		"a1ed9091-e44c-410c-b028-78589dbc0a77",
+		"52d03f2c-179e-450a-b726-23cbb99304b9",
+		"2675ed07-4f1e-44fd-995f-f6d6e5c461b0",
+		"d95ba5b9-af82-417a-b901-b25d34ce79fa",
+		"2068f14e-4a04-420e-a7e1-b8a89683bbe8",
+	}
+}
+
+func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection, moveNumber int) {
 	/*
 	 * A service member with an NTS, NTS-R shipment, & unsubmitted move
 	 */
-	email := "nts@ntsr.unsubmitted"
-	uuidStr := "583cfbe1-cb34-4381-9e1f-54f68200da1b"
+	uuids := getNtsAndNtsrUuids(moveNumber)
+	email := fmt.Sprintf("nts.%d@nstr.unsubmitted", moveNumber)
+	uuidStr := uuids[0]
 	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -630,7 +655,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 		},
 	})
 
-	smWithNTSID := "e6e40998-36ff-4d23-93ac-07452edbe806"
+	smWithNTSID := uuids[1]
 	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil(smWithNTSID),
@@ -649,8 +674,8 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 			ServiceMember:   smWithNTS,
 		},
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
-			Locator:          "TWONTS",
+			ID:               uuid.FromStringOrNil(uuids[2]),
+			Locator:          fmt.Sprintf("NTSR0%d", moveNumber),
 			SelectedMoveType: &selectedMoveType,
 		},
 	})
@@ -659,7 +684,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 	actualNTSWeight := unit.Pound(2000)
 	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("06578216-3e9d-4c11-80bf-f7acfd4e7a4f"),
+			ID:                   uuid.FromStringOrNil(uuids[3]),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
@@ -671,7 +696,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 	})
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("1bdbb940-0326-438a-89fb-aa72e46f7c72"),
+			ID:            uuid.FromStringOrNil(uuids[4]),
 			MTOShipment:   ntsShipment,
 			MTOShipmentID: ntsShipment.ID,
 			MTOAgentType:  models.MTOAgentReleasing,
@@ -680,7 +705,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 
 	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ID:                   uuid.FromStringOrNil("5afaaa39-ca7d-4403-b33a-262586ad64f6"),
+			ID:                   uuid.FromStringOrNil(uuids[5]),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
 			PrimeActualWeight:    &actualNTSWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
@@ -693,7 +718,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil("eecc3b59-7173-4ddd-b826-6f11f15338d9"),
+			ID:            uuid.FromStringOrNil(uuids[6]),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
 			MTOAgentType:  models.MTOAgentReceiving,
@@ -770,6 +795,77 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	verrs, err := models.SaveMoveDependencies(db, &ppm6.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+}
+
+func getPpmUuids(moveNumber int) [3]string {
+	var uuids [3]string
+
+	switch moveNumber {
+	case 1:
+		uuids = [3]string{
+			"2194daed-3589-408f-b988-e9889c9f120e",
+			"1319a13d-019b-4afa-b8fe-f51c15572681",
+			"7c4c7aa0-9e28-4065-93d2-74ea75e6323c",
+		}
+	case 2:
+		uuids = [3]string{
+			"4635b5a7-0f57-4557-8ba4-bbbb760c300a",
+			"7d756c59-1a46-4f59-9c51-6e708886eaf1",
+			"4397b137-f4ee-49b7-baae-3aa0b237d08e",
+		}
+	case 3:
+		uuids = [3]string{
+			"324dec0a-850c-41c8-976b-068e27121b84",
+			"a9b51cc4-e73e-4734-9714-a2066f207c3b",
+			"a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b",
+		}
+	case 4:
+		uuids = [3]string{
+			"f154929c-5f07-41f5-b90c-d90b83d5773d",
+			"9027d05d-4c4e-4e5d-9954-6a6ba4017b4d",
+			"460011f4-126d-40e5-b4f4-62cc9c2f0b7a",
+		}
+	}
+
+	return uuids
+}
+
+func createPPMUsers(db *pop.Connection, userUploader *uploader.UserUploader) {
+	for moveNumber := 1; moveNumber < 4; moveNumber++ {
+		uuids := getPpmUuids(moveNumber)
+		email := fmt.Sprintf("ppm.test.user%d@example.com", moveNumber)
+		uuidStr := uuids[0]
+		loginGovID := uuid.Must(uuid.NewV4())
+
+		testdatagen.MakeUser(db, testdatagen.Assertions{
+			User: models.User{
+				ID:            uuid.Must(uuid.FromString(uuidStr)),
+				LoginGovUUID:  &loginGovID,
+				LoginGovEmail: email,
+				Active:        true,
+			},
+		})
+
+		testdatagen.MakeMove(db, testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				ID:            uuid.FromStringOrNil(uuids[1]),
+				UserID:        uuid.FromStringOrNil(uuidStr),
+				FirstName:     models.StringPointer("Move"),
+				LastName:      models.StringPointer("Draft"),
+				Edipi:         models.StringPointer("7273579005"),
+				PersonalEmail: models.StringPointer(email),
+			},
+			Order: models.Order{
+				HasDependents:    false,
+				SpouseHasProGear: false,
+			},
+			Move: models.Move{
+				ID:      uuid.FromStringOrNil(uuids[2]),
+				Locator: fmt.Sprintf("NTS00%d", moveNumber),
+			},
+			UserUploader: userUploader,
+		})
 	}
 }
 
@@ -3628,10 +3724,14 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createCanceledPPM(db, userUploader)
 	createPPMReadyToRequestPayment(db, userUploader)
 
+	// Create additional PPM users for mymove tests
+	createPPMUsers(db, userUploader)
+
 	// Onboarding
 	createUnsubmittedHHGMove(db)
+	createUnsubmittedMoveWithNTSAndNTSR(db, 1)
+	createUnsubmittedMoveWithNTSAndNTSR(db, 2)
 	createUnsubmittedHHGMoveMultiplePickup(db)
-	createUnsubmittedMoveWithNTSAndNTSR(db)
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
 
