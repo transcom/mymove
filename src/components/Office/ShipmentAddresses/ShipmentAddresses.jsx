@@ -11,6 +11,8 @@ import DataPoint from '../../DataPoint/index';
 
 import styles from './ShipmentAddresses.module.scss';
 
+import { shipmentStatuses } from 'constants/shipments';
+
 const ShipmentAddresses = ({
   pickupAddress,
   destinationAddress,
@@ -25,13 +27,15 @@ const ShipmentAddresses = ({
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
-            <Button
-              type="button"
-              onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
-              unstyled
-            >
-              Request diversion
-            </Button>
+            {shipmentInfo.shipmentStatus !== shipmentStatuses.CANCELED && (
+              <Button
+                type="button"
+                onClick={() => handleDivertShipment(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
+                unstyled
+              >
+                Request diversion
+              </Button>
+            )}
           </div>,
         ]}
         dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
@@ -55,6 +59,7 @@ ShipmentAddresses.propTypes = {
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string.isRequired,
     ifMatchEtag: PropTypes.string.isRequired,
+    shipmentStatus: PropTypes.string.isRequired,
   }).isRequired,
 };
 
