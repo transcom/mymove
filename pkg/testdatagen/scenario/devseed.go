@@ -1126,7 +1126,7 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+			Status:               models.MTOShipmentStatusApproved,
 		},
 		Move: move8,
 	})
