@@ -17,6 +17,10 @@ schemes:
   - http
 tags:
   - name: moveTaskOrder
+    description: >
+      The **moveTaskOrder** represents a military move that has been sent to the GHC contractor. It contains all the
+      information about shipments, including service items, estimated weights, actual weights, requested and scheduled
+      move dates, etc.
   - name: mtoShipment
   - name: paymentRequest
   - name: mtoServiceItem
