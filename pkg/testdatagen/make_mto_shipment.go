@@ -50,11 +50,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 		// Make secondary pickup address if it was not provided
 		secondaryPickupAddress = assertions.SecondaryPickupAddress
-		if isZeroUUID(secondaryPickupAddress.ID) {
-			secondaryPickupAddress = MakeAddress(db, Assertions{
-				Address: assertions.SecondaryPickupAddress,
-			})
-		}
 	}
 
 	var destinationAddress, secondaryDeliveryAddress models.Address
@@ -70,18 +65,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		// Make secondary delivery address if it was not provided
 		if assertions.MTOShipment.SecondaryDeliveryAddress != nil {
 			secondaryDeliveryAddress = *assertions.MTOShipment.SecondaryDeliveryAddress
-			if isZeroUUID(secondaryDeliveryAddress.ID) {
-				secondaryDeliveryAddress = MakeAddress(db, Assertions{
-					Address: *assertions.MTOShipment.SecondaryDeliveryAddress,
-				})
-			}
 		} else {
 			secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
-			if isZeroUUID(secondaryDeliveryAddress.ID) {
-				secondaryDeliveryAddress = MakeAddress(db, Assertions{
-					Address: assertions.SecondaryDeliveryAddress,
-				})
-			}
 		}
 
 	}
@@ -124,16 +109,21 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	if shipmentHasDeliveryDetails {
 		MTOShipment.DestinationAddress = &destinationAddress
 		MTOShipment.DestinationAddressID = &destinationAddress.ID
-		MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
-		MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+
+		if !isZeroUUID(secondaryDeliveryAddress.ID) {
+			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+		}
 	}
 
 	if shipmentHasPickupDetails {
 		MTOShipment.PickupAddress = &pickupAddress
 		MTOShipment.PickupAddressID = &pickupAddress.ID
-		MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
-		MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
-		MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+
+		if !isZeroUUID(secondaryPickupAddress.ID) {
+			MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
+			MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+		}
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
