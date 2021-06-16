@@ -25,6 +25,11 @@
       background-color: $info-light;
     }
 
+    :global(.usa-tag--red) {
+      @include u-font-size('body', 3xs);
+      background-color: $error-light;
+    }
+
     .headingTagWrapper {
       display: flex;
       align-items: flex-start;

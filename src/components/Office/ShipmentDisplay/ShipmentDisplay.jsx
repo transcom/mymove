@@ -35,7 +35,16 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <h3>
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h3>
-            {displayInfo.isDiversion && <Tag>diversion</Tag>}
+            {displayInfo.isDiversion && (
+              <div>
+                <Tag>diversion</Tag>
+              </div>
+            )}
+            {displayInfo.isCancelled && (
+              <div>
+                <Tag className="usa-tag--red">cancelled</Tag>
+              </div>
+            )}
           </div>
 
           <FontAwesomeIcon icon="chevron-down" />
@@ -71,6 +80,7 @@ ShipmentDisplay.propTypes = {
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     isDiversion: PropTypes.bool,
+    isCancelled: PropTypes.bool,
     requestedPickupDate: PropTypes.string.isRequired,
     pickupAddress: AddressShape.isRequired,
     secondaryPickupAddress: AddressShape,
