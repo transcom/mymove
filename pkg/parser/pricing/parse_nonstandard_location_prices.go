@@ -42,27 +42,26 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 		feeRowOCToNIndexStart,
 	}
 	for _, section := range moveTypeSections {
-		for rowIdx := section; rowIdx < sheet.MaxRow; rowIdx++ {
-			// for _, row := range section {
+		for rowIndex := section; rowIndex < sheet.MaxRow; rowIndex++ {
 			colIndex := feeColIndexStart
 			// All the rows are consecutive, if we get to a blank one we're done
-			if getCell(sheet, rowIdx, colIndex) == "" {
+			if getCell(sheet, rowIndex, colIndex) == "" {
 				break
 			}
 
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				nonStandardLocationPrice := models.StageNonStandardLocnPrice{
-					OriginID:        getCell(sheet, rowIdx, originIDColumn),
-					OriginArea:      getCell(sheet, rowIdx, originAreaColumn),
-					DestinationID:   getCell(sheet, rowIdx, destinationIDColumn),
-					DestinationArea: getCell(sheet, rowIdx, destinationAreaColumn),
-					MoveType:        getCell(sheet, rowIdx, moveType),
+					OriginID:        getCell(sheet, rowIndex, originIDColumn),
+					OriginArea:      getCell(sheet, rowIndex, originAreaColumn),
+					DestinationID:   getCell(sheet, rowIndex, destinationIDColumn),
+					DestinationArea: getCell(sheet, rowIndex, destinationAreaColumn),
+					MoveType:        getCell(sheet, rowIndex, moveType),
 					Season:          r,
 				}
-				nonStandardLocationPrice.HHGPrice = getCell(sheet, rowIdx, colIndex)
+				nonStandardLocationPrice.HHGPrice = getCell(sheet, rowIndex, colIndex)
 				colIndex++
-				nonStandardLocationPrice.UBPrice = getCell(sheet, rowIdx, colIndex)
+				nonStandardLocationPrice.UBPrice = getCell(sheet, rowIndex, colIndex)
 
 				if params.ShowOutput {
 					logger.Info("", zap.Any("StageNonStandardLocnPrice", nonStandardLocationPrice))

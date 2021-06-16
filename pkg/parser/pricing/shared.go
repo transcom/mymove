@@ -28,12 +28,12 @@ type headerInfo struct {
 /*************************************************************************/
 
 // A safe way to get a cell from a slice of cells, returning empty string if not found
-func getCell(sheet *xlsx.Sheet, rowIdx, colIdx int) string {
-	if rowIdx >= sheet.MaxRow || colIdx >= sheet.MaxCol {
+func getCell(sheet *xlsx.Sheet, rowIndex, colIndex int) string {
+	if rowIndex >= sheet.MaxRow || colIndex >= sheet.MaxCol {
 		return ""
 	}
 
-	cell, err := sheet.Cell(rowIdx, colIdx)
+	cell, err := sheet.Cell(rowIndex, colIndex)
 	if err != nil {
 		// TODO: Is this panic OK? For now, just trying to avoid having to add in error-checking on every
 		//   getCell call.  It's a CLI, so what would we do to react to it other than end the process?
@@ -72,8 +72,8 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-func verifyHeader(sheet *xlsx.Sheet, rowIdx, colIdx int, expectedName string) error {
-	actual := getCell(sheet, rowIdx, colIdx)
+func verifyHeader(sheet *xlsx.Sheet, rowIndex, colIndex int, expectedName string) error {
+	actual := getCell(sheet, rowIndex, colIndex)
 	if removeWhiteSpace(expectedName) != removeWhiteSpace(actual) {
 		return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", expectedName, actual)
 	}

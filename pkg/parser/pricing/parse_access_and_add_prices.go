@@ -23,13 +23,12 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 
 	logger.Info("Parsing domestic move accessorial prices")
 	var prices []models.StageDomesticMoveAccessorialPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := domAccessorialRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := domAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageDomesticMoveAccessorialPrice{
-			ServicesSchedule: getCell(sheet, rowIdx, firstColumnIndexStart),
-			ServiceProvided:  getCell(sheet, rowIdx, secondColumnIndexStart),
-			PricePerUnit:     getCell(sheet, rowIdx, thirdColumnIndexStart),
+			ServicesSchedule: getCell(sheet, rowIndex, firstColumnIndexStart),
+			ServiceProvided:  getCell(sheet, rowIndex, secondColumnIndexStart),
+			PricePerUnit:     getCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -59,13 +58,12 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 
 	logger.Info("Parsing international move accessorial prices")
 	var prices []models.StageInternationalMoveAccessorialPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := intlAccessorialRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := intlAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageInternationalMoveAccessorialPrice{
-			Market:          getCell(sheet, rowIdx, firstColumnIndexStart),
-			ServiceProvided: getCell(sheet, rowIdx, secondColumnIndexStart),
-			PricePerUnit:    getCell(sheet, rowIdx, thirdColumnIndexStart),
+			Market:          getCell(sheet, rowIndex, firstColumnIndexStart),
+			ServiceProvided: getCell(sheet, rowIndex, secondColumnIndexStart),
+			PricePerUnit:    getCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -95,13 +93,12 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 
 	logger.Info("Parsing domestic/international additional prices")
 	var prices []models.StageDomesticInternationalAdditionalPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := additionalPricesRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := additionalPricesRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageDomesticInternationalAdditionalPrice{
-			Market:       getCell(sheet, rowIdx, firstColumnIndexStart),
-			ShipmentType: getCell(sheet, rowIdx, secondColumnIndexStart),
-			Factor:       getCell(sheet, rowIdx, thirdColumnIndexStart),
+			Market:       getCell(sheet, rowIndex, firstColumnIndexStart),
+			ShipmentType: getCell(sheet, rowIndex, secondColumnIndexStart),
+			Factor:       getCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -158,19 +155,19 @@ var verifyAccessAndAddPrices verifyXlsxSheet = func(params ParamConfig, sheetInd
 	return helperCheckHeadersFor5a("CONUS / OCONUS", "EXAMPLE", "X.XX", sheet, additionalPricesRowIndexStart-1, additionalPricesRowIndexStart)
 }
 
-func helperCheckHeadersFor5a(firstHeader string, secondHeader string, thirdHeader string, sheet *xlsx.Sheet, dataRowsIdxBegin, dataRowsIdxEnd int) error {
+func helperCheckHeadersFor5a(firstHeader string, secondHeader string, thirdHeader string, sheet *xlsx.Sheet, dataRowsIndexBegin, dataRowsIndexEnd int) error {
 	const firstColumnIndexStart = 2
 	const secondColumnIndexStart = 3
 	const thirdColumnIndexStart = 4
 
-	for rowIdx := dataRowsIdxBegin; rowIdx < dataRowsIdxEnd; rowIdx++ {
-		if header := getCell(sheet, rowIdx, firstColumnIndexStart); header != firstHeader {
+	for rowIndex := dataRowsIndexBegin; rowIndex < dataRowsIndexEnd; rowIndex++ {
+		if header := getCell(sheet, rowIndex, firstColumnIndexStart); header != firstHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", firstHeader, header)
 		}
-		if header := getCell(sheet, rowIdx, secondColumnIndexStart); header != secondHeader {
+		if header := getCell(sheet, rowIndex, secondColumnIndexStart); header != secondHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", secondHeader, header)
 		}
-		if header := removeWhiteSpace(getCell(sheet, rowIdx, thirdColumnIndexStart)); header != thirdHeader {
+		if header := removeWhiteSpace(getCell(sheet, rowIndex, thirdColumnIndexStart)); header != thirdHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", thirdHeader, header)
 		}
 	}

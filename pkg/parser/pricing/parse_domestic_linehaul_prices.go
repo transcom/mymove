@@ -27,9 +27,8 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 	logger.Info("Parsing domestic linehaul prices")
 
 	var domPrices []models.StageDomesticLinehaulPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := feeRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
@@ -40,16 +39,16 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 					// For each mileage range
 					for _, m := range dlhMilesRanges {
 						domPrice := models.StageDomesticLinehaulPrice{
-							ServiceAreaNumber: getCell(sheet, rowIdx, serviceAreaNumberColumn),
-							OriginServiceArea: getCell(sheet, rowIdx, originServiceAreaColumn),
-							ServicesSchedule:  getCell(sheet, rowIdx, serviceScheduleColumn),
+							ServiceAreaNumber: getCell(sheet, rowIndex, serviceAreaNumberColumn),
+							OriginServiceArea: getCell(sheet, rowIndex, originServiceAreaColumn),
+							ServicesSchedule:  getCell(sheet, rowIndex, serviceScheduleColumn),
 							Season:            r,
 							WeightLower:       strconv.Itoa(w.lowerLbs),
 							WeightUpper:       strconv.Itoa(w.upperLbs),
 							MilesLower:        strconv.Itoa(m.lower),
 							MilesUpper:        strconv.Itoa(m.upper),
 							EscalationNumber:  strconv.Itoa(escalation),
-							Rate:              getCell(sheet, rowIdx, colIndex),
+							Rate:              getCell(sheet, rowIndex, colIndex),
 						}
 						colIndex++
 						if params.ShowOutput {
@@ -94,7 +93,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, shee
 	}
 
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx, dataRowsIndex := feeRowMilageHeaderIndexStart, 0; rowIdx < verifyHeaderIndexEnd && rowIdx < sheet.MaxRow; rowIdx, dataRowsIndex = rowIdx+1, dataRowsIndex+1 {
+	for rowIndex, dataRowsIndex := feeRowMilageHeaderIndexStart, 0; rowIndex < verifyHeaderIndexEnd && rowIndex < sheet.MaxRow; rowIndex, dataRowsIndex = rowIndex+1, dataRowsIndex+1 {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
@@ -112,35 +111,35 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, shee
 						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dlhWeightBands %v",
 							dataRowsIndex, colIndex, escalation, r, w)
 						if dataRowsIndex == 0 {
-							fromMilesCell := getCell(sheet, rowIdx, colIndex)
+							fromMilesCell := getCell(sheet, rowIndex, colIndex)
 							fromMiles, err := getInt(fromMilesCell)
 							if err != nil {
 								return fmt.Errorf("could not convert %s to int: %w", fromMilesCell, err)
 							}
 							if m.lower != fromMiles {
-								return fmt.Errorf("format error: From Miles --> does not match expected number expected %d got %s\n%s", m.lower, getCell(sheet, rowIdx, colIndex), verificationLog)
+								return fmt.Errorf("format error: From Miles --> does not match expected number expected %d got %s\n%s", m.lower, getCell(sheet, rowIndex, colIndex), verificationLog)
 							}
-							if "ServiceAreaNumber" != removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNumberColumn)) {
-								return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNumberColumn)), verificationLog)
+							if "ServiceAreaNumber" != removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNumberColumn)) {
+								return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNumberColumn)), verificationLog)
 							}
-							if "OriginServiceArea" != removeWhiteSpace(getCell(sheet, rowIdx, originServiceAreaColumn)) {
-								return fmt.Errorf("format error: Header <OriginServiceArea> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, originServiceAreaColumn)), verificationLog)
+							if "OriginServiceArea" != removeWhiteSpace(getCell(sheet, rowIndex, originServiceAreaColumn)) {
+								return fmt.Errorf("format error: Header <OriginServiceArea> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, originServiceAreaColumn)), verificationLog)
 							}
-							if "ServicesSchedule" != removeWhiteSpace(getCell(sheet, rowIdx, serviceScheduleColumn)) {
-								return fmt.Errorf("format error: Header <SServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, serviceScheduleColumn)), verificationLog)
+							if "ServicesSchedule" != removeWhiteSpace(getCell(sheet, rowIndex, serviceScheduleColumn)) {
+								return fmt.Errorf("format error: Header <SServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, serviceScheduleColumn)), verificationLog)
 							}
 						} else if dataRowsIndex == 1 {
-							toMilesCell := getCell(sheet, rowIdx, colIndex)
+							toMilesCell := getCell(sheet, rowIndex, colIndex)
 							toMiles, err := getInt(toMilesCell)
 							if err != nil {
 								return fmt.Errorf("could not convert %s to int: %w", toMilesCell, err)
 							}
 							if m.upper != toMiles {
-								return fmt.Errorf("format error: To Miles --> does not match expected number expected %d got %s\n%s", m.upper, getCell(sheet, rowIdx, colIndex), verificationLog)
+								return fmt.Errorf("format error: To Miles --> does not match expected number expected %d got %s\n%s", m.upper, getCell(sheet, rowIndex, colIndex), verificationLog)
 							}
 						} else if dataRowsIndex == 2 {
-							if "EXAMPLE" != getCell(sheet, rowIdx, originServiceAreaColumn) {
-								return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", getCell(sheet, rowIdx, originServiceAreaColumn), verificationLog)
+							if "EXAMPLE" != getCell(sheet, rowIndex, originServiceAreaColumn) {
+								return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", getCell(sheet, rowIndex, originServiceAreaColumn), verificationLog)
 							}
 						}
 						colIndex++

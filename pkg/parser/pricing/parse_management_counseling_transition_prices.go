@@ -22,12 +22,11 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 
 	logger.Info("Parsing shipment management services prices")
 	var mgmtPrices []models.StageShipmentManagementServicesPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := mgmtRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := mgmtRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		shipMgmtSrvcPrice := models.StageShipmentManagementServicesPrice{
-			ContractYear:      getCell(sheet, rowIdx, contractYearColIndexStart),
-			PricePerTaskOrder: getCell(sheet, rowIdx, priceColumnIndexStart),
+			ContractYear:      getCell(sheet, rowIndex, contractYearColIndexStart),
+			PricePerTaskOrder: getCell(sheet, rowIndex, priceColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -57,12 +56,11 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 
 	logger.Info("Parsing counseling services prices")
 	var counPrices []models.StageCounselingServicesPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := counRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := counRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		cnslSrvcPrice := models.StageCounselingServicesPrice{
-			ContractYear:      getCell(sheet, rowIdx, contractYearColIndexStart),
-			PricePerTaskOrder: getCell(sheet, rowIdx, priceColumnIndexStart),
+			ContractYear:      getCell(sheet, rowIndex, contractYearColIndexStart),
+			PricePerTaskOrder: getCell(sheet, rowIndex, priceColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -92,12 +90,11 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 
 	logger.Info("Parsing transition prices")
 	var tranPrices []models.StageTransitionPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := tranRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := tranRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		tranPrice := models.StageTransitionPrice{
-			ContractYear:      getCell(sheet, rowIdx, contractYearColIndexStart),
-			PricePerTaskOrder: getCell(sheet, rowIdx, priceColumnIndexStart),
+			ContractYear:      getCell(sheet, rowIndex, contractYearColIndexStart),
+			PricePerTaskOrder: getCell(sheet, rowIndex, priceColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -156,12 +153,12 @@ var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamC
 	return helperCheckHeadersFor4b("Contract Year", "TransitionPrice($totalcost)", contractYearColIndexStart, priceColumnIndexStart, sheet, tranRowIndexStart-1, tranRowIndexStart)
 }
 
-func helperCheckHeadersFor4b(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, sheet *xlsx.Sheet, dataRowsIdxBegin, dataRowsIdxEnd int) error {
-	for rowIdx := dataRowsIdxBegin; rowIdx < dataRowsIdxEnd; rowIdx++ {
-		if header := getCell(sheet, rowIdx, contractYearColIndexStart); header != contractYearHeader {
+func helperCheckHeadersFor4b(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, sheet *xlsx.Sheet, dataRowsIndexBegin, dataRowsIndexEnd int) error {
+	for rowIndex := dataRowsIndexBegin; rowIndex < dataRowsIndexEnd; rowIndex++ {
+		if header := getCell(sheet, rowIndex, contractYearColIndexStart); header != contractYearHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
 		}
-		if header := removeWhiteSpace(getCell(sheet, rowIdx, priceColumnIndexStart)); header != priceColumnHeader {
+		if header := removeWhiteSpace(getCell(sheet, rowIndex, priceColumnIndexStart)); header != priceColumnHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", priceColumnHeader, header)
 		}
 	}

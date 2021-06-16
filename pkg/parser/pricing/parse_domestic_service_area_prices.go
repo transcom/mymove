@@ -27,29 +27,28 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 	logger.Info("Parsing domestic service area prices")
 
 	var domPrices []models.StageDomesticServiceAreaPrice
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := feeRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				domPrice := models.StageDomesticServiceAreaPrice{
-					ServiceAreaNumber:         getCell(sheet, rowIdx, serviceAreaNumberColumn),
-					ServiceAreaName:           getCell(sheet, rowIdx, serviceAreaNameColumn),
-					ServicesSchedule:          getCell(sheet, rowIdx, serviceScheduleColumn),
-					SITPickupDeliverySchedule: getCell(sheet, rowIdx, sitPickupDeliveryScheduleColumn),
+					ServiceAreaNumber:         getCell(sheet, rowIndex, serviceAreaNumberColumn),
+					ServiceAreaName:           getCell(sheet, rowIndex, serviceAreaNameColumn),
+					ServicesSchedule:          getCell(sheet, rowIndex, serviceScheduleColumn),
+					SITPickupDeliverySchedule: getCell(sheet, rowIndex, sitPickupDeliveryScheduleColumn),
 					Season:                    r,
 				}
 
-				domPrice.ShorthaulPrice = getCell(sheet, rowIdx, colIndex)
+				domPrice.ShorthaulPrice = getCell(sheet, rowIndex, colIndex)
 				colIndex++
-				domPrice.OriginDestinationPrice = getCell(sheet, rowIdx, colIndex)
+				domPrice.OriginDestinationPrice = getCell(sheet, rowIndex, colIndex)
 				colIndex += 3 // skip 2 columns pack and unpack
-				domPrice.OriginDestinationSITFirstDayWarehouse = getCell(sheet, rowIdx, colIndex)
+				domPrice.OriginDestinationSITFirstDayWarehouse = getCell(sheet, rowIndex, colIndex)
 				colIndex++
-				domPrice.OriginDestinationSITAddlDays = getCell(sheet, rowIdx, colIndex)
+				domPrice.OriginDestinationSITAddlDays = getCell(sheet, rowIndex, colIndex)
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.ShowOutput {
@@ -97,40 +96,40 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params ParamConfig, s
 	}
 
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := feeRowMileageHeaderIndexStart; rowIdx < verifyHeaderIndexEnd; rowIdx++ {
+	for rowIndex := feeRowMileageHeaderIndexStart; rowIndex < verifyHeaderIndexEnd; rowIndex++ {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v",
-					rowIdx, colIndex, escalation, r)
+					rowIndex, colIndex, escalation, r)
 
-				if rowIdx == 0 {
-					if "ServiceAreaNumber" != removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNumberColumn)) {
-						return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNumberColumn)), verificationLog)
+				if rowIndex == 0 {
+					if "ServiceAreaNumber" != removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNumberColumn)) {
+						return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNumberColumn)), verificationLog)
 					}
-					if "ServiceAreaName" != removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNameColumn)) {
-						return fmt.Errorf("format error: Header <ServiceAreaName> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNameColumn)), verificationLog)
+					if "ServiceAreaName" != removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNameColumn)) {
+						return fmt.Errorf("format error: Header <ServiceAreaName> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNameColumn)), verificationLog)
 					}
-					if "ServicesSchedule" != removeWhiteSpace(getCell(sheet, rowIdx, serviceScheduleColumn)) {
-						return fmt.Errorf("format error: Header <ServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, serviceScheduleColumn)), verificationLog)
+					if "ServicesSchedule" != removeWhiteSpace(getCell(sheet, rowIndex, serviceScheduleColumn)) {
+						return fmt.Errorf("format error: Header <ServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, serviceScheduleColumn)), verificationLog)
 					}
 
-					if "SITPickup/DeliverySchedule" != removeWhiteSpace(getCell(sheet, rowIdx, sITPickupDeliveryScheduleColumn)) {
-						return fmt.Errorf("format error: Header <SIT Pickup / Delivery> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, sITPickupDeliveryScheduleColumn)), verificationLog)
+					if "SITPickup/DeliverySchedule" != removeWhiteSpace(getCell(sheet, rowIndex, sITPickupDeliveryScheduleColumn)) {
+						return fmt.Errorf("format error: Header <SIT Pickup / Delivery> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, sITPickupDeliveryScheduleColumn)), verificationLog)
 					}
 
 					for _, repeatingHeader := range repeatingHeaders {
-						if removeWhiteSpace(repeatingHeader) != removeWhiteSpace(getCell(sheet, rowIdx, colIndex)) {
-							return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", removeWhiteSpace(repeatingHeader), removeWhiteSpace(getCell(sheet, rowIdx, colIndex)), verificationLog)
+						if removeWhiteSpace(repeatingHeader) != removeWhiteSpace(getCell(sheet, rowIndex, colIndex)) {
+							return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", removeWhiteSpace(repeatingHeader), removeWhiteSpace(getCell(sheet, rowIndex, colIndex)), verificationLog)
 						}
 						colIndex++
 					}
 					colIndex++ // skip 1 column (empty column) before starting next Rate type
-				} else if rowIdx == 1 {
-					if "EXAMPLE" != removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNameColumn)) {
-						return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIdx, serviceAreaNameColumn)), verificationLog)
+				} else if rowIndex == 1 {
+					if "EXAMPLE" != removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNameColumn)) {
+						return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(sheet, rowIndex, serviceAreaNameColumn)), verificationLog)
 					}
 				}
 

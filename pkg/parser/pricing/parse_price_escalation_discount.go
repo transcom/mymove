@@ -22,14 +22,13 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 
 	logger.Info("Parsing price escalation discount")
 	var priceEscalationDiscounts []models.StagePriceEscalationDiscount
-
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	for rowIdx := discountsRowIndexStart; rowIdx < sheet.MaxRow; rowIdx++ {
+	for rowIndex := discountsRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		priceEscalationDiscount := models.StagePriceEscalationDiscount{
-			ContractYear:          getCell(sheet, rowIdx, contractYearColumn),
-			ForecastingAdjustment: getCell(sheet, rowIdx, forecastingAdjustmentColumn),
-			Discount:              getCell(sheet, rowIdx, discountColumn),
-			PriceEscalation:       getCell(sheet, rowIdx, priceEscalationColumn),
+			ContractYear:          getCell(sheet, rowIndex, contractYearColumn),
+			ForecastingAdjustment: getCell(sheet, rowIndex, forecastingAdjustmentColumn),
+			Discount:              getCell(sheet, rowIndex, discountColumn),
+			PriceEscalation:       getCell(sheet, rowIndex, priceEscalationColumn),
 		}
 
 		if priceEscalationDiscount.ContractYear == "" {
@@ -59,7 +58,7 @@ var verifyPriceEscalationDiscount verifyXlsxSheet = func(params ParamConfig, she
 
 	// Check names on header row
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
-	headerRowIdx := discountsRowIndexStart - 2
+	headerRowIndex := discountsRowIndexStart - 2
 	headers := []headerInfo{
 		{"Contract Year", contractYearColumn},
 		{"Government-set IHS Markit Pricing and Purchasing Industry Forecasting Adjustment", forecastingAdjustmentColumn},
@@ -67,12 +66,12 @@ var verifyPriceEscalationDiscount verifyXlsxSheet = func(params ParamConfig, she
 		{"Resulting Price Escalation", priceEscalationColumn},
 	}
 	for _, header := range headers {
-		if err := verifyHeader(sheet, headerRowIdx, header.column, header.headerName); err != nil {
+		if err := verifyHeader(sheet, headerRowIndex, header.column, header.headerName); err != nil {
 			return err
 		}
 	}
 
 	// Check name on example row
-	exampleRowIdx := discountsRowIndexStart - 1 // example 1 row above data
-	return verifyHeader(sheet, exampleRowIdx, contractYearColumn, "EXAMPLE")
+	exampleRowIndex := discountsRowIndexStart - 1 // example 1 row above data
+	return verifyHeader(sheet, exampleRowIndex, contractYearColumn, "EXAMPLE")
 }
