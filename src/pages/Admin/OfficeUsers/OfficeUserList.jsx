@@ -11,52 +11,10 @@ import {
   CreateButton,
   ExportButton,
 } from 'react-admin';
-import { ImportButton } from 'react-admin-import-csv';
 import PropTypes from 'prop-types';
 
+import ImportCsvButton from 'components/Admin/ImportCsvButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
-
-const avaliableRoles = [
-  { roleType: 'customer', name: 'Customer' },
-  { roleType: 'transportation_ordering_officer', name: 'Transportation Ordering Officer' },
-  { roleType: 'transportation_invoicing_officer', name: 'Transportation Invoicing Officer' },
-  { roleType: 'contracting_officer', name: 'Contracting Officer' },
-  { roleType: 'ppm_office_users', name: 'PPM Office Users' },
-  { roleType: 'services_counselor', name: 'Services Counselor' },
-];
-
-const validateRow = async () => {};
-
-const preCommitCallback = (action, rows) => {
-  const alteredRows = [];
-  rows.forEach((row) => {
-    const copyOfRow = row;
-    if (row.roles) {
-      const rolesArray = [];
-
-      // Parse roles from string
-      const parsedRoles = row.roles.split(',');
-      parsedRoles.forEach((parsedRole) => {
-        // Remove any whitespace in the role string
-        const role = parsedRole.replaceAll(/\s/g, '');
-        rolesArray.push(avaliableRoles.find((avaliableRole) => avaliableRole.roleType === role));
-      });
-      copyOfRow.roles = rolesArray;
-    }
-    alteredRows.push(copyOfRow);
-  });
-  return alteredRows;
-};
-
-const config = {
-  logging: true,
-  validateRow,
-  preCommitCallback,
-  postCommitCallback: () => {
-    // console.log('reportItems', { reportItems });
-  },
-  disableImportOverwrite: true,
-};
 
 // Overriding the default toolbar to add import button
 const ListActions = (props) => {
@@ -64,7 +22,7 @@ const ListActions = (props) => {
   return (
     <TopToolbar>
       <CreateButton basePath={basePath} />
-      <ImportButton {...props} {...config} />
+      <ImportCsvButton {...props} />
       <ExportButton
         disabled={total === 0}
         resource={resource}

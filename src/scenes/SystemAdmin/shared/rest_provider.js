@@ -177,14 +177,14 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
     // we don't have an endpoint to create many objects at once, so we call create n times
     if (type === CREATE_MANY) {
       return Promise.all(
-        params.data.forEach((item) =>
+        params.data.map((item) =>
           httpClient(`${apiUrl}/${resource}`, {
             method: 'POST',
             body: JSON.stringify(item),
           }),
         ),
       ).then((responses) => ({
-        data: responses,
+        data: responses.map((response) => response.json),
       }));
     }
     // simple-rest doesn't handle filters on UPDATE route, so we fallback to calling UPDATE n times instead
