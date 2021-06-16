@@ -155,6 +155,6 @@ const checkYarnAudit = () => {
 if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependabot-preview[bot]')) {
   githubChecks();
   fileChecks();
-  // checkYarnAudit();
+  checkYarnAudit();
   cypressUpdateChecks();
 }
