@@ -179,6 +179,31 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
 
+// ShowAmendedOrdersHandler returns amended orders for a user and order ID
+type ShowAmendedOrdersHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle retrieves the amended orders in the system belonging to the logged in user given order ID
+func (h ShowAmendedOrdersHandler) Handle(params ordersop.ShowAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	orderID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
+}
+
 // UpdateOrdersHandler updates an order via PUT /orders/{orderId}
 type UpdateOrdersHandler struct {
 	handlers.HandlerContext

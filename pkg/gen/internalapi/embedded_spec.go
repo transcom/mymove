@@ -2086,6 +2086,49 @@ func init() {
         }
       }
     },
+    "/orders/{ordersId}/amended_orders": {
+      "get": {
+        "description": "Returns the amended orders for a given order",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Returns the amended orders for a given order",
+        "operationId": "showAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "ordersId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the amended orders",
+            "schema": {
+              "$ref": "#/definitions/DocumentPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "order is not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
       "get": {
         "description": "Calculates and returns an expense summary organized by expense type",
@@ -8572,6 +8615,49 @@ func init() {
           },
           "404": {
             "description": "orders not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/orders/{ordersId}/amended_orders": {
+      "get": {
+        "description": "Returns the amended orders for a given order",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Returns the amended orders for a given order",
+        "operationId": "showAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "ordersId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the amended orders",
+            "schema": {
+              "$ref": "#/definitions/DocumentPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "order is not found"
           },
           "500": {
             "description": "internal server error"

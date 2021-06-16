@@ -236,6 +236,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
 		})
 	}
+	if api.OrdersShowAmendedOrdersHandler == nil {
+		api.OrdersShowAmendedOrdersHandler = orders.ShowAmendedOrdersHandlerFunc(func(params orders.ShowAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.ShowAmendedOrders has not yet been implemented")
+		})
+	}
 	if api.CalendarShowAvailableMoveDatesHandler == nil {
 		api.CalendarShowAvailableMoveDatesHandler = calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")

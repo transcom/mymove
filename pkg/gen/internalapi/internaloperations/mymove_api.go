@@ -173,6 +173,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		AddressesShowAddressHandler: addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
 		}),
+		OrdersShowAmendedOrdersHandler: orders.ShowAmendedOrdersHandlerFunc(func(params orders.ShowAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.ShowAmendedOrders has not yet been implemented")
+		}),
 		CalendarShowAvailableMoveDatesHandler: calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")
 		}),
@@ -368,6 +371,8 @@ type MymoveAPI struct {
 	DutyStationsSearchDutyStationsHandler duty_stations.SearchDutyStationsHandler
 	// AddressesShowAddressHandler sets the operation handler for the show address operation
 	AddressesShowAddressHandler addresses.ShowAddressHandler
+	// OrdersShowAmendedOrdersHandler sets the operation handler for the show amended orders operation
+	OrdersShowAmendedOrdersHandler orders.ShowAmendedOrdersHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
 	CalendarShowAvailableMoveDatesHandler calendar.ShowAvailableMoveDatesHandler
 	// DocumentsShowDocumentHandler sets the operation handler for the show document operation
@@ -603,6 +608,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.AddressesShowAddressHandler == nil {
 		unregistered = append(unregistered, "addresses.ShowAddressHandler")
+	}
+	if o.OrdersShowAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "orders.ShowAmendedOrdersHandler")
 	}
 	if o.CalendarShowAvailableMoveDatesHandler == nil {
 		unregistered = append(unregistered, "calendar.ShowAvailableMoveDatesHandler")
@@ -924,6 +932,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/addresses/{addressId}"] = addresses.NewShowAddress(o.context, o.AddressesShowAddressHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/orders/{ordersId}/amended_orders"] = orders.NewShowAmendedOrders(o.context, o.OrdersShowAmendedOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
