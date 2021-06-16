@@ -286,7 +286,7 @@ export class Summary extends Component {
         )}
         {canAddAnotherShipment ? (
           <Grid row>
-            <Grid col="fill">
+            <Grid col="fill" tablet={{ col: 'auto' }}>
               <Link href={shipmentSelectionPath}>Add another shipment</Link>
             </Grid>
             <Grid col="auto" className={styles.buttonContainer}>

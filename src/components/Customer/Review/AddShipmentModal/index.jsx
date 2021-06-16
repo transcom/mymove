@@ -22,7 +22,7 @@ export const AddShipmentModal = ({ closeModal }) => (
     </ul>
     <p>If none of these apply to you, you probably don&apos;t need another shipment.</p>
     <ModalActions>
-      <Button secondary type="button" onClick={closeModal}>
+      <Button secondary type="button" onClick={closeModal} className={styles.Button}>
         Got it
       </Button>
     </ModalActions>

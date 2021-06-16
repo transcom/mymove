@@ -11,3 +11,9 @@
     @include u-margin-bottom('205');
   }
 }
+
+.Button {
+  @media (max-width: $tablet) {
+    width: 100%;
+  }
+}
