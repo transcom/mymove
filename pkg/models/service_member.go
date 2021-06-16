@@ -334,6 +334,7 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"UploadedOrders",
+		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -347,6 +348,12 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 
 	// Eager loading of nested has_many associations is broken
 	err = db.Load(&order.UploadedOrders, "UserUploads.Upload")
+	if err != nil {
+		return Order{}, err
+	}
+
+	// Eager loading of nested has_many associations is broken
+	err = db.Load(&order.UploadedAmendedOrders, "UserUploads.Upload")
 	if err != nil {
 		return Order{}, err
 	}

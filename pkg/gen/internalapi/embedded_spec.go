@@ -4992,6 +4992,9 @@ func init() {
           "type": "string",
           "format": "date-time"
         },
+        "uploaded_amended_orders": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
         }
@@ -11501,6 +11504,9 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "uploaded_amended_orders": {
+          "$ref": "#/definitions/DocumentPayload"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
