@@ -44,10 +44,7 @@
     line-height: 1.25;
     @include u-padding-top(1);
     transform: translate(-24px, -8px);
-
-    @media (min-width: $tablet) {
-      padding-left: 2rem;
-    }
+    padding-left: 2rem;
 
     div {
       @include u-margin-bottom(1);
