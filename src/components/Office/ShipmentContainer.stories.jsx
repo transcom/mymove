@@ -40,6 +40,7 @@ export const MTOAccessorial = () => (
   <ShipmentContainer shipmentType={text('ShipmentContainer.shipmentType', 'HHG')}>
     <ShipmentHeading
       shipmentInfo={{
+        shipmentStatus: text('ShipmentInfo.shipmentStatus', 'APPROVED'),
         shipmentType: text('ShipmentInfo.shipmentType', 'Household Goods'),
         originCity: text('ShipmentInfo.originCity', 'San Antonio'),
         originState: text('ShipmentInfo.originState', 'TX'),
@@ -58,6 +59,12 @@ export const MTOAccessorial = () => (
       scheduledPickupDate={text('MTOShipment.scheduledPickupDate', 'Sunday, 15 Mar 2020')}
     />
     <ShipmentAddresses
+      shipmentInfo={object('MTOShipment.pickupAddress', {
+        shipmentID: '1',
+        ifMatchEtag: '1',
+        shipmentStatus: 'APPROVED',
+      })}
+      handleDivertShipment={() => {}}
       pickupAddress={object('MTOShipment.pickupAddress', {
         street_address_1: '123 Any Street',
         city: 'Beverly Hills',
