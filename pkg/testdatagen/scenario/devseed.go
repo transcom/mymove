@@ -754,6 +754,7 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection, moveNumber int) {
 	estimatedNTSWeight := unit.Pound(1400)
 	actualNTSWeight := unit.Pound(2000)
 	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil(uuids[3]),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
@@ -766,15 +767,15 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection, moveNumber int) {
 		},
 	})
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOShipment: ntsShipment,
 		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil(uuids[4]),
-			MTOShipment:   ntsShipment,
-			MTOShipmentID: ntsShipment.ID,
-			MTOAgentType:  models.MTOAgentReleasing,
+			ID:           uuid.FromStringOrNil(uuids[4]),
+			MTOAgentType: models.MTOAgentReleasing,
 		},
 	})
 
 	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil(uuids[5]),
 			PrimeEstimatedWeight: &estimatedNTSWeight,
@@ -788,11 +789,10 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection, moveNumber int) {
 	})
 
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOShipment: ntsrShipment,
 		MTOAgent: models.MTOAgent{
-			ID:            uuid.FromStringOrNil(uuids[6]),
-			MTOShipment:   ntsrShipment,
-			MTOShipmentID: ntsrShipment.ID,
-			MTOAgentType:  models.MTOAgentReceiving,
+			ID:           uuid.FromStringOrNil(uuids[6]),
+			MTOAgentType: models.MTOAgentReceiving,
 		},
 	})
 }
