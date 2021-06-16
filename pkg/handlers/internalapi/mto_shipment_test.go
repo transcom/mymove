@@ -731,18 +731,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
 		suite.Len(okResponse.Payload, 2)
-		suite.Equal(subtestData.shipments[0].ID.String(), okResponse.Payload[0].ID.String())
-
-		firstCreatedShipment := subtestData.shipments[0]
-		nextCreatedShipment := subtestData.shipments[1]
-		if nextCreatedShipment.CreatedAt.Before(firstCreatedShipment.CreatedAt) {
-			firstCreatedShipment = subtestData.shipments[1]
-			nextCreatedShipment = subtestData.shipments[0]
-		}
-		_, err := time.Parse(time.RFC3339, okResponse.Payload[0].CreatedAt.String())
-		if err != nil {
-			suite.TestLogger().Fatal("unable to parse string time")
-		}
 
 		firstShipmentReturned := okResponse.Payload[0]
 		secondShipmentReturned := okResponse.Payload[1]
