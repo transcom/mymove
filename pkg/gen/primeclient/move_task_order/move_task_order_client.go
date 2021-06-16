@@ -41,7 +41,7 @@ type ClientService interface {
 
   Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
 list down to only the moves that have been updated since the provided timestamp. A move will be considered
-updated if the `updatedAt` timestamp on the move is later than the provided date.
+updated if the `updatedAt` timestamp on the move is later than the provided date and time.
 
 **WIP**: The original goal was to also look at the `updateAt` timestamps of the nested objects - such as the
 shipments, service items, etc. This has not been implemented.

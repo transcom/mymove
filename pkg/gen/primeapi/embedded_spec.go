@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrime` + "`" + ` timestamp has been\nset, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrime` + "`" + ` timestamp has been\nset, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -2636,7 +2636,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrime` + "`" + ` timestamp has been\nset, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrime` + "`" + ` timestamp has been\nset, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
