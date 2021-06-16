@@ -2,6 +2,7 @@ import { React, createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -18,10 +19,12 @@ import {
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
+import { generalRoutes } from 'constants/routes';
 
 export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrders }) => {
   const [isLoading, setLoading] = useState(true);
   const filePondEl = createRef();
+  const history = useHistory();
 
   const handleDelete = (uploadId) => {
     return deleteUpload(uploadId).then(() => {
@@ -49,10 +52,12 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   };
 
   const handleSave = () => {
-    // push(generalRoutes.HOME_PATH);
+    // TODO Once the API endpoint for saving amended orders is implemented, it should be used here
+    history.push(generalRoutes.HOME_PATH);
   };
   const handleCancel = () => {
-    // push(generalRoutes.HOME_PATH);
+    // TODO (After MB-8336 is complete) Delete amended orders files before navigating away
+    history.push(generalRoutes.HOME_PATH);
   };
 
   useEffect(() => {
@@ -108,7 +113,6 @@ AmendOrders.propTypes = {
   updateOrders: PropTypes.func.isRequired,
   currentOrders: OrdersShape,
   uploads: UploadsShape,
-  // push: PropTypes.func.isRequired,
 };
 
 AmendOrders.defaultProps = {
