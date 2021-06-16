@@ -111,6 +111,10 @@ func (suite *PopTestSuite) openTxnPopConnection() *pop.Connection {
 		suite.lowPrivConnDetails.Port,
 		suite.lowPrivConnDetails.Database,
 		suite.lowPrivConnDetails.OptionsString(""))
+
+	// See https://github.com/DATA-DOG/go-txdb for more information
+	// about how txdb works and why we need to register a fake driver
+	// and then connect to a fake database name
 	if !containsString(sql.Drivers(), fakePopSqlxDriverName) {
 		txdb.Register(fakePopSqlxDriverName, "postgres", dataSourceName)
 	}

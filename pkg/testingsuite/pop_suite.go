@@ -175,6 +175,8 @@ func NewPopTestSuite(packageName PackageName, opts ...PopTestSuiteOption) PopTes
 	if pts.usePerTestTransaction {
 		pts.findOrCreatePerTestTransactionDb()
 	} else {
+		// set up database connections for non per test transactions
+		// which may or may not be have useHighPrivsPSQLRole set
 		pts.highPrivConn, err = pop.NewConnection(pts.highPrivConnDetails)
 		if err != nil {
 			log.Panic(err)
@@ -318,6 +320,11 @@ func (suite *PopTestSuite) findOrCreatePerTestTransactionDb() {
 	lockStart := 10000
 	dbNum := 1
 
+	// Use an advisory lock to hold a database until the
+	// connection is closed at the end of the package test suite
+	// run.
+	//
+	// See https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
 	var lock bool
 	for {
 		lockQuery := fmt.Sprintf("SELECT pg_try_advisory_lock(%d)", lockStart+dbNum)
@@ -332,6 +339,7 @@ func (suite *PopTestSuite) findOrCreatePerTestTransactionDb() {
 	}
 	// now we have a lock on dbNum until the pgConn closes
 	templateDbName := suite.dbNameTemplate
+	// the test databases used here look like test_db_1, test_db_2, etc
 	testDbName := fmt.Sprintf("%s_%d", templateDbName, dbNum)
 	// when doing per test transaction, high priv conn should never be used
 	suite.highPrivConnDetails.Database = "UNUSED"
@@ -370,7 +378,7 @@ func (suite *PopTestSuite) findOrCreatePerTestTransactionDb() {
 func (suite *PopTestSuite) DB() *pop.Connection {
 	// Create the db connection on demand for per test transactions.
 	// This is necessary so that we know the current test name and can
-	// create a new db per test
+	// create a new txdb db connection per test
 	if suite.usePerTestTransaction {
 		if suite.lowPrivConn == nil {
 			suite.lowPrivConn = suite.openTxnPopConnection()
@@ -474,6 +482,10 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 // per subtest. In testing, that was still faster with per test
 // transactions than the old way of cloning a db per package.
 //
+// If the code under test starts its own transaction, this is the
+// approach that should be used. If it does not use transactions, you
+// can probably get away with using RunWithRollback (see below).
+//
 // When using per test transactions, watch out for subtests that do
 // not use testify.suite as they won't use this code and thus won't
 // get a per subtest connection. Tests that use the native testing
@@ -510,6 +522,11 @@ func (suite *PopTestSuite) Run(name string, subtest func()) bool {
 
 // RunWithRollback runs a subtest inside a transaction that is
 // rolled back. Not all tests will work with this approach
+//
+// See Run above for more details, but if the code under test does not
+// use transactions, this way of running subtests should work. If that
+// is true, you can reuse database models created in the main test in
+// each subtest.
 func (suite *PopTestSuite) RunWithRollback(name string, subtest func()) bool {
 	if !suite.usePerTestTransaction {
 		log.Fatal("Cannot use RunWithRollback without per test transaction")
