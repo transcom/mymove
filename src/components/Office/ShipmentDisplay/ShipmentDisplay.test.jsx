@@ -74,7 +74,7 @@ const diversion = {
 const cancelled = {
   heading: 'HHG',
   isDiversion: false,
-  isCancelled: true,
+  shipmentStatus: 'CANCELED',
   requestedPickupDate: '26 Mar 2020',
   pickupAddress: {
     street_address_1: '812 S 129th St',
