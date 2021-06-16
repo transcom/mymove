@@ -56,7 +56,27 @@ const diversion = {
   heading: 'HHG',
   isDiversion: true,
   requestedPickupDate: '26 Mar 2020',
-  currentAddress: {
+  pickupAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+  counselorRemarks: 'counselor approved',
+};
+
+const cancelled = {
+  heading: 'HHG',
+  isDiversion: false,
+  isCancelled: true,
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -110,5 +130,9 @@ describe('Shipment Container', () => {
   it('renders with diversion tag', () => {
     render(<ShipmentDisplay shipmentId="1" displayInfo={diversion} onChange={jest.fn()} isSubmitted={false} />);
     expect(screen.getByText('diversion')).toBeInTheDocument();
+  });
+  it('renders with cancelled tag', () => {
+    render(<ShipmentDisplay shipmentId="1" displayInfo={cancelled} onChange={jest.fn()} isSubmitted={false} />);
+    expect(screen.getByText('cancelled')).toBeInTheDocument();
   });
 });
