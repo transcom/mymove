@@ -27,10 +27,10 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := serviceAreaRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		domServArea := models.StageDomesticServiceArea{
-			BasePointCity:     getCell(sheet, rowIndex, basePointCityColumn),
-			State:             getCell(sheet, rowIndex, stateColumn),
-			ServiceAreaNumber: getCell(sheet, rowIndex, serviceAreaNumberColumn),
-			Zip3s:             getCell(sheet, rowIndex, zip3sColumn),
+			BasePointCity:     mustGetCell(sheet, rowIndex, basePointCityColumn),
+			State:             mustGetCell(sheet, rowIndex, stateColumn),
+			ServiceAreaNumber: mustGetCell(sheet, rowIndex, serviceAreaNumberColumn),
+			Zip3s:             mustGetCell(sheet, rowIndex, zip3sColumn),
 		}
 		// All the rows are consecutive, if we get to a blank one we're done
 		if domServArea.BasePointCity == "" {
@@ -62,8 +62,8 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := serviceAreaRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		intlServArea := models.StageInternationalServiceArea{
-			RateArea:   getCell(sheet, rowIndex, internationalRateAreaColumn),
-			RateAreaID: getCell(sheet, rowIndex, rateAreaIDColumn),
+			RateArea:   mustGetCell(sheet, rowIndex, internationalRateAreaColumn),
+			RateAreaID: mustGetCell(sheet, rowIndex, rateAreaIDColumn),
 		}
 		// All the rows are consecutive, if we get to a blank one we're done
 		if intlServArea.RateArea == "" {
@@ -98,22 +98,22 @@ var verifyServiceAreas verifyXlsxSheet = func(params ParamConfig, sheetIndex int
 	// Only check header of domestic and international service areas
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	dataRowsIndex := serviceAreaRowIndexStart - 1
-	if header := getCell(sheet, dataRowsIndex, basePointCityColumn); header != "Base Point City" {
+	if header := mustGetCell(sheet, dataRowsIndex, basePointCityColumn); header != "Base Point City" {
 		return fmt.Errorf("verifyServiceAreas expected to find header 'Base Point City', but received header '%s'", header)
 	}
-	if header := getCell(sheet, dataRowsIndex, stateColumn); header != "State" {
+	if header := mustGetCell(sheet, dataRowsIndex, stateColumn); header != "State" {
 		return fmt.Errorf("verifyServiceAreas expected to find header 'State', but received header '%s'", header)
 	}
-	if header := removeWhiteSpace(getCell(sheet, dataRowsIndex, serviceAreaNumberColumn)); header != "ServiceAreaNumber" {
+	if header := removeWhiteSpace(mustGetCell(sheet, dataRowsIndex, serviceAreaNumberColumn)); header != "ServiceAreaNumber" {
 		return fmt.Errorf("verifyServiceAreas expected to find header 'ServiceAreaNumber', but received header '%s'", header)
 	}
-	if header := removeWhiteSpace(getCell(sheet, dataRowsIndex, zip3sColumn)); header != "IncludedZip3's" {
+	if header := removeWhiteSpace(mustGetCell(sheet, dataRowsIndex, zip3sColumn)); header != "IncludedZip3's" {
 		return fmt.Errorf("verifyServiceAreas expected to find header \"IncludedZip3's\", but received header '%s'", header)
 	}
-	if header := getCell(sheet, dataRowsIndex, internationalRateAreaColumn); header != "International Rate Area" {
+	if header := mustGetCell(sheet, dataRowsIndex, internationalRateAreaColumn); header != "International Rate Area" {
 		return fmt.Errorf("verifyServiceAreas expected to find header 'International Rate Area', but received header '%s'", header)
 	}
-	if header := getCell(sheet, dataRowsIndex, rateAreaIDColumn); header != "Rate Area ID" {
+	if header := mustGetCell(sheet, dataRowsIndex, rateAreaIDColumn); header != "Rate Area ID" {
 		return fmt.Errorf("verifyServiceAreas expected to find header 'Rate Area ID', but received header '%s'", header)
 	}
 

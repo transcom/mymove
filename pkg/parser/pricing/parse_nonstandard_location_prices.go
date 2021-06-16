@@ -45,23 +45,23 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 		for rowIndex := section; rowIndex < sheet.MaxRow; rowIndex++ {
 			colIndex := feeColIndexStart
 			// All the rows are consecutive, if we get to a blank one we're done
-			if getCell(sheet, rowIndex, colIndex) == "" {
+			if mustGetCell(sheet, rowIndex, colIndex) == "" {
 				break
 			}
 
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				nonStandardLocationPrice := models.StageNonStandardLocnPrice{
-					OriginID:        getCell(sheet, rowIndex, originIDColumn),
-					OriginArea:      getCell(sheet, rowIndex, originAreaColumn),
-					DestinationID:   getCell(sheet, rowIndex, destinationIDColumn),
-					DestinationArea: getCell(sheet, rowIndex, destinationAreaColumn),
-					MoveType:        getCell(sheet, rowIndex, moveType),
+					OriginID:        mustGetCell(sheet, rowIndex, originIDColumn),
+					OriginArea:      mustGetCell(sheet, rowIndex, originAreaColumn),
+					DestinationID:   mustGetCell(sheet, rowIndex, destinationIDColumn),
+					DestinationArea: mustGetCell(sheet, rowIndex, destinationAreaColumn),
+					MoveType:        mustGetCell(sheet, rowIndex, moveType),
 					Season:          r,
 				}
-				nonStandardLocationPrice.HHGPrice = getCell(sheet, rowIndex, colIndex)
+				nonStandardLocationPrice.HHGPrice = mustGetCell(sheet, rowIndex, colIndex)
 				colIndex++
-				nonStandardLocationPrice.UBPrice = getCell(sheet, rowIndex, colIndex)
+				nonStandardLocationPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
 				if params.ShowOutput {
 					logger.Info("", zap.Any("StageNonStandardLocnPrice", nonStandardLocationPrice))
@@ -126,8 +126,8 @@ var verifyNonStandardLocnPrices verifyXlsxSheet = func(params ParamConfig, sheet
 	for _, season := range rateSeasons {
 		for _, header := range repeatingHeaders {
 			// don't use verifyHeader fn here so that we can name the season
-			if header != removeWhiteSpace(getCell(sheet, headerRowIndex, colIndex)) {
-				return fmt.Errorf("format error: Header for '%s' season '%s' is missing, got '%s' instead", season, header, removeWhiteSpace(getCell(sheet, headerRowIndex, colIndex)))
+			if header != removeWhiteSpace(mustGetCell(sheet, headerRowIndex, colIndex)) {
+				return fmt.Errorf("format error: Header for '%s' season '%s' is missing, got '%s' instead", season, header, removeWhiteSpace(mustGetCell(sheet, headerRowIndex, colIndex)))
 			}
 			colIndex++
 		}

@@ -26,9 +26,9 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := domAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageDomesticMoveAccessorialPrice{
-			ServicesSchedule: getCell(sheet, rowIndex, firstColumnIndexStart),
-			ServiceProvided:  getCell(sheet, rowIndex, secondColumnIndexStart),
-			PricePerUnit:     getCell(sheet, rowIndex, thirdColumnIndexStart),
+			ServicesSchedule: mustGetCell(sheet, rowIndex, firstColumnIndexStart),
+			ServiceProvided:  mustGetCell(sheet, rowIndex, secondColumnIndexStart),
+			PricePerUnit:     mustGetCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -61,9 +61,9 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := intlAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageInternationalMoveAccessorialPrice{
-			Market:          getCell(sheet, rowIndex, firstColumnIndexStart),
-			ServiceProvided: getCell(sheet, rowIndex, secondColumnIndexStart),
-			PricePerUnit:    getCell(sheet, rowIndex, thirdColumnIndexStart),
+			Market:          mustGetCell(sheet, rowIndex, firstColumnIndexStart),
+			ServiceProvided: mustGetCell(sheet, rowIndex, secondColumnIndexStart),
+			PricePerUnit:    mustGetCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -96,9 +96,9 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := additionalPricesRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageDomesticInternationalAdditionalPrice{
-			Market:       getCell(sheet, rowIndex, firstColumnIndexStart),
-			ShipmentType: getCell(sheet, rowIndex, secondColumnIndexStart),
-			Factor:       getCell(sheet, rowIndex, thirdColumnIndexStart),
+			Market:       mustGetCell(sheet, rowIndex, firstColumnIndexStart),
+			ShipmentType: mustGetCell(sheet, rowIndex, secondColumnIndexStart),
+			Factor:       mustGetCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -161,13 +161,13 @@ func helperCheckHeadersFor5a(firstHeader string, secondHeader string, thirdHeade
 	const thirdColumnIndexStart = 4
 
 	for rowIndex := dataRowsIndexBegin; rowIndex < dataRowsIndexEnd; rowIndex++ {
-		if header := getCell(sheet, rowIndex, firstColumnIndexStart); header != firstHeader {
+		if header := mustGetCell(sheet, rowIndex, firstColumnIndexStart); header != firstHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", firstHeader, header)
 		}
-		if header := getCell(sheet, rowIndex, secondColumnIndexStart); header != secondHeader {
+		if header := mustGetCell(sheet, rowIndex, secondColumnIndexStart); header != secondHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", secondHeader, header)
 		}
-		if header := removeWhiteSpace(getCell(sheet, rowIndex, thirdColumnIndexStart)); header != thirdHeader {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, thirdColumnIndexStart)); header != thirdHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", thirdHeader, header)
 		}
 	}

@@ -16,19 +16,31 @@ import (
 
 // A way to get a cell value from a sheet
 // return empty string if not found
-func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) string {
-	if sheet != nil {
-		cell, err := sheet.Cell(row, col)
-		if err != nil {
-			// TODO: Is this panic OK? For now, just trying to avoid having to add in error-checking on every
-			//   getValueFromSheet call.  It's a CLI, so what would we do to react to it other than end the process?
-			panic(err)
-		}
-
-		return cell.String()
+func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) (string, error) {
+	if row < 0 || row >= sheet.MaxRow || col < 0 || col >= sheet.MaxCol {
+		return "", fmt.Errorf("cell coordinates are out of bounds")
 	}
 
-	return ""
+	if sheet == nil {
+		return "", fmt.Errorf("sheet is nil")
+	}
+
+	cell, err := sheet.Cell(row, col)
+	if err != nil {
+		return "", err
+	}
+
+	return cell.String(), nil
+}
+
+// A version of getValueFromSheet that panics if it can't read the cell's value
+func mustGetValueFromSheet(sheet *xlsx.Sheet, row, col int) string {
+	cellString, err := getValueFromSheet(sheet, row, col)
+	if err != nil {
+		panic(fmt.Sprintf("getValueFromSheet: sheet=\"%s\", row=%d, col=%d: %s", sheet.Name, row, col, err.Error()))
+	}
+
+	return cellString
 }
 
 // A way to parse domestic header bounds.

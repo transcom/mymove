@@ -25,10 +25,10 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := discountsRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		priceEscalationDiscount := models.StagePriceEscalationDiscount{
-			ContractYear:          getCell(sheet, rowIndex, contractYearColumn),
-			ForecastingAdjustment: getCell(sheet, rowIndex, forecastingAdjustmentColumn),
-			Discount:              getCell(sheet, rowIndex, discountColumn),
-			PriceEscalation:       getCell(sheet, rowIndex, priceEscalationColumn),
+			ContractYear:          mustGetCell(sheet, rowIndex, contractYearColumn),
+			ForecastingAdjustment: mustGetCell(sheet, rowIndex, forecastingAdjustmentColumn),
+			Discount:              mustGetCell(sheet, rowIndex, discountColumn),
+			PriceEscalation:       mustGetCell(sheet, rowIndex, priceEscalationColumn),
 		}
 
 		if priceEscalationDiscount.ContractYear == "" {

@@ -27,19 +27,32 @@ type headerInfo struct {
 // Shared Helper functions
 /*************************************************************************/
 
-// A safe way to get a cell from a slice of cells, returning empty string if not found
-func getCell(sheet *xlsx.Sheet, rowIndex, colIndex int) string {
-	if rowIndex >= sheet.MaxRow || colIndex >= sheet.MaxCol {
-		return ""
+// A safe way to get a cell's value (as a string) from a sheet
+func getCell(sheet *xlsx.Sheet, rowIndex, colIndex int) (string, error) {
+	if rowIndex < 0 || rowIndex >= sheet.MaxRow || colIndex < 0 || colIndex >= sheet.MaxCol {
+		return "", fmt.Errorf("cell coordinates are out of bounds")
+	}
+
+	if sheet == nil {
+		return "", fmt.Errorf("sheet is nil")
 	}
 
 	cell, err := sheet.Cell(rowIndex, colIndex)
 	if err != nil {
-		// TODO: Is this panic OK? For now, just trying to avoid having to add in error-checking on every
-		//   getCell call.  It's a CLI, so what would we do to react to it other than end the process?
-		panic(err)
+		return "", err
 	}
-	return cell.String()
+
+	return cell.String(), nil
+}
+
+// A version of getCell that panics if it can't read the cell's value
+func mustGetCell(sheet *xlsx.Sheet, rowIndex, colIndex int) string {
+	cellString, err := getCell(sheet, rowIndex, colIndex)
+	if err != nil {
+		panic(fmt.Sprintf("getCell: sheet=\"%s\", row=%d, col=%d: %s", sheet.Name, rowIndex, colIndex, err.Error()))
+	}
+
+	return cellString
 }
 
 func getInt(from string) (int, error) {
@@ -73,7 +86,7 @@ func removeWhiteSpace(stripString string) string {
 }
 
 func verifyHeader(sheet *xlsx.Sheet, rowIndex, colIndex int, expectedName string) error {
-	actual := getCell(sheet, rowIndex, colIndex)
+	actual := mustGetCell(sheet, rowIndex, colIndex)
 	if removeWhiteSpace(expectedName) != removeWhiteSpace(actual) {
 		return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", expectedName, actual)
 	}

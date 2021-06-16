@@ -28,31 +28,31 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// All the rows are consecutive, if we get to a blank one we're done
-		if getCell(sheet, rowIndex, colIndex) == "" {
+		if mustGetCell(sheet, rowIndex, colIndex) == "" {
 			break
 		}
 
 		for _, s := range rateSeasons {
 			otherIntlPrice := models.StageOtherIntlPrice{
-				RateAreaCode: getCell(sheet, rowIndex, priceAreaCodeColumn),
-				RateAreaName: getCell(sheet, rowIndex, priceAreaNameColumn),
+				RateAreaCode: mustGetCell(sheet, rowIndex, priceAreaCodeColumn),
+				RateAreaName: mustGetCell(sheet, rowIndex, priceAreaNameColumn),
 				Season:       s,
 			}
-			otherIntlPrice.HHGOriginPackPrice = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.HHGOriginPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.HHGDestinationUnPackPrice = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.HHGDestinationUnPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.UBOriginPackPrice = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.UBOriginPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.UBDestinationUnPackPrice = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.UBDestinationUnPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.OriginDestinationSITFirstDayWarehouse = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.OriginDestinationSITFirstDayWarehouse = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.OriginDestinationSITAddlDays = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.OriginDestinationSITAddlDays = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.SITLte50Miles = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.SITLte50Miles = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.SITGt50Miles = getCell(sheet, rowIndex, colIndex)
+			otherIntlPrice.SITGt50Miles = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex += 2
 
 			if params.ShowOutput {
