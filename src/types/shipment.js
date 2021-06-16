@@ -30,4 +30,5 @@ export const ShipmentShape = PropTypes.shape({
   diversion: PropTypes.bool,
   counselorRemarks: PropTypes.string,
   customerRemarks: PropTypes.string,
+  status: PropTypes.string,
 });
