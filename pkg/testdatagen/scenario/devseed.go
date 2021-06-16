@@ -589,7 +589,7 @@ func createUnsubmittedHHGMoveMultipleDestinations(db *pop.Connection) {
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
-			ID:              uuid.FromStringOrNil("fee1181f-22eb-452d-9252-292066e7b0a5"),
+			ID:              uuid.FromStringOrNil("05361631-0e51-4a87-a8bc-82b3af120ce2"),
 			ShipmentType:    models.MTOShipmentTypeHHG,
 			Status:          models.MTOShipmentStatusSubmitted,
 			MoveTaskOrder:   move,
