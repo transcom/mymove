@@ -45,6 +45,7 @@ const unapprovedMTOQuery = {
   mtoShipments: [
     {
       id: '3',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.HHG,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -61,9 +62,11 @@ const unapprovedMTOQuery = {
         postal_code: '08401',
       },
       status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
     },
     {
       id: '4',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.NTS,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -80,6 +83,7 @@ const unapprovedMTOQuery = {
         postal_code: '08401',
       },
       status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
     },
   ],
   mtoServiceItems: undefined,
@@ -128,6 +132,7 @@ const someShipmentsApprovedMTOQuery = {
         city: 'Chicago',
         state: 'IL',
         postal_code: '60601',
+        eTag: '1234',
       },
       destinationAddress: {
         street_address_1: '10 Park Place',
@@ -136,9 +141,11 @@ const someShipmentsApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: shipmentStatuses.APPROVED,
+      eTag: '1234',
     },
     {
       id: '4',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.NTS,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -155,6 +162,7 @@ const someShipmentsApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
     },
   ],
   mtoServiceItems: [
@@ -240,6 +248,7 @@ const allApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: 'APPROVED',
+      eTag: '1234',
     },
     {
       id: '4',
@@ -260,10 +269,11 @@ const allApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: 'APPROVED',
+      eTag: '1234',
     },
     {
       id: '5',
-      mtoShipmentID: '2',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.NTSR,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -280,9 +290,11 @@ const allApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: 'APPROVED',
+      eTag: '1234',
     },
     {
       id: '6',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -299,9 +311,11 @@ const allApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: 'APPROVED',
+      eTag: '1234',
     },
     {
       id: '7',
+      moveTaskOrderID: '2',
       shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
       scheduledPickupDate: '2020-03-16',
       requestedPickupDate: '2020-03-15',
@@ -318,6 +332,7 @@ const allApprovedMTOQuery = {
         postal_code: '08401',
       },
       status: 'APPROVED',
+      eTag: '1234',
     },
   ],
   mtoServiceItems: [
@@ -334,6 +349,72 @@ const allApprovedMTOQuery = {
       reServiceName: "Domestic origin add'l SIT",
       status: SERVICE_ITEM_STATUS.SUBMITTED,
       reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+const approvedMTOWithCancelledShipmentQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+    },
+  },
+  moveTaskOrders: {
+    2: {
+      id: '2',
+      status: MOVE_STATUSES.APPROVED,
+      availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+    },
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'CANCELED',
+      eTag: '1234',
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOFSIT',
     },
   ],
   isLoading: false,
@@ -519,6 +600,70 @@ describe('MoveTaskOrder', () => {
       expect(requestedServiceItemsTable.length).toBe(2);
       expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
       expect(requestedServiceItemsTable.at(1).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
+    });
+
+    it('updates the unapproved shipments tag state', () => {
+      expect(setUnapprovedShipmentCount).toHaveBeenCalledWith(0);
+    });
+
+    it('updates the unapproved service items tag state', () => {
+      expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(2);
+    });
+  });
+
+  describe('approved mto with cancelled shipment', () => {
+    useMoveTaskOrderQueries.mockImplementation(() => approvedMTOWithCancelledShipmentQuery);
+    const wrapper = mount(
+      <MockProviders>
+        <MoveTaskOrder
+          {...requiredProps}
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+        />
+      </MockProviders>,
+    );
+
+    it('renders the h1', () => {
+      expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
+      expect(wrapper.find('h1').text()).toBe('Move task order');
+    });
+
+    it('renders the left nav with shipments', () => {
+      expect(wrapper.find('LeftNav').exists()).toBe(true);
+
+      const navLinks = wrapper.find('LeftNav a');
+      expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
+      expect(navLinks.at(0).contains('1'));
+      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+    });
+
+    it('renders the ShipmentContainer', () => {
+      expect(wrapper.find('ShipmentContainer').length).toBe(1);
+    });
+
+    it('renders the ShipmentHeading', () => {
+      expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
+      expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
+      expect(wrapper.find('span[data-testid="tag"]').text()).toEqual('cancelled');
+    });
+
+    it('renders the ImportantShipmentDates', () => {
+      expect(wrapper.find('ImportantShipmentDates').exists()).toBe(true);
+    });
+
+    it('renders the ShipmentAddresses', () => {
+      expect(wrapper.find('ShipmentAddresses').exists()).toBe(true);
+    });
+
+    it('renders the ShipmentWeightDetails', () => {
+      expect(wrapper.find('ShipmentWeightDetails').exists()).toBe(true);
+    });
+
+    it('renders the RequestedServiceItemsTable for SUBMITTED service item', () => {
+      const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
+      // There are no approved or rejected service item tables to display
+      expect(requestedServiceItemsTable.length).toBe(1);
+      expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
     });
 
     it('updates the unapproved shipments tag state', () => {
