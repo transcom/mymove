@@ -295,9 +295,16 @@ pkg/assets/assets.go:
 # ----- START SERVER TARGETS -----
 #
 
+.PHONY: check_swagger_generate
+check_swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
+.swagger_build.stamp: $(shell find swagger -type f -name *.yaml)
+	echo "Unexpected changes found in swagger build files. Code may be overwritten."
+	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
+
 .PHONY: swagger_generate
-swagger_generate: ## Bundles the API definition files into a complete specification
+swagger_generate: check_swagger_generate ## Bundles the API definition files into a complete specification
 	yarn build-redoc
+	touch .swagger_build.stamp
 
 .PHONY: server_generate
 server_generate: swagger_generate .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
