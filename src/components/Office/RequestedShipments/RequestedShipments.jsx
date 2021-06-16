@@ -13,6 +13,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
+import { shipmentStatuses } from 'constants/shipments';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -38,6 +39,7 @@ const RequestedShipments = ({
     return {
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
+      isCancelled: shipment.status === shipmentStatuses.CANCELED,
       requestedPickupDate: shipment.requestedPickupDate,
       pickupAddress: shipment.pickupAddress,
       secondaryPickupAddress: shipment.secondaryPickupAddress,
