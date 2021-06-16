@@ -423,11 +423,11 @@ func (suite *PopTestSuite) MustSave(model interface{}) {
 }
 
 // MustCreate requires creating without errors
-func (suite *PopTestSuite) MustCreate(db *pop.Connection, model interface{}) {
+func (suite *PopTestSuite) MustCreate(model interface{}) {
 	t := suite.T()
 	t.Helper()
 
-	verrs, err := db.ValidateAndCreate(model)
+	verrs, err := suite.DB().ValidateAndCreate(model)
 	if err != nil {
 		suite.T().Errorf("Errors encountered creating %v: %v", model, err)
 	}
