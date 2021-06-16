@@ -24,6 +24,7 @@
   :global(.usa-radio__input--tile + .usa-radio__label) {
     border-radius: 2px;
     background-color: $bg-white;
+
   }
 
   :global(.usa-checkbox__label),
@@ -43,8 +44,8 @@
     font-size: 13px;
     line-height: 1.25;
     @include u-padding-top(1);
-    transform: translate(-24px, -8px);
-    padding-left: 2rem;
+    transform: translate(-23px, -8px);
+    width: calc(100% + 23px);
 
     div {
       @include u-margin-bottom(1);
@@ -88,5 +89,7 @@
   :global(.usa-radio__input--tile + .usa-radio__label) {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0);
     @include u-padding-bottom('205');
+    text-indent: -40px;
+    padding-left: 50px;
   }
 }
