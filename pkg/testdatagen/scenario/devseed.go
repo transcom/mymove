@@ -1126,7 +1126,7 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusApproved,
+			Status:               models.MTOShipmentStatusSubmitted,
 		},
 		Move: move8,
 	})
@@ -3527,6 +3527,58 @@ func createHHGNoShipments(db *pop.Connection) {
 	})
 }
 
+// Create a move with an existing service item (DLH, in this case) that has the SUBMITTED status and the move
+// is set to APPROVALS_REQUESTED. Represents the original move when the Prime marks a shipment as diverted,
+// and is now being passed to the TOO.
+func createMoveWithExistingServiceItem(db *pop.Connection, userUploader *uploader.UserUploader) {
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: uuid.FromStringOrNil("88a76c41-0b6b-4ea6-a4a6-72b30d436571"),
+		},
+	})
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("91615e1b-4c51-45e7-851b-99c625e0a920"),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:            "EXSTS1",
+			OrdersID:           orders.ID,
+			Status:             models.MoveStatusAPPROVALSREQUESTED,
+			SelectedMoveType:   &hhgMoveType,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	mtoShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("4d7608a2-400b-42bb-a888-c6a8923fb868"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("b1f5a853-e0a7-42b1-abc7-b871e70d0822"),
+		},
+		Move:        move,
+		MTOShipment: mtoShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
@@ -3617,6 +3669,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createMoveWithHHGMissingOrdersInfo(db, userUploader)
 
 	createHHGMoveWith10ServiceItems(db, userUploader)
+	createMoveWithExistingServiceItem(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
 	createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
 	createHHGMoveWithTaskOrderServices(db, userUploader)
