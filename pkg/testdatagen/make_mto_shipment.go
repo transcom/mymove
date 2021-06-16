@@ -130,6 +130,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	if shipmentHasPickupDetails {
 		MTOShipment.PickupAddress = &pickupAddress
 		MTOShipment.PickupAddressID = &pickupAddress.ID
+		MTOShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 		MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 	}
 
