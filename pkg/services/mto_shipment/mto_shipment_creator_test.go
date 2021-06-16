@@ -94,6 +94,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.SecondaryPickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
+		suite.NotEmpty(createdShipment.SecondaryDeliveryAddressID)
 	})
 
 	suite.T().Run("If the shipment is created successfully with submitted status it should be returned", func(t *testing.T) {
@@ -200,6 +201,43 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
 	})
+
+	suite.T().Run("422 Validation Error - only one mto agent of each type", func(t *testing.T) {
+		firstName := "First"
+		lastName := "Last"
+		email := "test@gmail.com"
+
+		var agents models.MTOAgents
+
+		agent1 := models.MTOAgent{
+			FirstName:    &firstName,
+			LastName:     &lastName,
+			Email:        &email,
+			MTOAgentType: models.MTOAgentReceiving,
+		}
+
+		agent2 := models.MTOAgent{
+			FirstName:    &firstName,
+			LastName:     &lastName,
+			Email:        &email,
+			MTOAgentType: models.MTOAgentReceiving,
+		}
+
+		agents = append(agents, agent1, agent2)
+
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MTOAgents: agents,
+			},
+		})
+
+		serviceItemsList := models.MTOServiceItems{}
+		createdShipment, err := creator.CreateMTOShipment(&shipment, serviceItemsList)
+
+		suite.Nil(createdShipment)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
@@ -216,8 +254,12 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 		shipment.SecondaryPickupAddressID = nil
 		shipment.SecondaryPickupAddress.ID = uuid.Nil
 	}
-	shipment.SecondaryDeliveryAddressID = nil
-	shipment.SecondaryDeliveryAddress = nil
+
+	if shipment.SecondaryDeliveryAddress != nil {
+		shipment.SecondaryDeliveryAddressID = nil
+		shipment.SecondaryDeliveryAddress.ID = uuid.Nil
+	}
+
 	shipment.ID = uuid.Nil
 	if len(shipment.MTOAgents) > 0 {
 		for _, agent := range shipment.MTOAgents {

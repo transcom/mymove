@@ -34,6 +34,18 @@ const RequestedShipments = ({
     return mtoShipments.filter(({ id }) => formikShipmentIds.includes(id));
   };
 
+  const shipmentDisplayInfo = (shipment, dutyStationPostal) => {
+    return {
+      heading: shipmentTypeLabels[shipment.shipmentType],
+      isDiversion: shipment.diversion,
+      requestedPickupDate: shipment.requestedPickupDate,
+      pickupAddress: shipment.pickupAddress,
+      secondaryPickupAddress: shipment.secondaryPickupAddress,
+      destinationAddress: shipment.destinationAddress || dutyStationPostal,
+      secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
+    };
+  };
+
   const formik = useFormik({
     initialValues: {
       shipmentManagementFee: false,
@@ -145,13 +157,7 @@ const RequestedShipments = ({
                     shipmentId={shipment.id}
                     shipmentType={shipment.shipmentType}
                     isSubmitted
-                    displayInfo={{
-                      heading: shipmentTypeLabels[shipment.shipmentType],
-                      isDiversion: shipment.diversion,
-                      requestedMoveDate: shipment.requestedPickupDate,
-                      originAddress: shipment.pickupAddress,
-                      destinationAddress: shipment.destinationAddress || dutyStationPostal,
-                    }}
+                    displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
                     /* eslint-disable-next-line react/jsx-props-no-spreading */
                     {...formik.getFieldProps(`shipments`)}
                   />
@@ -208,13 +214,7 @@ const RequestedShipments = ({
                   key={shipment.id}
                   shipmentId={shipment.id}
                   shipmentType={shipment.shipmentType}
-                  displayInfo={{
-                    heading: shipmentTypeLabels[shipment.shipmentType],
-                    isDiversion: shipment.diversion,
-                    requestedMoveDate: shipment.requestedPickupDate,
-                    originAddress: shipment.pickupAddress,
-                    destinationAddress: shipment.destinationAddress || dutyStationPostal,
-                  }}
+                  displayInfo={shipmentDisplayInfo(shipment, dutyStationPostal)}
                   isSubmitted={false}
                 />
               ))}

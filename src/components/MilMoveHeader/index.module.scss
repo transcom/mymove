@@ -7,8 +7,8 @@
   color: $bg-white;
 
   // Override USWDS
-  + .usa-section,
-  + main {
+  +.usa-section,
+  +main {
     border-top: none !important;
   }
 
@@ -64,6 +64,14 @@
     align-self: stretch;
     align-items: center;
     justify-content: flex-end;
+
+    a {
+      @include u-font-size('body', '3xs');
+
+      @include at-media(tablet) {
+        @include u-font-size('body', 'xs');
+      }
+    }
   }
 
   :global(.usa-nav__primary) {
@@ -79,17 +87,32 @@
       display: flex;
       align-items: center;
 
-      > a,
+      >a,
       > :global(.usa-link),
       > :global(.usa-button.usa-button--unstyled) {
         display: flex;
         align-items: center;
         align-self: stretch;
-        color: $link-light;
+        color: #fff;
         font-weight: normal;
         border-top: 4px solid transparent;
         border-bottom: 4px solid transparent;
         @include u-padding-y(1);
+
+        svg {
+          color: #fff;
+        }
+
+        &:hover {
+          svg {
+            color: $link-light;
+          }
+        }
+
+        @include at-media(tablet) {
+          color: $link-light;
+          font-weight: bold;
+        }
 
         &:visited {
           color: $link-light;
@@ -108,20 +131,57 @@
   // Static text in a nav item that is not a link or button
   .navText {
     @include u-padding-x(2);
+    @include u-font-size('body', '3xs');
+
+    @include at-media(tablet) {
+      @include u-font-size('body', 'xs');
+    }
   }
 
   .userInfo {
     display: flex;
     align-self: stretch;
 
+    :global(.usa-nav__primary) {
+      @include u-padding-x(0);
+      @include u-margin-x(0);
+    }
+
+    :global(.usa-nav__primary button),
+    :global(.usa-nav__primary a:not(.usa-button)) {
+      @include u-font-size('body', '3xs');
+      @include u-padding-x(0);
+      @include u-margin-x(0);
+    }
+
+    :global(.usa-nav__primary-item) {
+      @include u-margin-left(2);
+    }
+
+    :global(.usa-nav__primary-item):last-child {
+      @include u-margin-right(2);
+    }
+
     @include at-media(tablet) {
       border-left: 1px solid $base-dark;
 
       :global(.usa-nav__primary-item) {
-        @include u-margin-left(2);
+        @include u-margin-x(0);
       }
 
       :global(.usa-nav__primary-item):last-child {
+        @include u-margin-left(2);
+        @include u-margin-right(0);
+      }
+
+      :global(.usa-nav__primary a:not(.usa-button)) {
+        @include u-margin-left(2);
+        @include u-padding-x(2);
+      }
+
+      :global(.usa-nav__primary button) {
+        @include u-font-size('body', 'xs');
+        @include u-padding-x(2);
         @include u-margin-right(2);
       }
     }

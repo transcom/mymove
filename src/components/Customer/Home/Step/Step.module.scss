@@ -15,7 +15,22 @@
     }
     .edit-btn {
       width: auto;
+      margin-right: 0;
     }
+  }
+}
+
+.step-amended-orders {
+  p {
+    margin-bottom: 0;
+  }
+  ul {
+    padding: 0 40px;
+    margin-top: 0;
+    font-size: 1rem;
+  }
+  .edit-btn {
+    width: auto;
   }
 }
 

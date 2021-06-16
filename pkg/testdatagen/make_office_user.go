@@ -299,6 +299,22 @@ func MakeOfficeUserWithMultipleRoles(db *pop.Connection, assertions Assertions) 
 		Stub: assertions.Stub,
 	})
 
+	// save roles to db
+	rolesList := officeUser.User.Roles
+	for _, role := range rolesList {
+		newRole := MakeRole(db, Assertions{
+			Role: role,
+			Stub: assertions.Stub,
+		})
+		MakeUsersRoles(db, Assertions{
+			UsersRoles: models.UsersRoles{
+				UserID: officeUser.User.ID,
+				RoleID: newRole.ID,
+			},
+			Stub: assertions.Stub,
+		})
+	}
+
 	return officeUser
 }
 

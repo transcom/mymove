@@ -2634,6 +2634,8 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
     required:
@@ -2662,7 +2664,8 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
-        x-nullable: true
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
   ClientError:
