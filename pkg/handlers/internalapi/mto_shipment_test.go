@@ -653,13 +653,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:                   models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:      &requestedPickupDate,
-			PickupAddress:            &pickupAddress,
-			SecondaryPickupAddress:   &secondaryPickupAddress,
-			DestinationAddress:       &deliveryAddress,
-			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &requestedPickupDate,
 		},
+		PickupAddress:            pickupAddress,
+		SecondaryPickupAddress:   secondaryPickupAddress,
+		DestinationAddress:       deliveryAddress,
+		SecondaryDeliveryAddress: secondaryDeliveryAddress,
 	})
 
 	shipments := models.MTOShipments{mtoShipment, mtoShipment2}

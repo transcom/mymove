@@ -48,7 +48,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			})
 		}
 
-		// Make secondary pickup address if it was not provided
 		secondaryPickupAddress = assertions.SecondaryPickupAddress
 	}
 
@@ -62,13 +61,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			})
 		}
 
-		// Make secondary delivery address if it was not provided
-		if assertions.MTOShipment.SecondaryDeliveryAddress != nil {
-			secondaryDeliveryAddress = *assertions.MTOShipment.SecondaryDeliveryAddress
-		} else {
-			secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
-		}
-
+		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
 	}
 
 	// mock weights
