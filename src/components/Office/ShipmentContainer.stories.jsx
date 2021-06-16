@@ -59,7 +59,7 @@ export const MTOAccessorial = () => (
       scheduledPickupDate={text('MTOShipment.scheduledPickupDate', 'Sunday, 15 Mar 2020')}
     />
     <ShipmentAddresses
-      shipmentInfo={object('MTOShipment.pickupAddress', {
+      shipmentInfo={object('MTOShipment.shipmentInfo', {
         shipmentID: '1',
         ifMatchEtag: '1',
         shipmentStatus: 'APPROVED',
