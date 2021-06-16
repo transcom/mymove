@@ -1086,6 +1086,9 @@ jobs:
           root: /home/circleci/transcom/mymove/
           paths:
             - storybook-static
+      - store_artifacts:
+          path: ~/transcom/mymove/storybook-static
+          destination: storybook
       - announce_failure
 
   # `build_migrations` builds the migrations container

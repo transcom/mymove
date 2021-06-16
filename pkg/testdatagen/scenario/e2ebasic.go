@@ -31,6 +31,12 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+/**************
+
+We should not be creating random data in e2ebasic! Tests should be deterministic.
+
+***************/
+
 // E2eBasicScenario builds a basic set of data for e2e testing
 type e2eBasicScenario NamedScenario
 
@@ -43,6 +49,48 @@ var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
 var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+
+func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator string) {
+	submittedAt := time.Now()
+	ordersSC := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
+	moveSC := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     locator,
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: ordersSC,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
@@ -2392,15 +2440,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	// Create a move specific for Services Counselor role
-	validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling}
-	createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move: models.Move{
-			Locator: "SCE2ET", // Services counselor e2e test
-		},
-	})
-
 	email = "nts.test.user@example.com"
 	uuidStr = "2194daed-3589-408f-b988-e9889c9f120e"
 	loginGovID = uuid.Must(uuid.NewV4())
@@ -2528,4 +2567,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE1ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE2ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE3ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE4ET")
 }

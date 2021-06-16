@@ -73,6 +73,7 @@ export function formatMtoShipmentForDisplay({
   counselorRemarks,
   moveTaskOrderID,
   secondaryPickupAddress,
+  secondaryDeliveryAddress,
 }) {
   const displayValues = {
     shipmentType,
@@ -92,8 +93,12 @@ export function formatMtoShipmentForDisplay({
     secondaryPickup: {
       address: { ...emptyAddressShape },
     },
+    secondaryDelivery: {
+      address: { ...emptyAddressShape },
+    },
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
+    hasSecondaryDelivery: 'no',
   };
 
   if (agents) {
@@ -132,6 +137,11 @@ export function formatMtoShipmentForDisplay({
     displayValues.hasDeliveryAddress = 'yes';
   }
 
+  if (secondaryDeliveryAddress) {
+    displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
+    displayValues.hasSecondaryDelivery = 'yes';
+  }
+
   if (requestedDeliveryDate) {
     displayValues.delivery.requestedDate = parseSwaggerDate(requestedDeliveryDate);
   }
@@ -151,6 +161,7 @@ export function formatMtoShipmentForAPI({
   customerRemarks,
   counselorRemarks,
   secondaryPickup,
+  secondaryDelivery,
 }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
@@ -189,6 +200,10 @@ export function formatMtoShipmentForAPI({
 
   if (secondaryPickup?.address) {
     formattedMtoShipment.secondaryPickupAddress = formatAddressForAPI(secondaryPickup.address);
+  }
+
+  if (secondaryDelivery?.address) {
+    formattedMtoShipment.secondaryDeliveryAddress = formatAddressForAPI(secondaryDelivery.address);
   }
 
   if (!formattedMtoShipment.agents?.length) {

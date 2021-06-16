@@ -46,6 +46,21 @@ const GhcPatchMTOShipmentStatusEndpointKey = "Ghc.PatchMTOShipmentStatus"
 // GhcDeleteShipmentEndpointKey is the key for the deleteShipment endpoint in ghc
 const GhcDeleteShipmentEndpointKey = "Ghc.DeleteShipment"
 
+// GhcApproveShipmentEndpointKey is the key for the approveShipment endpoint in ghc
+const GhcApproveShipmentEndpointKey = "Ghc.ApproveShipment"
+
+// GhcRequestShipmentDiversionEndpointKey is the key for the requestShipmentDiversion endpoint in ghc
+const GhcRequestShipmentDiversionEndpointKey = "Ghc.RequestShipmentDiversion"
+
+// GhcApproveShipmentDiversionEndpointKey is the key for the approveShipmentDiversion endpoint in ghc
+const GhcApproveShipmentDiversionEndpointKey = "Ghc.ApproveShipmentDiversion"
+
+// GhcRejectShipmentEndpointKey is the key for the rejectShipment endpoint in ghc
+const GhcRejectShipmentEndpointKey = "Ghc.RejectShipment"
+
+// GhcRequestShipmentCancellationEndpointKey is the key for the requestShipmentCancellation endpoint in ghc
+const GhcRequestShipmentCancellationEndpointKey = "Ghc.RequestShipmentCancellation"
+
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
 
@@ -144,6 +159,26 @@ var ghcEndpoints = EndpointMapType{
 	GhcDeleteShipmentEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "deleteShipment",
+	},
+	GhcApproveShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveShipment",
+	},
+	GhcRequestShipmentDiversionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "requestShipmentDiversion",
+	},
+	GhcApproveShipmentDiversionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveShipmentDiversion",
+	},
+	GhcRejectShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "rejectShipment",
+	},
+	GhcRequestShipmentCancellationEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "requestShipmentCancellation",
 	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,

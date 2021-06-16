@@ -16,14 +16,12 @@ import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
 import LeftNav from 'components/LeftNav';
-import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
-import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
-import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
@@ -42,7 +40,11 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 function approvedFilter(shipment) {
-  return shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELLATION_REQUESTED;
+  return (
+    shipment.status === shipmentStatuses.APPROVED ||
+    shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+    shipment.status === shipmentStatuses.DIVERSION_REQUESTED
+  );
 }
 
 export const MoveTaskOrder = ({ match, ...props }) => {
@@ -137,13 +139,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(
-        `MSG_CANCEL_SUCCESS_${variables.shipmentID}`,
-        'success',
-        'The request to cancel that shipment has been sent to the movers.',
-        '',
-        true,
-      );
+      setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -160,6 +156,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       console.log(errorMsg);
     },
   });
+  const handleDivertShipment = (mtoShipmentID, eTag) => {
+    mutateMTOShipmentStatus({
+      moveTaskOrderID: moveTaskOrder.id,
+      shipmentID: mtoShipmentID,
+      shipmentStatus: shipmentStatuses.DIVERSION_REQUESTED,
+      ifMatchETag: eTag,
+      onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+    });
+  };
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
@@ -167,6 +172,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       shipmentID: mtoShipmentID,
       shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
       ifMatchETag: eTag,
+      onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
     });
   };
 
@@ -186,7 +192,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     let serviceItemCount = 0;
     const serviceItemsCountForShipment = {};
     mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.status === shipmentStatuses.APPROVED) {
+      if (
+        mtoShipment.status === shipmentStatuses.APPROVED ||
+        mtoShipment.status === shipmentStatuses.DIVERSION_REQUESTED
+      ) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
           (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
         )?.length;
@@ -212,7 +221,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     mtoShipments?.forEach((shipment) => {
       if (
         shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED
+        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+        shipment.status === shipmentStatuses.DIVERSION_REQUESTED
       ) {
         shipmentSections.push({
           id: shipment.id,
@@ -319,7 +329,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
-              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED
+              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
+              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED
             ) {
               return false;
             }
@@ -362,20 +373,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
-                <ImportantShipmentDates
-                  requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
-                  scheduledPickupDate={formattedScheduledPickup}
-                />
-                <ShipmentAddresses
-                  pickupAddress={pickupAddress}
-                  destinationAddress={destinationAddress || dutyStationPostal}
-                  originDutyStation={order.originDutyStation?.address}
-                  destinationDutyStation={order.destinationDutyStation?.address}
-                />
-                <ShipmentWeightDetails
-                  estimatedWeight={mtoShipment.primeEstimatedWeight}
-                  actualWeight={mtoShipment.primeActualWeight}
-                />
+                <ShipmentDetails shipment={mtoShipment} order={order} handleDivertShipment={handleDivertShipment} />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable
                     serviceItems={requestedServiceItems}
