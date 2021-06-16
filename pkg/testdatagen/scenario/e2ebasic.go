@@ -92,45 +92,6 @@ func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator str
 	})
 }
 
-func createHHGWithMultipleOrderUploads(db *pop.Connection) {
-	document := testdatagen.MakeDocument(db, testdatagen.Assertions{})
-	u := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			DocumentID: &document.ID,
-			Document:   document,
-		},
-	})
-	document.UserUploads = append(document.UserUploads, u)
-
-	u2 := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			DocumentID: &document.ID,
-			Document:   document,
-		},
-	})
-
-	document.UserUploads = append(document.UserUploads, u2)
-
-	ordersMU := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			UploadedOrders: models.Document{
-				UserUploads: document.UserUploads,
-			},
-		},
-	})
-
-	moveMU := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "MULTOR",
-		},
-		Order: ordersMU,
-	})
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: moveMU,
-	})
-}
-
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
@@ -2398,5 +2359,4 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE2ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE3ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE4ET")
-	createHHGWithMultipleOrderUploads(db)
 }
