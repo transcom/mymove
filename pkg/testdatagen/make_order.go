@@ -42,14 +42,6 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 			UserUploader: assertions.UserUploader,
 		})
 		document.UserUploads = append(document.UserUploads, u)
-		u2 := MakeUserUpload(db, Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &document.ID,
-				Document:   document,
-				UploaderID: sm.UserID,
-			},
-		})
-		document.UserUploads = append(document.UserUploads, u2)
 	}
 
 	defaultOrderNumber := "ORDER3"
