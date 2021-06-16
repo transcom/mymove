@@ -3,8 +3,11 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	context "context"
+
 	auth "github.com/transcom/mymove/pkg/auth"
+
+	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -81,13 +84,13 @@ func (_m *MTOShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mod
 	return r0, r1
 }
 
-// UpdateMTOShipment provides a mock function with given fields: mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(mtoShipment, eTag)
+// UpdateMTOShipmentGHC provides a mock function with given fields: ctx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentGHC(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(ctx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(*models.MTOShipment, string) *models.MTOShipment); ok {
-		r0 = rf(mtoShipment, eTag)
+	if rf, ok := ret.Get(0).(func(context.Context, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(ctx, mtoShipment, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -95,8 +98,54 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.MTOShipment, string) error); ok {
-		r1 = rf(mtoShipment, eTag)
+	if rf, ok := ret.Get(1).(func(context.Context, *models.MTOShipment, string) error); ok {
+		r1 = rf(ctx, mtoShipment, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateMTOShipmentInternal provides a mock function with given fields: ctx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentInternal(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(ctx, mtoShipment, eTag)
+
+	var r0 *models.MTOShipment
+	if rf, ok := ret.Get(0).(func(context.Context, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(ctx, mtoShipment, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipment)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *models.MTOShipment, string) error); ok {
+		r1 = rf(ctx, mtoShipment, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateMTOShipmentPrime provides a mock function with given fields: ctx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentPrime(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(ctx, mtoShipment, eTag)
+
+	var r0 *models.MTOShipment
+	if rf, ok := ret.Get(0).(func(context.Context, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(ctx, mtoShipment, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOShipment)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *models.MTOShipment, string) error); ok {
+		r1 = rf(ctx, mtoShipment, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

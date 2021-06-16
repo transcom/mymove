@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -13,7 +15,9 @@ type MTOShipmentUpdater interface {
 	CheckIfMTOShipmentCanBeUpdated(mtoShipment *models.MTOShipment, session *auth.Session) (bool, error)
 	MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error)
 	RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error)
-	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentGHC(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentInternal(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentPrime(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentDeleter is the service object interface for deleting a shipment
