@@ -80,18 +80,9 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	handler := IndexMovesHandler{
-		HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		NewQueryFilter:  query.NewQueryFilter,
-		MoveListFetcher: move.NewMoveListFetcher(queryBuilder),
-		NewPagination:   pagination.NewPagination,
-	}
-
 	suite.T().Run("test filters present", func(t *testing.T) {
-
 		s := `{"locator":"TEST123"}`
-		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		qfs := generateQueryFilters(suite.TestLogger(), &s, locatorFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("locator", "=", "TEST123"),
 		}

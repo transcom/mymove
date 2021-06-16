@@ -48,6 +48,7 @@ type Assertions struct {
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
 	MTOServiceItemDimension                  models.MTOServiceItemDimension
+	MTOServiceItemDimensionCrate             models.MTOServiceItemDimension
 	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
 	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification
@@ -97,6 +98,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	UsersRoles                               models.UsersRoles
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	Zip3Distance                             models.Zip3Distance

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import { MovingInfo } from './MovingInfo';
 
@@ -17,19 +17,21 @@ describe('MovingInfo component', () => {
   };
 
   it('renders the expected content', () => {
-    const { queryAllByTestId, queryByText } = render(<MovingInfo {...testProps} />);
+    render(<MovingInfo {...testProps} />);
 
-    expect(queryByText('Tips for planning your shipments')).toBeInTheDocument();
-    expect(queryAllByTestId('shipmentsAlert').length).toBe(1);
-    expect(queryByText(/7,000 lbs/)).toBeInTheDocument();
-    expect(queryAllByTestId('shipmentsSubHeader').length).toBe(4);
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /7,000 lbs/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading').length).toBe(6);
   });
 
   it('renders with no errors when entitlement weight is 0', () => {
-    const { queryAllByTestId, queryByText } = render(<MovingInfo {...testProps} entitlementWeight={0} />);
+    render(<MovingInfo {...testProps} entitlementWeight={0} />);
 
-    expect(queryByText('Tips for planning your shipments')).toBeInTheDocument();
-    expect(queryAllByTestId('shipmentsAlert').length).toBe(0);
-    expect(queryAllByTestId('shipmentsSubHeader').length).toBe(4);
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Things to know about selecting shipments' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('heading').length).toBe(5);
   });
 });

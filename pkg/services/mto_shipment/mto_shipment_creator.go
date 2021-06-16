@@ -128,12 +128,28 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
+		if shipment.SecondaryPickupAddress != nil {
+			verrs, err = txBuilder.CreateOne(shipment.SecondaryPickupAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+			}
+			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+		}
+
 		if shipment.DestinationAddress != nil {
 			verrs, err = txBuilder.CreateOne(shipment.DestinationAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
+		}
+
+		if shipment.SecondaryDeliveryAddress != nil {
+			verrs, err = txBuilder.CreateOne(shipment.SecondaryDeliveryAddress)
+			if verrs != nil || err != nil {
+				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+			}
+			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
 		}
 
 		// check that required items to create shipment are present
@@ -167,6 +183,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				if err != nil {
 					return err
 				}
+
+				for _, agentInList := range agentsList {
+					if agentInList.MTOAgentType == copyOfAgent.MTOAgentType {
+						return services.NewInvalidInputError(uuid.Nil, nil, nil, "MTOAgents can only contain one agent of each type")
+					}
+				}
+
 				agentsList = append(agentsList, copyOfAgent)
 			}
 			shipment.MTOAgents = agentsList
@@ -242,7 +265,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		verrs.Add("secondaryPickupAddress:id", addressMsg)
 	}
 	if shipment.SecondaryDeliveryAddress != nil && shipment.SecondaryDeliveryAddress.ID != uuid.Nil {
-		verrs.Add("secondaryDestinationAddress:id", addressMsg)
+		verrs.Add("SecondaryDeliveryAddress:id", addressMsg)
 	}
 
 	if verrs.HasAny() {

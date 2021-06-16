@@ -3,6 +3,35 @@
 
 .step-container {
   @include u-margin-bottom(6);
+
+  &.step-amended-orders {
+    p {
+      margin-bottom: 0;
+    }
+    ul {
+      padding: 0 40px;
+      margin-top: 0;
+      font-size: 1rem;
+    }
+    .edit-btn {
+      width: auto;
+      margin-right: 0;
+    }
+  }
+}
+
+.step-amended-orders {
+  p {
+    margin-bottom: 0;
+  }
+  ul {
+    padding: 0 40px;
+    margin-top: 0;
+    font-size: 1rem;
+  }
+  .edit-btn {
+    width: auto;
+  }
 }
 
 .step-header-container {
@@ -17,6 +46,7 @@
     cursor: not-allowed;
   }
 }
+
 
 .accept {
   display: inline-block;
@@ -57,9 +87,9 @@
   background-color: transparent;
   color: $primary;
   text-decoration: none;
-  width: 42px;
   font-size: 15px;
   font-weight: normal;
+  width: 42px;
   text-align: center;
   margin-left: auto;
   &:active,

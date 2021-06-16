@@ -52,7 +52,9 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
-
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -185,21 +187,29 @@ export class OfficeApp extends Component {
 
                     {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
+                      key="servicesCounselingAddShipment"
+                      exact
+                      path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
+                      component={ServicesCounselingAddShipment}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
+                    <PrivateRoute
                       key="servicesCounselingEditShipmentDetailsRoute"
                       exact
-                      path={servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH}
+                      path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
                       component={ServicesCounselingEditShipmentDetails}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
-                      path="/counseling/queue"
+                      path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
                       exact
                       component={ServicesCounselingQueue}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
                       key="servicesCounselingMoveInfoRoute"
-                      path="/counseling/moves/:moveCode"
+                      path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />

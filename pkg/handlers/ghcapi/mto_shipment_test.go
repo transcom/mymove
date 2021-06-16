@@ -174,13 +174,17 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
+	approvedStatus := string(models.MTOShipmentStatusApproved)
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusAPPROVED},
+		Body:            &ghcmessages.PatchMTOShipmentStatus{Status: &approvedStatus},
 		IfMatch:         eTag,
 	}
+
+	// Run swagger validations
+	suite.NoError(params.Body.Validate(strfmt.Default))
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
 		MaxDaysTransitTime: 12,
@@ -196,6 +200,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)
+
+	var nilString *string
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
@@ -228,10 +234,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, internalServerErr)
 
 		response := handler.Handle(params)
@@ -248,10 +254,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -268,10 +274,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		response := handler.Handle(params)
@@ -288,10 +294,10 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -308,24 +314,24 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
+			mtoShipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
 		).Return(nil, mtoshipment.ConflictStatusError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusConflict{}, response)
 	})
 
-	suite.T().Run("Successful patch with webhook notification - On a submitted move", func(t *testing.T) {
+	suite.T().Run("Successful patch with webhook notification - On an approved move", func(t *testing.T) {
 		// Create mock fetcher and updater
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 
 		// Create an mto shipment on a move that is available to prime
 		now := time.Now()
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				AvailableToPrimeAt: &now,
 			},
@@ -335,48 +341,16 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			},
 		})
 
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
-		handler := PatchShipmentHandler{
-			handlerContext,
-			&mockFetcher,
-			&mockUpdater,
+		params = mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(shipment.MoveTaskOrderID),
+			ShipmentID:      *handlers.FmtUUID(shipment.ID),
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: &approvedStatus},
+			IfMatch:         eTag,
 		}
 
-		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(&mtoShipment, nil)
-
-		// Call the handler
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
-
-		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
-		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
-		suite.NotNil(okResponse.Payload.ETag)
-
-		// Check that webhook notification was stored
-		suite.HasWebhookNotification(mtoShipment.ID, handlerContext.GetTraceID())
-
-	})
-
-	suite.T().Run("Successful patch with no webhook notification - On an unsubmitted move", func(t *testing.T) {
-		// Create mock fetcher and updater
-		mockFetcher := mocks.Fetcher{}
-		mockUpdater := mocks.MTOShipmentStatusUpdater{}
-
-		// Create an mto shipment on a move that is available to prime
-		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status:       models.MTOShipmentStatusSubmitted,
-				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
-			},
-		})
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -389,23 +363,22 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		}
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(&mtoShipment, nil)
+			shipment.ID,
+			models.MTOShipmentStatusApproved,
+			nilString,
+			eTag,
+		).Return(&shipment, nil)
 
 		// Call the handler
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
-		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(shipment.ID.String(), okResponse.Payload.ID.String())
 		suite.NotNil(okResponse.Payload.ETag)
 
 		// Check that webhook notification was stored
-		suite.HasNoWebhookNotification(mtoShipment.ID, handlerContext.GetTraceID())
-
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
 	})
 
 	suite.T().Run("Successful patch to CANCELLATION_REQUESTED status", func(t *testing.T) {
@@ -421,7 +394,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 				Status: models.MTOShipmentStatusApproved,
 			},
 		})
-		eTag := etag.GenerateEtag(approvedShipment.UpdatedAt)
+		eTag = etag.GenerateEtag(approvedShipment.UpdatedAt)
 
 		// Set the traceID so we can use it to find the webhook notification
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -432,11 +405,12 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			fetcher,
 			updater,
 		}
+		cancellationRequestedStatus := string(models.MTOShipmentStatusCancellationRequested)
 		cancellationParams := mtoshipmentops.PatchMTOShipmentStatusParams{
 			HTTPRequest:     req,
 			MoveTaskOrderID: *handlers.FmtUUID(approvedShipment.MoveTaskOrderID),
 			ShipmentID:      *handlers.FmtUUID(approvedShipment.ID),
-			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: ghcmessages.MTOShipmentStatusCANCELLATIONREQUESTED},
+			Body:            &ghcmessages.PatchMTOShipmentStatus{Status: &cancellationRequestedStatus},
 			IfMatch:         eTag,
 		}
 		suite.NoError(cancellationParams.Body.Validate(strfmt.Default))
@@ -453,6 +427,54 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		// Check that webhook notification was stored
 		suite.HasWebhookNotification(approvedShipment.ID, handlerContext.GetTraceID())
 
+	})
+
+	suite.T().Run("Swagger endpoint allows passing in CANCELED status", func(t *testing.T) {
+		canceledStatus := string(models.MTOShipmentStatusCanceled)
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
+			Body:        &ghcmessages.PatchMTOShipmentStatus{Status: &canceledStatus},
+			IfMatch:     eTag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+	})
+
+	suite.T().Run("Swagger endpoint allows passing in DIVERSION_REQUESTED status", func(t *testing.T) {
+		diversionRequestedStatus := string(models.MTOShipmentStatusDiversionRequested)
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
+			Body:        &ghcmessages.PatchMTOShipmentStatus{Status: &diversionRequestedStatus},
+			IfMatch:     eTag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+	})
+
+	suite.T().Run("Swagger endpoint allows passing in REJECTED status", func(t *testing.T) {
+		rejectedStatus := string(models.MTOShipmentStatusRejected)
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
+			Body:        &ghcmessages.PatchMTOShipmentStatus{Status: &rejectedStatus},
+			IfMatch:     eTag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+	})
+
+	suite.T().Run("Swagger endpoint does NOT allow passing in SUBMITTED status", func(t *testing.T) {
+		submittedStatus := string(models.MTOShipmentStatusSubmitted)
+		params := mtoshipmentops.PatchMTOShipmentStatusParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(mtoShipment.ID),
+			Body:        &ghcmessages.PatchMTOShipmentStatus{Status: &submittedStatus},
+			IfMatch:     eTag,
+		}
+		// Run swagger validations
+		suite.Error(params.Body.Validate(strfmt.Default))
 	})
 }
 
@@ -555,6 +577,1066 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestApproveShipmentHandler() {
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
+		// Populate the reServices table with codes needed by the
+		// HHG_LONGHAUL_DOMESTIC shipment type
+		reServiceCodes := []models.ReServiceCode{
+			models.ReServiceCodeDLH,
+			models.ReServiceCodeFSC,
+			models.ReServiceCodeDOP,
+			models.ReServiceCodeDDP,
+			models.ReServiceCodeDPK,
+			models.ReServiceCodeDUPK,
+		}
+		for _, serviceCode := range reServiceCodes {
+			testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code:      serviceCode,
+					Name:      "test",
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			})
+		}
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		builder := query.NewQueryBuilder(suite.DB())
+		approver := mtoshipment.NewShipmentApprover(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+			mtoserviceitem.NewMTOServiceItemCreator(builder),
+			&routemocks.Planner{},
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		approver := &mocks.ShipmentApprover{}
+
+		approver.AssertNumberOfCalls(suite.T(), "ApproveShipment", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when approver returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipment", shipment.ID, eTag).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when approver returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipment", shipment.ID, eTag).Return(nil, services.ConflictError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipment", shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when approver returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipment", shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when approver returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentApprover{}
+
+		approver.On("ApproveShipment", shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+			Move: move,
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requester := mtoshipment.NewShipmentDiversionRequester(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		requester := &mocks.ShipmentDiversionRequester{}
+
+		requester.AssertNumberOfCalls(suite.T(), "RequestShipmentDiversion", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when requester returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requester := &mocks.ShipmentDiversionRequester{}
+
+		requester.On("RequestShipmentDiversion", shipment.ID, eTag).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when requester returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requester := &mocks.ShipmentDiversionRequester{}
+
+		requester.On("RequestShipmentDiversion", shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requester := &mocks.ShipmentDiversionRequester{}
+
+		requester.On("RequestShipmentDiversion", shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when requester returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requester := &mocks.ShipmentDiversionRequester{}
+
+		requester.On("RequestShipmentDiversion", shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when requester returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		requester := &mocks.ShipmentDiversionRequester{}
+
+		requester.On("RequestShipmentDiversion", shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentDiversionHandler{
+			handlerContext,
+			requester,
+		}
+		approveParams := shipmentops.RequestShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentDiversionInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusDiversionRequested,
+			},
+			Move: move,
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := mtoshipment.NewShipmentDiversionApprover(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.AssertNumberOfCalls(suite.T(), "ApproveShipmentDiversion", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when approver returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when approver returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when approver returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when approver returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		approver := &mocks.ShipmentDiversionApprover{}
+
+		approver.On("ApproveShipmentDiversion", shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := ApproveShipmentDiversionHandler{
+			handlerContext,
+			approver,
+		}
+		approveParams := shipmentops.ApproveShipmentDiversionParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.ApproveShipmentDiversionInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestRejectShipmentHandler() {
+	reason := "reason"
+
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := mtoshipment.NewShipmentRejecter(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		rejecter := &mocks.ShipmentRejecter{}
+
+		rejecter.AssertNumberOfCalls(suite.T(), "RejectShipment", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when rejecter returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := &mocks.ShipmentRejecter{}
+
+		rejecter.On("RejectShipment", shipment.ID, eTag, &reason).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when rejecter returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := &mocks.ShipmentRejecter{}
+
+		rejecter.On("RejectShipment", shipment.ID, eTag, &reason).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := &mocks.ShipmentRejecter{}
+
+		rejecter.On("RejectShipment", shipment.ID, eTag, &reason).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when rejecter returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := &mocks.ShipmentRejecter{}
+
+		rejecter.On("RejectShipment", shipment.ID, eTag, &reason).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when rejecter returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := &mocks.ShipmentRejecter{}
+
+		rejecter.On("RejectShipment", shipment.ID, eTag, &reason).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body: &ghcmessages.RejectShipment{
+				RejectionReason: &reason,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentInternalServerError{}, response)
+	})
+
+	suite.T().Run("Requires rejection reason in Body of request", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		rejecter := mtoshipment.NewShipmentRejecter(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RejectShipmentHandler{
+			handlerContext,
+			rejecter,
+		}
+		params := shipmentops.RejectShipmentParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+			Body:        &ghcmessages.RejectShipment{},
+		}
+
+		suite.Error(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RejectShipmentUnprocessableEntity{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
+	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+			Move: move,
+		})
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := mtoshipment.NewShipmentCancellationRequester(
+			suite.DB(),
+			mtoshipment.NewShipmentRouter(suite.DB()),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationOK{}, response)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.T().Run("Returns a 403 when the office user is not a TOO", func(t *testing.T) {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.AssertNumberOfCalls(suite.T(), "RequestShipmentCancellation", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+			IfMatch:     etag.GenerateEtag(time.Now()),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationForbidden{}, response)
+	})
+
+	suite.T().Run("Returns 404 when canceler returns NotFoundError", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, services.NotFoundError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationNotFound{}, response)
+	})
+
+	suite.T().Run("Returns 409 when canceler returns Conflict Error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationConflict{}, response)
+	})
+
+	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(time.Now())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("Returns 422 when canceler returns validation errors", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Returns 500 when canceler returns unexpected error", func(t *testing.T) {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		canceler := &mocks.ShipmentCancellationRequester{}
+
+		canceler.On("RequestShipmentCancellation", shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentCancellationHandler{
+			handlerContext,
+			canceler,
+		}
+		approveParams := shipmentops.RequestShipmentCancellationParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+			IfMatch:     eTag,
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentCancellationInternalServerError{}, response)
+	})
+}
+
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeAvailableMove(suite.DB())
 	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
@@ -611,7 +1693,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		createMTOShipmentPayload := okResponse.Payload
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 
-		suite.Require().Equal(createMTOShipmentPayload.Status, ghcmessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(ghcmessages.MTOShipmentStatusSUBMITTED, createMTOShipmentPayload.Status, "MTO Shipment should have been submitted")
 		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, ghcmessages.MTOShipmentTypeHHG, "MTO Shipment should be an HHG")
 		suite.Equal(string("customer remark"), *createMTOShipmentPayload.CustomerRemarks)
 		suite.Equal(string("counselor remark"), *createMTOShipmentPayload.CounselorRemarks)
@@ -746,7 +1828,6 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		RequestedPickupDate:   strfmt.Date(time.Now()),
 		RequestedDeliveryDate: strfmt.Date(time.Now()),
 		ShipmentType:          ghcmessages.MTOShipmentTypeHHG,
-		Status:                ghcmessages.MTOShipmentStatusSUBMITTED,
 		CustomerRemarks:       &customerRemarks,
 		CounselorRemarks:      &counselorRemarks,
 		Agents:                agents,
@@ -803,12 +1884,16 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			},
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 
 		updatedShipment := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
 		suite.Equal(oldShipment.ID.String(), updatedShipment.ID.String())
-		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
+		suite.Equal(params.Body.CustomerRemarks, updatedShipment.CustomerRemarks)
 		suite.Equal(params.Body.CounselorRemarks, updatedShipment.CounselorRemarks)
 		suite.Equal(params.Body.PickupAddress.StreetAddress1, updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(params.Body.DestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
@@ -821,28 +1906,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), string(updatedShipment.MtoAgents[0].MtoShipmentID))
 		suite.NotEmpty(updatedShipment.MtoAgents[0].ID)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
-	})
-
-	suite.T().Run("PATCH failure - 400 -- nil body", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		handler := UpdateShipmentHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			fetcher,
-			updater,
-		}
-
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-		})
-		params := suite.getUpdateShipmentParams(oldShipment)
-		params.Body = nil
-
-		response := handler.Handle(params)
-
-		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
 	})
 
 	suite.T().Run("PATCH failure - 404 -- not found", func(t *testing.T) {
@@ -862,6 +1925,9 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.ShipmentID = *uuidString
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -885,6 +1951,9 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		params := suite.getUpdateShipmentParams(oldShipment)
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
 		response := handler.Handle(params)
 
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
@@ -906,6 +1975,9 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		})
 
 		params := suite.getUpdateShipmentParams(oldShipment)
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 
@@ -942,6 +2014,9 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			},
 		})
 		params := suite.getUpdateShipmentParams(oldShipment)
+
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		response := handler.Handle(params)
 

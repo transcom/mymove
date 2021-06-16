@@ -36,7 +36,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		payload := adminmessages.UserUpdatePayload{
 			Active: &inactive,
 		}
-		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID)
+		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
 		// Take our existing active user and change their Active status to False
 		updatedUser, verr, err := updater.UpdateUser(activeUser.ID, modelToPayload)
 
@@ -65,7 +65,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 			Active: &inactive,
 		}
 
-		modelToPayload, _ := payloads.UserModel(&payload, *activeOfficeUser.UserID)
+		modelToPayload, _ := payloads.UserModel(&payload, *activeOfficeUser.UserID, activeOfficeUser.Active)
 
 		// Deactivate user
 		updatedUser, verr, err := updater.UpdateUser(*activeOfficeUser.UserID, modelToPayload)
@@ -101,7 +101,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 			Active: &inactive,
 		}
 
-		modelToPayload, _ := payloads.UserModel(&payload, *activeAdminUser.UserID)
+		modelToPayload, _ := payloads.UserModel(&payload, *activeAdminUser.UserID, activeAdminUser.Active)
 
 		// Deactivate user
 		updatedUser, verr, err := updater.UpdateUser(*activeAdminUser.UserID, modelToPayload)
@@ -122,13 +122,45 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		payload := adminmessages.UserUpdatePayload{
 			Active: &active,
 		}
-		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID)
+		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
 		// Take our existing inactive user and change their Active status to True
 		updatedUser, verr, err := updater.UpdateUser(activeUser.ID, modelToPayload)
 
 		suite.Nil(verr)
 		suite.Nil(err)
 		suite.True(updatedUser.Active)
+
+	})
+
+	suite.T().Run("Make no change to active user", func(t *testing.T) {
+		payload := adminmessages.UserUpdatePayload{
+			Active: nil,
+		}
+		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
+		updatedUser, verr, err := updater.UpdateUser(activeUser.ID, modelToPayload)
+
+		suite.Nil(verr)
+		suite.Nil(err)
+		suite.True(updatedUser.Active)
+
+	})
+
+	suite.T().Run("Make no change to inactive user", func(t *testing.T) {
+		inactiveUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+			User: models.User{
+				Active: false,
+			},
+		})
+
+		payload := adminmessages.UserUpdatePayload{
+			Active: nil,
+		}
+		modelToPayload, _ := payloads.UserModel(&payload, inactiveUser.ID, inactiveUser.Active)
+		updatedUser, verr, err := updater.UpdateUser(inactiveUser.ID, modelToPayload)
+
+		suite.Nil(verr)
+		suite.Nil(err)
+		suite.False(updatedUser.Active)
 
 	})
 

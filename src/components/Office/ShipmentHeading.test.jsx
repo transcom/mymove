@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import ShipmentHeading from './ShipmentHeading';
 
@@ -43,5 +43,33 @@ describe('Shipment Heading with missing destination address', () => {
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('98421');
     expect(wrapper.find('small').text()).toContain('27 Mar 2020');
+  });
+});
+
+describe('Shipment Heading with diverted shipment', () => {
+  it('renders the diversion tag next to the shipment type', () => {
+    const wrapper = mount(
+      <ShipmentHeading
+        shipmentInfo={{ isDiversion: true, ...headingInfo }}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+      />,
+    );
+    expect(wrapper.find('h2').text()).toEqual('Household Goods');
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('diversion');
+    expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
+    expect(wrapper.find('small').text()).toContain('98421');
+    expect(wrapper.find('small').text()).toContain('27 Mar 2020');
+  });
+});
+
+describe('Shipment Heading with diversion requested shipment', () => {
+  it('renders the diversion requested tag next to the shipment type', () => {
+    const wrapper = mount(
+      <ShipmentHeading
+        shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: 'DIVERSION_REQUESTED' }}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+      />,
+    );
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('diversion requested');
   });
 });

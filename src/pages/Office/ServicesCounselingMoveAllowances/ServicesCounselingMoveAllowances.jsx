@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
+import { generatePath } from 'react-router';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -10,13 +11,14 @@ import * as Yup from 'yup';
 import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
-import { updateAllowance } from 'services/ghcApi';
+import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
+import { ORDERS } from 'constants/queryKeys';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { useOrdersDocumentQueries } from 'hooks/queries';
+import { counselingUpdateAllowance } from 'services/ghcApi';
+import { dropdownInputOptions } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useOrdersDocumentQueries } from 'hooks/queries';
-import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
-import { dropdownInputOptions } from 'shared/formatters';
-import { ORDERS } from 'constants/queryKeys';
 
 const rankDropdownOptions = dropdownInputOptions(ORDERS_RANK_OPTIONS);
 
@@ -47,10 +49,10 @@ const ServicesCounselingMoveAllowances = () => {
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/counseling/moves/${moveCode}/details`);
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const [mutateOrders] = useMutation(counselingUpdateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

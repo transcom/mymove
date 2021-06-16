@@ -34,6 +34,17 @@ import { validateDate } from 'utils/validation';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Callout from 'components/Callout';
+
+const blankAddress = {
+  address: {
+    street_address_1: '',
+    street_address_2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+  },
+};
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -44,22 +55,34 @@ class MtoShipmentForm extends Component {
     };
   }
 
-  submitMTOShipment = ({ shipmentType, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
+  submitMTOShipment = ({
+    shipmentType,
+    pickup,
+    hasDeliveryAddress,
+    delivery,
+    customerRemarks,
+    hasSecondaryPickup,
+    secondaryPickup,
+    hasSecondaryDelivery,
+    secondaryDelivery,
+  }) => {
     const { history, match, selectedMoveType, isCreatePage, mtoShipment, updateMTOShipment } = this.props;
     const { moveId } = match.params;
 
-    const deliveryDetails = delivery;
-    if (hasDeliveryAddress === 'no') {
-      delete deliveryDetails.address;
-    }
-
-    const pendingMtoShipment = formatMtoShipmentForAPI({
+    const preformattedMtoShipment = {
       shipmentType: shipmentType || selectedMoveType,
       moveId,
       customerRemarks,
       pickup,
-      delivery: deliveryDetails,
-    });
+      delivery: {
+        ...delivery,
+        address: hasDeliveryAddress === 'yes' ? delivery.address : undefined,
+      },
+      secondaryPickup: hasSecondaryPickup ? secondaryPickup : {},
+      secondaryDelivery: hasSecondaryDelivery ? secondaryDelivery : {},
+    };
+
+    const pendingMtoShipment = formatMtoShipmentForAPI(preformattedMtoShipment);
 
     const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
@@ -131,7 +154,7 @@ class MtoShipmentForm extends Component {
         onSubmit={this.submitMTOShipment}
       >
         {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
-          const { hasDeliveryAddress } = values;
+          const { hasDeliveryAddress, hasSecondaryPickup, hasSecondaryDelivery } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
             const { checked } = e.target;
@@ -160,13 +183,7 @@ class MtoShipmentForm extends Component {
                 ...values,
                 pickup: {
                   ...values.pickup,
-                  address: {
-                    street_address_1: '',
-                    street_address_2: '',
-                    city: '',
-                    state: '',
-                    postal_code: '',
-                  },
+                  ...blankAddress,
                 },
               });
             }
@@ -226,12 +243,34 @@ class MtoShipmentForm extends Component {
                                     id="useCurrentResidenceCheckbox"
                                   />
                                   {fields}
-                                  <Hint>
+                                  <h4>Second pickup location</h4>
+                                  <FormGroup>
                                     <p>
-                                      If you have more things at another pickup location, you can schedule a shipment
-                                      for them later.
+                                      Do you want movers to pick up any belongings from a second address? (Must be near
+                                      your pickup address. Subject to approval.)
                                     </p>
-                                  </Hint>
+                                    <div className={formStyles.radioGroup}>
+                                      <Field
+                                        as={Radio}
+                                        id="has-secondary-pickup"
+                                        label="Yes"
+                                        name="hasSecondaryPickup"
+                                        value="yes"
+                                        title="Yes, I have a second pickup location"
+                                        checked={hasSecondaryPickup === 'yes'}
+                                      />
+                                      <Field
+                                        as={Radio}
+                                        id="no-secondary-pickup"
+                                        label="No"
+                                        name="hasSecondaryPickup"
+                                        value="no"
+                                        title="No, I do not have a second pickup location"
+                                        checked={hasSecondaryPickup !== 'yes'}
+                                      />
+                                    </div>
+                                  </FormGroup>
+                                  {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
                                 </>
                               )}
                             />
@@ -299,12 +338,36 @@ class MtoShipmentForm extends Component {
                                   render={(fields) => (
                                     <>
                                       {fields}
-                                      <Hint>
+                                      <h4>Second Destination Location</h4>
+                                      <FormGroup>
                                         <p>
-                                          If you have more things to go to another destination, you can schedule a
-                                          shipment for them later.
+                                          Do you want the movers to deliver any belongings to a second address? (Must be
+                                          near your delivery address. Subject to approval.)
                                         </p>
-                                      </Hint>
+                                        <div className={formStyles.radioGroup}>
+                                          <Field
+                                            as={Radio}
+                                            id="has-secondary-delivery"
+                                            label="Yes"
+                                            name="hasSecondaryDelivery"
+                                            value="yes"
+                                            title="Yes, I have a second destination location"
+                                            checked={hasSecondaryDelivery === 'yes'}
+                                          />
+                                          <Field
+                                            as={Radio}
+                                            id="no-secondary-delivery"
+                                            label="No"
+                                            name="hasSecondaryDelivery"
+                                            value="no"
+                                            title="No, I do not have a second destination location"
+                                            checked={hasSecondaryDelivery !== 'yes'}
+                                          />
+                                        </div>
+                                      </FormGroup>
+                                      {hasSecondaryDelivery === 'yes' && (
+                                        <AddressFields name="secondaryDelivery.address" />
+                                      )}
                                     </>
                                   )}
                                 />
@@ -359,14 +422,14 @@ class MtoShipmentForm extends Component {
                             Is there anything special about this shipment that the movers should know?
                           </Label>
 
-                          <div className={formStyles.remarksExamples}>
+                          <Callout>
                             Examples
                             <ul>
                               <li>Things that might need special handling</li>
                               <li>Access info for a location</li>
                               <li>Weapons or alcohol</li>
                             </ul>
-                          </div>
+                          </Callout>
 
                           <Field
                             as={Textarea}

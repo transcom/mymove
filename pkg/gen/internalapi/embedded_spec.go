@@ -3609,7 +3609,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -3668,7 +3667,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -3734,6 +3732,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         }
@@ -3751,7 +3755,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
@@ -4116,7 +4119,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "office_user": {
-          "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
         "roles": {
@@ -4126,7 +4128,6 @@ func init() {
           }
         },
         "service_member": {
-          "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
       }
@@ -5252,7 +5253,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -5311,7 +5311,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -5960,7 +5959,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationType"
         },
         "created_at": {
@@ -6259,7 +6257,6 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -6268,7 +6265,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -6281,6 +6277,12 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -10102,7 +10104,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -10161,7 +10162,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -10227,6 +10227,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         }
@@ -10244,7 +10250,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
@@ -10622,7 +10627,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "office_user": {
-          "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
         "roles": {
@@ -10632,7 +10636,6 @@ func init() {
           }
         },
         "service_member": {
-          "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
       }
@@ -11762,7 +11765,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -11821,7 +11823,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -12472,7 +12473,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationType"
         },
         "created_at": {
@@ -12774,7 +12774,6 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -12783,7 +12782,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -12796,6 +12794,12 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"

@@ -39,7 +39,8 @@ class RangeSlider extends Component {
       event.target.max,
       event.target.step,
     );
-    output.innerText = `${this.props.prependTooltipText} ${event.target.valueAsNumber} ${this.props.appendTooltipText}`.trim();
+    output.innerText =
+      `${this.props.prependTooltipText} ${event.target.valueAsNumber} ${this.props.appendTooltipText}`.trim();
 
     if (calculations.isTooltipWithinBufferSpaceBoundary) {
       output.style.marginLeft = calculations.tooltipLeftMargin;

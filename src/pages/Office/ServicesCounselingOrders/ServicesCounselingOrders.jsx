@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import React from 'react';
+import { generatePath } from 'react-router';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -9,14 +10,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 
-import { updateOrder } from 'services/ghcApi';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
+import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { counselingUpdateOrder } from 'services/ghcApi';
+import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 
@@ -39,10 +41,10 @@ const ServicesCounselingOrders = () => {
   const orderId = move?.ordersId;
 
   const handleClose = () => {
-    history.push(`/counseling/moves/${moveCode}/details`);
+    history.push(generatePath(servicesCounselingRoutes.MOVE_VIEW_PATH, { moveCode }));
   };
 
-  const [mutateOrders] = useMutation(updateOrder, {
+  const [mutateOrders] = useMutation(counselingUpdateOrder, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {

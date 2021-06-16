@@ -16,10 +16,40 @@ type MTOShipmentUpdater interface {
 	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
-//ShipmentDeleter is the service object interface for DeleteShipment
+//ShipmentDeleter is the service object interface for deleting a shipment
 //go:generate mockery --name ShipmentDeleter
 type ShipmentDeleter interface {
 	DeleteShipment(shipmentID uuid.UUID) (uuid.UUID, error)
+}
+
+//ShipmentApprover is the service object interface for approving a shipment
+//go:generate mockery --name ShipmentApprover
+type ShipmentApprover interface {
+	ApproveShipment(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}
+
+//ShipmentDiversionRequester is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentDiversionRequester
+type ShipmentDiversionRequester interface {
+	RequestShipmentDiversion(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}
+
+//ShipmentDiversionApprover is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentDiversionApprover
+type ShipmentDiversionApprover interface {
+	ApproveShipmentDiversion(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+}
+
+//ShipmentRejecter is the service object interface for approving a shipment
+//go:generate mockery --name ShipmentRejecter
+type ShipmentRejecter interface {
+	RejectShipment(shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error)
+}
+
+//ShipmentCancellationRequester is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentCancellationRequester
+type ShipmentCancellationRequester interface {
+	RequestShipmentCancellation(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
@@ -37,4 +67,16 @@ type MTOShipmentCreator interface {
 // MTOShipmentAddressUpdater is the exported interface for updating an address on an MTO Shipment
 type MTOShipmentAddressUpdater interface {
 	UpdateMTOShipmentAddress(newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error)
+}
+
+// ShipmentRouter is used for setting the status on shipments at different stages
+//go:generate mockery --name ShipmentRouter
+type ShipmentRouter interface {
+	Submit(shipment *models.MTOShipment) error
+	Approve(shipment *models.MTOShipment) error
+	RequestCancellation(shipment *models.MTOShipment) error
+	Cancel(shipment *models.MTOShipment) error
+	Reject(shipment *models.MTOShipment, rejectionReason *string) error
+	RequestDiversion(shipment *models.MTOShipment) error
+	ApproveDiversion(shipment *models.MTOShipment) error
 }

@@ -9,7 +9,6 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import formattedCustomerName from 'utils/formattedCustomerName';
 import 'styles/office.scss';
 import { MOVES } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -25,8 +24,10 @@ import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
+import { AlertStateShape } from 'types/alert';
+import formattedCustomerName from 'utils/formattedCustomerName';
 
-const ServicesCounselingMoveDetails = () => {
+const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
   const { moveCode } = useParams();
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -40,9 +41,11 @@ const ServicesCounselingMoveDetails = () => {
   let shipmentsInfo = [];
 
   if (mtoShipments) {
-    shipmentsInfo = mtoShipments.map((shipment) => {
+    const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+
+    shipmentsInfo = submittedShipments.map((shipment) => {
       const editURL = counselorCanEdit
-        ? generatePath(servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH, {
+        ? generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
             moveCode,
             shipmentId: shipment.id,
           })
@@ -53,11 +56,13 @@ const ServicesCounselingMoveDetails = () => {
         displayInfo: {
           id: shipment.id,
           heading: SHIPMENT_OPTIONS.HHG,
-          requestedMoveDate: shipment.requestedPickupDate,
-          currentAddress: shipment.pickupAddress,
+          requestedPickupDate: shipment.requestedPickupDate,
+          pickupAddress: shipment.pickupAddress,
+          secondaryPickupAddress: shipment.secondaryPickupAddress,
           destinationAddress: shipment.destinationAddress || {
             postal_code: order.destinationDutyStation.address.postal_code,
           },
+          secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
           counselorRemarks: shipment.counselorRemarks,
         },
         editURL,
@@ -122,6 +127,8 @@ const ServicesCounselingMoveDetails = () => {
     setIsSubmitModalVisible(false);
   };
 
+  const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -138,12 +145,23 @@ const ServicesCounselingMoveDetails = () => {
                 </Alert>
               </Grid>
             )}
+            {customerEditAlert && (
+              <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
+                <Alert slim type={customerEditAlert.alertType}>
+                  {customerEditAlert.message}
+                </Alert>
+              </Grid>
+            )}
             <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
             </Grid>
             <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
               {counselorCanEdit && (
-                <Button type="button" onClick={handleShowCancellationModal}>
+                <Button
+                  disabled={!mtoShipments.length || allShipmentsDeleted}
+                  type="button"
+                  onClick={handleShowCancellationModal}
+                >
                   Submit move details
                 </Button>
               )}
@@ -151,7 +169,20 @@ const ServicesCounselingMoveDetails = () => {
           </Grid>
 
           <div className={styles.section} id="shipments">
-            <DetailsPanel title="Shipments" className={scMoveDetailsStyles.noPaddingBottom}>
+            <DetailsPanel
+              className={scMoveDetailsStyles.noPaddingBottom}
+              editButton={
+                counselorCanEdit && (
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, { moveCode })}
+                  >
+                    Add a new shipment
+                  </Link>
+                )
+              }
+              title="Shipments"
+            >
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
@@ -173,7 +204,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Orders"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="orders">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ORDERS_EDIT_PATH, { moveCode })}
+                  >
                     View and edit orders
                   </Link>
                 )
@@ -187,7 +221,10 @@ const ServicesCounselingMoveDetails = () => {
               title="Allowances"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" to="allowances">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    to={generatePath(servicesCounselingRoutes.ALLOWANCES_EDIT_PATH, { moveCode })}
+                  >
                     Edit allowances
                   </Link>
                 )
@@ -201,7 +238,11 @@ const ServicesCounselingMoveDetails = () => {
               title="Customer info"
               editButton={
                 counselorCanEdit && (
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-customer-info" to="customer">
+                  <Link
+                    className="usa-button usa-button--secondary"
+                    data-testid="edit-customer-info"
+                    to={generatePath(servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH, { moveCode })}
+                  >
                     Edit customer info
                   </Link>
                 )
@@ -216,6 +257,12 @@ const ServicesCounselingMoveDetails = () => {
   );
 };
 
-ServicesCounselingMoveDetails.propTypes = {};
+ServicesCounselingMoveDetails.propTypes = {
+  customerEditAlert: AlertStateShape,
+};
+
+ServicesCounselingMoveDetails.defaultProps = {
+  customerEditAlert: null,
+};
 
 export default ServicesCounselingMoveDetails;

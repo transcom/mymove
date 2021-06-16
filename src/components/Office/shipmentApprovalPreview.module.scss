@@ -18,20 +18,31 @@
   }
 
   .previewContainer {
+    @include u-margin-bottom(5);
     h2 {
       @include u-margin-bottom(2);
       @include u-margin-top(2);
     }
 
-    h4 {
+    h3 {
       @include u-margin-top(2);
       @include u-margin-bottom(4);
+    }
+  }
+
+  .basicMoveDetails {
+    @include u-padding-y(4);
+
+    h4:not(:first-of-type) {
+      @include u-margin-top(3);
     }
   }
 }
 
 .previewShipments {
   @include u-margin-x(0);
+  @include u-margin-bottom(4);
+
   .innerWrapper {
     @include u-margin-left(2);
   }
@@ -64,7 +75,8 @@
 }
 
 .shipmentInfo {
-  width: 60%;
+  @include u-border-top('1px');
+  @include u-border-top('base-lighter');
 }
 
 .shipmentServiceItems {
@@ -82,16 +94,35 @@
   border-radius: 3px;
   border: 1px solid #dfe1e2;
 
-  .tableH4 {
+  h4 {
     @include u-margin-top(2);
     @include u-margin-bottom(2);
   }
 
+  .basicServiceItemsTable {
+    @include u-margin-bottom(3);
+    @include u-width(100%);
+  }
+
   table {
     margin-bottom: 1.5rem;
-    h4 {
-      @include u-margin-bottom(2);
+  }
+
+  .shipmentTypeHeading {
+    @include u-display(flex);
+    align-items: flex-start;
+
+    :global(.usa-tag) {
+      @include u-font-size('body', 3xs);
+      background-color: $info-light;
+      @include u-margin-top(2);
+      @include u-margin-left(1);
     }
+  }
+
+  .shipmentDetailWrapper {
+    @include u-display(flex);
+    align-items: flex-start; // prevents the child table rows from stretching to match service item height
   }
 
   :global .stackedtable-header {
