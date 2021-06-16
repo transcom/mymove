@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -72,10 +73,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{
 		ctx,
-		// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
-		// unable to get logger to pass in for instantiation
-		//paymentrequest.NewPaymentRequestUploadCreator(context.DB(), &logger,
-		//	context.FileStorer()),
+		paymentrequest.NewPaymentRequestUploadCreator(ctx.DB(), ctx.LoggerFromContext(context.Background()), ctx.FileStorer()),
 	}
 
 	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
