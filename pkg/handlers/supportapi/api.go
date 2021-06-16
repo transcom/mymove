@@ -1,8 +1,20 @@
 package supportapi
 
 import (
+	"context"
+	"crypto/tls"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/certs"
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/db/sequence"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/logging"
 
 	"github.com/transcom/mymove/pkg/services/invoice"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
@@ -28,6 +40,44 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	v := viper.New()
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+	gexURL := v.GetString(cli.GEXURLFlag)
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
+	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
+	// test ICNs in Syncada.
+	var icnSequencer sequence.Sequencer
+	// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+	icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+	if err != nil {
+		log.Fatalln("Could not create random sequencer for ICN", zap.Error(err))
+	}
+	certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+	if err != nil {
+		log.Fatalln("Failed to initialize Zap logging", zap.Error(err))
+	}
+	certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+	if certificates == nil || rootCAs == nil || err != nil {
+		log.Fatalln("Error in getting tls certs", zap.Error(err))
+	}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+	gexSender := invoice.NewGexSenderHTTP(
+		gexURL,
+		cli.GEXChannelInvoice,
+		true,
+		tlsConfig,
+		v.GetString(cli.GEXBasicAuthUsernameFlag),
+		v.GetString(cli.GEXBasicAuthPasswordFlag))
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(ctx.DB(), ctx.LoggerFromContext(context.Background()), true, icnSequencer, gexSender)
+	if err != nil {
+		msg := "failed to initialize InitNewPaymentRequestReviewedProcessor"
+		log.Fatalln(msg, zap.Error(err))
 	}
 
 	supportAPI := supportops.NewMymoveAPI(supportSpec)
@@ -85,18 +135,11 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                ctx,
-		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
-		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(ctx.DB()),
-		// Unable to get logger to pass in for the instantiation of
-		// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
-		// This limitation has come up a few times
-		// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
-		// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600
-		// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
-		// As a temporary workaround paymentrequest.InitNewPaymentRequestReviewedProcessor
-		// is called directly in the handler
+		HandlerContext:                  ctx,
+		PaymentRequestFetcher:           paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		PaymentRequestStatusUpdater:     paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestReviewedFetcher:   paymentrequest.NewPaymentRequestReviewedFetcher(ctx.DB()),
+		PaymentRequestReviewedProcessor: reviewedPaymentRequestProcessor,
 	}
 
 	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
