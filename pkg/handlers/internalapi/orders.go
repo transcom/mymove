@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -179,31 +180,6 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
 
-// ShowAmendedOrdersHandler returns amended orders for a user and order ID
-type ShowAmendedOrdersHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle retrieves the amended orders in the system belonging to the logged in user given order ID
-func (h ShowAmendedOrdersHandler) Handle(params ordersop.ShowAmendedOrdersParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	orderID, err := uuid.FromString(params.OrdersID.String())
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
-}
-
 // UpdateOrdersHandler updates an order via PUT /orders/{orderId}
 type UpdateOrdersHandler struct {
 	handlers.HandlerContext
@@ -259,4 +235,37 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+}
+
+// AddAmendedOrdersHandler adds amended orders to an order via PATCH /orders/{orderId}/add_amended_orders
+type AddAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.OrderUpdater
+}
+
+// Handle ... updates an order from a request payload
+func (h AddAmendedOrdersHandler) Handle(params ordersop.AddAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	orderID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := params.AmendedOrders
+	newOrder, err := h.OrderUpdater.AddAmendedOrders(order, payload)
+	verrs, err := models.SaveOrder(h.DB(), &newOrder)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return ordersop.NewAddAmendedOrdersOK().WithPayload(orderPayload)
 }

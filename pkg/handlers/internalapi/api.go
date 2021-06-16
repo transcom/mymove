@@ -5,6 +5,7 @@ import (
 	"log"
 
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"github.com/transcom/mymove/pkg/services/order"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -63,7 +64,10 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{ctx}
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{ctx}
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{ctx}
-	internalAPI.OrdersShowAmendedOrdersHandler = ShowAmendedOrdersHandler{ctx}
+	internalAPI.OrdersAddAmendedOrdersHandler = AddAmendedOrdersHandler{
+		ctx,
+		order.NewOrderUpdater(ctx.DB()),
+	}
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{ctx}
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{ctx}

@@ -94,6 +94,18 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 	return f.updateOrder(orderToUpdate)
 }
 
+// AddAmendedOrders add amended order documents to an existing order
+func (f *orderUpdater) AddAmendedOrders(existingOrder models.Order, payload *internalmessages.DocumentPayload) models.Order {
+	order := existingOrder
+	if order.UploadedAmendedOrders == nil {
+		// TODO in MB-8335 when there aren't any uploadedAmendedOrders yet
+		// generate a document ID
+	}
+
+	// order.UploadedAmendedOrders = payload
+	return order
+}
+
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
 	err := f.db.Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)

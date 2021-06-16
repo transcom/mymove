@@ -56,6 +56,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.OrdersAddAmendedOrdersHandler == nil {
+		api.OrdersAddAmendedOrdersHandler = orders.AddAmendedOrdersHandlerFunc(func(params orders.AddAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.AddAmendedOrders has not yet been implemented")
+		})
+	}
 	if api.OfficeApproveMoveHandler == nil {
 		api.OfficeApproveMoveHandler = office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
@@ -234,11 +239,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.AddressesShowAddressHandler == nil {
 		api.AddressesShowAddressHandler = addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
 			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
-		})
-	}
-	if api.OrdersShowAmendedOrdersHandler == nil {
-		api.OrdersShowAmendedOrdersHandler = orders.ShowAmendedOrdersHandlerFunc(func(params orders.ShowAmendedOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.ShowAmendedOrders has not yet been implemented")
 		})
 	}
 	if api.CalendarShowAvailableMoveDatesHandler == nil {

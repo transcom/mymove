@@ -2086,14 +2086,14 @@ func init() {
         }
       }
     },
-    "/orders/{ordersId}/amended_orders": {
-      "get": {
-        "description": "Returns the amended orders for a given order",
+    "/orders/{ordersId}/add_amended_orders": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
         "tags": [
           "orders"
         ],
-        "summary": "Returns the amended orders for a given order",
-        "operationId": "showAmendedOrders",
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "addAmendedOrders",
         "parameters": [
           {
             "type": "string",
@@ -2102,6 +2102,14 @@ func init() {
             "name": "ordersId",
             "in": "path",
             "required": true
+          },
+          {
+            "name": "amendedOrders",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DocumentPayload"
+            }
           }
         ],
         "responses": {
@@ -8622,14 +8630,14 @@ func init() {
         }
       }
     },
-    "/orders/{ordersId}/amended_orders": {
-      "get": {
-        "description": "Returns the amended orders for a given order",
+    "/orders/{ordersId}/add_amended_orders": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
         "tags": [
           "orders"
         ],
-        "summary": "Returns the amended orders for a given order",
-        "operationId": "showAmendedOrders",
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "addAmendedOrders",
         "parameters": [
           {
             "type": "string",
@@ -8638,6 +8646,14 @@ func init() {
             "name": "ordersId",
             "in": "path",
             "required": true
+          },
+          {
+            "name": "amendedOrders",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DocumentPayload"
+            }
           }
         ],
         "responses": {

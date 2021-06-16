@@ -2939,11 +2939,11 @@ paths:
           description: order is not found
         '500':
           description: internal server error
-  /orders/{ordersId}/amended_orders:
-    get:
-      summary: Returns the amended orders for a given order
-      description: Returns the amended orders for a given order
-      operationId: showAmendedOrders
+  /orders/{ordersId}/add_amended_orders:
+    patch:
+      summary: Patch the amended orders for a given order
+      description: Patch the amended orders for a given order
+      operationId: addAmendedOrders
       tags:
         - orders
       parameters:
@@ -2953,6 +2953,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the order
+        - in: body
+          name: amendedOrders
+          required: true
+          schema:
+            $ref: '#/definitions/DocumentPayload'
       responses:
         '200':
           description: the instance of the amended orders

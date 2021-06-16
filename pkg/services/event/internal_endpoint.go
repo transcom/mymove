@@ -28,8 +28,8 @@ const InternalUpdateOrdersEndpointKey = "Internal.UpdateOrders"
 // InternalShowOrdersEndpointKey is the key for the showOrders endpoint in internal
 const InternalShowOrdersEndpointKey = "Internal.ShowOrders"
 
-// InternalShowAmendedOrdersEndpointKey is the key for the showAmendedOrders endpoint in internal
-const InternalShowAmendedOrdersEndpointKey = "Internal.ShowAmendedOrders"
+// InternalAddAmendedOrdersEndpointKey is the key for the addAmendedOrders endpoint in internal
+const InternalAddAmendedOrdersEndpointKey = "Internal.AddAmendedOrders"
 
 // InternalPatchMoveEndpointKey is the key for the patchMove endpoint in internal
 const InternalPatchMoveEndpointKey = "Internal.PatchMove"
@@ -217,9 +217,9 @@ var internalEndpoints = EndpointMapType{
 		APIName:     InternalAPIName,
 		OperationID: "showOrders",
 	},
-	InternalShowAmendedOrdersEndpointKey: {
+	InternalAddAmendedOrdersEndpointKey: {
 		APIName:     InternalAPIName,
-		OperationID: "showAmendedOrders",
+		OperationID: "addAmendedOrders",
 	},
 	InternalPatchMoveEndpointKey: {
 		APIName:     InternalAPIName,
