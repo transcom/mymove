@@ -596,17 +596,14 @@ func createUnsubmittedHHGMoveMultiplePickup(db *pop.Connection) {
 		},
 	})
 
-	estimatedHHGWeight := unit.Pound(1400)
-	actualHHGWeight := unit.Pound(2000)
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			ID:                       uuid.FromStringOrNil("a35b1247-b4c2-48f6-9846-8e96050fbc95"),
 			PickupAddress:            &pickupAddress1,
 			PickupAddressID:          &pickupAddress1.ID,
 			SecondaryPickupAddress:   &pickupAddress2,
 			SecondaryPickupAddressID: &pickupAddress2.ID,
-			PrimeEstimatedWeight:     &estimatedHHGWeight,
-			PrimeActualWeight:        &actualHHGWeight,
 			ShipmentType:             models.MTOShipmentTypeHHG,
 			ApprovedDate:             swag.Time(time.Now()),
 			Status:                   models.MTOShipmentStatusSubmitted,
