@@ -530,11 +530,10 @@ func createUnsubmittedHHGMove(db *pop.Connection) {
 	})
 }
 
-func createUnsubmittedHHGMoveMultipleDestinations(db *pop.Connection, logger Logger) {
+func createUnsubmittedHHGMoveMultipleDestinations(db *pop.Connection) {
 	/*
 		A service member with an un-submitted move that has an HHG shipment going to multiple destination addresses
 	*/
-	logger.Debug("\n\ncreateUnsubmittedHHGMoveMultipleDestinations - start\n\n")
 	email := "multple-destinations@unsubmitted.hhg"
 	userID := "81fe79a1-faaa-4735-8426-fd159e641002"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -572,11 +571,8 @@ func createUnsubmittedHHGMoveMultipleDestinations(db *pop.Connection, logger Log
 		},
 	})
 
-	pickupAddress1 := testdatagen.MakeAddress(db, testdatagen.Assertions{})
-	pickupAddress2 := testdatagen.MakeAddress2(db, testdatagen.Assertions{})
-
-	//destinationAddress1 := testdatagen.MakeAddress3(db, testdatagen.Assertions{})
-	//destinationAddress2 := testdatagen.MakeAddress4(db, testdatagen.Assertions{})
+	destinationAddress1 := testdatagen.MakeAddress3(db, testdatagen.Assertions{})
+	destinationAddress2 := testdatagen.MakeAddress4(db, testdatagen.Assertions{})
 
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: move,
@@ -587,11 +583,21 @@ func createUnsubmittedHHGMoveMultipleDestinations(db *pop.Connection, logger Log
 			MoveTaskOrder:   move,
 			MoveTaskOrderID: move.ID,
 		},
-		PickupAddress:          pickupAddress1,
-		SecondaryPickupAddress: pickupAddress2,
+		DestinationAddress: destinationAddress1,
 	})
 
-	logger.Debug("\n\ncreateUnsubmittedHHGMoveMultipleDestinations - end\n\n")
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ID:              uuid.FromStringOrNil("fee1181f-22eb-452d-9252-292066e7b0a5"),
+			ShipmentType:    models.MTOShipmentTypeHHG,
+			Status:          models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+		},
+		DestinationAddress:       destinationAddress1,
+		SecondaryDeliveryAddress: destinationAddress2,
+	})
 }
 
 func createUnsubmittedHHGMoveMultiplePickup(db *pop.Connection) {
@@ -3797,7 +3803,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createUnsubmittedMoveWithNTSAndNTSR(db, 1)
 	createUnsubmittedMoveWithNTSAndNTSR(db, 2)
 	createUnsubmittedHHGMoveMultiplePickup(db)
-	createUnsubmittedHHGMoveMultipleDestinations(db, logger)
+	createUnsubmittedHHGMoveMultipleDestinations(db)
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
 
