@@ -67,6 +67,14 @@ const ImportCsvButton = (props) => {
           const role = parsedRole.replaceAll(/\s/g, '');
           rolesArray.push(adminOfficeRoles.find((adminOfficeRole) => adminOfficeRole.roleType === role));
         });
+
+        if (rolesArray.length === 0) {
+          const err = new Error(
+            `Processing Error: Invalid roles provided for row. \n Row Information: ${Object.values(row)}`,
+          );
+          notify(err.message);
+          throw err;
+        }
         copyOfRow.roles = rolesArray;
       } else {
         const err = new Error(
@@ -83,7 +91,9 @@ const ImportCsvButton = (props) => {
   const postCommitCallback = (reportItems) => {
     reportItems.forEach((reportItem) => {
       if (reportItem.err) {
-        return notify(reportItem.err.message);
+        return notify(
+          `${reportItem.err.name} ${reportItem.err.status}: ${reportItem.err.message}.  \n ${reportItem.err.body.detail}`,
+        );
       }
       return null;
     });
