@@ -231,7 +231,8 @@ export class Summary extends Component {
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
 
-    const thirdSectionHasContent = showMoveSetup || showPPMShipmentSummary || (isReviewPage && mtoShipments.length > 0);
+    const thirdSectionHasContent =
+      showMoveSetup || showPPMShipmentSummary || (isReviewPage && (mtoShipments.length > 0 || currentPPM));
 
     return (
       <>

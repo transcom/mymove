@@ -128,14 +128,7 @@ export const WithHHGShipment = () => {
 export const WithPPM = () => {
   const props = {
     ...defaultProps,
-    currentPPM: {
-      ...PPMShipment,
-      status: MOVE_STATUSES.SUBMITTED,
-    },
-    match: {
-      ...defaultProps.match,
-      url: '',
-    },
+    currentPPM: PPMShipment,
   };
   return (
     <MockProviders>
