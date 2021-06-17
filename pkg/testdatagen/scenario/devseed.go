@@ -3776,6 +3776,16 @@ func createHHGNoShipments(db *pop.Connection) {
 	})
 }
 
+func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"2mb.png", "150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MULTOR")
+	shipment := makeShipmentForMove(move, db)
+	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
@@ -3891,4 +3901,6 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// Sets up a move with a non-default destination duty station address
 	// (to more easily spot issues with addresses being overwritten).
 	createMoveWithUniqueDestinationAddress(db)
+	// Creates a move that has multiple orders uploaded
+	createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
 }
