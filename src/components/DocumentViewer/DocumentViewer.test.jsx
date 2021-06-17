@@ -62,7 +62,7 @@ describe('DocumentViewer component', () => {
   });
 
   it('renders the title bar with the correct props', () => {
-    expect(component.find('[data-testid="documentTitle"]').text()).toBe('Test File 4.gif   - Added on 16 Jun 2021');
+    expect(component.find('[data-testid="documentTitle"]').text()).toBe('Test File 4.gif - Added on 16 Jun 2021');
   });
 
   it('handles the open menu button', () => {

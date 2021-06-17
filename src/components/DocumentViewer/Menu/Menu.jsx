@@ -10,6 +10,7 @@ import { FilesShape } from '../types';
 import styles from './Menu.module.scss';
 
 import { filenameFromPath } from 'shared/formatters';
+import { formatDate } from 'shared/dates';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
   <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
@@ -27,7 +28,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
           [styles.active]: i === selectedFileIndex,
         });
         const fileName = filenameFromPath(file.filename);
-        const fileDate = moment(file.createdAt).format('DD-MMM-YYYY');
+        const fileDate = formatDate(moment(file.createdAt), 'DD-MMM-YYYY');
 
         return (
           <li key={file.id}>

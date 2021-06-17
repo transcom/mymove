@@ -8,6 +8,7 @@ import styles from './DocumentViewer.module.scss';
 import Content from './Content/Content';
 import Menu from './Menu/Menu';
 
+import { formatDate } from 'shared/dates';
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { filenameFromPath } from 'shared/formatters';
 
@@ -75,7 +76,7 @@ const DocumentViewer = ({ files }) => {
 
   const selectedFilename = filenameFromPath(selectedFile.filename);
 
-  const selectedFileDate = moment(selectedFile.createdAt).format('DD MMM YYYY');
+  const selectedFileDate = formatDate(moment(selectedFile.createdAt), 'DD MMM YYYY');
 
   return (
     <div className={styles.DocumentViewer}>
@@ -84,7 +85,7 @@ const DocumentViewer = ({ files }) => {
           <FontAwesomeIcon icon="th-list" />
         </Button>
         <p title={selectedFilename} data-testid="documentTitle">
-          <span>{selectedFilename}</span> <span>&nbsp; - Added on {selectedFileDate}</span>
+          <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
