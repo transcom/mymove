@@ -3,22 +3,23 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/_variables';
 
+p+.cardContainer {
+  margin-top: 0px;
+}
+
+.cardContainer+.cardContainer {
+  @include u-margin-top('105');
+}
+
 .cardContainer {
+  position: relative;
+
   :global(.usa-radio__input:disabled + .usa-radio__label) {
     color: $base-darkest;
   }
 
   :global(.usa-radio__label) {
     @include u-margin-top(0);
-  }
-
-
-  p+.cardContainer {
-    margin-top: 0px;
-  }
-
-  .cardContainer+.cardContainer {
-    @include u-margin-top('105');
   }
 
   :global(.usa-radio__input--tile + .usa-radio__label) {
@@ -52,9 +53,7 @@
     }
   }
 
-  .cardContainer {
-    position: relative;
-  }
+
 
   .helpButton {
     padding: 10px; // Required to get to 44px for touch area
@@ -91,5 +90,16 @@
     @include u-padding-bottom('205');
     text-indent: -40px;
     padding-left: 50px;
+  }
+
+  @media (max-width: $mobile) {
+    :global(.usa-radio__label) {
+      @include u-padding-right(6);
+    }
+
+    :global(.usa-checkbox__label-description) {
+      transform: translate(-32px, -8px);
+      width: calc(100% + 65px);
+    }
   }
 }
