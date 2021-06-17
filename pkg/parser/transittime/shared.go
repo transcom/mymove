@@ -17,12 +17,12 @@ import (
 // A way to get a cell value from a sheet
 // return empty string if not found
 func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) (string, error) {
-	if row < 0 || row >= sheet.MaxRow || col < 0 || col >= sheet.MaxCol {
-		return "", fmt.Errorf("cell coordinates are out of bounds")
-	}
-
 	if sheet == nil {
 		return "", fmt.Errorf("sheet is nil")
+	}
+
+	if row < 0 || row >= sheet.MaxRow || col < 0 || col >= sheet.MaxCol {
+		return "", fmt.Errorf("cell coordinates are out of bounds")
 	}
 
 	cell, err := sheet.Cell(row, col)

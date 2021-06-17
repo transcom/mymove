@@ -29,12 +29,12 @@ type headerInfo struct {
 
 // A safe way to get a cell's value (as a string) from a sheet
 func getCell(sheet *xlsx.Sheet, rowIndex, colIndex int) (string, error) {
-	if rowIndex < 0 || rowIndex >= sheet.MaxRow || colIndex < 0 || colIndex >= sheet.MaxCol {
-		return "", fmt.Errorf("cell coordinates are out of bounds")
-	}
-
 	if sheet == nil {
 		return "", fmt.Errorf("sheet is nil")
+	}
+
+	if rowIndex < 0 || rowIndex >= sheet.MaxRow || colIndex < 0 || colIndex >= sheet.MaxCol {
+		return "", fmt.Errorf("cell coordinates are out of bounds")
 	}
 
 	cell, err := sheet.Cell(rowIndex, colIndex)
