@@ -16,6 +16,11 @@ readonly environment="${1:-exp}"
 [[ -z "${environment}" ]] && usage
 
 case "${environment}" in
+  demo)
+    compare_host=my.demo.dp3.us
+    health_check_hosts=my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us
+    export AWS_ACCOUNT_ID=447641181206
+    ;;
   exp)
     compare_host=my.exp.move.mil
     health_check_hosts=my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
