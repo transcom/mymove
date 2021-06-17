@@ -3793,6 +3793,37 @@ func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uplo
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
+func runSubScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) {
+	validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
+	// shipment cancelled was approved before
+	approvedDate := time.Now()
+	cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled, ApprovedDate: &approvedDate}
+	affiliationAirForce := models.AffiliationAIRFORCE
+	ordersNumber := "Order1234"
+	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
+	tac := "1234"
+	// make sure to create moves that does not go to US marines affiliation
+	move := createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		Order: models.Order{
+			DepartmentIndicator: (*string)(&affiliationAirForce),
+			OrdersNumber:        &ordersNumber,
+			OrdersTypeDetail:    &ordersTypeDetail,
+			TAC:                 &tac,
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
+		MTOShipment:   cancelledShipment,
+	})
+	moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
+		MTOServiceItem: models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedDate,
+		},
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	routePlanner route.Planner, logger Logger, namedSubScenario string) {
@@ -3808,41 +3839,16 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	/*
 		RUN ONLY SUB SCENARIO SEED DATA
 	*/
-	if namedSubScenario == subScenarioShipmentHHGCancelled {
-		logger.Info("start seeding sub scenario: " + namedSubScenario)
+	runOnlySubScenario := namedSubScenario != ""
 
-		validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
-		// shipment cancelled was approved before
-		approvedDate := time.Now()
-		cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled, ApprovedDate: &approvedDate}
-		affiliationAirForce := models.AffiliationAIRFORCE
-		ordersNumber := "Order1234"
-		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-		tac := "1234"
-		// make sure to create moves that does not go to US marines affiliation
-		move := createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
-			Order: models.Order{
-				DepartmentIndicator: (*string)(&affiliationAirForce),
-				OrdersNumber:        &ordersNumber,
-				OrdersTypeDetail:    &ordersTypeDetail,
-				TAC:                 &tac,
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
-			MTOShipment:   cancelledShipment,
-		})
-		moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
-		testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-			ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
-			MTOServiceItem: models.MTOServiceItem{
-				MoveTaskOrderID: move.ID,
-				Status:          models.MTOServiceItemStatusApproved,
-				ApprovedAt:      &approvedDate,
-			},
-		})
+	if namedSubScenario == subScenarioShipmentHHGCancelled || namedSubScenario == "" {
+		logger.Info("start seeding sub scenario: " + subScenarioShipmentHHGCancelled)
+		runSubScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC)
+		logger.Info("finished seeding sub scenario: " + subScenarioShipmentHHGCancelled)
 
-		logger.Info("finished seeding sub scenario: " + namedSubScenario)
-		// to short circuit Run function
-		return
+		if runOnlySubScenario {
+			return
+		}
 	}
 
 	/*
