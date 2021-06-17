@@ -306,12 +306,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	})
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
-			ShipmentType:             models.MTOShipmentTypeHHG,
-			PickupAddress:            &validPickupAddress,
-			SecondaryPickupAddress:   &validSecondaryPickupAddress,
-			DestinationAddress:       &validDestinationAddress,
-			SecondaryDeliveryAddress: &validSecondaryDeliveryAddress,
+			ShipmentType: models.MTOShipmentTypeHHG,
 		},
+		PickupAddress:            validPickupAddress,
+		SecondaryPickupAddress:   validSecondaryPickupAddress,
+		DestinationAddress:       validDestinationAddress,
+		SecondaryDeliveryAddress: validSecondaryDeliveryAddress,
 	})
 	result, reasons, err := IsValidFakeModelMTOShipment(shipment)
 	suite.NoError(err)
@@ -345,26 +345,26 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		"86 Pike Pl",
 		"4000 Central Florida Blvd",
 	}
-	validMTOShipmentAssertion := models.MTOShipment{
-		PickupAddress:            &validPickupAddress,
-		SecondaryPickupAddress:   &validSecondaryPickupAddress,
-		DestinationAddress:       &validDestinationAddress,
-		SecondaryDeliveryAddress: &validSecondaryDeliveryAddress,
+	validMTOShipmentAssertion := testdatagen.Assertions{
+		PickupAddress:            validPickupAddress,
+		SecondaryPickupAddress:   validSecondaryPickupAddress,
+		DestinationAddress:       validDestinationAddress,
+		SecondaryDeliveryAddress: validSecondaryDeliveryAddress,
 	}
 	invalidMTO1 := validMTOShipmentAssertion
-	invalidMTO1.PickupAddress = &invalidPickupAddress
+	invalidMTO1.PickupAddress = invalidPickupAddress
 	invalidMTO2 := validMTOShipmentAssertion
-	invalidMTO2.SecondaryPickupAddress = &invalidSecondaryPickupAddress
+	invalidMTO2.SecondaryPickupAddress = invalidSecondaryPickupAddress
 	invalidMTO3 := validMTOShipmentAssertion
-	invalidMTO3.DestinationAddress = &invalidDestinationAddress
+	invalidMTO3.DestinationAddress = invalidDestinationAddress
 	invalidMTO4 := validMTOShipmentAssertion
-	invalidMTO4.SecondaryDeliveryAddress = &invalidSecondaryDeliveryAddress
+	invalidMTO4.SecondaryDeliveryAddress = invalidSecondaryDeliveryAddress
 
 	invalidFakeData := []testdatagen.Assertions{
-		{MTOShipment: invalidMTO1},
-		{MTOShipment: invalidMTO2},
-		{MTOShipment: invalidMTO3},
-		{MTOShipment: invalidMTO4},
+		invalidMTO1,
+		invalidMTO2,
+		invalidMTO3,
+		invalidMTO4,
 	}
 	for idx, invalidData := range invalidFakeData {
 		suite.T().Run(fmt.Sprintf("invalid fake MTOShipment data %d", idx), func(t *testing.T) {

@@ -238,5 +238,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		_, err := approver.ApproveShipment(shipment.ID, eTag)
 
 		suite.NoError(err)
+		shipmentRouter.AssertNumberOfCalls(t, "Approve", 1)
 	})
 }
