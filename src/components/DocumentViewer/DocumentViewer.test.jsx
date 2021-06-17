@@ -1,21 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 
-import DocViewerContent from './Content/Content';
-import DocViewerMenu from './Menu/Menu';
 import DocumentViewer from './DocumentViewer';
 import samplePDF from './sample.pdf';
 import sampleJPG from './sample.jpg';
 import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
-
-const mockFile = {
-  contentType: 'pdf',
-  url: samplePDF,
-  createdAt: '2021-06-15T15:09:26.979879Z',
-};
 
 const mockFiles = [
   {
@@ -30,94 +22,23 @@ const mockFiles = [
     filename: 'Test File 2.jpg',
     contentType: 'image/jpeg',
     url: sampleJPG,
-    createdAt: '2021-06-16T15:09:26.979879Z',
+    createdAt: '2021-06-12T15:09:26.979879Z',
   },
   {
     id: 3,
     filename: 'Test File 3.png',
     contentType: 'image/png',
     url: samplePNG,
-    createdAt: '2021-06-17T15:09:26.979879Z',
+    createdAt: '2021-06-15T15:09:26.979879Z',
   },
   {
     id: 4,
     filename: 'Test File 4.gif',
     contentType: 'image/gif',
     url: sampleGIF,
-    createdAt: '2021-06-12T15:09:26.979879Z',
+    createdAt: '2021-06-16T15:09:26.979879Z',
   },
 ];
-
-describe('DocViewerContent', () => {
-  const component = shallow(
-    <DocViewerContent filename={mockFile.filename} fileType={mockFile.contentType} filePath={mockFile.url} />,
-  );
-
-  it('renders without crashing', () => {
-    expect(component.find('[data-testid="DocViewerContent"]').length).toBe(1);
-  });
-
-  it('renders the FileViewer with the file props', () => {
-    const fileViewer = component.find('FileViewer');
-    expect(fileViewer.exists()).toBe(true);
-    expect(fileViewer.prop('fileType')).toBe('pdf');
-    expect(fileViewer.prop('filePath')).toBe(mockFile.url);
-  });
-});
-
-describe('DocViewerMenu', () => {
-  const mockProps = {
-    handleClose: jest.fn(),
-    handleSelectFile: jest.fn(),
-  };
-
-  describe('closed state', () => {
-    const component = shallow(<DocViewerMenu isOpen={false} files={mockFiles} {...mockProps} />);
-
-    it('has the collapsed class', () => {
-      expect(component.find('[data-testid="DocViewerMenu"]').hasClass('collapsed')).toBe(true);
-    });
-  });
-
-  describe('open state', () => {
-    const component = shallow(<DocViewerMenu isOpen files={mockFiles} {...mockProps} />);
-
-    it('does not have the collapsed class', () => {
-      expect(component.find('[data-testid="DocViewerMenu"]').hasClass('collapsed')).toBe(false);
-    });
-  });
-
-  describe('close button', () => {
-    const component = mount(<DocViewerMenu files={mockFiles} {...mockProps} />);
-    it('implements the close handler', () => {
-      component.find('button[data-testid="closeMenu"]').simulate('click');
-      expect(mockProps.handleClose).toHaveBeenCalled();
-    });
-  });
-
-  describe('file list', () => {
-    const component = mount(<DocViewerMenu files={mockFiles} {...mockProps} />);
-
-    it('renders without crashing', () => {
-      expect(component.find('[data-testid="DocViewerMenu"]').length).toBe(1);
-    });
-
-    it('renders the list of files', () => {
-      expect(component.find('[data-testid="button"]').length).toBe(4);
-    });
-
-    it('renders the file creation date', () => {
-      expect(component.find('li button').at(0).text()).toBe('Test File 3.png  Uploaded on 17-Jun-2021');
-    });
-
-    it('selects a file when clicked', () => {
-      component.find('li button').at(1).simulate('click');
-      expect(mockProps.handleSelectFile).toHaveBeenCalledWith(1);
-      component.find('li button').at(0).simulate('click');
-      expect(mockProps.handleSelectFile).toHaveBeenCalledWith(0);
-    });
-  });
-});
 
 describe('DocumentViewer component', () => {
   const component = mount(<DocumentViewer files={mockFiles} />);
@@ -136,8 +57,12 @@ describe('DocumentViewer component', () => {
     expect(menu.prop('files')).toBe(mockFiles);
   });
 
+  it('renders the file creation date with the correctly sorted props', () => {
+    expect(component.find('li button').at(0).text()).toBe('Test File 4.gif  Uploaded on 16-Jun-2021');
+  });
+
   it('renders the title bar with the correct props', () => {
-    expect(component.find('[data-testid="documentTitle"]').text()).toBe('Test File 3.png   - Added on 17 Jun 2021');
+    expect(component.find('[data-testid="documentTitle"]').text()).toBe('Test File 4.gif   - Added on 16 Jun 2021');
   });
 
   it('handles the open menu button', () => {
@@ -165,7 +90,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(1);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[1].url);
-    expect(component.find('DocViewerContent').prop('fileType')).toBe('jpg');
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('png');
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
@@ -176,7 +101,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(2);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[2].url);
-    expect(component.find('DocViewerContent').prop('fileType')).toBe('png');
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('pdf');
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
@@ -187,7 +112,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(3);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[3].url);
-    expect(component.find('DocViewerContent').prop('fileType')).toBe('gif');
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('jpg');
     expect(component.find('.unsupported-message').exists()).toBe(false);
   });
 
