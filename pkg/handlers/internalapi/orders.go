@@ -256,16 +256,19 @@ func (h AddAmendedOrdersHandler) Handle(params ordersop.AddAmendedOrdersParams) 
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := params.AmendedOrders
-	newOrder, err := h.OrderUpdater.AddAmendedOrders(order, payload)
-	verrs, err := models.SaveOrder(h.DB(), &newOrder)
+	newOrder, _, err := h.OrderUpdater.AddAmendedOrders(order, params.AmendedOrders, params.IfMatch)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	verrs, err := models.SaveOrder(h.DB(), newOrder)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	documentPayload, err := payloadForDocumentModel(h.FileStorer(), *order.UploadedAmendedOrders)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	return ordersop.NewAddAmendedOrdersOK().WithPayload(orderPayload)
+	return ordersop.NewAddAmendedOrdersOK().WithPayload(documentPayload)
 }
