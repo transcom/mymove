@@ -3528,6 +3528,7 @@ func createHHGNoShipments(db *pop.Connection) {
 }
 
 func createHHGWithMultipleOrderUploads(db *pop.Connection) {
+	submittedAt := time.Now()
 	document := testdatagen.MakeDocument(db, testdatagen.Assertions{})
 	u := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
 		UserUpload: models.UserUpload{
@@ -3547,6 +3548,9 @@ func createHHGWithMultipleOrderUploads(db *pop.Connection) {
 	document.UserUploads = append(document.UserUploads, u2)
 
 	ordersMU := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
 		Order: models.Order{
 			UploadedOrders: models.Document{
 				UserUploads: document.UserUploads,
@@ -3556,7 +3560,9 @@ func createHHGWithMultipleOrderUploads(db *pop.Connection) {
 
 	moveMU := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator: "MULTOR",
+			Locator:     "MULTOR",
+			Status:      models.MoveStatusSUBMITTED,
+			SubmittedAt: &submittedAt,
 		},
 		Order: ordersMU,
 	})

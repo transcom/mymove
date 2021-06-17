@@ -82,8 +82,7 @@ const DocumentViewer = ({ files }) => {
           <FontAwesomeIcon icon="th-list" />
         </Button>
         <p title={selectedFilename} data-testid="documentTitle">
-          <span>{selectedFilename}</span>
-          <span>- Added on {selectedFileDate}</span>
+          <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
