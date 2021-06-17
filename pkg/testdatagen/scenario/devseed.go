@@ -3810,6 +3810,9 @@ func runSubScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []mo
 			OrdersTypeDetail:    &ordersTypeDetail,
 			TAC:                 &tac,
 		},
+		Move: models.Move{
+			Locator: "HHGCAN",
+		},
 		ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
 		MTOShipment:   cancelledShipment,
 	})
