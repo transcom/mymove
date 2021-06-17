@@ -20,9 +20,9 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		return nil, err
 	}
 
-	var ammendedOrderPayload *internalmessages.DocumentPayload
+	var amendedOrderPayload *internalmessages.DocumentPayload
 	if order.UploadedAmendedOrdersID != nil {
-		ammendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
+		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +63,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		HasDependents:         handlers.FmtBool(order.HasDependents),
 		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:        orderPayload,
-		UploadedAmendedOrders: ammendedOrderPayload,
+		UploadedAmendedOrders: amendedOrderPayload,
 		OrdersNumber:          order.OrdersNumber,
 		Moves:                 moves,
 		Tac:                   order.TAC,
