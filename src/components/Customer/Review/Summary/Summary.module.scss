@@ -11,6 +11,10 @@
   justify-content: flex-end;
   padding: 0;
   vertical-align: baseline;
+
+  @media (min-width: $tablet) {
+    justify-content: center;
+  }
 }
 
 .buttonContainer {

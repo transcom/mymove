@@ -306,7 +306,7 @@ export class Summary extends Component {
         )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+            *To change these fields, contact your local PPPO office at {currentStation.name}{' '}
             {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
         )}
