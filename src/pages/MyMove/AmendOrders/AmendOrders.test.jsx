@@ -1,5 +1,5 @@
 import { React } from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 import { AmendOrders } from './AmendOrders';
 
@@ -62,17 +62,13 @@ describe('Amended Orders Upload page', () => {
   });
 
   it('renders the save button', async () => {
-    const { queryByText } = render(<AmendOrders {...testProps} uploads={[]} />);
+    const { findByText } = render(<AmendOrders {...testProps} uploads={[]} />);
 
-    await waitFor(() => {
-      expect(queryByText('Save')).toBeInTheDocument();
-    });
+    expect(await findByText('Save')).toBeInTheDocument();
   });
   it('renders the cancel button', async () => {
-    const { queryByText } = render(<AmendOrders {...testProps} uploads={[]} />);
+    const { findByText } = render(<AmendOrders {...testProps} uploads={[]} />);
 
-    await waitFor(() => {
-      expect(queryByText('Cancel')).toBeInTheDocument();
-    });
+    expect(await findByText('Cancel')).toBeInTheDocument();
   });
 });
