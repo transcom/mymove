@@ -252,7 +252,6 @@ Cypress.Commands.add('upload_csv', (selector, fileUrl) => {
       const event = {};
       event.dataTransfer = new win.DataTransfer();
       event.dataTransfer.items.add(testFile);
-      //cy.get(selector).files = event.dataTransfer.files;
 
       return cy.get(selector).invoke('show').trigger('change', event);
     });
