@@ -443,6 +443,25 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			Status: models.MTOShipmentStatusRejected,
 		},
 	})
+
+	shipmentWithExistingServiceItem := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+	serviceItemID, _ := uuid.NewV4()
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: serviceItemID,
+		},
+		Move:        mto,
+		MTOShipment: shipmentWithExistingServiceItem,
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDLH,
+		},
+	})
+
 	shipment.Status = models.MTOShipmentStatusSubmitted
 	eTag := etag.GenerateEtag(shipment.UpdatedAt)
 	status := models.MTOShipmentStatusApproved
@@ -541,7 +560,19 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("A shipment with existing service items does not create more", func(t *testing.T) {
-		// TODO
+		eTag = etag.GenerateEtag(shipmentWithExistingServiceItem.UpdatedAt)
+		fetchedShipment := models.MTOShipment{}
+		serviceItems := models.MTOServiceItems{}
+
+		_, err := updater.UpdateMTOShipmentStatus(shipmentWithExistingServiceItem.ID, status, nil, eTag)
+		suite.NoError(err)
+
+		err = suite.DB().Find(&fetchedShipment, shipmentWithExistingServiceItem.ID)
+		suite.NoError(err)
+
+		err = suite.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipmentWithExistingServiceItem.ID).All(&serviceItems)
+		suite.NoError(err)
+		suite.Equal(1, len(serviceItems))
 	})
 
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
