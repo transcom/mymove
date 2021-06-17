@@ -23,28 +23,28 @@ const mockFiles = [
     filename: 'Test File.pdf',
     contentType: 'application/pdf',
     url: samplePDF,
-    createdAt: '2021-06-15T15:09:26.979879Z',
+    createdAt: '2021-06-14T15:09:26.979879Z',
   },
   {
     id: 2,
     filename: 'Test File 2.jpg',
     contentType: 'image/jpeg',
     url: sampleJPG,
-    createdAt: '2021-06-15T15:09:26.979879Z',
+    createdAt: '2021-06-16T15:09:26.979879Z',
   },
   {
     id: 3,
     filename: 'Test File 3.png',
     contentType: 'image/png',
     url: samplePNG,
-    createdAt: '2021-06-15T15:09:26.979879Z',
+    createdAt: '2021-06-17T15:09:26.979879Z',
   },
   {
     id: 4,
     filename: 'Test File 4.gif',
     contentType: 'image/gif',
     url: sampleGIF,
-    createdAt: '2021-06-15T15:09:26.979879Z',
+    createdAt: '2021-06-12T15:09:26.979879Z',
   },
 ];
 
@@ -107,7 +107,7 @@ describe('DocViewerMenu', () => {
     });
 
     it('renders the file creation date', () => {
-      expect(component.find('li button').at(1).text()).toBe('Test File 2.jpg  Uploaded on 15-Jun-2021');
+      expect(component.find('li button').at(0).text()).toBe('Test File 3.png  Uploaded on 17-Jun-2021');
     });
 
     it('selects a file when clicked', () => {
@@ -137,7 +137,7 @@ describe('DocumentViewer component', () => {
   });
 
   it('renders the title bar with the correct props', () => {
-    expect(component.find('[data-testid="documentTitle"]').text()).toBe('Test File.pdf - Added on 15 Jun 2021');
+    expect(component.find('[data-testid="documentTitle"]').text()).toBe('Test File 3.png   - Added on 17 Jun 2021');
   });
 
   it('handles the open menu button', () => {

@@ -23,7 +23,9 @@ const DocumentViewer = ({ files }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
-  const selectedFile = files[parseInt(selectedFileIndex, 10)];
+  const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
+
+  const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
   if (!selectedFile) {
     return (
@@ -82,7 +84,7 @@ const DocumentViewer = ({ files }) => {
           <FontAwesomeIcon icon="th-list" />
         </Button>
         <p title={selectedFilename} data-testid="documentTitle">
-          <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
+          <span>{selectedFilename}</span> <span>&nbsp; - Added on {selectedFileDate}</span>
         </p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
@@ -94,7 +96,7 @@ const DocumentViewer = ({ files }) => {
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
-        files={files}
+        files={sortedFiles}
         handleClose={closeMenu}
         selectedFileIndex={selectedFileIndex}
         handleSelectFile={handleSelectFile}
