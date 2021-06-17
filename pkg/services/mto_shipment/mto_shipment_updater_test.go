@@ -444,24 +444,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		},
 	})
 
-	shipmentWithExistingServiceItem := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-	serviceItemID, _ := uuid.NewV4()
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: serviceItemID,
-		},
-		Move:        mto,
-		MTOShipment: shipmentWithExistingServiceItem,
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDLH,
-		},
-	})
-
 	shipment.Status = models.MTOShipmentStatusSubmitted
 	eTag := etag.GenerateEtag(shipment.UpdatedAt)
 	status := models.MTOShipmentStatusApproved
@@ -560,6 +542,23 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("A shipment with existing service items does not create more", func(t *testing.T) {
+		shipmentWithExistingServiceItem := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
+		serviceItemID, _ := uuid.NewV4()
+		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				ID: serviceItemID,
+			},
+			Move:        mto,
+			MTOShipment: shipmentWithExistingServiceItem,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+		})
 		eTag = etag.GenerateEtag(shipmentWithExistingServiceItem.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 		serviceItems := models.MTOServiceItems{}
