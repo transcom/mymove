@@ -11,6 +11,7 @@ import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scs
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { shipmentStatuses } from 'constants/shipments';
+import { ShipmentStatusesOneOf } from 'types/shipment';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -73,7 +74,7 @@ ShipmentDisplay.propTypes = {
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     isDiversion: PropTypes.bool,
-    shipmentStatus: PropTypes.string,
+    shipmentStatus: ShipmentStatusesOneOf,
     requestedPickupDate: PropTypes.string.isRequired,
     pickupAddress: AddressShape.isRequired,
     secondaryPickupAddress: AddressShape,

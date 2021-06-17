@@ -12,6 +12,7 @@ import DataPoint from '../../DataPoint/index';
 import styles from './ShipmentAddresses.module.scss';
 
 import { shipmentStatuses } from 'constants/shipments';
+import { ShipmentStatusesOneOf } from 'types/shipment';
 
 const ShipmentAddresses = ({
   pickupAddress,
@@ -59,7 +60,7 @@ ShipmentAddresses.propTypes = {
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string.isRequired,
     ifMatchEtag: PropTypes.string.isRequired,
-    shipmentStatus: PropTypes.string.isRequired,
+    shipmentStatus: ShipmentStatusesOneOf.isRequired,
   }).isRequired,
 };
 
