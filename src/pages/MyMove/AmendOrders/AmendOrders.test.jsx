@@ -49,17 +49,16 @@ describe('Amended Orders Upload page', () => {
   });
 
   it('loads orders on mount', async () => {
-    const { queryByText, queryByRole } = render(<AmendOrders {...testProps} />);
+    const { queryByText, queryByRole, findByRole } = render(<AmendOrders {...testProps} />);
 
     expect(queryByText('Loading, please wait...')).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(queryByText('Loading, please wait...')).not.toBeInTheDocument();
-      expect(queryByRole('heading', { name: 'Upload orders', level: 5 })).toBeInTheDocument();
+    expect(await findByRole('heading', { name: 'Upload orders', level: 5 })).toBeInTheDocument();
+    expect(queryByText('Loading, please wait...')).not.toBeInTheDocument();
+    expect(queryByRole('heading', { name: 'Upload orders', level: 5 })).toBeInTheDocument();
 
-      expect(getOrdersForServiceMember).toHaveBeenCalled();
-      expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
-    });
+    expect(getOrdersForServiceMember).toHaveBeenCalled();
+    expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
   });
 
   it('renders the save button', async () => {
