@@ -97,5 +97,6 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		_, err = requester.RequestShipmentDiversion(shipment.ID, eTag)
 
 		suite.NoError(err)
+		shipmentRouter.AssertNumberOfCalls(t, "RequestDiversion", 1)
 	})
 }

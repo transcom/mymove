@@ -34,6 +34,7 @@ import { validateDate } from 'utils/validation';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Callout from 'components/Callout';
 
 const blankAddress = {
   address: {
@@ -421,14 +422,14 @@ class MtoShipmentForm extends Component {
                             Is there anything special about this shipment that the movers should know?
                           </Label>
 
-                          <div className={formStyles.remarksExamples}>
+                          <Callout>
                             Examples
                             <ul>
                               <li>Things that might need special handling</li>
                               <li>Access info for a location</li>
                               <li>Weapons or alcohol</li>
                             </ul>
-                          </div>
+                          </Callout>
 
                           <Field
                             as={Textarea}

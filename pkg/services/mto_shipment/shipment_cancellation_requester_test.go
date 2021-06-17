@@ -97,5 +97,6 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		_, err = requester.RequestShipmentCancellation(shipment.ID, eTag)
 
 		suite.NoError(err)
+		shipmentRouter.AssertNumberOfCalls(t, "RequestCancellation", 1)
 	})
 }
