@@ -238,6 +238,27 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
   });
 });
 
+//from https://github.com/cypress-io/cypress/issues/669
+//Cypress doesn't give the right File constructor, so we grab the window's File
+Cypress.Commands.add('upload_csv', (selector, fileUrl) => {
+  const nameSegments = fileUrl.split('/');
+  const name = nameSegments[nameSegments.length - 1];
+  // mime returns false if lookup fails
+  const type = 'text/csv';
+  return cy.window().then((win) => {
+    return cy.fixture(fileUrl, 'base64').then((file) => {
+      const blob = Cypress.Blob.base64StringToBlob(file, type);
+      const testFile = new win.File([blob], name, { type });
+      const event = {};
+      event.dataTransfer = new win.DataTransfer();
+      event.dataTransfer.items.add(testFile);
+      //cy.get(selector).files = event.dataTransfer.files;
+
+      return cy.get(selector).invoke('show').trigger('change', event);
+    });
+  });
+});
+
 function genericSelect(inputData, fieldName, classSelector) {
   // fieldName is passed as a classname to the react-select component, so select for it if provided
   if (fieldName) {

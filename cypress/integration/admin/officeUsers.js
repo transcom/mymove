@@ -35,6 +35,11 @@ describe('Office Users Bulk Import', function () {
     cy.signInAsNewAdminUser();
     cy.url().should('eq', adminBaseURL + '/system/office_users');
     cy.get('span[aria-label="Import"]').first().click();
+    cy.upload_csv('input[type="file"]', 'officeUsers.csv');
+
+    // Check that the rows were added for the new office users
+    cy.get('tbody').contains('jason@example.com');
+    cy.get('tbody').contains('riley@example.com');
   });
 });
 
