@@ -101,7 +101,13 @@ func (f *orderUpdater) AddAmendedOrders(existingOrder models.Order, payload *int
 		// TODO in MB-8335 when there aren't any uploadedAmendedOrders yet
 		// generate a document ID
 	}
+	// TODO in MB-8335 update the etag
+	// existingETag := etag.GenerateEtag(order.UpdatedAt)
+	// if existingETag != eTag {
+	// 	return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	// }
 
+	// TODO in MB-8335 attach the incoming documents to the order's UploadedAmendedOrders
 	// order.UploadedAmendedOrders = payload
 	return order
 }
