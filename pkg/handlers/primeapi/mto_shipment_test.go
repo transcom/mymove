@@ -299,6 +299,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Status:       models.MTOShipmentStatusApproved,
 			ApprovedDate: &now,
 		},
+		SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
+		SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
 	})
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
