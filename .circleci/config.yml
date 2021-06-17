@@ -1640,6 +1640,7 @@ workflows:
       - acceptance_tests:
           requires:
             - pre_deps_golang
+          # if testing on experimental or demo, you can enable these tests by using your branch name here
           filters:
             branches:
               only: placeholder_branch_name
@@ -1653,7 +1654,7 @@ workflows:
             - push_app_stg
             - push_migrations_gov_dev
             - push_migrations_stg
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
               ignore: placeholder_branch_name
@@ -1666,7 +1667,7 @@ workflows:
             - push_app_stg
             - push_migrations_gov_dev
             - push_migrations_stg
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
               ignore: placeholder_branch_name
@@ -1674,7 +1675,7 @@ workflows:
       - client_test:
           requires:
             - pre_deps_yarn
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
               ignore: placeholder_branch_name
@@ -1682,7 +1683,7 @@ workflows:
       - server_test:
           requires:
             - pre_deps_golang
-          # if testing on experimental, you can disable these tests by using the commented block below.
+          # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
               ignore: placeholder_branch_name
@@ -1729,28 +1730,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - push_migrations_demo:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - push_tasks_demo:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - push_webhook_client_demo:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - deploy_demo_migrations:
           requires:
@@ -1765,35 +1766,35 @@ workflows:
             - push_webhook_client_demo
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - deploy_demo_tasks:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - deploy_demo_app:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - deploy_demo_app_client_tls:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - deploy_demo_webhook_client:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo_branch_name
 
       - push_app_exp:
           requires:
