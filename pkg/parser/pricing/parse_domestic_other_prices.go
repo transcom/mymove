@@ -114,7 +114,6 @@ func verifyPackUnpackPrices(params ParamConfig, sheetIndex int) error {
 	// Verify header strings
 	sheet := params.XlsxFile.Sheets[sheetIndex]
 	for rowIndex := headerIndexStart; rowIndex < headerIndexEnd; rowIndex++ {
-		// for _, row := range dataRows {
 		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, servicesScheduleColumn)); header != "ServicesSchedule" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find header 'ServicesSchedule', but received header '%s'", header)
 		}
@@ -135,7 +134,6 @@ func verifyPackUnpackPrices(params ParamConfig, sheetIndex int) error {
 
 	// Verify example row strings
 	for rowIndex := exampleIndexStart; rowIndex < exampleIndexEnd; rowIndex++ {
-		// for _, row := range exampleRows {
 		if example := mustGetCell(sheet, rowIndex, servicesScheduleColumn); example != "X" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find example 'X' for Services Schedule, but received example '%s'", example)
 		}
