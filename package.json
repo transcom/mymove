@@ -5,7 +5,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer",
-    "@trussworks/react-uswds": "^1.17.0",
+    "@trussworks/react-uswds": "^2.0.0",
     "@zeplin/cli": "1.1.12",
     "@zeplin/cli-connect-storybook-plugin": "^0.5.4",
     "bytes": "^3.0.0",
