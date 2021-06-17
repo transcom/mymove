@@ -237,14 +237,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }
 
-// AddAmendedOrdersHandler adds amended orders to an order via PATCH /orders/{orderId}/add_amended_orders
-type AddAmendedOrdersHandler struct {
+// UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
+type UploadAmendedOrdersHandler struct {
 	handlers.HandlerContext
 	services.OrderUpdater
 }
 
-// Handle ... updates an order from a request payload
-func (h AddAmendedOrdersHandler) Handle(params ordersop.AddAmendedOrdersParams) middleware.Responder {
+// Handle updates an order to attach amended orders from a request payload
+func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
@@ -256,7 +256,7 @@ func (h AddAmendedOrdersHandler) Handle(params ordersop.AddAmendedOrdersParams) 
 		return handlers.ResponseForError(logger, err)
 	}
 
-	newOrder, _, err := h.OrderUpdater.AddAmendedOrders(order, params.AmendedOrders, params.IfMatch)
+	newOrder, _, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -266,9 +266,9 @@ func (h AddAmendedOrdersHandler) Handle(params ordersop.AddAmendedOrdersParams) 
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	documentPayload, err := payloadForDocumentModel(h.FileStorer(), *order.UploadedAmendedOrders)
+	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	return ordersop.NewAddAmendedOrdersOK().WithPayload(documentPayload)
+	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }

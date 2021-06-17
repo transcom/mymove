@@ -2086,14 +2086,14 @@ func init() {
         }
       }
     },
-    "/orders/{ordersId}/add_amended_orders": {
+    "/orders/{ordersId}/upload_amended_orders": {
       "patch": {
         "description": "Patch the amended orders for a given order",
         "tags": [
           "orders"
         ],
         "summary": "Patch the amended orders for a given order",
-        "operationId": "addAmendedOrders",
+        "operationId": "uploadAmendedOrders",
         "parameters": [
           {
             "type": "string",
@@ -2108,7 +2108,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/UploadPayload"
             }
           },
           {
@@ -2123,7 +2123,7 @@ func init() {
           "200": {
             "description": "the instance of the amended orders",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Orders"
             }
           },
           "400": {
@@ -8637,14 +8637,14 @@ func init() {
         }
       }
     },
-    "/orders/{ordersId}/add_amended_orders": {
+    "/orders/{ordersId}/upload_amended_orders": {
       "patch": {
         "description": "Patch the amended orders for a given order",
         "tags": [
           "orders"
         ],
         "summary": "Patch the amended orders for a given order",
-        "operationId": "addAmendedOrders",
+        "operationId": "uploadAmendedOrders",
         "parameters": [
           {
             "type": "string",
@@ -8659,7 +8659,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/UploadPayload"
             }
           },
           {
@@ -8674,7 +8674,7 @@ func init() {
           "200": {
             "description": "the instance of the amended orders",
             "schema": {
-              "$ref": "#/definitions/DocumentPayload"
+              "$ref": "#/definitions/Orders"
             }
           },
           "400": {

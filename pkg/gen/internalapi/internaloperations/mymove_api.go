@@ -65,9 +65,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
-		OrdersAddAmendedOrdersHandler: orders.AddAmendedOrdersHandlerFunc(func(params orders.AddAmendedOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation orders.AddAmendedOrders has not yet been implemented")
-		}),
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		}),
@@ -251,6 +248,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BackupContactsUpdateServiceMemberBackupContactHandler: backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
 		}),
+		OrdersUploadAmendedOrdersHandler: orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
+		}),
 		AccesscodeValidateAccessCodeHandler: accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
 			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
 		}),
@@ -299,8 +299,6 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// OrdersAddAmendedOrdersHandler sets the operation handler for the add amended orders operation
-	OrdersAddAmendedOrdersHandler orders.AddAmendedOrdersHandler
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
 	// OfficeApprovePPMHandler sets the operation handler for the approve p p m operation
@@ -423,6 +421,8 @@ type MymoveAPI struct {
 	PpmUpdatePersonallyProcuredMoveEstimateHandler ppm.UpdatePersonallyProcuredMoveEstimateHandler
 	// BackupContactsUpdateServiceMemberBackupContactHandler sets the operation handler for the update service member backup contact operation
 	BackupContactsUpdateServiceMemberBackupContactHandler backup_contacts.UpdateServiceMemberBackupContactHandler
+	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
+	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// AccesscodeValidateAccessCodeHandler sets the operation handler for the validate access code operation
 	AccesscodeValidateAccessCodeHandler accesscode.ValidateAccessCodeHandler
 	// EntitlementsValidateEntitlementHandler sets the operation handler for the validate entitlement operation
@@ -501,9 +501,6 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.OrdersAddAmendedOrdersHandler == nil {
-		unregistered = append(unregistered, "orders.AddAmendedOrdersHandler")
-	}
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
 	}
@@ -687,6 +684,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.UpdateServiceMemberBackupContactHandler")
 	}
+	if o.OrdersUploadAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "orders.UploadAmendedOrdersHandler")
+	}
 	if o.AccesscodeValidateAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.ValidateAccessCodeHandler")
 	}
@@ -788,10 +788,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/orders/{ordersId}/add_amended_orders"] = orders.NewAddAmendedOrders(o.context, o.OrdersAddAmendedOrdersHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1036,6 +1032,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewUpdateServiceMemberBackupContact(o.context, o.BackupContactsUpdateServiceMemberBackupContactHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{ordersId}/upload_amended_orders"] = orders.NewUploadAmendedOrders(o.context, o.OrdersUploadAmendedOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

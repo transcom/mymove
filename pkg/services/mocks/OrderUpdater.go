@@ -18,38 +18,6 @@ type OrderUpdater struct {
 	mock.Mock
 }
 
-// AddAmendedOrders provides a mock function with given fields: order, payload, eTag
-func (_m *OrderUpdater) AddAmendedOrders(order models.Order, payload *internalmessages.DocumentPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	ret := _m.Called(order, payload, eTag)
-
-	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(models.Order, *internalmessages.DocumentPayload, string) *models.Order); ok {
-		r0 = rf(order, payload, eTag)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Order)
-		}
-	}
-
-	var r1 uuid.UUID
-	if rf, ok := ret.Get(1).(func(models.Order, *internalmessages.DocumentPayload, string) uuid.UUID); ok {
-		r1 = rf(order, payload, eTag)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(uuid.UUID)
-		}
-	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(models.Order, *internalmessages.DocumentPayload, string) error); ok {
-		r2 = rf(order, payload, eTag)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
 // UpdateAllowanceAsCounselor provides a mock function with given fields: orderID, payload, eTag
 func (_m *OrderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(orderID, payload, eTag)
@@ -171,6 +139,38 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.
 	var r2 error
 	if rf, ok := ret.Get(2).(func(uuid.UUID, ghcmessages.UpdateOrderPayload, string) error); ok {
 		r2 = rf(orderID, payload, eTag)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// UploadAmendedOrders provides a mock function with given fields: order, payload, eTag
+func (_m *OrderUpdater) UploadAmendedOrders(order models.Order, payload *internalmessages.UploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	ret := _m.Called(order, payload, eTag)
+
+	var r0 *models.Order
+	if rf, ok := ret.Get(0).(func(models.Order, *internalmessages.UploadPayload, string) *models.Order); ok {
+		r0 = rf(order, payload, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Order)
+		}
+	}
+
+	var r1 uuid.UUID
+	if rf, ok := ret.Get(1).(func(models.Order, *internalmessages.UploadPayload, string) uuid.UUID); ok {
+		r1 = rf(order, payload, eTag)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(uuid.UUID)
+		}
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(models.Order, *internalmessages.UploadPayload, string) error); ok {
+		r2 = rf(order, payload, eTag)
 	} else {
 		r2 = ret.Error(2)
 	}

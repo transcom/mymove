@@ -14,8 +14,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// AddAmendedOrdersURL generates an URL for the add amended orders operation
-type AddAmendedOrdersURL struct {
+// UploadAmendedOrdersURL generates an URL for the upload amended orders operation
+type UploadAmendedOrdersURL struct {
 	OrdersID strfmt.UUID
 
 	_basePath string
@@ -26,7 +26,7 @@ type AddAmendedOrdersURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *AddAmendedOrdersURL) WithBasePath(bp string) *AddAmendedOrdersURL {
+func (o *UploadAmendedOrdersURL) WithBasePath(bp string) *UploadAmendedOrdersURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -34,21 +34,21 @@ func (o *AddAmendedOrdersURL) WithBasePath(bp string) *AddAmendedOrdersURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *AddAmendedOrdersURL) SetBasePath(bp string) {
+func (o *UploadAmendedOrdersURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *AddAmendedOrdersURL) Build() (*url.URL, error) {
+func (o *UploadAmendedOrdersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/orders/{ordersId}/add_amended_orders"
+	var _path = "/orders/{ordersId}/upload_amended_orders"
 
 	ordersID := o.OrdersID.String()
 	if ordersID != "" {
 		_path = strings.Replace(_path, "{ordersId}", ordersID, -1)
 	} else {
-		return nil, errors.New("ordersId is required on AddAmendedOrdersURL")
+		return nil, errors.New("ordersId is required on UploadAmendedOrdersURL")
 	}
 
 	_basePath := o._basePath
@@ -61,7 +61,7 @@ func (o *AddAmendedOrdersURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *AddAmendedOrdersURL) Must(u *url.URL, err error) *url.URL {
+func (o *UploadAmendedOrdersURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +72,17 @@ func (o *AddAmendedOrdersURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *AddAmendedOrdersURL) String() string {
+func (o *UploadAmendedOrdersURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *AddAmendedOrdersURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *UploadAmendedOrdersURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on AddAmendedOrdersURL")
+		return nil, errors.New("scheme is required for a full url on UploadAmendedOrdersURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on AddAmendedOrdersURL")
+		return nil, errors.New("host is required for a full url on UploadAmendedOrdersURL")
 	}
 
 	base, err := o.Build()
@@ -96,6 +96,6 @@ func (o *AddAmendedOrdersURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *AddAmendedOrdersURL) StringFull(scheme, host string) string {
+func (o *UploadAmendedOrdersURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

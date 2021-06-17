@@ -64,7 +64,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{ctx}
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler{ctx}
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{ctx}
-	internalAPI.OrdersAddAmendedOrdersHandler = AddAmendedOrdersHandler{
+	internalAPI.OrdersUploadAmendedOrdersHandler = UploadAmendedOrdersHandler{
 		ctx,
 		order.NewOrderUpdater(ctx.DB()),
 	}

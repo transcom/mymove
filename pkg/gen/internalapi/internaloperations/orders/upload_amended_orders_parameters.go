@@ -18,18 +18,18 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// NewAddAmendedOrdersParams creates a new AddAmendedOrdersParams object
+// NewUploadAmendedOrdersParams creates a new UploadAmendedOrdersParams object
 // no default values defined in spec.
-func NewAddAmendedOrdersParams() AddAmendedOrdersParams {
+func NewUploadAmendedOrdersParams() UploadAmendedOrdersParams {
 
-	return AddAmendedOrdersParams{}
+	return UploadAmendedOrdersParams{}
 }
 
-// AddAmendedOrdersParams contains all the bound params for the add amended orders operation
+// UploadAmendedOrdersParams contains all the bound params for the upload amended orders operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters addAmendedOrders
-type AddAmendedOrdersParams struct {
+// swagger:parameters uploadAmendedOrders
+type UploadAmendedOrdersParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -44,7 +44,7 @@ type AddAmendedOrdersParams struct {
 	  Required: true
 	  In: body
 	*/
-	AmendedOrders *internalmessages.DocumentPayload
+	AmendedOrders *internalmessages.UploadPayload
 	/*UUID of the order
 	  Required: true
 	  In: path
@@ -55,8 +55,8 @@ type AddAmendedOrdersParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewAddAmendedOrdersParams() beforehand.
-func (o *AddAmendedOrdersParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewUploadAmendedOrdersParams() beforehand.
+func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -67,7 +67,7 @@ func (o *AddAmendedOrdersParams) BindRequest(r *http.Request, route *middleware.
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body internalmessages.DocumentPayload
+		var body internalmessages.UploadPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("amendedOrders", "body", ""))
@@ -99,7 +99,7 @@ func (o *AddAmendedOrdersParams) BindRequest(r *http.Request, route *middleware.
 }
 
 // bindIfMatch binds and validates parameter IfMatch from header.
-func (o *AddAmendedOrdersParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UploadAmendedOrdersParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("If-Match", "header", rawData)
 	}
@@ -120,7 +120,7 @@ func (o *AddAmendedOrdersParams) bindIfMatch(rawData []string, hasKey bool, form
 }
 
 // bindOrdersID binds and validates parameter OrdersID from path.
-func (o *AddAmendedOrdersParams) bindOrdersID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *UploadAmendedOrdersParams) bindOrdersID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -144,7 +144,7 @@ func (o *AddAmendedOrdersParams) bindOrdersID(rawData []string, hasKey bool, for
 }
 
 // validateOrdersID carries on validations for parameter OrdersID
-func (o *AddAmendedOrdersParams) validateOrdersID(formats strfmt.Registry) error {
+func (o *UploadAmendedOrdersParams) validateOrdersID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("ordersId", "path", "uuid", o.OrdersID.String(), formats); err != nil {
 		return err

@@ -2939,11 +2939,11 @@ paths:
           description: order is not found
         '500':
           description: internal server error
-  /orders/{ordersId}/add_amended_orders:
+  /orders/{ordersId}/upload_amended_orders:
     patch:
       summary: Patch the amended orders for a given order
       description: Patch the amended orders for a given order
-      operationId: addAmendedOrders
+      operationId: uploadAmendedOrders
       tags:
         - orders
       parameters:
@@ -2957,7 +2957,7 @@ paths:
           name: amendedOrders
           required: true
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: '#/definitions/UploadPayload'
         - in: header
           name: If-Match
           type: string
@@ -2969,7 +2969,7 @@ paths:
         '200':
           description: the instance of the amended orders
           schema:
-            $ref: '#/definitions/DocumentPayload'
+            $ref: '#/definitions/Orders'
         '400':
           description: invalid request
         '401':
