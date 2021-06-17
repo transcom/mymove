@@ -132,6 +132,10 @@ diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on enviro
 check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
+.PHONY: check_app
+check_app: ## Make sure you're running the correct APP
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 #
 # ----- END CHECK TARGETS -----
 #
@@ -516,18 +520,17 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
 .PHONY: db_dev_fresh
-db_dev_fresh: db_dev_reset db_dev_migrate
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
+db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
-.PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
+.PHONY: db_dev_truncate
+db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
+.PHONY: db_dev_e2e_populate
+db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
@@ -539,11 +542,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
-db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -648,6 +647,11 @@ else
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
+.PHONY: db_test_truncate
+db_test_truncate: ## Truncate e2e db
+	@echo "Truncate the ${DB_NAME_TEST} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
 .PHONY: db_test_run
 db_test_run: db_test_start db_test_create ## Run Test DB
 
@@ -723,11 +727,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
-db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+db_e2e_up: check_app bin/generate-test-data db_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 

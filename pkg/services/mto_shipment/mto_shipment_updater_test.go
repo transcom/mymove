@@ -168,14 +168,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
 		suite.NoError(err)
 
-		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment.MoveTaskOrder.ID)
 		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
 
-		suite.NotZero(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
+		suite.Equal(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
 
-		suite.NotZero(updatedMTOShipment.SecondaryPickupAddressID, secondaryPickupAddress.ID)
-		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddressID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
 		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
@@ -192,7 +190,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment2, eTag)
 		suite.NoError(err)
 
-		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment2.MoveTaskOrder.ID)
 		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
 		suite.Nil(updatedMTOShipment.PrimeEstimatedWeight)
