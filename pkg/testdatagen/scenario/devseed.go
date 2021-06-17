@@ -3527,49 +3527,14 @@ func createHHGNoShipments(db *pop.Connection) {
 	})
 }
 
-func createHHGWithMultipleOrderUploads(db *pop.Connection) {
-	submittedAt := time.Now()
-	document := testdatagen.MakeDocument(db, testdatagen.Assertions{})
-	u := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			DocumentID: &document.ID,
-			Document:   document,
-		},
-	})
-	document.UserUploads = append(document.UserUploads, u)
-
-	u2 := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			DocumentID: &document.ID,
-			Document:   document,
-		},
-	})
-
-	document.UserUploads = append(document.UserUploads, u2)
-
-	ordersMU := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			ProvidesServicesCounseling: true,
-		},
-		Order: models.Order{
-			UploadedOrders: models.Document{
-				UserUploads: document.UserUploads,
-			},
-		},
-	})
-
-	moveMU := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			Locator:     "MULTOR",
-			Status:      models.MoveStatusSUBMITTED,
-			SubmittedAt: &submittedAt,
-		},
-		Order: ordersMU,
-	})
-
-	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-		Move: moveMU,
-	})
+func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"2mb.png", "150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "MULTOR")
+	shipment := makeShipmentForMove(move, db)
+	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
 // Run does that data load thing
@@ -3682,5 +3647,5 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// (to more easily spot issues with addresses being overwritten).
 	createMoveWithUniqueDestinationAddress(db)
 	// Creates a move that has multiple orders uploaded
-	createHHGWithMultipleOrderUploads(db)
+	createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
 }
