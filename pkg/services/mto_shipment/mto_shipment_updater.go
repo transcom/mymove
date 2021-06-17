@@ -365,6 +365,32 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 			}
 		}
+
+		// A diverted shipment gets set to the SUBMITTED status automatically:
+		if !dbShipment.Diversion && newShipment.Diversion {
+			newShipment.Status = models.MTOShipmentStatusSubmitted
+
+			// Get the move
+			var move models.Move
+			err := tx.Find(&move, dbShipment.MoveTaskOrderID)
+			if err != nil {
+				return err
+			}
+
+			// If approved, transition the status to APPROVALS REQUESTED
+			if move.Status == models.MoveStatusAPPROVED {
+				err = move.SetApprovalsRequested()
+				if err != nil {
+					return err
+				}
+
+				err = tx.Update(&move)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
 		params := generateMTOShipmentParams(*newShipment)
 
@@ -377,7 +403,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		// 	return err
 		// }
 		return nil
-
 	})
 
 	if transactionError != nil {
