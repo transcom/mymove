@@ -1875,31 +1875,31 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(typedResponse.Payload.InvalidFields)
 	})
 
-	//
-	// TODO: this test panics with a null pointer exception. Duncan
-	// said he would look into a fix - ahobson 3 June 2021
-	//
-	// suite.Run("POST failure - 422 - invalid input, missing pickup address", func() {
-	// 	subtestData := suite.makeCreateMTOShipmentSubtestData()
-	// 	builder := subtestData.builder
-	// 	params := subtestData.params
+	suite.Run("POST failure - 422 - invalid input, missing pickup address", func() {
+		subtestData := suite.makeCreateMTOShipmentSubtestData()
+		builder := subtestData.builder
+		params := subtestData.params
 
-	// 	fetcher := fetch.NewFetcher(builder)
-	// 	creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 
-	// 	handler := CreateMTOShipmentHandler{
-	// 		handlerContext,
-	// 		creator,
-	// 	}
+		handler := CreateMTOShipmentHandler{
+			handlerContext,
+			creator,
+		}
 
-	// 	badParams := params
-	// 	badParams.Body.PickupAddress.Address.StreetAddress1 = nil
+		badParams := params
+		badParams.Body.PickupAddress.Address.StreetAddress1 = nil
 
-	// 	response := handler.Handle(badParams)
-	// 	suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
-	// 	typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-	// 	suite.NotEmpty(typedResponse.Payload.InvalidFields)
-	// })
+		suite.NoError(badParams.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(badParams)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+		// CreateMTOShipment is returning services.NewInvalidInputError without any validation errors
+		// so InvalidFields won't be added to the payload.
+		suite.Empty(typedResponse.Payload.InvalidFields)
+	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
