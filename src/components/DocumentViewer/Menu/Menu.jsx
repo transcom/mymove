@@ -12,7 +12,7 @@ import styles from './Menu.module.scss';
 import { filenameFromPath } from 'shared/formatters';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => {
-  const sortedFiles = files.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+  const sortedFiles = files.sort((a, b) => moment(a.createdAt) > moment(b.createdAt));
 
   return (
     <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
