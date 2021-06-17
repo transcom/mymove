@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 import { adminOfficeRoles } from 'constants/userRoles';
 
+// Note: There is not a test file or story for ImportCsvButton beacuse this component HAS to render within a react-admin app
 const ImportCsvButton = (props) => {
   const notify = useNotify();
   const { resource } = props;
@@ -23,7 +24,6 @@ const ImportCsvButton = (props) => {
 
     // Verify the phone format
     const regex = /^[2-9]\d{2}-\d{3}-\d{4}$/;
-    // const regex = /^[2-9]\d{2}-\d{4}$/;
     if (!regex.test(row.telephone)) {
       const err = new Error(
         `Validation Error: Row contains improperly formatted telephone number. Required format is xxx-xxx-xxxx. \n
