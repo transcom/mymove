@@ -22,7 +22,7 @@ const ListActions = (props) => {
   return (
     <TopToolbar>
       <CreateButton basePath={basePath} />
-      <ImportCsvButton {...props} />
+      <ImportCsvButton resource={resource} {...props} />
       <ExportButton
         disabled={total === 0}
         resource={resource}
@@ -69,11 +69,11 @@ const OfficeUserList = (props) => (
 ListActions.propTypes = {
   basePath: PropTypes.string,
   total: PropTypes.number,
-  resource: PropTypes.string.isRequired,
+  resource: PropTypes.string,
   currentSort: PropTypes.exact({
     field: PropTypes.string,
     order: PropTypes.string,
-  }).isRequired,
+  }),
   filterValues: PropTypes.shape({
     // This will have to be updated if we have any filters besides search added to this page
     search: PropTypes.string,
@@ -82,6 +82,11 @@ ListActions.propTypes = {
 };
 
 ListActions.defaultProps = {
+  resource: 'office_users',
+  currentSort: {
+    field: 'last_name',
+    order: 'ASC',
+  },
   basePath: undefined,
   total: null,
   filterValues: {},

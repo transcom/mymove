@@ -107,13 +107,6 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         options.method = 'POST';
         options.body = JSON.stringify(params.data);
         break;
-      // case CREATE_MANY:
-      //   params.data.forEach((item) => {
-      //     url = `${apiUrl}/${resource}`;
-      //     options.method = 'POST';
-      //     options.body = JSON.stringify(item);
-      //   });
-      //   break;
       case DELETE:
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'DELETE';
