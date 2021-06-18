@@ -23,8 +23,8 @@ import (
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
-func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
-	queryBuilder := query.NewQueryBuilder(ctx.DB())
+func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
+	queryBuilder := query.NewQueryBuilder(context.DB())
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -35,60 +35,60 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	supportAPI.ServeError = handlers.ServeCustomError
 
 	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
-		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB()),
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
 	}
 
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
-		ctx,
-		movetaskorder.NewMoveTaskOrderUpdater(ctx.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
 
 	supportAPI.MoveTaskOrderHideNonFakeMoveTaskOrdersHandler = HideNonFakeMoveTaskOrdersHandlerFunc{
-		ctx,
-		movetaskorder.NewMoveTaskOrderHider(ctx.DB()),
+		context,
+		movetaskorder.NewMoveTaskOrderHider(context.DB()),
 	}
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
-		ctx,
-		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB())}
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
-		ctx,
-		internalmovetaskorder.NewInternalMoveTaskOrderCreator(ctx.DB()),
+		context,
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
 	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
-		HandlerContext:              ctx,
+		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
 	supportAPI.PaymentRequestListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
-		ctx,
+		context,
 	}
 
 	supportAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandlerFunc{
-		ctx,
+		context,
 		fetch.NewFetcher(queryBuilder),
-		mtoshipment.NewMTOShipmentStatusUpdater(ctx.DB(), queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), ctx.Planner()),
+		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
 	}
 
-	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{ctx, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
-	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{ctx}
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
+	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{context}
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
-		HandlerContext:                    ctx,
-		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(ctx.ICNSequencer(), clock.New()),
+		HandlerContext:                    context,
+		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.ICNSequencer(), clock.New()),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                ctx,
-		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
+		HandlerContext:                context,
+		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(context.DB()),
 		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(ctx.DB()),
+		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
 		// Unable to get logger to pass in for the instantiation of
 		// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
 		// This limitation has come up a few times
@@ -100,7 +100,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
-		HandlerContext: ctx,
+		HandlerContext: context,
 	}
 
 	return supportAPI.Serve(nil)
