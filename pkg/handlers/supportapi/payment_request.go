@@ -1,9 +1,15 @@
 package supportapi
 
 import (
+	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/transcom/mymove/pkg/certs"
+	"github.com/transcom/mymove/pkg/db/sequence"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	"github.com/transcom/mymove/pkg/logging"
 
 	"github.com/spf13/viper"
 
@@ -21,6 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
@@ -248,7 +255,6 @@ type ProcessReviewedPaymentRequestsHandler struct {
 	services.PaymentRequestFetcher
 	services.PaymentRequestReviewedFetcher
 	services.PaymentRequestStatusUpdater
-	services.PaymentRequestReviewedProcessor
 	// Unable to get logger to pass in for the instantiation of
 	// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
 	// This limitation has come up a few times
@@ -282,7 +288,47 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	}
 
 	if *sendToSyncada {
-		h.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		// Set up viper to read environment variables
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		gexURL := v.GetString(cli.GEXURLFlag)
+		dbEnv := v.GetString(cli.DbEnvFlag)
+
+		// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
+		// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
+		// test ICNs in Syncada.
+		var icnSequencer sequence.Sequencer
+		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+		icnSequencer, err := sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+		if err != nil {
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
+		}
+
+		certLogger, err := logging.Config(logging.WithEnvironment(dbEnv), logging.WithLoggingLevel(v.GetString(cli.LoggingLevelFlag)))
+		if err != nil {
+			logger.Fatal("Failed to initialize Zap logging", zap.Error(err))
+		}
+		certificates, rootCAs, err := certs.InitDoDEntrustCertificates(v, certLogger)
+		if certificates == nil || rootCAs == nil || err != nil {
+			logger.Fatal("Error in getting tls certs", zap.Error(err))
+		}
+		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
+
+		gexSender := invoice.NewGexSenderHTTP(
+			gexURL,
+			cli.GEXChannelInvoice,
+			true,
+			tlsConfig,
+			v.GetString(cli.GEXBasicAuthUsernameFlag),
+			v.GetString(cli.GEXBasicAuthPasswordFlag))
+		reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true, icnSequencer, gexSender)
+		if err != nil {
+			msg := "failed to initialize InitNewPaymentRequestReviewedProcessor"
+			logger.Error(msg, zap.Error(err))
+			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+		reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	} else {
 		if paymentRequestID != uuid.Nil {
 			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
