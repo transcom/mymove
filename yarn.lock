@@ -4033,10 +4033,10 @@
     react-visibility-sensor "^5.0.2"
     three "0.126.0"
 
-"@trussworks/react-uswds@^1.17.0":
-  version "1.17.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.17.0.tgz#61aa01aff501892fefd2d8d79fbc4ec164efd516"
-  integrity sha512-1LI7IcMEUIG4MwIfm0NlTtUf/1AwQbW/vIk9evuSoWkwiK8CpXHOVZXKwalhVrncyDzjf+CpV9PDmlnf747Vvg==
+"@trussworks/react-uswds@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-2.0.0.tgz#cce2f3062acce8f512143a9a976af56a21c7ae87"
+  integrity sha512-kWLAvAbl/wvFYyM4Y9Uo8AZTOpap/aTu7ckCzz/Lq9Na8jlx5prP3zAyviK9LGHsuCEQ7bUX57/FJMtJukEuKA==
 
 "@types/anymatch@*":
   version "1.3.1"
