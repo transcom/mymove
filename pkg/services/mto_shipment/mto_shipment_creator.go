@@ -227,7 +227,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return err
 			}
 			if verrs != nil && verrs.HasAny() {
-				return fmt.Errorf("%v", verrs.Errors)
+				return verrs
 			}
 		}
 
