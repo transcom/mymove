@@ -88,7 +88,7 @@ const ImportCsvButton = (props) => {
   };
 
   const config = {
-    logging: true,
+    logging: false,
     validateRow,
     preCommitCallback,
     postCommitCallback,

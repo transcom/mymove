@@ -25,24 +25,6 @@ describe('Office Users List Page', function () {
   });
 });
 
-describe('Office Users Bulk Import', function () {
-  before(() => {
-    cy.prepareAdminApp();
-    cy.logout();
-  });
-
-  it('button appears on office user list page', function () {
-    cy.signInAsNewAdminUser();
-    cy.url().should('eq', adminBaseURL + '/system/office_users');
-    cy.get('span[aria-label="Import"]').first().click();
-    cy.upload_csv('input[type="file"]', 'officeUsers.csv');
-
-    // Check that the rows were added for the new office users
-    cy.get('tbody').contains('jason@example.com');
-    cy.get('tbody').contains('riley@example.com');
-  });
-});
-
 describe('Office User Create Page', function () {
   before(() => {
     cy.prepareAdminApp();
