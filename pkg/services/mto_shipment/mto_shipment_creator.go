@@ -220,11 +220,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		if shipment.Status == models.MTOShipmentStatusSubmitted && move.Status == models.MoveStatusAPPROVED {
 			err = move.SetApprovalsRequested()
 			if err != nil {
-				return fmt.Errorf("%e", err)
+				return err
 			}
 			verrs, err = txBuilder.UpdateOne(&move, nil)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+			if err != nil {
+				return err
+			}
+			if verrs != nil {
+				return fmt.Errorf("%v", verrs.Errors)
 			}
 		}
 
