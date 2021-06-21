@@ -15,8 +15,8 @@ type MTOShipmentUpdater interface {
 	CheckIfMTOShipmentCanBeUpdated(mtoShipment *models.MTOShipment, session *auth.Session) (bool, error)
 	MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error)
 	RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error)
-	UpdateMTOShipmentGHC(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
-	UpdateMTOShipmentInternal(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentOffice(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentCustomer(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 	UpdateMTOShipmentPrime(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 

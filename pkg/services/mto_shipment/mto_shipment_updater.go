@@ -222,17 +222,17 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mode
 	return &shipment, nil
 }
 
-// UpdateMTOShipmentGHC updates the mto shipment
+// UpdateMTOShipmentOffice updates the mto shipment
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the OFFICE USER
-func (f *mtoShipmentUpdater) UpdateMTOShipmentGHC(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	return f.updateMTOShipment(ctx, mtoShipment, eTag)
 }
 
-// UpdateMTOShipmentInternal updates the mto shipment
+// UpdateMTOShipmentCustomer updates the mto shipment
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the CUSTOMER
-func (f *mtoShipmentUpdater) UpdateMTOShipmentInternal(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) UpdateMTOShipmentCustomer(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	return f.updateMTOShipment(ctx, mtoShipment, eTag)
 }
 

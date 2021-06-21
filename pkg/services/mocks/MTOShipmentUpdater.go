@@ -84,8 +84,8 @@ func (_m *MTOShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mod
 	return r0, r1
 }
 
-// UpdateMTOShipmentGHC provides a mock function with given fields: ctx, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentGHC(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateMTOShipmentCustomer provides a mock function with given fields: ctx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentCustomer(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(ctx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment
@@ -107,8 +107,8 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentGHC(ctx context.Context, mtoShipm
 	return r0, r1
 }
 
-// UpdateMTOShipmentInternal provides a mock function with given fields: ctx, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentInternal(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateMTOShipmentOffice provides a mock function with given fields: ctx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentOffice(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(ctx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment

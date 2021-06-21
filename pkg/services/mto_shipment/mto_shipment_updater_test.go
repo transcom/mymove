@@ -159,14 +159,14 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), &mtoShipment, eTag)
+		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &mtoShipment, eTag)
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), &mtoShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &mtoShipment, eTag)
 		suite.NoError(err)
 
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -190,7 +190,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Updater can handle optional queries set as nil", func(t *testing.T) {
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), &mtoShipment2, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &mtoShipment2, eTag)
 		suite.NoError(err)
 
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -218,7 +218,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
 		}
 
-		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), updatedShipment, eTag)
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), updatedShipment, eTag)
 		suite.NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
 		suite.Equal(newDestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
@@ -272,7 +272,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CounselorRemarks:                 &counselorRemarks,
 		}
 
-		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), &updatedShipment, eTag)
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
 		suite.NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
@@ -335,7 +335,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			MTOAgents: updatedAgents,
 		}
 
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), &updatedShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -379,7 +379,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			MTOAgents: updatedAgents,
 		}
 
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentInternal(context.Background(), &updatedShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
