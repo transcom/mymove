@@ -49,13 +49,12 @@ describe('Amended Orders Upload page', () => {
   });
 
   it('loads orders on mount', async () => {
-    const { queryByText, queryByRole, findByRole } = render(<AmendOrders {...testProps} />);
+    const { queryByText, findByRole, getByRole } = render(<AmendOrders {...testProps} />);
 
-    expect(queryByText('Loading, please wait...')).toBeInTheDocument();
+    expect(getByRole('heading', { name: 'Loading, please wait...', level: 2 })).toBeInTheDocument();
 
     expect(await findByRole('heading', { name: 'Upload orders', level: 5 })).toBeInTheDocument();
     expect(queryByText('Loading, please wait...')).not.toBeInTheDocument();
-    expect(queryByRole('heading', { name: 'Upload orders', level: 5 })).toBeInTheDocument();
 
     expect(getOrdersForServiceMember).toHaveBeenCalled();
     expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
