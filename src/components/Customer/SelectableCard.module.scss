@@ -3,11 +3,11 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/_variables';
 
-p+.cardContainer {
+p + .cardContainer {
   margin-top: 0px;
 }
 
-.cardContainer+.cardContainer {
+.cardContainer + .cardContainer {
   @include u-margin-top('105');
 }
 
@@ -25,7 +25,6 @@ p+.cardContainer {
   :global(.usa-radio__input--tile + .usa-radio__label) {
     border-radius: 2px;
     background-color: $bg-white;
-
   }
 
   :global(.usa-checkbox__label),
@@ -45,15 +44,13 @@ p+.cardContainer {
     font-size: 13px;
     line-height: 1.25;
     @include u-padding-top(1);
-    transform: translate(-23px, -8px);
-    width: calc(100% + 23px);
+    transform: translate(0px, -8px);
+    width: 100%;
 
     div {
       @include u-margin-bottom(1);
     }
   }
-
-
 
   .helpButton {
     padding: 10px; // Required to get to 44px for touch area
@@ -92,7 +89,7 @@ p+.cardContainer {
     padding-left: 50px;
   }
 
-  @media (max-width: $mobile) {
+  @media (max-width: $tablet) {
     :global(.usa-radio__label) {
       @include u-padding-right(6);
     }
