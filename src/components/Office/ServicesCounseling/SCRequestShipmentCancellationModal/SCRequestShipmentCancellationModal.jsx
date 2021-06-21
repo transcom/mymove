@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Overlay, ModalContainer } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
+import { Overlay, ModalContainer } from 'components/MigratedModal/MigratedModal';
 
 export const SCRequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentID }) => (
   <div>
