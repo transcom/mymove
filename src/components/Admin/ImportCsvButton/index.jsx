@@ -33,23 +33,6 @@ const ImportCsvButton = (props) => {
       throw err;
     }
 
-    // TODO: should we query offices for every row validation? is there a way to get this info and cache it?
-    // The only parameter that can be passed into this function is a row...
-    // transportation office id
-    //   const { offices } = useQueryWithStore({
-    //     type: 'getMany',
-    //     resource: 'offices',
-    //     payload: {},
-    //   });
-
-    //   const officeFound = offices.find((office) => {
-    //     if (office.id === row.transportationOfficeId) return true;
-    //     return false;
-    //   });
-
-    //   if (!officeFound) {
-    //     // throw error
-    //   }
     return row;
   };
 
@@ -63,18 +46,23 @@ const ImportCsvButton = (props) => {
         // Parse roles from string at ","
         const parsedRoles = row.roles.split(',');
         parsedRoles.forEach((parsedRole) => {
+          let roleNotFound = true;
           // Remove any whitespace in the role string
           const role = parsedRole.replaceAll(/\s/g, '');
-          rolesArray.push(adminOfficeRoles.find((adminOfficeRole) => adminOfficeRole.roleType === role));
+          adminOfficeRoles.forEach((adminOfficeRole) => {
+            if (adminOfficeRole.roleType === role) {
+              rolesArray.push(adminOfficeRole);
+              roleNotFound = false;
+            }
+          });
+          if (roleNotFound) {
+            const err = new Error(
+              `Processing Error: Invalid roles provided for row. \n Row Information: ${Object.values(row)}`,
+            );
+            notify(err.message);
+            throw err;
+          }
         });
-
-        if (rolesArray.length === 0) {
-          const err = new Error(
-            `Processing Error: Invalid roles provided for row. \n Row Information: ${Object.values(row)}`,
-          );
-          notify(err.message);
-          throw err;
-        }
         copyOfRow.roles = rolesArray;
       } else {
         const err = new Error(

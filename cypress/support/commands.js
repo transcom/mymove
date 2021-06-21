@@ -242,8 +242,7 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
 //Cypress doesn't give the right File constructor, so we grab the window's File
 Cypress.Commands.add('upload_csv', (selector, fileUrl) => {
   const nameSegments = fileUrl.split('/');
-  const name = nameSegments[nameSegments.length - 1];
-  // mime returns false if lookup fails
+  const name = nameSegments[-1];
   const type = 'text/csv';
   return cy.window().then((win) => {
     return cy.fixture(fileUrl, 'base64').then((file) => {
