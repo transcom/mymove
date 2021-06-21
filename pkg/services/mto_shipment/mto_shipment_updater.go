@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -221,8 +222,29 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mode
 	return &shipment, nil
 }
 
-//UpdateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+// UpdateMTOShipmentOffice updates the mto shipment
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the OFFICE USER
+func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	return f.updateMTOShipment(ctx, mtoShipment, eTag)
+}
+
+// UpdateMTOShipmentCustomer updates the mto shipment
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the CUSTOMER
+func (f *mtoShipmentUpdater) UpdateMTOShipmentCustomer(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	return f.updateMTOShipment(ctx, mtoShipment, eTag)
+}
+
+// UpdateMTOShipmentPrime updates the mto shipment
+// TODO: apply the subset of business logic validations
+// that would be appropriate for the PRIME
+func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	return f.updateMTOShipment(ctx, mtoShipment, eTag)
+}
+
+//updateMTOShipment updates the mto shipment
+func (f *mtoShipmentUpdater) updateMTOShipment(_ context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
 	oldShipment, err := f.RetrieveMTOShipment(mtoShipment.ID)
 
 	if err != nil {
