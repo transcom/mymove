@@ -2082,6 +2082,8 @@ definitions:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      uploaded_amended_orders:
+        $ref: '#/definitions/DocumentPayload'
       moves:
         $ref: '#/definitions/IndexMovesPayload'
       orders_number:
