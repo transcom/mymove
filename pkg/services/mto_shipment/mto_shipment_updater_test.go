@@ -386,6 +386,44 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(*mtoAgentToCreate.LastName, *updatedMTOShipment.MTOAgents[1].LastName)
 		suite.Equal(*mtoAgentToCreate.Email, *updatedMTOShipment.MTOAgents[1].Email)
 	})
+
+	suite.T().Run("Successfully divert a shipment and transition statuses", func(t *testing.T) {
+		// A diverted shipment should transition to the SUBMITTED status.
+		// If the move it is connected to is APPROVED, that move should transition to APPROVALS REQUESTED
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrder: move,
+				Status:        models.MTOShipmentStatusApproved,
+				Diversion:     false,
+			},
+		})
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		shipmentInput := models.MTOShipment{
+			ID:        shipment.ID,
+			Diversion: true,
+		}
+
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &shipmentInput, eTag)
+
+		suite.Require().NotNil(updatedShipment)
+		suite.NoError(err)
+		suite.Equal(shipment.ID, updatedShipment.ID)
+		suite.Equal(move.ID, updatedShipment.MoveTaskOrderID)
+		suite.Equal(true, updatedShipment.Diversion)
+		suite.Equal(models.MTOShipmentStatusSubmitted, updatedShipment.Status)
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {

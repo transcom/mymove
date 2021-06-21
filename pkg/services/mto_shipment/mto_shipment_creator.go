@@ -216,6 +216,21 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			shipment.MTOServiceItems = serviceItemsList
 		}
 
+		// transition the move to "Approvals Requested" if a shipment was created with the "Submitted" status:
+		if shipment.Status == models.MTOShipmentStatusSubmitted && move.Status == models.MoveStatusAPPROVED {
+			err = move.SetApprovalsRequested()
+			if err != nil {
+				return err
+			}
+			verrs, err = txBuilder.UpdateOne(&move, nil)
+			if err != nil {
+				return err
+			}
+			if verrs != nil && verrs.HasAny() {
+				return verrs
+			}
+		}
+
 		return nil
 	})
 
