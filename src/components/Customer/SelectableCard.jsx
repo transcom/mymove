@@ -1,7 +1,6 @@
 import React from 'react';
 import { string, func, bool, node } from 'prop-types';
 import { Radio, Button } from '@trussworks/react-uswds';
-import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './SelectableCard.module.scss';
