@@ -198,7 +198,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 	mtoShipment.ID = shipmentID
 
-	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
+	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(params.HTTPRequest.Context(), mtoShipment, params.IfMatch)
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))

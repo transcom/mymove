@@ -39,11 +39,12 @@ function formatShipmentDate(shipmentDateString) {
   return `${weekday}, ${day} ${month} ${year}`;
 }
 
-function approvedFilter(shipment) {
+function showShipmentFilter(shipment) {
   return (
     shipment.status === shipmentStatuses.APPROVED ||
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-    shipment.status === shipmentStatuses.DIVERSION_REQUESTED
+    shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+    shipment.status === shipmentStatuses.CANCELED
   );
 }
 
@@ -222,7 +223,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       if (
         shipment.status === shipmentStatuses.APPROVED ||
         shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-        shipment.status === shipmentStatuses.DIVERSION_REQUESTED
+        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+        shipment.status === shipmentStatuses.CANCELED
       ) {
         shipmentSections.push({
           id: shipment.id,
@@ -273,7 +275,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(approvedFilter)) {
+  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
     return (
       <div className={styles.tabContent}>
         <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
@@ -330,7 +332,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
               mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
-              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED
+              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED &&
+              mtoShipment.status !== shipmentStatuses.CANCELED
             ) {
               return false;
             }

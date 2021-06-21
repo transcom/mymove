@@ -16,9 +16,17 @@ import (
 )
 
 func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
-	documentPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
+	orderPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
 		return nil, err
+	}
+
+	var amendedOrderPayload *internalmessages.DocumentPayload
+	if order.UploadedAmendedOrdersID != nil {
+		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var moves internalmessages.IndexMovesPayload
@@ -42,27 +50,28 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	}
 
 	payload := &internalmessages.Orders{
-		ID:                  handlers.FmtUUID(order.ID),
-		CreatedAt:           handlers.FmtDateTime(order.CreatedAt),
-		UpdatedAt:           handlers.FmtDateTime(order.UpdatedAt),
-		ServiceMemberID:     handlers.FmtUUID(order.ServiceMemberID),
-		IssueDate:           handlers.FmtDate(order.IssueDate),
-		ReportByDate:        handlers.FmtDate(order.ReportByDate),
-		OrdersType:          order.OrdersType,
-		OrdersTypeDetail:    order.OrdersTypeDetail,
-		OriginDutyStation:   payloadForDutyStationModel(originDutyStation),
-		Grade:               order.Grade,
-		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
-		HasDependents:       handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
-		UploadedOrders:      documentPayload,
-		OrdersNumber:        order.OrdersNumber,
-		Moves:               moves,
-		Tac:                 order.TAC,
-		Sac:                 order.SAC,
-		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
-		Status:              internalmessages.OrdersStatus(order.Status),
-		AuthorizedWeight:    dBAuthorizedWeight,
+		ID:                    handlers.FmtUUID(order.ID),
+		CreatedAt:             handlers.FmtDateTime(order.CreatedAt),
+		UpdatedAt:             handlers.FmtDateTime(order.UpdatedAt),
+		ServiceMemberID:       handlers.FmtUUID(order.ServiceMemberID),
+		IssueDate:             handlers.FmtDate(order.IssueDate),
+		ReportByDate:          handlers.FmtDate(order.ReportByDate),
+		OrdersType:            order.OrdersType,
+		OrdersTypeDetail:      order.OrdersTypeDetail,
+		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
+		Grade:                 order.Grade,
+		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		HasDependents:         handlers.FmtBool(order.HasDependents),
+		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
+		UploadedOrders:        orderPayload,
+		UploadedAmendedOrders: amendedOrderPayload,
+		OrdersNumber:          order.OrdersNumber,
+		Moves:                 moves,
+		Tac:                   order.TAC,
+		Sac:                   order.SAC,
+		DepartmentIndicator:   (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
+		Status:                internalmessages.OrdersStatus(order.Status),
+		AuthorizedWeight:      dBAuthorizedWeight,
 	}
 
 	return payload, nil
