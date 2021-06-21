@@ -24,13 +24,13 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	}
 
 	var packUnpackPrices []models.StageDomesticOtherPackPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[rowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := rowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		packPrice := models.StageDomesticOtherPackPrice{
-			ServicesSchedule:   getCell(row.Cells, servicesScheduleColumn),
-			ServiceProvided:    getCell(row.Cells, serviceProvidedColumn),
-			NonPeakPricePerCwt: getCell(row.Cells, nonPeakPriceColumn),
-			PeakPricePerCwt:    getCell(row.Cells, peakPriceColumn),
+			ServicesSchedule:   mustGetCell(sheet, rowIndex, servicesScheduleColumn),
+			ServiceProvided:    mustGetCell(sheet, rowIndex, serviceProvidedColumn),
+			NonPeakPricePerCwt: mustGetCell(sheet, rowIndex, nonPeakPriceColumn),
+			PeakPricePerCwt:    mustGetCell(sheet, rowIndex, peakPriceColumn),
 		}
 
 		if packPrice.ServicesSchedule != "" {
@@ -62,13 +62,13 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 	}
 
 	var sitPrices []models.StageDomesticOtherSitPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[rowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := rowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		sitPrice := models.StageDomesticOtherSitPrice{
-			SITPickupDeliverySchedule: getCell(row.Cells, servicesScheduleColumn),
-			ServiceProvided:           getCell(row.Cells, serviceProvidedColumn),
-			NonPeakPricePerCwt:        getCell(row.Cells, nonPeakPriceColumn),
-			PeakPricePerCwt:           getCell(row.Cells, peakPriceColumn),
+			SITPickupDeliverySchedule: mustGetCell(sheet, rowIndex, servicesScheduleColumn),
+			ServiceProvided:           mustGetCell(sheet, rowIndex, serviceProvidedColumn),
+			NonPeakPricePerCwt:        mustGetCell(sheet, rowIndex, nonPeakPriceColumn),
+			PeakPricePerCwt:           mustGetCell(sheet, rowIndex, peakPriceColumn),
 		}
 
 		if sitPrice.SITPickupDeliverySchedule != "" {
@@ -112,18 +112,18 @@ func verifyPackUnpackPrices(params ParamConfig, sheetIndex int) error {
 	const headerIndexEnd = headerIndexStart + 1
 
 	// Verify header strings
-	dataRows := params.XlsxFile.Sheets[sheetIndex].Rows[headerIndexStart:headerIndexEnd]
-	for _, row := range dataRows {
-		if header := removeWhiteSpace(getCell(row.Cells, servicesScheduleColumn)); header != "ServicesSchedule" {
+	sheet := params.XlsxFile.Sheets[sheetIndex]
+	for rowIndex := headerIndexStart; rowIndex < headerIndexEnd; rowIndex++ {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, servicesScheduleColumn)); header != "ServicesSchedule" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find header 'ServicesSchedule', but received header '%s'", header)
 		}
-		if header := removeWhiteSpace(getCell(row.Cells, serviceProvidedColumn)); header != "ServiceProvided" {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, serviceProvidedColumn)); header != "ServiceProvided" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find header 'ServiceProvided', but received header '%s'", header)
 		}
-		if header := removeWhiteSpace(getCell(row.Cells, nonPeakPriceColumn)); header != "Non-Peak(percwt)" {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, nonPeakPriceColumn)); header != "Non-Peak(percwt)" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find header 'Non-Peak(percwt)', but received header '%s'", header)
 		}
-		if header := removeWhiteSpace(getCell(row.Cells, peakPriceColumn)); header != "Peak(percwt)" {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, peakPriceColumn)); header != "Peak(percwt)" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find header 'Peak(percwt)', but received header '%s'", header)
 		}
 	}
@@ -133,18 +133,17 @@ func verifyPackUnpackPrices(params ParamConfig, sheetIndex int) error {
 	const exampleIndexEnd = exampleIndexStart + 1
 
 	// Verify example row strings
-	exampleRows := params.XlsxFile.Sheets[sheetIndex].Rows[exampleIndexStart:exampleIndexEnd]
-	for _, row := range exampleRows {
-		if example := getCell(row.Cells, servicesScheduleColumn); example != "X" {
+	for rowIndex := exampleIndexStart; rowIndex < exampleIndexEnd; rowIndex++ {
+		if example := mustGetCell(sheet, rowIndex, servicesScheduleColumn); example != "X" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find example 'X' for Services Schedule, but received example '%s'", example)
 		}
-		if example := getCell(row.Cells, serviceProvidedColumn); example != "EXAMPLE (per cwt)" {
+		if example := mustGetCell(sheet, rowIndex, serviceProvidedColumn); example != "EXAMPLE (per cwt)" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find example 'EXAMPLE (per cwt)' for Service Proided, but received example '%s'", example)
 		}
-		if example := getCell(row.Cells, nonPeakPriceColumn); example != "$X.XX" {
+		if example := mustGetCell(sheet, rowIndex, nonPeakPriceColumn); example != "$X.XX" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find example '$X.XX' for Non-Peak (per cwt), but received example '%s'", example)
 		}
-		if example := getCell(row.Cells, peakPriceColumn); example != "$X.XX" {
+		if example := mustGetCell(sheet, rowIndex, peakPriceColumn); example != "$X.XX" {
 			return fmt.Errorf("verifyDomesticOtherPrices Pack/Unpack expected to find example '$X.XX' for Peak (per cwt), but received example '%s'", example)
 		}
 	}
@@ -167,22 +166,22 @@ func verifySITPickupPrices(params ParamConfig, sheetIndex int) error {
 	const sitHeaderIndexEnd = headerIndexStart
 
 	// Verify header strings
-	firstHeaderRows := params.XlsxFile.Sheets[sheetIndex].Rows[sitHeaderIndexStart:sitHeaderIndexEnd]
-	for _, row := range firstHeaderRows {
-		if header := removeWhiteSpace(getCell(row.Cells, servicesScheduleColumn)); header != "SITPickup/DeliverySchedule" {
+	sheet := params.XlsxFile.Sheets[sheetIndex]
+
+	for rowIndex := sitHeaderIndexStart; rowIndex < sitHeaderIndexEnd; rowIndex++ {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, servicesScheduleColumn)); header != "SITPickup/DeliverySchedule" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find header 'SITPickup/DeliverySchedule', but received header '%s'", header)
 		}
 	}
 
-	dataRows := params.XlsxFile.Sheets[sheetIndex].Rows[headerIndexStart:headerIndexEnd]
-	for _, row := range dataRows {
-		if header := getCell(row.Cells, serviceProvidedColumn); header != "Service Provided" {
+	for rowIndex := headerIndexStart; rowIndex < headerIndexEnd; rowIndex++ {
+		if header := mustGetCell(sheet, rowIndex, serviceProvidedColumn); header != "Service Provided" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find header 'Service Provided', but received header '%s'", header)
 		}
-		if header := removeWhiteSpace(getCell(row.Cells, nonPeakPriceColumn)); header != "Non-Peak(percwt)" {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, nonPeakPriceColumn)); header != "Non-Peak(percwt)" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find header 'Non-Peak(percwt)', but received header '%s'", header)
 		}
-		if header := removeWhiteSpace(getCell(row.Cells, peakPriceColumn)); header != "Peak(percwt)" {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, peakPriceColumn)); header != "Peak(percwt)" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find header 'Peak(percwt)', but received header '%s'", header)
 		}
 	}
@@ -192,18 +191,17 @@ func verifySITPickupPrices(params ParamConfig, sheetIndex int) error {
 	const exampleIndexEnd = exampleIndexStart + 1
 
 	// Verify example row strings
-	exampleRows := params.XlsxFile.Sheets[sheetIndex].Rows[exampleIndexStart:exampleIndexEnd]
-	for _, row := range exampleRows {
-		if example := getCell(row.Cells, servicesScheduleColumn); example != "X" {
+	for rowIndex := exampleIndexStart; rowIndex < exampleIndexEnd; rowIndex++ {
+		if example := mustGetCell(sheet, rowIndex, servicesScheduleColumn); example != "X" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find example 'X' for SITPickup/DeliverySchedule, but received example '%s'", example)
 		}
-		if example := getCell(row.Cells, serviceProvidedColumn); example != "EXAMPLE (per cwt)" {
+		if example := mustGetCell(sheet, rowIndex, serviceProvidedColumn); example != "EXAMPLE (per cwt)" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find example 'EXAMPLE (per cwt)' for Service Proided, but received example '%s'", example)
 		}
-		if example := getCell(row.Cells, nonPeakPriceColumn); example != "$X.XX" {
+		if example := mustGetCell(sheet, rowIndex, nonPeakPriceColumn); example != "$X.XX" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find example '$X.XX' for Non-Peak (per cwt), but received example '%s'", example)
 		}
-		if example := getCell(row.Cells, peakPriceColumn); example != "$X.XX" {
+		if example := mustGetCell(sheet, rowIndex, peakPriceColumn); example != "$X.XX" {
 			return fmt.Errorf("verifyDomesticOtherPrices SIT Pickup expected to find example '$X.XX' for Peak (per cwt), but received example '%s'", example)
 		}
 	}

@@ -11,13 +11,22 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
 func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
-	documentPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
+	orderPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
 		return nil, err
+	}
+
+	var amendedOrderPayload *internalmessages.DocumentPayload
+	if order.UploadedAmendedOrdersID != nil {
+		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var moves internalmessages.IndexMovesPayload
@@ -41,27 +50,28 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	}
 
 	payload := &internalmessages.Orders{
-		ID:                  handlers.FmtUUID(order.ID),
-		CreatedAt:           handlers.FmtDateTime(order.CreatedAt),
-		UpdatedAt:           handlers.FmtDateTime(order.UpdatedAt),
-		ServiceMemberID:     handlers.FmtUUID(order.ServiceMemberID),
-		IssueDate:           handlers.FmtDate(order.IssueDate),
-		ReportByDate:        handlers.FmtDate(order.ReportByDate),
-		OrdersType:          order.OrdersType,
-		OrdersTypeDetail:    order.OrdersTypeDetail,
-		OriginDutyStation:   payloadForDutyStationModel(originDutyStation),
-		Grade:               order.Grade,
-		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
-		HasDependents:       handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
-		UploadedOrders:      documentPayload,
-		OrdersNumber:        order.OrdersNumber,
-		Moves:               moves,
-		Tac:                 order.TAC,
-		Sac:                 order.SAC,
-		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
-		Status:              internalmessages.OrdersStatus(order.Status),
-		AuthorizedWeight:    dBAuthorizedWeight,
+		ID:                    handlers.FmtUUID(order.ID),
+		CreatedAt:             handlers.FmtDateTime(order.CreatedAt),
+		UpdatedAt:             handlers.FmtDateTime(order.UpdatedAt),
+		ServiceMemberID:       handlers.FmtUUID(order.ServiceMemberID),
+		IssueDate:             handlers.FmtDate(order.IssueDate),
+		ReportByDate:          handlers.FmtDate(order.ReportByDate),
+		OrdersType:            order.OrdersType,
+		OrdersTypeDetail:      order.OrdersTypeDetail,
+		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
+		Grade:                 order.Grade,
+		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		HasDependents:         handlers.FmtBool(order.HasDependents),
+		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
+		UploadedOrders:        orderPayload,
+		UploadedAmendedOrders: amendedOrderPayload,
+		OrdersNumber:          order.OrdersNumber,
+		Moves:                 moves,
+		Tac:                   order.TAC,
+		Sac:                   order.SAC,
+		DepartmentIndicator:   (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
+		Status:                internalmessages.OrdersStatus(order.Status),
+		AuthorizedWeight:      dBAuthorizedWeight,
 	}
 
 	return payload, nil
@@ -230,6 +240,42 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+}
+
+// UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
+type UploadAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.OrderUpdater
+}
+
+// Handle updates an order to attach amended orders from a request payload
+func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	orderID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	newOrder, _, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	verrs, err := models.SaveOrder(h.DB(), newOrder)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

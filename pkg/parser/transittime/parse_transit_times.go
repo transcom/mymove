@@ -33,24 +33,24 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 
 	for curRowIndex := transitTimeRowIndex; curRowIndex < sheet.MaxRow; curRowIndex++ {
 		// should be consecutive headers
-		if !strings.Contains(getValueFromSheet(sheet, curRowIndex, distanceHeaderColIndex), "-") {
+		if !strings.Contains(mustGetValueFromSheet(sheet, curRowIndex, distanceHeaderColIndex), "-") {
 			// colIndex should reset
 			break
 		}
 
 		for curColIndex := transitTimeColIndex; curColIndex < sheet.MaxCol; curColIndex++ {
 			// should be consecutive headers
-			if getValueFromSheet(sheet, weightHeaderRowIndex, curColIndex) == "" {
+			if mustGetValueFromSheet(sheet, weightHeaderRowIndex, curColIndex) == "" {
 				// colIndex should reset
 				break
 			}
 
-			distancesSlice, err := getDomesticHeaderBounds(getValueFromSheet(sheet, curRowIndex, distanceHeaderColIndex))
+			distancesSlice, err := getDomesticHeaderBounds(mustGetValueFromSheet(sheet, curRowIndex, distanceHeaderColIndex))
 			if err != nil {
 				return nil, err
 			}
 
-			weightsSlice, err := getDomesticHeaderBounds(getValueFromSheet(sheet, weightHeaderRowIndex, curColIndex))
+			weightsSlice, err := getDomesticHeaderBounds(mustGetValueFromSheet(sheet, weightHeaderRowIndex, curColIndex))
 			if err != nil {
 				return nil, err
 			}
@@ -59,7 +59,7 @@ var parseDomesticTransitTime processXlsxSheet = func(params ParamConfig, sheetIn
 
 			domTransitTime := models.GHCDomesticTransitTime{
 				ID:                 id,
-				MaxDaysTransitTime: getInt(getValueFromSheet(sheet, curRowIndex, curColIndex)),
+				MaxDaysTransitTime: getInt(mustGetValueFromSheet(sheet, curRowIndex, curColIndex)),
 				DistanceMilesLower: getInt(distancesSlice[0]),
 				DistanceMilesUpper: getInt(distancesSlice[1]),
 				WeightLbsLower:     getInt(weightsSlice[0]),

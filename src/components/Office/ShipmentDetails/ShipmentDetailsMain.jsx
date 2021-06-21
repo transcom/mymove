@@ -29,7 +29,7 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
         destinationAddress={destinationAddress || destinationDutyStationAddress?.postal_code}
         originDutyStation={originDutyStationAddress}
         destinationDutyStation={destinationDutyStationAddress}
-        shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag }}
+        shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag, shipmentStatus: shipment.status }}
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />

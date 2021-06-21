@@ -1,6 +1,6 @@
 describe('Customer NTS Setup flow', function () {
   // profile2@complete.draft
-  const profileCompleteUser = '3b9360a3-3304-4c60-90f4-83d687884077';
+  const profileCompleteUser = '2194daed-3589-408f-b988-e9889c9f120e';
   // nts@ntsr.unsubmitted
   const ntsUser = '583cfbe1-cb34-4381-9e1f-54f68200da1b';
 
