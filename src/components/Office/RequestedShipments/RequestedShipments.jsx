@@ -38,6 +38,7 @@ const RequestedShipments = ({
     return {
       heading: shipmentTypeLabels[shipment.shipmentType],
       isDiversion: shipment.diversion,
+      shipmentStatus: shipment.status,
       requestedPickupDate: shipment.requestedPickupDate,
       pickupAddress: shipment.pickupAddress,
       secondaryPickupAddress: shipment.secondaryPickupAddress,

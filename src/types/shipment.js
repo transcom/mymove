@@ -5,6 +5,7 @@ import { AddressShape } from './address';
 import { AgentShape } from './agent';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentStatuses } from 'constants/shipments';
 
 export const ShipmentOptionsOneOf = PropTypes.oneOf([
   SHIPMENT_OPTIONS.HHG,
@@ -30,4 +31,15 @@ export const ShipmentShape = PropTypes.shape({
   diversion: PropTypes.bool,
   counselorRemarks: PropTypes.string,
   customerRemarks: PropTypes.string,
+  status: PropTypes.string,
 });
+
+export const ShipmentStatusesOneOf = PropTypes.oneOf([
+  shipmentStatuses.DRAFT,
+  shipmentStatuses.SUBMITTED,
+  shipmentStatuses.APPROVED,
+  shipmentStatuses.CANCELLATION_REQUESTED,
+  shipmentStatuses.DIVERSION_REQUESTED,
+  shipmentStatuses.CANCELED,
+  shipmentStatuses.REJECTED,
+]);
