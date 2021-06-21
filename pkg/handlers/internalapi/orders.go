@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -230,6 +231,42 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+}
+
+// UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
+type UploadAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.OrderUpdater
+}
+
+// Handle updates an order to attach amended orders from a request payload
+func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	orderID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	newOrder, _, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	verrs, err := models.SaveOrder(h.DB(), newOrder)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

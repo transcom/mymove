@@ -2939,6 +2939,47 @@ paths:
           description: order is not found
         '500':
           description: internal server error
+  /orders/{ordersId}/upload_amended_orders:
+    patch:
+      summary: Patch the amended orders for a given order
+      description: Patch the amended orders for a given order
+      operationId: uploadAmendedOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: body
+          name: amendedOrders
+          required: true
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '200':
+          description: the instance of the amended orders
+          schema:
+            $ref: '#/definitions/Orders'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '404':
+          description: order is not found
+        '500':
+          description: internal server error
   /moves/{moveId}:
     patch:
       summary: Patches the move

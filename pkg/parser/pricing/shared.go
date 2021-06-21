@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tealeg/xlsx/v2"
+	"github.com/tealeg/xlsx/v3"
 )
 
 /*************************************************************************************************************/
@@ -27,13 +27,32 @@ type headerInfo struct {
 // Shared Helper functions
 /*************************************************************************/
 
-// A safe way to get a cell from a slice of cells, returning empty string if not found
-func getCell(cells []*xlsx.Cell, i int) string {
-	if len(cells) > i {
-		return cells[i].String()
+// A safe way to get a cell's value (as a string) from a sheet
+func getCell(sheet *xlsx.Sheet, rowIndex, colIndex int) (string, error) {
+	if sheet == nil {
+		return "", fmt.Errorf("sheet is nil")
 	}
 
-	return ""
+	if rowIndex < 0 || rowIndex >= sheet.MaxRow || colIndex < 0 || colIndex >= sheet.MaxCol {
+		return "", fmt.Errorf("cell coordinates are out of bounds")
+	}
+
+	cell, err := sheet.Cell(rowIndex, colIndex)
+	if err != nil {
+		return "", err
+	}
+
+	return cell.String(), nil
+}
+
+// A version of getCell that panics if it can't read the cell's value
+func mustGetCell(sheet *xlsx.Sheet, rowIndex, colIndex int) string {
+	cellString, err := getCell(sheet, rowIndex, colIndex)
+	if err != nil {
+		panic(fmt.Sprintf("getCell: sheet=\"%s\", row=%d, col=%d: %s", sheet.Name, rowIndex, colIndex, err.Error()))
+	}
+
+	return cellString
 }
 
 func getInt(from string) (int, error) {
@@ -66,8 +85,8 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-func verifyHeader(row *xlsx.Row, column int, expectedName string) error {
-	actual := getCell(row.Cells, column)
+func verifyHeader(sheet *xlsx.Sheet, rowIndex, colIndex int, expectedName string) error {
+	actual := mustGetCell(sheet, rowIndex, colIndex)
 	if removeWhiteSpace(expectedName) != removeWhiteSpace(actual) {
 		return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", expectedName, actual)
 	}

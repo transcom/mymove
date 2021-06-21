@@ -92,9 +92,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NotNil(createdShipment)
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 		suite.NotEmpty(createdShipment.PickupAddressID)
-		suite.NotEmpty(createdShipment.SecondaryPickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
-		suite.NotEmpty(createdShipment.SecondaryDeliveryAddressID)
 	})
 
 	suite.T().Run("If the shipment is created successfully with submitted status it should be returned", func(t *testing.T) {
