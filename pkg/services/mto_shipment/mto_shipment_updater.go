@@ -578,10 +578,69 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	return shipment, nil
 }
 
+// isStandardServiceItem checks to see if the given service item code is one of the standard
+// service items. See: https://docs.google.com/spreadsheets/d/1zeS5J2LVd_cyB2TW2rQPu1hHqKSXT-UY7RpUzfvTi0k/edit#gid=637942482
+func isStandardServiceItem(serviceItemCode models.ReServiceCode) bool {
+	standardServiceItemCodes := []models.ReServiceCode{
+		models.ReServiceCodeCS,
+		models.ReServiceCodeDBHF,
+		models.ReServiceCodeDBTF,
+		models.ReServiceCodeDCRTSA,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeDMHF,
+		models.ReServiceCodeDNPKF,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDSH,
+		models.ReServiceCodeDUPK,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeIBHF,
+		models.ReServiceCodeIBTF,
+		models.ReServiceCodeICOLH,
+		models.ReServiceCodeICOUB,
+		models.ReServiceCodeICRT,
+		models.ReServiceCodeICRTSA,
+		models.ReServiceCodeIDASIT,
+		models.ReServiceCodeIDDSIT,
+		models.ReServiceCodeIDFSIT,
+		models.ReServiceCodeIDSHUT,
+		models.ReServiceCodeIHPK,
+		models.ReServiceCodeIHUPK,
+		models.ReServiceCodeINPKF,
+		models.ReServiceCodeIOASIT,
+		models.ReServiceCodeIOCLH,
+		models.ReServiceCodeIOCUB,
+		models.ReServiceCodeIOFSIT,
+		models.ReServiceCodeIOOLH,
+		models.ReServiceCodeIOOUB,
+		models.ReServiceCodeIOPSIT,
+		models.ReServiceCodeIOSHUT,
+		models.ReServiceCodeIUBPK,
+		models.ReServiceCodeIUBUPK,
+		models.ReServiceCodeIUCRT,
+		models.ReServiceCodeMS,
+		models.ReServiceCodeNSTH,
+		models.ReServiceCodeNSTUB,
+	}
+	for _, c := range standardServiceItemCodes {
+		if c == serviceItemCode {
+			return true
+		}
+	}
+	return false
+}
+
 // createShipmentServiceItems creates shipment level service items
 func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(shipment *models.MTOShipment) error {
 	if len(shipment.MTOServiceItems) > 0 {
-		return nil
+		// check if the shipment has a standard service items are standard. If it already does,
+		// don't add them again.
+		for _, si := range shipment.MTOServiceItems {
+			if isStandardServiceItem(si.ReService.Code) {
+				return nil
+			}
+		}
 	}
 	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
