@@ -11,17 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-var basicChecks = []mtoAgentValidator{
-	checkShipmentID(),
-	checkAgentID(),
-}
-
-var primeChecks = append(
-	basicChecks,
-	checkContactInfo(),
-	checkAgentType(),
-)
-
 // checkShipmentID checks that the user didn't attempt to change the agent's Shipment ID
 func checkShipmentID() mtoAgentValidator {
 	return mtoAgentValidatorFunc(func(_ context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, _ *models.MTOShipment) error {

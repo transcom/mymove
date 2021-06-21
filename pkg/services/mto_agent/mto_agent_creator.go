@@ -20,9 +20,18 @@ type mtoAgentCreator struct {
 // NewMTOAgentCreator creates a new struct with the service dependencies
 func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.MoveTaskOrderChecker) services.MTOAgentCreator {
 	return &mtoAgentCreator{
-		db:          db,
-		basicChecks: basicChecks,
-		primeChecks: append(primeChecks, checkPrimeAvailability(mtoAvailabilityChecker)),
+		db: db,
+		basicChecks: []mtoAgentValidator{
+			checkShipmentID(),
+			checkAgentID(),
+		},
+		primeChecks: []mtoAgentValidator{
+			checkShipmentID(),
+			checkAgentID(),
+			checkContactInfo(),
+			checkAgentType(),
+			checkPrimeAvailability(mtoAvailabilityChecker),
+		},
 	}
 }
 
