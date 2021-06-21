@@ -410,7 +410,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			Diversion: true,
 		}
 
-		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&shipmentInput, eTag)
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &shipmentInput, eTag)
 
 		suite.Require().NotNil(updatedShipment)
 		suite.NoError(err)
