@@ -47,11 +47,18 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+var subScenarioShipmentHHGCancelled = "shipment_hhg_cancelled"
+
 // devSeedScenario builds a basic set of data for e2e testing
 type devSeedScenario NamedScenario
 
-// DevSeedScenario Is the thing
-var DevSeedScenario = devSeedScenario{"dev_seed"}
+// DevSeedScenario setup information for the dev seed
+var DevSeedScenario = devSeedScenario{
+	Name: "dev_seed",
+	SubScenarios: []string{
+		subScenarioShipmentHHGCancelled,
+	},
+}
 
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
@@ -3786,8 +3793,43 @@ func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uplo
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
+func runSubScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) {
+	validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
+	// shipment cancelled was approved before
+	approvedDate := time.Now()
+	cancelledShipment := models.MTOShipment{Status: models.MTOShipmentStatusCanceled, ApprovedDate: &approvedDate}
+	affiliationAirForce := models.AffiliationAIRFORCE
+	ordersNumber := "Order1234"
+	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
+	tac := "1234"
+	// make sure to create moves that does not go to US marines affiliation
+	move := createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		Order: models.Order{
+			DepartmentIndicator: (*string)(&affiliationAirForce),
+			OrdersNumber:        &ordersNumber,
+			OrdersTypeDetail:    &ordersTypeDetail,
+			TAC:                 &tac,
+		},
+		Move: models.Move{
+			Locator: "HHGCAN",
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &affiliationAirForce},
+		MTOShipment:   cancelledShipment,
+	})
+	moveManagementUUID := "1130e612-94eb-49a7-973d-72f33685e551"
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		ReService: models.ReService{ID: uuid.FromStringOrNil(moveManagementUUID)},
+		MTOServiceItem: models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedDate,
+		},
+	})
+}
+
 // Run does that data load thing
-func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, routePlanner route.Planner, logger Logger) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
+	routePlanner route.Planner, logger Logger, namedSubScenario string) {
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
 	var allDutyStations []models.DutyStation
 	db.All(&allDutyStations)
@@ -3796,6 +3838,25 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		All(&originDutyStationsInGBLOC)
+
+	/*
+		RUN ONLY SUB SCENARIO SEED DATA
+	*/
+	runOnlySubScenario := namedSubScenario != ""
+
+	if namedSubScenario == subScenarioShipmentHHGCancelled || namedSubScenario == "" {
+		logger.Info("start seeding sub scenario: " + subScenarioShipmentHHGCancelled)
+		runSubScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC)
+		logger.Info("finished seeding sub scenario: " + subScenarioShipmentHHGCancelled)
+
+		if runOnlySubScenario {
+			return
+		}
+	}
+
+	/*
+		RUN ALL THE SEED DATA
+	*/
 
 	// PPM Office Queue
 	createPPMOfficeUser(db)

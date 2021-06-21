@@ -41,7 +41,7 @@ We should not be creating random data in e2ebasic! Tests should be deterministic
 type e2eBasicScenario NamedScenario
 
 // E2eBasicScenario Is the thing
-var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
+var E2eBasicScenario = e2eBasicScenario{Name: "e2e_basic"}
 
 // Often weekends and holidays are not allowable dates
 var cal = dates.NewUSCalendar()

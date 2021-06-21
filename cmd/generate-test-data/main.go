@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -23,26 +24,18 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func stringSliceContains(stringSlice []string, value string) bool {
-	for _, x := range stringSlice {
-		if value == x {
-			return true
-		}
-	}
-	return false
-}
-
 const (
-	scenarioFlag      string = "scenario"
-	namedScenarioFlag string = "named-scenario"
+	scenarioFlag         string = "scenario"
+	namedScenarioFlag    string = "named-scenario"
+	namedSubScenarioFlag string = "named-sub-scenario" // name of the sub scenario in the main scenario
 )
 
 type errInvalidScenario struct {
-	Scenario int
+	Name string
 }
 
 func (e *errInvalidScenario) Error() string {
-	return fmt.Sprintf("invalid scenario %d", e.Scenario)
+	return fmt.Sprintf("invalid scenario: %s", e.Name)
 }
 
 func checkConfig(v *viper.Viper, logger logger) error {
@@ -51,22 +44,41 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	scenario := v.GetInt(scenarioFlag)
 	if scenario < 0 || scenario > 7 {
-		return errors.Wrap(&errInvalidScenario{Scenario: scenario}, fmt.Sprintf("%s is invalid, expected value between 0 and 7 not %d", scenarioFlag, scenario))
+		return errors.Wrap(&errInvalidScenario{Name: strconv.Itoa(scenario)}, fmt.Sprintf("%s is invalid, expected value between 0 and 7 not %d", scenarioFlag, scenario))
 	}
 
-	namedScenarios := []string{
-		tdgs.E2eBasicScenario.Name,
-		tdgs.DevSeedScenario.Name,
-		tdgs.BandwidthScenario.Name,
-	}
 	namedScenario := v.GetString(namedScenarioFlag)
-	if !stringSliceContains(namedScenarios, namedScenario) {
-		return errors.Wrap(&errInvalidScenario{Scenario: scenario}, fmt.Sprintf("%s is invalid, expected a value from %v", namedScenarioFlag, namedScenarios))
-	}
-
-	err := cli.CheckDatabase(v, logger)
+	namedScenarioStruct, err := findNamedScenarioByName(namedScenario)
 	if err != nil {
 		return err
+	}
+
+	// check named sub scenario
+	// optional flag
+	if err = checkConfigNamedSubScenarioFlag(v, namedScenarioStruct); err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkConfigNamedSubScenarioFlag(v *viper.Viper, namedScenarioStruct *tdgs.NamedScenario) error {
+	namedSubScenario := v.GetString(namedSubScenarioFlag)
+	// optional flag, ok if value is empty
+	// ok if there are not any named sub scenarios
+	if namedSubScenario == "" || len(namedScenarioStruct.SubScenarios) == 0 {
+		return nil
+	}
+
+	// continue, check if named sub scenarios matches expectations
+	if !stringSliceContains(namedScenarioStruct.SubScenarios, namedSubScenario) {
+		return errors.Wrap(&errInvalidScenario{Name: namedSubScenario}, fmt.Sprintf("%s is invalid, expected "+
+			"a value from %v or empty value", namedSubScenario, namedScenarioStruct.SubScenarios))
 	}
 
 	return nil
@@ -77,6 +89,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// Scenario config
 	flag.Int(scenarioFlag, 0, "Specify which scenario you'd like to run. Current options: 1, 2, 3, 4, 5, 6, 7.")
 	flag.String(namedScenarioFlag, "", "It's like a scenario, but more descriptive.")
+	flag.String(namedSubScenarioFlag, "", "Specify a named-sub-scenario after specifying a named-scenario. "+
+		"This is meant to run specific seed data setup in the main named-scenario without having to seed everything.")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -89,6 +103,39 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Don't sort flags
 	flag.SortFlags = false
+}
+
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
+}
+
+func findNamedScenarioByName(name string) (*tdgs.NamedScenario, error) {
+	for _, scenario := range namedScenarios {
+		result := scenario
+		if name == scenario.Name {
+			return &result, nil
+		}
+	}
+
+	// to get the list of names
+	var namedScenarioStringList []string
+	for _, namedScenario := range namedScenarios {
+		namedScenarioStringList = append(namedScenarioStringList, namedScenario.Name)
+	}
+
+	return nil, errors.Wrap(&errInvalidScenario{Name: name}, fmt.Sprintf("%s is invalid, expected "+
+		"a value from %v", name, namedScenarioStringList))
+}
+
+var namedScenarios = []tdgs.NamedScenario{
+	tdgs.NamedScenario(tdgs.E2eBasicScenario),
+	tdgs.NamedScenario(tdgs.DevSeedScenario),
+	tdgs.NamedScenario(tdgs.BandwidthScenario),
 }
 
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than
@@ -133,6 +180,7 @@ func main() {
 
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
+	namedSubScenario := v.GetString(namedSubScenarioFlag)
 
 	if scenario == 4 {
 		err = tdgs.RunPPMSITEstimateScenario1(dbConnection)
@@ -206,7 +254,7 @@ func main() {
 				logger.Fatal("Failed to initialize GHC route planner")
 			}
 
-			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger)
+			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger, namedSubScenario)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
 		}
