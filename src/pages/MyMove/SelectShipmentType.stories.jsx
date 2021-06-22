@@ -7,6 +7,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
   title: 'Customer Components / Pages / Select Shipment Type',
+  parameters: { layout: 'fullscreen' },
 };
 
 const noop = () => {};
