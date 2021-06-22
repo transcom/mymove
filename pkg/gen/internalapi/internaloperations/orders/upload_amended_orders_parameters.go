@@ -44,7 +44,7 @@ type UploadAmendedOrdersParams struct {
 	  Required: true
 	  In: body
 	*/
-	AmendedOrders *internalmessages.UploadPayload
+	AmendedOrders *internalmessages.UserUploadPayload
 	/*UUID of the order
 	  Required: true
 	  In: path
@@ -67,7 +67,7 @@ func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body internalmessages.UploadPayload
+		var body internalmessages.UserUploadPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("amendedOrders", "body", ""))

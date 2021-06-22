@@ -96,12 +96,10 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 
 // UploadAmendedOrders add amended order documents to an existing order
 func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
-
-	// TODO in MB-8335 update the etag
-	// existingETag := etag.GenerateEtag(order.UpdatedAt)
-	// if existingETag != eTag {
-	// 	return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
-	// }
+	existingETag := etag.GenerateEtag(orderToUpdate.UpdatedAt)
+	if existingETag != eTag {
+		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
 
 	amendedOrder := amendedOrderFromUserUploadPayload(orderToUpdate, payload)
 
@@ -183,7 +181,24 @@ func amendedOrderFromUserUploadPayload(existingOrder models.Order, payload *inte
 		ServiceMemberID: order.UploadedOrders.ServiceMemberID,
 		CreatedAt:       time.Now(),
 	}
-	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, payload)
+
+	var userUpload models.UserUpload
+	userUpload.ID = uuid.FromStringOrNil(payload.ID.String())
+	userUpload.Document = *order.UploadedAmendedOrders
+	userUpload.DocumentID = order.UploadedAmendedOrdersID
+	userUpload.Upload = models.Upload{
+		ID:          uuid.FromStringOrNil(payload.Upload.ID.String()),
+		Filename:    *payload.Upload.Filename,
+		Bytes:       int64(*payload.Upload.Bytes),
+		ContentType: *payload.Upload.ContentType,
+		CreatedAt:   time.Time(*payload.Upload.CreatedAt),
+		UpdatedAt:   time.Time(*payload.Upload.UpdatedAt),
+	}
+	userUpload.UploadID = uuid.FromStringOrNil(payload.UploadID.String())
+	userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
+	userUpload.CreatedAt = time.Time(*payload.CreatedAt)
+	userUpload.UpdatedAt = time.Time(*payload.UpdatedAt)
+	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, userUpload)
 
 	return order
 }

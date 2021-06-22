@@ -1658,7 +1658,7 @@ definitions:
       - bytes
       - created_at
       - updated_at
-UserUploadPayload:
+  UserUploadPayload:
     type: object
     properties:
       id:
@@ -1671,6 +1671,8 @@ UserUploadPayload:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       document:
         $ref: '#/definitions/DocumentPayload'
+      upload:
+        $ref: '#/definitions/UploadPayload'
       uploader_id:
         type: string
         format: uuid

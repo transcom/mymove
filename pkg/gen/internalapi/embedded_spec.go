@@ -2108,7 +2108,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/UserUploadPayload"
             }
           },
           {
@@ -6405,6 +6405,50 @@ func init() {
         }
       }
     },
+    "UserUploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "document": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "upload": {
+          "$ref": "#/definitions/UploadPayload"
+        },
+        "upload_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "uploader_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "ValidationError": {
       "required": [
         "invalidFields"
@@ -8662,7 +8706,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UploadPayload"
+              "$ref": "#/definitions/UserUploadPayload"
             }
           },
           {
@@ -12980,6 +13024,50 @@ func init() {
           "type": "string",
           "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "UserUploadPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "document": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "document_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "upload": {
+          "$ref": "#/definitions/UploadPayload"
+        },
+        "upload_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "uploader_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
