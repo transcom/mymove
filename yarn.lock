@@ -16808,9 +16808,9 @@ qs@~6.5.2:
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
 query-string@7:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.0.0.tgz#aaad2c8d5c6a6d0c6afada877fecbd56af79e609"
-  integrity sha512-Iy7moLybliR5ZgrK/1R3vjrXq03S13Vz4Rbm5Jg3EFq1LUmQppto0qtXz4vqZ386MSRjZgnTSZ9QC+NZOSd/XA==
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.0.1.tgz#45bd149cf586aaa582dffc7ec7a8ad97dd02f75d"
+  integrity sha512-uIw3iRvHnk9to1blJCG3BTc+Ro56CBowJXKmNNAm3RulvPBzWLRqKSiiDk+IplJhsydwtuNMHi8UGQFcCLVfkA==
   dependencies:
     decode-uri-component "^0.2.0"
     filter-obj "^1.1.0"
@@ -16869,10 +16869,10 @@ queue-microtask@^1.2.2:
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.2.tgz#abf64491e6ecf0f38a6502403d4cda04f372dfd3"
   integrity sha512-dB15eXv3p2jDlbOiNLyMabYg1/sXvppd8DP2J3EOCQ0AkuSXCW2tP7mnVouVLJKgUMY6yP0kcQDVpLCN13h4Xg==
 
-ra-core@^3.16.2:
-  version "3.16.2"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.16.2.tgz#e961b9ac9868164d3813c578e82fce8bee06551f"
-  integrity sha512-akovJTEmWs3+nLALvOveevE5YabOUpTXSTm83HqJAgfl2Z+F+FrqXqr9447D38/p9fmsYJ6BH54GhXDBJtIS3A==
+ra-core@^3.16.2, ra-core@^3.16.3:
+  version "3.16.3"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.16.3.tgz#c9543599e4eb157cbac5ea87b716d523debef2dc"
+  integrity sha512-+8zkdQ+DGEk8an4+zeMW8iZUd95GfHaCH6Gqw6hNpAeMvSrocPBoO2SpcQtMLvK3FAahUisiOLLoE5FoUZqkfQ==
   dependencies:
     classnames "~2.2.5"
     date-fns "^1.29.0"
@@ -16898,12 +16898,12 @@ ra-i18n-polyglot@^3.16.2:
     node-polyglot "^2.2.2"
     ra-core "^3.16.2"
 
-ra-language-english@^3.16.1, ra-language-english@^3.16.2:
-  version "3.16.2"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.16.2.tgz#87db4504ae3b60ca3a2fc98e356d85fcf93ecc88"
-  integrity sha512-f93kQ3+fxmt9oz06LGvGeBmU0zomiMMxtLTF38fci8n7YfpNO16qrkXeAur9mH/jg6N1gD/40prVZsJ3B/pyrA==
+ra-language-english@^3.16.2, ra-language-english@^3.16.3:
+  version "3.16.3"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.16.3.tgz#ef136cf4da33d26dc39e8c3c637e44dee7439545"
+  integrity sha512-dBkAe3aAmm+CK/lhQRYlCBO6qvWPv8hw/mAEi3c75gYrMm/2s7YzWZMPyewJpVRxUGXkZCvQ7RwdVbByija0zg==
   dependencies:
-    ra-core "^3.16.2"
+    ra-core "^3.16.3"
 
 ra-ui-materialui@^3.16.2:
   version "3.16.2"
