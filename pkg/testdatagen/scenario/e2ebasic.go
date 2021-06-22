@@ -41,7 +41,7 @@ We should not be creating random data in e2ebasic! Tests should be deterministic
 type e2eBasicScenario NamedScenario
 
 // E2eBasicScenario Is the thing
-var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
+var E2eBasicScenario = e2eBasicScenario{Name: "e2e_basic"}
 
 // Often weekends and holidays are not allowable dates
 var cal = dates.NewUSCalendar()
@@ -937,6 +937,91 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("eecc3b59-7173-4ddd-b826-6f11f15338d9"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	/*
+	 * ANOTHER service member with an NTS, NTS-R shipment, & unsubmitted move
+	 */
+	email = "nts2@ntsr.unsubmitted"
+	uuidStr = "80da86f3-9dac-4298-8b03-b753b443668e"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithNTSID = "947645ca-06d6-4be9-82fe-3d7bd0a5792d"
+	smWithNTS = testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithNTSID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Unsubmitted"),
+			LastName:      models.StringPointer("Nts&Nts-r"),
+			Edipi:         models.StringPointer("0933240105"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	selectedMoveType = models.SelectedMoveTypeNTS
+	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
+			ServiceMember:   smWithNTS,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
+			Locator:          "NTSR02",
+			SelectedMoveType: &selectedMoveType,
+		},
+	})
+
+	estimatedNTSWeight = unit.Pound(1400)
+	actualNTSWeight = unit.Pound(2000)
+	ntsShipment = testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
+			MTOShipment:   ntsShipment,
+			MTOShipmentID: ntsShipment.ID,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	ntsrShipment = testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("2068f14e-4a04-420e-a7e1-b8a89683bbe8"),
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
 			MTOAgentType:  models.MTOAgentReceiving,
@@ -2355,6 +2440,133 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	email = "nts.test.user@example.com"
+	uuidStr = "2194daed-3589-408f-b988-e9889c9f120e"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7273579005"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
+			Locator: "NTS000",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user1@example.com"
+	uuidStr = "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("2342122439"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
+			Locator: "PPM001",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user2@example.com"
+	uuidStr = "324dec0a-850c-41c8-976b-068e27121b84"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("6213314987"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
+			Locator: "PPM002",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user3@example.com"
+	uuidStr = "f154929c-5f07-41f5-b90c-d90b83d5773d"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7814245500"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
+			Locator: "PPM003",
+		},
+		UserUploader: userUploader,
+	})
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE1ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE2ET")
 	createHHGNeedsServicesCounselingWithLocator(db, "SCE3ET")

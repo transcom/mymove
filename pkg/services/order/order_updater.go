@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -91,6 +92,25 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 
 	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
 
+	return f.updateOrder(orderToUpdate)
+}
+
+// UploadAmendedOrders add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrders(existingOrder models.Order, payload *internalmessages.UploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	orderToUpdate := existingOrder
+	// TODO in MB-8335 when there aren't any uploadedAmendedOrders yet
+	// generate a document ID
+	// if orderToUpdate.UploadedAmendedOrders == nil {
+	// }
+	// TODO in MB-8335 update the etag
+	// existingETag := etag.GenerateEtag(order.UpdatedAt)
+	// if existingETag != eTag {
+	// 	return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	// }
+	fmt.Printf("%v", payload)
+
+	// TODO in MB-8335 attach the incoming documents to the order's UploadedAmendedOrders
+	// order.UploadedAmendedOrders = payload
 	return f.updateOrder(orderToUpdate)
 }
 

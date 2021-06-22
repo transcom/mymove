@@ -17,6 +17,7 @@ export const customerRoutes = {
   BACKUP_CONTACTS_PATH: '/service-member/backup-contact',
   ORDERS_INFO_PATH: '/orders/info',
   ORDERS_UPLOAD_PATH: '/orders/upload',
+  ORDERS_AMEND_PATH: '/orders/amend',
   SHIPMENT_MOVING_INFO_PATH: '/moves/:moveId/moving-info',
   SHIPMENT_SELECT_TYPE_PATH: '/moves/:moveId/shipment-type',
   SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',

@@ -10,6 +10,7 @@
 package mtoshipment
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -158,24 +159,22 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Etag is stale", func(t *testing.T) {
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
+		_, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &mtoShipment, eTag)
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
 		eTag := etag.GenerateEtag(oldMTOShipment.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &mtoShipment, eTag)
 		suite.NoError(err)
 
-		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment.MoveTaskOrder.ID)
 		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
 
-		suite.NotZero(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
+		suite.Equal(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
 
-		suite.NotZero(updatedMTOShipment.SecondaryPickupAddressID, secondaryPickupAddress.ID)
-		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddressID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, &primeActualWeight)
 		suite.True(actualPickupDate.Equal(*updatedMTOShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
@@ -189,10 +188,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Updater can handle optional queries set as nil", func(t *testing.T) {
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&mtoShipment2, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &mtoShipment2, eTag)
 		suite.NoError(err)
 
-		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment2.MoveTaskOrder.ID)
 		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
 		suite.Nil(updatedMTOShipment.PrimeEstimatedWeight)
@@ -217,7 +216,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
 		}
 
-		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipment(updatedShipment, eTag)
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), updatedShipment, eTag)
 		suite.NoError(err)
 		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
 		suite.Equal(newDestinationAddress.StreetAddress1, updatedShipment.DestinationAddress.StreetAddress1)
@@ -271,7 +270,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			CounselorRemarks:                 &counselorRemarks,
 		}
 
-		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
 		suite.NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
@@ -334,7 +333,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			MTOAgents: updatedAgents,
 		}
 
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -378,7 +377,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			MTOAgents: updatedAgents,
 		}
 
-		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
@@ -386,6 +385,44 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(*mtoAgentToCreate.FirstName, *updatedMTOShipment.MTOAgents[1].FirstName)
 		suite.Equal(*mtoAgentToCreate.LastName, *updatedMTOShipment.MTOAgents[1].LastName)
 		suite.Equal(*mtoAgentToCreate.Email, *updatedMTOShipment.MTOAgents[1].Email)
+	})
+
+	suite.T().Run("Successfully divert a shipment and transition statuses", func(t *testing.T) {
+		// A diverted shipment should transition to the SUBMITTED status.
+		// If the move it is connected to is APPROVED, that move should transition to APPROVALS REQUESTED
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrder: move,
+				Status:        models.MTOShipmentStatusApproved,
+				Diversion:     false,
+			},
+		})
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		shipmentInput := models.MTOShipment{
+			ID:        shipment.ID,
+			Diversion: true,
+		}
+
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &shipmentInput, eTag)
+
+		suite.Require().NotNil(updatedShipment)
+		suite.NoError(err)
+		suite.Equal(shipment.ID, updatedShipment.ID)
+		suite.Equal(move.ID, updatedShipment.MoveTaskOrderID)
+		suite.Equal(true, updatedShipment.Diversion)
+		suite.Equal(models.MTOShipmentStatusSubmitted, updatedShipment.Status)
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 }
 
