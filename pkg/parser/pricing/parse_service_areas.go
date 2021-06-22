@@ -22,7 +22,6 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseDomesticServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing domestic service areas")
 	var domServAreas []models.StageDomesticServiceArea
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := serviceAreaRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -57,7 +56,6 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 		return nil, fmt.Errorf("parseInternationalServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing international service areas")
 	var intlServAreas []models.StageInternationalServiceArea
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := serviceAreaRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {

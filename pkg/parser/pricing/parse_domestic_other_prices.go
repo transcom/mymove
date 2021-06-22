@@ -17,8 +17,6 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	logger.Info("Parsing domestic other (pack/unpack) prices")
-
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
@@ -54,8 +52,6 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 	const serviceProvidedColumn int = 3
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
-
-	logger.Info("Parsing domestic other (SIT pickup/delivery) prices")
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)

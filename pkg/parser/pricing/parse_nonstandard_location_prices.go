@@ -28,8 +28,6 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 		return nil, fmt.Errorf("parseNonStandardLocnPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing non-standard location prices")
-
 	var nonStandardLocationPrices []models.StageNonStandardLocnPrice
 
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]

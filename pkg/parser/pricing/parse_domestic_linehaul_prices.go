@@ -24,8 +24,6 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 		return nil, fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing domestic linehaul prices")
-
 	var domPrices []models.StageDomesticLinehaulPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {

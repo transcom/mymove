@@ -20,7 +20,6 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		return nil, fmt.Errorf("parseShipmentManagementServices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing shipment management services prices")
 	var mgmtPrices []models.StageShipmentManagementServicesPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := mgmtRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -54,7 +53,6 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		return nil, fmt.Errorf("parseCounselingServicesPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing counseling services prices")
 	var counPrices []models.StageCounselingServicesPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := counRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -88,7 +86,6 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		return nil, fmt.Errorf("parseTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing transition prices")
 	var tranPrices []models.StageTransitionPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := tranRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {

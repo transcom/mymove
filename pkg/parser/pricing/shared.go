@@ -105,7 +105,7 @@ func (x *XlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time,
 		name = "rate_engine_ghc_parse"
 	}
 
-	if adtlSuffix != nil {
+	if adtlSuffix != nil && *adtlSuffix != "" {
 		name = name + "_" + *adtlSuffix
 	}
 

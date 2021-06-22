@@ -21,7 +21,6 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 		return nil, fmt.Errorf("parseDomesticMoveAccessorialPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing domestic move accessorial prices")
 	var prices []models.StageDomesticMoveAccessorialPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := domAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -56,7 +55,6 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 		return nil, fmt.Errorf("parseInternationalMoveAccessorialPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing international move accessorial prices")
 	var prices []models.StageInternationalMoveAccessorialPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := intlAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -91,7 +89,6 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 		return nil, fmt.Errorf("parseDomesticInternationalAdditionalPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing domestic/international additional prices")
 	var prices []models.StageDomesticInternationalAdditionalPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := additionalPricesRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {

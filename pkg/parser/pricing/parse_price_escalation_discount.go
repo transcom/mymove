@@ -20,7 +20,6 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 		return nil, fmt.Errorf("parsePriceEscalationDiscount expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing price escalation discount")
 	var priceEscalationDiscounts []models.StagePriceEscalationDiscount
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := discountsRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
