@@ -18,6 +18,7 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           checked={checked}
           disabled={disabled}
           labelDescription={cardText}
+          data-testid="selectableCardText"
           tile
         />
         {onHelpClick && (
