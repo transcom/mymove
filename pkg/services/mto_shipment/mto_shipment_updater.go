@@ -242,6 +242,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(ctx context.Context, mtoShip
 		mtoShipment,
 		eTag,
 		checkStatus(),
+		checkAvailToPrime(f.db),
 	)
 }
 
@@ -822,21 +823,14 @@ func (e ConflictStatusError) Error() string {
 	return ""
 }
 
+// MTOShipmentsMTOAvailableToPrime checks if a given shipment is available to the Prime
+// TODO: trend away from using this method, it represents *business logic* and should
+// ideally be done only as an internal check, rather than relying on being invoked
+// by the handler layer
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	var mto models.Move
-
-	err := f.db.Q().
-		Join("mto_shipments", "moves.id = mto_shipments.move_id").
-		Where("available_to_prime_at IS NOT NULL").
-		Where("mto_shipments.id = ?", mtoShipmentID).
-		Where("show = TRUE").
-		First(&mto)
+	err := checkAvailToPrime(f.db).Validate(context.Background(), &models.MTOShipment{ID: mtoShipmentID}, nil)
 	if err != nil {
-		if err.Error() == models.RecordNotFoundErrorString {
-			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
-		}
-		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")
+		return false, err
 	}
-
 	return true, nil
 }

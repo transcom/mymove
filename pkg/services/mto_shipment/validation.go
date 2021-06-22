@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"context"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -50,5 +51,24 @@ func checkStatus() validator {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
 		}
 		return verrs
+	})
+}
+
+func checkAvailToPrime(db *pop.Connection) validator {
+	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		var mto models.Move
+		err := db.Q().
+			Join("mto_shipments", "moves.id = mto_shipments.move_id").
+			Where("available_to_prime_at IS NOT NULL").
+			Where("mto_shipments.id = ?", newer.ID).
+			Where("show = TRUE").
+			First(&mto)
+		if err != nil {
+			if err.Error() == models.RecordNotFoundErrorString {
+				return services.NewNotFoundError(newer.ID, "for mtoShipment")
+			}
+			return services.NewQueryError("mtoShipments", err, "Unexpected error")
+		}
+		return nil
 	})
 }
