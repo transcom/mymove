@@ -33,7 +33,15 @@ func NewFetchMTOUpdates(ctx *middleware.Context, handler FetchMTOUpdatesHandler)
 
 fetchMTOUpdates
 
-Gets all move task orders where `availableToPrimeAt` has been set. This prevents viewing any move task orders that have not been made available to the Prime.
+Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
+list down to only the moves that have been updated since the provided timestamp. A move will be considered
+updated if the `updatedAt` timestamp on the move is later than the provided date and time.
+
+**WIP**: The original goal was to also look at the `updateAt` timestamps of the nested objects - such as the
+shipments, service items, etc. This has not been implemented.
+
+**WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrime` timestamp has been
+set, that move will always appear in this list.
 
 
 */

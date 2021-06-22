@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import NTSShipmentCard from './index';
 
@@ -32,6 +33,15 @@ const defaultProps = {
 function mountNTSShipmentCard(props) {
   return mount(<NTSShipmentCard {...defaultProps} {...props} />);
 }
+
+const secondaryPickupAddress = {
+  secondaryPickupAddress: {
+    street_address_1: 'Some Other Street Name',
+    city: 'New York',
+    state: 'NY',
+    postal_code: '111111',
+  },
+};
 
 describe('NTSShipmentCard component', () => {
   it('renders component with all fields', () => {
@@ -66,5 +76,21 @@ describe('NTSShipmentCard component', () => {
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
     expect(wrapper.find('.remarksCell').length).toBe(0);
+  });
+
+  it('should not render a secondary pickup location if not provided one', async () => {
+    render(<NTSShipmentCard {...defaultProps} />);
+
+    const secondPickupLocation = await screen.queryByText('Second pickup location');
+    expect(secondPickupLocation).not.toBeInTheDocument();
+  });
+
+  it('should render a secondary pickup location if provided one', async () => {
+    render(<NTSShipmentCard {...defaultProps} {...secondaryPickupAddress} />);
+
+    const secondPickupLocation = await screen.getByText('Second pickup location');
+    expect(secondPickupLocation).toBeInTheDocument();
+    const secondPickupLocationInformation = await screen.getByText(/Some Other Street Name/);
+    expect(secondPickupLocationInformation).toBeInTheDocument();
   });
 });

@@ -2086,6 +2086,64 @@ func init() {
         }
       }
     },
+    "/orders/{ordersId}/upload_amended_orders": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "ordersId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "amendedOrders",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadPayload"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the amended orders",
+            "schema": {
+              "$ref": "#/definitions/Orders"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "order is not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
       "get": {
         "description": "Calculates and returns an expense summary organized by expense type",
@@ -3732,6 +3790,9 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -4988,6 +5049,9 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "uploaded_amended_orders": {
+          "$ref": "#/definitions/DocumentPayload"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
@@ -6262,7 +6326,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -6275,6 +6338,9 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
@@ -8574,6 +8640,64 @@ func init() {
         }
       }
     },
+    "/orders/{ordersId}/upload_amended_orders": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
+        "tags": [
+          "orders"
+        ],
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "ordersId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "amendedOrders",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UploadPayload"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the amended orders",
+            "schema": {
+              "$ref": "#/definitions/Orders"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "order is not found"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
       "get": {
         "description": "Calculates and returns an expense summary organized by expense type",
@@ -10222,6 +10346,9 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -11493,6 +11620,9 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "uploaded_amended_orders": {
+          "$ref": "#/definitions/DocumentPayload"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
@@ -12774,7 +12904,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -12787,6 +12916,9 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"

@@ -116,7 +116,7 @@
       @include u-border-bottom('base-lighter');
     }
 
-    .noborder {
+    .noBorder {
       @include u-border(0);
     }
   }

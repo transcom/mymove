@@ -11,10 +11,10 @@ import { mtoShipmentTypes } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import { MTOShipmentShape, OrdersInfoShape } from 'types/order';
-import { formatAddress } from 'utils/shipmentDisplay';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -72,45 +72,16 @@ const ShipmentApprovalPreview = ({
                       {shipment.diversion && <Tag>diversion</Tag>}
                     </div>
                     <div className={styles.shipmentDetailWrapper}>
-                      <table className={classNames('table--stacked', styles.shipmentInfo)}>
-                        <tbody>
-                          <tr>
-                            <th scope="row">Requested Move Date</th>
-                            <td>{shipment.requestedPickupDate}</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">Origin Address</th>
-                            <td>{shipment.pickupAddress && formatAddress(shipment.pickupAddress)}</td>
-                          </tr>
-                          <tr>
-                            <th scope="row">Destination Address</th>
-                            <td data-testid="destinationAddress">
-                              {shipment.destinationAddress
-                                ? formatAddress(shipment.destinationAddress)
-                                : ordersInfo.newDutyStation.address.postal_code}
-                            </td>
-                          </tr>
-                          <tr>
-                            <th scope="row">Customer Remarks</th>
-                            <td>{shipment.customerRemarks}</td>
-                          </tr>
-                          {shipment.mtoAgents &&
-                            shipment.mtoAgents.map((agent) => (
-                              <Fragment key={`${agent.type}-${agent.email}`}>
-                                <tr>
-                                  <th className="text-bold" scope="row">
-                                    {agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}
-                                  </th>
-                                  <td>
-                                    {agent.firstName} {agent.lastName}
-                                    <br />
-                                    {agent.phone} <br /> {agent.email}
-                                  </td>
-                                </tr>
-                              </Fragment>
-                            ))}
-                        </tbody>
-                      </table>
+                      <ShipmentInfoList
+                        className={styles.shipmentInfo}
+                        shipment={{
+                          ...shipment,
+                          destinationAddress: shipment.destinationAddress
+                            ? shipment.destinationAddress
+                            : { postal_code: ordersInfo.newDutyStation.address.postal_code },
+                          agents: shipment.mtoAgents,
+                        }}
+                      />
                       <ShipmentServiceItemsTable
                         className={classNames(styles.shipmentServiceItems)}
                         shipmentType={shipment.shipmentType}

@@ -22,13 +22,13 @@ var parsePriceEscalationDiscount processXlsxSheet = func(params ParamConfig, she
 
 	logger.Info("Parsing price escalation discount")
 	var priceEscalationDiscounts []models.StagePriceEscalationDiscount
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := discountsRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		priceEscalationDiscount := models.StagePriceEscalationDiscount{
-			ContractYear:          getCell(row.Cells, contractYearColumn),
-			ForecastingAdjustment: getCell(row.Cells, forecastingAdjustmentColumn),
-			Discount:              getCell(row.Cells, discountColumn),
-			PriceEscalation:       getCell(row.Cells, priceEscalationColumn),
+			ContractYear:          mustGetCell(sheet, rowIndex, contractYearColumn),
+			ForecastingAdjustment: mustGetCell(sheet, rowIndex, forecastingAdjustmentColumn),
+			Discount:              mustGetCell(sheet, rowIndex, discountColumn),
+			PriceEscalation:       mustGetCell(sheet, rowIndex, priceEscalationColumn),
 		}
 
 		if priceEscalationDiscount.ContractYear == "" {
@@ -57,7 +57,8 @@ var verifyPriceEscalationDiscount verifyXlsxSheet = func(params ParamConfig, she
 	}
 
 	// Check names on header row
-	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart-2] // header 2 rows above data
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	headerRowIndex := discountsRowIndexStart - 2
 	headers := []headerInfo{
 		{"Contract Year", contractYearColumn},
 		{"Government-set IHS Markit Pricing and Purchasing Industry Forecasting Adjustment", forecastingAdjustmentColumn},
@@ -65,12 +66,12 @@ var verifyPriceEscalationDiscount verifyXlsxSheet = func(params ParamConfig, she
 		{"Resulting Price Escalation", priceEscalationColumn},
 	}
 	for _, header := range headers {
-		if err := verifyHeader(headerRow, header.column, header.headerName); err != nil {
+		if err := verifyHeader(sheet, headerRowIndex, header.column, header.headerName); err != nil {
 			return err
 		}
 	}
 
 	// Check name on example row
-	exampleRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart-1] // example 1 row above data
-	return verifyHeader(exampleRow, contractYearColumn, "EXAMPLE")
+	exampleRowIndex := discountsRowIndexStart - 1 // example 1 row above data
+	return verifyHeader(sheet, exampleRowIndex, contractYearColumn, "EXAMPLE")
 }

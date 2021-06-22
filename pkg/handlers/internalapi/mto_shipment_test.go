@@ -40,6 +40,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	secondaryPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
 
 	destinationAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
+	secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
@@ -97,6 +98,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: destinationAddress.StreetAddress2,
 				StreetAddress3: destinationAddress.StreetAddress3,
 			},
+			SecondaryDeliveryAddress: &internalmessages.Address{
+				City:           &secondaryDeliveryAddress.City,
+				Country:        secondaryDeliveryAddress.Country,
+				PostalCode:     &secondaryDeliveryAddress.PostalCode,
+				State:          &secondaryDeliveryAddress.State,
+				StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
+				StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
+				StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
+			},
 			RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
 			RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
 			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
@@ -122,6 +132,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), createdShipment.RequestedPickupDate.String())
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
@@ -280,6 +291,9 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
+	secondaryDeliveryAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
+
 	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
 		FirstName: mtoAgent.FirstName,
@@ -307,6 +321,15 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 			StreetAddress1: &destinationAddress.StreetAddress1,
 			StreetAddress2: destinationAddress.StreetAddress2,
 			StreetAddress3: destinationAddress.StreetAddress3,
+		},
+		SecondaryDeliveryAddress: &internalmessages.Address{
+			City:           &secondaryDeliveryAddress.City,
+			Country:        secondaryDeliveryAddress.Country,
+			PostalCode:     &secondaryDeliveryAddress.PostalCode,
+			State:          &secondaryDeliveryAddress.State,
+			StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
+			StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
+			StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
 		},
 		PickupAddress: &internalmessages.Address{
 			City:           &pickupAddress.City,
@@ -371,6 +394,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *updatedShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *updatedShipment.SecondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 
@@ -571,7 +595,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateMTOShipment",
+		mockUpdater.On("UpdateMTOShipmentCustomer",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)
@@ -629,13 +654,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:                   models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:      &requestedPickupDate,
-			PickupAddress:            &pickupAddress,
-			SecondaryPickupAddress:   &secondaryPickupAddress,
-			DestinationAddress:       &deliveryAddress,
-			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &requestedPickupDate,
 		},
+		PickupAddress:            pickupAddress,
+		SecondaryPickupAddress:   secondaryPickupAddress,
+		DestinationAddress:       deliveryAddress,
+		SecondaryDeliveryAddress: secondaryDeliveryAddress,
 	})
 
 	shipments := models.MTOShipments{mtoShipment, mtoShipment2}
@@ -687,12 +712,14 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.PickupAddress.State, *returnedShipment.PickupAddress.State)
 			suite.Equal(expectedShipment.PickupAddress.PostalCode, *returnedShipment.PickupAddress.PostalCode)
 
-			suite.Equal(expectedShipment.SecondaryPickupAddress.StreetAddress1, *returnedShipment.SecondaryPickupAddress.StreetAddress1)
-			suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress2, *returnedShipment.SecondaryPickupAddress.StreetAddress2)
-			suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress3, *returnedShipment.SecondaryPickupAddress.StreetAddress3)
-			suite.Equal(expectedShipment.SecondaryPickupAddress.City, *returnedShipment.SecondaryPickupAddress.City)
-			suite.Equal(expectedShipment.SecondaryPickupAddress.State, *returnedShipment.SecondaryPickupAddress.State)
-			suite.Equal(expectedShipment.SecondaryPickupAddress.PostalCode, *returnedShipment.SecondaryPickupAddress.PostalCode)
+			if expectedShipment.SecondaryPickupAddress != nil {
+				suite.Equal(expectedShipment.SecondaryPickupAddress.StreetAddress1, *returnedShipment.SecondaryPickupAddress.StreetAddress1)
+				suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress2, *returnedShipment.SecondaryPickupAddress.StreetAddress2)
+				suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress3, *returnedShipment.SecondaryPickupAddress.StreetAddress3)
+				suite.Equal(expectedShipment.SecondaryPickupAddress.City, *returnedShipment.SecondaryPickupAddress.City)
+				suite.Equal(expectedShipment.SecondaryPickupAddress.State, *returnedShipment.SecondaryPickupAddress.State)
+				suite.Equal(expectedShipment.SecondaryPickupAddress.PostalCode, *returnedShipment.SecondaryPickupAddress.PostalCode)
+			}
 
 			suite.Equal(expectedShipment.DestinationAddress.StreetAddress1, *returnedShipment.DestinationAddress.StreetAddress1)
 			suite.Equal(*expectedShipment.DestinationAddress.StreetAddress2, *returnedShipment.DestinationAddress.StreetAddress2)
@@ -701,12 +728,14 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.DestinationAddress.State, *returnedShipment.DestinationAddress.State)
 			suite.Equal(expectedShipment.DestinationAddress.PostalCode, *returnedShipment.DestinationAddress.PostalCode)
 
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
-			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
-			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
+			if expectedShipment.SecondaryDeliveryAddress != nil {
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
+				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
+				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
+			}
 		}
 	})
 

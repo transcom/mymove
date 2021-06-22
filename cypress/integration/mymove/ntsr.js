@@ -2,7 +2,7 @@ describe('Customer NTSr Setup flow', function () {
   // profile@co.mple.te
   const profileCompleteUser = '99360a51-8cfa-4e25-ae57-24e66077305f';
   // nts@ntsr.unsubmitted
-  const ntsUser = '583cfbe1-cb34-4381-9e1f-54f68200da1b';
+  const ntsUser = '80da86f3-9dac-4298-8b03-b753b443668e';
 
   before(() => {
     cy.prepareCustomerApp();
@@ -71,7 +71,7 @@ function customerEditsNTSRShipmentFromReviewPage() {
 }
 
 function customerVisitsReviewPage() {
-  cy.get('button[data-testid="review-and-submit-btn"]').contains('Review and submit').click();
+  cy.get('button[data-testid="review-and-submit-btn"]').click();
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 }
 

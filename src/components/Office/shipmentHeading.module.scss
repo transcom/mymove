@@ -6,17 +6,23 @@
   .shipmentHeadingType {
     @include u-display(flex);
     @include u-padding-top(2);
-    align-items: flex-start;
+    @include u-margin-bottom(1);
+    align-items: center;
 
     h2 {
-      @include u-margin-top(0);
-      @include u-margin-bottom(1);
+      @include u-margin-y(0);
     }
 
     :global(.usa-tag) {
       @include u-font-size('body', 3xs);
       @include u-margin-left(1);
       background-color: $info-light;
+    }
+
+    :global(.usa-tag--red) {
+      @include u-font-size('body', 3xs);
+      @include u-margin-left(1);
+      background-color: $error-light;
     }
   }
 

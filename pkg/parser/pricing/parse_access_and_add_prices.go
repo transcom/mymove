@@ -3,7 +3,7 @@ package pricing
 import (
 	"fmt"
 
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -23,12 +23,12 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 
 	logger.Info("Parsing domestic move accessorial prices")
 	var prices []models.StageDomesticMoveAccessorialPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[domAccessorialRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := domAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageDomesticMoveAccessorialPrice{
-			ServicesSchedule: getCell(row.Cells, firstColumnIndexStart),
-			ServiceProvided:  getCell(row.Cells, secondColumnIndexStart),
-			PricePerUnit:     getCell(row.Cells, thirdColumnIndexStart),
+			ServicesSchedule: mustGetCell(sheet, rowIndex, firstColumnIndexStart),
+			ServiceProvided:  mustGetCell(sheet, rowIndex, secondColumnIndexStart),
+			PricePerUnit:     mustGetCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -58,12 +58,12 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 
 	logger.Info("Parsing international move accessorial prices")
 	var prices []models.StageInternationalMoveAccessorialPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[intlAccessorialRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := intlAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageInternationalMoveAccessorialPrice{
-			Market:          getCell(row.Cells, firstColumnIndexStart),
-			ServiceProvided: getCell(row.Cells, secondColumnIndexStart),
-			PricePerUnit:    getCell(row.Cells, thirdColumnIndexStart),
+			Market:          mustGetCell(sheet, rowIndex, firstColumnIndexStart),
+			ServiceProvided: mustGetCell(sheet, rowIndex, secondColumnIndexStart),
+			PricePerUnit:    mustGetCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -93,12 +93,12 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 
 	logger.Info("Parsing domestic/international additional prices")
 	var prices []models.StageDomesticInternationalAdditionalPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[additionalPricesRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := additionalPricesRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		price := models.StageDomesticInternationalAdditionalPrice{
-			Market:       getCell(row.Cells, firstColumnIndexStart),
-			ShipmentType: getCell(row.Cells, secondColumnIndexStart),
-			Factor:       getCell(row.Cells, thirdColumnIndexStart),
+			Market:       mustGetCell(sheet, rowIndex, firstColumnIndexStart),
+			ShipmentType: mustGetCell(sheet, rowIndex, secondColumnIndexStart),
+			Factor:       mustGetCell(sheet, rowIndex, thirdColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -125,53 +125,49 @@ var verifyAccessAndAddPrices verifyXlsxSheet = func(params ParamConfig, sheetInd
 		return fmt.Errorf("verifyAccessAndAddPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[domAccessorialRowIndexStart-2 : domAccessorialRowIndexStart-1]
-	err := helperCheckHeadersFor5a("Services Schedule", "Service Provided", "PricePerUnitofMeasure", dataRows)
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+
+	err := helperCheckHeadersFor5a("Services Schedule", "Service Provided", "PricePerUnitofMeasure", sheet, domAccessorialRowIndexStart-2, domAccessorialRowIndexStart-1)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[domAccessorialRowIndexStart-1 : domAccessorialRowIndexStart]
-	err = helperCheckHeadersFor5a("X", "EXAMPLE (per unit of measure)", "$X.XX", dataRows)
+	err = helperCheckHeadersFor5a("X", "EXAMPLE (per unit of measure)", "$X.XX", sheet, domAccessorialRowIndexStart-1, domAccessorialRowIndexStart)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[intlAccessorialRowIndexStart-2 : intlAccessorialRowIndexStart-1]
-	err = helperCheckHeadersFor5a("Market", "Service Provided", "PricePerUnitofMeasure", dataRows)
+	err = helperCheckHeadersFor5a("Market", "Service Provided", "PricePerUnitofMeasure", sheet, intlAccessorialRowIndexStart-2, intlAccessorialRowIndexStart-1)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[intlAccessorialRowIndexStart-1 : intlAccessorialRowIndexStart]
-	err = helperCheckHeadersFor5a("X", "EXAMPLE (per unit of measure)", "$X.XX", dataRows)
+	err = helperCheckHeadersFor5a("X", "EXAMPLE (per unit of measure)", "$X.XX", sheet, intlAccessorialRowIndexStart-1, intlAccessorialRowIndexStart)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[additionalPricesRowIndexStart-2 : additionalPricesRowIndexStart-1]
-	err = helperCheckHeadersFor5a("Market", "Shipment Type", "Factor", dataRows)
+	err = helperCheckHeadersFor5a("Market", "Shipment Type", "Factor", sheet, additionalPricesRowIndexStart-2, additionalPricesRowIndexStart-1)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[additionalPricesRowIndexStart-1 : additionalPricesRowIndexStart]
-	return helperCheckHeadersFor5a("CONUS / OCONUS", "EXAMPLE", "X.XX", dataRows)
+	return helperCheckHeadersFor5a("CONUS / OCONUS", "EXAMPLE", "X.XX", sheet, additionalPricesRowIndexStart-1, additionalPricesRowIndexStart)
 }
 
-func helperCheckHeadersFor5a(firstHeader string, secondHeader string, thirdHeader string, dataRows []*xlsx.Row) error {
+func helperCheckHeadersFor5a(firstHeader string, secondHeader string, thirdHeader string, sheet *xlsx.Sheet, dataRowsIndexBegin, dataRowsIndexEnd int) error {
 	const firstColumnIndexStart = 2
 	const secondColumnIndexStart = 3
 	const thirdColumnIndexStart = 4
 
-	for _, dataRow := range dataRows {
-		if header := getCell(dataRow.Cells, firstColumnIndexStart); header != firstHeader {
+	for rowIndex := dataRowsIndexBegin; rowIndex < dataRowsIndexEnd; rowIndex++ {
+		if header := mustGetCell(sheet, rowIndex, firstColumnIndexStart); header != firstHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", firstHeader, header)
 		}
-		if header := getCell(dataRow.Cells, secondColumnIndexStart); header != secondHeader {
+		if header := mustGetCell(sheet, rowIndex, secondColumnIndexStart); header != secondHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", secondHeader, header)
 		}
-		if header := removeWhiteSpace(getCell(dataRow.Cells, thirdColumnIndexStart)); header != thirdHeader {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, thirdColumnIndexStart)); header != thirdHeader {
 			return fmt.Errorf("verifyAccessAndAddPrices expected to find header '%s', but received header '%s'", thirdHeader, header)
 		}
 	}

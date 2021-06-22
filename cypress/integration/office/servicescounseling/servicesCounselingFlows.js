@@ -8,7 +8,7 @@ describe('Services counselor user', () => {
   beforeEach(() => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
     cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc').as('getSortedMoves');
-    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=SCE2ET').as(
+    cy.intercept('**/ghc/v1/queues/counseling?page=1&perPage=20&sort=submittedAt&order=asc&locator=SCE4ET').as(
       'getFilterSortedMoves',
     );
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
@@ -24,7 +24,7 @@ describe('Services counselor user', () => {
   });
 
   it('is able to click on move and submit after using the move code filter', () => {
-    const moveLocator = 'SCE2ET';
+    const moveLocator = 'SCE4ET';
 
     /**
      * SC Moves queue

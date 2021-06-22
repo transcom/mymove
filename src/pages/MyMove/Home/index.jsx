@@ -250,6 +250,7 @@ export class Home extends Component {
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
 
     return (
@@ -279,24 +280,44 @@ export class Home extends Component {
                     step="1"
                     onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
                   >
-                    <Description>Make sure to keep your personal information up to date during your move</Description>
+                    <Description>Make sure to keep your personal information up to date during your move.</Description>
                   </Step>
-                  <Step
-                    complete={this.hasOrders}
-                    completedHeaderText="Orders uploaded"
-                    editBtnLabel={this.hasOrders && !this.hasSubmittedMove ? 'Edit' : ''}
-                    onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
-                    headerText="Upload orders"
-                    actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
-                    onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
-                    step="2"
-                  >
-                    {this.hasOrders ? (
-                      <DocsUploaded files={uploadedOrderDocuments} />
-                    ) : (
-                      <Description>Upload photos of each page, or upload a PDF.</Description>
-                    )}
-                  </Step>
+                  {!this.hasSubmittedMove && (
+                    <Step
+                      complete={this.hasOrders}
+                      completedHeaderText="Orders uploaded"
+                      editBtnLabel={this.hasOrders ? 'Edit' : ''}
+                      onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                      headerText="Upload orders"
+                      actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
+                      onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
+                      step="2"
+                    >
+                      {this.hasOrders && !this.hasSubmittedMove ? (
+                        <DocsUploaded files={uploadedOrderDocuments} />
+                      ) : (
+                        <Description>Upload photos of each page, or upload a PDF.</Description>
+                      )}
+                    </Step>
+                  )}
+                  {this.hasSubmittedMove && this.hasOrders && (
+                    <Step
+                      complete={this.hasOrders && this.hasSubmittedMove}
+                      completedHeaderText="Orders"
+                      editBtnLabel="Upload documents"
+                      onEditBtnClick={() => this.handleNewPathClick(ordersAmendPath)}
+                      headerText="Orders"
+                      step="2"
+                      containerClassName="step-amended-orders"
+                    >
+                      <p>If you receive amended orders:</p>
+                      <ul>
+                        <li>Upload the new documents here</li>
+                        <li>Talk directly with your movers about changes</li>
+                        <li>The transportation office will update your move info to reflect the new orders</li>
+                      </ul>
+                    </Step>
+                  )}
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
                     actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}

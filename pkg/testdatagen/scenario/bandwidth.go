@@ -26,7 +26,7 @@ import (
 type bandwidthScenario NamedScenario
 
 // BandwidthScenario is the thing
-var BandwidthScenario = bandwidthScenario{"bandwidth"}
+var BandwidthScenario = bandwidthScenario{Name: "bandwidth"}
 
 func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	filterFile := &[]string{"150Kb.png"}

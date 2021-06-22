@@ -75,12 +75,8 @@
 }
 
 .shipmentInfo {
-  width: 60%;
-
-  th {
-    @include u-font-weight(bold);
-    color: $base-darker;
-  }
+  @include u-border-top('1px');
+  @include u-border-top('base-lighter');
 }
 
 .shipmentServiceItems {
