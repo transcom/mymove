@@ -10,6 +10,8 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"github.com/pterm/pterm"
+	"github.com/pterm/pterm/putils"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -155,8 +157,9 @@ func main() {
 }
 
 func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
-	logger.Info("XLSX to stage table parsing complete. Summary follows:")
-	logger.Info("====")
+	pterm.Println()
+	pterm.DefaultHeader.WithFullWidth().WithBackgroundStyle(pterm.NewStyle(pterm.BgBlue)).Println("XLSX to stage table parsing complete. Summary follows.")
+	pterm.Println()
 
 	models := []struct {
 		header        string
@@ -182,10 +185,7 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 		{"5b: Price Escalation Discount", models.StagePriceEscalationDiscount{}},
 	}
 
-	for index, model := range models {
-		if index != 0 {
-			logger.Info("----")
-		}
+	for _, model := range models {
 		err := summarizeModel(db, logger, model.header, model.modelInstance, nil)
 		if err != nil {
 			return err
@@ -196,8 +196,9 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 }
 
 func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
-	logger.Info("Stage table import into rate engine tables complete. Summary follows:")
-	logger.Info("====")
+	pterm.Println()
+	pterm.DefaultHeader.WithFullWidth().WithBackgroundStyle(pterm.NewStyle(pterm.BgBlue)).Println("Stage table import into rate engine tables complete. Summary follows.")
+	pterm.Println()
 
 	models := []struct {
 		header        string
@@ -276,10 +277,7 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 		},
 	}
 
-	for index, model := range models {
-		if index != 0 {
-			logger.Info("----")
-		}
+	for _, model := range models {
 		err := summarizeModel(db, logger, model.header, model.modelInstance, model.filter)
 		if err != nil {
 			return err
@@ -316,14 +314,13 @@ func summarizeModel(db *pop.Connection, logger logger, header string, modelInsta
 
 	modelSlice = modelPtrSlice.Elem()
 
-	headerMsg := fmt.Sprintf("%s (%s)", header, modelName)
-	logger.Info(headerMsg, zap.Int("row count", length))
-	if length > 0 {
-		logger.Info("first:", zap.Any(modelName, modelSlice.Index(0).Interface()))
+	pterm.DefaultHeader.WithMargin(2).Println(fmt.Sprintf("%s (%s)", header, modelName))
+	baseTable := pterm.DefaultTable.WithHasHeader()
+	err = putils.TableFromStructSlice(*baseTable, modelSlice.Interface()).Render()
+	if err != nil {
+		return err
 	}
-	if length > 1 {
-		logger.Info("second:", zap.Any(modelName, modelSlice.Index(1).Interface()))
-	}
+	pterm.Printf(pterm.Gray("(representative rows above; " + pterm.Green(length) + " rows total)\n\n"))
 
 	return nil
 }
