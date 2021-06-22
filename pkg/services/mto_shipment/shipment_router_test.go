@@ -268,7 +268,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 		desc   string
 		status models.MTOShipmentStatus
 	}{
-		{"Approved", models.MTOShipmentStatusDiversionRequested},
+		{"Approved", models.MTOShipmentStatusSubmitted},
 	}
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
@@ -289,7 +289,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 		{"CANCELLATION_REQUESTED", models.MTOShipmentStatusCancellationRequested},
 		{"Rejected", models.MTOShipmentStatusRejected},
 		{"Diversion Requested", models.MTOShipmentStatusApproved},
-		{"Submitted", models.MTOShipmentStatusSubmitted},
+		{"Submitted", models.MTOShipmentStatusDiversionRequested},
 		{"Draft", models.MTOShipmentStatusDraft},
 	}
 	for _, invalidStatus := range invalidStatuses {

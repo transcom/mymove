@@ -136,7 +136,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
@@ -159,9 +159,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   });
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID: moveTaskOrder.id,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.DIVERSION_REQUESTED,
+      operationPath: 'shipment.requestShipmentDiversion',
       ifMatchETag: eTag,
       onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
     });
@@ -169,9 +168,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
+      operationPath: 'shipment.requestShipmentCancellation',
       ifMatchETag: eTag,
       onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
     });

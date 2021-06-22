@@ -297,6 +297,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 		DeletedAt:                handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
+		ApprovedDate:             handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -309,10 +310,6 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
 		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
-	}
-
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {

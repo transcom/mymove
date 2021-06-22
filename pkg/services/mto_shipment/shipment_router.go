@@ -129,12 +129,13 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 
 // ApproveDiversion is called when the TOO is approving a shipment that the Prime has marked as being diverted.
 func (router shipmentRouter) ApproveDiversion(shipment *models.MTOShipment) error {
-	if shipment.Status != models.MTOShipmentStatusDiversionRequested {
+	// TODO: check that diversion field is set to true and possibly return a separate error message
+	if shipment.Status != models.MTOShipmentStatusSubmitted {
 		return ConflictStatusError{
 			id:                        shipment.ID,
 			transitionFromStatus:      shipment.Status,
 			transitionToStatus:        models.MTOShipmentStatusApproved,
-			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusDiversionRequested},
+			transitionAllowedStatuses: &[]models.MTOShipmentStatus{models.MTOShipmentStatusSubmitted},
 		}
 	}
 	shipment.Status = models.MTOShipmentStatusApproved
