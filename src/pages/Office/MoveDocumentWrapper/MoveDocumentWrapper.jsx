@@ -25,7 +25,7 @@ const MoveDocumentWrapper = () => {
     exact: true,
   });
 
-  const documentsForViewer = Object.values(upload);
+  const documentsForViewer = Object.values(upload).concat(Object.values(amendedUpload || {}));
 
   return (
     <div className={ordersStyles.Orders}>

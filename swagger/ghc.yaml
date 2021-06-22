@@ -2187,6 +2187,10 @@ definitions:
         format: uuid
         type: string
         x-nullable: true
+      amendedOrdersAcknowledgedAt:
+        type: string
+        format: date-time
+        x-nullable: true
       order_number:
         type: string
         x-nullable: true
@@ -2305,6 +2309,10 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
+      ordersAcknowledgement:
+        description: Confirmation that the new amended orders were reviewed after previously approving the original orders
+        type: boolean
         x-nullable: true
     required:
       - issueDate

@@ -20,6 +20,10 @@ type Order struct {
 	// agency
 	Agency Branch `json:"agency,omitempty"`
 
+	// amended orders acknowledged at
+	// Format: date-time
+	AmendedOrdersAcknowledgedAt *strfmt.DateTime `json:"amendedOrdersAcknowledgedAt,omitempty"`
+
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 
@@ -110,6 +114,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAmendedOrdersAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCustomer(formats); err != nil {
 		res = append(res, err)
 	}
@@ -186,6 +194,19 @@ func (m *Order) validateAgency(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agency")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) validateAmendedOrdersAcknowledgedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AmendedOrdersAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("amendedOrdersAcknowledgedAt", "body", "date-time", m.AmendedOrdersAcknowledgedAt.String(), formats); err != nil {
 		return err
 	}
 

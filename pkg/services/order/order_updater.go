@@ -174,6 +174,12 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 
 	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
 
+	// if the order has amended order documents and it has not been previously acknowledged record the current timestamp
+	if payload.OrdersAcknowledgement != nil && *payload.OrdersAcknowledgement && existingOrder.UploadedAmendedOrdersID != nil && existingOrder.AmendedOrdersAcknowledgedAt == nil {
+		acknowledgedAt := time.Now()
+		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
+	}
+
 	return order
 }
 

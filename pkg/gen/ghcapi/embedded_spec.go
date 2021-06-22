@@ -3621,6 +3621,11 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
+        "amendedOrdersAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -4373,6 +4378,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersAcknowledgement": {
+          "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
+          "type": "boolean",
+          "x-nullable": true
         },
         "ordersNumber": {
           "type": "string",
@@ -8830,6 +8840,11 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
+        "amendedOrdersAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -9585,6 +9600,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersAcknowledgement": {
+          "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
+          "type": "boolean",
+          "x-nullable": true
         },
         "ordersNumber": {
           "type": "string",
