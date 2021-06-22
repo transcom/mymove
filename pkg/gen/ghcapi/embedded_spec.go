@@ -3716,6 +3716,12 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "uploadedAmendedOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "uploaded_order_id": {
           "type": "string",
           "format": "uuid",
@@ -8918,6 +8924,12 @@ func init() {
           "title": "TAC",
           "x-nullable": true,
           "example": "F8J1"
+        },
+        "uploadedAmendedOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_order_id": {
           "type": "string",

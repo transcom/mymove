@@ -111,6 +111,45 @@ func makeOrdersForServiceMember(serviceMember models.ServiceMember, db *pop.Conn
 	return orders
 }
 
+func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *uploader.UserUploader, fileNames *[]string) models.Order {
+	document := testdatagen.MakeDocument(db, testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: order.ServiceMemberID,
+			ServiceMember:   order.ServiceMember,
+		},
+	})
+
+	// Creates order upload documents from the files in this directory:
+	// pkg/testdatagen/testdata/bandwidth_test_docs
+
+	files := filesInBandwidthTestDirectory(fileNames)
+
+	for _, file := range files {
+		filePath := fmt.Sprintf("bandwidth_test_docs/%s", file)
+		fixture := testdatagen.Fixture(filePath)
+
+		upload := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
+			File: fixture,
+			UserUpload: models.UserUpload{
+				UploaderID: order.ServiceMember.UserID,
+				DocumentID: &document.ID,
+				Document:   document,
+			},
+			UserUploader: userUploader,
+		})
+		document.UserUploads = append(document.UserUploads, upload)
+	}
+
+	order.UploadedAmendedOrders = &document
+	order.UploadedAmendedOrdersID = &document.ID
+	saveErr := db.Save(&order)
+	if saveErr != nil {
+		log.Panic("error saving amended orders upload to orders")
+	}
+
+	return order
+}
+
 func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string) models.Move {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{

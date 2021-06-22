@@ -163,6 +163,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 		Tac:                    handlers.FmtStringPtr(order.TAC),
 		Sac:                    handlers.FmtStringPtr(order.SAC),
 		UploadedOrderID:        strfmt.UUID(order.UploadedOrdersID.String()),
+		UploadedAmendedOrderID: handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
 		MoveCode:               moveCode,
 	}
 

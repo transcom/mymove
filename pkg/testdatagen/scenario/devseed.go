@@ -3793,6 +3793,17 @@ func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uplo
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
+func createHHGMoveWithAmendedOrders(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"2mb.png", "150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	move := makeMoveForOrders(orders, db, "AMDORD")
+	shipment := makeShipmentForMove(move, db)
+	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
 func runSubScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) {
 	validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
 	// shipment cancelled was approved before
@@ -3964,4 +3975,5 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createMoveWithUniqueDestinationAddress(db)
 	// Creates a move that has multiple orders uploaded
 	createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
+	createHHGMoveWithAmendedOrders(db, userUploader, primeUploader)
 }
