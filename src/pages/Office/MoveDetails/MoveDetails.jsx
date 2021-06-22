@@ -133,6 +133,8 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    uploadedAmendedOrderID: order.uploadedAmendedOrderID,
+    amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
     sacSDN: order.sac,
   };
@@ -165,6 +167,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   };
 
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
+  const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
 
   return (
     <div className={styles.tabContent}>
@@ -178,6 +181,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                   <Tag className="usa-tag usa-tag--alert">
                     <FontAwesomeIcon icon="exclamation" />
                   </Tag>
+                )}
+                {s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders && (
+                  <Tag className={styles.tag}>NEW</Tag>
                 )}
                 {s === 'requested-shipments' && (
                   <Tag className={styles.tag} data-testid="requestedShipmentsTag">
@@ -225,6 +231,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
           <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
+              tag={hasAmendedOrders ? 'NEW' : ''}
               editButton={
                 <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="orders">
                   Edit orders
