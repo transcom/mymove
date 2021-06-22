@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -96,21 +95,16 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 }
 
 // UploadAmendedOrders add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrders(existingOrder models.Order, payload *internalmessages.UploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	orderToUpdate := existingOrder
-	// TODO in MB-8335 when there aren't any uploadedAmendedOrders yet
-	// generate a document ID
-	// if orderToUpdate.UploadedAmendedOrders == nil {
-	// }
+func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
+
 	// TODO in MB-8335 update the etag
 	// existingETag := etag.GenerateEtag(order.UpdatedAt)
 	// if existingETag != eTag {
 	// 	return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	// }
-	fmt.Printf("%v", payload)
 
-	// TODO in MB-8335 attach the incoming documents to the order's UploadedAmendedOrders
-	// order.UploadedAmendedOrders = payload
+	amendedOrder := amendedOrderFromUserUploadPayload(orderToUpdate, payload)
+
 	return f.updateOrder(orderToUpdate)
 }
 
@@ -173,6 +167,23 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	}
 
 	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+
+	return order
+}
+
+func amendedOrderFromUserUploadPayload(existingOrder models.Order, payload *internalmessages.UserUploadPayload) models.Order {
+	order := existingOrder
+
+	if order.UploadedAmendedOrdersID == nil {
+		amendedOrdersID := uuid.Must(uuid.NewV4())
+		order.UploadedAmendedOrdersID = &amendedOrdersID
+	}
+
+	order.UploadedAmendedOrders = &models.Document{
+		ServiceMemberID: order.UploadedOrders.ServiceMemberID,
+		CreatedAt:       time.Now(),
+	}
+	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, payload)
 
 	return order
 }
