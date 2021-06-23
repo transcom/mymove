@@ -2,9 +2,6 @@
 
 **User Story:** *[ticket/issue-number]* <!-- optional -->
 
-*[context and problem statement]*
-*[decision drivers | forces]* <!-- optional -->
-
 ## Problem Statement
 
 MilMove does not have a consistent documentation strategy. Currently, all of the following resources are being used to
@@ -54,7 +51,8 @@ This choice hits all of our main requirements, namely:
 
 * Documentation updates have oversight and a well-defined review process.
 * It is well-organized and searchable.
-* It integrates well with other tools and resources, most importantly our API docs.
+* It integrates well with other tools and resources, most importantly our API docs. The `openapi`/Redocly CLI tools also
+  use React as a base.
 * It can be hosted, branded, and made easily accessible to external clients.
 
 We will, however, need to decide on a specific framework. Some good options are
