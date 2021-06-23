@@ -32,8 +32,8 @@ func createHHGMove150Kb(db *pop.Connection, userUploader *uploader.UserUploader,
 	filterFile := &[]string{"150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "S150KB")
-	shipment := makeShipmentForMove(move, db)
+	move := makeMoveForOrders(orders, db, "S150KB", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("68034aa3-831c-4d2d-9fd4-b66bc0cc5130"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
@@ -42,8 +42,8 @@ func createHHGMove2mb(db *pop.Connection, userUploader *uploader.UserUploader, p
 	filterFile := &[]string{"2mb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MED2MB")
-	shipment := makeShipmentForMove(move, db)
+	move := makeMoveForOrders(orders, db, "MED2MB", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("4de88d57-9723-446b-904c-cf8d0a834687"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
@@ -52,8 +52,8 @@ func createHHGMove25mb(db *pop.Connection, userUploader *uploader.UserUploader, 
 	filterFile := &[]string{"25mb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "LG25MB")
-	shipment := makeShipmentForMove(move, db)
+	move := makeMoveForOrders(orders, db, "LG25MB", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
@@ -150,11 +150,11 @@ func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *upl
 	return order
 }
 
-func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string) models.Move {
+func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string, moveStatus models.MoveStatus) models.Move {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:           models.MoveStatusSUBMITTED,
+			Status:           moveStatus,
 			OrdersID:         orders.ID,
 			Orders:           orders,
 			SelectedMoveType: &hhgMoveType,
@@ -165,7 +165,7 @@ func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string)
 	return move
 }
 
-func makeShipmentForMove(move models.Move, db *pop.Connection) models.MTOShipment {
+func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
@@ -174,7 +174,7 @@ func makeShipmentForMove(move models.Move, db *pop.Connection) models.MTOShipmen
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
-			Status:               models.MTOShipmentStatusSubmitted,
+			Status:               shipmentStatus,
 		},
 		Move: move,
 	})

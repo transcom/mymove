@@ -3787,8 +3787,8 @@ func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uplo
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MULTOR")
-	shipment := makeShipmentForMove(move, db)
+	move := makeMoveForOrders(orders, db, "MULTOR", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
@@ -3798,8 +3798,8 @@ func createHHGMoveWithAmendedOrders(db *pop.Connection, userUploader *uploader.U
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
 	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
-	move := makeMoveForOrders(orders, db, "AMDORD")
-	shipment := makeShipmentForMove(move, db)
+	move := makeMoveForOrders(orders, db, "AMDORD", models.MoveStatusAPPROVALSREQUESTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
