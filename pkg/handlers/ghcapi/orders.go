@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -75,6 +77,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParam
 type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
+	moveUpdater  services.MoveTaskOrderUpdater
 }
 
 // Handle ... updates an order from a request payload
@@ -108,6 +111,20 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	}
 
 	h.triggerUpdateOrderEvent(orderID, moveID, params)
+
+	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
+	if params.Body.OrdersAcknowledgement != nil && *params.Body.OrdersAcknowledgement && updatedOrder.UploadedAmendedOrdersID != nil {
+		moveRouter := move.NewMoveRouter(h.DB(), logger)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(*updatedOrder)
+		if approveErr != nil {
+			return handleError(approveErr)
+		}
+
+		updateErr := h.moveUpdater.UpdateApprovedAmendedOrders(approvedMove)
+		if updateErr != nil {
+			handleError(updateErr)
+		}
+	}
 
 	orderPayload := payloads.Order(updatedOrder)
 

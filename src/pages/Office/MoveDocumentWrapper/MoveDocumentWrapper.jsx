@@ -14,7 +14,6 @@ const MoveDocumentWrapper = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
 
-  // eslint-disable-next-line no-unused-vars
   const { upload, amendedUpload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
   if (isLoading) return <LoadingPlaceholder />;

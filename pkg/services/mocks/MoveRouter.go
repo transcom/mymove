@@ -28,6 +28,27 @@ func (_m *MoveRouter) Approve(move *models.Move) error {
 	return r0
 }
 
+// ApproveAmendedOrders provides a mock function with given fields: order
+func (_m *MoveRouter) ApproveAmendedOrders(order models.Order) (models.Move, error) {
+	ret := _m.Called(order)
+
+	var r0 models.Move
+	if rf, ok := ret.Get(0).(func(models.Order) models.Move); ok {
+		r0 = rf(order)
+	} else {
+		r0 = ret.Get(0).(models.Move)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(models.Order) error); ok {
+		r1 = rf(order)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Cancel provides a mock function with given fields: reason, move
 func (_m *MoveRouter) Cancel(reason string, move *models.Move) error {
 	ret := _m.Called(reason, move)
