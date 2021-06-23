@@ -8,7 +8,7 @@ const defaultSort = { field: 'name', order: 'ASC' };
 const OfficeFilter = (props) => (
   // eslint-disable-next-line react/jsx-props-no-spreading
   <Filter {...props}>
-    <TextInput label="Search by Office Id" source="search" resettable alwaysOn />
+    <TextInput label="Search by Office Name" source="q" resettable alwaysOn />
   </Filter>
 );
 
