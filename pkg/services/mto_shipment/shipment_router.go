@@ -129,7 +129,13 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 
 // ApproveDiversion is called when the TOO is approving a shipment that the Prime has marked as being diverted.
 func (router shipmentRouter) ApproveDiversion(shipment *models.MTOShipment) error {
-	// TODO: check that diversion field is set to true and possibly return a separate error message
+	if !shipment.Diversion {
+		return services.NewConflictError(
+			shipment.ID,
+			fmt.Sprintf("Cannot approve the diversion because the shipment with id %s has the Diversion field set to false.", shipment.ID),
+		)
+	}
+
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
 		return ConflictStatusError{
 			id:                        shipment.ID,

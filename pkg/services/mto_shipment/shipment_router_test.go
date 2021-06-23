@@ -264,6 +264,14 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
 	shipmentRouter := NewShipmentRouter(suite.DB())
 
+	suite.Run("fails when the Diversion field is false", func() {
+		err := shipmentRouter.ApproveDiversion(&shipment)
+
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Contains(err.Error(), "Cannot approve the diversion")
+	})
+
 	validStatuses := []struct {
 		desc   string
 		status models.MTOShipmentStatus
@@ -273,6 +281,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	for _, validStatus := range validStatuses {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
+			shipment.Diversion = true
 
 			err := shipmentRouter.ApproveDiversion(&shipment)
 
@@ -295,6 +304,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	for _, invalidStatus := range invalidStatuses {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
+			shipment.Diversion = true
 
 			err := shipmentRouter.ApproveDiversion(&shipment)
 

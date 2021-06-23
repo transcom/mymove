@@ -94,18 +94,15 @@ const RequestedShipments = ({
         // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
         Promise.all(
           filteredShipments.map((shipment) => {
+            let operationPath = 'shipment.approveShipment';
+
             if (shipment.approvedDate) {
-              return approveMTOShipment({
-                shipmentID: shipment.id,
-                operationPath: 'shipment.approveShipmentDiversion',
-                ifMatchETag: shipment.eTag,
-                normalize: false,
-              });
+              operationPath = 'shipment.approveShipmentDiversion';
             }
 
             return approveMTOShipment({
               shipmentID: shipment.id,
-              operationPath: 'shipment.approveShipment',
+              operationPath,
               ifMatchETag: shipment.eTag,
               normalize: false,
             });

@@ -3860,8 +3860,8 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 		MTOShipment: models.MTOShipment{
-			Diversion: true,
-			Status: models.MTOShipmentStatusApproved,
+			Diversion:    true,
+			Status:       models.MTOShipmentStatusApproved,
 			ApprovedDate: swag.Time(time.Now()),
 		},
 	})
