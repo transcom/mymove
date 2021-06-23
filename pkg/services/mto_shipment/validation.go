@@ -28,9 +28,6 @@ func validateShipment(ctx context.Context, newer *models.MTOShipment, older *mod
 			case *validate.Errors:
 				// accumulate validation errors
 				verrs.Append(e)
-				// if true {
-				// 	return err
-				// }
 			default:
 				// non-validation errors have priority,
 				// and short-circuit doing any further checks
