@@ -31,6 +31,8 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+
 	ghcAPI.ServeError = handlers.ServeCustomError
 
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
@@ -93,9 +95,11 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		order.NewOrderUpdater(context.DB()),
 	}
+
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
 		context,
 		order.NewOrderUpdater(context.DB()),
+		moveTaskOrderUpdater,
 	}
 	ghcAPI.OrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
@@ -110,12 +114,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler = UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{

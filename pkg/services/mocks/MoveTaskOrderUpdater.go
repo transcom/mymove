@@ -62,6 +62,20 @@ func (_m *MoveTaskOrderUpdater) ShowHide(moveTaskOrderID uuid.UUID, show *bool) 
 	return r0, r1
 }
 
+// UpdateApprovedAmendedOrders provides a mock function with given fields: move
+func (_m *MoveTaskOrderUpdater) UpdateApprovedAmendedOrders(move models.Move) error {
+	ret := _m.Called(move)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(models.Move) error); ok {
+		r0 = rf(move)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdatePostCounselingInfo provides a mock function with given fields: moveTaskOrderID, body, eTag
 func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID, body, eTag)
