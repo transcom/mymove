@@ -1,69 +1,48 @@
 import React from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import bytes from 'bytes';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { UPLOAD_SCAN_STATUS } from 'shared/constants';
+import styles from './UploadsTable.module.scss';
+
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const UploadsTable = ({ uploads, onDelete }) => {
-  const getUploadUrl = (upload) => {
-    switch (upload.status) {
-      case UPLOAD_SCAN_STATUS.INFECTED:
-        return (
-          <>
-            <Link to="/infected-upload" className="usa-link">
-              {upload.filename}
-            </Link>
-          </>
-        );
-      case UPLOAD_SCAN_STATUS.PROCESSING:
-        return (
-          <>
-            <Link to="/processing-upload" className="usa-link">
-              {upload.filename}
-            </Link>
-          </>
-        );
-      default:
-        return (
-          <>
-            <a href={upload.url} target="_blank" rel="noopener noreferrer" className="usa-link">
-              {upload.filename}
-            </a>
-          </>
-        );
+  const getIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+      return 'file-pdf';
     }
+    return 'file-image';
   };
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Uploaded</th>
-          <th>Size</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
+    <SectionWrapper className={classNames(styles.wrapper)}>
+      <h6>{uploads.length} Files Uploaded</h6>
+      <ul>
         {uploads.map((upload) => (
-          <tr key={upload.id} className="vertical-align text-top">
-            <td className="maxw-card" style={{ overflowWrap: 'break-word', wordWrap: 'break-word' }}>
-              {getUploadUrl(upload)}
-            </td>
-            <td>{moment(upload.created_at).format('LLL')}</td>
-            <td>{bytes(upload.bytes)}</td>
-            <td>
-              <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
-                Delete
-              </Button>
-            </td>
-          </tr>
+          <li className={classNames(styles.uploadListItem)} key={upload.id}>
+            <div style={{ display: 'flex' }}>
+              <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={classNames(styles.faIcon)} />
+              <div className={classNames(styles.fileInfo)}>
+                <p>{upload.filename}</p>
+                <p className={classNames(styles.uploadFileSize)}>
+                  <small>{bytes(upload.bytes)}</small>
+                </p>
+                <p className={classNames(styles.uploadCreatedTime)}>
+                  <small>{moment(upload.created_at).format('DD MMM YYYY h:mm A')}</small>
+                </p>
+              </div>
+            </div>
+            <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
+              Delete
+            </Button>
+          </li>
         ))}
-      </tbody>
-    </table>
+      </ul>
+    </SectionWrapper>
   );
 };
 

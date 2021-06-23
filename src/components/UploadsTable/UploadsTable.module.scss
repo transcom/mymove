@@ -1,0 +1,70 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+@import '../../shared/styles/_variables';
+
+// should probably rename this
+.wrapper {
+  @include u-padding(3);
+  // section wrapper has its border disappear on mobile,
+  // this doesn't match our design, but idk maybe we want it?
+  border: 1px solid #dcdee0;
+}
+
+// is it better to style by html tag or to define my own classes?
+h6 {
+  @include u-margin(0);
+}
+
+ul {
+  @include u-padding-left(0);
+  @include u-margin-top(1);
+  @include u-margin-bottom(0);
+}
+
+.uploadListItem {
+  @include u-padding-y(2);
+  display: flex;
+  justify-content: space-between;
+
+  &:last-child {
+    @include u-padding-bottom(0);
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #dcdee0;
+  }
+
+  .faIcon {
+    // FontAwesomeIcon component can take color as a prop,
+    // is that better than doing it here?
+    //if so, how do i get this value into js?
+    color: $base;
+  }
+}
+
+.fileInfo {
+  @include u-padding-left(2);
+  p {
+    margin-top: 0;
+  }
+  p small {
+    color: $base;
+    display: inline;
+  }
+}
+
+.uploadCreatedTime {
+  display: inline;
+}
+
+.uploadFileSize {
+  display: none;
+}
+
+@media (min-width: $tablet) {
+  .uploadFileSize {
+    display: inline;
+    @include u-margin-right(2);
+  }
+}
