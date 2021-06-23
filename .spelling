@@ -677,3 +677,11 @@ sortBy
 SauceLabs
 Screener.io
 prepending
+ - docs/adr/0062-organizing-technical-docs.md
+quo
+searchable
+Redocly
+Next.js
+Docusaurus
+adhoc
+uneditable

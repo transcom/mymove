@@ -1,7 +1,5 @@
 # Organizing and Hosting MilMove Technical Docs
 
-**User Story:** *[ticket/issue-number]* <!-- optional -->
-
 ## Problem Statement
 
 MilMove does not have a consistent documentation strategy. Currently, all of the following resources are being used to
