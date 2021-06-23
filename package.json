@@ -144,7 +144,7 @@
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
     "happo-plugin-storybook": "^2.9.0",
-    "happo.io": "^6.6.1",
+    "happo.io": "^6.7.0",
     "markdown-spellcheck": "^1.3.1",
     "mime-types": "^2.1.31",
     "mockdate": "^3.0.5",
