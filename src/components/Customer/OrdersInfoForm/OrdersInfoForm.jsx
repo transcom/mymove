@@ -51,10 +51,10 @@ const OrdersInfoForm = ({ currentStation, ordersTypeOptions, initialValues, onSu
                 required
                 renderInput={(input) => (
                   <>
+                    {input}
                     <Hint>
                       <p>Date your orders were issued.</p>
                     </Hint>
-                    {input}
                   </>
                 )}
               />
