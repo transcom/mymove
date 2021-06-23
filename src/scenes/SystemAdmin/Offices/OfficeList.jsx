@@ -1,11 +1,25 @@
 import React from 'react';
-import { List, Datagrid, TextField } from 'react-admin';
+import { List, Datagrid, TextField, Filter, TextInput } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const defaultSort = { field: 'name', order: 'ASC' };
 
+const OfficeFilter = (props) => (
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  <Filter {...props}>
+    <TextInput label="Search by Office Id" source="search" resettable alwaysOn />
+  </Filter>
+);
+
 const OfficeList = (props) => (
-  <List {...props} pagination={<AdminPagination />} perPage={25} sort={defaultSort}>
+  <List
+    /* eslint-disable-next-line react/jsx-props-no-spreading */
+    {...props}
+    filters={<OfficeFilter />}
+    pagination={<AdminPagination />}
+    perPage={25}
+    sort={defaultSort}
+  >
     <Datagrid>
       <TextField source="id" />
       <TextField source="name" />
