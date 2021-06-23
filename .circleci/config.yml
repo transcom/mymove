@@ -504,6 +504,18 @@ commands:
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
       - run:
+          name: make db_test_truncate for <<parameters.application>>
+          command: make db_test_truncate
+          environment:
+            APPLICATION: '<< parameters.application >>'
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+      - run:
           name: make server_test_standalone for <<parameters.application>>
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
