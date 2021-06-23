@@ -93,7 +93,7 @@ function customerVisitsReviewPage() {
 }
 
 function customerCreatesAnNTSShipment() {
-  cy.get('[data-testid="shipment-selection-btn"]').contains('Plan your shipments').click();
+  cy.get('[data-testid="shipment-selection-btn"]').contains('Set up your shipments').click();
   cy.nextPage();
   cy.get('input[type="radio"]').eq(2).check({ force: true });
   cy.nextPage();

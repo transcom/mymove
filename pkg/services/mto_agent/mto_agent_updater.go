@@ -1,42 +1,53 @@
 package mtoagent
 
 import (
+	"context"
 	"fmt"
-
-	mtoagentvalidate "github.com/transcom/mymove/pkg/services/mto_agent/validate"
 
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 // mtoAgentUpdater handles the db connection
 type mtoAgentUpdater struct {
-	db *pop.Connection
+	db          *pop.Connection
+	basicChecks []mtoAgentValidator
+	primeChecks []mtoAgentValidator
 }
 
 // NewMTOAgentUpdater creates a new struct with the service dependencies
-func NewMTOAgentUpdater(db *pop.Connection) services.MTOAgentUpdater {
+func NewMTOAgentUpdater(db *pop.Connection, mtoChecker services.MoveTaskOrderChecker) services.MTOAgentUpdater {
 	return &mtoAgentUpdater{
 		db: db,
+		basicChecks: []mtoAgentValidator{
+			checkShipmentID(),
+			checkAgentID(),
+		},
+		primeChecks: []mtoAgentValidator{
+			checkShipmentID(),
+			checkAgentID(),
+			checkContactInfo(),
+			checkAgentType(),
+			checkPrimeAvailability(mtoChecker),
+		},
 	}
 }
 
 // UpdateMTOAgentBasic updates the MTO Agent using base validators
 func (f *mtoAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, mtoagentvalidate.BasicAgentValidatorKey)
+	return f.updateMTOAgent(mtoAgent, eTag, f.basicChecks...)
 }
 
 // UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
 func (f *mtoAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, mtoagentvalidate.PrimeAgentValidatorKey)
+	return f.updateMTOAgent(mtoAgent, eTag, f.primeChecks...)
 }
 
 // UpdateMTOAgent updates the MTO Agent
-func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string, validatorKey string) (*models.MTOAgent, error) {
+func (f *mtoAgentUpdater) updateMTOAgent(mtoAgent *models.MTOAgent, eTag string, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
 	oldAgent := models.MTOAgent{}
 
 	// Find the agent, return error if not found
@@ -45,13 +56,11 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		return nil, services.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
-	agentData := mtoagentvalidate.NewUpdateAgentValidationData(
-		*mtoAgent, &oldAgent, &oldAgent.MTOShipment, movetaskorder.NewMoveTaskOrderChecker(f.db),
-	)
-	newAgent, err := mtoagentvalidate.ValidateAgent(&agentData, validatorKey)
+	err = validateMTOAgent(context.TODO(), *mtoAgent, &oldAgent, &oldAgent.MTOShipment, checks...)
 	if err != nil {
 		return nil, err
 	}
+	newAgent := mergeAgent(*mtoAgent, &oldAgent)
 
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldAgent.UpdatedAt)

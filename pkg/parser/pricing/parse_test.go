@@ -14,22 +14,15 @@ import (
 	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type PricingParserSuite struct {
 	testingsuite.PopTestSuite
-	logger                *zap.Logger
-	tableFromSliceCreator services.TableFromSliceCreator
-	xlsxFilename          string
-	xlsxFile              *xlsx.File
-}
-
-func (suite *PricingParserSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
+	logger       *zap.Logger
+	xlsxFilename string
+	xlsxFile     *xlsx.File
 }
 
 func TestPricingParserSuite(t *testing.T) {
@@ -39,12 +32,10 @@ func TestPricingParserSuite(t *testing.T) {
 	}
 
 	hs := &PricingParserSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
 	}
-
-	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true, false)
 
 	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
 	if err != nil {
@@ -110,7 +101,7 @@ func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename()
 		},
 	}
 	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
+		suite.Run(tt.name, func() {
 			x := &XlsxDataSheetInfo{
 				Description: tt.fields.description,
 				ProcessMethods: []xlsxProcessInfo{{
@@ -121,9 +112,8 @@ func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename()
 				verify:         tt.fields.verify,
 				outputFilename: tt.fields.outputFilename,
 			}
-			if got := x.generateOutputFilename(tt.args.index, tt.args.runTime, tt.adtlSuffix); got != tt.want {
-				t.Errorf("xlsxDataSheetInfo.generateOutputFilename() = %v, want %v", got, tt.want)
-			}
+			got := x.generateOutputFilename(tt.args.index, tt.args.runTime, tt.adtlSuffix)
+			suite.Equal(got, tt.want, "xlsxDataSheetInfo.generateOutputFilename()")
 		})
 	}
 }
@@ -289,10 +279,12 @@ func (suite *PricingParserSuite) Test_process() {
 		},
 	}
 	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator, suite.logger); (err != nil) != tt.wantErr {
-				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
-			}
+		suite.Run(tt.name, func() {
+			tableFromSliceCreator := dbtools.NewTableFromSliceCreator(suite.DB(), suite.logger, true, false)
+
+			err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex,
+				tableFromSliceCreator, suite.logger)
+			suite.Equal(err != nil, tt.wantErr, "process() err %v", err)
 		})
 	}
 }
@@ -341,7 +333,7 @@ func (suite *PricingParserSuite) Test_getInt() {
 		},
 	}
 	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
+		suite.Run(tt.name, func() {
 			got, gotErr := getInt(tt.args.from)
 			suite.Equal(tt.want, got)
 			if tt.hasError {
@@ -386,10 +378,9 @@ func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
 		},
 	}
 	for _, tt := range tests {
-		suite.T().Run(tt.name, func(t *testing.T) {
-			if got := removeFirstDollarSign(tt.args.s); got != tt.want {
-				t.Errorf("removeFirstDollarSign() = %v, want %v", got, tt.want)
-			}
+		suite.Run(tt.name, func() {
+			got := removeFirstDollarSign(tt.args.s)
+			suite.Equal(got, tt.want, "removeFirstDollarSign")
 		})
 	}
 }
