@@ -30,6 +30,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	hierarchicalLevelCodeExpected string = "9"
+)
+
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger       Logger
@@ -244,6 +248,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
+	ediPrint, ediPrintErr := result.EDIString(suite.logger)
+	suite.NoError(ediPrintErr)
+	fmt.Println(ediPrint)
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
 	suite.T().Run("the GCN is equal to the ICN", func(t *testing.T) {
@@ -427,7 +434,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
-		suite.Equal(destPhoneLines[0], per.CommunicationNumber)
+		g := ghcPaymentRequestInvoiceGenerator{}
+		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
+		suite.NoError(phoneExpectedErr)
+		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
 
 	suite.T().Run("adds orders origin address", func(t *testing.T) {
@@ -472,7 +482,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
-		suite.Equal(originPhoneLines[0], per.CommunicationNumber)
+		g := ghcPaymentRequestInvoiceGenerator{}
+		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
+		suite.NoError(phoneExpectedErr)
+		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
 
 	for idx, paymentServiceItem := range paymentServiceItems {
@@ -483,7 +496,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.T().Run("adds hl service item segment", func(t *testing.T) {
 			hl := result.ServiceItems[segmentOffset].HL
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
-			suite.Equal("I", hl.HierarchicalLevelCode)
+			suite.Equal(hierarchicalLevelCodeExpected, hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {

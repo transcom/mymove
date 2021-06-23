@@ -87,7 +87,9 @@ SE*12345*ABCDE
 GE*1*9999
 IEA*1*000009999
 `, ediString)
+		fmt.Println(ediString)
 	})
+
 }
 
 func (suite *InvoiceSuite) TestValidate() {
