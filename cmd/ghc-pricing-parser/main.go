@@ -123,13 +123,18 @@ func main() {
 	}
 
 	// Open the spreadsheet
-	logger.Info("Importing file", zap.String("XlsxFilename", params.XlsxFilename))
+	printDivider("Loading")
+	// TODO: Check error
+	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
+		spinner.Fail()
 		logger.Fatal("Failed to open file", zap.String("XlsxFilename", params.XlsxFilename), zap.Error(err))
 	}
+	spinner.Success()
 
 	// Now kick off the parsing
+	printDivider("Parsing")
 	err = pricing.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
 		logger.Fatal("Failed to parse pricing template", zap.Error(err))
@@ -140,6 +145,7 @@ func main() {
 
 	// If the parsing was successful, run GHC Rate Engine importer
 	if params.RunImport {
+		printDivider("Importing")
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
 			Logger:            logger,
 			ContractCode:      params.ContractCode,
@@ -157,9 +163,7 @@ func main() {
 }
 
 func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
-	pterm.Println()
-	pterm.DefaultHeader.WithFullWidth().WithBackgroundStyle(pterm.NewStyle(pterm.BgBlue)).Println("XLSX to stage table parsing complete. Summary follows.")
-	pterm.Println()
+	printDivider("XLSX to stage table parsing complete; summary follows")
 
 	models := []struct {
 		header        string
@@ -196,9 +200,7 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 }
 
 func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
-	pterm.Println()
-	pterm.DefaultHeader.WithFullWidth().WithBackgroundStyle(pterm.NewStyle(pterm.BgBlue)).Println("Stage table import into rate engine tables complete. Summary follows.")
-	pterm.Println()
+	printDivider("Stage table import into rate engine tables complete; summary follows")
 
 	models := []struct {
 		header        string
@@ -346,4 +348,10 @@ func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
 	message += "NOTE: This option disables the Rate Engine table import by disabling the --re-import flag\n"
 
 	return message
+}
+
+func printDivider(contents string) {
+	pterm.Println()
+	pterm.DefaultHeader.WithFullWidth().WithBackgroundStyle(pterm.NewStyle(pterm.BgBlue)).Println(contents)
+	pterm.Println()
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
+	"github.com/pterm/pterm"
 	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
@@ -399,7 +400,8 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	if xlsxInfo.Description != nil {
 		description = *xlsxInfo.Description
 	}
-	logger.Info(fmt.Sprintf("Processing sheet index %d: %s", sheetIndex, description))
+
+	pterm.Println(pterm.BgGray.Sprint(fmt.Sprintf("Processing sheet index %d: %s", sheetIndex, description)))
 
 	// Call verify function
 	if params.RunVerify {
@@ -425,24 +427,30 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 				if p.description != nil {
 					processDescription = *p.description
 				}
-				logger.Info(fmt.Sprintf("    Processing section: %s", processDescription))
+				// TODO: Check error
+				spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
 
 				callFunc := *p.process
 				slice, err := callFunc(params, sheetIndex, logger)
 				if err != nil {
+					spinner.Fail()
 					logger.Error("process error", zap.String("description", description), zap.Error(err))
-					return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+					return errors.Wrapf(err, "process error for sheet index: %d with description: %s", sheetIndex, description)
 				}
 
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
 					if err := createCSV(filename, slice, logger); err != nil {
+						spinner.Fail()
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
 					}
 				}
 				if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
+					spinner.Fail()
 					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
 				}
+
+				spinner.Success()
 			} else {
 				logger.Info("No process function", zap.Int("sheet index", sheetIndex), zap.String("description", description), zap.Int("method index", methodIndex))
 			}
@@ -451,8 +459,6 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 		logger.Fatal("Missing process function", zap.Int("sheet index", sheetIndex), zap.String("description", description))
 	}
 
-	// Verification and Process completed
-	logger.Info(fmt.Sprintf("Completed sheet index %d: %s", sheetIndex, description))
 	return nil
 }
 

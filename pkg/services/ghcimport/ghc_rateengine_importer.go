@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"github.com/pterm/pterm"
 )
 
 // GHCRateEngineImporter is the rate engine importer for GHC
@@ -24,97 +25,131 @@ type GHCRateEngineImporter struct {
 }
 
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
+	// TODO: Check error from spinner calls
+	// TODO: Can we wrap these functions somehow to abstract the spinner part?
+
 	// Reference tables
-	gre.Logger.Info("Importing contract")
+	spinner, _ := pterm.DefaultSpinner.Start("Importing contract")
 	err := gre.importREContract(dbTx) // Also populates gre.ContractID
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_contract: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing contract years")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing contract years")
 	err = gre.importREContractYears(dbTx) // Populates gre.contractYearToIDMap
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_contract_years: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing domestic service areas")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing domestic service areas")
 	err = gre.importREDomesticServiceArea(dbTx) // Also populates gre.serviceAreaToIDMap
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_domestic_service_area: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing rate areas")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing rate areas")
 	err = gre.importRERateArea(dbTx) // Also populates gre.domesticRateAreaToIDMap and gre.internationalRateAreaToIDMap
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_rate_area: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Mapping zip3s and zip5s to rate areas")
+	spinner, _ = pterm.DefaultSpinner.Start("Mapping zip3s and zip5s to rate areas")
 	err = gre.mapZipCodesToRERateAreas(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to map zip3s and zip5s to re_rate_areas: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Loading service map")
+	spinner, _ = pterm.DefaultSpinner.Start("Loading service map")
 	err = gre.loadServiceMap(dbTx) // Populates gre.serviceToIDMap
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to load service map: %w", err)
 	}
+	spinner.Success()
 
 	// Non-reference tables
-	gre.Logger.Info("Importing domestic linehaul prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing domestic linehaul prices")
 	err = gre.importREDomesticLinehaulPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_domestic_linehaul_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing domestic service area prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing domestic service area prices")
 	err = gre.importREDomesticServiceAreaPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_domestic_service_area_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing domestic other prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing domestic other prices")
 	err = gre.importREDomesticOtherPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_domestic_other_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing international prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing international prices")
 	err = gre.importREInternationalPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_intl_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing international other prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing international other prices")
 	err = gre.importREInternationalOtherPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_intl_other_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing task order fees")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing task order fees")
 	err = gre.importRETaskOrderFees(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_task_order_fees: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing domestic accessorial prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing domestic accessorial prices")
 	err = gre.importREDomesticAccessorialPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_domestic_accessorial_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing international accessorial prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing international accessorial prices")
 	err = gre.importREIntlAccessorialPrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_intl_accessorial_prices: %w", err)
 	}
+	spinner.Success()
 
-	gre.Logger.Info("Importing shipment type prices")
+	spinner, _ = pterm.DefaultSpinner.Start("Importing shipment type prices")
 	err = gre.importREShipmentTypePrices(dbTx)
 	if err != nil {
+		spinner.Fail()
 		return fmt.Errorf("failed to import re_shipment_type_prices: %w", err)
 	}
+	spinner.Success()
+
 	return nil
 }
 
