@@ -102,6 +102,7 @@ const PPMShipment = {
   id: 'ppmShipmentUuid',
   pickup_postal_code: '13643',
   destination_postal_code: '91945',
+  original_move_date: '2020-08-31',
 };
 
 export const WithNoShipments = () => {
