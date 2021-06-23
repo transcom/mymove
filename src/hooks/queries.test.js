@@ -162,6 +162,7 @@ jest.mock('services/ghcApi', () => ({
           customerID: '2468',
           customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
           originDutyStation: {
@@ -194,6 +195,7 @@ jest.mock('services/ghcApi', () => ({
         id: 'z',
       },
     }),
+
   getMovesQueue: () =>
     Promise.resolve({
       page: 1,
@@ -257,6 +259,7 @@ describe('useTXOMoveInfoQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -376,6 +379,7 @@ describe('useMoveTaskOrderQueries', () => {
           customerID: '2468',
           customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
           originDutyStation: {
@@ -469,6 +473,7 @@ describe('useMoveDetailsQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -499,6 +504,7 @@ describe('useMoveDetailsQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -588,6 +594,7 @@ describe('useEditShipmentQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -664,6 +671,7 @@ describe('useOrdersDocumentQueries', () => {
           customerID: '2468',
           customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
           originDutyStation: {
@@ -675,7 +683,16 @@ describe('useOrdersDocumentQueries', () => {
           report_by_date: '2018-08-01',
         },
       },
+      amendedUpload: {
+        id: 'z',
+      },
       documents: {
+        2: {
+          id: '2',
+          uploads: ['z'],
+        },
+      },
+      amendedDocuments: {
         2: {
           id: '2',
           uploads: ['z'],

@@ -183,7 +183,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
                   </Tag>
                 )}
                 {s === 'orders' && !hasMissingOrdersRequiredInfo && hasAmendedOrders && (
-                  <Tag className={styles.tag}>NEW</Tag>
+                  <Tag className={styles.tag} data-testid="newOrdersNavTag">
+                    NEW
+                  </Tag>
                 )}
                 {s === 'requested-shipments' && (
                   <Tag className={styles.tag} data-testid="requestedShipmentsTag">

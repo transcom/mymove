@@ -11,7 +11,11 @@ const DetailsPanel = ({ title, tag, editButton, children, className }) => {
       <div className="stackedtable-header">
         <h2>
           {title}
-          {tag && <Tag className={styles.tag}>{tag}</Tag>}
+          {tag && (
+            <Tag className={styles.tag} data-testid="detailsPanelTag">
+              {tag}
+            </Tag>
+          )}
         </h2>
         {editButton && <div>{editButton}</div>}
       </div>
