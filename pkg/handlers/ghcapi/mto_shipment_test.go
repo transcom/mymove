@@ -677,7 +677,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 		move := testdatagen.MakeAvailableMove(suite.DB())
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+				Status:    models.MTOShipmentStatusSubmitted,
 				Diversion: true,
 			},
 			Move: move,
