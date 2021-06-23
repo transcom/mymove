@@ -47,6 +47,16 @@ func (router moveRouter) Submit(move *models.Move) error {
 			return err
 		}
 		router.logger.Info("SUCCESS: Move sent to services counseling")
+	} else if move.Orders.UploadedAmendedOrders != nil {
+		// if move has amended orders, set status to needs approval
+		// TODO: is the logic in SendToOfficeUserToReviewNewServiceItems correct for amended orders move? Will the
+		// move status be approved here? Or will it go back to Submitted? Or will this need separate logic?
+		err = router.SendToOfficeUserToReviewNewServiceItems(move)
+		if err != nil {
+			router.logger.Error("failure routing move with amended orders to office user / TOO queue", zap.Error(err))
+			return err
+		}
+		router.logger.Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
 	} else {
 		err = router.sendNewMoveToOfficeUser(move)
 		if err != nil {
