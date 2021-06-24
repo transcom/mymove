@@ -269,6 +269,8 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: orderID not converted", err))
 	}
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+	fmt.Printf("=================== Order.Moves: IN HANDLER %v ====================", order.Moves)
+
 	if err != nil {
 		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
 		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
@@ -280,36 +282,14 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: couldn't find order for user", err))
 	}
 
-	newOrder, _, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
+	newOrder, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
 	if err != nil {
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: error returned from service", err))
-	}
-
-	verrs, err := models.SaveOrder(h.DB(), newOrder)
-	if err != nil || verrs.HasAny() {
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-		fmt.Printf("============== ERROR SAVING ORDER =========================")
-
-		return handlers.ResponseForVErrors(logger, verrs, fmt.Errorf("%v: error saving order", err))
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
 	if err != nil {
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: error in order payload", err))
 	}
-	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+	return ordersop.NewUploadAmendedOrdersOK().WithPayload(orderPayload)
 }

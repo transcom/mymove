@@ -127,11 +127,15 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 		},
 	})
+	var moves models.Moves
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			OriginDutyStation: &dutyStation,
 		},
+		Move: mto,
 	})
+	order.Moves = append(moves, mto)
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
 	req := httptest.NewRequest("PATCH", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
@@ -178,9 +182,17 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	response := uploadAmendedHandler.Handle(params)
 
 	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersOK{}, response)
-	// okResponse := response.(*ordersop.UploadAmendedOrdersOK)
-	suite.Assertions.Equal(response, "okResponse.Payload.OrdersNumber")
+	okResponse := response.(*ordersop.UploadAmendedOrdersOK)
+	suite.Assertions.NotNil(okResponse.Payload.UploadedAmendedOrders.ID.String())
 
+	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
+	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
+	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
+	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
+	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
+	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
+	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem

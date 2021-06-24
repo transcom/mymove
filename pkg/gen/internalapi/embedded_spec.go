@@ -5053,6 +5053,11 @@ func init() {
         "uploaded_amended_orders": {
           "$ref": "#/definitions/DocumentPayload"
         },
+        "uploaded_amended_orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
         }
@@ -11671,6 +11676,11 @@ func init() {
         },
         "uploaded_amended_orders": {
           "$ref": "#/definitions/DocumentPayload"
+        },
+        "uploaded_amended_orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"

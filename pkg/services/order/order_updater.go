@@ -96,15 +96,27 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 }
 
 // UploadAmendedOrders add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, error) {
 	existingETag := etag.GenerateEtag(orderToUpdate.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return &models.Order{}, services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	amendedOrder := f.amendedOrderFromUserUploadPayload(orderToUpdate, payload)
+	amendedOrder, err := f.amendedOrderFromUserUploadPayload(orderToUpdate, payload)
+	if err != nil {
+		return nil, err
+	}
 
-	return f.updateOrder(amendedOrder)
+	updatedOrder, _, err := f.updateOrder(amendedOrder)
+	if err != nil {
+		return &models.Order{}, err
+	}
+
+	err = f.saveOrder(&orderToUpdate)
+	if err != nil {
+		return &models.Order{}, err
+	}
+	return updatedOrder, nil
 }
 
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
@@ -170,7 +182,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	return order
 }
 
-func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, payload *internalmessages.UserUploadPayload) models.Order {
+func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, payload *internalmessages.UserUploadPayload) (models.Order, error) {
 	// ========= COMMENTS WILL BE REMOVED BEFORE FINAL PUSH ============
 	// ultimately want to take UserUploadPayload and attach it to order.UploadedAmendedOrders
 	// UserUploadPayload doesn't have a document attached
@@ -190,9 +202,9 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 		// - and to create and save a document
 
 		// 1) create and save the base document
-		amendedOrdersDocumentID := uuid.Must(uuid.NewV4())
+		// amendedOrdersDocumentID := uuid.Must(uuid.NewV4())
 		amendedOrdersDoc := models.Document{
-			ID:              amendedOrdersDocumentID,
+			// ID:              amendedOrdersDocumentID,
 			ServiceMemberID: order.UploadedOrders.ServiceMemberID,
 			CreatedAt:       time.Now(),
 		}
@@ -230,37 +242,41 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 		if err != nil {
 			fmt.Printf("========================== ERRORR SAVING UPLOAD: %v ===========================", err)
 		}
-		userUpload.Upload = models.Upload{
-			ID: savedUpload.ID,
+
+		if savedUpload != nil {
+			userUpload.Upload = models.Upload{
+				ID: savedUpload.ID,
+			}
 		}
 
 		userUpload.UploadID = uuid.FromStringOrNil(payload.UploadID.String())
 		userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
-		if savedAmendedOrdersDoc != nil {
-			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
-			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
-			userUpload.Document = *savedAmendedOrdersDoc
-		}
+		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
+		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
+		// if savedAmendedOrdersDoc != nil {
+		userUpload.Document = *savedAmendedOrdersDoc
+		// }
 		savedUserUpload, err := f.saveUserUploadForAmendedOrder(userUpload)
-
-		savedAmendedOrdersDoc.UserUploads = append(savedAmendedOrdersDoc.UserUploads, *savedUserUpload)
-		if savedAmendedOrdersDoc != nil {
-			updatedAmendedDoc, err := f.updateDocumentForAmendedOrder(*savedAmendedOrdersDoc)
-			if err != nil {
-				fmt.Printf("========================== ERRORR UPDATING DOCUMENT ===========================")
-			}
-			if savedUserUpload != nil && order.UploadedAmendedOrders != nil {
-				order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
-			}
-			// if updatedAmendedDoc != nil {
-			// }
-			order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
-			order.UploadedAmendedOrders = updatedAmendedDoc
+		if err != nil {
+			return models.Order{}, err
 		}
+
+		if savedAmendedOrdersDoc != nil {
+			savedAmendedOrdersDoc.UserUploads = append(savedAmendedOrdersDoc.UserUploads, *savedUserUpload)
+		}
+		updatedAmendedDoc, err := f.updateDocumentForAmendedOrder(*savedAmendedOrdersDoc)
+		if err != nil {
+			fmt.Printf("========================== ERRORR UPDATING DOCUMENT ===========================")
+		}
+		if savedUserUpload != nil && order.UploadedAmendedOrders != nil {
+			order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
+		}
+
+		order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
+		order.UploadedAmendedOrders = updatedAmendedDoc
 	}
 
-	return order
-
+	return order, nil
 }
 
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
@@ -489,7 +505,6 @@ func (f *orderUpdater) updateDocumentForAmendedOrder(doc models.Document) (*mode
 	})
 
 	if transactionError != nil {
-		fmt.Printf("===================================== TRANSACTION ERRROR: %v ======================================", transactionError)
 		return nil, transactionError
 	}
 	return &doc, nil
@@ -552,9 +567,6 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 		if order.UploadedAmendedOrdersID != nil {
 			verrs, err = tx.ValidateAndUpdate(order.UploadedAmendedOrders)
 			if e := handleError(verrs, err); e != nil {
-				fmt.Printf("=============================================")
-				fmt.Printf("=====================ERROR: %v ========================", e)
-				fmt.Printf("=============================================")
 				return e
 			}
 		}
@@ -584,5 +596,39 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 		return nil, uuid.Nil, transactionError
 	}
 
-	return &order, order.Moves[0].ID, nil
+	var moveID uuid.UUID
+	if len(order.Moves) > 0 {
+		moveID = order.Moves[0].ID
+	}
+	return &order, moveID, nil
+}
+
+// SaveOrder saves an order
+func (f *orderUpdater) saveOrder(order *models.Order) error {
+	handleError := func(verrs *validate.Errors, err error) error {
+		if verrs != nil && verrs.HasAny() {
+			return services.NewInvalidInputError(order.ID, nil, verrs, "")
+		}
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+		var verrs *validate.Errors
+		var err error
+		verrs, err = tx.ValidateAndSave(order)
+		if e := handleError(verrs, err); e != nil {
+			return e
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return transactionError
+	}
+	return nil
 }
