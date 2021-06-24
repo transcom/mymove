@@ -611,12 +611,6 @@ func (f *orderUpdater) saveOrder(order *models.Order) error {
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
-		// if order.UploadedAmendedOrdersID != nil {
-		// 	verrs, err = tx.ValidateAndSave(order.UploadedAmendedOrders)
-		// 	if e := handleError(verrs, err); e != nil {
-		// 		return e
-		// 	}
-		// }
 
 		verrs, err = tx.ValidateAndSave(order)
 		if e := handleError(verrs, err); e != nil {
