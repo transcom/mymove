@@ -303,7 +303,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(127, result.SE.NumberOfIncludedSegments)
+		suite.Equal(128, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -355,6 +355,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
+
+	suite.T().Run("adds currency to header", func(t *testing.T) {
+		currency := result.Header.Currency
+		suite.IsType(edisegment.C3{}, currency)
+		suite.Equal("USD", currency.CurrencyCodeC301)
+	})
 
 	suite.T().Run("adds actual pickup date to header", func(t *testing.T) {
 		g62Requested := result.Header.RequestedPickupDate

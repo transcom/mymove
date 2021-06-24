@@ -135,6 +135,10 @@ func MakeValidEdi() Invoice858C {
 			ReferenceIdentification:          "ARMY",
 		},
 
+		Currency: edisegment.C3{
+			CurrencyCodeC301: "USD",
+		},
+
 		RequestedPickupDate: &date,
 
 		BuyerOrganizationName: edisegment.N1{
