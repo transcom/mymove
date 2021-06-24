@@ -14,6 +14,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -495,5 +496,159 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.NoError(err)
 		suite.NotEqual(payload.ProGearWeightSpouse, orderInDB.Entitlement.ProGearWeightSpouse)
 		suite.Nil(updatedOrder)
+	})
+}
+
+func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		payload := internalmessages.UserUploadPayload{}
+		eTag := ""
+
+		_, err := orderUpdater.UploadAmendedOrders(nonexistentUUID, &payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+
+		payload := internalmessages.UserUploadPayload{}
+		eTag := ""
+
+		_, err := orderUpdater.UploadAmendedOrders(order.ID, &payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation: &dutyStation,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
+		id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		uploadURL := strfmt.URI("https://file.test")
+		bytes := int64(123)
+		contentType := "application/pdf"
+		filename := "file.pdf"
+		currentTime := strfmt.DateTime(time.Now())
+		payload := internalmessages.UserUploadPayload{
+			ID: &id,
+			Document: &internalmessages.DocumentPayload{
+				ServiceMemberID: &serviceMemberID,
+			},
+			Upload: &internalmessages.UploadPayload{
+				ID:          &uploadID,
+				URL:         &uploadURL,
+				Bytes:       &bytes,
+				ContentType: &contentType,
+				Filename:    &filename,
+				CreatedAt:   &currentTime,
+				UpdatedAt:   &currentTime,
+				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+			},
+			UploadID:   uploadID,
+			UploaderID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+		}
+
+		updatedOrder, err := orderUpdater.UploadAmendedOrders(order.ID, &payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
+		suite.NotNil(updatedOrder.UploadedAmendedOrders)
+	})
+
+	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
+		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation:       &dutyStation,
+				UploadedAmendedOrders:   &document,
+				UploadedAmendedOrdersID: &document.ID,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
+		id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		uploadURL := strfmt.URI("https://file.test")
+		bytes := int64(123)
+		contentType := "application/pdf"
+		filename := "file.pdf"
+		currentTime := strfmt.DateTime(time.Now())
+		payload := internalmessages.UserUploadPayload{
+			ID: &id,
+			Document: &internalmessages.DocumentPayload{
+				ServiceMemberID: &serviceMemberID,
+			},
+			Upload: &internalmessages.UploadPayload{
+				ID:          &uploadID,
+				URL:         &uploadURL,
+				Bytes:       &bytes,
+				ContentType: &contentType,
+				Filename:    &filename,
+				CreatedAt:   &currentTime,
+				UpdatedAt:   &currentTime,
+				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+			},
+			UploadID:   uploadID,
+			UploaderID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+		}
+
+		updatedOrder, err := orderUpdater.UploadAmendedOrders(order.ID, &payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.NotNil(orderInDB.ID)
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
+		suite.Equal(orderInDB.UploadedAmendedOrdersID, updatedOrder.UploadedAmendedOrdersID)
+		suite.NotNil(order.UploadedAmendedOrders)
+		suite.NotNil(updatedOrder.UploadedAmendedOrders)
 	})
 }

@@ -255,18 +255,14 @@ type UploadAmendedOrdersHandler struct {
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: orderID not converted", err))
 	}
-	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
-	if err != nil {
-		return handlers.ResponseForError(logger, fmt.Errorf("%v: couldn't find order for user", err))
-	}
 
-	newOrder, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
+	newOrder, err := h.OrderUpdater.UploadAmendedOrders(orderID, params.AmendedOrders, params.IfMatch)
 	if err != nil {
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: error returned from service", err))
 	}

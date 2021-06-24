@@ -95,13 +95,18 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 }
 
 // UploadAmendedOrders add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, error) {
+func (f *orderUpdater) UploadAmendedOrders(orderID uuid.UUID, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, error) {
+	orderToUpdate, err := f.findOrder(orderID)
+	if err != nil {
+		return &models.Order{}, err
+	}
+
 	existingETag := etag.GenerateEtag(orderToUpdate.UpdatedAt)
 	if existingETag != eTag {
 		return &models.Order{}, services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	amendedOrder, err := f.amendedOrderFromUserUploadPayload(orderToUpdate, payload)
+	amendedOrder, err := f.amendedOrderFromUserUploadPayload(*orderToUpdate, payload)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +116,7 @@ func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *
 		return &models.Order{}, err
 	}
 
-	err = f.saveOrder(&orderToUpdate)
+	err = f.saveOrder(updatedOrder)
 	if err != nil {
 		return &models.Order{}, err
 	}
@@ -121,7 +126,6 @@ func (f *orderUpdater) UploadAmendedOrders(orderToUpdate models.Order, payload *
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
 	err := f.db.Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
-
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(orderID, "while looking for order")
@@ -217,9 +221,9 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 		}
 	}
 
-	if order.UploadedAmendedOrdersID == nil {
+	if order.UploadedAmendedOrders == nil {
 		amendedOrdersDoc := models.Document{
-			ServiceMemberID: order.UploadedOrders.ServiceMemberID,
+			ServiceMemberID: order.ServiceMemberID,
 			CreatedAt:       time.Now(),
 		}
 		savedAmendedOrdersDoc, err := f.saveDocumentForAmendedOrder(amendedOrdersDoc)
@@ -227,12 +231,6 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 			return models.Order{}, err
 		}
 
-		if savedAmendedOrdersDoc != nil {
-			userUpload.Document = *savedAmendedOrdersDoc
-			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
-		}
-
-		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
 		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
 		userUpload.Document = *savedAmendedOrdersDoc
 
@@ -255,15 +253,12 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 
 		order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
 		order.UploadedAmendedOrders = updatedAmendedDoc
+
 	} else {
 		if order.UploadedAmendedOrders != nil {
 			userUpload.Document = *order.UploadedAmendedOrders
 			userUpload.DocumentID = &order.UploadedAmendedOrders.ID
 		}
-
-		userUpload.DocumentID = &order.UploadedAmendedOrders.ID
-		userUpload.DocumentID = &order.UploadedAmendedOrders.ID
-		userUpload.Document = *order.UploadedAmendedOrders
 
 		savedUserUpload, err := f.saveUserUploadForAmendedOrder(userUpload)
 		if err != nil {
@@ -560,13 +555,13 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 			}
 		}
 
-		// update uploaded amended orders
-		if order.UploadedAmendedOrdersID != nil {
-			verrs, err = tx.ValidateAndUpdate(order.UploadedAmendedOrders)
-			if e := handleError(verrs, err); e != nil {
-				return e
-			}
-		}
+		// // update uploaded amended orders
+		// if order.UploadedAmendedOrders != nil {
+		// 	verrs, err = tx.ValidateAndUpdate(order.UploadedAmendedOrders)
+		// 	if e := handleError(verrs, err); e != nil {
+		// 		return e
+		// 	}
+		// }
 
 		if order.NewDutyStationID != uuid.Nil {
 			// TODO refactor to use service objects to fetch duty station
@@ -616,6 +611,13 @@ func (f *orderUpdater) saveOrder(order *models.Order) error {
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
+		// if order.UploadedAmendedOrdersID != nil {
+		// 	verrs, err = tx.ValidateAndSave(order.UploadedAmendedOrders)
+		// 	if e := handleError(verrs, err); e != nil {
+		// 		return e
+		// 	}
+		// }
+
 		verrs, err = tx.ValidateAndSave(order)
 		if e := handleError(verrs, err); e != nil {
 			return e

@@ -146,13 +146,13 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.
 	return r0, r1, r2
 }
 
-// UploadAmendedOrders provides a mock function with given fields: order, payload, eTag
-func (_m *OrderUpdater) UploadAmendedOrders(order models.Order, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, error) {
-	ret := _m.Called(order, payload, eTag)
+// UploadAmendedOrders provides a mock function with given fields: orderID, payload, eTag
+func (_m *OrderUpdater) UploadAmendedOrders(orderID uuid.UUID, payload *internalmessages.UserUploadPayload, eTag string) (*models.Order, error) {
+	ret := _m.Called(orderID, payload, eTag)
 
 	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(models.Order, *internalmessages.UserUploadPayload, string) *models.Order); ok {
-		r0 = rf(order, payload, eTag)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *internalmessages.UserUploadPayload, string) *models.Order); ok {
+		r0 = rf(orderID, payload, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -160,8 +160,8 @@ func (_m *OrderUpdater) UploadAmendedOrders(order models.Order, payload *interna
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(models.Order, *internalmessages.UserUploadPayload, string) error); ok {
-		r1 = rf(order, payload, eTag)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *internalmessages.UserUploadPayload, string) error); ok {
+		r1 = rf(orderID, payload, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
