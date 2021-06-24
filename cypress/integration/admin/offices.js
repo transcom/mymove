@@ -10,6 +10,7 @@ describe('Offices Page', function () {
     cy.get('a[href*="system/offices"]').click();
     cy.url().should('eq', adminBaseURL + '/system/offices');
     cy.get('header').contains('Offices');
+    cy.get('[data-source=q]').should('be.visible');
 
     const columnLabels = ['Id', 'Name', 'Latitude', 'Longitude', 'Gbloc'];
     columnLabels.forEach((label) => {
