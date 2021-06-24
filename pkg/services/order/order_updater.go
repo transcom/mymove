@@ -227,7 +227,6 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 			return models.Order{}, err
 		}
 
-		// TODO: START: MAKE OTHER CASE FOR THIS
 		if savedAmendedOrdersDoc != nil {
 			userUpload.Document = *savedAmendedOrdersDoc
 			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
@@ -256,7 +255,6 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 
 		order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
 		order.UploadedAmendedOrders = updatedAmendedDoc
-		// TODO: END: MAKE OTHER CASE FOR THIS
 	} else {
 		if order.UploadedAmendedOrders != nil {
 			userUpload.Document = *order.UploadedAmendedOrders
