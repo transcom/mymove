@@ -120,7 +120,7 @@ export class Home extends Component {
     if (this.hasAnyShipments) {
       return 'Add another shipment';
     }
-    return 'Plan your shipments';
+    return 'Set up your shipments';
   }
 
   renderHelper = () => {
@@ -325,7 +325,7 @@ export class Home extends Component {
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
                     completedHeaderText="Shipments"
-                    headerText="Shipment selection"
+                    headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
                     secondaryClassName="margin-top-2"
                     step="3"
@@ -343,8 +343,9 @@ export class Home extends Component {
                       </div>
                     ) : (
                       <Description>
-                        Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
-                        shipments to make it work.
+                        We&apos;ll collect addresses, dates, and how you want to move your things.
+                        <br />
+                        Note: You can change these details later by talking to a move counselor or your movers.
                       </Description>
                     )}
                   </Step>

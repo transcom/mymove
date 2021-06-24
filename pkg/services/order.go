@@ -11,14 +11,14 @@ import (
 )
 
 // OrderFetcher is the service object interface for FetchOrder
-//go:generate mockery --name OrderFetcher
+//go:generate mockery --name OrderFetcher --disable-version-string
 type OrderFetcher interface {
 	FetchOrder(moveTaskOrderID uuid.UUID) (*models.Order, error)
 	ListOrders(officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
 }
 
 //OrderUpdater is the service object interface for updating fields of an Order
-//go:generate mockery --name OrderUpdater
+//go:generate mockery --name OrderUpdater --disable-version-string
 type OrderUpdater interface {
 	UploadAmendedOrders(order models.Order, payload *internalmessages.UploadPayload, eTag string) (*models.Order, uuid.UUID, error)
 	UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error)
