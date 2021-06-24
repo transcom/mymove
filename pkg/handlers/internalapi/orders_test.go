@@ -146,7 +146,6 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	bytes := int64(123)
 	contentType := "application/pdf"
 	filename := "file.pdf"
-	currentTime := strfmt.DateTime(time.Now())
 	body := internalmessages.UserUploadPayload{
 		ID: &id,
 		Document: &internalmessages.DocumentPayload{
@@ -158,8 +157,6 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 			Bytes:       &bytes,
 			ContentType: &contentType,
 			Filename:    &filename,
-			CreatedAt:   &currentTime,
-			UpdatedAt:   &currentTime,
 			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		},
 		UploadID:   uploadID,

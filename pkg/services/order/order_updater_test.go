@@ -552,7 +552,6 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
 		bytes := int64(123)
 		contentType := "application/pdf"
 		filename := "file.pdf"
-		currentTime := strfmt.DateTime(time.Now())
 		payload := internalmessages.UserUploadPayload{
 			ID: &id,
 			Document: &internalmessages.DocumentPayload{
@@ -564,8 +563,6 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
 				Bytes:       &bytes,
 				ContentType: &contentType,
 				Filename:    &filename,
-				CreatedAt:   &currentTime,
-				UpdatedAt:   &currentTime,
 				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 			},
 			UploadID:   uploadID,
@@ -615,7 +612,6 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
 		bytes := int64(123)
 		contentType := "application/pdf"
 		filename := "file.pdf"
-		currentTime := strfmt.DateTime(time.Now())
 		payload := internalmessages.UserUploadPayload{
 			ID: &id,
 			Document: &internalmessages.DocumentPayload{
@@ -627,8 +623,6 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
 				Bytes:       &bytes,
 				ContentType: &contentType,
 				Filename:    &filename,
-				CreatedAt:   &currentTime,
-				UpdatedAt:   &currentTime,
 				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 			},
 			UploadID:   uploadID,
