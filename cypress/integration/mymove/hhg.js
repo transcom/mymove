@@ -75,7 +75,7 @@ function customerSetsUpAnHHGMove() {
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
 
   // secondary pickup location
-  cy.get(`input[name="hasSecondaryPickup"]`).check('yes', { force: true });
+  cy.get(`input[data-testid="has-secondary-pickup"]`).check({ force: true });
   cy.get(`input[name="secondaryPickup.address.street_address_1"]`).type('123 Some address');
   cy.get(`input[name="secondaryPickup.address.city"]`).type('Some city');
   cy.get(`select[name="secondaryPickup.address.state"]`).select('CA');
