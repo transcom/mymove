@@ -8,12 +8,13 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/services"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	// Set up the updater
-	mtoAgentUpdater := NewMTOAgentUpdater(suite.DB())
+	mtoAgentUpdater := NewMTOAgentUpdater(suite.DB(), movetaskorder.NewMoveTaskOrderChecker(suite.DB()))
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 
@@ -25,7 +26,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		notFoundAgent := newAgent
 		notFoundAgent.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgent(&notFoundAgent, eTag, "") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&notFoundAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -38,7 +39,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		invalidAgent := newAgent
 		invalidAgent.MTOShipmentID = newAgent.ID
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgent(&invalidAgent, eTag, "") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&invalidAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -51,7 +52,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgent(&newAgent, "bloop", "") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&newAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -69,7 +70,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		newAgent.Email = &email
 		newAgent.Phone = nil // should keep the phone number from oldAgent
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgent(&newAgent, eTag, "") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&newAgent, eTag) // base validation
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)
