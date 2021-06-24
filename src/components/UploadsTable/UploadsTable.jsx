@@ -24,15 +24,13 @@ const UploadsTable = ({ uploads, onDelete }) => {
       <ul>
         {uploads.map((upload) => (
           <li className={classNames(styles.uploadListItem)} key={upload.id}>
-            <div style={{ display: 'flex' }}>
+            <div className={classNames(styles.fileInfoContainer)}>
               <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={classNames(styles.faIcon)} />
               <div className={classNames(styles.fileInfo)}>
                 <p>{upload.filename}</p>
-                <p className={classNames(styles.uploadFileSize)}>
-                  <small>{bytes(upload.bytes)}</small>
-                </p>
-                <p className={classNames(styles.uploadCreatedTime)}>
-                  <small>{moment(upload.created_at).format('DD MMM YYYY h:mm A')}</small>
+                <p className={classNames(styles.fileSizeAndTime)}>
+                  <span className={classNames(styles.uploadFileSize)}>{bytes(upload.bytes)}</span>
+                  <span>Uploaded {moment(upload.created_at).format('DD MMM YYYY h:mm A')}</span>
                 </p>
               </div>
             </div>

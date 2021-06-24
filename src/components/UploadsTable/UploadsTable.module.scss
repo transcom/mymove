@@ -11,7 +11,6 @@
   border: 1px solid #dcdee0;
 }
 
-// is it better to style by html tag or to define my own classes?
 h6 {
   @include u-margin(0);
 }
@@ -36,11 +35,15 @@ ul {
   }
 
   .faIcon {
-    // FontAwesomeIcon component can take color as a prop,
-    // is that better than doing it here?
-    //if so, how do i get this value into js?
     color: $base;
   }
+
+  button {
+    width: auto;
+  }
+}
+.fileInfoContainer {
+  display: flex;
 }
 
 .fileInfo {
@@ -48,23 +51,23 @@ ul {
   p {
     margin-top: 0;
   }
-  p small {
+
+  .fileSizeAndTime {
+    @include u-font('body', 'xs');
     color: $base;
-    display: inline;
   }
-}
 
-.uploadCreatedTime {
-  display: inline;
-}
-
-.uploadFileSize {
-  display: none;
-}
-
-@media (min-width: $tablet) {
   .uploadFileSize {
-    display: inline;
-    @include u-margin-right(2);
+    display: none;
+  }
+
+  @media (min-width: $tablet) {
+    .uploadFileSize {
+      display: inline;
+      @include u-margin-right(2);
+    }
   }
 }
+
+
+
