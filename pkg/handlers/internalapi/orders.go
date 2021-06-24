@@ -259,26 +259,10 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
-		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: orderID not converted", err))
 	}
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
-	fmt.Printf("=================== Order.Moves: IN HANDLER %v ====================", order.Moves)
-
 	if err != nil {
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
-		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
 		return handlers.ResponseForError(logger, fmt.Errorf("%v: couldn't find order for user", err))
 	}
 

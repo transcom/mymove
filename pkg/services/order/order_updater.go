@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -183,37 +182,16 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 }
 
 func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, payload *internalmessages.UserUploadPayload) (models.Order, error) {
-	// ========= COMMENTS WILL BE REMOVED BEFORE FINAL PUSH ============
-	// ultimately want to take UserUploadPayload and attach it to order.UploadedAmendedOrders
-	// UserUploadPayload doesn't have a document attached
-	// this service will check if orders already has an amendedOrders doc and
-	// add these uploads to them if that doc already exists
-	// however, if it doesn't exist, this service will create a new doc to attach the upload to
-	// there's a foreign key relationship between these things
-	//	- orders.uploaded_amended_orders_id must exist in the document table
-	//	- userUpload.document_id must exist in the document table
-	//	- userUpload.upload_id must exist in the uploads table
-
 	if order.UploadedAmendedOrdersID == nil {
-		// create an amended orders document ID
-		// this will be used for
-		// - orders.uploaded_amended_orders_id
-		// - userUpload.document_id
-		// - and to create and save a document
-
-		// 1) create and save the base document
-		// amendedOrdersDocumentID := uuid.Must(uuid.NewV4())
 		amendedOrdersDoc := models.Document{
-			// ID:              amendedOrdersDocumentID,
 			ServiceMemberID: order.UploadedOrders.ServiceMemberID,
 			CreatedAt:       time.Now(),
 		}
 		savedAmendedOrdersDoc, err := f.saveDocumentForAmendedOrder(amendedOrdersDoc)
 		if err != nil {
-			fmt.Printf("========================== ERRORR UPDATING DOCUMENT ===========================")
+			return models.Order{}, err
 		}
 
-		// 2) massage userupload payload into a userUpload model linked to the newly created document
 		var userUpload models.UserUpload
 		userUpload.ID = uuid.FromStringOrNil(payload.ID.String())
 		if savedAmendedOrdersDoc != nil {
@@ -240,7 +218,7 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 		}
 		savedUpload, err := f.saveUploadForAmendedOrder(upload)
 		if err != nil {
-			fmt.Printf("========================== ERRORR SAVING UPLOAD: %v ===========================", err)
+			return models.Order{}, err
 		}
 
 		if savedUpload != nil {
@@ -253,9 +231,8 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 		userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
 		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
 		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
-		// if savedAmendedOrdersDoc != nil {
 		userUpload.Document = *savedAmendedOrdersDoc
-		// }
+
 		savedUserUpload, err := f.saveUserUploadForAmendedOrder(userUpload)
 		if err != nil {
 			return models.Order{}, err
@@ -264,9 +241,10 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 		if savedAmendedOrdersDoc != nil {
 			savedAmendedOrdersDoc.UserUploads = append(savedAmendedOrdersDoc.UserUploads, *savedUserUpload)
 		}
+
 		updatedAmendedDoc, err := f.updateDocumentForAmendedOrder(*savedAmendedOrdersDoc)
 		if err != nil {
-			fmt.Printf("========================== ERRORR UPDATING DOCUMENT ===========================")
+			return models.Order{}, err
 		}
 		if savedUserUpload != nil && order.UploadedAmendedOrders != nil {
 			order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
@@ -464,9 +442,6 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc models.Document) (*models
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
-		fmt.Printf("==================================================")
-		fmt.Printf("=====================IN SAVE DOCUMENT TRANSACTION =============================")
-		fmt.Printf("==================================================")
 		verrs, err = tx.ValidateAndSave(&doc)
 		if e := handleError(verrs, err); e != nil {
 			return e
