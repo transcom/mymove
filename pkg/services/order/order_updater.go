@@ -172,6 +172,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 
 func (f *orderUpdater) amendedOrderFromUserUploadPayload(existingOrder models.Order, payload *internalmessages.UserUploadPayload) models.Order {
 	order := existingOrder
+	// ========= COMMENTS WILL BE REMOVED BEFORE FINAL PUSH ============
 	// ultimately want to take UserUploadPayload and attach it to order.UploadedAmendedOrders
 	// UserUploadPayload doesn't have a document attached
 	// this service will check if orders already has an amendedOrders doc and
@@ -188,111 +189,79 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(existingOrder models.Or
 		// - orders.uploaded_amended_orders_id
 		// - userUpload.document_id
 		// - and to create and save a document
+
 		// 1) create and save the base document
-		// 	order.UploadedAmendedOrdersID = &amendedOrdersID
 		amendedOrdersDocumentID := uuid.Must(uuid.NewV4())
 		amendedOrdersDoc := models.Document{
 			ID:              amendedOrdersDocumentID,
 			ServiceMemberID: order.UploadedOrders.ServiceMemberID,
 			CreatedAt:       time.Now(),
 		}
-		// amendedOrdersDoc.UserUploads = append(amendedOrdersDoc.UserUploads, *savedUserUpload)
-
-		savedAmendedDoc, err := f.saveDocumentForAmendedOrder(amendedOrdersDoc)
+		savedAmendedOrdersDoc, err := f.saveDocumentForAmendedOrder(amendedOrdersDoc)
 		if err != nil {
-			fmt.Printf("========================== ERRORR SAVING DOCUMENT ===========================")
+			fmt.Printf("========================== ERRORR UPDATING DOCUMENT ===========================")
 		}
-		// 2) massage userupload payload into a userUpload model linked to the newly created document
 
+		// 2) massage userupload payload into a userUpload model linked to the newly created document
+		var userUpload models.UserUpload
+		userUpload.ID = uuid.FromStringOrNil(payload.ID.String())
+		if savedAmendedOrdersDoc != nil {
+			userUpload.Document = *savedAmendedOrdersDoc
+			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
+		}
+		upload := models.Upload{
+			ID:          uuid.FromStringOrNil(payload.Upload.ID.String()),
+			UploadType:  models.UploadTypeUSER,
+			ContentType: *payload.Upload.ContentType,
+			Checksum:    payload.Upload.Checksum,
+		}
+		if payload.Upload.Filename != nil {
+			userUpload.Upload.Filename = *payload.Upload.Filename
+			upload.Filename = *payload.Upload.Filename
+		}
+		if payload.Upload.Bytes != nil {
+			userUpload.Upload.Bytes = int64(*payload.Upload.Bytes)
+			upload.Bytes = int64(*payload.Upload.Bytes)
+		}
+		if payload.Upload.ContentType != nil {
+			userUpload.Upload.ContentType = *payload.Upload.ContentType
+			upload.ContentType = *payload.Upload.ContentType
+		}
+		savedUpload, err := f.saveUploadForAmendedOrder(upload)
+		if err != nil {
+			fmt.Printf("========================== ERRORR SAVING UPLOAD: %v ===========================", err)
+		}
+		userUpload.Upload = models.Upload{
+			ID: savedUpload.ID,
+		}
+
+		userUpload.UploadID = uuid.FromStringOrNil(payload.UploadID.String())
+		userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
+		if savedAmendedOrdersDoc != nil {
+			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
+			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
+			userUpload.Document = *savedAmendedOrdersDoc
+		}
+		savedUserUpload, err := f.saveUserUploadForAmendedOrder(userUpload)
+
+		savedAmendedOrdersDoc.UserUploads = append(savedAmendedOrdersDoc.UserUploads, *savedUserUpload)
+		if savedAmendedOrdersDoc != nil {
+			updatedAmendedDoc, err := f.updateDocumentForAmendedOrder(*savedAmendedOrdersDoc)
+			if err != nil {
+				fmt.Printf("========================== ERRORR UPDATING DOCUMENT ===========================")
+			}
+			if savedUserUpload != nil && order.UploadedAmendedOrders != nil {
+				order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
+			}
+			if updatedAmendedDoc != nil {
+				order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
+			}
+			order.UploadedAmendedOrders = updatedAmendedDoc
+		}
 	}
 
-	// var userUpload models.UserUpload
-	// userUpload.ID = uuid.FromStringOrNil(payload.ID.String())
-	// if order.UploadedAmendedOrdersID != nil {
-	// 	userUpload.Document = *order.UploadedAmendedOrders
-	// 	userUpload.DocumentID = order.UploadedAmendedOrdersID
-	// }
+	return order
 
-	// upload := models.Upload{
-	// 	ID:          uuid.FromStringOrNil(payload.Upload.ID.String()),
-	// 	UploadType:  models.UploadTypeUSER,
-	// 	ContentType: *payload.Upload.ContentType,
-	// 	Checksum:    payload.Upload.Checksum,
-	// }
-	// if payload.Upload.Filename != nil {
-	// 	userUpload.Upload.Filename = *payload.Upload.Filename
-	// 	upload.Filename = *payload.Upload.Filename
-	// }
-	// if payload.Upload.Bytes != nil {
-	// 	userUpload.Upload.Bytes = int64(*payload.Upload.Bytes)
-	// 	upload.Bytes = int64(*payload.Upload.Bytes)
-	// }
-	// if payload.Upload.ContentType != nil {
-	// 	userUpload.Upload.ContentType = *payload.Upload.ContentType
-	// 	upload.ContentType = *payload.Upload.ContentType
-	// }
-	// savedUpload, err := f.saveUploadForAmendedOrder(upload)
-	// if err != nil {
-	// 	fmt.Printf("========================== ERRORR SAVING UPLOAD: %v ===========================", err)
-	// }
-	// if savedUpload != nil {
-	// 	userUpload.Upload = models.Upload{
-	// 		ID: savedUpload.ID,
-	// 	}
-	// }
-
-	// if payload.Upload.CreatedAt != nil {
-	// 	userUpload.Upload.CreatedAt = time.Time(*payload.Upload.CreatedAt)
-	// }
-	// if payload.Upload.UpdatedAt != nil {
-	// 	userUpload.Upload.UpdatedAt = time.Time(*payload.Upload.UpdatedAt)
-	// }
-
-	// if payload.CreatedAt != nil {
-	// 	userUpload.CreatedAt = time.Time(*payload.CreatedAt)
-	// }
-	// if payload.UpdatedAt != nil {
-	// 	userUpload.UpdatedAt = time.Time(*payload.UpdatedAt)
-	// }
-	// amendedOrdersID := uuid.Must(uuid.NewV4())
-
-	// userUpload.UploadID = uuid.FromStringOrNil(payload.UploadID.String())
-	// userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
-	// userUpload.DocumentID = &amendedOrdersID
-	// savedUserUpload, err := f.saveUserUploadForAmendedOrder(userUpload)
-
-	// if order.UploadedAmendedOrdersID == nil {
-	// 	order.UploadedAmendedOrdersID = &amendedOrdersID
-
-	// 	amendedOrdersDoc := models.Document{
-	// 		ID:              amendedOrdersID,
-	// 		ServiceMemberID: order.UploadedOrders.ServiceMemberID,
-	// 		CreatedAt:       time.Now(),
-	// 	}
-	// 	amendedOrdersDoc.UserUploads = append(amendedOrdersDoc.UserUploads, *savedUserUpload)
-
-	// 	savedAmendedDoc, err := f.saveDocumentForAmendedOrder(amendedOrdersDoc)
-	// 	if err != nil {
-	// 		fmt.Printf("========================== ERRORR SAVING DOCUMENT ===========================")
-	// 	}
-	// 	savedUserUpload.DocumentID = &savedAmendedDoc.ID
-	// 	savedUserUpload.Document = *savedAmendedDoc
-	// 	order.UploadedAmendedOrders = savedAmendedDoc
-	// 	fmt.Printf("========================== amendedOrdersDoc.ID: %v ===========================", savedAmendedDoc.ID)
-	// } else {
-	// 	if savedUserUpload.DocumentID == nil {
-	// 		savedUserUpload.DocumentID = order.UploadedAmendedOrdersID
-	// 		savedUserUpload.Document = *order.UploadedAmendedOrders
-	// 	}
-	// }
-
-	// if err != nil {
-	// 	fmt.Printf("========================== ERRORR SAVING USER_ UPLOAD ===========================")
-	// }
-	// order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
-	// fmt.Printf("========================== orders.UploadedAmendedOrdersID: %v ===========================", order.UploadedAmendedOrdersID)
-
-	// return order
 }
 
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
@@ -492,6 +461,36 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc models.Document) (*models
 	})
 
 	if transactionError != nil {
+		return nil, transactionError
+	}
+	return &doc, nil
+}
+
+func (f *orderUpdater) updateDocumentForAmendedOrder(doc models.Document) (*models.Document, error) {
+	handleError := func(verrs *validate.Errors, err error) error {
+		if verrs != nil && verrs.HasAny() {
+			return services.NewInvalidInputError(doc.ID, nil, verrs, "")
+		}
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+		var verrs *validate.Errors
+		var err error
+		verrs, err = tx.ValidateAndUpdate(&doc)
+		if e := handleError(verrs, err); e != nil {
+			return e
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		fmt.Printf("===================================== TRANSACTION ERRROR: %v ======================================", transactionError)
 		return nil, transactionError
 	}
 	return &doc, nil
