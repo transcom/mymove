@@ -1636,6 +1636,9 @@ definitions:
         type: string
         format: mime-type
         example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
       bytes:
         type: integer
       status:

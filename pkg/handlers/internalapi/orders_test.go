@@ -5,8 +5,10 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/gofrs/uuid"
@@ -14,6 +16,7 @@ import (
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -116,6 +119,68 @@ func (suite *HandlerSuite) TestShowOrder() {
 	//suite.Assertions.Equal(order.ReportByDate.String(), okResponse.Payload.ReportByDate.String())
 	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
+}
+
+func (suite *HandlerSuite) TestUploadAmendedOrder() {
+	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+		},
+	})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation: &dutyStation,
+		},
+	})
+	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
+	req := httptest.NewRequest("PATCH", path, nil)
+	req = suite.AuthenticateRequest(req, order.ServiceMember)
+	serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
+	id := strfmt.UUID("665b0dd3-0fa7-4cff-8744-e3de78c8185d")
+	uploadID := strfmt.UUID("5d32311f-6853-46f0-b9e0-6301b564859b")
+	uploadURL := strfmt.URI("https://file.test")
+	bytes := int64(123)
+	contentType := "application/pdf"
+	filename := "file.pdf"
+	currentTime := strfmt.DateTime(time.Now())
+	body := internalmessages.UserUploadPayload{
+		ID: &id,
+		Document: &internalmessages.DocumentPayload{
+			ServiceMemberID: &serviceMemberID,
+		},
+		Upload: &internalmessages.UploadPayload{
+			ID:          &uploadID,
+			URL:         &uploadURL,
+			Bytes:       &bytes,
+			ContentType: &contentType,
+			Filename:    &filename,
+			CreatedAt:   &currentTime,
+			UpdatedAt:   &currentTime,
+			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+		},
+		UploadID:   uploadID,
+		UploaderID: strfmt.UUID("caf33565-5b3e-495e-8f88-c26144d438ba"),
+	}
+	params := ordersop.UploadAmendedOrdersParams{
+		HTTPRequest:   req,
+		IfMatch:       etag.GenerateEtag(order.UpdatedAt),
+		AmendedOrders: &body,
+		OrdersID:      *handlers.FmtUUID(order.ID),
+	}
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFileStorer(fakeS3)
+	uploadAmendedHandler := UploadAmendedOrdersHandler{
+		HandlerContext: context,
+		OrderUpdater:   orderservice.NewOrderUpdater(suite.DB()),
+	}
+	response := uploadAmendedHandler.Handle(params)
+
+	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersOK{}, response)
+	// okResponse := response.(*ordersop.UploadAmendedOrdersOK)
+	suite.Assertions.Equal(response, "okResponse.Payload.OrdersNumber")
+
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem

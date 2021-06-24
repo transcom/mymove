@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -258,26 +259,57 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		fmt.Printf("============== ORDERID NOT CONVERTED =========================")
+		return handlers.ResponseForError(logger, fmt.Errorf("%v: orderID not converted", err))
 	}
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		fmt.Printf("============== COULDNT FIND ORDER FOR USER =========================")
+		return handlers.ResponseForError(logger, fmt.Errorf("%v: couldn't find order for user", err))
 	}
 
 	newOrder, _, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(logger, fmt.Errorf("%v: error returned from service", err))
 	}
 
 	verrs, err := models.SaveOrder(h.DB(), newOrder)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+		fmt.Printf("============== ERROR SAVING ORDER =========================")
+
+		return handlers.ResponseForVErrors(logger, verrs, fmt.Errorf("%v: error saving order", err))
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForError(logger, fmt.Errorf("%v: error in order payload", err))
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }

@@ -6368,6 +6368,10 @@ func init() {
         "bytes": {
           "type": "integer"
         },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
+        },
         "content_type": {
           "type": "string",
           "format": "mime-type",
@@ -12989,6 +12993,10 @@ func init() {
       "properties": {
         "bytes": {
           "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
         },
         "content_type": {
           "type": "string",
