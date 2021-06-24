@@ -6,7 +6,6 @@ import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 const defaultSort = { field: 'name', order: 'ASC' };
 
 const OfficeFilter = (props) => (
-  // eslint-disable-next-line react/jsx-props-no-spreading
   <Filter {...props}>
     <TextInput label="Search by Office Name" source="q" resettable alwaysOn />
   </Filter>
@@ -14,7 +13,6 @@ const OfficeFilter = (props) => (
 
 const OfficeList = (props) => (
   <List
-    /* eslint-disable-next-line react/jsx-props-no-spreading */
     {...props}
     filters={<OfficeFilter />}
     pagination={<AdminPagination />}
