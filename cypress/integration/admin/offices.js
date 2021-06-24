@@ -7,7 +7,7 @@ describe('Offices Page', function () {
 
   it('successfully navigates to offices page', function () {
     cy.signInAsNewAdminUser();
-    cy.get('a[href*="system/users"]').click();
+    cy.get('a[href*="system/offices"]').click();
     cy.url().should('eq', adminBaseURL + '/system/offices');
     cy.get('header').contains('Offices');
 
