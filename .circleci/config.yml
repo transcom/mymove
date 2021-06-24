@@ -1372,7 +1372,7 @@ jobs:
 
   # `deploy_demo_migrations` deploys migrations to the demo environment
   deploy_demo_migrations:
-    executor: mymove_medium
+    executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'demo'
     steps:
