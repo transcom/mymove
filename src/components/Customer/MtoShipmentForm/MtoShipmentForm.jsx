@@ -348,6 +348,7 @@ class MtoShipmentForm extends Component {
                                         <div className={formStyles.radioGroup}>
                                           <Field
                                             as={Radio}
+                                            data-testid="yes-secondary-delivery"
                                             id="has-secondary-delivery"
                                             label="Yes"
                                             name="hasSecondaryDelivery"
@@ -357,6 +358,7 @@ class MtoShipmentForm extends Component {
                                           />
                                           <Field
                                             as={Radio}
+                                            data-testid="no-secondary-delivery"
                                             id="no-secondary-delivery"
                                             label="No"
                                             name="hasSecondaryDelivery"
