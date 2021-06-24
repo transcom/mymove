@@ -113,7 +113,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	h.triggerUpdateOrderEvent(orderID, moveID, params)
 
 	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
-	if params.Body.OrdersAcknowledgement != nil && *params.Body.OrdersAcknowledgement && updatedOrder.UploadedAmendedOrdersID != nil {
+	if params.Body.OrdersAcknowledgement != nil && *params.Body.OrdersAcknowledgement && updatedOrder.UploadedAmendedOrdersID != nil && updatedOrder.AmendedOrdersAcknowledgedAt == nil {
 		moveRouter := move.NewMoveRouter(h.DB(), logger)
 		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(*updatedOrder)
 		if approveErr != nil {
