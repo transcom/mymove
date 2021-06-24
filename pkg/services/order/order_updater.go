@@ -182,6 +182,41 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 }
 
 func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, payload *internalmessages.UserUploadPayload) (models.Order, error) {
+	var userUpload models.UserUpload
+	upload := models.Upload{
+		ID:          uuid.FromStringOrNil(payload.Upload.ID.String()),
+		UploadType:  models.UploadTypeUSER,
+		ContentType: *payload.Upload.ContentType,
+		Checksum:    payload.Upload.Checksum,
+	}
+	if payload.Upload.Filename != nil {
+		userUpload.Upload.Filename = *payload.Upload.Filename
+		upload.Filename = *payload.Upload.Filename
+	}
+	if payload.Upload.Bytes != nil {
+		userUpload.Upload.Bytes = int64(*payload.Upload.Bytes)
+		upload.Bytes = int64(*payload.Upload.Bytes)
+	}
+	if payload.Upload.ContentType != nil {
+		userUpload.Upload.ContentType = *payload.Upload.ContentType
+		upload.ContentType = *payload.Upload.ContentType
+	}
+
+	userUpload.ID = uuid.FromStringOrNil(payload.ID.String())
+	userUpload.UploadID = uuid.FromStringOrNil(payload.UploadID.String())
+	userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
+
+	savedUpload, err := f.saveUploadForAmendedOrder(upload)
+	if err != nil {
+		return models.Order{}, err
+	}
+
+	if savedUpload != nil {
+		userUpload.Upload = models.Upload{
+			ID: savedUpload.ID,
+		}
+	}
+
 	if order.UploadedAmendedOrdersID == nil {
 		amendedOrdersDoc := models.Document{
 			ServiceMemberID: order.UploadedOrders.ServiceMemberID,
@@ -192,43 +227,12 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 			return models.Order{}, err
 		}
 
-		var userUpload models.UserUpload
-		userUpload.ID = uuid.FromStringOrNil(payload.ID.String())
+		// TODO: START: MAKE OTHER CASE FOR THIS
 		if savedAmendedOrdersDoc != nil {
 			userUpload.Document = *savedAmendedOrdersDoc
 			userUpload.DocumentID = &savedAmendedOrdersDoc.ID
 		}
-		upload := models.Upload{
-			ID:          uuid.FromStringOrNil(payload.Upload.ID.String()),
-			UploadType:  models.UploadTypeUSER,
-			ContentType: *payload.Upload.ContentType,
-			Checksum:    payload.Upload.Checksum,
-		}
-		if payload.Upload.Filename != nil {
-			userUpload.Upload.Filename = *payload.Upload.Filename
-			upload.Filename = *payload.Upload.Filename
-		}
-		if payload.Upload.Bytes != nil {
-			userUpload.Upload.Bytes = int64(*payload.Upload.Bytes)
-			upload.Bytes = int64(*payload.Upload.Bytes)
-		}
-		if payload.Upload.ContentType != nil {
-			userUpload.Upload.ContentType = *payload.Upload.ContentType
-			upload.ContentType = *payload.Upload.ContentType
-		}
-		savedUpload, err := f.saveUploadForAmendedOrder(upload)
-		if err != nil {
-			return models.Order{}, err
-		}
 
-		if savedUpload != nil {
-			userUpload.Upload = models.Upload{
-				ID: savedUpload.ID,
-			}
-		}
-
-		userUpload.UploadID = uuid.FromStringOrNil(payload.UploadID.String())
-		userUpload.UploaderID = uuid.FromStringOrNil(payload.UploaderID.String())
 		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
 		userUpload.DocumentID = &savedAmendedOrdersDoc.ID
 		userUpload.Document = *savedAmendedOrdersDoc
@@ -252,6 +256,26 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, pay
 
 		order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
 		order.UploadedAmendedOrders = updatedAmendedDoc
+		// TODO: END: MAKE OTHER CASE FOR THIS
+	} else {
+		if order.UploadedAmendedOrders != nil {
+			userUpload.Document = *order.UploadedAmendedOrders
+			userUpload.DocumentID = &order.UploadedAmendedOrders.ID
+		}
+
+		userUpload.DocumentID = &order.UploadedAmendedOrders.ID
+		userUpload.DocumentID = &order.UploadedAmendedOrders.ID
+		userUpload.Document = *order.UploadedAmendedOrders
+
+		savedUserUpload, err := f.saveUserUploadForAmendedOrder(userUpload)
+		if err != nil {
+			return models.Order{}, err
+		}
+
+		if savedUserUpload != nil && order.UploadedAmendedOrders != nil {
+			order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
+		}
+
 	}
 
 	return order, nil
