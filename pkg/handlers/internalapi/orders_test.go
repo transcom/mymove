@@ -136,8 +136,8 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	req := httptest.NewRequest("PATCH", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
 	serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
-	id := strfmt.UUID("665b0dd3-0fa7-4cff-8744-e3de78c8185d")
-	uploadID := strfmt.UUID("5d32311f-6853-46f0-b9e0-6301b564859b")
+	id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	uploadURL := strfmt.URI("https://file.test")
 	bytes := int64(123)
 	contentType := "application/pdf"
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 		},
 		UploadID:   uploadID,
-		UploaderID: strfmt.UUID("caf33565-5b3e-495e-8f88-c26144d438ba"),
+		UploaderID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
 	}
 	params := ordersop.UploadAmendedOrdersParams{
 		HTTPRequest:   req,

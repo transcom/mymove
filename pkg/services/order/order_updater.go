@@ -170,8 +170,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	return order
 }
 
-func (f *orderUpdater) amendedOrderFromUserUploadPayload(existingOrder models.Order, payload *internalmessages.UserUploadPayload) models.Order {
-	order := existingOrder
+func (f *orderUpdater) amendedOrderFromUserUploadPayload(order models.Order, payload *internalmessages.UserUploadPayload) models.Order {
 	// ========= COMMENTS WILL BE REMOVED BEFORE FINAL PUSH ============
 	// ultimately want to take UserUploadPayload and attach it to order.UploadedAmendedOrders
 	// UserUploadPayload doesn't have a document attached
@@ -253,9 +252,9 @@ func (f *orderUpdater) amendedOrderFromUserUploadPayload(existingOrder models.Or
 			if savedUserUpload != nil && order.UploadedAmendedOrders != nil {
 				order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *savedUserUpload)
 			}
-			if updatedAmendedDoc != nil {
-				order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
-			}
+			// if updatedAmendedDoc != nil {
+			// }
+			order.UploadedAmendedOrdersID = &updatedAmendedDoc.ID
 			order.UploadedAmendedOrders = updatedAmendedDoc
 		}
 	}
