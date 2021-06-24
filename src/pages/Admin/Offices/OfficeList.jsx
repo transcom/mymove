@@ -20,6 +20,7 @@ const OfficeList = (props) => (
     pagination={<AdminPagination />}
     perPage={25}
     sort={defaultSort}
+    bulkActionButtons={false}
   >
     <Datagrid>
       <TextField source="id" />
