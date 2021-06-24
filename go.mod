@@ -74,7 +74,7 @@ require (
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
 	golang.org/x/text v0.3.6
-	golang.org/x/tools v0.1.3
+	golang.org/x/tools v0.1.4
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
