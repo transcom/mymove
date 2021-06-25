@@ -248,9 +248,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
-	ediPrint, ediPrintErr := result.EDIString(suite.logger)
-	suite.NoError(ediPrintErr)
-	fmt.Println(ediPrint)
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
 	suite.T().Run("the GCN is equal to the ICN", func(t *testing.T) {

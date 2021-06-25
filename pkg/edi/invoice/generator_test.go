@@ -68,6 +68,7 @@ N9*CT*TRUSS_TEST**
 N9*1W*Leo, Spacemen**
 N9*ML*E_1**
 N9*3L*ARMY**
+C3*USD***
 G62*10*20200909**
 N1*BY*BuyerOrganizationName*92*LKNQ
 N1*SE*SellerOrganizationName*2*BLKW
@@ -87,7 +88,6 @@ SE*12345*ABCDE
 GE*1*9999
 IEA*1*000009999
 `, ediString)
-		fmt.Println(ediString)
 	})
 
 }
