@@ -11,22 +11,10 @@ import {
   CreateButton,
   ExportButton,
 } from 'react-admin';
-import { ImportButton } from 'react-admin-import-csv';
 import PropTypes from 'prop-types';
 
+import ImportCsvButton from 'components/Admin/ImportCsvButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
-
-// TODO: Update functions to implement parsing functionality. To be completed in MB-8373
-const config = {
-  // A function to translate the CSV rows on import
-  preCommitCallback: () => {},
-  // A function to handle row errors after import
-  postCommitCallback: () => {},
-  // Transform rows before anything is sent to dataprovider
-  transformRows: () => {},
-  // Async function to Validate a row, reject the promise if it's not valid
-  validateRow: () => {},
-};
 
 // Overriding the default toolbar to add import button
 const ListActions = (props) => {
@@ -34,7 +22,7 @@ const ListActions = (props) => {
   return (
     <TopToolbar>
       <CreateButton basePath={basePath} />
-      <ImportButton {...props} {...config} />
+      <ImportCsvButton resource={resource} {...props} />
       <ExportButton
         disabled={total === 0}
         resource={resource}
@@ -81,11 +69,11 @@ const OfficeUserList = (props) => (
 ListActions.propTypes = {
   basePath: PropTypes.string,
   total: PropTypes.number,
-  resource: PropTypes.string.isRequired,
+  resource: PropTypes.string,
   currentSort: PropTypes.exact({
     field: PropTypes.string,
     order: PropTypes.string,
-  }).isRequired,
+  }),
   filterValues: PropTypes.shape({
     // This will have to be updated if we have any filters besides search added to this page
     search: PropTypes.string,
@@ -94,6 +82,11 @@ ListActions.propTypes = {
 };
 
 ListActions.defaultProps = {
+  resource: 'office_users',
+  currentSort: {
+    field: 'last_name',
+    order: 'ASC',
+  },
   basePath: undefined,
   total: null,
   filterValues: {},

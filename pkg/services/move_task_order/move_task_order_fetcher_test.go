@@ -1,7 +1,6 @@
 package movetaskorder_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -47,7 +46,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	suite.T().Run("implicitly non-hidden move task orders", func(t *testing.T) {
+	suite.RunWithRollback("implicitly non-hidden move task orders", func() {
 		searchParams := services.MoveTaskOrderFetcherParams{} // should default to IncludeHidden being false
 		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, &searchParams)
 		suite.NoError(err)
@@ -68,7 +67,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		suite.NotEqual(actualMTO.Status, models.MoveStatusCANCELED)
 	})
 
-	suite.T().Run("include hidden move task orders", func(t *testing.T) {
+	suite.RunWithRollback("include hidden move task orders", func() {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IncludeHidden: true,
 		}
@@ -87,7 +86,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 		suite.Equal(len(moveTaskOrders), 2)
 	})
 
-	suite.T().Run("default search - excludes hidden move task orders", func(t *testing.T) {
+	suite.RunWithRollback("default search - excludes hidden move task orders", func() {
 		moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID, nil)
 		suite.NoError(err)
 
@@ -112,7 +111,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	suite.T().Run("all move task orders", func(t *testing.T) {
+	suite.RunWithRollback("all move task orders", func() {
 		searchParams := services.MoveTaskOrderFetcherParams{
 			IsAvailableToPrime: false,
 			IncludeHidden:      true,
@@ -130,7 +129,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NotNil(move.Orders.NewDutyStation)
 	})
 
-	suite.T().Run("default search - excludes hidden move task orders", func(t *testing.T) {
+	suite.RunWithRollback("default search - excludes hidden move task orders", func() {
 		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(nil)
 		suite.NoError(err)
 
@@ -142,7 +141,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.Equal(1, len(moveTaskOrders)) // minus the one hidden MTO
 	})
 
-	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
+	suite.RunWithRollback("all move task orders that are available to prime and using since", func() {
 		now := time.Now()
 
 		testdatagen.MakeAvailableMove(suite.DB())

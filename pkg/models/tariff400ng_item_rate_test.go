@@ -11,8 +11,6 @@ func intPointer(i int) *int {
 }
 
 func (suite *ModelSuite) TestFetchTariff400ngItemRateBySchedule() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
 			Schedule:  intPointer(1),
@@ -41,8 +39,6 @@ func (suite *ModelSuite) TestFetchTariff400ngItemRateBySchedule() {
 }
 
 func (suite *ModelSuite) TestFetchTariff400ngItemRateNullSchedule() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	rate1 := testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
 			Schedule:  nil,
@@ -59,8 +55,6 @@ func (suite *ModelSuite) TestFetchTariff400ngItemRateNullSchedule() {
 }
 
 func (suite *ModelSuite) TestFetchTariff400ngItemRateByWeight() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	testdatagen.MakeTariff400ngItemRate(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItemRate: models.Tariff400ngItemRate{
 			WeightLbsLower: unit.Pound(1000),
