@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import bytes from 'bytes';
 import moment from 'moment';
@@ -20,17 +19,17 @@ const UploadsTable = ({ uploads, onDelete }) => {
 
   return (
     uploads.length > 0 && (
-      <SectionWrapper className={classNames(styles.wrapper)}>
+      <SectionWrapper className={styles.wrapper}>
         <h6>{uploads.length} Files Uploaded</h6>
         <ul>
           {uploads.map((upload) => (
-            <li className={classNames(styles.uploadListItem)} key={upload.id}>
-              <div className={classNames(styles.fileInfoContainer)}>
-                <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={classNames(styles.faIcon)} />
-                <div className={classNames(styles.fileInfo)}>
+            <li className={styles.uploadListItem} key={upload.id}>
+              <div className={styles.fileInfoContainer}>
+                <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={styles.faIcon} />
+                <div className={styles.fileInfo}>
                   <p>{upload.filename}</p>
-                  <p className={classNames(styles.fileSizeAndTime)}>
-                    <span className={classNames(styles.uploadFileSize)}>{bytes(upload.bytes)}</span>
+                  <p className={styles.fileSizeAndTime}>
+                    <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
                     <span>Uploaded {moment(upload.created_at).format('DD MMM YYYY h:mm A')}</span>
                   </p>
                 </div>
