@@ -195,6 +195,7 @@ jest.mock('services/ghcApi', () => ({
         id: `${id}0`,
       },
     }),
+
   getMovesQueue: () =>
     Promise.resolve({
       page: 1,
@@ -683,10 +684,19 @@ describe('useOrdersDocumentQueries', () => {
           report_by_date: '2018-08-01',
         },
       },
+      amendedUpload: {
+        id: 'z',
+      },
       documents: {
         2: {
           id: '2',
           uploads: ['20'],
+        },
+      },
+      amendedDocuments: {
+        2: {
+          id: '2',
+          uploads: ['z'],
         },
       },
       upload: {

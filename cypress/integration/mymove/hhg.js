@@ -24,9 +24,8 @@ describe('A customer following HHG Setup flow', function () {
 function customerChoosesAnHHGMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
-  cy.get('h2').contains('Choose 1 shipment at a time.');
 
-  cy.get('input[type="radio"]').eq(1).check({ force: true });
+  cy.get('input[type="radio"]').eq(0).check({ force: true });
   cy.nextPage();
 }
 
@@ -105,6 +104,14 @@ function customerSetsUpAnHHGMove() {
   cy.get(`select[name="delivery.address.state"]`).select('CA');
   cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
 
+  // secondary delivery location
+  cy.get('input[data-testid="has-secondary-delivery"]').check({ force: true });
+  cy.get('input[name="secondaryDelivery.address.street_address_1"]').type('123 Oak Street');
+  cy.get('input[name="secondaryDelivery.address.street_address_2"]').type('5A');
+  cy.get('input[name="secondaryDelivery.address.city"]').type('San Diego');
+  cy.get('select[name="secondaryDelivery.address.state"]').select('CA');
+  cy.get('input[name="secondaryDelivery.address.postal_code"]').type('91111').blur();
+
   // releasing agent
   cy.get(`input[name="delivery.agent.firstName"]`).type('John');
   cy.get(`input[name="delivery.agent.lastName"]`).type('Lee');
@@ -123,6 +130,7 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="ShipmentContainer"]').contains('HHG 1');
+  cy.get('[data-testid="hhg-summary"]').contains('123 Oak Street');
 
   cy.get('[data-testid="edit-shipment-btn"]').contains('Edit').click();
 

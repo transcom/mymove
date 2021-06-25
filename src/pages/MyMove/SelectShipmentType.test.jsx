@@ -24,8 +24,8 @@ describe('SelectShipmentType', () => {
     expect(wrapper.find(Radio).length).toBe(4);
 
     // Ppm and HHG text renders
-    expect(wrapper.find(Radio).at(0).text()).toContain('Do it yourself');
-    expect(wrapper.find(Radio).at(1).text()).toContain('Professional movers');
+    expect(wrapper.find(Radio).at(0).text()).toContain('Movers pack and ship it, paid by the government (HHG)');
+    expect(wrapper.find(Radio).at(1).text()).toContain('Move it yourself and get paid for it (PPM)');
     // No buttons should not be checked on page load
     expect(wrapper.find(Radio).at(0).find('.usa-radio__input').prop('checked')).toBe(false);
     expect(wrapper.find(Radio).at(1).find('.usa-radio__input').prop('checked')).toBe(false);
@@ -92,9 +92,9 @@ describe('SelectShipmentType', () => {
   describe('when no PPMs or shipments have been created', () => {
     it('should render the correct text', () => {
       const wrapper = getWrapper();
-      expect(wrapper.find('h1').text()).toContain('How do you want to move your belongings?');
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
-        'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.',
+      expect(wrapper.find('h1').text()).toContain('How should this shipment move?');
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
+        'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
       expect(wrapper.find('[data-testid="helper-footer"]').text()).toContain('Your move counselor will go');
@@ -107,13 +107,9 @@ describe('SelectShipmentType', () => {
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
-      expect(wrapper.find('h1').text()).toContain('How do you want this group of things moved?');
-      expect(wrapper.find(Radio).at(0).text()).toContain('Do it yourself (already chosen)');
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
+      expect(wrapper.find(Radio).at(1).text()).toContain('PPM');
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
         'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.',
-      );
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).not.toContain(
-        'You arrange to move some or all of your belongings',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
       expect(wrapper.find('[data-testid="helper-footer"]').length).toBe(0);
@@ -126,13 +122,6 @@ describe('SelectShipmentType', () => {
   });
 
   describe('when some shipments already exist', () => {
-    it('should render the correct text', () => {
-      const props = {
-        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
-      };
-      const wrapper = getWrapper(props);
-      expect(wrapper.find('h1').text()).toContain('How do you want this group of things moved?');
-    });
     it('should render the correct value in the eyebrow for shipment number with 1 existing shipment', () => {
       const props = {
         mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
@@ -172,7 +161,7 @@ describe('SelectShipmentType', () => {
         'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
-        'These shipments do count against your weight allowance for this move.',
+        'Your orders might not authorize long-term storage — your counselor can verify.',
       );
     });
     it('NTS card should be disabled', () => {
@@ -191,7 +180,7 @@ describe('SelectShipmentType', () => {
         'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
-        'These shipments do count against your weight allowance for this move.',
+        'Your orders might not authorize long-term storage — your counselor can verify.',
       );
     });
     it('NTSr card should be disabled', () => {
@@ -226,10 +215,10 @@ describe('SelectShipmentType', () => {
     };
     const wrapper = getWrapper(props);
     it('should render the correct text', () => {
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
       );
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).not.toContain(
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).not.toContain(
         'Professional movers take care of the whole shipment',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
@@ -238,14 +227,14 @@ describe('SelectShipmentType', () => {
     });
     it('should disable HHG form option', () => {
       // HHG button should be disabled on page load
-      expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
+      expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
     });
     it('should not show radio cards for NTS or NTSr', () => {
       expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
       expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
     });
     it('should have selectable PPM if move does not have a PPM, even if the move is already submitted', () => {
-      expect(wrapper.find(Radio).at(0).prop('disabled')).toEqual(false);
+      expect(wrapper.find(Radio).at(1).prop('disabled')).toEqual(false);
     });
   });
 });
