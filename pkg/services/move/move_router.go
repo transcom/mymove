@@ -292,10 +292,7 @@ func (router moveRouter) ApproveAmendedOrders(moveID uuid.UUID, ordersID uuid.UU
 	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
 		return models.Move{}, errors.Wrap(
 			models.ErrInvalidTransition,
-			fmt.Sprintf("The status for the Move with ID %s can only be set to 'APPROVED' from the "+
-				"'APPROVALS_REQUESTED' status, but its current status is %s.",
-				move.ID, move.Status,
-			),
+			"Cannot approve move with amended orders because the move status is not APPROVALS REQUESTED",
 		)
 	}
 

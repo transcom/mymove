@@ -393,9 +393,10 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		response := handler.Handle(params)
 
-		suite.IsNotErrResponse(response)
-
 		suite.Assertions.IsType(&orderop.UpdateOrderConflict{}, response)
+		conflictErr := response.(*orderop.UpdateOrderConflict)
+
+		suite.Contains(*conflictErr.Payload.Message, "Cannot approve move with amended orders because the move status is not APPROVALS REQUESTED")
 	})
 }
 
