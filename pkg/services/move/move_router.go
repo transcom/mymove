@@ -47,6 +47,13 @@ func (router moveRouter) Submit(move *models.Move) error {
 			return err
 		}
 		router.logger.Info("SUCCESS: Move sent to services counseling")
+	} else if move.Orders.UploadedAmendedOrders != nil {
+		err = router.SendToOfficeUser(move)
+		if err != nil {
+			router.logger.Error("failure routing move with amended orders to office user / TOO queue", zap.Error(err))
+			return err
+		}
+		router.logger.Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
 	} else {
 		err = router.sendNewMoveToOfficeUser(move)
 		if err != nil {
@@ -200,10 +207,10 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 	models.MoveStatusServiceCounselingCompleted,
 }
 
-// SendToOfficeUserToReviewNewServiceItems sets the moves status to
+// SendToOfficeUser sets the moves status to
 // "Approvals Requested", which indicates to the TOO that they have new
 // service items to review.
-func (router moveRouter) SendToOfficeUserToReviewNewServiceItems(move *models.Move) error {
+func (router moveRouter) SendToOfficeUser(move *models.Move) error {
 	// Do nothing if it's already in the desired state
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
 		return nil
@@ -266,6 +273,39 @@ func (router moveRouter) CompleteServiceCounseling(move *models.Move) error {
 	move.Status = models.MoveStatusServiceCounselingCompleted
 
 	return nil
+}
+
+// ApproveAmendedOrders sets the move status to APPROVED if it's status was set to
+// APPROVALS_REQUESTED because of the customer amending their orders.  If there are service items
+// needing review from the prime the status should remain in APPROVALS_REQUESTED
+func (router moveRouter) ApproveAmendedOrders(orders models.Order) (models.Move, error) {
+	var move models.Move
+	err := router.db.Q().
+		InnerJoin("mto_service_items", "moves.id = mto_service_items.move_id").
+		Where("moves.orders_id = ? AND mto_service_items.status = ?", orders.ID, models.MTOServiceItemStatusSubmitted).
+		First(&move)
+
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		router.logger.Error("failure encountered querying for move associated with orders", zap.Error(err))
+		return models.Move{}, fmt.Errorf("failure encountered querying for move associated with orders, %s, id: %s", err.Error(), orders.ID)
+	}
+
+	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return models.Move{}, errors.Wrap(
+			models.ErrInvalidTransition,
+			fmt.Sprintf("The status for the Move with ID %s can only be set to 'APPROVED' from the "+
+				"'APPROVALS_REQUESTED' status, but its current status is %s.",
+				move.ID, move.Status,
+			),
+		)
+	}
+
+	approveErr := router.Approve(&move)
+	if approveErr != nil {
+		return models.Move{}, approveErr
+	}
+
+	return move, nil
 }
 
 func (router moveRouter) logMove(move *models.Move) {

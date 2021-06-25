@@ -27,9 +27,10 @@ type MoveFetcherParams struct {
 //go:generate mockery --name MoveRouter --disable-version-string
 type MoveRouter interface {
 	Approve(move *models.Move) error
+	ApproveAmendedOrders(order models.Order) (models.Move, error)
 	Cancel(reason string, move *models.Move) error
 	CompleteServiceCounseling(move *models.Move) error
-	SendToOfficeUserToReviewNewServiceItems(move *models.Move) error
+	SendToOfficeUser(move *models.Move) error
 	Submit(move *models.Move) error
 	SetLogger(logger Logger)
 }
