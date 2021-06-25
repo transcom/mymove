@@ -58,7 +58,7 @@ function customerEditsNTSRShipmentFromReviewPage() {
   cy.get('button[data-testid="edit-ntsr-shipment-btn"]').contains('Edit').click();
   cy.get('input[name="delivery.requestedDate"]').clear().type('01/01/2022').blur();
   cy.get('input[name="delivery.address.street_address_1"]').clear().type('123 Maple street');
-  cy.get('input[data-testid="yes-secondary-delivery"]').check({ force: true });
+  cy.get('input[data-testid="has-secondary-delivery"]').check({ force: true });
   cy.get('input[name="secondaryDelivery.address.street_address_1"]').clear().type('123 Oak Street');
   cy.get('input[name="delivery.agent.firstName"]').clear().type('Ketchum').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: fragile').blur();

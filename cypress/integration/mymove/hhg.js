@@ -99,7 +99,7 @@ function customerSetsUpAnHHGMove() {
   cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
 
   // secondary delivery location
-  cy.get('input[data-testid="yes-secondary-delivery"]').check({ force: true });
+  cy.get('input[data-testid="has-secondary-delivery"]').check({ force: true });
   cy.get('input[name="secondaryDelivery.address.street_address_1"]').type('123 Oak Street');
   cy.get('input[name="secondaryDelivery.address.street_address_2"]').type('5A');
   cy.get('input[name="secondaryDelivery.address.city"]').type('San Diego');
