@@ -111,6 +111,7 @@
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "~7.14.6",
+    "@babel/helper-builder-react-jsx": "^7.14.5",
     "@dump247/storybook-state": "^1.6.1",
     "@redocly/openapi-cli": "^1.0.0-beta.50",
     "@stoplight/spectral": "^5.9.1",
