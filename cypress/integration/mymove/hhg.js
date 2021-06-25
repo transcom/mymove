@@ -24,9 +24,8 @@ describe('A customer following HHG Setup flow', function () {
 function customerChoosesAnHHGMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
-  cy.get('h2').contains('Choose 1 shipment at a time.');
 
-  cy.get('input[type="radio"]').eq(1).check({ force: true });
+  cy.get('input[type="radio"]').eq(0).check({ force: true });
   cy.nextPage();
 }
 
