@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -259,17 +258,17 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, fmt.Errorf("%v: orderID not converted", err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	newOrder, err := h.OrderUpdater.UploadAmendedOrders(orderID, params.AmendedOrders, params.IfMatch)
 	if err != nil {
-		return handlers.ResponseForError(logger, fmt.Errorf("%v: error returned from service", err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
 	if err != nil {
-		return handlers.ResponseForError(logger, fmt.Errorf("%v: error in order payload", err))
+		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewUploadAmendedOrdersOK().WithPayload(orderPayload)
 }
