@@ -4,7 +4,7 @@
 @import '../../shared/styles/_variables';
 
 .wrapper {
-  @include u-padding(3);
+  @include u-padding(2);
   border: 1px solid #dcdee0;
 
   h6 {
@@ -17,8 +17,8 @@
     @include u-margin-bottom(0);
   }
 
-  @media (max-width: $mobile) {
-    @include u-padding(2);
+  @media (min-width: $tablet) {
+    @include u-padding(3);
   }
 }
 
