@@ -202,10 +202,10 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
-
 		handler := UpdateOrderHandler{
 			context,
 			orderservice.NewOrderUpdater(suite.DB()),
+			&mocks.MoveTaskOrderUpdater{},
 		}
 		response := handler.Handle(params)
 
@@ -248,6 +248,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		handler := UpdateOrderHandler{
 			context,
 			updater,
+			&mocks.MoveTaskOrderUpdater{},
 		}
 
 		updater.AssertNumberOfCalls(suite.T(), "UpdateOrderAsTOO", 0)
@@ -283,6 +284,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		handler := UpdateOrderHandler{
 			context,
 			updater,
+			&mocks.MoveTaskOrderUpdater{},
 		}
 
 		updater.On("UpdateOrderAsTOO", order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
@@ -310,6 +312,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		handler := UpdateOrderHandler{
 			context,
 			updater,
+			&mocks.MoveTaskOrderUpdater{},
 		}
 
 		updater.On("UpdateOrderAsTOO", order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
@@ -338,6 +341,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		handler := UpdateOrderHandler{
 			context,
 			updater,
+			&mocks.MoveTaskOrderUpdater{},
 		}
 
 		updater.On("UpdateOrderAsTOO", order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
@@ -366,6 +370,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		handler := UpdateOrderHandler{
 			context,
 			updater,
+			&mocks.MoveTaskOrderUpdater{},
 		}
 
 		updater.On("UpdateOrderAsTOO", order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
@@ -401,6 +406,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	handler := UpdateOrderHandler{
 		context,
 		updater,
+		&mocks.MoveTaskOrderUpdater{},
 	}
 
 	traceID, err := uuid.NewV4()
