@@ -19,28 +19,30 @@ const UploadsTable = ({ uploads, onDelete }) => {
   };
 
   return (
-    <SectionWrapper className={classNames(styles.wrapper)}>
-      <h6>{uploads.length} Files Uploaded</h6>
-      <ul>
-        {uploads.map((upload) => (
-          <li className={classNames(styles.uploadListItem)} key={upload.id}>
-            <div className={classNames(styles.fileInfoContainer)}>
-              <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={classNames(styles.faIcon)} />
-              <div className={classNames(styles.fileInfo)}>
-                <p>{upload.filename}</p>
-                <p className={classNames(styles.fileSizeAndTime)}>
-                  <span className={classNames(styles.uploadFileSize)}>{bytes(upload.bytes)}</span>
-                  <span>Uploaded {moment(upload.created_at).format('DD MMM YYYY h:mm A')}</span>
-                </p>
+    uploads.length > 0 && (
+      <SectionWrapper className={classNames(styles.wrapper)}>
+        <h6>{uploads.length} Files Uploaded</h6>
+        <ul>
+          {uploads.map((upload) => (
+            <li className={classNames(styles.uploadListItem)} key={upload.id}>
+              <div className={classNames(styles.fileInfoContainer)}>
+                <FontAwesomeIcon size="lg" icon={getIcon(upload.content_type)} className={classNames(styles.faIcon)} />
+                <div className={classNames(styles.fileInfo)}>
+                  <p>{upload.filename}</p>
+                  <p className={classNames(styles.fileSizeAndTime)}>
+                    <span className={classNames(styles.uploadFileSize)}>{bytes(upload.bytes)}</span>
+                    <span>Uploaded {moment(upload.created_at).format('DD MMM YYYY h:mm A')}</span>
+                  </p>
+                </div>
               </div>
-            </div>
-            <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
-              Delete
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </SectionWrapper>
+              <Button type="button" unstyled onClick={() => onDelete(upload.id)}>
+                Delete
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </SectionWrapper>
+    )
   );
 };
 

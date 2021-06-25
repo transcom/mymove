@@ -33,8 +33,8 @@ describe('UploadTable component', () => {
 
   it('renders nothing if there are no uploads', async () => {
     render(<UploadsTable {...testPropsNoUploads} />);
-    expect(screen.queryByRole('heading', { name: /0 FILES UPLOADED/i, level: 6 })).toBeInTheDocument();
-    // expect(screen.queryAllByRole('listitem' )).toBeEmpty();
+    expect(screen.queryByRole('heading', { name: /0 FILES UPLOADED/i, level: 6 })).toBeNull();
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
   });
 
   it('renders if there are uploads', async () => {
