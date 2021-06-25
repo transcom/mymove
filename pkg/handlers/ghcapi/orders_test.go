@@ -5,6 +5,10 @@ import (
 	"testing"
 	"time"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/transcom/mymove/pkg/uploader"
@@ -158,6 +162,9 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	userUploader, err := uploader.NewUserUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), 100*uploader.MB)
 	assert.NoError(suite.T(), err, "failed to create user uploader for amended orders")
 
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+
 	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
 		UserUpload: models.UserUpload{
@@ -169,7 +176,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	})
 
 	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
-	move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			UploadedAmendedOrders:   &amendedDocument,
 			UploadedAmendedOrdersID: &amendedDocument.ID,
@@ -216,11 +223,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		}
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
-		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
+
 		handler := UpdateOrderHandler{
 			context,
 			orderservice.NewOrderUpdater(suite.DB()),
-			&moveTaskOrderUpdater,
+			moveTaskOrderUpdater,
 		}
 
 		suite.Nil(order.AmendedOrdersAcknowledgedAt)
