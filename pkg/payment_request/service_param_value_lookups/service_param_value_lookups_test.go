@@ -37,11 +37,6 @@ type ServiceParamValueLookupsSuite struct {
 	planner route.Planner
 }
 
-func (suite *ServiceParamValueLookupsSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestServiceParamValueLookupsSuite(t *testing.T) {
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -58,7 +53,7 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	).Return(defaultZip5Distance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 		planner:      planner,
 	}

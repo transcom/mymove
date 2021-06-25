@@ -125,5 +125,5 @@ export function customerFillsOutOrdersInformation() {
 
   cy.visit('/');
   cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
-  cy.get('button').contains('Plan your shipments').click();
+  cy.get('button').contains('Set up your shipments').click();
 }

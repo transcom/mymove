@@ -50,7 +50,7 @@ func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, 
 }
 
 func TestModelSuite(t *testing.T) {
-	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())}
+	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction())}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
 }

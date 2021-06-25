@@ -3,6 +3,8 @@ package move
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -72,6 +74,26 @@ func (suite *MoveServiceSuite) TestSubmitted() {
 		err := moveRouter.Submit(&move)
 		suite.Error(err)
 		suite.Contains(err.Error(), "orders missing OriginDutyStation")
+	})
+
+	suite.Run("moves with amended orders are set to APPROVALSREQUESTED status", func() {
+		document := testdatagen.MakeDefaultDocument(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ID:                    uuid.Must(uuid.NewV4()),
+				UploadedAmendedOrders: &document,
+			},
+		})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+			Order: order,
+		})
+
+		err := moveRouter.Submit(&move)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 	})
 
 	suite.Run("moves going to the TOO return errors if the move doesn't have DRAFT status", func() {

@@ -399,17 +399,25 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	})
 }
 
-func (suite *HandlerSuite) TestUpdateOrderHandler() {
-	move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
-	order := move.Orders
+type updateOrderHandlerSubtestData struct {
+	move  models.Move
+	order models.Order
+	body  *ghcmessages.UpdateOrderPayload
+}
+
+func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *updateOrderHandlerSubtestData) {
+	subtestData = &updateOrderHandlerSubtestData{}
+
+	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
+	subtestData.order = subtestData.move.Orders
+
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
 	deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
-
-	body := &ghcmessages.UpdateOrderPayload{
+	subtestData.body = &ghcmessages.UpdateOrderPayload{
 		DepartmentIndicator: &deptIndicator,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
@@ -422,10 +430,18 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		Sac:                 handlers.FmtString("987654321"),
 	}
 
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -464,7 +480,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.Sac, ordersPayload.Sac)
 	})
 
-	suite.T().Run("Returns a 403 when the user does not have TXO role", func(t *testing.T) {
+	suite.Run("Returns a 403 when the user does not have TXO role", func() {
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -495,7 +515,12 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	// We need to confirm whether a user who only has the TIO role should indeed
 	// be authorized to update orders. If not, we also need to prevent them from
 	// clicking the Edit Orders button in the frontend.
-	suite.T().Run("Allows a TIO to update orders", func(t *testing.T) {
+	suite.Run("Allows a TIO to update orders", func() {
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		move := subtestData.move
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -521,7 +546,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.IsType(&orderop.UpdateOrderOK{}, response)
 	})
 
-	suite.T().Run("Returns 404 when updater returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -546,7 +575,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.IsType(&orderop.UpdateOrderNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -571,7 +604,11 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.IsType(&orderop.UpdateOrderPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when updater service returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		subtestData := suite.makeUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -640,15 +677,23 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	suite.HasWebhookNotification(order.ID, traceID)
 }
 
-func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
-	move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
-	order := move.Orders
-	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+type counselingUpdateOrderHandlerSubtestData struct {
+	move  models.Move
+	order models.Order
+	body  *ghcmessages.CounselingUpdateOrderPayload
+}
+
+func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtestData *counselingUpdateOrderHandlerSubtestData) {
+	subtestData = &counselingUpdateOrderHandlerSubtestData{}
+
 	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
 	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+	subtestData.move = testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+	subtestData.order = subtestData.move.Orders
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	body := &ghcmessages.CounselingUpdateOrderPayload{
+	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
 		OrdersType:          "RETIREMENT",
@@ -656,10 +701,18 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
 	}
 
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}", nil)
 
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
+		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -691,7 +744,11 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(body.OrdersType, ordersPayload.OrderType)
 	})
 
-	suite.T().Run("Returns a 403 when the user does not have Counselor role", func(t *testing.T) {
+	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
+		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -718,7 +775,11 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.IsType(&orderop.CounselingUpdateOrderForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when updater returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -742,7 +803,11 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.IsType(&orderop.CounselingUpdateOrderNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
+		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -766,7 +831,11 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.IsType(&orderop.CounselingUpdateOrderPreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when updater service returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -791,9 +860,18 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
-	move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
-	order := move.Orders
+type updateAllowanceHandlerSubtestData struct {
+	move  models.Move
+	order models.Order
+	body  *ghcmessages.UpdateAllowancePayload
+}
+
+func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData *updateAllowanceHandlerSubtestData) {
+	subtestData = &updateAllowanceHandlerSubtestData{}
+
+	subtestData.move = testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{})
+	subtestData.order = subtestData.move.Orders
+
 	newAuthorizedWeight := int64(10000)
 	grade := ghcmessages.GradeO5
 	affiliation := ghcmessages.BranchAIRFORCE
@@ -802,7 +880,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	proGearWeightSpouse := swag.Int64(10)
 	rmeWeight := swag.Int64(10000)
 
-	body := &ghcmessages.UpdateAllowancePayload{
+	subtestData.body = &ghcmessages.UpdateAllowancePayload{
 		Agency:               affiliation,
 		AuthorizedWeight:     &newAuthorizedWeight,
 		DependentsAuthorized: swag.Bool(true),
@@ -812,11 +890,19 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
 	}
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
+		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -851,7 +937,11 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 	})
 
-	suite.T().Run("Returns a 403 when the user does not have TOO role", func(t *testing.T) {
+	suite.Run("Returns a 403 when the user does not have TOO role", func() {
+		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -878,7 +968,11 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.IsType(&orderop.UpdateAllowanceForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when updater returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -902,7 +996,11 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.IsType(&orderop.UpdateAllowanceNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
+		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -926,7 +1024,11 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.IsType(&orderop.UpdateAllowancePreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when updater service returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -994,8 +1096,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 }
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
-	move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
-	order := move.Orders
 	grade := ghcmessages.GradeO5
 	affiliation := ghcmessages.BranchAIRFORCE
 	ocie := false
@@ -1016,7 +1116,10 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
 
-	suite.T().Run("Returns 200 when all validations pass", func(t *testing.T) {
+	suite.Run("Returns 200 when all validations pass", func() {
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		order := move.Orders
+
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1050,7 +1153,10 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.Equal(*body.RequiredMedicalEquipmentWeight, ordersPayload.Entitlement.RequiredMedicalEquipmentWeight)
 	})
 
-	suite.T().Run("Returns a 403 when the user does not have Counselor role", func(t *testing.T) {
+	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		order := move.Orders
+
 		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1077,7 +1183,10 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.IsType(&orderop.CounselingUpdateAllowanceForbidden{}, response)
 	})
 
-	suite.T().Run("Returns 404 when updater returns NotFoundError", func(t *testing.T) {
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		order := move.Orders
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1101,7 +1210,10 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.IsType(&orderop.CounselingUpdateAllowanceNotFound{}, response)
 	})
 
-	suite.T().Run("Returns 412 when eTag does not match", func(t *testing.T) {
+	suite.Run("Returns 412 when eTag does not match", func() {
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		order := move.Orders
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -1125,7 +1237,10 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.IsType(&orderop.CounselingUpdateAllowancePreconditionFailed{}, response)
 	})
 
-	suite.T().Run("Returns 422 when updater service returns validation errors", func(t *testing.T) {
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
+		order := move.Orders
+
 		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
