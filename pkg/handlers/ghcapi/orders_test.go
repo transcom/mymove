@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	})
 
 	amendedDocument.UserUploads = append(amendedDocument.UserUploads, amendedUpload)
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+	approvalsRequestedMove := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			UploadedAmendedOrders:   &amendedDocument,
 			UploadedAmendedOrdersID: &amendedDocument.ID,
@@ -185,7 +185,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		},
 	})
 
-	order := move.Orders
+	amendedOrder := approvalsRequestedMove.Orders
 
 	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
@@ -198,6 +198,28 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	suite.T().Run("Returns 200 when acknowledging orders", func(t *testing.T) {
+		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &document.ID,
+				Document:   document,
+				UploaderID: document.ServiceMember.UserID,
+			},
+			UserUploader: userUploader,
+		})
+
+		document.UserUploads = append(document.UserUploads, upload)
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				UploadedAmendedOrders:   &document,
+				UploadedAmendedOrdersID: &document.ID,
+				ServiceMember:           document.ServiceMember,
+				ServiceMemberID:         document.ServiceMemberID,
+			},
+		})
+
+		order := move.Orders
+
 		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
 		request = suite.AuthenticateOfficeRequest(request, requestUser)
 
@@ -258,6 +280,122 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.NoError(reloadErr, "error reloading move of amended orders")
 
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
+	})
+
+	suite.T().Run("Does not update move status if orders are not acknowledged", func(t *testing.T) {
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		unacknowledgedOrders := false
+		body := &ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator:   &deptIndicator,
+			IssueDate:             handlers.FmtDatePtr(&issueDate),
+			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
+			OrdersType:            "RETIREMENT",
+			OrdersTypeDetail:      &ordersTypeDetail,
+			OrdersNumber:          handlers.FmtString("ORDER100"),
+			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
+			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
+			Tac:                   handlers.FmtString("E19A"),
+			Sac:                   handlers.FmtString("987654321"),
+			OrdersAcknowledgement: &unacknowledgedOrders,
+		}
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(amendedOrder.ID.String()),
+			IfMatch:     etag.GenerateEtag(amendedOrder.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		orderUpdater := mocks.OrderUpdater{}
+		// This is not modified but we're relying on the check of the params short circuiting
+		orderUpdater.On("UpdateOrderAsTOO", amendedOrder.ID, *body, params.IfMatch).Return(&amendedOrder, approvalsRequestedMove.ID, nil)
+
+		moveUpdater := mocks.MoveTaskOrderUpdater{}
+		handler := UpdateOrderHandler{
+			context,
+			&orderUpdater,
+			&moveUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&orderop.UpdateOrderOK{}, response)
+
+		suite.True(moveUpdater.AssertNotCalled(t, "UpdateApprovedAmendedOrders"))
+	})
+
+	suite.T().Run("Returns a 409 conflict error if move status is in invalid state", func(t *testing.T) {
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		upload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
+			UserUpload: models.UserUpload{
+				DocumentID: &document.ID,
+				Document:   document,
+				UploaderID: document.ServiceMember.UserID,
+			},
+			UserUploader: userUploader,
+		})
+
+		document.UserUploads = append(document.UserUploads, upload)
+		move := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				UploadedAmendedOrders:   &document,
+				UploadedAmendedOrdersID: &document.ID,
+				ServiceMember:           document.ServiceMember,
+				ServiceMemberID:         document.ServiceMemberID,
+			},
+		})
+
+		order := move.Orders
+
+		body := &ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator:   &deptIndicator,
+			IssueDate:             handlers.FmtDatePtr(&issueDate),
+			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
+			OrdersType:            "RETIREMENT",
+			OrdersTypeDetail:      &ordersTypeDetail,
+			OrdersNumber:          handlers.FmtString("ORDER100"),
+			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
+			OriginDutyStationID:   handlers.FmtUUID(originDutyStation.ID),
+			Tac:                   handlers.FmtString("E19A"),
+			Sac:                   handlers.FmtString("987654321"),
+			OrdersAcknowledgement: &ordersAcknowledgement,
+		}
+
+		params := orderop.UpdateOrderParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		orderUpdater := mocks.OrderUpdater{}
+		acknowledgedAt := time.Now()
+		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
+		orderUpdater.On("UpdateOrderAsTOO", order.ID, *body, params.IfMatch).Return(&order, move.ID, nil)
+
+		moveUpdater := mocks.MoveTaskOrderUpdater{}
+		handler := UpdateOrderHandler{
+			context,
+			&orderUpdater,
+			&moveUpdater,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&orderop.UpdateOrderConflict{}, response)
 	})
 }
 

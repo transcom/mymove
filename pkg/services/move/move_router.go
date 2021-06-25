@@ -273,12 +273,11 @@ func (router moveRouter) CompleteServiceCounseling(move *models.Move) error {
 // needing review from the prime the status should remain in APPROVALS_REQUESTED
 func (router moveRouter) ApproveAmendedOrders(orders models.Order) (models.Move, error) {
 	var move models.Move
-	err := router.db.Q().
-		InnerJoin("mto_service_items", "moves.id = mto_service_items.move_id").
-		Where("moves.orders_id = ? AND mto_service_items.status = ?", orders.ID, models.MTOServiceItemStatusSubmitted).
+	err := router.db.EagerPreload("MTOServiceItems").
+		Where("moves.orders_id = ?", orders.ID).
 		First(&move)
 
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil {
 		router.logger.Error("failure encountered querying for move associated with orders", zap.Error(err))
 		return models.Move{}, fmt.Errorf("failure encountered querying for move associated with orders, %s, id: %s", err.Error(), orders.ID)
 	}
@@ -293,9 +292,19 @@ func (router moveRouter) ApproveAmendedOrders(orders models.Order) (models.Move,
 		)
 	}
 
-	approveErr := router.Approve(&move)
-	if approveErr != nil {
-		return models.Move{}, approveErr
+	var hasRequestedServiceItems bool
+	for _, serviceItem := range move.MTOServiceItems {
+		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+			hasRequestedServiceItems = true
+			break
+		}
+	}
+
+	if !hasRequestedServiceItems {
+		approveErr := router.Approve(&move)
+		if approveErr != nil {
+			return models.Move{}, approveErr
+		}
 	}
 
 	return move, nil

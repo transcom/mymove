@@ -2,7 +2,9 @@ package ghcapi
 
 import (
 	"database/sql"
+	"errors"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gobuffalo/validate/v3"
@@ -91,6 +93,8 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+		case services.ConflictError:
+			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.ForbiddenError:
@@ -117,6 +121,9 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		moveRouter := move.NewMoveRouter(h.DB(), logger)
 		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(*updatedOrder)
 		if approveErr != nil {
+			if errors.Is(approveErr, models.ErrInvalidTransition) {
+				return handleError(services.NewConflictError(moveID, approveErr.Error()))
+			}
 			return handleError(approveErr)
 		}
 
