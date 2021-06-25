@@ -139,7 +139,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Failed to parse pricing template", zap.Error(err))
 	}
-	if err = summarizeXlsxStageParsing(db, logger); err != nil {
+	if err = summarizeXlsxStageParsing(db); err != nil {
 		logger.Fatal("Failed to summarize XLSX to stage table parsing", zap.Error(err))
 	}
 
@@ -156,13 +156,13 @@ func main() {
 		if err != nil {
 			logger.Fatal("GHC Rate Engine import failed", zap.Error(err))
 		}
-		if err := summarizeStageReImport(db, logger, ghcREImporter.ContractID); err != nil {
+		if err := summarizeStageReImport(db, ghcREImporter.ContractID); err != nil {
 			logger.Fatal("Failed to summarize stage table to rate engine table import", zap.Error(err))
 		}
 	}
 }
 
-func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
+func summarizeXlsxStageParsing(db *pop.Connection) error {
 	printDivider("XLSX to stage table parsing complete; summary follows")
 
 	models := []struct {
@@ -190,7 +190,7 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	}
 
 	for _, model := range models {
-		err := summarizeModel(db, logger, model.header, model.modelInstance, nil)
+		err := summarizeModel(db, model.header, model.modelInstance, nil)
 		if err != nil {
 			return err
 		}
@@ -199,7 +199,7 @@ func summarizeXlsxStageParsing(db *pop.Connection, logger logger) error {
 	return nil
 }
 
-func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.UUID) error {
+func summarizeStageReImport(db *pop.Connection, contractID uuid.UUID) error {
 	printDivider("Stage table import into rate engine tables complete; summary follows")
 
 	models := []struct {
@@ -280,7 +280,7 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	}
 
 	for _, model := range models {
-		err := summarizeModel(db, logger, model.header, model.modelInstance, model.filter)
+		err := summarizeModel(db, model.header, model.modelInstance, model.filter)
 		if err != nil {
 			return err
 		}
@@ -289,7 +289,7 @@ func summarizeStageReImport(db *pop.Connection, logger logger, contractID uuid.U
 	return nil
 }
 
-func summarizeModel(db *pop.Connection, logger logger, header string, modelInstance interface{}, filter *pop.Query) error {
+func summarizeModel(db *pop.Connection, header string, modelInstance interface{}, filter *pop.Query) error {
 	// Inspired by https://stackoverflow.com/a/25386460
 	modelType := reflect.TypeOf(modelInstance)
 	if modelType.Kind() != reflect.Struct {
