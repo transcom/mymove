@@ -56,8 +56,8 @@ func (_m *MoveRouter) CompleteServiceCounseling(move *models.Move) error {
 	return r0
 }
 
-// SendToOfficeUserToReviewNewServiceItems provides a mock function with given fields: move
-func (_m *MoveRouter) SendToOfficeUserToReviewNewServiceItems(move *models.Move) error {
+// SendToOfficeUser provides a mock function with given fields: move
+func (_m *MoveRouter) SendToOfficeUser(move *models.Move) error {
 	ret := _m.Called(move)
 
 	var r0 error

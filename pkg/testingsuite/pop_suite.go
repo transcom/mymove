@@ -464,6 +464,16 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 	return true
 }
 
+// NilOrNoVerrs checks that an error is effecively nil
+func (suite *PopTestSuite) NilOrNoVerrs(err error) {
+	switch verr := err.(type) {
+	case *validate.Errors:
+		suite.False(verr.HasAny(), "non-empty validation errors: %v", verr)
+	default:
+		suite.Nil(err)
+	}
+}
+
 // Run overrides the default testify Run to ensure that the testdb is
 // torn down for per txn tests
 //
