@@ -334,6 +334,7 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		"OriginDutyStation.TransportationOffice",
 		"NewDutyStation.Address",
 		"UploadedOrders",
+		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement").
@@ -360,6 +361,24 @@ func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connectio
 		}
 	}
 	order.UploadedOrders.UserUploads = relevantUploads
+
+	// Eager loading of nested has_many associations is broken
+	if order.UploadedAmendedOrders != nil {
+		err = db.Load(order.UploadedAmendedOrders, "UserUploads.Upload")
+		if err != nil {
+			return Order{}, err
+		}
+
+		// Only return user uploads that haven't been deleted
+		userUploads := order.UploadedAmendedOrders.UserUploads
+		relevantUploads := make([]UserUpload, 0, len(userUploads))
+		for _, userUpload := range userUploads {
+			if userUpload.DeletedAt == nil {
+				relevantUploads = append(relevantUploads, userUpload)
+			}
+		}
+		order.UploadedAmendedOrders.UserUploads = relevantUploads
+	}
 
 	// User must be logged in service member
 	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {

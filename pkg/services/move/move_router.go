@@ -47,6 +47,13 @@ func (router moveRouter) Submit(move *models.Move) error {
 			return err
 		}
 		router.logger.Info("SUCCESS: Move sent to services counseling")
+	} else if move.Orders.UploadedAmendedOrders != nil {
+		err = router.SendToOfficeUser(move)
+		if err != nil {
+			router.logger.Error("failure routing move with amended orders to office user / TOO queue", zap.Error(err))
+			return err
+		}
+		router.logger.Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
 	} else {
 		err = router.sendNewMoveToOfficeUser(move)
 		if err != nil {
@@ -200,10 +207,10 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 	models.MoveStatusServiceCounselingCompleted,
 }
 
-// SendToOfficeUserToReviewNewServiceItems sets the moves status to
+// SendToOfficeUser sets the moves status to
 // "Approvals Requested", which indicates to the TOO that they have new
 // service items to review.
-func (router moveRouter) SendToOfficeUserToReviewNewServiceItems(move *models.Move) error {
+func (router moveRouter) SendToOfficeUser(move *models.Move) error {
 	// Do nothing if it's already in the desired state
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
 		return nil
@@ -275,4 +282,8 @@ func (router moveRouter) logMove(move *models.Move) {
 		zap.String("Move.Status", string(move.Status)),
 		zap.String("Move.OrdersID", move.OrdersID.String()),
 	)
+}
+
+func (router *moveRouter) SetLogger(logger services.Logger) {
+	router.logger = logger
 }

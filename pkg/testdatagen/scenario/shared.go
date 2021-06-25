@@ -21,7 +21,8 @@ import (
 
 // NamedScenario is a data generation scenario that has a name
 type NamedScenario struct {
-	Name string
+	Name         string
+	SubScenarios []string
 }
 
 // May15TestYear is a May 15 of TestYear
@@ -48,7 +49,8 @@ func save(db *pop.Connection, model interface{}) error {
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage
-func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, allDutyStations []models.DutyStation, dutyStationsInGBLOC []models.DutyStation, assertions testdatagen.Assertions) {
+func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, allDutyStations []models.DutyStation,
+	dutyStationsInGBLOC []models.DutyStation, assertions testdatagen.Assertions) models.Move {
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
 		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(err))
@@ -138,6 +140,7 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 			Status:                shipmentStatus,
 			RequestedPickupDate:   &laterRequestedPickupDate,
 			RequestedDeliveryDate: &laterRequestedDeliveryDate,
+			ApprovedDate:          assertions.MTOShipment.ApprovedDate,
 			Diversion:             assertions.MTOShipment.Diversion,
 		},
 	})
@@ -151,7 +154,10 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 			Status:                shipmentStatus,
 			RequestedPickupDate:   &earlierRequestedPickupDate,
 			RequestedDeliveryDate: &earlierRequestedDeliveryDate,
+			ApprovedDate:          assertions.MTOShipment.ApprovedDate,
 			Diversion:             assertions.MTOShipment.Diversion,
 		},
 	})
+
+	return move
 }

@@ -98,6 +98,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	UsersRoles                               models.UsersRoles
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	Zip3Distance                             models.Zip3Distance

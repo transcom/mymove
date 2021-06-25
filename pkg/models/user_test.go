@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/db/dberr"
@@ -12,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
+	userroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -88,8 +87,6 @@ func (suite *ModelSuite) TestCreateUser() {
 }
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
 	// First check that it all works with no record
 	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
@@ -186,17 +183,79 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 }
 
+func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
+	// creates a custom comparison function for testing the role type
+	compareRoleTypeLists := func(expectedList roles.Roles, actualList roles.Roles) func() (success bool) {
+		return func() (success bool) {
+			// compare length first
+			if len(expectedList) != len(actualList) {
+				return false
+			}
+
+			// then compare the role type
+			// types are unique so we shouldn't run into duplicates
+			for _, expectedRole := range expectedList {
+				roleMatches := false
+				for _, actualRole := range actualList {
+					if expectedRole.RoleType == actualRole.RoleType {
+						roleMatches = true
+						break
+					}
+				}
+
+				if !roleMatches {
+					return false
+				}
+			}
+
+			return true
+		}
+	}
+
+	/*
+		Test that user identity is properly fetched
+	*/
+	// this creates a user with TOO, TIO, and Services Counselor roles
+	multiRoleUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{})
+	identity, err := FetchUserIdentity(suite.DB(), multiRoleUser.User.LoginGovUUID.String())
+	suite.Nil(err, "failed to fetch user identity")
+	suite.Equal(*multiRoleUser.UserID, identity.ID)
+	suite.Condition(compareRoleTypeLists(multiRoleUser.User.Roles, identity.Roles))
+
+	/*
+		Test that user identity is properly fetched after deleting roles
+	*/
+	// then update user roles to soft delete
+	userRoles := userroles.NewUsersRolesCreator(suite.DB())
+	// we'll be soft deleting the services counselor role
+	updateToRoles := []roles.RoleType{
+		roles.RoleTypeTOO,
+		roles.RoleTypeTIO,
+	}
+	_, err = userRoles.UpdateUserRoles(*multiRoleUser.UserID, updateToRoles)
+	suite.NoError(err)
+
+	// re-fetch user identity and check roles
+	identity, err = FetchUserIdentity(suite.DB(), multiRoleUser.User.LoginGovUUID.String())
+	suite.Nil(err, "failed to fetch user identity")
+	suite.Equal(*multiRoleUser.UserID, identity.ID)
+
+	expectedRoles := roles.Roles{
+		roles.Role{RoleType: roles.RoleTypeTOO},
+		roles.Role{RoleType: roles.RoleTypeTIO},
+	}
+	suite.Condition(compareRoleTypeLists(expectedRoles, identity.Roles))
+}
+
 func (suite *ModelSuite) TestFetchAppUserIdentities() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-	suite.T().Run("default user no profile", func(t *testing.T) {
+	suite.Run("default user no profile", func() {
 		testdatagen.MakeStubbedUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
 		suite.NoError(err)
 		suite.Empty(identities)
 	})
 
-	suite.T().Run("service member", func(t *testing.T) {
+	suite.Run("service member", func() {
 
 		// Regular service member
 		testdatagen.MakeDefaultServiceMember(suite.DB())
@@ -226,7 +285,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	// In the following tests you won't see extra users returned. Eeach query is
 	// limited by the app it expects to be run in.
 
-	suite.T().Run("office user", func(t *testing.T) {
+	suite.Run("office user", func() {
 		testdatagen.MakeDefaultOfficeUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.OfficeApp, 5)
 		suite.NoError(err)
@@ -239,7 +298,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		}
 	})
 
-	suite.T().Run("admin user", func(t *testing.T) {
+	suite.Run("admin user", func() {
 		testdatagen.MakeDefaultAdminUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.AdminApp, 5)
 		suite.Nil(err)
@@ -255,9 +314,6 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 }
 
 func (suite *ModelSuite) TestGetUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	alice := testdatagen.MakeDefaultUser(suite.DB())
 
 	user1, err := GetUserFromEmail(suite.DB(), alice.LoginGovEmail)

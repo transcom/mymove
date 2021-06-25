@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -22,22 +23,39 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"service_member_id":   {"ServiceMemberID can not be blank."},
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
 		"status":              {"Status can not be blank."},
+		"uploaded_orders_id":  {"UploadedOrdersID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
 }
 
-func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
+func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
-	order.TAC = nil
 	order.Moves = append(order.Moves, move)
 
-	expErrors := map[string][]string{
-		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
-	}
+	suite.T().Run("test valid UploadedAmendedOrdersID", func(t *testing.T) {
+		testUUID := uuid.Must(uuid.NewV4())
+		order.UploadedAmendedOrdersID = &testUUID
 
-	suite.verifyValidationErrors(&order, expErrors)
+		expErrors := map[string][]string{}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	})
+
+	suite.T().Run("test blank fields", func(t *testing.T) {
+		order.TAC = nil
+		order.DepartmentIndicator = nil
+		order.UploadedAmendedOrdersID = &uuid.Nil
+
+		expErrors := map[string][]string{
+			"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
+			"department_indicator":           {"DepartmentIndicator cannot be blank."},
+			"uploaded_amended_orders_id":     {"UploadedAmendedOrdersID can not be blank."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	})
 }
 
 func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
@@ -131,23 +149,7 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 	}
 }
 
-func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
-	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
-	order := move.Orders
-	order.DepartmentIndicator = nil
-	order.Moves = append(order.Moves, move)
-
-	expErrors := map[string][]string{
-		"department_indicator": {"DepartmentIndicator cannot be blank."},
-	}
-
-	suite.verifyValidationErrors(&order, expErrors)
-}
-
 func (suite *ModelSuite) TestFetchOrderForUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
@@ -228,9 +230,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -277,8 +276,6 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -313,7 +310,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	suite.MustSave(&order)
 
 	// Submit Orders
-	err = order.Submit()
+	err := order.Submit()
 	suite.NoError(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
@@ -324,8 +321,6 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 }
 
 func (suite *ModelSuite) TestSaveOrder() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 

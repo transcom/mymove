@@ -68,15 +68,19 @@ For example, to run in the `exp` environment, you'd run:
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-migrations exp
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls exp
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-niprnet stg
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls-niprnet stg
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-tasks exp
 ```
 
-| Script Name             | Description                                                             |
-| ----------------------- | ----------------------------------------------------------------------- |
-| `deploy-app-migrations` | Deploy the app migrations                                               |
-| `deploy-app`            | Deploy the app                                                          |
-| `deploy-app-client-tls` | Deploy the app client-tls                                               |
-| `deploy-app-tasks`      | Deploy the app tasks                                                    |
+| Script Name                     | Description                                                             |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `deploy-app-migrations`         | Deploy the app migrations                                               |
+| `deploy-app`                    | Deploy the app                                                          |
+| `deploy-app-client-tls`         | Deploy the app client-tls                                               |
+| `deploy-app-client-tls-niprnet` | Deploy the app client-tls for NIPRNet                                   |
+| `deploy-app-niprnet`            | Deploy the app for NIPRNet                                              |
+| `deploy-app-tasks`              | Deploy the app tasks                                                    |
 
 ## Pre-commit Scripts
 
@@ -174,6 +178,7 @@ These scripts are primarily used for working with the database
 | ---------------------------- | -------------------------------------------------------------------------------------- |
 | `db-backup`                  | Backup the contents of the development database for later restore.                     |
 | `db-cleanup`                 | Remove the database backup.                                                            |
+| `db-truncate`                | Truncates the configured database. Used in testing.                                    |
 | `db-restore`                 | Restore the contents of the development database from an earlier backup.               |
 | `psql-dev`                   | Convenience script to drop into development postgres DB                                |
 | `psql-deployed-migrations`   | Convenience script to drop into deployed migrations postgres DB                        |

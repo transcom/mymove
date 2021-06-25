@@ -24,36 +24,35 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 	logger.Info("Parsing other international prices")
 
 	var otherIntlPrices []models.StageOtherIntlPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
-
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		colIndex := feeColIndexStart
 		// All the rows are consecutive, if we get to a blank one we're done
-		if getCell(row.Cells, colIndex) == "" {
+		if mustGetCell(sheet, rowIndex, colIndex) == "" {
 			break
 		}
 
 		for _, s := range rateSeasons {
 			otherIntlPrice := models.StageOtherIntlPrice{
-				RateAreaCode: getCell(row.Cells, priceAreaCodeColumn),
-				RateAreaName: getCell(row.Cells, priceAreaNameColumn),
+				RateAreaCode: mustGetCell(sheet, rowIndex, priceAreaCodeColumn),
+				RateAreaName: mustGetCell(sheet, rowIndex, priceAreaNameColumn),
 				Season:       s,
 			}
-			otherIntlPrice.HHGOriginPackPrice = getCell(row.Cells, colIndex)
+			otherIntlPrice.HHGOriginPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.HHGDestinationUnPackPrice = getCell(row.Cells, colIndex)
+			otherIntlPrice.HHGDestinationUnPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.UBOriginPackPrice = getCell(row.Cells, colIndex)
+			otherIntlPrice.UBOriginPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.UBDestinationUnPackPrice = getCell(row.Cells, colIndex)
+			otherIntlPrice.UBDestinationUnPackPrice = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.OriginDestinationSITFirstDayWarehouse = getCell(row.Cells, colIndex)
+			otherIntlPrice.OriginDestinationSITFirstDayWarehouse = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.OriginDestinationSITAddlDays = getCell(row.Cells, colIndex)
+			otherIntlPrice.OriginDestinationSITAddlDays = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.SITLte50Miles = getCell(row.Cells, colIndex)
+			otherIntlPrice.SITLte50Miles = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex++
-			otherIntlPrice.SITGt50Miles = getCell(row.Cells, colIndex)
+			otherIntlPrice.SITGt50Miles = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex += 2
 
 			if params.ShowOutput {
@@ -89,23 +88,25 @@ var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex 
 		return fmt.Errorf("verifyOtherIntlPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	nonPriceHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-3 : feeRowIndexStart-2][0]
-	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-2 : feeRowIndexStart-1][0]
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 
-	if err := verifyHeader(nonPriceHeaderRow, priceAreaCodeColumn, "PriceAreaCode/ID"); err != nil {
+	nonPriceHeaderIndex := feeRowIndexStart - 3
+	headerRowIndex := feeRowIndexStart - 2
+
+	if err := verifyHeader(sheet, nonPriceHeaderIndex, priceAreaCodeColumn, "PriceAreaCode/ID"); err != nil {
 		return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
 
 	}
 
 	priceAreaNameHeader := "InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea"
-	if err := verifyHeader(nonPriceHeaderRow, priceAreaNameColumn, priceAreaNameHeader); err != nil {
+	if err := verifyHeader(sheet, nonPriceHeaderIndex, priceAreaNameColumn, priceAreaNameHeader); err != nil {
 		return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
 	}
 
 	// NonPeak season headers
 	colIndex := feeColIndexStart
 	for _, repeatingHeader := range repeatingHeaders {
-		if err := verifyHeader(headerRow, colIndex, repeatingHeader); err != nil {
+		if err := verifyHeader(sheet, headerRowIndex, colIndex, repeatingHeader); err != nil {
 			return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
 		}
 		colIndex++
@@ -114,7 +115,7 @@ var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex 
 
 	// Peak season headers
 	for _, repeatingHeader := range repeatingHeaders {
-		if err := verifyHeader(headerRow, colIndex, repeatingHeader); err != nil {
+		if err := verifyHeader(sheet, headerRowIndex, colIndex, repeatingHeader); err != nil {
 			return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
 		}
 		colIndex++

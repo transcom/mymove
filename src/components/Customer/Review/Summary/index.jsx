@@ -4,8 +4,9 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Grid, Link } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Summary.module.scss';
 
@@ -25,6 +26,7 @@ import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipment
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
+import ConnectedAddShipmentModal from 'components/Customer/Review/AddShipmentModal';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -43,6 +45,7 @@ export class Summary extends Component {
 
     this.state = {
       entitlementWarning: null,
+      showModal: false,
     };
   }
 
@@ -146,6 +149,7 @@ export class Summary extends Component {
             moveId={moveId}
             onEditClick={this.handleEditClick}
             pickupLocation={shipment.pickupAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
             releasingAgent={releasingAgent}
             remarks={shipment.customerRemarks}
             requestedPickupDate={shipment.requestedPickupDate}
@@ -160,6 +164,7 @@ export class Summary extends Component {
             key={shipment.id}
             destinationLocation={shipment?.destinationAddress}
             destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
             showEditBtn={showEditBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
@@ -176,6 +181,8 @@ export class Summary extends Component {
         <HHGShipmentCard
           key={shipment.id}
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
+          secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+          secondaryPickupAddress={shipment?.secondaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}
@@ -194,18 +201,15 @@ export class Summary extends Component {
     });
   };
 
+  toggleModal = () => {
+    this.setState((state) => ({
+      showModal: !state.showModal,
+    }));
+  };
+
   render() {
-    const {
-      currentMove,
-      currentOrders,
-      currentPPM,
-      history,
-      match,
-      moveIsApproved,
-      mtoShipments,
-      serviceMember,
-    } = this.props;
-    const { entitlementWarning } = this.state;
+    const { currentMove, currentOrders, currentPPM, match, moveIsApproved, mtoShipments, serviceMember } = this.props;
+    const { entitlementWarning, showModal } = this.state;
 
     const { moveId } = match.params;
     const currentStation = get(serviceMember, 'current_station');
@@ -227,6 +231,9 @@ export class Summary extends Component {
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     const shipmentSelectionPath = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, { moveId: currentMove.id });
 
+    const thirdSectionHasContent =
+      showMoveSetup || showPPMShipmentSummary || (isReviewPage && (mtoShipments.length > 0 || currentPPM));
+
     return (
       <>
         {entitlementWarning && (
@@ -235,7 +242,7 @@ export class Summary extends Component {
           </Alert>
         )}
 
-        <SectionWrapper>
+        <SectionWrapper className={styles.SummarySectionWrapper}>
           <ProfileTable
             affiliation={serviceMember.affiliation}
             city={serviceMember.residential_address.city}
@@ -253,7 +260,7 @@ export class Summary extends Component {
             telephone={serviceMember.telephone}
           />
         </SectionWrapper>
-        <SectionWrapper>
+        <SectionWrapper className={styles.SummarySectionWrapper}>
           <OrdersTable
             hasDependents={currentOrders.has_dependents}
             issueDate={currentOrders.issue_date}
@@ -265,37 +272,46 @@ export class Summary extends Component {
             uploads={currentOrders.uploaded_orders.uploads}
           />
         </SectionWrapper>
-        <SectionWrapper>
-          {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
-          {isReviewPage && this.renderShipments()}
-          {showPPMShipmentSummary && (
-            <ConnectedPPMShipmentSummary
-              ppm={currentPPM}
-              movePath={rootReviewAddressWithMoveId}
-              orders={currentOrders}
-            />
-          )}
-          <div className="grid-col-row margin-top-5">
-            <span className="float-right">Optional</span>
-            <h3>Add another shipment</h3>
-            {canAddAnotherShipment ? (
-              <>
-                <p>Do you have more to move, either to or from another location, or by another method?</p>
-                <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
-                  Add another shipment
-                </Button>
-              </>
-            ) : (
-              <p>Talk with your movers directly if you want to add or change shipments.</p>
+        {thirdSectionHasContent && (
+          <SectionWrapper className={styles.SummarySectionWrapper}>
+            {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
+            {isReviewPage && this.renderShipments()}
+            {showPPMShipmentSummary && (
+              <ConnectedPPMShipmentSummary
+                ppm={currentPPM}
+                movePath={rootReviewAddressWithMoveId}
+                orders={currentOrders}
+              />
             )}
+          </SectionWrapper>
+        )}
+        {canAddAnotherShipment ? (
+          <Grid row>
+            <Grid col="fill" tablet={{ col: 'auto' }}>
+              <Link href={shipmentSelectionPath}>Add another shipment</Link>
+            </Grid>
+            <Grid col="auto" className={styles.buttonContainer}>
+              <Button
+                title="Help with adding shipments"
+                type="button"
+                onClick={this.toggleModal}
+                unstyled
+                className={styles.buttonRight}
+              >
+                <FontAwesomeIcon icon={['far', 'question-circle']} />
+              </Button>
+            </Grid>
+          </Grid>
+        ) : (
+          <p>Talk with your movers directly if you want to add or change shipments.</p>
+        )}
+        {moveIsApproved && (
+          <div className="approved-edit-warning">
+            *To change these fields, contact your local PPPO office at {currentStation.name}{' '}
+            {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
-          {moveIsApproved && (
-            <div className="approved-edit-warning">
-              *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-              {stationPhone ? ` at ${stationPhone}` : ''}.
-            </div>
-          )}
-        </SectionWrapper>
+        )}
+        <ConnectedAddShipmentModal isOpen={showModal} closeModal={this.toggleModal} />
       </>
     );
   }

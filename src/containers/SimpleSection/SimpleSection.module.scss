@@ -1,0 +1,43 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+@import 'shared/styles/colors';
+
+.SimpleSection {
+  @include u-line-height('body', 2);
+
+  header {
+    color: $base-darker;
+    @include u-font-size('body', '3xs');
+    @include u-text('bold');
+
+    @include u-border-bottom('1px');
+    @include u-border-bottom('base-lighter');
+    @include u-margin-bottom(1);
+    @include u-padding(1);
+  }
+
+  > :not(header) {
+    @include u-margin-x(1);
+  }
+
+  > .SimpleSection {
+    > header {
+      @include u-padding-x(0);
+    }
+    > :not(header) {
+      @include u-margin-x(0);
+    }
+  }
+
+  > p {
+    @include u-margin-top(0);
+    @include u-margin-bottom(1);
+  }
+
+  .noBorder {
+    header {
+      @include u-border(0);
+      @include u-margin-bottom(0);
+    }
+  }
+}

@@ -88,7 +88,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
-  const approvedShipments = mtoShipments?.filter((shipment) => shipment.status === shipmentStatuses.APPROVED);
+  const approvedOrCanceledShipments = mtoShipments?.filter(
+    (shipment) => shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELED,
+  );
 
   useEffect(() => {
     const shipmentCount = submittedShipments?.length || 0;
@@ -101,22 +103,22 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
       if (
         serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED &&
         serviceItem.mtoShipmentID &&
-        approvedShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
+        approvedOrCanceledShipments?.find((shipment) => shipment.id === serviceItem.mtoShipmentID)
       ) {
         serviceItemCount += 1;
       }
     });
     setUnapprovedServiceItemCount(serviceItemCount);
-  }, [approvedShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
+  }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   const { customer, entitlement: allowances } = order;
 
-  if (submittedShipments.length > 0 && approvedShipments.length > 0) {
+  if (submittedShipments.length > 0 && approvedOrCanceledShipments.length > 0) {
     sections = ['requested-shipments', 'approved-shipments', ...sections];
-  } else if (approvedShipments.length > 0) {
+  } else if (approvedOrCanceledShipments.length > 0) {
     sections = ['approved-shipments', ...sections];
   } else if (submittedShipments.length > 0) {
     sections = ['requested-shipments', ...sections];
@@ -207,11 +209,11 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
               />
             </div>
           )}
-          {approvedShipments.length > 0 && (
+          {approvedOrCanceledShipments.length > 0 && (
             <div className={styles.section} id="approved-shipments">
               <RequestedShipments
                 moveTaskOrder={move}
-                mtoShipments={approvedShipments}
+                mtoShipments={approvedOrCanceledShipments}
                 ordersInfo={ordersInfo}
                 allowancesInfo={allowancesInfo}
                 customerInfo={customerInfo}

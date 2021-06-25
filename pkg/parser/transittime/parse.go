@@ -10,7 +10,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/dbtools"

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import moment from 'moment';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -9,6 +10,7 @@ import { FilesShape } from '../types';
 import styles from './Menu.module.scss';
 
 import { filenameFromPath } from 'shared/formatters';
+import { formatDate } from 'shared/dates';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
   <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
@@ -25,12 +27,16 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
         const itemClasses = classnames(styles.menuItemBtn, {
           [styles.active]: i === selectedFileIndex,
         });
-        const filename = filenameFromPath(file.filename);
+        const fileName = filenameFromPath(file.filename);
+        const fileDate = formatDate(moment(file.createdAt), 'DD-MMM-YYYY');
+
         return (
           <li key={file.id}>
-            <div title={filename}>
+            <div title={fileName}>
               <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
-                <p>{filename}</p>
+                <p>
+                  {fileName} <br /> <span>Uploaded on {fileDate}</span>
+                </p>
               </Button>
             </div>
           </li>

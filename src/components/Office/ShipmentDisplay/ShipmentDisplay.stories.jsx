@@ -20,8 +20,8 @@ export default {
 const hhgInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
-  requestedMoveDate: '26 Mar 2020',
-  originAddress: {
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -37,9 +37,9 @@ const hhgInfo = {
 
 const ntsInfo = {
   heading: 'NTS',
-  requestedMoveDate: '26 Mar 2020',
+  requestedPickupDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
-  originAddress: {
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -55,9 +55,9 @@ const ntsInfo = {
 
 const postalOnlyInfo = {
   heading: 'HHG',
-  requestedMoveDate: '26 Mar 2020',
+  requestedPickupDate: '26 Mar 2020',
   shipmentId: 'testShipmentId394',
-  originAddress: {
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -72,8 +72,28 @@ const diversionInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
   isDiversion: true,
-  requestedMoveDate: '26 Mar 2020',
-  currentAddress: {
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+};
+
+const cancelledInfo = {
+  heading: 'HHG',
+  shipmentId: 'testShipmentId394',
+  isDiversion: false,
+  shipmentStatus: 'CANCELED',
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
     state: 'TX',
@@ -141,5 +161,11 @@ export const PostalOnlyDestination = () => (
 export const DivertedShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay shipmentId="1" displayInfo={object('displayInfo', diversionInfo)} isSubmitted />
+  </div>
+);
+
+export const CancelledShipment = () => (
+  <div style={{ padding: '20px' }}>
+    <ShipmentDisplay shipmentId="1" displayInfo={object('displayInfo', cancelledInfo)} isSubmitted />
   </div>
 );
