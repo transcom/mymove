@@ -82,6 +82,13 @@ type UpdateOrderHandler struct {
 	moveUpdater  services.MoveTaskOrderUpdater
 }
 
+func amendedOrdersRequiresApproval(params orderop.UpdateOrderParams, updatedOrder models.Order) bool {
+	return params.Body.OrdersAcknowledgement != nil &&
+		*params.Body.OrdersAcknowledgement &&
+		updatedOrder.UploadedAmendedOrdersID != nil &&
+		updatedOrder.AmendedOrdersAcknowledgedAt != nil
+}
+
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -117,9 +124,9 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	h.triggerUpdateOrderEvent(orderID, moveID, params)
 
 	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
-	if params.Body.OrdersAcknowledgement != nil && *params.Body.OrdersAcknowledgement && updatedOrder.UploadedAmendedOrdersID != nil && updatedOrder.AmendedOrdersAcknowledgedAt != nil {
+	if amendedOrdersRequiresApproval(params, *updatedOrder) {
 		moveRouter := move.NewMoveRouter(h.DB(), logger)
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(*updatedOrder)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(moveID, updatedOrder.ID)
 		if approveErr != nil {
 			if errors.Is(approveErr, models.ErrInvalidTransition) {
 				return handleError(services.NewConflictError(moveID, approveErr.Error()))

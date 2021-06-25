@@ -160,7 +160,7 @@ func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
 
 	suite.Run("approves move with no service items in requested status", func() {
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(move.Orders)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(move.ID, move.Orders.ID)
 
 		suite.NoError(approveErr)
 		suite.Equal(models.MoveStatusAPPROVED, approvedMove.Status)
@@ -181,7 +181,7 @@ func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
 				Status: models.MTOServiceItemStatusSubmitted,
 			},
 		})
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(move.Orders)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(move.ID, move.Orders.ID)
 
 		suite.NoError(approveErr)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, approvedMove.Status)
