@@ -22,8 +22,8 @@ type MTOShipment struct {
 	ActualPickupDate *strfmt.Date `json:"actualPickupDate,omitempty"`
 
 	// approved date
-	// Format: date
-	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+	// Format: date-time
+	ApprovedDate *strfmt.DateTime `json:"approvedDate,omitempty"`
 
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
@@ -208,7 +208,7 @@ func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("approvedDate", "body", "date", m.ApprovedDate.String(), formats); err != nil {
+	if err := validate.FormatOf("approvedDate", "body", "date-time", m.ApprovedDate.String(), formats); err != nil {
 		return err
 	}
 
