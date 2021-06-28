@@ -61,7 +61,7 @@ has shellcheck "brew install shellcheck"
 has psql "brew install postgresql"
 has nodenv "brew install nodenv"
 has_path ".nodenv/shims" "nodenv init"
-has node "nodenv local 14.16.1"
+has node "nodenv local 14.17.1"
 
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then
