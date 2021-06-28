@@ -53,13 +53,13 @@ func checkStatus() validator {
 
 func checkAvailToPrime(db *pop.Connection) validator {
 	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
-		var mto models.Move
+		var move models.Move
 		err := db.Q().
 			Join("mto_shipments", "moves.id = mto_shipments.move_id").
 			Where("available_to_prime_at IS NOT NULL").
 			Where("mto_shipments.id = ?", newer.ID).
 			Where("show = TRUE").
-			First(&mto)
+			First(&move)
 		if err != nil {
 			if err.Error() == models.RecordNotFoundErrorString {
 				return services.NewNotFoundError(newer.ID, "for mtoShipment")
