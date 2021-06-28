@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 
 import { checkRequiredFields, checkTelephone, parseRoles } from './validation';
 
-// Note: There is not a test file or story for ImportCsvButton beacuse this component HAS to render within a react-admin app
-const ImportCsvButton = (props) => {
+// Note: There is not a test file or story for ImportOfficeUserButton beacuse this component HAS to render within a react-admin app
+const ImportOfficeUserButton = (props) => {
   const notify = useNotify();
   const { resource } = props;
 
@@ -69,8 +69,8 @@ const ImportCsvButton = (props) => {
   );
 };
 
-ImportCsvButton.propTypes = {
+ImportOfficeUserButton.propTypes = {
   resource: PropTypes.string.isRequired,
 };
 
-export default ImportCsvButton;
+export default ImportOfficeUserButton;

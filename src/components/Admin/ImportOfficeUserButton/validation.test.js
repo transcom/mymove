@@ -1,6 +1,6 @@
 import { checkRequiredFields, checkTelephone, parseRoles } from './validation';
 
-import { roleTypes, adminOfficeRoles } from 'constants/userRoles';
+import { adminOfficeRoles, roleTypes } from 'constants/userRoles';
 
 describe('checkRequiredFields', () => {
   it('success: does nothing if all fields provided', () => {
