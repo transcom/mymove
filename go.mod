@@ -9,7 +9,7 @@ require (
 	github.com/DATA-DOG/go-txdb v0.1.4
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.38.66
+	github.com/aws/aws-sdk-go v1.38.68
 	github.com/benbjohnson/clock v1.1.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -56,11 +56,12 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.1
+	github.com/pterm/pterm v0.12.24
 	github.com/rickar/cal v1.0.5
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.0
+	github.com/spf13/viper v1.8.1
 	github.com/stretchr/objx v0.3.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
@@ -73,6 +74,8 @@ require (
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
+	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
+	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/text v0.3.6
 	golang.org/x/tools v0.1.4
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

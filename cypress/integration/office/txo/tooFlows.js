@@ -13,7 +13,8 @@ describe('TOO user', () => {
     cy.intercept('**/ghc/v1/orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/approve').as('approveShipment');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
 
@@ -66,7 +67,7 @@ describe('TOO user', () => {
 
       // Click approve
       cy.contains('Approve and send').click();
-      cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
+      cy.wait(['@approveShipment', '@patchMTOStatus']);
     });
 
     // Redirected to Move Task Order page
@@ -316,7 +317,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.wait(['@patchMTOShipmentStatus']);
+    cy.wait(['@requestShipmentCancellation']);
     // After updating, the button is disabeld and an alert is shown
     cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
     cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');

@@ -1,11 +1,12 @@
 import React from 'react';
 import { func, string, bool } from 'prop-types';
 
-import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import styles from './OrdersDetailForm.module.scss';
+
+import { CheckboxField, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
 import { DropdownArrayOf } from 'types/form';
-import styles from 'components/Office/OrdersDetailForm/OrdersDetailForm.module.scss';
 
 const OrdersDetailForm = ({
   deptIndicatorOptions,
@@ -18,6 +19,7 @@ const OrdersDetailForm = ({
   showOrdersTypeDetail,
   showTac,
   showSac,
+  showOrdersAcknowledgement,
 }) => {
   return (
     <div className={styles.OrdersDetailForm}>
@@ -37,6 +39,15 @@ const OrdersDetailForm = ({
         <MaskedTextField name="tac" label="TAC" id="tacInput" mask="****" warning={tacWarning} validate={validateTac} />
       )}
       {showSac && <TextField name="sac" label="SAC" id="sacInput" />}
+      {showOrdersAcknowledgement && (
+        <div className={styles.wrappedCheckbox}>
+          <CheckboxField
+            id="ordersAcknowledgementInput"
+            name="ordersAcknowledgement"
+            label="I have read the new orders"
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -52,6 +63,7 @@ OrdersDetailForm.propTypes = {
   showOrdersTypeDetail: bool,
   showTac: bool,
   showSac: bool,
+  showOrdersAcknowledgement: bool,
 };
 
 OrdersDetailForm.defaultProps = {
@@ -64,6 +76,7 @@ OrdersDetailForm.defaultProps = {
   showOrdersTypeDetail: true,
   showTac: true,
   showSac: true,
+  showOrdersAcknowledgement: false,
 };
 
 export default OrdersDetailForm;

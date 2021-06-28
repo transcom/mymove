@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/tealeg/xlsx/v3"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -21,7 +20,8 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 		return nil, fmt.Errorf("parseDomesticMoveAccessorialPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing domestic move accessorial prices")
+	prefixPrinter := newDebugPrefix("StageDomesticMoveAccessorialPrice")
+
 	var prices []models.StageDomesticMoveAccessorialPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := domAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -36,9 +36,8 @@ var parseDomesticMoveAccessorialPrices processXlsxSheet = func(params ParamConfi
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageDomesticMoveAccessorialPrice", price))
-		}
+		prefixPrinter.Printf("%+v\n", price)
+
 		prices = append(prices, price)
 	}
 	return prices, nil
@@ -56,7 +55,8 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 		return nil, fmt.Errorf("parseInternationalMoveAccessorialPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing international move accessorial prices")
+	prefixPrinter := newDebugPrefix("StageInternationalMoveAccessorialPrice")
+
 	var prices []models.StageInternationalMoveAccessorialPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := intlAccessorialRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -71,9 +71,8 @@ var parseInternationalMoveAccessorialPrices processXlsxSheet = func(params Param
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageInternationalMoveAccessorialPrice", price))
-		}
+		prefixPrinter.Printf("%+v\n", price)
+
 		prices = append(prices, price)
 	}
 	return prices, nil
@@ -91,7 +90,8 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 		return nil, fmt.Errorf("parseDomesticInternationalAdditionalPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing domestic/international additional prices")
+	prefixPrinter := newDebugPrefix("StageDomesticInternationalAdditionalPrice")
+
 	var prices []models.StageDomesticInternationalAdditionalPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := additionalPricesRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -106,9 +106,8 @@ var parseDomesticInternationalAdditionalPrices processXlsxSheet = func(params Pa
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageDomesticInternationalAdditionalPrice", price))
-		}
+		prefixPrinter.Printf("%+v\n", price)
+
 		prices = append(prices, price)
 	}
 	return prices, nil

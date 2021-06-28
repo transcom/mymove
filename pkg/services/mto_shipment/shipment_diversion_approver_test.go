@@ -21,7 +21,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	suite.T().Run("If the shipment diversion is approved successfully, it should update the shipment status in the DB", func(t *testing.T) {
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
+				Status:    models.MTOShipmentStatusSubmitted,
+				Diversion: true,
 			},
 		})
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
@@ -43,7 +44,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusRejected,
+				Status:    models.MTOShipmentStatusRejected,
+				Diversion: true,
 			},
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
@@ -58,7 +60,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		staleETag := etag.GenerateEtag(time.Now())
 		staleShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
+				Status:    models.MTOShipmentStatusSubmitted,
+				Diversion: true,
 			},
 		})
 
@@ -83,7 +86,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 		approver := NewShipmentDiversionApprover(suite.DB(), shipmentRouter)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDiversionRequested,
+				Status:    models.MTOShipmentStatusSubmitted,
+				Diversion: true,
 			},
 		})
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
