@@ -19,7 +19,7 @@ const UploadsTable = ({ uploads, onDelete }) => {
 
   return (
     uploads.length > 0 && (
-      <SectionWrapper className={styles.wrapper}>
+      <SectionWrapper className={styles.uploadsTableContainer}>
         <h6>{uploads.length} Files Uploaded</h6>
         <ul>
           {uploads.map((upload) => (
