@@ -14,7 +14,7 @@ house project documentation:
 * Confluence
 
 This has made locating specific documents a huge struggle. It's unclear where new docs should go, and it's impossible to
-search on a topic to find relevant docs - you must know exactly what you're looking for an where. As a result, we have a
+search on a topic to find relevant docs - you must know exactly what you're looking for and where. As a result, we have a
 lot of duplicated documentation, unknown but useful docs, and out-of-date docs that are still being referenced.
 
 There's also no way to establish standards or content guidelines because it is impossible to review all these docs, or
