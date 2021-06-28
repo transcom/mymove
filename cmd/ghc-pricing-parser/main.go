@@ -128,8 +128,11 @@ func main() {
 
 	// Open the spreadsheet
 	printDivider("Loading")
-	// TODO: Check error
-	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
+	spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Loading file: %s", params.XlsxFilename))
+	if err != nil {
+		logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+	}
+
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
 		spinner.Fail()

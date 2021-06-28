@@ -427,8 +427,11 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 				if p.description != nil {
 					processDescription = *p.description
 				}
-				// TODO: Check error
-				spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
+
+				spinner, err := pterm.DefaultSpinner.Start(fmt.Sprintf("Processing section: %s", processDescription))
+				if err != nil {
+					logger.Fatal("Failed to create pterm spinner", zap.Error(err))
+				}
 
 				callFunc := *p.process
 				slice, err := callFunc(params, sheetIndex, logger)
