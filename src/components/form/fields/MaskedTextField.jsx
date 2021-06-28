@@ -7,6 +7,8 @@ import { FormGroup, Label } from '@trussworks/react-uswds';
 
 import { ErrorMessage } from '../index';
 
+import Hint from 'components/Hint';
+
 const MaskedTextField = ({
   label,
   labelClassName,
@@ -30,6 +32,7 @@ const MaskedTextField = ({
         {label}
       </Label>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
+      {!!warning && !hasError && <Hint data-testid="textInputWarning">{warning}</Hint>}
       {/* eslint-disable react/jsx-props-no-spreading */}
       <IMaskInput
         className="usa-input"
@@ -47,12 +50,6 @@ const MaskedTextField = ({
         {...props}
       />
       {/* eslint-enable react/jsx-props-no-spreading */}
-
-      {!!warning && !hasError && (
-        <p className="usa-hint" data-testid="textInputWarning">
-          {warning}
-        </p>
-      )}
     </FormGroup>
   );
 };
