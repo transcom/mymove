@@ -7,6 +7,7 @@ export const checkRequiredFields = ({ transportationOfficeId, firstName, lastNam
         Required fields are firstName, lastName, email, telephone, roles, and transportationOfficeId.`,
     );
   }
+  return true;
 };
 
 export const checkTelephone = ({ telephone }) => {
@@ -17,6 +18,7 @@ export const checkTelephone = ({ telephone }) => {
       'Validation Error: Row contains improperly formatted telephone number. Required format is xxx-xxx-xxxx.',
     );
   }
+  return true;
 };
 
 export const parseRoles = (roles) => {

@@ -1,4 +1,4 @@
-import { parseRoles } from './validation';
+import { checkTelephone, parseRoles } from './validation';
 
 import { roleTypes, adminOfficeRoles } from 'constants/userRoles';
 
@@ -9,9 +9,16 @@ describe('checkRequiredFields', () => {
 });
 
 describe('checkTelephone', () => {
-  it('success: does nothing if telephone is valid', () => {});
+  it('success: does nothing if telephone is valid', () => {
+    expect(checkTelephone({ telephone: '209-555-1234' })).toBeTruthy();
+  });
 
-  it('fail: throws an error if telephone is invalid', () => {});
+  it('fail: throws an error if telephone is invalid', () => {
+    function checkInvalidTelephone() {
+      checkTelephone({ telephone: '111-111-111' });
+    }
+    expect(checkInvalidTelephone).toThrowError('Row contains improperly formatted telephone number.');
+  });
 });
 
 describe('parseRoles', () => {
