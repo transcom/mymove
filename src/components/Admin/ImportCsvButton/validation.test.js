@@ -1,11 +1,27 @@
-import { checkTelephone, parseRoles } from './validation';
+import { checkRequiredFields, checkTelephone, parseRoles } from './validation';
 
 import { roleTypes, adminOfficeRoles } from 'constants/userRoles';
 
 describe('checkRequiredFields', () => {
-  it('success: does nothing if all fields provided', () => {});
+  it('success: does nothing if all fields provided', () => {
+    expect(
+      checkRequiredFields({
+        transportationOfficeId: 'id',
+        firstName: 'Test',
+        lastName: 'Tester',
+        roles: 'test_role',
+        email: 'test@example.com',
+        telephone: '222-555-1111',
+      }),
+    ).toBeTruthy();
+  });
 
-  it('fail: throws an error if fields are missing', () => {});
+  it('fail: throws an error if fields are missing', () => {
+    function checkMissingFields() {
+      checkRequiredFields({ firstName: 'Blank' });
+    }
+    expect(checkMissingFields).toThrowError('Row does not contain all required fields.');
+  });
 });
 
 describe('checkTelephone', () => {
