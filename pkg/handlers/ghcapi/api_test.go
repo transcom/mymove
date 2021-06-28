@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
@@ -31,6 +33,14 @@ func (suite *HandlerSuite) AfterTest() {
 		// nolint:errcheck
 		file.Data.Close()
 	}
+}
+
+func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+
+	return context
 }
 
 // TestHandlerSuite creates our test suite

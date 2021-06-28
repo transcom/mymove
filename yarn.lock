@@ -15473,10 +15473,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.1.tgz#76903c3f8c4449bc9ac597acefa24dc5ad4cbea6"
-  integrity sha512-p+vNbgpLjif/+D+DwAZAbndtRrR0md0MwfmOVN9N+2RgyACMT+7tfaRnT+WDPkqnuVwleyuBIG2XBxKDme3hPA==
+prettier@2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.2.tgz#ef280a05ec253712e486233db5c6f23441e7342d"
+  integrity sha512-lnJzDfJ66zkMy58OL5/NY5zp70S7Nz6KqcKkXYzn2tMVrNxvbqaBpg7H3qHaLxCJ5lNMsGuM8+ohS7cZrthdLQ==
 
 prettier@^1.18.2:
   version "1.19.1"
@@ -16130,10 +16130,10 @@ react-admin-import-csv@^1.0.19:
     papaparse "5.x"
     ramda "^0.27.0"
 
-react-admin@^3.16.3:
-  version "3.16.3"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.16.3.tgz#54575c97414e54078dfa1401139a70af9625f51e"
-  integrity sha512-rQ71G9vGnu87QFOFNXmdwU3Ujfb+tvSKukXxTKYQIOWoVMxjabQrYepB6IcaXTBgctweKJ+ZsSF1DqLsKpzgCA==
+react-admin@^3.16.4:
+  version "3.16.4"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.16.4.tgz#e1586338537b60bd4dabb35a42858eaf97645259"
+  integrity sha512-l7HEFXmjwqcfuKV0eB3SFPjT/7kP7LjGci4YoPHmy9EFzNtR7uyh2WeCNmgSryTStyu6zKijE/2yRPdfvDhSUw==
   dependencies:
     "@material-ui/core" "^4.11.2"
     "@material-ui/icons" "^4.11.2"

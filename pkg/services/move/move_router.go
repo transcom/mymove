@@ -275,6 +275,45 @@ func (router moveRouter) CompleteServiceCounseling(move *models.Move) error {
 	return nil
 }
 
+// ApproveAmendedOrders sets the move status to APPROVED if its status was set to
+// APPROVALS REQUESTED because of the customer amending their orders.  If there are accessorial
+// service items needing review from the TOO the status should remain in APPROVALS REQUESTED
+func (router moveRouter) ApproveAmendedOrders(moveID uuid.UUID, ordersID uuid.UUID) (models.Move, error) {
+	var move models.Move
+	err := router.db.EagerPreload("MTOServiceItems").
+		Where("moves.id = ?", moveID).
+		First(&move)
+
+	if err != nil {
+		router.logger.Error("failure encountered querying for move associated with orders", zap.Error(err))
+		return models.Move{}, fmt.Errorf("failure encountered querying for move associated with orders, %s, id: %s", err.Error(), ordersID)
+	}
+
+	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		return models.Move{}, errors.Wrap(
+			models.ErrInvalidTransition,
+			"Cannot approve move with amended orders because the move status is not APPROVALS REQUESTED",
+		)
+	}
+
+	var hasRequestedServiceItems bool
+	for _, serviceItem := range move.MTOServiceItems {
+		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+			hasRequestedServiceItems = true
+			break
+		}
+	}
+
+	if !hasRequestedServiceItems {
+		approveErr := router.Approve(&move)
+		if approveErr != nil {
+			return models.Move{}, approveErr
+		}
+	}
+
+	return move, nil
+}
+
 func (router moveRouter) logMove(move *models.Move) {
 	router.logger.Info("Move log",
 		zap.String("Move.ID", move.ID.String()),

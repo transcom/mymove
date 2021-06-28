@@ -32,6 +32,9 @@ type UpdateOrderPayload struct {
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
+	// Confirmation that the new amended orders were reviewed after previously approving the original orders
+	OrdersAcknowledgement *bool `json:"ordersAcknowledgement,omitempty"`
+
 	// Orders Number
 	OrdersNumber *string `json:"ordersNumber,omitempty"`
 

@@ -130,6 +130,12 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 				break
 			}
 		}
+
+		// All service items may be reviewed but amended orders should keep the move in
+		// APPROVALS REQUESTED status
+		if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+			moveShouldBeMoveApproved = false
+		}
 	}
 
 	if moveShouldBeMoveApproved {

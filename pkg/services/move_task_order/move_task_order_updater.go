@@ -257,3 +257,23 @@ func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.M
 
 	return updatedMove, nil
 }
+
+func (o *moveTaskOrderUpdater) UpdateApprovedAmendedOrders(move models.Move) error {
+	eTag := etag.GenerateEtag(move.UpdatedAt)
+	verrs, err := o.builder.UpdateOne(&move, &eTag)
+
+	if verrs != nil && verrs.HasAny() {
+		return services.NewInvalidInputError(move.ID, err, verrs, "")
+	}
+
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return services.NewPreconditionFailedError(move.ID, err)
+		default:
+			return err
+		}
+	}
+
+	return nil
+}
