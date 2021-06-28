@@ -30,7 +30,7 @@ export const parseRoles = (roles) => {
   parsedRoles.forEach((parsedRole) => {
     let roleNotFound = true;
     // Remove any whitespace in the role string
-    const role = parsedRole.replaceAll(/\s/g, '');
+    const role = parsedRole.replace(/\s/g, '');
     adminOfficeRoles.forEach((adminOfficeRole) => {
       if (adminOfficeRole.roleType === role) {
         rolesArray.push(adminOfficeRole);
