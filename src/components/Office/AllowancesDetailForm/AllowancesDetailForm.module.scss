@@ -12,12 +12,12 @@
   }
 
   label {
-    @include u-margin-top(4);
+    @include u-margin-top(1);
     @include u-margin-bottom(1);
     color: $base-darker;
   }
 
-  input + label {
+  input+label {
     @include u-margin-top(1);
   }
 
@@ -47,6 +47,10 @@
   }
 
   .fieldWithHint {
-    @include u-margin-bottom(0);
+    @include u-margin-top(0);
+  }
+
+  span.usa-hint {
+    display: block;
   }
 }
