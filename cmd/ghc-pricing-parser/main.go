@@ -122,6 +122,10 @@ func main() {
 		logger.Fatal("could not parse the given contract start date", zap.Error(err))
 	}
 
+	if params.ShowOutput {
+		pterm.EnableDebugMessages()
+	}
+
 	// Open the spreadsheet
 	printDivider("Loading")
 	// TODO: Check error

@@ -3,8 +3,6 @@ package pricing
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -22,6 +20,8 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseDomesticServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	prefixPrinter := newDebugPrefix("StageDomesticServiceArea")
+
 	var domServAreas []models.StageDomesticServiceArea
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := serviceAreaRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -36,9 +36,8 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageDomesticServiceArea", domServArea))
-		}
+		prefixPrinter.Printf("%+v\n", domServArea)
+
 		domServAreas = append(domServAreas, domServArea)
 	}
 
@@ -56,6 +55,8 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 		return nil, fmt.Errorf("parseInternationalServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	prefixPrinter := newDebugPrefix("StageInternationalServiceArea")
+
 	var intlServAreas []models.StageInternationalServiceArea
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := serviceAreaRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -68,9 +69,8 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageInternationalServiceArea", intlServArea))
-		}
+		prefixPrinter.Printf("%+v\n", intlServArea)
+
 		intlServAreas = append(intlServAreas, intlServArea)
 	}
 

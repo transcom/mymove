@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -23,6 +21,8 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
+
+	prefixPrinter := newDebugPrefix("StageDomesticLinehaulPrice")
 
 	var domPrices []models.StageDomesticLinehaulPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
@@ -49,9 +49,9 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 							Rate:              mustGetCell(sheet, rowIndex, colIndex),
 						}
 						colIndex++
-						if params.ShowOutput {
-							logger.Info("", zap.Any("StageDomesticLinehaulPrice", domPrice))
-						}
+
+						prefixPrinter.Printf("%+v\n", domPrice)
+
 						domPrices = append(domPrices, domPrice)
 					}
 				}

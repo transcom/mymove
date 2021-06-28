@@ -3,8 +3,6 @@ package pricing
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -25,6 +23,8 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseOconusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	prefixPrinter := newDebugPrefix("StageOconusToOconusPrice")
+
 	var oconusToOconusPrices []models.StageOconusToOconusPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := feeRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -43,9 +43,8 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 			colIndex++
 			oconusToOconusPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageOconusToOconusPrice", oconusToOconusPrice))
-			}
+			prefixPrinter.Printf("%+v\n", oconusToOconusPrice)
+
 			oconusToOconusPrices = append(oconusToOconusPrices, oconusToOconusPrice)
 
 			colIndex += 2 // skip 1 column (empty column) before starting next Rate type
@@ -62,6 +61,8 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseConusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
+
+	prefixPrinter := newDebugPrefix("StageConusToOconusPrice")
 
 	var conusToOconusPrices []models.StageConusToOconusPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
@@ -81,9 +82,8 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 			colIndex++
 			conusToOconusPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageConusToOconusPrice", conusToOconusPrice))
-			}
+			prefixPrinter.Printf("%+v\n", conusToOconusPrice)
+
 			conusToOconusPrices = append(conusToOconusPrices, conusToOconusPrice)
 
 			colIndex += 2 // skip 1 column (empty column) before starting next Rate type
@@ -100,6 +100,8 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseOconusToConusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
+
+	prefixPrinter := newDebugPrefix("StageOconusToConusPrice")
 
 	var oconusToConusPrices []models.StageOconusToConusPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
@@ -119,9 +121,8 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 			colIndex++
 			oconusToConusPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageOconusToConusPrice", oconusToConusPrice))
-			}
+			prefixPrinter.Printf("%+v\n", oconusToConusPrice)
+
 			oconusToConusPrices = append(oconusToConusPrices, oconusToConusPrice)
 
 			colIndex += 2 // skip 1 column (empty column) before starting next Rate type

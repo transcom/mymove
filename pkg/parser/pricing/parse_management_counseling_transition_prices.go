@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/tealeg/xlsx/v3"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -20,6 +19,8 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		return nil, fmt.Errorf("parseShipmentManagementServices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	prefixPrinter := newDebugPrefix("StageShipmentManagementServicesPrice")
+
 	var mgmtPrices []models.StageShipmentManagementServicesPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := mgmtRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -33,9 +34,8 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageShipmentManagementServicesPrice", shipMgmtSrvcPrice))
-		}
+		prefixPrinter.Printf("%+v\n", shipMgmtSrvcPrice)
+
 		mgmtPrices = append(mgmtPrices, shipMgmtSrvcPrice)
 	}
 
@@ -53,6 +53,8 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		return nil, fmt.Errorf("parseCounselingServicesPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	prefixPrinter := newDebugPrefix("StageCounselingServicesPrice")
+
 	var counPrices []models.StageCounselingServicesPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := counRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -66,9 +68,8 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageCounselingServicesPrice", cnslSrvcPrice))
-		}
+		prefixPrinter.Printf("%+v\n", cnslSrvcPrice)
+
 		counPrices = append(counPrices, cnslSrvcPrice)
 	}
 
@@ -86,6 +87,8 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		return nil, fmt.Errorf("parseTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	prefixPrinter := newDebugPrefix("StageTransitionPrice")
+
 	var tranPrices []models.StageTransitionPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
 	for rowIndex := tranRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
@@ -99,9 +102,8 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageTransitionPrice", tranPrice))
-		}
+		prefixPrinter.Printf("%+v\n", tranPrice)
+
 		tranPrices = append(tranPrices, tranPrice)
 	}
 

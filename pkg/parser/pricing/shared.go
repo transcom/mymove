@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pterm/pterm"
 	"github.com/tealeg/xlsx/v3"
 )
 
@@ -112,4 +113,12 @@ func (x *XlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time,
 	name = strconv.Itoa(index) + "_" + name + "_" + runTime.Format("20060102150405") + ".csv"
 
 	return name
+}
+
+// newDebugPrefix creates a debug-based PrefixPrinter with the specified prefix text.
+func newDebugPrefix(prefixText string) *pterm.PrefixPrinter {
+	return pterm.Debug.WithPrefix(pterm.Prefix{
+		Text:  prefixText,
+		Style: &pterm.ThemeDefault.DebugPrefixStyle,
+	})
 }
