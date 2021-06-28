@@ -30,6 +30,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	hierarchicalLevelCodeExpected string = "9"
+)
+
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger       Logger
@@ -296,7 +300,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(127, result.SE.NumberOfIncludedSegments)
+		suite.Equal(128, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -348,6 +352,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
+
+	suite.T().Run("adds currency to header", func(t *testing.T) {
+		currency := result.Header.Currency
+		suite.IsType(edisegment.C3{}, currency)
+		suite.Equal("USD", currency.CurrencyCodeC301)
+	})
 
 	suite.T().Run("adds actual pickup date to header", func(t *testing.T) {
 		g62Requested := result.Header.RequestedPickupDate
@@ -427,7 +437,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
-		suite.Equal(destPhoneLines[0], per.CommunicationNumber)
+		g := ghcPaymentRequestInvoiceGenerator{}
+		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
+		suite.NoError(phoneExpectedErr)
+		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
 
 	suite.T().Run("adds orders origin address", func(t *testing.T) {
@@ -472,7 +485,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
-		suite.Equal(originPhoneLines[0], per.CommunicationNumber)
+		g := ghcPaymentRequestInvoiceGenerator{}
+		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
+		suite.NoError(phoneExpectedErr)
+		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
 
 	for idx, paymentServiceItem := range paymentServiceItems {
@@ -483,7 +499,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.T().Run("adds hl service item segment", func(t *testing.T) {
 			hl := result.ServiceItems[segmentOffset].HL
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
-			suite.Equal("I", hl.HierarchicalLevelCode)
+			suite.Equal(hierarchicalLevelCodeExpected, hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {
