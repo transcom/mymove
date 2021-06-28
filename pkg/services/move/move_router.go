@@ -275,34 +275,40 @@ func (router moveRouter) CompleteServiceCounseling(move *models.Move) error {
 	return nil
 }
 
-// ApproveAmendedOrders sets the move status to APPROVED if it's status was set to
-// APPROVALS_REQUESTED because of the customer amending their orders.  If there are service items
-// needing review from the prime the status should remain in APPROVALS_REQUESTED
-func (router moveRouter) ApproveAmendedOrders(orders models.Order) (models.Move, error) {
+// ApproveAmendedOrders sets the move status to APPROVED if its status was set to
+// APPROVALS REQUESTED because of the customer amending their orders.  If there are accessorial
+// service items needing review from the TOO the status should remain in APPROVALS REQUESTED
+func (router moveRouter) ApproveAmendedOrders(moveID uuid.UUID, ordersID uuid.UUID) (models.Move, error) {
 	var move models.Move
-	err := router.db.Q().
-		InnerJoin("mto_service_items", "moves.id = mto_service_items.move_id").
-		Where("moves.orders_id = ? AND mto_service_items.status = ?", orders.ID, models.MTOServiceItemStatusSubmitted).
+	err := router.db.EagerPreload("MTOServiceItems").
+		Where("moves.id = ?", moveID).
 		First(&move)
 
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	if err != nil {
 		router.logger.Error("failure encountered querying for move associated with orders", zap.Error(err))
-		return models.Move{}, fmt.Errorf("failure encountered querying for move associated with orders, %s, id: %s", err.Error(), orders.ID)
+		return models.Move{}, fmt.Errorf("failure encountered querying for move associated with orders, %s, id: %s", err.Error(), ordersID)
 	}
 
 	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
 		return models.Move{}, errors.Wrap(
 			models.ErrInvalidTransition,
-			fmt.Sprintf("The status for the Move with ID %s can only be set to 'APPROVED' from the "+
-				"'APPROVALS_REQUESTED' status, but its current status is %s.",
-				move.ID, move.Status,
-			),
+			"Cannot approve move with amended orders because the move status is not APPROVALS REQUESTED",
 		)
 	}
 
-	approveErr := router.Approve(&move)
-	if approveErr != nil {
-		return models.Move{}, approveErr
+	var hasRequestedServiceItems bool
+	for _, serviceItem := range move.MTOServiceItems {
+		if serviceItem.Status == models.MTOServiceItemStatusSubmitted {
+			hasRequestedServiceItems = true
+			break
+		}
+	}
+
+	if !hasRequestedServiceItems {
+		approveErr := router.Approve(&move)
+		if approveErr != nil {
+			return models.Move{}, approveErr
+		}
 	}
 
 	return move, nil

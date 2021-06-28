@@ -36,6 +36,7 @@ const initialValues = {
   ordersTypeDetail: 'HHG_PERMITTED',
   tac: 'Tac',
   sac: 'Sac',
+  ordersAcknowledgement: true,
 };
 
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
@@ -45,6 +46,7 @@ const defaultProps = {
   deptIndicatorOptions: deptOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,
+  showOrdersAcknowledgement: true,
   validateTac: jest.fn,
 };
 
@@ -77,6 +79,10 @@ describe('OrdersDetailForm', () => {
     expect(wrapper.find('DropdownInput[name="ordersTypeDetail"]').prop('options')).toBe(ordersTypeDetailOptions);
   });
 
+  it('accepts showOrdersAcknowledgement prop', () => {
+    expect(wrapper.find('input[name="ordersAcknowledgement"]').prop('value')).toBe(true);
+  });
+
   it('populates initial field values', () => {
     /*
     expect(wrapper.find('[name="originDutyStation"]').value).toBe(dutyStation);
@@ -107,6 +113,7 @@ describe('OrdersDetailForm', () => {
       showOrdersTypeDetail: false,
       showTac: false,
       showSac: false,
+      showOrdersAcknowledgement: false,
     });
 
     // fields are visible
@@ -122,5 +129,6 @@ describe('OrdersDetailForm', () => {
     expect(form.find('select[name="ordersTypeDetail"]').length).toBe(0);
     expect(form.find('input[name="tac"]').length).toBe(0);
     expect(form.find('input[name="sac"]').length).toBe(0);
+    expect(form.find('input[name="ordersAcknowledgement"]').length).toBe(0);
   });
 });

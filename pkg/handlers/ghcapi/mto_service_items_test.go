@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 }
 
 func (suite *HandlerSuite) createServiceItem() (models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
