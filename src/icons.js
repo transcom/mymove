@@ -49,6 +49,8 @@ import {
   faTruckMoving,
   faCar,
   faHandHoldingUsd,
+  faFilePdf,
+  faFileImage,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -99,4 +101,6 @@ library.add(
   faTruckMoving,
   faCar,
   faHandHoldingUsd,
+  faFilePdf,
+  faFileImage,
 );

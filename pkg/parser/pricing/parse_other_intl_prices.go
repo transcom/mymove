@@ -3,8 +3,6 @@ package pricing
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -21,7 +19,7 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 		return nil, fmt.Errorf("parseOtherIntlPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing other international prices")
+	prefixPrinter := newDebugPrefix("StageOtherIntlPrice")
 
 	var otherIntlPrices []models.StageOtherIntlPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
@@ -55,9 +53,8 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 			otherIntlPrice.SITGt50Miles = mustGetCell(sheet, rowIndex, colIndex)
 			colIndex += 2
 
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageOtherIntlPrice", otherIntlPrice))
-			}
+			prefixPrinter.Printf("%+v\n", otherIntlPrice)
+
 			otherIntlPrices = append(otherIntlPrices, otherIntlPrice)
 		}
 	}

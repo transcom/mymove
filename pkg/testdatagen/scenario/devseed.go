@@ -3152,110 +3152,6 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 	})
 }
 
-// func createRecentlyUpdatedHHGMove(db *pop.Connection, userUploader *uploader.UserUploader) {
-// 	// A more recent MTO for demonstrating the since parameter
-// 	customer6 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
-// 		ServiceMember: models.ServiceMember{
-// 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
-// 		},
-// 	})
-// 	orders6 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-// 		Order: models.Order{
-// 			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981"),
-// 			ServiceMemberID: customer6.ID,
-// 			ServiceMember:   customer6,
-// 		},
-// 		UserUploader: userUploader,
-// 	})
-// 	mto2 := testdatagen.MakeMove(db, testdatagen.Assertions{
-// 		Move: models.Move{
-// 			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
-// 			OrdersID:           orders6.ID,
-// 			UpdatedAt:          time.Unix(1576779681256, 0),
-// 			AvailableToPrimeAt: swag.Time(time.Now()),
-// 			Status:             models.MoveStatusSUBMITTED,
-// 			SelectedMoveType:   &hhgMoveType,
-// 		},
-// 	})
-//
-// 	mtoShipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-// 		Move: mto2,
-// 	})
-//
-// 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-// 		Move: mto2,
-// 	})
-//
-// 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-// 		MTOAgent: models.MTOAgent{
-// 			MTOShipment:   mtoShipment2,
-// 			MTOShipmentID: mtoShipment2.ID,
-// 			FirstName:     swag.String("Test"),
-// 			LastName:      swag.String("Agent"),
-// 			Email:         swag.String("test@test.email.com"),
-// 			MTOAgentType:  models.MTOAgentReleasing,
-// 		},
-// 	})
-//
-// 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-// 		MTOAgent: models.MTOAgent{
-// 			MTOShipment:   mtoShipment2,
-// 			MTOShipmentID: mtoShipment2.ID,
-// 			FirstName:     swag.String("Test"),
-// 			LastName:      swag.String("Agent"),
-// 			Email:         swag.String("test@test.email.com"),
-// 			MTOAgentType:  models.MTOAgentReceiving,
-// 		},
-// 	})
-//
-// 	mtoShipment3 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-// 		MTOShipment: models.MTOShipment{
-// 			ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-// 		},
-// 		Move: mto2,
-// 	})
-//
-// 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-// 		MTOAgent: models.MTOAgent{
-// 			MTOShipment:   mtoShipment3,
-// 			MTOShipmentID: mtoShipment3.ID,
-// 			FirstName:     swag.String("Test"),
-// 			LastName:      swag.String("Agent"),
-// 			Email:         swag.String("test@test.email.com"),
-// 			MTOAgentType:  models.MTOAgentReleasing,
-// 		},
-// 	})
-//
-// 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
-// 		MTOAgent: models.MTOAgent{
-// 			MTOShipment:   mtoShipment3,
-// 			MTOShipmentID: mtoShipment3.ID,
-// 			FirstName:     swag.String("Test"),
-// 			LastName:      swag.String("Agent"),
-// 			Email:         swag.String("test@test.email.com"),
-// 			MTOAgentType:  models.MTOAgentReceiving,
-// 		},
-// 	})
-//
-// 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-// 		MTOServiceItem: models.MTOServiceItem{
-// 			ID: uuid.FromStringOrNil("8a625314-1922-4987-93c5-a62c0d13f053"),
-// 		},
-// 		Move: mto2,
-// 	})
-//
-// 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-// 		MTOServiceItem: models.MTOServiceItem{
-// 			ID: uuid.FromStringOrNil("3624d82f-fa87-47f5-a09a-2d5639e45c02"),
-// 		},
-// 		Move:        mto2,
-// 		MTOShipment: mtoShipment3,
-// 		ReService: models.ReService{
-// 			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
-// 		},
-// 	})
-// }
-
 func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.UserUploader) {
 
 	mtoWithTaskOrderServices := testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -3787,9 +3683,20 @@ func createHHGMoveWithMultipleOrdersFiles(db *pop.Connection, userUploader *uplo
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "MULTOR")
-	shipment := makeShipmentForMove(move, db)
+	move := makeMoveForOrders(orders, db, "MULTOR", models.MoveStatusSUBMITTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("aca5cc9c-c266-4a7d-895d-dc3c9c0d9894"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
+func createHHGMoveWithAmendedOrders(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"2mb.png", "150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
+	move := makeMoveForOrders(orders, db, "AMDORD", models.MoveStatusAPPROVALSREQUESTED)
+	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	paymentRequestID := uuid.Must(uuid.FromString("c47999c4-afa8-4c87-8a0e-7763b4e5d4c5"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
@@ -3803,7 +3710,7 @@ func runSubScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []mo
 	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 	tac := "1234"
 	// make sure to create moves that does not go to US marines affiliation
-	move := createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+	move := createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
 		Order: models.Order{
 			DepartmentIndicator: (*string)(&affiliationAirForce),
 			OrdersNumber:        &ordersNumber,
@@ -3823,6 +3730,33 @@ func runSubScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []mo
 			MoveTaskOrderID: move.ID,
 			Status:          models.MTOServiceItemStatusApproved,
 			ApprovedAt:      &approvedDate,
+		},
+	})
+}
+
+func createMoveWithDivertedShipments(db *pop.Connection, userUploader *uploader.UserUploader) {
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Status:             models.MoveStatusAPPROVALSREQUESTED,
+			Locator:            "DVRS0N",
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+	// original shipment that was previously approved and is now diverted
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status:       models.MTOShipmentStatusSubmitted,
+			ApprovedDate: swag.Time(time.Now()),
+			Diversion:    true,
+		},
+	})
+	// new diverted shipment created by the Prime
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status:    models.MTOShipmentStatusSubmitted,
+			Diversion: true,
 		},
 	})
 }
@@ -3887,7 +3821,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	for i := 0; i < 12; i++ {
 		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
 			UserUploader: userUploader,
 		})
 	}
@@ -3925,18 +3859,22 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	createMoveWithPPMAndHHG(db, userUploader)
 
-	// Create diverted shipments that needs TOO approval
-	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move:         models.Move{Status: models.MoveStatusAPPROVALSREQUESTED, Locator: "DVRS0N"},
-		MTOShipment:  models.MTOShipment{Diversion: true},
-	})
+	// Create diverted shipments that need TOO approval
+	createMoveWithDivertedShipments(db, userUploader)
 
-	// Create diverted shipments that are approved an appear on the Move Task Order page
-	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, testdatagen.Assertions{
+	// Create diverted shipments that are approved and appear on the Move Task Order page
+	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
 		UserUploader: userUploader,
-		Move:         models.Move{Status: models.MoveStatusAPPROVED, Locator: "APRDVS"},
-		MTOShipment:  models.MTOShipment{Diversion: true, Status: models.MTOShipmentStatusApproved},
+		Move: models.Move{
+			Status:             models.MoveStatusAPPROVED,
+			Locator:            "APRDVS",
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+		MTOShipment: models.MTOShipment{
+			Diversion:    true,
+			Status:       models.MTOShipmentStatusApproved,
+			ApprovedDate: swag.Time(time.Now()),
+		},
 	})
 
 	// A move with missing required order fields
@@ -3964,4 +3902,5 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createMoveWithUniqueDestinationAddress(db)
 	// Creates a move that has multiple orders uploaded
 	createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
+	createHHGMoveWithAmendedOrders(db, userUploader, primeUploader)
 }

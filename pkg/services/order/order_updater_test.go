@@ -84,7 +84,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
@@ -136,7 +136,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		emptyStrSAC := ""
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
@@ -262,7 +262,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		newAuthorizedWeight := int64(10000)
 		grade := ghcmessages.GradeO5

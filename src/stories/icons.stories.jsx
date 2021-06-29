@@ -210,6 +210,14 @@ export const all = () => (
         <FontAwesomeIcon icon="hand-holding-usd" />
         <code>hand-holding-usd | icon=&quot;hand-holding-usd&quot;</code>
       </div>
+      <div>
+        <FontAwesomeIcon icon="file-image" />
+        <code>file-image | icon=&quot;file-image&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="file-pdf" />
+        <code>file-pdf | icon=&quot;file-pdf&quot;</code>
+      </div>
     </div>
   </div>
 );

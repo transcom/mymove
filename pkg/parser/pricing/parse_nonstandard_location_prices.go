@@ -3,8 +3,6 @@ package pricing
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -28,7 +26,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 		return nil, fmt.Errorf("parseNonStandardLocnPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing non-standard location prices")
+	prefixPrinter := newDebugPrefix("StageNonStandardLocnPrice")
 
 	var nonStandardLocationPrices []models.StageNonStandardLocnPrice
 
@@ -63,9 +61,8 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 				colIndex++
 				nonStandardLocationPrice.UBPrice = mustGetCell(sheet, rowIndex, colIndex)
 
-				if params.ShowOutput {
-					logger.Info("", zap.Any("StageNonStandardLocnPrice", nonStandardLocationPrice))
-				}
+				prefixPrinter.Printf("%+v\n", nonStandardLocationPrice)
+
 				nonStandardLocationPrices = append(nonStandardLocationPrices, nonStandardLocationPrice)
 
 				colIndex += 2 // skip 1 column (empty column) before starting next Rate type

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -27,6 +29,7 @@ type MoveFetcherParams struct {
 //go:generate mockery --name MoveRouter --disable-version-string
 type MoveRouter interface {
 	Approve(move *models.Move) error
+	ApproveAmendedOrders(moveID uuid.UUID, orderID uuid.UUID) (models.Move, error)
 	Cancel(reason string, move *models.Move) error
 	CompleteServiceCounseling(move *models.Move) error
 	SendToOfficeUser(move *models.Move) error

@@ -30,7 +30,7 @@ import (
 
 // Create a service item on a Move with Approvals Requested status
 func (suite *HandlerSuite) createServiceItem() models.MTOServiceItem {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
