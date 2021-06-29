@@ -14,6 +14,7 @@ const shipments = [
     approvedDate: '0001-01-01',
     createdAt: '2020-06-10T15:58:02.404029Z',
     customerRemarks: 'please treat gently',
+    counselorRemarks: 'all good',
     destinationAddress: {
       city: 'Fairfield',
       country: 'US',
@@ -72,6 +73,7 @@ const shipments = [
     approvedDate: '0001-01-01',
     createdAt: '2020-06-10T15:58:02.431993Z',
     customerRemarks: 'please treat gently',
+    counselorRemarks: 'all good',
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MzE5OTVa',
     id: 'c2f68d97-b960-4c86-a418-c70a0aeba04e',
     moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -312,5 +314,29 @@ describe('Shipment preview modal', () => {
     expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
       ordersInfo.newDutyStation.address.postal_code,
     );
+  });
+
+  it('renders the customer and counselor remarks', () => {
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        ordersInfo={ordersInfo}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        allowancesInfo={allowancesInfo}
+        counselingFee
+        shipmentManagementFee
+      />,
+    );
+
+    const customerRemarks = wrapper.find('[data-testid="customerRemarks"]');
+    const counselorRemarks = wrapper.find('[data-testid="counselorRemarks"]');
+
+    expect(customerRemarks.at(0).text()).toEqual('please treat gently');
+    expect(customerRemarks.at(1).text()).toEqual('please treat gently');
+
+    expect(counselorRemarks.at(0).text()).toEqual('all good');
+    expect(counselorRemarks.at(1).text()).toEqual('all good');
   });
 });
