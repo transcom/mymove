@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/pkg/sftp"
 	"github.com/spf13/pflag"
@@ -62,6 +63,28 @@ func CheckGEXSFTP(v *viper.Viper) error {
 	return nil
 }
 
+// GetLocalIP returns the non loopback local IP of the host
+// This might be source address, however, we can also try to use the
+// aws sdk to get the IP of the load balancer, since I think that's where the connection request
+// would be coming from. https://docs.aws.amazon.com/sdk-for-go/api/service/elbv2/#ELBV2.DescribeLoadBalancerAttributes
+// The only way I could possibly see which is which is to implement both methods, and compare the IPs, and see which matches
+// the IP needed for troubleshooting?
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
+
 // InitGEXSSH initializes a GEX SSH client from command line flags.
 func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	userID := v.GetString(GEXSFTPUserIDFlag)
@@ -88,7 +111,7 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 
 	// Connect to SSH client
 	address := remote + ":" + port
-	logger.Info("Connecting to GEX SSH...", zap.String("address", address))
+	logger.Info("Connecting to GEX SSH...", zap.String("destination_address", address), zap.String("source_address", GetLocalIP()))
 	sshClient, err := ssh.Dial("tcp", address, config)
 	if err != nil {
 		logger.Error("Failed to connect to GEX SSH", zap.Error(err))
