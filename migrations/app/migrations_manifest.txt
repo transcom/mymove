@@ -646,3 +646,4 @@
 20210611202542_remove_shimona_cac.up.sql
 20210614144532_ronolibert_cac.up.sql
 20210622184646_add_amended_orders_acknowledgement_timestamp.up.sql
+20210629133827_remove_char_limit_payment_service_item_rejection_reason.up.sql
