@@ -691,6 +691,120 @@ func createUnsubmittedHHGMoveMultiplePickup(db *pop.Connection) {
 	})
 }
 
+func createSubmittedHHGMoveMultiplePickupAmendedOrders(db *pop.Connection, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with an hhg only, submitted move, with multiple addresses and amended orders
+	 */
+	email := "hhg@multiple.pickup.amendedOrders.submitted"
+	uuidStr := "c5f202b3-90d3-46aa-8e3b-83e937fcca99"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+
+	smWithHHGID := "cfb9024b-39f3-47ca-b14b-a4e78a41e9db"
+	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithHHGID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("MultiplePickup"),
+			LastName:      models.StringPointer("Hhg"),
+			Edipi:         models.StringPointer("5833908165"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	document := testdatagen.MakeDocument(db, testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: smWithHHG.ID,
+			ServiceMember:   smWithHHG,
+		},
+	})
+
+	u := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
+		UserUpload: models.UserUpload{
+			DocumentID: &document.ID,
+			Document:   document,
+			UploaderID: smWithHHG.ID,
+		},
+		File: testdatagen.Fixture("orders.pdf"),
+	})
+	document.UserUploads = append(document.UserUploads, u)
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.Must(uuid.NewV4()),
+			ServiceMemberID: smWithHHG.ID,
+			ServiceMember:   smWithHHG,
+			UploadedAmendedOrders:   &document,
+			UploadedAmendedOrdersID: &document.ID,
+		},
+		UserUploader: userUploader,
+	})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: orders,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
+			Locator:          "TWOPIC",
+			SelectedMoveType: &hhgMoveType,
+			Status: models.MoveStatusSUBMITTED,
+		},
+	})
+
+
+	pickupAddress1 := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "1 First St",
+			StreetAddress2: swag.String("Apt 1"),
+			StreetAddress3: swag.String("Suite A"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	pickupAddress2 := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ID:                       uuid.FromStringOrNil("a35b1247-b4c2-48f6-9846-8e96050fbc95"),
+			PickupAddress:            &pickupAddress1,
+			PickupAddressID:          &pickupAddress1.ID,
+			SecondaryPickupAddress:   &pickupAddress2,
+			SecondaryPickupAddressID: &pickupAddress2.ID,
+			ShipmentType:             models.MTOShipmentTypeHHG,
+			ApprovedDate:             swag.Time(time.Now()),
+			Status:                   models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:            move,
+			MoveTaskOrderID:          move.ID,
+		},
+	})
+
+
+}
+
 func getNtsAndNtsrUuids(move int) [7]string {
 	if move == 1 {
 		return [7]string{
@@ -3776,131 +3890,132 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	/*
 		RUN ONLY SUB SCENARIO SEED DATA
 	*/
-	runOnlySubScenario := namedSubScenario != ""
-
-	if namedSubScenario == subScenarioShipmentHHGCancelled || namedSubScenario == "" {
-		logger.Info("start seeding sub scenario: " + subScenarioShipmentHHGCancelled)
-		runSubScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC)
-		logger.Info("finished seeding sub scenario: " + subScenarioShipmentHHGCancelled)
-
-		if runOnlySubScenario {
-			return
-		}
-	}
+	//runOnlySubScenario := namedSubScenario != ""
+	//
+	//if namedSubScenario == subScenarioShipmentHHGCancelled || namedSubScenario == "" {
+	//	logger.Info("start seeding sub scenario: " + subScenarioShipmentHHGCancelled)
+	//	runSubScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC)
+	//	logger.Info("finished seeding sub scenario: " + subScenarioShipmentHHGCancelled)
+	//
+	//	if runOnlySubScenario {
+	//		return
+	//	}
+	//}
 
 	/*
 		RUN ALL THE SEED DATA
 	*/
 
-	// PPM Office Queue
-	createPPMOfficeUser(db)
-	createPPMWithAdvance(db, userUploader)
-	createPPMWithNoAdvance(db, userUploader)
-	createPPMWithPaymentRequest(db, userUploader)
-	createCanceledPPM(db, userUploader)
-	createPPMReadyToRequestPayment(db, userUploader)
-
-	// Create additional PPM users for mymove tests
-	createPPMUsers(db, userUploader)
-
-	// Onboarding
-	createUnsubmittedHHGMove(db)
-	createUnsubmittedMoveWithNTSAndNTSR(db, 1)
-	createUnsubmittedMoveWithNTSAndNTSR(db, 2)
-	createUnsubmittedHHGMoveMultiplePickup(db)
-	createUnsubmittedHHGMoveMultipleDestinations(db)
-	createServiceMemberWithOrdersButNoMoveType(db)
-	createServiceMemberWithNoUploadedOrders(db)
-
-	// Services Counseling
-	createHHGNeedsServicesCounseling(db)
-	createHHGNeedsServicesCounselingUSMC(db, userUploader)
-	createHHGNeedsServicesCounselingUSMC2(db, userUploader)
-	createHHGServicesCounselingCompleted(db)
-	createHHGNoShipments(db)
-
-	for i := 0; i < 12; i++ {
-		validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-		createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
-			UserUploader: userUploader,
-		})
-	}
-
-	// TXO Queues
-	createTOO(db)
-	createTIO(db)
-	createTXO(db)
-	createServicesCounselor(db)
-	createTXOServicesCounselor(db)
-	createTXOServicesUSMCCounselor(db)
-	createNTSMove(db)
-	createNTSRMove(db)
-
-	// This allows testing the pagination feature in the TXO queues.
-	// Feel free to comment out the loop if you don't need this many moves.
-	for i := 1; i < 12; i++ {
-		createDefaultHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE)
-	}
-	createDefaultHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationMARINES)
-	// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
-	createHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
-		Move: models.Move{
-			Locator: "SidDLH",
-		},
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusApproved,
-		},
-		ReService: models.ReService{
-			// DLH - Domestic line haul
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
-		},
-	})
-	createHHGWithPaymentServiceItems(db, primeUploader, logger)
-
-	createMoveWithPPMAndHHG(db, userUploader)
-
-	// Create diverted shipments that need TOO approval
-	createMoveWithDivertedShipments(db, userUploader)
-
-	// Create diverted shipments that are approved and appear on the Move Task Order page
-	createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
-		UserUploader: userUploader,
-		Move: models.Move{
-			Status:             models.MoveStatusAPPROVED,
-			Locator:            "APRDVS",
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-		MTOShipment: models.MTOShipment{
-			Diversion:    true,
-			Status:       models.MTOShipmentStatusApproved,
-			ApprovedDate: swag.Time(time.Now()),
-		},
-	})
-
-	// A move with missing required order fields
-	createMoveWithHHGMissingOrdersInfo(db)
-
-	createHHGMoveWith10ServiceItems(db, userUploader)
-	createHHGMoveWith2PaymentRequests(db, userUploader)
-	createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
-	createHHGMoveWithTaskOrderServices(db, userUploader)
-	// This one doesn't have submitted shipments. Can we get rid of it?
-	// createRecentlyUpdatedHHGMove(db, userUploader)
-	createMoveWithHHGAndNTSRPaymentRequest(db, userUploader)
-	// This move will still have shipments with some unapproved service items
-	// without payment service items
-	createMoveWith2ShipmentsAndPaymentRequest(db, userUploader)
-
-	// Prime API
-	createWebhookSubscriptionForPaymentRequestUpdate(db)
-	// This move below is a PPM move in DRAFT status. It should probably
-	// be changed to an HHG move in SUBMITTED status to reflect reality.
-	createMoveWithServiceItems(db, userUploader)
-	createMoveWithBasicServiceItems(db, userUploader)
-	// Sets up a move with a non-default destination duty station address
-	// (to more easily spot issues with addresses being overwritten).
-	createMoveWithUniqueDestinationAddress(db)
-	// Creates a move that has multiple orders uploaded
-	createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
-	createHHGMoveWithAmendedOrders(db, userUploader, primeUploader)
+	//// PPM Office Queue
+	//createPPMOfficeUser(db)
+	//createPPMWithAdvance(db, userUploader)
+	//createPPMWithNoAdvance(db, userUploader)
+	//createPPMWithPaymentRequest(db, userUploader)
+	//createCanceledPPM(db, userUploader)
+	//createPPMReadyToRequestPayment(db, userUploader)
+	//
+	//// Create additional PPM users for mymove tests
+	//createPPMUsers(db, userUploader)
+	//
+	//// Onboarding
+	//createUnsubmittedHHGMove(db)
+	//createUnsubmittedMoveWithNTSAndNTSR(db, 1)
+	//createUnsubmittedMoveWithNTSAndNTSR(db, 2)
+	//createUnsubmittedHHGMoveMultiplePickup(db)
+	//createUnsubmittedHHGMoveMultipleDestinations(db)
+	//createServiceMemberWithOrdersButNoMoveType(db)
+	//createServiceMemberWithNoUploadedOrders(db)
+	createSubmittedHHGMoveMultiplePickupAmendedOrders(db, userUploader)
+	//
+	//// Services Counseling
+	//createHHGNeedsServicesCounseling(db)
+	//createHHGNeedsServicesCounselingUSMC(db, userUploader)
+	//createHHGNeedsServicesCounselingUSMC2(db, userUploader)
+	//createHHGServicesCounselingCompleted(db)
+	//createHHGNoShipments(db)
+	//
+	//for i := 0; i < 12; i++ {
+	//	validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
+	//	createRandomMove(db, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
+	//		UserUploader: userUploader,
+	//	})
+	//}
+	//
+	//// TXO Queues
+	//createTOO(db)
+	//createTIO(db)
+	//createTXO(db)
+	//createServicesCounselor(db)
+	//createTXOServicesCounselor(db)
+	//createTXOServicesUSMCCounselor(db)
+	//createNTSMove(db)
+	//createNTSRMove(db)
+	//
+	//// This allows testing the pagination feature in the TXO queues.
+	//// Feel free to comment out the loop if you don't need this many moves.
+	//for i := 1; i < 12; i++ {
+	//	createDefaultHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE)
+	//}
+	//createDefaultHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationMARINES)
+	//// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
+	//createHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
+	//	Move: models.Move{
+	//		Locator: "SidDLH",
+	//	},
+	//	MTOShipment: models.MTOShipment{
+	//		Status: models.MTOShipmentStatusApproved,
+	//	},
+	//	ReService: models.ReService{
+	//		// DLH - Domestic line haul
+	//		ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
+	//	},
+	//})
+	//createHHGWithPaymentServiceItems(db, primeUploader, logger)
+	//
+	//createMoveWithPPMAndHHG(db, userUploader)
+	//
+	//// Create diverted shipments that need TOO approval
+	//createMoveWithDivertedShipments(db, userUploader)
+	//
+	//// Create diverted shipments that are approved and appear on the Move Task Order page
+	//createRandomMove(db, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+	//	UserUploader: userUploader,
+	//	Move: models.Move{
+	//		Status:             models.MoveStatusAPPROVED,
+	//		Locator:            "APRDVS",
+	//		AvailableToPrimeAt: swag.Time(time.Now()),
+	//	},
+	//	MTOShipment: models.MTOShipment{
+	//		Diversion:    true,
+	//		Status:       models.MTOShipmentStatusApproved,
+	//		ApprovedDate: swag.Time(time.Now()),
+	//	},
+	//})
+	//
+	//// A move with missing required order fields
+	//createMoveWithHHGMissingOrdersInfo(db)
+	//
+	//createHHGMoveWith10ServiceItems(db, userUploader)
+	//createHHGMoveWith2PaymentRequests(db, userUploader)
+	//createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
+	//createHHGMoveWithTaskOrderServices(db, userUploader)
+	//// This one doesn't have submitted shipments. Can we get rid of it?
+	//// createRecentlyUpdatedHHGMove(db, userUploader)
+	//createMoveWithHHGAndNTSRPaymentRequest(db, userUploader)
+	//// This move will still have shipments with some unapproved service items
+	//// without payment service items
+	//createMoveWith2ShipmentsAndPaymentRequest(db, userUploader)
+	//
+	//// Prime API
+	//createWebhookSubscriptionForPaymentRequestUpdate(db)
+	//// This move below is a PPM move in DRAFT status. It should probably
+	//// be changed to an HHG move in SUBMITTED status to reflect reality.
+	//createMoveWithServiceItems(db, userUploader)
+	//createMoveWithBasicServiceItems(db, userUploader)
+	//// Sets up a move with a non-default destination duty station address
+	//// (to more easily spot issues with addresses being overwritten).
+	//createMoveWithUniqueDestinationAddress(db)
+	//// Creates a move that has multiple orders uploaded
+	//createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
+	//createHHGMoveWithAmendedOrders(db, userUploader, primeUploader)
 }
