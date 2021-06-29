@@ -183,16 +183,16 @@ jest.mock('services/ghcApi', () => ({
         },
       },
     }),
-  getDocument: () =>
+  getDocument: (key, id) =>
     Promise.resolve({
       documents: {
-        2: {
-          id: '2',
-          uploads: ['z'],
+        [id]: {
+          id,
+          uploads: [`${id}0`],
         },
       },
       upload: {
-        id: 'z',
+        id: `${id}0`,
       },
     }),
 
@@ -659,6 +659,7 @@ describe('useEditShipmentQueries', () => {
 describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
     const testLocatorId = 'ABCDEF';
+
     const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
 
     await waitForNextUpdate();
@@ -683,23 +684,23 @@ describe('useOrdersDocumentQueries', () => {
           report_by_date: '2018-08-01',
         },
       },
-      amendedUpload: {
-        id: 'z',
-      },
       documents: {
         2: {
           id: '2',
-          uploads: ['z'],
-        },
-      },
-      amendedDocuments: {
-        2: {
-          id: '2',
-          uploads: ['z'],
+          uploads: ['20'],
         },
       },
       upload: {
-        id: 'z',
+        id: '20',
+      },
+      amendedDocuments: {
+        3: {
+          id: '3',
+          uploads: ['30'],
+        },
+      },
+      amendedUpload: {
+        id: '30',
       },
       isLoading: false,
       isError: false,

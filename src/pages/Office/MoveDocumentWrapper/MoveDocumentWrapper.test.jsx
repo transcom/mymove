@@ -78,20 +78,27 @@ jest.mock('hooks/queries', () => ({
       documents: {
         2: {
           id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
+          uploads: ['z'],
         },
       },
       upload: {
         z: {
           id: 'z',
           filename: 'test.pdf',
+          contentType: 'application/pdf',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+      },
+      amendedDocuments: {
+        3: {
+          id: '3',
+          uploads: ['x'],
+        },
+      },
+      amendedUpload: {
+        x: {
+          id: 'z',
+          filename: 'amended_test.pdf',
           contentType: 'application/pdf',
           url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
         },
@@ -126,5 +133,25 @@ describe('MoveDocumentWrapper', () => {
     useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/allowances` }));
     const wrapper = shallow(<MoveDocumentWrapper />);
     expect(wrapper.find('MoveAllowances').exists()).toBe(true);
+  });
+
+  it('combines orders and amended orders', () => {
+    const wrapper = shallow(<MoveDocumentWrapper />);
+    expect(wrapper.find('DocumentViewer').props('files')).toEqual({
+      files: [
+        {
+          contentType: 'application/pdf',
+          filename: 'test.pdf',
+          id: 'z',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+        {
+          contentType: 'application/pdf',
+          filename: 'amended_test.pdf',
+          id: 'z',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+      ],
+    });
   });
 });

@@ -3,6 +3,7 @@ package invoice
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/benbjohnson/clock"
@@ -214,6 +215,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
 	}
 
+	// Add C3 segment here
+	err = g.createC3Segment(&edi858.Header)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+
 	if len(paymentServiceItems) == 0 {
 		return ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequest.ID, "this payment request has no approved PaymentServiceItems")
 	}
@@ -299,6 +306,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentification:          string(*branch),
 	}
 
+	return nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createC3Segment(header *ediinvoice.InvoiceHeader) error {
+	header.Currency = edisegment.C3{
+		CurrencyCodeC301: "USD",
+	}
 	return nil
 }
 
@@ -454,10 +468,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	}
 
 	if len(destPhoneLines) > 0 {
+		digits, digitsErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
+		if digitsErr != nil {
+			return services.NewInvalidInputError(destinationDutyStation.ID, digitsErr, nil, "unable to get destination duty station phone number")
+		}
 		destinationPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
 			CommunicationNumberQualifier: "TE",
-			CommunicationNumber:          destPhoneLines[0],
+			CommunicationNumber:          digits,
 		}
 		header.DestinationPhone = &destinationPhone
 	}
@@ -522,10 +540,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	}
 
 	if len(originPhoneLines) > 0 {
+		digits, digitsErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
+		if digitsErr != nil {
+			return services.NewInvalidInputError(originDutyStation.ID, digitsErr, nil, "unable to get origin duty station phone number")
+		}
 		originPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
 			CommunicationNumberQualifier: "TE",
-			CommunicationNumber:          originPhoneLines[0],
+			CommunicationNumber:          digits,
 		}
 		header.OriginPhone = &originPhone
 	}
@@ -571,6 +593,15 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
 	return paymentServiceItemParam, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) getPhoneNumberDigitsOnly(phoneString string) (string, error) {
+	reg, err := regexp.Compile("[^0-9]+")
+	if err != nil {
+		return "", err
+	}
+	digitsOnly := reg.ReplaceAllString(phoneString, "")
+	return digitsOnly, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (int, error) {
@@ -632,7 +663,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Build and put together the segments
 		newSegment.HL = edisegment.HL{
 			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
-			HierarchicalLevelCode: "I",
+			HierarchicalLevelCode: "9",
 		}
 
 		newSegment.N9 = edisegment.N9{

@@ -1283,6 +1283,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -6179,6 +6182,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
             "schema": {
               "$ref": "#/definitions/Error"
             }
