@@ -182,6 +182,19 @@ export async function deleteUpload(uploadId) {
   );
 }
 
+export async function createAmendedOrdersUploadForDocument(file, documentId) {
+  return makeInternalRequest(
+    'orders.uploadAmendedOrders',
+    {
+      documentId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 /** MOVES */
 export async function getMove(moveId) {
   return makeInternalRequest(
