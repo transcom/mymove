@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -27,9 +29,15 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		},
 		Order: expectedOrder,
 	})
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	mtoUpdater := NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 
 	suite.RunWithRollback("MTO status is updated succesfully", func() {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
@@ -78,7 +86,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	})
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	mtoUpdater := NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	body := movetaskorderops.UpdateMTOPostCounselingInformationBody{
 		PpmType:            "FULL",
 		PpmEstimatedWeight: 3000,
@@ -126,7 +140,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	updater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	updater := NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 
 	// Case: Move successfully deactivated
 	suite.RunWithRollback("Success - Set show field to false", func() {
@@ -206,7 +226,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
 	mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
 
 	suite.RunWithRollback("Service item creator is not called if move fails to get approved", func() {
 		// Create move in DRAFT status, which should fail to get approved

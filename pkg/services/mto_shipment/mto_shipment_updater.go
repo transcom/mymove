@@ -35,16 +35,18 @@ type mtoShipmentUpdater struct {
 	db      *pop.Connection
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner route.Planner
+	planner    route.Planner
+	moveRouter services.MoveRouter
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		db,
 		builder,
 		fetch.NewFetcher(builder),
 		planner,
+		moveRouter,
 	}
 }
 
@@ -399,17 +401,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				return err
 			}
 
-			// If approved, transition the status to APPROVALS REQUESTED
-			if move.Status == models.MoveStatusAPPROVED {
-				err = move.SetApprovalsRequested()
-				if err != nil {
-					return err
-				}
+			err = f.moveRouter.SendToOfficeUser(&move)
+			if err != nil {
+				return err
+			}
 
-				err = tx.Update(&move)
-				if err != nil {
-					return err
-				}
+			err = tx.Update(&move)
+			if err != nil {
+				return err
 			}
 		}
 
