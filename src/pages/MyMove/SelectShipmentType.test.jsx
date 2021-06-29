@@ -91,9 +91,9 @@ describe('SelectShipmentType', () => {
 
   describe('when no PPMs or shipments have been created', () => {
     it('should render the correct text', () => {
-      const wrapper = mount(<SelectShipmentType {...defaultProps} />);
+      const wrapper = getWrapper();
       expect(wrapper.find('h1').text()).toContain('How should this shipment move?');
-      expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
+      expect(wrapper.find('.usa-checkbox__label-description').at(1).text()).toContain(
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
@@ -109,7 +109,7 @@ describe('SelectShipmentType', () => {
       const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find(Radio).at(1).text()).toContain('PPM');
       expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
-        'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.',
+        'Talk with your movers directly if you want to add or change shipments.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
       expect(wrapper.find('[data-testid="helper-footer"]').length).toBe(0);
@@ -213,7 +213,7 @@ describe('SelectShipmentType', () => {
         status: MOVE_STATUSES.SUBMITTED,
       },
     };
-    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
+    const wrapper = getWrapper(props);
     it('should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
