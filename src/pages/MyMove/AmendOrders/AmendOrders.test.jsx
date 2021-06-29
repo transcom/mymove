@@ -1,9 +1,22 @@
 import { React } from 'react';
-import { render } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { AmendOrders } from './AmendOrders';
 
 import { getOrdersForServiceMember } from 'services/internalApi';
+
+const mockPush = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    pathname: 'localhost:3000/',
+  }),
+  useHistory: () => ({
+    push: mockPush,
+  }),
+}));
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -69,5 +82,31 @@ describe('Amended Orders Upload page', () => {
     const { findByText } = render(<AmendOrders {...testProps} uploads={[]} />);
 
     expect(await findByText('Cancel')).toBeInTheDocument();
+  });
+
+  describe('redirects to the home page', () => {
+    it('when the user clicks cancel', async () => {
+      render(<AmendOrders {...testProps} moveIsInDraft={false} />);
+
+      const cancelButton = await screen.findByText('Cancel');
+      expect(cancelButton).toBeInTheDocument();
+      userEvent.click(cancelButton);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/');
+      });
+    });
+
+    it('when the user saves', async () => {
+      render(<AmendOrders {...testProps} moveIsInDraft={false} />);
+
+      const saveButton = await screen.findByText('Save');
+      expect(saveButton).toBeInTheDocument();
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/');
+      });
+    });
   });
 });
