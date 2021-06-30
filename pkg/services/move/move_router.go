@@ -95,11 +95,20 @@ func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error)
 		router.logger.Error("failure finding the origin duty station", zap.Error(err))
 		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 	}
+
+	if move.ServiceCounselingCompletedAt != nil {
+		return false, nil
+	}
+
 	return originDutyStation.ProvidesServicesCounseling, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
+	if move.Status == models.MoveStatusNeedsServiceCounseling {
+		return nil
+	}
+
 	if move.Status != models.MoveStatusDRAFT {
 		router.logger.Warn(fmt.Sprintf(
 			"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is: %s",
@@ -215,8 +224,8 @@ func (router moveRouter) SendToOfficeUser(move *models.Move) error {
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
 		return nil
 	}
-	if move.Status != models.MoveStatusAPPROVED {
-		return errors.Wrap(models.ErrInvalidTransition, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Approvals Requested' from the 'Approved' status, but its current status is %s.", move.ID, move.Status))
+	if move.Status == models.MoveStatusCANCELED {
+		return errors.Wrap(models.ErrInvalidTransition, fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID))
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
 	return nil
