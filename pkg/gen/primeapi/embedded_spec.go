@@ -1688,10 +1688,20 @@ func init() {
             "description"
           ],
           "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "example": 4000
+            },
             "description": {
               "description": "Further details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "example": 4200
             },
             "reServiceCode": {
               "description": "Service codes allowed for this model type.",
@@ -4532,10 +4542,20 @@ func init() {
             "description"
           ],
           "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "example": 4000
+            },
             "description": {
               "description": "Further details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "example": 4200
             },
             "reServiceCode": {
               "description": "Service codes allowed for this model type.",

@@ -292,6 +292,12 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
 		model.Description = shuttleService.Description
+
+		estimatedWeight := unit.Pound(shuttleService.EstimatedWeight)
+		actualWeight := unit.Pound(shuttleService.ActualWeight)
+
+		model.EstimatedWeight = &estimatedWeight
+		model.ActualWeight = &actualWeight
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
