@@ -85,9 +85,9 @@ export class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
-  get hasAmendedOrders() {
-    const { orders, uploadedAmendedOrderDocuments } = this.props;
-    return !!Object.keys(orders).length && !!uploadedAmendedOrderDocuments?.length;
+  get hasUnapprovedAmendedOrders() {
+    const { move, uploadedAmendedOrderDocuments } = this.props;
+    return !!uploadedAmendedOrderDocuments?.length && move.status !== 'APPROVED';
   }
 
   get hasOrdersNoUpload() {
@@ -134,7 +134,7 @@ export class Home extends Component {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
-    if (this.hasAmendedOrders) return <HelperAmendedOrders />;
+    if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
     if (this.hasPPMShipment)
       return (
         <>
