@@ -3,9 +3,11 @@ package internalapi
 import (
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -254,14 +256,30 @@ type UploadAmendedOrdersHandler struct {
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
+
+	session, logger := h.SessionAndLoggerFromContext(ctx)
+
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return handlers.ResponseForError(logger, nil)
+	}
+
+	logger.Info(
+		"File uploader and size",
+		zap.String("userID", session.ServiceMemberID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
+		zap.Int64("size", file.Header.Size),
+	)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-
-	newOrder, err := h.OrderUpdater.UploadAmendedOrders(orderID, params.AmendedOrders, params.IfMatch)
+	newOrder, err := h.OrderUpdater.UploadAmendedOrders(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer(), params.IfMatch)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

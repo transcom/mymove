@@ -1661,39 +1661,6 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  UserUploadPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
-      upload:
-        $ref: '#/definitions/UploadPayload'
-      uploader_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      upload_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - created_at
-      - updated_at
   DPSAuthCookieURLPayload:
     type: object
     properties:
@@ -2988,6 +2955,8 @@ paths:
       operationId: uploadAmendedOrders
       tags:
         - orders
+      consumes:
+        - multipart/form-data
       parameters:
         - in: path
           name: ordersId
@@ -2995,11 +2964,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the order
-        - in: body
-          name: amendedOrders
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
           required: true
-          schema:
-            $ref: '#/definitions/UserUploadPayload'
         - in: header
           name: If-Match
           type: string
@@ -3008,20 +2977,22 @@ paths:
             Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
       responses:
-        '200':
-          description: the instance of the amended orders
+        '201':
+          description: created upload
           schema:
-            $ref: '#/definitions/Orders'
+            $ref: '#/definitions/UploadPayload'
         '400':
           description: invalid request
-        '401':
-          description: request requires user authentication
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
         '403':
-          description: user is not authorized
+          description: not authorized
         '404':
-          description: order is not found
+          description: not found
+        '413':
+          description: payload is too large
         '500':
-          description: internal server error
+          description: server error
   /moves/{moveId}:
     patch:
       summary: Patches the move

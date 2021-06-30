@@ -2089,6 +2089,9 @@ func init() {
     "/orders/{ordersId}/upload_amended_orders": {
       "patch": {
         "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "orders"
         ],
@@ -2104,12 +2107,11 @@ func init() {
             "required": true
           },
           {
-            "name": "amendedOrders",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserUploadPayload"
-            }
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
           },
           {
             "type": "string",
@@ -2120,26 +2122,29 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "the instance of the amended orders",
+          "201": {
+            "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/Orders"
+              "$ref": "#/definitions/UploadPayload"
             }
           },
           "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
           },
           "403": {
-            "description": "user is not authorized"
+            "description": "not authorized"
           },
           "404": {
-            "description": "order is not found"
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
-            "description": "internal server error"
+            "description": "server error"
           }
         }
       }
@@ -6414,50 +6419,6 @@ func init() {
         }
       }
     },
-    "UserUploadPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "document": {
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "document_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "upload": {
-          "$ref": "#/definitions/UploadPayload"
-        },
-        "upload_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "uploader_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
     "ValidationError": {
       "required": [
         "invalidFields"
@@ -8696,6 +8657,9 @@ func init() {
     "/orders/{ordersId}/upload_amended_orders": {
       "patch": {
         "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "orders"
         ],
@@ -8711,12 +8675,11 @@ func init() {
             "required": true
           },
           {
-            "name": "amendedOrders",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserUploadPayload"
-            }
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
           },
           {
             "type": "string",
@@ -8727,26 +8690,29 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "the instance of the amended orders",
+          "201": {
+            "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/Orders"
+              "$ref": "#/definitions/UploadPayload"
             }
           },
           "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
           },
           "403": {
-            "description": "user is not authorized"
+            "description": "not authorized"
           },
           "404": {
-            "description": "order is not found"
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
-            "description": "internal server error"
+            "description": "server error"
           }
         }
       }
@@ -13042,50 +13008,6 @@ func init() {
           "type": "string",
           "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UserUploadPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "document": {
-          "$ref": "#/definitions/DocumentPayload"
-        },
-        "document_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "updated_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "upload": {
-          "$ref": "#/definitions/UploadPayload"
-        },
-        "upload_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "uploader_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },

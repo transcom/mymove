@@ -16,6 +16,26 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+// ErrFailedToInitUploader represents an error creating a new file uploader
+type ErrFailedToInitUploader struct {
+	message string
+}
+
+// ErrFailedToInitUploader is the string representation of an error
+func (e ErrFailedToInitUploader) Error() string {
+	return fmt.Sprintf("failed not instantiate uploader: %s", e.message)
+}
+
+// ErrFile represents an file error
+type ErrFile struct {
+	message string
+}
+
+// ErrFile is the string representation of an error
+func (e ErrFile) Error() string {
+	return fmt.Sprintf("%s", e.message)
+}
+
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
@@ -33,6 +53,12 @@ var ErrFileSizeLimitExceedsMax = errors.Errorf("FileSizeLimit exceeds max of %d 
 // Any unscanned files will not be available for download so while we can upload a larger
 // file of any size the file will be locked from downloading forever.
 const MaxFileSizeLimit = 250 * MB
+
+// MaxUserFileSizeLimit sets the maximum file size limit
+// Anti-Virus scanning won't be able to scan files larger than 250MB
+// Any unscanned files will not be available for download so while we can upload a larger
+// file of any size the file will be locked from downloading forever.
+const MaxUserFileSizeLimit = 25 * MB
 
 // ErrTooLarge is the string representation of an error
 func (e ErrTooLarge) Error() string {
