@@ -233,8 +233,8 @@ commands:
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
-    # Used for dp3 sites, which do not include gex/orders
-    deploy_dp3_tasks_steps:
+  # Used for dp3 sites, which do not include gex/orders
+  deploy_dp3_tasks_steps:
     parameters:
       ecr_env:
         type: string
