@@ -69,6 +69,8 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
 
   if (isLoading) return <LoadingPlaceholder />;
 
+  const additionalText = uploads && uploads.length > 0 ? 'additional ' : '';
+
   return (
     <GridContainer>
       <ScrollToTop />
@@ -97,7 +99,8 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={onChange}
-                labelIdle={'Drag files here or <span class="filepond--label-action">choose from folder</span>'}
+                labelIdle={`Drag ${additionalText}files here or <span class="filepond--label-action">choose from folder</span>`}
+                labelIdleMobile={`<span class="filepond--label-action">Upload ${additionalText}files</span>`}
               />
             </div>
             <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
