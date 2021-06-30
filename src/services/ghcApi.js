@@ -40,10 +40,6 @@ export async function getMovePaymentRequests(key, locator) {
   );
 }
 
-export async function getMoveTaskOrderList(key, orderID) {
-  return makeGHCRequest('order.listMoveTaskOrders', { orderID });
-}
-
 export async function getMTOShipments(key, moveTaskOrderID, normalize = true) {
   return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments', normalize });
 }

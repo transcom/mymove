@@ -60,17 +60,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
 
-  const {
-    orders = {},
-    moveTaskOrders,
-    mtoShipments,
-    mtoServiceItems,
-    isLoading,
-    isError,
-  } = useMoveTaskOrderQueries(moveCode);
+  const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
   const order = Object.values(orders)?.[0];
-  const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -179,7 +171,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
     mutateMTOServiceItemStatus({
-      moveTaskOrderId: moveTaskOrder.id,
+      moveTaskOrderId: move.id,
       mtoServiceItemID,
       status,
       rejectionReason,
@@ -273,7 +265,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
+  if (move.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
     return (
       <div className={styles.tabContent}>
         <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
@@ -322,7 +314,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
-              <h6>MTO Reference ID #{moveTaskOrder?.referenceId}</h6>
+              <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
           </div>

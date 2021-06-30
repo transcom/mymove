@@ -7,7 +7,6 @@ import {
   getMTOServiceItems,
   getOrder,
   getMove,
-  // getMoveTaskOrderList,
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
@@ -24,7 +23,6 @@ import {
   MOVES,
   ORDERS,
   MOVE_PAYMENT_REQUESTS,
-  // MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
@@ -139,16 +137,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
     enabled: !!orderId,
   });
 
-  // get move task orders
-  // const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
-  //   [MOVE_TASK_ORDERS, orderId],
-  //   getMoveTaskOrderList,
-  //   { enabled: !!orderId },
-  // );
-
-  const moveTaskOrder = move;
-  // const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
-  const mtoID = moveTaskOrder?.id;
+  const mtoID = move?.id;
 
   // get MTO shipments
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
@@ -165,14 +154,13 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
-    // moveTaskOrderQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
 
   return {
     orders,
-    moveTaskOrders: move,
+    move,
     mtoShipments,
     mtoServiceItems,
     isLoading,
