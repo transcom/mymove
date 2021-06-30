@@ -13,6 +13,7 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
+  HelperAmendedOrders,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -32,6 +33,7 @@ import {
   selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
   selectServiceMemberFromLoggedInUser,
+  selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import {
@@ -83,6 +85,11 @@ export class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
+  get hasAmendedOrders() {
+    const { orders, uploadedAmendedOrderDocuments } = this.props;
+    return !!Object.keys(orders).length && !!uploadedAmendedOrderDocuments?.length;
+  }
+
   get hasOrdersNoUpload() {
     const { orders, uploadedOrderDocuments } = this.props;
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
@@ -127,6 +134,7 @@ export class Home extends Component {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    if (this.hasAmendedOrders) return <HelperAmendedOrders />;
     if (this.hasPPMShipment)
       return (
         <>
@@ -406,6 +414,7 @@ Home.propTypes = {
     shipmentType: string,
   }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
+  uploadedAmendedOrderDocuments: arrayOf(UploadShape).isRequired,
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
@@ -431,6 +440,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
+    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),

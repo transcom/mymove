@@ -48,6 +48,7 @@ const defaultProps = {
     status: 'DRAFT',
   },
   uploadedOrderDocuments: [],
+  uploadedAmendedOrderDocuments: [],
 };
 
 const mountHomeWithProviders = (props = {}) => {
@@ -303,6 +304,36 @@ describe('Home component', () => {
 
       it('renders the SubmittedPPM helper', () => {
         expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
+      });
+    });
+
+    describe('for amended orders', () => {
+      const submittedAt = new Date();
+      const orders = {
+        id: 'testOrder123',
+        new_duty_station: {
+          name: 'Test Duty Station',
+        },
+      };
+      const uploadedOrderDocuments = [{ id: 'testDocument354', filename: 'testOrder1.pdf' }];
+      const uploadedAmendedOrderDocuments = [{ id: 'testDocument987', filename: 'testOrder2.pdf' }];
+      const move = { id: 'testMoveId', status: 'APPROVALS REQUESTED', submitted_at: submittedAt };
+      const currentPpm = { id: 'mockCombo' };
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <Home
+            {...defaultProps}
+            orders={orders}
+            uploadedOrderDocuments={uploadedOrderDocuments}
+            uploadedAmendedOrderDocuments={uploadedAmendedOrderDocuments}
+            move={move}
+            currentPpm={currentPpm}
+          />
+        </MockProviders>,
+      );
+
+      it('renders the HelperAmendedOrders helper', () => {
+        expect(wrapper.find('HelperAmendedOrders').exists()).toBe(true);
       });
     });
   });
