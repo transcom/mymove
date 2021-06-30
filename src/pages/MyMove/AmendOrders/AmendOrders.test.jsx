@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 
 import { AmendOrders } from './AmendOrders';
 
-import { getOrdersForServiceMember } from 'services/internalApi';
+import { getOrdersForServiceMember, submitMoveForApproval } from 'services/internalApi';
+import { generalRoutes } from 'constants/routes';
 
 const mockPush = jest.fn();
 
@@ -23,6 +24,7 @@ jest.mock('services/internalApi', () => ({
   getOrdersForServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   createUploadForDocument: jest.fn().mockImplementation(() => Promise.resolve()),
   deleteUpload: jest.fn().mockImplementation(() => Promise.resolve()),
+  submitMoveForApproval: jest.fn(),
 }));
 
 describe('Amended Orders Upload page', () => {
@@ -78,6 +80,7 @@ describe('Amended Orders Upload page', () => {
 
     expect(await findByText('Save')).toBeInTheDocument();
   });
+
   it('renders the cancel button', async () => {
     const { findByText } = render(<AmendOrders {...testProps} uploads={[]} />);
 
@@ -93,11 +96,12 @@ describe('Amended Orders Upload page', () => {
       userEvent.click(cancelButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/');
+        expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
       });
     });
 
     it('when the user saves', async () => {
+      submitMoveForApproval.mockImplementation(() => {});
       render(<AmendOrders {...testProps} moveIsInDraft={false} />);
 
       const saveButton = await screen.findByText('Save');
@@ -105,7 +109,7 @@ describe('Amended Orders Upload page', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/');
+        expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
       });
     });
   });
