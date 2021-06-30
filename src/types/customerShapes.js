@@ -57,6 +57,10 @@ export const OrdersShape = shape({
     id: string,
     uploads: UploadsShape,
   }),
+  uploaded_amended_orders: shape({
+    id: string,
+    uploads: UploadsShape,
+  }),
 });
 
 export const DocumentShape = shape({});

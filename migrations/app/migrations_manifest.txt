@@ -646,3 +646,4 @@
 20210611202542_remove_shimona_cac.up.sql
 20210614144532_ronolibert_cac.up.sql
 20210622184646_add_amended_orders_acknowledgement_timestamp.up.sql
+20210628223755_add_actual_and_estimated_weight_to_mto_service_items.up.sql

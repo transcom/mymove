@@ -16,7 +16,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   selectCurrentOrders,
   selectServiceMemberFromLoggedInUser,
-  selectUploadsForCurrentOrders,
+  selectUploadsForCurrentAmendedOrders,
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { generalRoutes } from 'constants/routes';
@@ -128,7 +128,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId,
     currentOrders,
-    uploads: selectUploadsForCurrentOrders(state),
+    uploads: selectUploadsForCurrentAmendedOrders(state),
   };
 
   return props;
