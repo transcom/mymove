@@ -69,6 +69,7 @@ const FileUpload = forwardRef(({ name, createUpload, onChange, labelIdle, onAddF
     labelIdle: isMobile() ? '<span class="filepond--label-action">Upload</span>' : labelIdle,
     acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     maxFileSize: '25MB',
+    credits: false,
   };
 
   /* eslint-disable react/jsx-props-no-spreading */
