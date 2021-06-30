@@ -17,20 +17,17 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 	document := assertions.UserUpload.Document
 	if assertions.UserUpload.DocumentID == nil || isZeroUUID(*assertions.UserUpload.DocumentID) {
 		document = MakeDocument(db, assertions)
-		fmt.Printf("\n\n😱😱😱😱\n%v\n", "asdf")
 	}
 
 	uploaderID := assertions.UserUpload.UploaderID
 	if isZeroUUID(uploaderID) {
 		uploaderID = document.ServiceMember.UserID
-		fmt.Printf("\n\n😱😱😱😱\n%v\n", "qwerqwerr")
 	}
-	fmt.Printf("\n\n😱😱😱😱\n%v\n", "12341234")
+
 	// Users can either assert an UserUploader (and a real file is used), or can optionally assert fields
 	var userUpload *models.UserUpload
 	if assertions.UserUploader != nil {
 		// If an UserUploader is passed in, UserUpload assertions are ignored
-		fmt.Printf("\n\n😱😱😱😱\n%v\n", "iklyhluik")
 		var err error
 		var verrs *validate.Errors
 		file := Fixture("test.pdf")
@@ -43,7 +40,6 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		}
 	} else {
 		// If no UserUploader is being stored, use asserted fields
-		fmt.Printf("\n\n😱😱😱😱\n%v\n", "zxcvzxcv")
 		if assertions.UserUpload.Upload.ID != uuid.Nil {
 			assertions.Upload = assertions.UserUpload.Upload
 		}
