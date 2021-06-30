@@ -1970,6 +1970,7 @@ definitions:
       - APPROVED
       - CANCELED
       - 'NEEDS SERVICE COUNSELING'
+      - 'APPROVALS REQUESTED'
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -3704,6 +3705,38 @@ paths:
           description: not authorized to cancel this move
         '409':
           description: the move is not in a state to be canceled
+          schema:
+            $ref: '#/definitions/MovePayload'
+        '500':
+          description: server error
+  /moves/{moveId}/submit_amended_orders:
+    post:
+      summary: Submits amended orders for review
+      description: Submits amended orders for review by the office. The status of the move will be updated to an
+        appropriate status depending on whether it needs services counseling or not.
+      operationId: submitAmendedOrders
+      tags:
+        - moves
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        '200':
+          description: returns updated (submitted) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        '400':
+          description: invalid request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: not authorized to approve this move
+        '409':
+          description: the move is not in a state to be approved
           schema:
             $ref: '#/definitions/MovePayload'
         '500':

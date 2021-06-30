@@ -75,6 +75,10 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 		ctx,
 		move.NewMoveRouter(ctx.DB(), ctx.Logger()),
 	}
+	internalAPI.MovesSubmitAmendedOrdersHandler = SubmitAmendedOrdersHandler{
+		ctx,
+		move.NewMoveRouter(ctx.DB(), ctx.Logger()),
+	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{ctx}
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{ctx}

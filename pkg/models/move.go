@@ -273,6 +273,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"MTOShipments.SecondaryDeliveryAddress",
 		"SignedCertifications",
 		"Orders",
+		"Orders.UploadedAmendedOrders",
 		"MoveDocuments.Document",
 	).Where("show = TRUE").Find(&move, id)
 

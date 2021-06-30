@@ -1743,6 +1743,52 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/submit_amended_orders": {
+      "post": {
+        "description": "Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.",
+        "tags": [
+          "moves"
+        ],
+        "summary": "Submits amended orders for review",
+        "operationId": "submitAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns updated (submitted) move object",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to approve this move"
+          },
+          "409": {
+            "description": "the move is not in a state to be approved",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -4849,7 +4895,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "CANCELED",
-        "NEEDS SERVICE COUNSELING"
+        "NEEDS SERVICE COUNSELING",
+        "APPROVALS REQUESTED"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -8246,6 +8293,52 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/submit_amended_orders": {
+      "post": {
+        "description": "Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.",
+        "tags": [
+          "moves"
+        ],
+        "summary": "Submits amended orders for review",
+        "operationId": "submitAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns updated (submitted) move object",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to approve this move"
+          },
+          "409": {
+            "description": "the move is not in a state to be approved",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -11420,7 +11513,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "CANCELED",
-        "NEEDS SERVICE COUNSELING"
+        "NEEDS SERVICE COUNSELING",
+        "APPROVALS REQUESTED"
       ],
       "x-display-value": {
         "APPROVED": "Approved",

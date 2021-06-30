@@ -725,8 +725,6 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(db *pop.Connection, userU
 			ID:              uuid.Must(uuid.NewV4()),
 			ServiceMemberID: smWithHHG.ID,
 			ServiceMember:   smWithHHG,
-			//UploadedAmendedOrders:   &document,
-			//UploadedAmendedOrdersID: &document.ID,
 		},
 		UserUploader: userUploader,
 	})
