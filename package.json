@@ -17,7 +17,7 @@
     "filepond-plugin-image-preview": "^4.6.6",
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.2.9",
-    "history": "^4.10.1",
+    "history": "^5.0.0",
     "http-proxy-middleware": "^2.0.0",
     "is-mobile": "3.0.0",
     "jest-canvas-mock": "^2.3.1",
