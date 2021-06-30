@@ -555,31 +555,30 @@ describe('RequestedShipments', () => {
     expect(approvedServiceItemDates.at(1).text()).toBe(' 02 Oct 2020');
   });
 
-  it.each`
-    status
-    ${'APPROVED'}
-    ${'SUBMITTED'}
-  `('displays the customer and counselor remarks for a(n) $status shipment', ({ status }) => {
-    const wrapper = mount(
-      <RequestedShipments
-        ordersInfo={ordersInfo}
-        allowancesInfo={allowancesInfo}
-        mtoAgents={agents}
-        customerInfo={customerInfo}
-        mtoShipments={shipments}
-        approveMTO={approveMTO}
-        shipmentsStatus={status}
-        mtoServiceItems={serviceItems}
-      />,
-    );
+  it.each([['APPROVED'], ['SUBMITTED']])(
+    'displays the customer and counselor remarks for a(n) %s shipment',
+    (status) => {
+      const wrapper = mount(
+        <RequestedShipments
+          ordersInfo={ordersInfo}
+          allowancesInfo={allowancesInfo}
+          mtoAgents={agents}
+          customerInfo={customerInfo}
+          mtoShipments={shipments}
+          approveMTO={approveMTO}
+          shipmentsStatus={status}
+          mtoServiceItems={serviceItems}
+        />,
+      );
 
-    const customerRemarks = wrapper.find('[data-testid="customerRemarks"]');
-    const counselorRemarks = wrapper.find('[data-testid="counselorRemarks"]');
+      const customerRemarks = wrapper.find('[data-testid="customerRemarks"]');
+      const counselorRemarks = wrapper.find('[data-testid="counselorRemarks"]');
 
-    expect(customerRemarks.at(0).text()).toBe('please treat gently');
-    expect(customerRemarks.at(1).text()).toBe('please treat gently');
+      expect(customerRemarks.at(0).text()).toBe('please treat gently');
+      expect(customerRemarks.at(1).text()).toBe('please treat gently');
 
-    expect(counselorRemarks.at(0).text()).toBe('looks good');
-    expect(counselorRemarks.at(1).text()).toBe('looks good');
-  });
+      expect(counselorRemarks.at(0).text()).toBe('looks good');
+      expect(counselorRemarks.at(1).text()).toBe('looks good');
+    },
+  );
 });
