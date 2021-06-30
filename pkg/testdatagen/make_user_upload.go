@@ -40,6 +40,7 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		}
 	} else {
 		// If no UserUploader is being stored, use asserted fields
+
 		if assertions.UserUpload.Upload.ID != uuid.Nil {
 			assertions.Upload = assertions.UserUpload.Upload
 		}
