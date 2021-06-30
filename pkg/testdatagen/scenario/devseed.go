@@ -720,27 +720,6 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(db *pop.Connection, userU
 		},
 	})
 
-	/*
-		document := testdatagen.MakeDocument(db, testdatagen.Assertions{
-			Document: models.Document{
-				ID:              uuid.FromStringOrNil("44ac26d2-d945-11eb-b8bc-0242ac130003"),
-				ServiceMemberID: smWithHHG.ID,
-				ServiceMember:   smWithHHG,
-			},
-		})
-
-
-		u := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
-			UserUpload: models.UserUpload{
-				DocumentID: &document.ID,
-				Document:   document,
-				UploaderID: smWithHHG.ID,
-			},
-			UserUploader: userUploader,
-		})
-		document.UserUploads = append(document.UserUploads, u)
-	*/
-
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ID:              uuid.Must(uuid.NewV4()),
