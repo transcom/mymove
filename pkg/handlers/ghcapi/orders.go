@@ -47,34 +47,6 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 	return orderop.NewGetOrderOK().WithPayload(orderPayload)
 }
 
-// ListMoveTaskOrdersHandler fetches all the moves
-type ListMoveTaskOrdersHandler struct {
-	handlers.HandlerContext
-	services.MoveTaskOrderFetcher
-}
-
-// Handle getting the all moves
-func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	orderID, _ := uuid.FromString(params.OrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(orderID, nil) // nil searchParams exclude disabled MTOs by default
-	if err != nil {
-		logger.Error("fetching all moves", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return orderop.NewListMoveTaskOrdersNotFound()
-		default:
-			return orderop.NewListMoveTaskOrdersInternalServerError()
-		}
-	}
-	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
-	for i, moveTaskOrder := range moveTaskOrders {
-		copyOfMto := moveTaskOrder // Make copy to avoid implicit memory aliasing of items from a range statement.
-		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&copyOfMto)
-	}
-	return orderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
-}
-
 // UpdateOrderHandler updates an order via PATCH /orders/{orderId}
 type UpdateOrderHandler struct {
 	handlers.HandlerContext
