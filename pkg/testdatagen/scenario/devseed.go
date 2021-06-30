@@ -729,11 +729,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(db *pop.Connection, userU
 	})
 
 	u := testdatagen.MakeUserUpload(db, testdatagen.Assertions{
-		UserUpload: models.UserUpload{
-			DocumentID: &document.ID,
-			Document:   document,
-			UploaderID: smWithHHG.ID,
-		},
+		UserUploader: userUploader,
 		File: testdatagen.Fixture("orders.pdf"),
 	})
 	document.UserUploads = append(document.UserUploads, u)
