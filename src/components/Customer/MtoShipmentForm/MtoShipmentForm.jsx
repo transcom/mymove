@@ -254,6 +254,7 @@ class MtoShipmentForm extends Component {
                                       <Field
                                         as={Radio}
                                         id="has-secondary-pickup"
+                                        data-testid="has-secondary-pickup"
                                         label="Yes"
                                         name="hasSecondaryPickup"
                                         value="yes"
@@ -263,6 +264,7 @@ class MtoShipmentForm extends Component {
                                       <Field
                                         as={Radio}
                                         id="no-secondary-pickup"
+                                        data-testid="no-secondary-pickup"
                                         label="No"
                                         name="hasSecondaryPickup"
                                         value="no"
@@ -348,6 +350,7 @@ class MtoShipmentForm extends Component {
                                         <div className={formStyles.radioGroup}>
                                           <Field
                                             as={Radio}
+                                            data-testid="has-secondary-delivery"
                                             id="has-secondary-delivery"
                                             label="Yes"
                                             name="hasSecondaryDelivery"
@@ -357,6 +360,7 @@ class MtoShipmentForm extends Component {
                                           />
                                           <Field
                                             as={Radio}
+                                            data-testid="no-secondary-delivery"
                                             id="no-secondary-delivery"
                                             label="No"
                                             name="hasSecondaryDelivery"

@@ -43,7 +43,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	}
 
 	var amendedOrderPayload *internalmessages.DocumentPayload
-	if order.UploadedAmendedOrdersID != nil {
+	if order.UploadedAmendedOrders != nil {
 		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
 		if err != nil {
 			return nil, err

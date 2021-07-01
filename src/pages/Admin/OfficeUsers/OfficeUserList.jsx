@@ -1,19 +1,19 @@
 import React from 'react';
 import {
   BooleanField,
+  CreateButton,
   Datagrid,
+  ExportButton,
   Filter,
   List,
   ReferenceField,
   TextField,
   TextInput,
   TopToolbar,
-  CreateButton,
-  ExportButton,
 } from 'react-admin';
 import PropTypes from 'prop-types';
 
-import ImportCsvButton from 'components/Admin/ImportCsvButton';
+import ImportOfficeUserButton from 'components/Admin/ImportOfficeUserButton';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 // Overriding the default toolbar to add import button
@@ -22,7 +22,7 @@ const ListActions = (props) => {
   return (
     <TopToolbar>
       <CreateButton basePath={basePath} />
-      <ImportCsvButton resource={resource} {...props} />
+      <ImportOfficeUserButton resource={resource} {...props} />
       <ExportButton
         disabled={total === 0}
         resource={resource}

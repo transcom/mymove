@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -119,11 +121,12 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		}
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// setup the handler
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 		}
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")
@@ -204,7 +207,8 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	order := move.Orders
 	order.TAC = nil
 	suite.MustSave(&order)
-	err := move.Submit()
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	err := moveRouter.Submit(&move)
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -220,11 +224,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -249,10 +253,11 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 
 	params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{

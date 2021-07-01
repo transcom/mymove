@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -189,6 +190,9 @@ func Fixture(name string) afero.File {
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
 	}
+
+	// if this is called from inside another package remove so we're left with the parent dir
+	cwd = strings.Split(cwd, "pkg")[0]
 
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
 	file, err := os.Open(filepath.Clean(fixturePath))

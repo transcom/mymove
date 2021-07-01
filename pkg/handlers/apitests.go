@@ -32,9 +32,9 @@ type BaseHandlerTestSuite struct {
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
-		PopTestSuite:       testingsuite.NewPopTestSuite(packageName),
+		PopTestSuite:       testingsuite.NewPopTestSuite(packageName, opts...),
 		logger:             logger,
 		notificationSender: sender,
 	}

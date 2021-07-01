@@ -13,6 +13,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -31,7 +33,8 @@ import (
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
@@ -273,7 +276,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
-	move := testdatagen.MakeApprovalsRequestedMove(suite.DB())
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
 
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: move,
@@ -298,7 +301,8 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	builder := query.NewQueryBuilder(suite.DB())
-	updater := NewMTOServiceItemUpdater(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	rejectionReason := swag.String("")
 

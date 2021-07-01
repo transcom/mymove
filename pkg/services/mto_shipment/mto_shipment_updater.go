@@ -35,24 +35,23 @@ type mtoShipmentUpdater struct {
 	db      *pop.Connection
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner route.Planner
+	planner    route.Planner
+	moveRouter services.MoveRouter
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		db,
 		builder,
 		fetch.NewFetcher(builder),
 		planner,
+		moveRouter,
 	}
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
-	verrs := validate.NewErrors()
-	oldShipmentCopy := dbShipment // make a copy to restore values in case there were errors while setting
-
+func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) {
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
@@ -111,9 +110,6 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 
 	if requestedUpdatedShipment.Status != "" {
 		dbShipment.Status = requestedUpdatedShipment.Status
-		if dbShipment.Status != models.MTOShipmentStatusDraft && dbShipment.Status != models.MTOShipmentStatusSubmitted {
-			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
-		}
 	}
 
 	if requestedUpdatedShipment.RequiredDeliveryDate != nil {
@@ -175,13 +171,6 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		}
 		dbShipment.MTOAgents = agentsToCreateOrUpdate // don't return unchanged existing agents
 	}
-
-	if verrs.HasAny() {
-		dbShipment = oldShipmentCopy
-		return services.NewInvalidInputError(dbShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
-	}
-
-	return nil
 }
 
 // StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
@@ -226,61 +215,78 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mode
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the OFFICE USER
 func (f *mtoShipmentUpdater) UpdateMTOShipmentOffice(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(ctx, mtoShipment, eTag)
+	return f.updateMTOShipment(
+		ctx,
+		mtoShipment,
+		eTag,
+		checkStatus(),
+	)
 }
 
 // UpdateMTOShipmentCustomer updates the mto shipment
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the CUSTOMER
 func (f *mtoShipmentUpdater) UpdateMTOShipmentCustomer(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(ctx, mtoShipment, eTag)
+	return f.updateMTOShipment(
+		ctx,
+		mtoShipment,
+		eTag,
+		checkStatus(),
+	)
 }
 
 // UpdateMTOShipmentPrime updates the mto shipment
 // TODO: apply the subset of business logic validations
 // that would be appropriate for the PRIME
 func (f *mtoShipmentUpdater) UpdateMTOShipmentPrime(ctx context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	return f.updateMTOShipment(ctx, mtoShipment, eTag)
+	return f.updateMTOShipment(
+		ctx,
+		mtoShipment,
+		eTag,
+		checkStatus(),
+		checkAvailToPrime(f.db),
+	)
 }
 
 //updateMTOShipment updates the mto shipment
-func (f *mtoShipmentUpdater) updateMTOShipment(_ context.Context, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+func (f *mtoShipmentUpdater) updateMTOShipment(ctx context.Context, mtoShipment *models.MTOShipment, eTag string, checks ...validator) (*models.MTOShipment, error) {
 	oldShipment, err := f.RetrieveMTOShipment(mtoShipment.ID)
-
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
 	}
+
+	// run the (read-only) validations
+	if verr := validateShipment(ctx, mtoShipment, oldShipment, checks...); verr != nil {
+		return nil, verr
+	}
+
 	var dbShipment models.MTOShipment
 	err = deepcopy.Copy(&dbShipment, oldShipment) // save the original db version, oldShipment will be modified
 	if err != nil {
 		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}
-	err = setNewShipmentFields(oldShipment, mtoShipment)
-	if err != nil {
-		return nil, err
-	}
+
+	setNewShipmentFields(oldShipment, mtoShipment)
 	newShipment := oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
 	err = f.updateShipmentRecord(&dbShipment, newShipment, eTag)
-
 	if err != nil {
 		switch err.(type) {
 		case StaleIdentifierError:
-			return &models.MTOShipment{}, services.NewPreconditionFailedError(mtoShipment.ID, err)
+			return nil, services.NewPreconditionFailedError(mtoShipment.ID, err)
 		default:
-			return &models.MTOShipment{}, err
+			return nil, err
 		}
 	}
 
 	updatedShipment, err := f.RetrieveMTOShipment(mtoShipment.ID)
-
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return nil, err
 	}
 
 	err = f.db.Eager("MTOServiceItems.ReService").Find(updatedShipment, mtoShipment.ID.String())
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return nil, err
 	}
 
 	return updatedShipment, nil
@@ -399,17 +405,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				return err
 			}
 
-			// If approved, transition the status to APPROVALS REQUESTED
-			if move.Status == models.MoveStatusAPPROVED {
-				err = move.SetApprovalsRequested()
-				if err != nil {
-					return err
-				}
+			err = f.moveRouter.SendToOfficeUser(&move)
+			if err != nil {
+				return err
+			}
 
-				err = tx.Update(&move)
-				if err != nil {
-					return err
-				}
+			err = tx.Update(&move)
+			if err != nil {
+				return err
 			}
 		}
 
@@ -606,9 +609,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if verrs != nil && verrs.HasAny() {
-		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
-
-		return &models.MTOShipment{}, invalidInputError
+		return nil, services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 	}
 
 	// after updating shipment
@@ -846,21 +847,14 @@ func (e ConflictStatusError) Error() string {
 	return ""
 }
 
+// MTOShipmentsMTOAvailableToPrime checks if a given shipment is available to the Prime
+// TODO: trend away from using this method, it represents *business logic* and should
+// ideally be done only as an internal check, rather than relying on being invoked
+// by the handler layer
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	var mto models.Move
-
-	err := f.db.Q().
-		Join("mto_shipments", "moves.id = mto_shipments.move_id").
-		Where("available_to_prime_at IS NOT NULL").
-		Where("mto_shipments.id = ?", mtoShipmentID).
-		Where("show = TRUE").
-		First(&mto)
+	err := checkAvailToPrime(f.db).Validate(context.Background(), &models.MTOShipment{ID: mtoShipmentID}, nil)
 	if err != nil {
-		if err.Error() == models.RecordNotFoundErrorString {
-			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
-		}
-		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")
+		return false, err
 	}
-
 	return true, nil
 }

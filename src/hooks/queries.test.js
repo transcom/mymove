@@ -162,6 +162,7 @@ jest.mock('services/ghcApi', () => ({
           customerID: '2468',
           customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
           originDutyStation: {
@@ -182,18 +183,19 @@ jest.mock('services/ghcApi', () => ({
         },
       },
     }),
-  getDocument: () =>
+  getDocument: (key, id) =>
     Promise.resolve({
       documents: {
-        2: {
-          id: '2',
-          uploads: ['z'],
+        [id]: {
+          id,
+          uploads: [`${id}0`],
         },
       },
       upload: {
-        id: 'z',
+        id: `${id}0`,
       },
     }),
+
   getMovesQueue: () =>
     Promise.resolve({
       page: 1,
@@ -257,6 +259,7 @@ describe('useTXOMoveInfoQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -376,6 +379,7 @@ describe('useMoveTaskOrderQueries', () => {
           customerID: '2468',
           customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
           originDutyStation: {
@@ -469,6 +473,7 @@ describe('useMoveDetailsQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -499,6 +504,7 @@ describe('useMoveDetailsQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -588,6 +594,7 @@ describe('useEditShipmentQueries', () => {
         customerID: '2468',
         customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
         uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
         departmentIndicator: 'Navy',
         grade: 'E-6',
         originDutyStation: {
@@ -652,6 +659,7 @@ describe('useEditShipmentQueries', () => {
 describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
     const testLocatorId = 'ABCDEF';
+
     const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId));
 
     await waitForNextUpdate();
@@ -664,6 +672,7 @@ describe('useOrdersDocumentQueries', () => {
           customerID: '2468',
           customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
           uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
           departmentIndicator: 'Navy',
           grade: 'E-6',
           originDutyStation: {
@@ -678,11 +687,20 @@ describe('useOrdersDocumentQueries', () => {
       documents: {
         2: {
           id: '2',
-          uploads: ['z'],
+          uploads: ['20'],
         },
       },
       upload: {
-        id: 'z',
+        id: '20',
+      },
+      amendedDocuments: {
+        3: {
+          id: '3',
+          uploads: ['30'],
+        },
+      },
+      amendedUpload: {
+        id: '30',
       },
       isLoading: false,
       isError: false,
