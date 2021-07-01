@@ -46,6 +46,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { HistoryShape, MoveShape, MtoShipmentShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
+import Alert from 'shared/Alert';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -129,6 +130,21 @@ export class Home extends Component {
     }
     return 'Set up your shipments';
   }
+
+  renderAlert = () => {
+    if (this.hasUnapprovedAmendedOrders) {
+      return (
+        <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
+          <p>
+            The transportation office will review your new documents and update your move info. Contact your movers to
+            coordinate any changes to your move.
+          </p>
+          You don&apos;t need to do anything else in MilMove.
+        </Alert>
+      );
+    }
+    return null;
+  };
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
@@ -278,6 +294,7 @@ export class Home extends Component {
 
             {isProfileComplete && (
               <>
+                {this.renderAlert()}
                 {this.renderHelper()}
                 <SectionWrapper>
                   <Step
