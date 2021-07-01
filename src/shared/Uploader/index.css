@@ -13,10 +13,6 @@
   background-color: #0071bc
 }
 
-.filepond--root {
-    max-width: 500px;
-}
-
 .filepond--panel-root {
   border: 1px dashed #a9aeb1;
   border-radius: 0px;
