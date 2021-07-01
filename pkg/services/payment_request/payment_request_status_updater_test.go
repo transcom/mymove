@@ -21,7 +21,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt), "reviewed")
 		suite.NoError(err)
 	})
 
@@ -47,7 +47,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt), "reviewed")
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 	})
@@ -74,7 +74,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt), "reviewed")
 		suite.NoError(err)
 	})
 
@@ -84,9 +84,75 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
+		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()), "reviewed")
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("If we get a payment request pointer with a valid status with a processed statusType it should update and return no error", func(t *testing.T) {
+		// Payment request being updated with the UpdateProcessedPaymentRequestStatus can only be:
+		// "SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", or "EDI_ERROR"
+		approvedPRStatuses := [4]models.PaymentRequestStatus{"SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", "EDI_ERROR"}
+		for _, approvedPRStatus := range approvedPRStatuses {
+			paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+			paymentRequest.Status = approvedPRStatus
+
+			updater := NewPaymentRequestStatusUpdater(builder)
+
+			_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt), "processed")
+			suite.NoError(err)
+		}
+	})
+
+	suite.T().Run("If we get a payment request pointer with a valid status with a reviewed statusType it should update and return no error", func(t *testing.T) {
+		// Payment request being updated with the UpdateProcessedPaymentRequestStatus can only be:
+		// "SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", or "EDI_ERROR"
+		approvedPRStatuses := [2]models.PaymentRequestStatus{"REVIEWED", "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"}
+		for _, approvedPRStatus := range approvedPRStatuses {
+			paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+			paymentRequest.Status = approvedPRStatus
+
+			updater := NewPaymentRequestStatusUpdater(builder)
+
+			_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt), "reviewed")
+			suite.NoError(err)
+		}
+	})
+
+	suite.T().Run("Should return an InvalidInput error with a wrong status for reviewed StatusType", func(t *testing.T) {
+		// Payment request being updated with the UpdateReviewedPaymentRequestStatus can only be:
+		// REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+		nonApprovedPRStatuses := [5]models.PaymentRequestStatus{"SENT_TO_GEX", "RECEIVED_BY_GEX", "PAID", "EDI_ERROR", "PENDING"}
+		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
+			paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+			paymentRequest.Status = nonApprovedPRStatus
+
+			updater := NewPaymentRequestStatusUpdater(builder)
+
+			_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()), "reviewed")
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+		}
+	})
+
+	suite.T().Run("Should return an InvalidInput error with a wrong status for processed StatusType", func(t *testing.T) {
+		// Payment request being updated with the UpdateReviewedPaymentRequestStatus can only be:
+		// REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+		nonApprovedPRStatuses := [3]models.PaymentRequestStatus{"REVIEWED", "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED", "PENDING"}
+		for _, nonApprovedPRStatus := range nonApprovedPRStatuses {
+			paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+			paymentRequest.Status = nonApprovedPRStatus
+
+			updater := NewPaymentRequestStatusUpdater(builder)
+
+			_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()), "processed")
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+		}
 	})
 
 }

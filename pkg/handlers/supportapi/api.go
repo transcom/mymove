@@ -58,7 +58,7 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
-	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdateReviewedPaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),

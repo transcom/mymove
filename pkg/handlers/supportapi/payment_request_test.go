@@ -43,7 +43,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
+func (suite *HandlerSuite) TestUpdateReviewedPaymentRequestStatusHandler() {
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 	paymentRequestID := paymentRequest.ID
 
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(suite.DB()),
@@ -92,7 +92,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(suite.DB()),
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "reviewed").Return(nil, errors.New("Something bad happened")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -145,7 +145,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, not found (404)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.NewNotFoundError(paymentRequest.ID, "")).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "reviewed").Return(nil, services.NewNotFoundError(paymentRequest.ID, "")).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -174,7 +174,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	suite.T().Run("unsuccessful status update of payment request, precondition failed (412)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.PreconditionFailedError{}).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "reviewed").Return(nil, services.PreconditionFailedError{}).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -202,7 +202,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 	suite.T().Run("unsuccessful status update of payment request, conflict error (409)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.ConflictError{}).Once()
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "reviewed").Return(nil, services.ConflictError{}).Once()
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 		}
 
-		handler := UpdatePaymentRequestStatusHandler{
+		handler := UpdateReviewedPaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
@@ -555,7 +555,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.Anything, mock.Anything).Return(reviewedPRs, nil)
 
 	paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-	paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
+	paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "processed").Return(&paymentRequestForUpdate, nil)
 
 	paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 	paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(reviewedPRs[0], nil)
@@ -705,7 +705,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.Anything, mock.Anything).Return(reviewedPRs, nil)
 
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "processed").Return(&paymentRequestForUpdate, nil)
 
 		var nilPr models.PaymentRequest
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
@@ -745,7 +745,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.Anything, mock.Anything).Return(nilReviewedPrs, errors.New("Reviewed Payment Requests notretrieved"))
 
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything, "processed").Return(&paymentRequestForUpdate, nil)
 
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(reviewedPRs[0], nil)
