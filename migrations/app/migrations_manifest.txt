@@ -645,3 +645,4 @@
 20210611202542_remove_shimona_cac.up.sql
 20210614144532_ronolibert_cac.up.sql
 20210630143013_add_demo_users.up.sql
+20210701131712_update_demo_admins.up.sql
