@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/gofrs/uuid"
@@ -139,34 +138,21 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
 	req := httptest.NewRequest("PATCH", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
-	serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
-	id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-	uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-	uploadURL := strfmt.URI("https://file.test")
-	bytes := int64(123)
-	contentType := "application/pdf"
-	filename := "file.pdf"
-	body := internalmessages.UserUploadPayload{
-		ID: &id,
-		Document: &internalmessages.DocumentPayload{
-			ServiceMemberID: &serviceMemberID,
-		},
-		Upload: &internalmessages.UploadPayload{
-			ID:          &uploadID,
-			URL:         &uploadURL,
-			Bytes:       &bytes,
-			ContentType: &contentType,
-			Filename:    &filename,
-			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		},
-		UploadID:   uploadID,
-		UploaderID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
-	}
+	/*
+		serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
+		id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		uploadURL := strfmt.URI("https://file.test")
+		bytes := int64(123)
+		contentType := "application/pdf"
+		filename := "file.pdf"
+	*/
+
 	params := ordersop.UploadAmendedOrdersParams{
-		HTTPRequest:   req,
-		IfMatch:       etag.GenerateEtag(order.UpdatedAt),
-		AmendedOrders: &body,
-		OrdersID:      *handlers.FmtUUID(order.ID),
+		HTTPRequest: req,
+		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		File:        suite.Fixture("test.pdf"),
+		OrdersID:    *handlers.FmtUUID(order.ID),
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
@@ -178,18 +164,20 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	}
 	response := uploadAmendedHandler.Handle(params)
 
-	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersOK{}, response)
-	okResponse := response.(*ordersop.UploadAmendedOrdersOK)
-	suite.Assertions.NotNil(okResponse.Payload.UploadedAmendedOrders.ID.String())
+	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersCreated{}, response)
+	okResponse := response.(*ordersop.UploadAmendedOrdersCreated)
+	suite.Assertions.NotNil(okResponse.Payload.ID.String()) // UploadPayload
 
-	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
-	suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
-	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
-	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
-	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
-	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
-	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
+	/*
+		suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
+		suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
+		suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
+		suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
+		suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
+		suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
+		suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
+		suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
+	*/
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem

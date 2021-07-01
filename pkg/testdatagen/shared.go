@@ -3,11 +3,15 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"mime/multipart"
 	"os"
 	"path"
 	"path/filepath"
 	"reflect"
 	"time"
+
+	"github.com/go-openapi/runtime"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -193,6 +197,38 @@ func Fixture(name string) afero.File {
 	}
 
 	return file
+}
+
+// FixtureRuntimeFile allows us to include a fixture like a PDF in the test
+func FixtureRuntimeFile(name string) *runtime.File {
+	fixtureDir := "testdatagen/testdata"
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
+
+	file, err := os.Open(filepath.Clean(fixturePath))
+	if err != nil {
+		log.Panic("Error opening fixture file", zap.Error(err))
+	}
+
+	info, err := file.Stat()
+	if err != nil {
+		log.Panic("Error accessing fixture stats", zap.Error(err))
+	}
+
+	header := multipart.FileHeader{
+		Filename: info.Name(),
+		Size:     info.Size(),
+	}
+
+	returnFile := &runtime.File{
+		Header: &header,
+		Data:   file,
+	}
+	return returnFile
 }
 
 // customTransformer handles testing for zero values in structs that mergo can't normally deal with

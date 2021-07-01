@@ -33,7 +33,7 @@ type ErrFile struct {
 
 // ErrFile is the string representation of an error
 func (e ErrFile) Error() string {
-	return fmt.Sprintf("%s", e.message)
+	return e.message
 }
 
 // ErrZeroLengthFile represents an error caused by a file with no content

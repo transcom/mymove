@@ -97,29 +97,24 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 	return f.updateOrder(orderToUpdate)
 }
 
-// UploadAmendedOrders add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrders(logger Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer, eTag string) (*models.Order, error) {
+// UploadAmendedOrdersAsCustomer add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer, eTag string) (models.Upload, string, error) {
 	orderToUpdate, err := f.findOrderWithAmendedOrders(orderID)
 	if err != nil {
-		return &models.Order{}, err
+		return models.Upload{}, "", err
 	}
 
 	existingETag := etag.GenerateEtag(orderToUpdate.UpdatedAt)
 	if existingETag != eTag {
-		return &models.Order{}, services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
+		return models.Upload{}, "", services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	amendedOrder, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
+	userUpload, url, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
 	if err != nil {
-		return nil, err
+		return models.Upload{}, "", err
 	}
 
-	updatedOrder, _, err := f.updateOrder(amendedOrder)
-	if err != nil {
-		return &models.Order{}, err
-	}
-
-	return updatedOrder, nil
+	return userUpload.Upload, url, nil
 }
 
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
@@ -196,7 +191,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	return order
 }
 
-func (f *orderUpdater) amendedOrder(db *pop.Connection, logger Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Order, error) {
+func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, error) {
 
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
@@ -208,14 +203,23 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger Logger, userID uu
 		}
 		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(amendedOrdersDoc)
 		if err != nil {
-			return models.Order{}, err
+			return models.UserUpload{}, "", err
 		}
+
+		// save new UploadedAmendedOrdersID (document ID) to orders
 		order.UploadedAmendedOrders = savedAmendedOrdersDoc
 		order.UploadedAmendedOrdersID = &savedAmendedOrdersDoc.ID
+		_, _, err = f.updateOrder(order)
+		if err != nil {
+			return models.UserUpload{}, "", err
+		}
 	}
 
-	// Create new user upload
-	userUpload, /* url */_, verrs, err := uploader.CreateUserUploadForDocument(
+	// Create new user upload for amended order
+	var userUpload *models.UserUpload
+	var verrs *validate.Errors
+	var url string
+	userUpload, url, verrs, err = uploader.CreateUserUploadForDocument(
 		db,
 		logger,
 		userID,
@@ -226,33 +230,27 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger Logger, userID uu
 		&savedAmendedOrdersDoc.ID,
 	)
 	/*
-	if verrs.HasAny() || err != nil {
-		switch err.(type) {
-		case uploader.ErrTooLarge:
-			return uploadop.NewCreateUploadRequestEntityTooLarge()
-		case uploader.ErrFile:
-			return uploadop.NewCreateUploadInternalServerError()
-		case uploader.ErrFailedToInitUploader:
-			return uploadop.NewCreateUploadInternalServerError()
-		default:
-			return handlers.ResponseForVErrors(logger, verrs, err)
+		if verrs.HasAny() || err != nil {
+			switch err.(type) {
+			case uploader.ErrTooLarge:
+				return uploadop.NewCreateUploadRequestEntityTooLarge()
+			case uploader.ErrFile:
+				return uploadop.NewCreateUploadInternalServerError()
+			case uploader.ErrFailedToInitUploader:
+				return uploadop.NewCreateUploadInternalServerError()
+			default:
+				return handlers.ResponseForVErrors(logger, verrs, err)
+			}
 		}
-	}
-	 */
+	*/
 
 	if verrs.HasAny() || err != nil {
-		return models.Order{}, err
+		return models.UserUpload{}, "", err
 	}
 
-	savedAmendedOrdersDoc.UserUploads = append(savedAmendedOrdersDoc.UserUploads, *userUpload)
-	_, err = f.saveDocumentForAmendedOrder(savedAmendedOrdersDoc)
-	if err != nil {
-		return models.Order{}, err
-	}
+	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *userUpload)
 
-	order.UploadedAmendedOrders.UserUploads = savedAmendedOrdersDoc.UserUploads
-
-	return order, nil
+	return *userUpload, url, nil
 }
 
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
@@ -365,6 +363,7 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 }
 
 func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*models.Document, error) {
+
 	var docID uuid.UUID
 	if doc != nil {
 		docID = doc.ID
@@ -384,7 +383,7 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
-		verrs, err = tx.ValidateAndSave(&doc)
+		verrs, err = tx.ValidateAndSave(doc)
 		if e := handleError(verrs, err); e != nil {
 			return e
 		}
@@ -395,6 +394,19 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 	if transactionError != nil {
 		return nil, transactionError
 	}
+
+	/*
+		var verrs *validate.Errors
+		var err error
+		verrs, err = f.db.ValidateAndSave(doc)
+		if verrs != nil && verrs.HasAny() {
+			return nil, services.NewInvalidInputError(docID, nil, verrs, "")
+		}
+		if err != nil {
+			return nil, err
+		}
+	*/
+
 	return doc, nil
 }
 

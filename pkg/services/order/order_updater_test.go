@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"go.uber.org/zap"
+
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -14,7 +17,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -499,15 +501,109 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 }
 
-func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
+func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
+
+	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation: &dutyStation,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, err := zap.NewDevelopment()
+		suite.NoError(err)
+
+		upload, url, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			order.ServiceMemberID,
+			order.ID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3,
+			eTag)
+		suite.NoError(err)
+
+		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+		if upload.Checksum != expectedChecksum {
+			t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
+		}
+
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(orderInDB.ID.String(), order.ID.String())
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
+
+		findUpload := models.Upload{}
+		err = suite.DB().Find(&findUpload, upload.ID)
+		if err != nil {
+			t.Fatalf("Couldn't find expected upload.")
+		}
+		suite.Equal(upload.ID.String(), findUpload.ID.String(), "found upload in db")
+
+		foundAmendedOrderUplodID := false
+		for _, uu := range orderInDB.UploadedAmendedOrders.UserUploads {
+			// found user upload for amended order upload
+			if uu.Upload.ID == upload.ID {
+				foundAmendedOrderUplodID = true
+				suite.Equal(order.ServiceMemberID.String(), uu.UploadID.String(), "User ID for Service Member")
+			}
+		}
+		suite.True(foundAmendedOrderUplodID, "Found new amended orders upload")
+
+		suite.NotEmpty(url, "URL is populated")
+
+	})
+}
+
+/*
+
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+
+func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
+		document := testdatagen.MakeDefaultDocument(suite.DB())
+
+		//file, ok := params.File.(*runtime.File)
+		file := suite.Fixture("test.pdf")
 
 		payload := internalmessages.UserUploadPayload{}
 		eTag := ""
 
-		_, err := orderUpdater.UploadAmendedOrders(nonexistentUUID, &payload, eTag)
+		//_, err := orderUpdater.UploadAmendedOrdersAsCustomer(nonexistentUUID, &payload, eTag)
+		upload, url, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			h.Logger(),
+			session.UserID,
+			orderID,
+			file.Data,
+			file.Header.Filename,
+			h.FileStorer(),
+			params.IfMatch)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -646,3 +742,5 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrders() {
 		suite.NotNil(updatedOrder.UploadedAmendedOrders)
 	})
 }
+
+*/

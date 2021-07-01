@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/storage"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -21,7 +22,7 @@ type OrderFetcher interface {
 //OrderUpdater is the service object interface for updating fields of an Order
 //go:generate mockery --name OrderUpdater
 type OrderUpdater interface {
-	UploadAmendedOrders(logger Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer, eTag string) (*models.Order, error)
+	UploadAmendedOrdersAsCustomer(logger Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer, eTag string) (models.Upload, string, error)
 	UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error)
 	UpdateOrderAsCounselor(orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error)
 	UpdateAllowanceAsTOO(orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error)

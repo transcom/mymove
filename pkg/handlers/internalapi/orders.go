@@ -17,6 +17,25 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upload models.Upload, url string) (*internalmessages.UploadPayload, error) {
+	uploadPayload := &internalmessages.UploadPayload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
+}
+
 func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
 	orderPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
@@ -279,14 +298,14 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	newOrder, err := h.OrderUpdater.UploadAmendedOrders(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer(), params.IfMatch)
+	upload, url, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer(), params.IfMatch)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
+	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	return ordersop.NewUploadAmendedOrdersOK().WithPayload(orderPayload)
+	return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
 }
