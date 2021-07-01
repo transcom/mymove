@@ -1,6 +1,10 @@
 package services
 
-import "time"
+import (
+	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
+)
 
 // ValidationFunc is a type representing the signature for a function that validates a service/model
 type ValidationFunc func() error
@@ -45,4 +49,19 @@ func SetOptionalStringField(newString *string, oldString *string) *string {
 	}
 
 	return newString // return the new intended value
+}
+
+// SetOptionalPoundField sets the correct new value for the updated weight field. Can be nil.
+func SetOptionalPoundField(newWeight *unit.Pound, oldWeight *unit.Pound) *unit.Pound {
+	// check if the user wanted to keep this field the same:
+	if newWeight == nil {
+		return oldWeight
+	}
+
+	// check if the user wanted to nullify the value in this field:
+	if *newWeight == 0 {
+		return nil
+	}
+
+	return newWeight // return the new intended value
 }
