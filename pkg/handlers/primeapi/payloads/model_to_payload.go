@@ -466,12 +466,21 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Description: mtoServiceItem.Description,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+		var estimatedWeight, actualWeight int64
+
+		if mtoServiceItem.EstimatedWeight != nil {
+			estimatedWeight = int64(*mtoServiceItem.EstimatedWeight)
+		}
+		if mtoServiceItem.ActualWeight != nil {
+			actualWeight = int64(*mtoServiceItem.ActualWeight)
+		}
+
 		payload = &primemessages.MTOServiceItemShuttle{
 			Description:     mtoServiceItem.Description,
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: int64(*mtoServiceItem.EstimatedWeight),
-			ActualWeight:    int64(*mtoServiceItem.ActualWeight),
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
 		}
 	default:
 		// otherwise, basic service item

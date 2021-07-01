@@ -1691,6 +1691,8 @@ func init() {
             "actualWeight": {
               "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4000
             },
             "description": {
@@ -1701,6 +1703,8 @@ func init() {
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4200
             },
             "reServiceCode": {
@@ -2443,10 +2447,11 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
-        "UpdateMTOServiceItemSIT"
+        "UpdateMTOServiceItemSIT",
+        "UpdateMTOServiceItemShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -2473,6 +2478,41 @@ func init() {
             },
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
+            }
+          }
+        }
+      ]
+    },
+    "UpdateMTOServiceItemShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating and existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDSHUT",
+                "DOSHUT"
+              ]
             }
           }
         }
@@ -4545,6 +4585,8 @@ func init() {
             "actualWeight": {
               "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4000
             },
             "description": {
@@ -4555,6 +4597,8 @@ func init() {
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4200
             },
             "reServiceCode": {
@@ -5300,10 +5344,11 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
-        "UpdateMTOServiceItemSIT"
+        "UpdateMTOServiceItemSIT",
+        "UpdateMTOServiceItemShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -5330,6 +5375,41 @@ func init() {
             },
             "sitDestinationFinalAddress": {
               "$ref": "#/definitions/Address"
+            }
+          }
+        }
+      ]
+    },
+    "UpdateMTOServiceItemShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating and existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDSHUT",
+                "DOSHUT"
+              ]
             }
           }
         }

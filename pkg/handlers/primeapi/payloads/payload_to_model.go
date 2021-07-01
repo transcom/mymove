@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -293,11 +294,23 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.Reason = shuttleService.Reason
 		model.Description = shuttleService.Description
 
-		estimatedWeight := unit.Pound(shuttleService.EstimatedWeight)
-		actualWeight := unit.Pound(shuttleService.ActualWeight)
+		// estimatedWeight := unit.Pound(shuttleService.EstimatedWeight)
+		// actualWeight := unit.Pound(shuttleService.ActualWeight)
+		// model.EstimatedWeight = &estimatedWeight
+		// model.ActualWeight = &actualWeight
 
-		model.EstimatedWeight = &estimatedWeight
-		model.ActualWeight = &actualWeight
+		if *shuttleService.EstimatedWeight > 0 {
+			estimatedWeight := unit.Pound(*shuttleService.EstimatedWeight)
+			model.EstimatedWeight = &estimatedWeight
+		}
+
+		fmt.Println("🎉")
+		if *shuttleService.ActualWeight > 0 {
+			actualWeight := unit.Pound(*shuttleService.ActualWeight)
+			model.ActualWeight = &actualWeight
+		}
+
+		fmt.Println("🍐")
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -355,8 +368,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 	// Here we initialize more fields below for the specific model types.
 	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
-	modelType := mtoServiceItem.ModelType()
-	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+	switch mtoServiceItem.ModelType() {
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
@@ -365,6 +378,24 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 			model.SITDestinationFinalAddressID = &model.SITDestinationFinalAddress.ID
 		}
 
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
+		return model, nil
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
+
+		if *shuttle.EstimatedWeight > 0 {
+			estimatedWeight := unit.Pound(*shuttle.EstimatedWeight)
+			model.EstimatedWeight = &estimatedWeight
+		}
+
+		if *shuttle.ActualWeight > 0 {
+			actualWeight := unit.Pound(*shuttle.ActualWeight)
+			model.ActualWeight = &actualWeight
+		}
+		model.ReService.Code = models.ReServiceCode(shuttle.ReServiceCode)
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}

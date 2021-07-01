@@ -34,14 +34,14 @@ type MTOServiceItemShuttle struct {
 	statusField MTOServiceItemStatus
 
 	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
-	ActualWeight int64 `json:"actualWeight,omitempty"`
+	ActualWeight *int64 `json:"actualWeight"`
 
 	// Further details about the shuttle service.
 	// Required: true
 	Description *string `json:"description"`
 
 	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
-	EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Service codes allowed for this model type.
 	// Required: true
@@ -137,14 +137,14 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
-		ActualWeight int64 `json:"actualWeight,omitempty"`
+		ActualWeight *int64 `json:"actualWeight"`
 
 		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
-		EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
 		// Required: true
@@ -228,14 +228,14 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 
 		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
-		ActualWeight int64 `json:"actualWeight,omitempty"`
+		ActualWeight *int64 `json:"actualWeight"`
 
 		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
-		EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
 		// Required: true
