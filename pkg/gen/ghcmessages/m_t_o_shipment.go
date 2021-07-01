@@ -91,7 +91,7 @@ type MTOShipment struct {
 
 	// scheduled pickup date
 	// Format: date
-	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
 	// secondary delivery address
 	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
