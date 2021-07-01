@@ -93,7 +93,7 @@ describe('SelectShipmentType', () => {
     it('should render the correct text', () => {
       const wrapper = getWrapper();
       expect(wrapper.find('h1').text()).toContain('How should this shipment move?');
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
+      expect(wrapper.find('.usa-checkbox__label-description').at(1).text()).toContain(
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
@@ -106,16 +106,16 @@ describe('SelectShipmentType', () => {
       move: { personally_procured_moves: [{ id: '1' }] },
     };
     it('should render the correct text', () => {
-      const wrapper = getWrapper(props);
+      const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find(Radio).at(1).text()).toContain('PPM');
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
-        'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.',
+      expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
+        'Talk with your movers directly if you want to add or change shipments.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
       expect(wrapper.find('[data-testid="helper-footer"]').length).toBe(0);
     });
     it('should disable PPM form option if PPM is already submitted', () => {
-      const wrapper = getWrapper(props);
+      const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       // PPM button should be disabled on page load
       expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
     });
@@ -126,7 +126,7 @@ describe('SelectShipmentType', () => {
       const props = {
         mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
       };
-      const wrapper = getWrapper(props);
+      const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
     });
     it('should render the correct value in the eyebrow for shipment number with 2 existing shipment', () => {
@@ -136,7 +136,7 @@ describe('SelectShipmentType', () => {
           { selectedMoveType: SHIPMENT_OPTIONS.NTS, id: '9' },
         ],
       };
-      const wrapper = getWrapper(props);
+      const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
     });
     it('should render the correct value in the shipment number with existing HHG and PPM', () => {
@@ -144,7 +144,7 @@ describe('SelectShipmentType', () => {
         move: { personally_procured_moves: [{ id: '1' }] },
         mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
       };
-      const wrapper = getWrapper(props);
+      const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
     });
   });
@@ -154,10 +154,10 @@ describe('SelectShipmentType', () => {
       mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
       move: { status: MOVE_STATUSES.DRAFT },
     };
-    const wrapper = getWrapper(props);
+    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
 
     it('NTS card should render the correct text', () => {
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(2).text()).toContain(
+      expect(wrapper.find('.usa-checkbox__label-description').at(2).text()).toContain(
         'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
@@ -174,9 +174,9 @@ describe('SelectShipmentType', () => {
       mtoShipments: [{ id: '4', shipmentType: SHIPMENT_OPTIONS.NTSR }],
       move: { status: MOVE_STATUSES.DRAFT },
     };
-    const wrapper = getWrapper(props);
+    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
     it('NTSr card should render the correct text', () => {
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(3).text()).toContain(
+      expect(wrapper.find('.usa-checkbox__label-description').at(3).text()).toContain(
         'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
@@ -195,7 +195,7 @@ describe('SelectShipmentType', () => {
       ],
       move: { status: MOVE_STATUSES.DRAFT },
     };
-    const wrapper = getWrapper(props);
+    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
     it('should render the correct text', () => {
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
         'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
@@ -215,10 +215,10 @@ describe('SelectShipmentType', () => {
     };
     const wrapper = getWrapper(props);
     it('should render the correct text', () => {
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
+      expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
       );
-      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).not.toContain(
+      expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).not.toContain(
         'Professional movers take care of the whole shipment',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
