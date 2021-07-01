@@ -441,6 +441,18 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 		return handlers.ResponseForError(logger, err)
 	}
 
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	if verrs, saveErr := h.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(saveErr, "Error Saving Move")
+	}
+
+	if responseVErrors.HasAny() {
+		return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+	}
+
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

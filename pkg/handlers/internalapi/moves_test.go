@@ -668,5 +668,10 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 
 		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusAPPROVALSREQUESTED, okResponse.Payload.Status)
+
+		// And: Check status in database
+		move, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
+		suite.Assertions.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 	})
 }
