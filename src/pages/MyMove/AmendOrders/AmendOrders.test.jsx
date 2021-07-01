@@ -87,8 +87,8 @@ describe('Amended Orders Upload page', () => {
     expect(await findByText('Cancel')).toBeInTheDocument();
   });
 
-  describe('redirects to the home page', () => {
-    it('when the user clicks cancel', async () => {
+  describe('when the user clicks cancel', () => {
+    it('redirects to the home page', async () => {
       render(<AmendOrders {...testProps} moveIsInDraft={false} />);
 
       const cancelButton = await screen.findByText('Cancel');
@@ -99,8 +99,10 @@ describe('Amended Orders Upload page', () => {
         expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
       });
     });
+  });
 
-    it('when the user saves', async () => {
+  describe('when the user saves', () => {
+    it('submits the form and redirects to the home page', async () => {
       submitMoveForApproval.mockImplementation(() => {});
       render(<AmendOrders {...testProps} moveIsInDraft={false} />);
 
