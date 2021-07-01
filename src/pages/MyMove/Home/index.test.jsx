@@ -335,6 +335,9 @@ describe('Home component', () => {
       it('renders the HelperAmendedOrders helper', () => {
         expect(wrapper.find('HelperAmendedOrders').exists()).toBe(true);
       });
+      it('renders the amended orders alert', () => {
+        expect(wrapper.find('[data-testid="unapproved-amended-orders-alert"]').exists()).toBe(true);
+      });
     });
 
     describe('for approved amended orders', () => {
@@ -364,6 +367,10 @@ describe('Home component', () => {
 
       it('does not render the HelperAmendedOrders helper', () => {
         expect(wrapper.find('HelperAmendedOrders').exists()).toBe(false);
+      });
+
+      it('does not render the amended orders alert', () => {
+        expect(wrapper.find('[data-testid="unapproved-amended-orders-alert"]').exists()).toBe(false);
       });
     });
   });
