@@ -266,6 +266,7 @@ export class Home extends Component {
             </div>
           </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            {/* already being used */}
             <ConnectedFlashMessage />
 
             {isProfileComplete && (

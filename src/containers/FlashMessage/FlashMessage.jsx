@@ -6,13 +6,14 @@ import { Alert } from '@trussworks/react-uswds';
 import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/actions';
 import { FlashMessageShape } from 'types/flash';
 
+// Can be used for universal error. Takes values from redux store that are set by
+// certain sagas but values can also be set inside individual promise calls
 export const FlashMessage = ({ flash, clearFlashMessage }) => {
   useEffect(() => () => {
     // Clear this flash message on unmount (this will happen on navigation or if flash state changes)
     clearFlashMessage(flash?.key);
   });
   const { message, title, type, slim } = flash;
-
   return (
     // We use {title || undefined} here because an empty string as the title will render a blank header in Firefox,
     // so we must pass in undefined if we want to see no header at all.

@@ -41,6 +41,9 @@ export function* createServiceMember() {
     yield call(createServiceMemberApi);
     yield call(fetchCustomerData);
   } catch (e) {
+    // This is what renders <ConnectedFlashMessage /> component.
+    // This is used in multiple sagas but for the api calls that are not using sagas
+    // and are instead promise calls we can still use setFlashMessage
     yield put(
       setFlashMessage(
         'SERVICE_MEMBER_CREATE_ERROR',
@@ -55,7 +58,7 @@ export function* createServiceMember() {
 export function* initializeOnboarding() {
   try {
     const user = yield call(fetchCustomerData);
-    if (!user.serviceMembers) {
+    if (true) {
       yield call(createServiceMember);
     }
 

@@ -114,8 +114,13 @@ export class CustomerApp extends Component {
 
             <main role="main" className="site__content my-move-container" id="main">
               <ConnectedLogoutOnInactivity />
-
+              {/*
+                We could place general error message here.
+                This component covers the workflow routes and the non authorized pages.
+                Need to handle the case of flash message on Home page from clashing with this
+              */}
               <div className="usa-grid">
+                {/* swaggerError never changes and is therefore never used */}
                 {props.swaggerError && (
                   <div className="grid-container">
                     <div className="grid-row">
