@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -163,7 +165,13 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	assert.NoError(suite.T(), err, "failed to create user uploader for amended orders")
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 
 	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
