@@ -121,13 +121,6 @@ repos:
         args: ['docs/adr']
       - id: circleci-validate
       - id: markdown-toc
-      - id: mdspell
-        exclude: >
-          (?x)^(
-            node_modules/|
-            vendor/|
-            docs/adr/index.md
-          )$
       - id: hadolint
 
   - repo: local

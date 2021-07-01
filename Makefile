@@ -1092,15 +1092,6 @@ clean: ## Clean all generated files
 	rm -rf ./coverage
 	rm -rf ./log
 
-.PHONY: spellcheck
-spellcheck: ## Run interactive spellchecker
-	@which mdspell -s || (echo "Install mdspell with yarn global add markdown-spellcheck" && exit 1)
-	/usr/local/bin/mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions \
-		`find . -type f -name "*.md" \
-			-not -path "./node_modules/*" \
-			-not -path "./vendor/*" \
-			-not -path "./docs/adr/index.md" | sort`
-
 .PHONY: storybook
 storybook: ## Start the storybook server
 	yarn run storybook
