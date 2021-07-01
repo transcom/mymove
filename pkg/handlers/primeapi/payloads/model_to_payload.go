@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -466,22 +467,14 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Description: mtoServiceItem.Description,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
-		var estimatedWeight, actualWeight int64
-
-		if mtoServiceItem.EstimatedWeight != nil {
-			estimatedWeight = int64(*mtoServiceItem.EstimatedWeight)
-		}
-		if mtoServiceItem.ActualWeight != nil {
-			actualWeight = int64(*mtoServiceItem.ActualWeight)
-		}
-
 		payload = &primemessages.MTOServiceItemShuttle{
 			Description:     mtoServiceItem.Description,
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
-			EstimatedWeight: &estimatedWeight,
-			ActualWeight:    &actualWeight,
+			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+		fmt.Println(payload)
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{

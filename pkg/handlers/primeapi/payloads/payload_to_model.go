@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -293,24 +292,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
 		model.Description = shuttleService.Description
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
 
-		// estimatedWeight := unit.Pound(shuttleService.EstimatedWeight)
-		// actualWeight := unit.Pound(shuttleService.ActualWeight)
-		// model.EstimatedWeight = &estimatedWeight
-		// model.ActualWeight = &actualWeight
-
-		if *shuttleService.EstimatedWeight > 0 {
-			estimatedWeight := unit.Pound(*shuttleService.EstimatedWeight)
-			model.EstimatedWeight = &estimatedWeight
-		}
-
-		fmt.Println("🎉")
-		if *shuttleService.ActualWeight > 0 {
-			actualWeight := unit.Pound(*shuttleService.ActualWeight)
-			model.ActualWeight = &actualWeight
-		}
-
-		fmt.Println("🍐")
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -385,21 +369,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		return model, nil
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
 		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
-
-		if *shuttle.EstimatedWeight > 0 {
-			estimatedWeight := unit.Pound(*shuttle.EstimatedWeight)
-			model.EstimatedWeight = &estimatedWeight
-		}
-
-		if *shuttle.ActualWeight > 0 {
-			actualWeight := unit.Pound(*shuttle.ActualWeight)
-			model.ActualWeight = &actualWeight
-		}
-		model.ReService.Code = models.ReServiceCode(shuttle.ReServiceCode)
-		if verrs != nil && verrs.HasAny() {
-			return nil, verrs
-		}
-
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
 		return model, nil
 	}
 
