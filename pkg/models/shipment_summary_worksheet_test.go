@@ -12,6 +12,8 @@ package models_test
 import (
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gofrs/uuid"
@@ -85,8 +87,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
-	ppm.Move.Approve()
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	moveRouter.Submit(&ppm.Move)
+	moveRouter.Approve(&ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -210,8 +213,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
-	ppm.Move.Approve()
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	moveRouter.Submit(&ppm.Move)
+	moveRouter.Approve(&ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
