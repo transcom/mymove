@@ -11,7 +11,7 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import ScrollToTop from 'components/ScrollToTop';
 import FileUpload from 'components/FileUpload/FileUpload';
 import { UploadsShape, OrdersShape } from 'types/customerShapes';
-import { getOrdersForServiceMember, createUploadForDocument, deleteUpload } from 'services/internalApi';
+import { getOrdersForServiceMember, createUploadForAmendedOrdersDocument, deleteUpload } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   selectCurrentOrders,
@@ -28,16 +28,15 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
 
   const handleDelete = (uploadId) => {
     return deleteUpload(uploadId).then(() => {
-      // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available
       getOrdersForServiceMember(serviceMemberId).then((response) => {
         updateOrders(response);
       });
     });
   };
   const handleUpload = (file) => {
-    // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available
-    const documentId = currentOrders?.uploaded_orders?.id;
-    return createUploadForDocument(file, documentId);
+    const ordersId = currentOrders?.id;
+    const eTag = currentOrders?.eTag;
+    return createUploadForAmendedOrdersDocument(file, ordersId, eTag);
   };
   const handleUploadComplete = () => {
     // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available

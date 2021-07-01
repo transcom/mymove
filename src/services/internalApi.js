@@ -157,6 +157,20 @@ export async function createUpload(file) {
   );
 }
 
+export async function createUploadForAmendedOrdersDocument(file, ordersId, etag) {
+  return makeInternalRequest(
+    'orders.uploadAmendedOrders',
+    {
+      ordersId,
+      file,
+      'If-Match': etag,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeInternalRequest(
     'uploads.createUpload',
