@@ -236,6 +236,18 @@ export async function submitMoveForApproval(moveId, certificate) {
   );
 }
 
+export async function submitAmendedOrders(moveId) {
+  return makeInternalRequest(
+    'moves.submitAmendedOrders',
+    {
+      moveId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 /** MTO SHIPMENTS */
 export async function createMTOShipment(mtoShipment) {
   return makeInternalRequest(
