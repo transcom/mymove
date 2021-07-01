@@ -4,6 +4,8 @@ import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
+import styles from './AmendOrders.module.scss';
+
 import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -86,7 +88,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SectionWrapper>
-            <h5>Upload orders</h5>
+            <h5 className={styles.uploadOrdersHeader}>Upload orders</h5>
             <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
             {uploads && uploads.length > 0 && (
               <>
