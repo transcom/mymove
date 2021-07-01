@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/swag"
@@ -150,7 +149,6 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 
 	params := ordersop.UploadAmendedOrdersParams{
 		HTTPRequest: req,
-		IfMatch:     etag.GenerateEtag(order.UpdatedAt),
 		File:        suite.Fixture("test.pdf"),
 		OrdersID:    *handlers.FmtUUID(order.ID),
 	}

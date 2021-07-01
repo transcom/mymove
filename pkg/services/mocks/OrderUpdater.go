@@ -151,27 +151,27 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.
 	return r0, r1, r2
 }
 
-// UploadAmendedOrdersAsCustomer provides a mock function with given fields: logger, userID, orderID, file, filename, storer, eTag
-func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer, eTag string) (models.Upload, string, error) {
-	ret := _m.Called(logger, userID, orderID, file, filename, storer, eTag)
+// UploadAmendedOrdersAsCustomer provides a mock function with given fields: logger, userID, orderID, file, filename, storer
+func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, error) {
+	ret := _m.Called(logger, userID, orderID, file, filename, storer)
 
 	var r0 models.Upload
-	if rf, ok := ret.Get(0).(func(services.Logger, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer, string) models.Upload); ok {
-		r0 = rf(logger, userID, orderID, file, filename, storer, eTag)
+	if rf, ok := ret.Get(0).(func(services.Logger, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) models.Upload); ok {
+		r0 = rf(logger, userID, orderID, file, filename, storer)
 	} else {
 		r0 = ret.Get(0).(models.Upload)
 	}
 
 	var r1 string
-	if rf, ok := ret.Get(1).(func(services.Logger, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer, string) string); ok {
-		r1 = rf(logger, userID, orderID, file, filename, storer, eTag)
+	if rf, ok := ret.Get(1).(func(services.Logger, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) string); ok {
+		r1 = rf(logger, userID, orderID, file, filename, storer)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(services.Logger, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer, string) error); ok {
-		r2 = rf(logger, userID, orderID, file, filename, storer, eTag)
+	if rf, ok := ret.Get(2).(func(services.Logger, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) error); ok {
+		r2 = rf(logger, userID, orderID, file, filename, storer)
 	} else {
 		r2 = ret.Error(2)
 	}

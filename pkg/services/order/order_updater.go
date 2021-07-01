@@ -98,15 +98,10 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 }
 
 // UploadAmendedOrdersAsCustomer add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer, eTag string) (models.Upload, string, error) {
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, error) {
 	orderToUpdate, err := f.findOrderWithAmendedOrders(orderID)
 	if err != nil {
 		return models.Upload{}, "", err
-	}
-
-	existingETag := etag.GenerateEtag(orderToUpdate.UpdatedAt)
-	if existingETag != eTag {
-		return models.Upload{}, "", services.NewPreconditionFailedError(orderToUpdate.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
 	userUpload, url, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)

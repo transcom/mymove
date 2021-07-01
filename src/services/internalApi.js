@@ -157,13 +157,12 @@ export async function createUpload(file) {
   );
 }
 
-export async function createUploadForAmendedOrdersDocument(file, ordersId, etag) {
+export async function createUploadForAmendedOrdersDocument(file, ordersId) {
   return makeInternalRequest(
     'orders.uploadAmendedOrders',
     {
       ordersId,
       file,
-      'If-Match': etag,
     },
     {
       normalize: false,

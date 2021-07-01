@@ -35,8 +35,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   };
   const handleUpload = (file) => {
     const ordersId = currentOrders?.id;
-    const eTag = currentOrders?.eTag;
-    return createUploadForAmendedOrdersDocument(file, ordersId, eTag);
+    return createUploadForAmendedOrdersDocument(file, ordersId);
   };
   const handleUploadComplete = () => {
     // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available

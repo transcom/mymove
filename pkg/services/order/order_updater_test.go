@@ -520,8 +520,6 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		})
 		order.Moves = append(moves, mto)
 
-		eTag := etag.GenerateEtag(order.UpdatedAt)
-
 		file := testdatagen.FixtureRuntimeFile("test.pdf")
 		defer func() {
 			fileCloseErr := file.Close()
@@ -539,8 +537,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			order.ID,
 			file.Data,
 			file.Header.Filename,
-			fakeS3,
-			eTag)
+			fakeS3)
 		suite.NoError(err)
 
 		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
