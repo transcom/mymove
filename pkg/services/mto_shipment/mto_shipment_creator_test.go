@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -19,20 +19,20 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
+func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return builder
 	}
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
 	fetcher := fetch.NewFetcher(builder)
 	creator := mtoShipmentCreator{
 		suite.DB(),
 		builder,
 		fetcher,
 		createNewBuilder,
-		mtoServiceItemCreator,
+		moveRouter,
 	}
 
 	// Invalid ID fields set
@@ -235,6 +235,38 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.Nil(createdShipment)
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("Move status transitions when a new shipment is created and SUBMITTED", func(t *testing.T) {
+		// If a new shipment is added to an APPROVED move and given the SUBMITTED status,
+		// the move should transition to "APPROVALS REQUESTED"
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrder: move,
+				Status:        models.MTOShipmentStatusSubmitted,
+			},
+			Stub: true,
+		})
+		cleanShipment := clearShipmentIDFields(&shipment)
+		serviceItemsList := models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(cleanShipment, serviceItemsList)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
+		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 	})
 }
 

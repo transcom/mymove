@@ -31,6 +31,9 @@ import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 
 function formatShipmentDate(shipmentDateString) {
+  if (shipmentDateString == null) {
+    return '';
+  }
   const dateObj = new Date(shipmentDateString);
   const weekday = new Intl.DateTimeFormat('en', { weekday: 'long' }).format(dateObj);
   const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(dateObj);
@@ -39,11 +42,12 @@ function formatShipmentDate(shipmentDateString) {
   return `${weekday}, ${day} ${month} ${year}`;
 }
 
-function approvedFilter(shipment) {
+function showShipmentFilter(shipment) {
   return (
     shipment.status === shipmentStatuses.APPROVED ||
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-    shipment.status === shipmentStatuses.DIVERSION_REQUESTED
+    shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+    shipment.status === shipmentStatuses.CANCELED
   );
 }
 
@@ -135,7 +139,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
@@ -158,9 +162,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   });
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID: moveTaskOrder.id,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.DIVERSION_REQUESTED,
+      operationPath: 'shipment.requestShipmentDiversion',
       ifMatchETag: eTag,
       onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
     });
@@ -168,9 +171,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
+      operationPath: 'shipment.requestShipmentCancellation',
       ifMatchETag: eTag,
       onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
     });
@@ -222,7 +224,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       if (
         shipment.status === shipmentStatuses.APPROVED ||
         shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-        shipment.status === shipmentStatuses.DIVERSION_REQUESTED
+        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+        shipment.status === shipmentStatuses.CANCELED
       ) {
         shipmentSections.push({
           id: shipment.id,
@@ -273,7 +276,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(approvedFilter)) {
+  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
     return (
       <div className={styles.tabContent}>
         <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
@@ -330,7 +333,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
               mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
-              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED
+              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED &&
+              mtoShipment.status !== shipmentStatuses.CANCELED
             ) {
               return false;
             }

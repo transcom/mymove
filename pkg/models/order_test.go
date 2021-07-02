@@ -150,9 +150,6 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 }
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
@@ -233,9 +230,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -282,8 +276,6 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -318,7 +310,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	suite.MustSave(&order)
 
 	// Submit Orders
-	err = order.Submit()
+	err := order.Submit()
 	suite.NoError(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
@@ -329,8 +321,6 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 }
 
 func (suite *ModelSuite) TestSaveOrder() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 

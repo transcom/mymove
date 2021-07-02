@@ -14,7 +14,7 @@ import AdminUserList from 'pages/Admin/AdminUsers/AdminUserList';
 import AdminUserShow from 'pages/Admin/AdminUsers/AdminUserShow';
 import AdminUserCreate from 'pages/Admin/AdminUsers/AdminUserCreate';
 import AdminUserEdit from 'pages/Admin/AdminUsers/AdminUserEdit';
-import OfficeList from './Offices/OfficeList';
+import OfficeList from 'pages/Admin/Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';

@@ -58,6 +58,7 @@ export default {
     showOrdersTypeDetail: { defaultValue: false },
     showTac: { defaultValue: false },
     showSac: { defaultValue: false },
+    showOrdersAcknowledgement: { defaultValue: false },
   },
 };
 
@@ -88,6 +89,7 @@ export const InitialValues = () => {
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',
+          ordersAcknowledgement: true,
         }}
         validationSchema={Yup.object({
           originDutyStation: Yup.object().defined('Required'),
@@ -107,6 +109,7 @@ export const InitialValues = () => {
             deptIndicatorOptions={deptIndicatorOptions}
             ordersTypeOptions={ordersTypeOptions}
             ordersTypeDetailOptions={ordersTypeDetailOptions}
+            showOrdersAcknowledgement
           />
         </form>
       </Formik>

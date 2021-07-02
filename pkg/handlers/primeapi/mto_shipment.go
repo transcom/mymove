@@ -195,77 +195,57 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
+	// Validate payload, remove readOnly fields, convert to model
+	mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
+	if fieldErrs != nil {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
 
-	// Check that MTO is available to prime
-	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOShipmentsMTOAvailableToPrime(mtoShipmentID)
+		errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
+			h.GetTraceID(), fieldErrs)
+
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+	}
+
+	// Get the associated shipment from the database
+	var dbShipment models.MTOShipment
+	err := h.DB().EagerPreload("PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"MTOAgents").Find(&dbShipment, params.MtoShipmentID)
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
+		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+	}
+
+	// Validate further prime restrictions on model
+	mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(mtoShipment, &dbShipment)
+	if validationErrs != nil && validationErrs.HasAny() {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
+
+		errPayload := payloads.ValidationError("Invalid data found in input",
+			h.GetTraceID(), validationErrs)
+
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+	}
+
+	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+	mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentPrime(params.HTTPRequest.Context(), mtoShipment, params.IfMatch)
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-
-	if mtoAvailableToPrime {
-
-		// Validate payload, remove readOnly fields, convert to model
-		mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
-		if fieldErrs != nil {
-			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
-
-			errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
-				h.GetTraceID(), fieldErrs)
-
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
-		}
-
-		// Get the associated shipment from the database
-		var dbShipment models.MTOShipment
-		err := h.DB().EagerPreload("PickupAddress",
-			"DestinationAddress",
-			"SecondaryPickupAddress",
-			"SecondaryDeliveryAddress",
-			"MTOAgents").Find(&dbShipment, params.MtoShipmentID)
-		if err != nil {
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		}
-
-		// Validate further prime restrictions on model
-		mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(mtoShipment, &dbShipment)
-		if validationErrs != nil && validationErrs.HasAny() {
-			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
-
-			errPayload := payloads.ValidationError("Invalid data found in input",
-				h.GetTraceID(), validationErrs)
-
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
-		}
-
-		eTag := params.IfMatch
-
-		logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-		mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
-		if err != nil {
-			logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
-			switch e := err.(type) {
-			case services.NotFoundError:
-				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-			case services.InvalidInputError:
-				payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
-				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
-			case services.PreconditionFailedError:
-				return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
-			default:
-				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-			}
-		}
-		mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
-		return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
-	}
-	return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
 }
 
 // This function checks Prime specific validations on the model

@@ -401,8 +401,11 @@ endif
 mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
+.PHONY: server_test_setup
+server_test_setup: db_test_reset db_test_migrate redis_reset db_test_truncate
+
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate redis_reset server_test_standalone ## Run server unit tests
+server_test: server_test_setup server_test_standalone ## Run server unit tests
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
@@ -647,16 +650,16 @@ else
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
-.PHONY: db_test_truncate
-db_test_truncate: ## Truncate e2e db
-	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
-
 .PHONY: db_test_run
 db_test_run: db_test_start db_test_create ## Run Test DB
 
 .PHONY: db_test_reset
 db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
+
+.PHONY: db_test_truncate
+db_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database..."
+	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
@@ -737,6 +740,18 @@ rerun_e2e_tests_with_new_data: db_e2e_up
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+
+.PHONY: db_dev_e2e_backup
+db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-backup e2e_dev
+
+.PHONY: db_dev_e2e_restore
+db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-restore e2e_dev
+
+.PHONY: db_dev_e2e_cleanup
+db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
+	./scripts/db-cleanup e2e_dev
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -1053,7 +1068,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
+	docker pull milmove/circleci-docker:milmove-app-55d6d1fc05e24d833c7b6ddc8f43ca901a40f22c
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

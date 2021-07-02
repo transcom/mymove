@@ -13,6 +13,7 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
+  HelperAmendedOrders,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -32,6 +33,7 @@ import {
   selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
   selectServiceMemberFromLoggedInUser,
+  selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import {
@@ -83,6 +85,11 @@ export class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
+  get hasUnapprovedAmendedOrders() {
+    const { move, uploadedAmendedOrderDocuments } = this.props;
+    return !!uploadedAmendedOrderDocuments?.length && move.status !== 'APPROVED';
+  }
+
   get hasOrdersNoUpload() {
     const { orders, uploadedOrderDocuments } = this.props;
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
@@ -120,13 +127,14 @@ export class Home extends Component {
     if (this.hasAnyShipments) {
       return 'Add another shipment';
     }
-    return 'Plan your shipments';
+    return 'Set up your shipments';
   }
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
     if (this.hasPPMShipment)
       return (
         <>
@@ -250,6 +258,7 @@ export class Home extends Component {
     const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
     const profileEditPath = customerRoutes.PROFILE_PATH;
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+    const ordersAmendPath = customerRoutes.ORDERS_AMEND_PATH;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
 
     return (
@@ -304,8 +313,7 @@ export class Home extends Component {
                       complete={this.hasOrders && this.hasSubmittedMove}
                       completedHeaderText="Orders"
                       editBtnLabel="Upload documents"
-                      // TODO update the orders edit path to wire in the order uploader
-                      onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                      onEditBtnClick={() => this.handleNewPathClick(ordersAmendPath)}
                       headerText="Orders"
                       step="2"
                       containerClassName="step-amended-orders"
@@ -325,7 +333,7 @@ export class Home extends Component {
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
                     completedHeaderText="Shipments"
-                    headerText="Shipment selection"
+                    headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
                     secondaryClassName="margin-top-2"
                     step="3"
@@ -343,8 +351,9 @@ export class Home extends Component {
                       </div>
                     ) : (
                       <Description>
-                        Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
-                        shipments to make it work.
+                        We&apos;ll collect addresses, dates, and how you want to move your things.
+                        <br />
+                        Note: You can change these details later by talking to a move counselor or your movers.
                       </Description>
                     )}
                   </Step>
@@ -405,6 +414,7 @@ Home.propTypes = {
     shipmentType: string,
   }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
+  uploadedAmendedOrderDocuments: arrayOf(UploadShape).isRequired,
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
@@ -430,6 +440,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
+    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),

@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -94,6 +95,25 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 	return f.updateOrder(orderToUpdate)
 }
 
+// UploadAmendedOrders add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrders(existingOrder models.Order, payload *internalmessages.UploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	orderToUpdate := existingOrder
+	// TODO in MB-8335 when there aren't any uploadedAmendedOrders yet
+	// generate a document ID
+	// if orderToUpdate.UploadedAmendedOrders == nil {
+	// }
+	// TODO in MB-8335 update the etag
+	// existingETag := etag.GenerateEtag(order.UpdatedAt)
+	// if existingETag != eTag {
+	// 	return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	// }
+	fmt.Printf("%v", payload)
+
+	// TODO in MB-8335 attach the incoming documents to the order's UploadedAmendedOrders
+	// order.UploadedAmendedOrders = payload
+	return f.updateOrder(orderToUpdate)
+}
+
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
 	err := f.db.Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
@@ -153,6 +173,12 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	}
 
 	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+
+	// if the order has amended order documents and it has not been previously acknowledged record the current timestamp
+	if payload.OrdersAcknowledgement != nil && *payload.OrdersAcknowledgement && existingOrder.UploadedAmendedOrdersID != nil && existingOrder.AmendedOrdersAcknowledgedAt == nil {
+		acknowledgedAt := time.Now()
+		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
+	}
 
 	return order
 }

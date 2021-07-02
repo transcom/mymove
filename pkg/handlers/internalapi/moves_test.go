@@ -190,7 +190,6 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 }
 
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
-
 	suite.Run("Submits ppm success", func() {
 		// Given: a set of orders, a move, user and servicemember
 		ppm := testdatagen.MakeDefaultPPM(suite.DB())
@@ -236,16 +235,11 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
-		actualSubmittedAt := updatedMove.SubmittedAt
-		currentTime := time.Now()
-		diff := currentTime.Sub(*actualSubmittedAt)
-		diffInSeconds := diff.Seconds()
-		oneSecond := 1.000000
-
 		// Test that the move was submitted within a few seconds of the current time.
 		// This is better than asserting that it's not Nil, and avoids trying to mock
-		// time.Now() or having to pass in a date to move.Submit just to be able to test it.
-		suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+		// time.Now() or having to pass in a date to MoveRouter.Submit just to be able to test it.
+		actualSubmittedAt := updatedMove.SubmittedAt
+		suite.WithinDuration(time.Now(), *actualSubmittedAt, 2*time.Second)
 	})
 	suite.Run("Submits hhg shipment success", func() {
 		// Given: a set of orders, a move, user and servicemember
@@ -333,17 +327,12 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		updatedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
 		suite.NoError(err)
 
-		actualSubmittedAt := updatedMove.SubmittedAt
-		currentTime := time.Now()
-		diff := currentTime.Sub(*actualSubmittedAt)
-		diffInSeconds := diff.Seconds()
-		oneSecond := 1.000000
-
 		// Test that the move was submitted within a few seconds of the current time.
 		// This is better than asserting that it's not Nil, and avoids trying to mock
-		// time.Now() or having to pass in a date to move.SendToServiceCounseling just
+		// time.Now() or having to pass in a date to sendToServiceCounseling just
 		// to be able to test it.
-		suite.Assertions.LessOrEqual(diffInSeconds, oneSecond)
+		actualSubmittedAt := updatedMove.SubmittedAt
+		suite.WithinDuration(time.Now(), *actualSubmittedAt, 2*time.Second)
 
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, updatedMove.Status)
 		// And: Returned query to have a needs service counseling status

@@ -16,6 +16,7 @@ const shipmentDestinationAddress = {
 
 const headingInfo = {
   shipmentID: '1',
+  moveTaskOrderID: '2',
   shipmentType: 'Household Goods',
   originCity: 'San Antonio',
   originState: 'TX',
@@ -23,11 +24,18 @@ const headingInfo = {
   destinationAddress: shipmentDestinationAddress,
   scheduledPickupDate: '27 Mar 2020',
   shipmentStatus: 'SUBMITTED',
+  ifMatchEtag: '1234',
 };
 
 describe('Shipment Heading with full destination address', () => {
   it('should render the data passed to it within the heading', () => {
-    const wrapper = shallow(<ShipmentHeading shipmentInfo={headingInfo} handleUpdateMTOShipmentStatus={jest.fn()} />);
+    const wrapper = shallow(
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />,
+    );
     expect(wrapper.find('h2').text()).toEqual('Household Goods');
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('Tacoma, WA 98421');
@@ -38,7 +46,13 @@ describe('Shipment Heading with full destination address', () => {
 describe('Shipment Heading with missing destination address', () => {
   it("only renders the postal_code of the order's new duty station", () => {
     headingInfo.destinationAddress = shipmentDestinationAddressWithPostalOnly;
-    const wrapper = shallow(<ShipmentHeading shipmentInfo={headingInfo} handleUpdateMTOShipmentStatus={jest.fn()} />);
+    const wrapper = shallow(
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />,
+    );
     expect(wrapper.find('h2').text()).toEqual('Household Goods');
     expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
     expect(wrapper.find('small').text()).toContain('98421');
@@ -52,6 +66,7 @@ describe('Shipment Heading with diverted shipment', () => {
       <ShipmentHeading
         shipmentInfo={{ isDiversion: true, ...headingInfo }}
         handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
       />,
     );
     expect(wrapper.find('h2').text()).toEqual('Household Goods');
@@ -68,8 +83,27 @@ describe('Shipment Heading with diversion requested shipment', () => {
       <ShipmentHeading
         shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: 'DIVERSION_REQUESTED' }}
         handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
       />,
     );
     expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('diversion requested');
+  });
+});
+
+describe('Shipment Heading with cancelled shipment', () => {
+  const wrapper = mount(
+    <ShipmentHeading
+      shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: 'CANCELED' }}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
+  it('renders the cancelled tag next to the shipment type', () => {
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('cancelled');
+  });
+
+  it('hides the request cancellation button', () => {
+    expect(wrapper.find('button').length).toBeFalsy();
   });
 });

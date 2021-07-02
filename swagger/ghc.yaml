@@ -207,6 +207,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -617,55 +619,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
-    parameters:
-      - description: ID of move task order for mto shipment to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        format: uuid
-        type: string
-      - description: ID of the shipment
-        in: path
-        name: shipmentID
-        required: true
-        format: uuid
-        type: string
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PatchMTOShipmentStatus'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: Successfully updated shipment
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '404':
-          $ref: '#/responses/NotFound'
-        '409':
-          $ref: '#/responses/Conflict'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - mtoShipment
-      description: Updates a shipment's status
-      operationId: patchMTOShipmentStatus
-      summary: Updates a shipment's status
   '/shipments/{shipmentID}/approve':
     parameters:
       - description: ID of the shipment
@@ -2182,6 +2135,15 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      uploadedAmendedOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        x-nullable: true
+      amendedOrdersAcknowledgedAt:
+        type: string
+        format: date-time
+        x-nullable: true
       order_number:
         type: string
         x-nullable: true
@@ -2300,6 +2262,10 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
+      ordersAcknowledgement:
+        description: Confirmation that the new amended orders were reviewed after previously approving the original orders
+        type: boolean
         x-nullable: true
     required:
       - issueDate
@@ -2751,6 +2717,7 @@ definitions:
       scheduledPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
@@ -2762,8 +2729,9 @@ definitions:
         format: date
         type: string
       approvedDate:
-        format: date
+        format: date-time
         type: string
+        x-nullable: true
       diversion:
         type: boolean
         example: true
@@ -2932,22 +2900,6 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
-  PatchMTOShipmentStatus:
-    properties:
-      status:
-        type: string
-        enum:
-          - APPROVED
-          - CANCELED
-          - CANCELLATION_REQUESTED
-          - DIVERSION_REQUESTED
-          - REJECTED
-      rejectionReason:
-        type: string
-        example: MTO Shipment not good enough
-        x-nullable: true
-    required:
-      - status
   RejectShipment:
     properties:
       rejectionReason:

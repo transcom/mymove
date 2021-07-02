@@ -35,6 +35,12 @@ export const WithClassname = () => (
   </DetailsPanel>
 );
 
+export const WithTag = () => (
+  <DetailsPanel title="Details panel with tag" tag="NEW">
+    <p>I have a tag added via props!</p>
+  </DetailsPanel>
+);
+
 const info = {
   name: 'Smith, Kerry',
   dodId: '9999999999',

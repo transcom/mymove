@@ -20,7 +20,7 @@ registerPlugin(
   FilePondImagePreview,
 );
 
-const FileUpload = forwardRef(({ name, createUpload, onChange, labelIdle, onAddFile }, ref) => {
+const FileUpload = forwardRef(({ name, createUpload, onChange, labelIdle, labelIdleMobile, onAddFile }, ref) => {
   const handleOnChange = () => {
     if (onChange) onChange();
   };
@@ -66,9 +66,10 @@ const FileUpload = forwardRef(({ name, createUpload, onChange, labelIdle, onAddF
     allowMultiple: true,
     server: serverConfig,
     imagePreviewMaxHeight: 100,
-    labelIdle: isMobile() ? '<span class="filepond--label-action">Upload</span>' : labelIdle,
+    labelIdle: isMobile() ? labelIdleMobile : labelIdle,
     acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     maxFileSize: '25MB',
+    credits: false,
   };
 
   /* eslint-disable react/jsx-props-no-spreading */
@@ -85,6 +86,7 @@ FileUpload.propTypes = {
   onAddFile: PropTypes.func,
   // FilePond instance props
   labelIdle: PropTypes.string,
+  labelIdleMobile: PropTypes.string,
 };
 
 FileUpload.defaultProps = {
@@ -93,6 +95,7 @@ FileUpload.defaultProps = {
   onChange: undefined,
   onAddFile: undefined,
   labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
+  labelIdleMobile: '<span class="filepond--label-action">Upload</span>',
 };
 
 export default FileUpload;

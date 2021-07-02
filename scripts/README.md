@@ -178,6 +178,7 @@ These scripts are primarily used for working with the database
 | ---------------------------- | -------------------------------------------------------------------------------------- |
 | `db-backup`                  | Backup the contents of the development database for later restore.                     |
 | `db-cleanup`                 | Remove the database backup.                                                            |
+| `db-truncate`                | Truncates the configured database. Used in testing.                                    |
 | `db-restore`                 | Restore the contents of the development database from an earlier backup.               |
 | `psql-dev`                   | Convenience script to drop into development postgres DB                                |
 | `psql-deployed-migrations`   | Convenience script to drop into deployed migrations postgres DB                        |

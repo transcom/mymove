@@ -1115,79 +1115,6 @@ func init() {
         }
       ]
     },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
-      "patch": {
-        "description": "Updates a shipment's status",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Updates a shipment's status",
-        "operationId": "patchMTOShipmentStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatus"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/moves/{locator}/payment-requests": {
       "get": {
         "description": "Fetches payment requests for a move",
@@ -1355,6 +1282,9 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -3323,7 +3253,8 @@ func init() {
         },
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -3401,7 +3332,8 @@ func init() {
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "x-nullable": true,
@@ -3621,6 +3553,11 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
+        "amendedOrdersAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -3716,6 +3653,12 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "uploadedAmendedOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "uploaded_order_id": {
           "type": "string",
           "format": "uuid",
@@ -3774,28 +3717,6 @@ func init() {
           "enum": [
             "SUBMITTED",
             "APPROVED",
-            "REJECTED"
-          ]
-        }
-      }
-    },
-    "PatchMTOShipmentStatus": {
-      "required": [
-        "status"
-      ],
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "CANCELED",
-            "CANCELLATION_REQUESTED",
-            "DIVERSION_REQUESTED",
             "REJECTED"
           ]
         }
@@ -4367,6 +4288,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersAcknowledgement": {
+          "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
+          "type": "boolean",
+          "x-nullable": true
         },
         "ordersNumber": {
           "type": "string",
@@ -6045,94 +5971,6 @@ func init() {
         }
       ]
     },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
-      "patch": {
-        "description": "Updates a shipment's status",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Updates a shipment's status",
-        "operationId": "patchMTOShipmentStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatus"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/moves/{locator}/payment-requests": {
       "get": {
         "description": "Fetches payment requests for a move",
@@ -6345,6 +6183,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -8526,7 +8370,8 @@ func init() {
         },
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -8604,7 +8449,8 @@ func init() {
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "x-nullable": true,
@@ -8824,6 +8670,11 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
+        "amendedOrdersAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -8919,6 +8770,12 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "uploadedAmendedOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "uploaded_order_id": {
           "type": "string",
           "format": "uuid",
@@ -8977,28 +8834,6 @@ func init() {
           "enum": [
             "SUBMITTED",
             "APPROVED",
-            "REJECTED"
-          ]
-        }
-      }
-    },
-    "PatchMTOShipmentStatus": {
-      "required": [
-        "status"
-      ],
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "CANCELED",
-            "CANCELLATION_REQUESTED",
-            "DIVERSION_REQUESTED",
             "REJECTED"
           ]
         }
@@ -9573,6 +9408,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersAcknowledgement": {
+          "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
+          "type": "boolean",
+          "x-nullable": true
         },
         "ordersNumber": {
           "type": "string",
