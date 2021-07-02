@@ -83,7 +83,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
-		// TODO with the implementation of amended orders, the customer can upload and admended order which
+		// TODO with the implementation of amended orders, the customer can upload an amended order which
 		// TODO will need to update/save the order. The order is failing because the customer
 		// TODO does not update these fields. There is a thread going about this
 		// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
