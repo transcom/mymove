@@ -15,7 +15,7 @@ import FileUpload from 'components/FileUpload/FileUpload';
 import { UploadsShape, OrdersShape } from 'types/customerShapes';
 import {
   getOrdersForServiceMember,
-  createAmendedOrdersUploadForDocument,
+  createUploadForDocument,
   deleteUpload,
   getResponseError,
   submitAmendedOrders,
@@ -46,8 +46,8 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
   };
   const handleUpload = (file) => {
     // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available
-    const documentId = currentOrders?.uploaded_amended_orders?.id;
-    return createAmendedOrdersUploadForDocument(file, documentId);
+    const documentId = currentOrders?.uploaded_orders?.id;
+    return createUploadForDocument(file, documentId);
   };
   const handleUploadComplete = () => {
     // TODO Temporarily using the original uploaded orders, will change to use amended orders once that is available
