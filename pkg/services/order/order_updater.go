@@ -200,7 +200,6 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 	if order.UploadedAmendedOrders == nil {
 		amendedOrdersDoc := &models.Document{
 			ServiceMemberID: order.ServiceMemberID,
-			CreatedAt:       time.Now(),
 		}
 		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(amendedOrdersDoc)
 		if err != nil {
