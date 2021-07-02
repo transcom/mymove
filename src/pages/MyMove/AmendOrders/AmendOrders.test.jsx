@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { AmendOrders } from './AmendOrders';
 
-import { getOrdersForServiceMember, submitMoveForApproval } from 'services/internalApi';
+import { getOrdersForServiceMember, submitAmendedOrders } from 'services/internalApi';
 import { generalRoutes } from 'constants/routes';
 
 const mockPush = jest.fn();
@@ -24,13 +24,16 @@ jest.mock('services/internalApi', () => ({
   getOrdersForServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   createUploadForDocument: jest.fn().mockImplementation(() => Promise.resolve()),
   deleteUpload: jest.fn().mockImplementation(() => Promise.resolve()),
-  submitMoveForApproval: jest.fn(),
+  submitAmendedOrders: jest.fn(),
 }));
 
 describe('Amended Orders Upload page', () => {
   const testProps = {
     serviceMemberId: '123',
     updateOrders: jest.fn(),
+    currentOrders: {
+      moves: ['testMove'],
+    },
   };
 
   const testOrdersValues = {
@@ -103,7 +106,7 @@ describe('Amended Orders Upload page', () => {
 
   describe('when the user saves', () => {
     it('submits the form and redirects to the home page', async () => {
-      submitMoveForApproval.mockImplementation(() => {});
+      submitAmendedOrders.mockImplementation(() => Promise.resolve());
       render(<AmendOrders {...testProps} moveIsInDraft={false} />);
 
       const saveButton = await screen.findByText('Save');
@@ -114,5 +117,36 @@ describe('Amended Orders Upload page', () => {
         expect(mockPush).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
       });
     });
+
+    it('shows an error if the API returns an error', async () => {
+      submitAmendedOrders.mockImplementation(() =>
+        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+        // eslint-disable-next-line prefer-promise-reject-errors
+        Promise.reject({
+          message: 'A server error occurred saving the amended orders',
+          response: {
+            body: {
+              detail: 'A server error occurred saving the amended orders',
+            },
+          },
+        }),
+      );
+
+      // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
+      render(<AmendOrders {...testProps} moveIsInDraft={false} />);
+
+      const saveButton = await screen.findByText('Save');
+      expect(saveButton).toBeInTheDocument();
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(submitAmendedOrders).toHaveBeenCalled();
+      });
+
+      expect(await screen.queryByText('A server error occurred saving the amended orders')).toBeInTheDocument();
+      expect(mockPush).not.toHaveBeenCalled();
+    });
   });
+
+  afterEach(jest.resetAllMocks);
 });
