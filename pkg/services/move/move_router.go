@@ -227,7 +227,10 @@ func (router moveRouter) SendToOfficeUser(move *models.Move) error {
 		return nil
 	}
 	if move.Status == models.MoveStatusCANCELED {
-		return errors.Wrap(models.ErrInvalidTransition, fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID))
+		errorMessage := fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID)
+		router.logger.Warn(errorMessage)
+
+		return errors.Wrap(models.ErrInvalidTransition, errorMessage)
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
 	router.logger.Info("SUCCESS: Move sent to TOO to request approval")
