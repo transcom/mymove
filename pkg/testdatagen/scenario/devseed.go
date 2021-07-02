@@ -738,7 +738,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(db *pop.Connection, userU
 		Order: orders,
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
-			Locator:          "AMEND",
+			Locator:          "AMENDO",
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusSUBMITTED,
 		},
