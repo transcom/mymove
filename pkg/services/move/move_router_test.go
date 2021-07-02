@@ -337,8 +337,11 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			desc   string
 			status models.MoveStatus
 		}{
-
+			{"Draft", models.MoveStatusDRAFT},
+			{"Submitted", models.MoveStatusSUBMITTED},
 			{"Approved", models.MoveStatusAPPROVED},
+			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
+			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
 		}
 		for _, validStatus := range validStatuses {
 			move.Status = validStatus.status
@@ -355,11 +358,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			desc   string
 			status models.MoveStatus
 		}{
-			{"Draft", models.MoveStatusDRAFT},
-			{"Submitted", models.MoveStatusSUBMITTED},
 			{"Canceled", models.MoveStatusCANCELED},
-			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
-			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
 		}
 		for _, invalidStatus := range invalidStatuses {
 			move.Status = invalidStatus.status
@@ -367,8 +366,8 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			err := moveRouter.SendToOfficeUser(&move)
 
 			suite.Error(err)
-			suite.Contains(err.Error(), "A move can only be set to 'Approvals Requested' from the 'Approved' status")
-			suite.Contains(err.Error(), fmt.Sprintf("but its current status is: %s", invalidStatus.status))
+			suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s", move.ID))
+			suite.Contains(err.Error(), "can not be sent to 'Approvals Requested' if the status is cancelled.")
 		}
 	})
 }
