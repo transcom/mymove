@@ -321,6 +321,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		})
 	}
+	if api.MovesSubmitAmendedOrdersHandler == nil {
+		api.MovesSubmitAmendedOrdersHandler = moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
+		})
+	}
 	if api.MovesSubmitMoveForApprovalHandler == nil {
 		api.MovesSubmitMoveForApprovalHandler = moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")

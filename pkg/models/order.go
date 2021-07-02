@@ -203,6 +203,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
 		"UploadedOrders",
+		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement",
