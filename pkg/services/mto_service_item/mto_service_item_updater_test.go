@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/swag"
@@ -90,6 +91,10 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.SITEntryDate = &sitEntryDate
 		newServiceItem.Status = "" // should keep the status from the original service item
 		newServiceItem.SITDestinationFinalAddress = &newAddress
+		actualWeight := int64(4000)
+		estimatedWeight := int64(4200)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, eTag)
 
@@ -106,6 +111,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.State, newAddress.State)
 		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.Country, newAddress.Country)
 		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.PostalCode, newAddress.PostalCode)
+		suite.Equal(updatedServiceItem.ActualWeight, newServiceItem.ActualWeight)
+		suite.Equal(updatedServiceItem.EstimatedWeight, newServiceItem.EstimatedWeight)
 		suite.NotEqual(updatedServiceItem.Status, newServiceItem.Status)
 	})
 }
