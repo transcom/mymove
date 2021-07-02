@@ -38,6 +38,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.ServeError = handlers.ServeCustomError
 	builder := query.NewQueryBuilder(ctx.DB())
 	fetcher := fetch.NewFetcher(builder)
+	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop(ctx.DB())}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{ctx}
@@ -73,7 +74,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{ctx}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
 		ctx,
-		move.NewMoveRouter(ctx.DB(), ctx.Logger()),
+		moveRouter,
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{ctx}
 
@@ -105,11 +106,10 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{ctx}
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{ctx}
-
-	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{ctx}
+	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{ctx, moveRouter}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{ctx}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{ctx}
-	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{ctx}
+	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{ctx, moveRouter}
 
 	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{ctx}
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{ctx}
@@ -136,12 +136,12 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentCreator(ctx.DB(), builder, fetcher),
+		mtoshipment.NewMTOShipmentCreator(ctx.DB(), builder, fetcher, moveRouter),
 	}
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner()),
+		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

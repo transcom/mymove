@@ -81,26 +81,20 @@ export class SelectShipmentType extends Component {
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
-    let ppmCardLabel = 'Do it yourself';
-
-    if (!shipmentInfo.isPPMSelectable) {
-      ppmCardLabel += ' (already chosen)';
-    }
-
     const ppmCardText = shipmentInfo.isPPMSelectable
-      ? 'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.'
+      ? 'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a Personally Procured Move (PPM), sometimes called a DITY.'
       : 'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.';
 
     const hhgCardText = shipmentInfo.isHHGSelectable
-      ? 'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).'
+      ? 'All of your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).'
       : 'Talk with your movers directly if you want to add or change shipments.';
 
     const ntsCardText = shipmentInfo.isNTSSelectable
-      ? `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`
+      ? `Movers pack and ship things to a storage facility, where they stay until a future move. This is an NTS (non-temporary storage) shipment.`
       : 'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
 
     const ntsrCardText = shipmentInfo.isNTSRSelectable
-      ? 'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.'
+      ? 'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-Release (non-temporary storage release) shipment.'
       : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
 
     const selectableCardDefaultProps = {
@@ -134,32 +128,33 @@ export class SelectShipmentType extends Component {
               </h6>
 
               <h1 className={`${styles.selectTypeHeader} ${styles.header}`} data-testid="select-move-type-header">
-                {shipmentInfo.shipmentNumber > 1
-                  ? 'How do you want this group of things moved?'
-                  : 'How do you want to move your belongings?'}
+                How should this shipment move?
               </h1>
 
-              <h2>Choose 1 shipment at a time.</h2>
-              <p>You can add more later</p>
+              <p>
+                You can move everything in one shipment, or you can split your belongings into multiple shipments that
+                are moved in different ways.
+              </p>
+              <p>After you set up this shipment, you can add another shipment if you have more things to move.</p>
 
               <SelectableCard
                 {...selectableCardDefaultProps}
-                label={ppmCardLabel}
-                value={SHIPMENT_OPTIONS.PPM}
-                id={SHIPMENT_OPTIONS.PPM}
-                cardText={ppmCardText}
-                checked={moveType === SHIPMENT_OPTIONS.PPM}
-                disabled={!shipmentInfo.isPPMSelectable}
-                onHelpClick={this.toggleMoveInfoModal}
-              />
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Professional movers"
+                label="Movers pack and ship it, paid by the government (HHG)"
                 value={SHIPMENT_OPTIONS.HHG}
                 id={SHIPMENT_OPTIONS.HHG}
                 cardText={hhgCardText}
                 checked={moveType === SHIPMENT_OPTIONS.HHG}
                 disabled={!shipmentInfo.isHHGSelectable}
+                onHelpClick={this.toggleMoveInfoModal}
+              />
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Move it yourself and get paid for it (PPM)"
+                value={SHIPMENT_OPTIONS.PPM}
+                id={SHIPMENT_OPTIONS.PPM}
+                cardText={ppmCardText}
+                checked={moveType === SHIPMENT_OPTIONS.PPM}
+                disabled={!shipmentInfo.isPPMSelectable}
                 onHelpClick={this.toggleMoveInfoModal}
               />
 
@@ -174,10 +169,10 @@ export class SelectShipmentType extends Component {
                 </p>
               ) : (
                 <>
-                  <p>These shipments do count against your weight allowance for this move.</p>
+                  <p>Your orders might not authorize long-term storage &mdash; your counselor can verify.</p>
                   <SelectableCard
                     {...selectableCardDefaultProps}
-                    label="Put things into long-term storage"
+                    label="It's going into storage for months or years (NTS)"
                     value={SHIPMENT_OPTIONS.NTS}
                     id={SHIPMENT_OPTIONS.NTS}
                     cardText={ntsCardText}
@@ -187,7 +182,7 @@ export class SelectShipmentType extends Component {
                   />
                   <SelectableCard
                     {...selectableCardDefaultProps}
-                    label="Get things out of long-term storage"
+                    label="It was stored during a previous move (NTS-Release)"
                     value={SHIPMENT_OPTIONS.NTSR}
                     id={SHIPMENT_OPTIONS.NTSR}
                     cardText={ntsrCardText}

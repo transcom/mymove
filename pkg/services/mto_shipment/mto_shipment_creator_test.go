@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -25,14 +25,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return builder
 	}
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
 	fetcher := fetch.NewFetcher(builder)
 	creator := mtoShipmentCreator{
 		suite.DB(),
 		builder,
 		fetcher,
 		createNewBuilder,
-		mtoServiceItemCreator,
+		moveRouter,
 	}
 
 	// Invalid ID fields set

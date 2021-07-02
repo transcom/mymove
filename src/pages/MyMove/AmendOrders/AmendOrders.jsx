@@ -4,6 +4,8 @@ import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
+import styles from './AmendOrders.module.scss';
+
 import Hint from 'components/Hint';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
@@ -16,7 +18,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   selectCurrentOrders,
   selectServiceMemberFromLoggedInUser,
-  selectUploadsForCurrentOrders,
+  selectUploadsForCurrentAmendedOrders,
 } from 'store/entities/selectors';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { generalRoutes } from 'constants/routes';
@@ -69,6 +71,8 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
 
   if (isLoading) return <LoadingPlaceholder />;
 
+  const additionalText = uploads && uploads.length > 0 ? 'additional ' : '';
+
   return (
     <GridContainer>
       <ScrollToTop />
@@ -84,7 +88,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <SectionWrapper>
-            <h5>Upload orders</h5>
+            <h5 className={styles.uploadOrdersHeader}>Upload orders</h5>
             <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
             {uploads && uploads.length > 0 && (
               <>
@@ -97,7 +101,8 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={onChange}
-                labelIdle={'Drag files here or <span class="filepond--label-action">choose from folder</span>'}
+                labelIdle={`Drag ${additionalText}files here or <span class="filepond--label-action">choose from folder</span>`}
+                labelIdleMobile={`<span class="filepond--label-action">Upload ${additionalText}files</span>`}
               />
             </div>
             <WizardNavigation editMode disableNext={false} onNextClick={handleSave} onCancelClick={handleCancel} />
@@ -128,7 +133,7 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId,
     currentOrders,
-    uploads: selectUploadsForCurrentOrders(state),
+    uploads: selectUploadsForCurrentAmendedOrders(state),
   };
 
   return props;

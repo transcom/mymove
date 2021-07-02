@@ -2,6 +2,10 @@ package ghcapi
 
 import (
 	"database/sql"
+	"errors"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -75,6 +79,14 @@ func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParam
 type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
+	moveUpdater  services.MoveTaskOrderUpdater
+}
+
+func amendedOrdersRequiresApproval(params orderop.UpdateOrderParams, updatedOrder models.Order) bool {
+	return params.Body.OrdersAcknowledgement != nil &&
+		*params.Body.OrdersAcknowledgement &&
+		updatedOrder.UploadedAmendedOrdersID != nil &&
+		updatedOrder.AmendedOrdersAcknowledgedAt != nil
 }
 
 // Handle ... updates an order from a request payload
@@ -88,6 +100,8 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+		case services.ConflictError:
+			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.ForbiddenError:
@@ -108,6 +122,23 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	}
 
 	h.triggerUpdateOrderEvent(orderID, moveID, params)
+
+	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
+	if amendedOrdersRequiresApproval(params, *updatedOrder) {
+		moveRouter := move.NewMoveRouter(h.DB(), logger)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(moveID, updatedOrder.ID)
+		if approveErr != nil {
+			if errors.Is(approveErr, models.ErrInvalidTransition) {
+				return handleError(services.NewConflictError(moveID, approveErr.Error()))
+			}
+			return handleError(approveErr)
+		}
+
+		updateErr := h.moveUpdater.UpdateApprovedAmendedOrders(approvedMove)
+		if updateErr != nil {
+			handleError(updateErr)
+		}
+	}
 
 	orderPayload := payloads.Order(updatedOrder)
 

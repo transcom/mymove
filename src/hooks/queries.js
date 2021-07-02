@@ -194,6 +194,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const order = orders && orders[`${orderId}`];
   // eslint-disable-next-line camelcase
   const documentId = order?.uploaded_order_id;
+  const amendedOrderDocumentId = order?.uploadedAmendedOrderID;
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
@@ -210,13 +211,28 @@ export const useOrdersDocumentQueries = (moveCode) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, ordersDocumentsQuery]);
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], getDocument, {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    orderQuery,
+    ordersDocumentsQuery,
+    amendedOrdersDocumentsQuery,
+  ]);
 
   return {
     move,
     orders,
     documents,
+    amendedDocuments,
     upload,
+    amendedUpload,
     isLoading,
     isError,
     isSuccess,

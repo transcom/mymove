@@ -272,7 +272,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			MtoID:           mtoID,
 			UpdatedObjectID: mtoShipmentID,
 			Request:         &dummyRequest,
-			EndpointKey:     GhcPatchMTOShipmentStatusEndpointKey,
+			EndpointKey:     GhcApproveShipmentEndpointKey,
 			HandlerContext:  handler,
 			DBConnection:    suite.DB(),
 		})
