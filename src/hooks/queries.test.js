@@ -468,18 +468,8 @@ describe('useMoveDetailsQueries', () => {
 
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
-    const testOrderId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testOrderId));
-
-    expect(result.current).toEqual({
-      orders: undefined,
-      moveTaskOrders: undefined,
-      mtoShipments: undefined,
-      mtoServiceItems: undefined,
-      isLoading: true,
-      isError: false,
-      isSuccess: false,
-    });
+    const moveId = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId));
 
     await waitForNextUpdate();
 
