@@ -44,6 +44,8 @@ const RequestedShipments = ({
       secondaryPickupAddress: shipment.secondaryPickupAddress,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
       secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
+      counselorRemarks: shipment.counselorRemarks,
+      customerRemarks: shipment.customerRemarks,
     };
   };
 

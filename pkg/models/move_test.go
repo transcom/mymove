@@ -10,7 +10,6 @@
 package models_test
 
 import (
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -129,87 +128,6 @@ func (suite *ModelSuite) TestFetchMove() {
 	})
 }
 
-func (suite *ModelSuite) TestMoveCancellation() {
-	suite.Run("defaults to nil reason if empty string provided", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-		err := move.Cancel("")
-
-		suite.NoError(err)
-		suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Nil(move.CancelReason)
-	})
-
-	suite.Run("adds reason if provided", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
-		reason := "SM's orders revoked"
-		err := move.Cancel(reason)
-
-		suite.NoError(err)
-		suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
-	})
-
-	suite.Run("does not cancel a move that is already canceled", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-		move.Status = MoveStatusCANCELED
-
-		err := move.Cancel("")
-
-		suite.Error(err)
-		suite.Contains(err.Error(), "Cannot cancel a move that is already canceled.")
-	})
-
-	suite.Run("cancels PPM and Order when move is canceled", func() {
-		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
-		// Create PPM on this move
-		advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-			PersonallyProcuredMove: PersonallyProcuredMove{
-				Move:      move,
-				MoveID:    move.ID,
-				Status:    PPMStatusDRAFT,
-				Advance:   &advance,
-				AdvanceID: &advance.ID,
-			},
-			Stub: true,
-		})
-		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
-
-		err := move.Cancel("")
-
-		suite.NoError(err)
-		suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
-		suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
-	})
-}
-
-func (suite *ModelSuite) TestMoveSubmission() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
-	// Create PPM on this move
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: PersonallyProcuredMove{
-			Move:      move,
-			MoveID:    move.ID,
-			Status:    PPMStatusDRAFT,
-			Advance:   &advance,
-			AdvanceID: &advance.ID,
-		},
-		Stub: true,
-	})
-	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
-
-	// Once submitted
-	err := move.Submit()
-
-	suite.NoError(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
-}
 func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
@@ -288,48 +206,4 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 		}
 		suite.Equal(move.ID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
 	}
-}
-
-func (suite *ModelSuite) TestMoveApproval() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
-	suite.Run("from valid statuses", func() {
-		validStatuses := []struct {
-			desc   string
-			status MoveStatus
-		}{
-			{"Submitted", MoveStatusSUBMITTED},
-			{"Approvals Requested", MoveStatusAPPROVALSREQUESTED},
-			{"Service Counseling Completed", MoveStatusServiceCounselingCompleted},
-			{"Approved", MoveStatusAPPROVED},
-		}
-		for _, validStatus := range validStatuses {
-			move.Status = validStatus.status
-
-			err := move.Approve()
-
-			suite.NoError(err)
-			suite.Equal(MoveStatusAPPROVED, move.Status)
-		}
-	})
-
-	suite.Run("from invalid statuses", func() {
-		invalidStatuses := []struct {
-			desc   string
-			status MoveStatus
-		}{
-			{"Draft", MoveStatusDRAFT},
-			{"Canceled", MoveStatusCANCELED},
-			{"Needs Service Counseling", MoveStatusNeedsServiceCounseling},
-		}
-		for _, invalidStatus := range invalidStatuses {
-			move.Status = invalidStatus.status
-
-			err := move.Approve()
-
-			suite.Error(err)
-			suite.Contains(err.Error(), "A move can only be approved if it's in one of these states")
-			suite.Contains(err.Error(), fmt.Sprintf("However, its current status is: %s", invalidStatus.status))
-		}
-	})
 }

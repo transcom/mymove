@@ -16,6 +16,9 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
@@ -104,7 +107,7 @@ func createPPMOfficeUser(db *pop.Connection) {
 	})
 }
 
-func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * Service member with uploaded orders and a new ppm
 	 */
@@ -153,14 +156,14 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
 		},
 	})
-	ppm0.Move.Submit()
+	moveRouter.Submit(&ppm0.Move)
 	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
 }
 
-func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * Service member with uploaded orders, a new ppm and no advance
 	 */
@@ -193,14 +196,14 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit()
+	moveRouter.Submit(&ppmNoAdvance.Move)
 	verrs, err := models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
 }
 
-func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * Service member with a ppm move with payment requested
 	 */
@@ -242,8 +245,8 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit()
-	ppm2.Move.Approve()
+	moveRouter.Submit(&ppm2.Move)
+	moveRouter.Approve(&ppm2.Move)
 
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
@@ -255,7 +258,7 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	}
 }
 
-func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * A PPM move that has been canceled.
 	 */
@@ -288,12 +291,12 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit()
+	moveRouter.Submit(&ppmCanceled.Move)
 	verrs, err := models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-	ppmCanceled.Move.Cancel("reasons")
+	moveRouter.Cancel("reasons", &ppmCanceled.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -360,7 +363,7 @@ func createServiceMemberWithNoUploadedOrders(db *pop.Connection) {
 	})
 }
 
-func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * A service member with orders and a submitted move with a ppm and hhg
 	 */
@@ -454,14 +457,14 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit()
+	moveRouter.Submit(&move)
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
 }
 
-func createMoveWithHHGMissingOrdersInfo(db *pop.Connection) {
+func createMoveWithHHGMissingOrdersInfo(db *pop.Connection, moveRouter services.MoveRouter) {
 	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "REQINF",
@@ -475,7 +478,7 @@ func createMoveWithHHGMissingOrdersInfo(db *pop.Connection) {
 	order.OrdersTypeDetail = nil
 	mustSave(db, &order)
 
-	move.Submit()
+	moveRouter.Submit(&move)
 	mustSave(db, &move)
 }
 
@@ -916,7 +919,7 @@ func createNTSRMove(db *pop.Connection) {
 	})
 }
 
-func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.UserUploader) {
+func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
 	/*
 	 * Service member with a ppm ready to request payment
 	 */
@@ -959,8 +962,8 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit()
-	ppm6.Move.Approve()
+	moveRouter.Submit(&ppm6.Move)
+	moveRouter.Approve(&ppm6.Move)
 
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1047,7 +1050,7 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 
 // Creates a payment request with domestic longhaul and shorthaul shipments with
 // service item pricing params for displaying cost calculations
-func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploader.PrimeUploader, logger Logger) {
+func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploader.PrimeUploader, logger Logger, moveRouter services.MoveRouter) {
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
@@ -1088,7 +1091,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 		Move: move,
 	})
 
-	submissionErr := move.Submit()
+	submissionErr := moveRouter.Submit(&move)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -1099,9 +1102,9 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 	}
 
 	queryBuilder := query.NewQueryBuilder(db)
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator)
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(db, queryBuilder, serviceItemCreator, moveRouter)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
@@ -1191,7 +1194,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
 
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -3858,6 +3861,7 @@ func createMoveWithDivertedShipments(db *pop.Connection, userUploader *uploader.
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	routePlanner route.Planner, logger Logger, namedSubScenario string) {
+	moveRouter := moverouter.NewMoveRouter(db, logger)
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
 	var allDutyStations []models.DutyStation
 	db.All(&allDutyStations)
@@ -3888,11 +3892,11 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	// PPM Office Queue
 	createPPMOfficeUser(db)
-	createPPMWithAdvance(db, userUploader)
-	createPPMWithNoAdvance(db, userUploader)
-	createPPMWithPaymentRequest(db, userUploader)
-	createCanceledPPM(db, userUploader)
-	createPPMReadyToRequestPayment(db, userUploader)
+	createPPMWithAdvance(db, userUploader, moveRouter)
+	createPPMWithNoAdvance(db, userUploader, moveRouter)
+	createPPMWithPaymentRequest(db, userUploader, moveRouter)
+	createCanceledPPM(db, userUploader, moveRouter)
+	createPPMReadyToRequestPayment(db, userUploader, moveRouter)
 
 	// Create additional PPM users for mymove tests
 	createPPMUsers(db, userUploader)
@@ -3950,9 +3954,9 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"),
 		},
 	})
-	createHHGWithPaymentServiceItems(db, primeUploader, logger)
+	createHHGWithPaymentServiceItems(db, primeUploader, logger, moveRouter)
 
-	createMoveWithPPMAndHHG(db, userUploader)
+	createMoveWithPPMAndHHG(db, userUploader, moveRouter)
 
 	// Create diverted shipments that need TOO approval
 	createMoveWithDivertedShipments(db, userUploader)
@@ -3973,7 +3977,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	})
 
 	// A move with missing required order fields
-	createMoveWithHHGMissingOrdersInfo(db)
+	createMoveWithHHGMissingOrdersInfo(db, moveRouter)
 
 	createHHGMoveWith10ServiceItems(db, userUploader)
 	createHHGMoveWith2PaymentRequests(db, userUploader)
