@@ -40,10 +40,6 @@ export async function getMovePaymentRequests(key, locator) {
   );
 }
 
-export async function getMoveTaskOrderList(key, orderID) {
-  return makeGHCRequest('order.listMoveTaskOrders', { orderID });
-}
-
 export async function getMTOShipments(key, moveTaskOrderID, normalize = true) {
   return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments', normalize });
 }
@@ -63,17 +59,11 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function patchMTOServiceItemStatus({
-  moveTaskOrderId,
-  mtoServiceItemID,
-  ifMatchEtag,
-  status,
-  rejectionReason,
-}) {
+export async function patchMTOServiceItemStatus({ moveId, mtoServiceItemID, ifMatchEtag, status, rejectionReason }) {
   return makeGHCRequest(
     'mtoServiceItem.updateMTOServiceItemStatus',
     {
-      moveTaskOrderID: moveTaskOrderId,
+      moveTaskOrderID: moveId,
       mtoServiceItemID,
       'If-Match': ifMatchEtag,
       body: { status, rejectionReason },
