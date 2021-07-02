@@ -2194,12 +2194,12 @@
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-"@redocly/openapi-cli@^1.0.0-beta.51":
-  version "1.0.0-beta.51"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.51.tgz#b3b5c44e6d069d0ba876c5c576d4173e6bafb2cc"
-  integrity sha512-7KoG6oq8e3b8YRHALD6ZlPY58CEAQHVi2tWsJZWddWzcy0z+88fnqAOdmYjZbpOcgzxJyCWNt4SnFXRiDTH0vQ==
+"@redocly/openapi-cli@^1.0.0-beta.53":
+  version "1.0.0-beta.53"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.53.tgz#0076b1f848fb68f5d0bc1cdcbff0c8501dc51006"
+  integrity sha512-F568h5Xuz5omdoH6F9sxDbhRlNQJOauUgQA/p50nZSTIcd/1U+NUFDTmqrSwbOEYSXVnmDf2YENTBH9X5/bR1A==
   dependencies:
-    "@redocly/openapi-core" "^1.0.0-beta.51"
+    "@redocly/openapi-core" "^1.0.0-beta.53"
     "@types/node" "^14.11.8"
     assert-node-version "^1.0.3"
     chokidar "^3.5.1"
@@ -2212,10 +2212,10 @@
     simple-websocket "^9.0.0"
     yargs "17.0.1"
 
-"@redocly/openapi-core@^1.0.0-beta.51":
-  version "1.0.0-beta.51"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.51.tgz#7f314ced19335530cfe8e66b08ce4a2f89dcebef"
-  integrity sha512-HagMZbN7UE68z9EKAp6FjdpwBAYXBo3uRMoBYUmPmwb2c8w/xwk0dSR9HriVGnxHyL7v/FwOEtk+YnMoQZZbDQ==
+"@redocly/openapi-core@^1.0.0-beta.53":
+  version "1.0.0-beta.53"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.53.tgz#3fd1bd7b36e2dc97518936a5982f74b216d80943"
+  integrity sha512-n5WixBRb7oWS31v3/cdOW/eNXbr2M4N8+HjHfCA/oQX6Z4ZYqPOJCekw64sQ/fnUQMIQyT6fKqyaf+iO4tG7YA==
   dependencies:
     "@redocly/ajv" "^8.6.2"
     "@types/node" "^14.11.8"
