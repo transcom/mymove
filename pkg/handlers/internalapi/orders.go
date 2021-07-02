@@ -9,6 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/uploader"
+
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -276,7 +278,6 @@ type UploadAmendedOrdersHandler struct {
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
 	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 
 	file, ok := params.File.(*runtime.File)
@@ -298,9 +299,21 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	upload, url, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
+	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+
+	if verrs.HasAny() || err != nil {
+		switch err.(type) {
+		case uploader.ErrTooLarge:
+			return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
+		case uploader.ErrFile:
+			return ordersop.NewUploadAmendedOrdersInternalServerError()
+		case uploader.ErrFailedToInitUploader:
+			return ordersop.NewUploadAmendedOrdersInternalServerError()
+		case services.NotFoundError:
+			return ordersop.NewUploadAmendedOrdersNotFound()
+		default:
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
 	}
 
 	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)

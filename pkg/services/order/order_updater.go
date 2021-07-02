@@ -98,18 +98,18 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 }
 
 // UploadAmendedOrdersAsCustomer add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, error) {
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
 	orderToUpdate, err := f.findOrderWithAmendedOrders(orderID)
 	if err != nil {
-		return models.Upload{}, "", err
+		return models.Upload{}, "", nil, err
 	}
 
-	userUpload, url, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
-	if err != nil {
-		return models.Upload{}, "", err
+	userUpload, url, verrs, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
+	if verrs.HasAny() || err != nil {
+		return models.Upload{}, "", verrs, err
 	}
 
-	return userUpload.Upload, url, nil
+	return userUpload.Upload, url, nil, nil
 }
 
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
@@ -192,7 +192,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	return order
 }
 
-func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, error) {
+func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
 
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
@@ -203,7 +203,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 		}
 		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(amendedOrdersDoc)
 		if err != nil {
-			return models.UserUpload{}, "", err
+			return models.UserUpload{}, "", nil, err
 		}
 
 		// save new UploadedAmendedOrdersID (document ID) to orders
@@ -211,7 +211,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 		order.UploadedAmendedOrdersID = &savedAmendedOrdersDoc.ID
 		_, _, err = f.updateOrder(order)
 		if err != nil {
-			return models.UserUpload{}, "", err
+			return models.UserUpload{}, "", nil, err
 		}
 	}
 
@@ -229,28 +229,14 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 		uploader.MaxUserFileSizeLimit,
 		&savedAmendedOrdersDoc.ID,
 	)
-	/*
-		if verrs.HasAny() || err != nil {
-			switch err.(type) {
-			case uploader.ErrTooLarge:
-				return uploadop.NewCreateUploadRequestEntityTooLarge()
-			case uploader.ErrFile:
-				return uploadop.NewCreateUploadInternalServerError()
-			case uploader.ErrFailedToInitUploader:
-				return uploadop.NewCreateUploadInternalServerError()
-			default:
-				return handlers.ResponseForVErrors(logger, verrs, err)
-			}
-		}
-	*/
 
 	if verrs.HasAny() || err != nil {
-		return models.UserUpload{}, "", err
+		return models.UserUpload{}, "", verrs, err
 	}
 
 	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *userUpload)
 
-	return *userUpload, url, nil
+	return *userUpload, url, nil, nil
 }
 
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
@@ -394,18 +380,6 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 	if transactionError != nil {
 		return nil, transactionError
 	}
-
-	/*
-		var verrs *validate.Errors
-		var err error
-		verrs, err = f.db.ValidateAndSave(doc)
-		if verrs != nil && verrs.HasAny() {
-			return nil, services.NewInvalidInputError(docID, nil, verrs, "")
-		}
-		if err != nil {
-			return nil, err
-		}
-	*/
 
 	return doc, nil
 }

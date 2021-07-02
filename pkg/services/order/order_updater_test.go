@@ -531,7 +531,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		logger, err := zap.NewDevelopment()
 		suite.NoError(err)
 
-		upload, url, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			logger,
 			order.ServiceMemberID,
 			order.ID,
@@ -539,6 +539,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			file.Header.Filename,
 			fakeS3)
 		suite.NoError(err)
+		suite.NoVerrs(verrs)
 
 		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
 		if upload.Checksum != expectedChecksum {
