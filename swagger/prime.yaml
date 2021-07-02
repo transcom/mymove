@@ -28,9 +28,9 @@ tags:
       multiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a
       [moveTaskOrder](#tag/moveTaskOrder).
 
-      All of the shipments in a move, or **moveTaskOrder**, are combined and compared to the customer's weight
-      allowance. If the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the
-      customer and the contractor should keep this in mind when planning a move and the shipments within it.
+      The weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If
+      the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and
+      the contractor should keep this potential cost in mind when planning a move and the shipments within it.
   - name: paymentRequest
   - name: mtoServiceItem
 x-tagGroups:
