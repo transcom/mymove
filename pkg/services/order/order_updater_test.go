@@ -512,6 +512,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		})
 		var moves models.Moves
 		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
 		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 			Order: models.Order{
 				OriginDutyStation: &dutyStation,
@@ -528,12 +529,15 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
-		logger, err := zap.NewDevelopment()
-		suite.NoError(err)
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
+		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
 
 		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
 			logger,
-			order.ServiceMemberID,
+			order.ServiceMember.UserID,
 			order.ID,
 			file.Data,
 			file.Header.Filename,
@@ -561,19 +565,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 			t.Fatalf("Couldn't find expected upload.")
 		}
 		suite.Equal(upload.ID.String(), findUpload.ID.String(), "found upload in db")
-
-		foundAmendedOrderUplodID := false
-		for _, uu := range orderInDB.UploadedAmendedOrders.UserUploads {
-			// found user upload for amended order upload
-			if uu.Upload.ID == upload.ID {
-				foundAmendedOrderUplodID = true
-				suite.Equal(order.ServiceMemberID.String(), uu.UploadID.String(), "User ID for Service Member")
-			}
-		}
-		suite.True(foundAmendedOrderUplodID, "Found new amended orders upload")
-
 		suite.NotEmpty(url, "URL is populated")
-
 	})
 }
 
@@ -605,76 +597,6 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
-	})
-
-	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
-
-		payload := internalmessages.UserUploadPayload{}
-		eTag := ""
-
-		_, err := orderUpdater.UploadAmendedOrders(order.ID, &payload, eTag)
-
-		suite.Error(err)
-		suite.IsType(services.PreconditionFailedError{}, err)
-	})
-
-	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
-		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-			DutyStation: models.DutyStation{
-				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
-			},
-		})
-		var moves models.Moves
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				OriginDutyStation: &dutyStation,
-			},
-			Move: mto,
-		})
-		order.Moves = append(moves, mto)
-
-		eTag := etag.GenerateEtag(order.UpdatedAt)
-
-		serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
-		id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		uploadURL := strfmt.URI("https://file.test")
-		bytes := int64(123)
-		contentType := "application/pdf"
-		filename := "file.pdf"
-		payload := internalmessages.UserUploadPayload{
-			ID: &id,
-			Document: &internalmessages.DocumentPayload{
-				ServiceMemberID: &serviceMemberID,
-			},
-			Upload: &internalmessages.UploadPayload{
-				ID:          &uploadID,
-				URL:         &uploadURL,
-				Bytes:       &bytes,
-				ContentType: &contentType,
-				Filename:    &filename,
-				Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-			},
-			UploadID:   uploadID,
-			UploaderID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
-		}
-
-		updatedOrder, err := orderUpdater.UploadAmendedOrders(order.ID, &payload, eTag)
-		suite.NoError(err)
-
-		var orderInDB models.Order
-		err = suite.DB().
-			EagerPreload("UploadedAmendedOrders").
-			Find(&orderInDB, order.ID)
-
-		suite.NoError(err)
-		suite.Equal(order.ID.String(), updatedOrder.ID.String())
-		suite.NotNil(orderInDB.UploadedAmendedOrders)
-		suite.NotNil(updatedOrder.UploadedAmendedOrders)
 	})
 
 	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {

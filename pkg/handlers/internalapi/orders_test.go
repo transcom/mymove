@@ -137,15 +137,6 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
 	req := httptest.NewRequest("PATCH", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
-	/*
-		serviceMemberID := strfmt.UUID(order.ServiceMemberID.String())
-		id := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		uploadID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		uploadURL := strfmt.URI("https://file.test")
-		bytes := int64(123)
-		contentType := "application/pdf"
-		filename := "file.pdf"
-	*/
 
 	params := ordersop.UploadAmendedOrdersParams{
 		HTTPRequest: req,

@@ -288,7 +288,7 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 
 	logger.Info(
 		"File uploader and size",
-		zap.String("userID", session.ServiceMemberID.String()),
+		zap.String("userID", session.UserID.String()),
 		zap.String("serviceMemberID", session.ServiceMemberID.String()),
 		zap.String("officeUserID", session.OfficeUserID.String()),
 		zap.String("AdminUserID", session.AdminUserID.String()),

@@ -99,9 +99,9 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 
 // UploadAmendedOrdersAsCustomer add amended order documents to an existing order
 func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
-	orderToUpdate, err := f.findOrderWithAmendedOrders(orderID)
-	if err != nil {
-		return models.Upload{}, "", nil, err
+	orderToUpdate, findErr := f.findOrderWithAmendedOrders(orderID)
+	if findErr != nil {
+		return models.Upload{}, "", nil, findErr
 	}
 
 	userUpload, url, verrs, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
@@ -126,7 +126,7 @@ func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
 
 func (f *orderUpdater) findOrderWithAmendedOrders(orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
-	err := f.db.Q().EagerPreload("Moves", "ServiceMember", "Entitlement", "UploadedAmendedOrders").Find(&order, orderID)
+	err := f.db.Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(orderID, "while looking for order")
@@ -226,7 +226,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 		storer,
 		file,
 		filename,
-		uploader.MaxUserFileSizeLimit,
+		uploader.MaxCustomerUserUploadFileSizeLimit,
 		&savedAmendedOrdersDoc.ID,
 	)
 

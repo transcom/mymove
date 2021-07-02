@@ -87,6 +87,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		// TODO will need to update/save the order. The order is failing because the customer
 		// TODO does not update these fields. There is a thread going about this
 		// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+		// https://dp3.atlassian.net/browse/MB-8665
 		// TODO thinking that implementing something similar to AllowedFileTypes for validation
 		// TODO on office required fields vs customer required fields might be an option
 		//&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx},
