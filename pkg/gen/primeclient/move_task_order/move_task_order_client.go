@@ -46,8 +46,8 @@ updated if the `updatedAt` timestamp on the move is later than the provided date
 **WIP**: The original goal was to also look at the `updateAt` timestamps of the nested objects - such as the
 shipments, service items, etc. This has not been implemented.
 
-**WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrime` timestamp has been
-set, that move will always appear in this list.
+**WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
+been set, that move will always appear in this list.
 
 */
 func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error) {
