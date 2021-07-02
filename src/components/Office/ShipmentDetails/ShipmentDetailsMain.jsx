@@ -18,11 +18,12 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
     primeActualWeight,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
+
   return (
     <div className={className}>
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
-        scheduledPickupDate={formatDate(scheduledPickupDate)}
+        scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
       />
       <ShipmentAddresses
         pickupAddress={pickupAddress}

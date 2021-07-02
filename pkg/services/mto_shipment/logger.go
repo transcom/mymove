@@ -1,4 +1,4 @@
-package rateengine
+package mtoshipment
 
 import (
 	"go.uber.org/zap"

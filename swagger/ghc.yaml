@@ -2685,6 +2685,7 @@ definitions:
       scheduledPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string

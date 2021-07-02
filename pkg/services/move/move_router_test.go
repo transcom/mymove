@@ -54,7 +54,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 	})
 }
 
-func (suite *MoveServiceSuite) TestSubmitted() {
+func (suite *MoveServiceSuite) TestMoveSubmission() {
 	moveRouter := NewMoveRouter(suite.DB(), suite.logger)
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
@@ -153,6 +153,30 @@ func (suite *MoveServiceSuite) TestSubmitted() {
 			suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", invalidStatus.status))
 		}
 	})
+
+	suite.Run("PPM status changes to Submitted", func() {
+		move := testdatagen.MakeDefaultMove(suite.DB())
+
+		// Create PPM on this move
+		advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				Move:      move,
+				MoveID:    move.ID,
+				Status:    models.PPMStatusDRAFT,
+				Advance:   &advance,
+				AdvanceID: &advance.ID,
+			},
+			Stub: true,
+		})
+		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+
+		err := moveRouter.Submit(&move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+		suite.Equal(models.PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
+	})
 }
 
 func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
@@ -185,5 +209,143 @@ func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
 
 		suite.NoError(approveErr)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, approvedMove.Status)
+	})
+}
+
+func (suite *MoveServiceSuite) TestMoveCancellation() {
+	moveRouter := NewMoveRouter(suite.DB(), suite.logger)
+
+	suite.Run("defaults to nil reason if empty string provided", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+		err := moveRouter.Cancel("", &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
+		suite.Nil(move.CancelReason)
+	})
+
+	suite.Run("adds reason if provided", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		reason := "SM's orders revoked"
+		err := moveRouter.Cancel(reason, &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
+		suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
+	})
+
+	suite.Run("cancels PPM and Order when move is canceled", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		// Create PPM on this move
+		advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				Move:      move,
+				MoveID:    move.ID,
+				Status:    models.PPMStatusDRAFT,
+				Advance:   &advance,
+				AdvanceID: &advance.ID,
+			},
+			Stub: true,
+		})
+		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
+
+		err := moveRouter.Cancel("", &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
+		suite.Equal(models.PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
+		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
+	})
+
+	suite.Run("from valid statuses", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		validStatuses := []struct {
+			desc   string
+			status models.MoveStatus
+		}{
+			{"Submitted", models.MoveStatusSUBMITTED},
+			{"Approvals Requested", models.MoveStatusAPPROVALSREQUESTED},
+			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
+			{"Approved", models.MoveStatusAPPROVED},
+			{"Draft", models.MoveStatusDRAFT},
+			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
+		}
+		for _, validStatus := range validStatuses {
+			move.Status = validStatus.status
+			move.Orders.Status = models.OrderStatusSUBMITTED
+
+			err := moveRouter.Cancel("", &move)
+
+			suite.NoError(err)
+			suite.Equal(models.MoveStatusCANCELED, move.Status)
+		}
+	})
+
+	suite.Run("from invalid statuses", func() {
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		invalidStatuses := []struct {
+			desc   string
+			status models.MoveStatus
+		}{
+			{"Canceled", models.MoveStatusCANCELED},
+		}
+		for _, invalidStatus := range invalidStatuses {
+			move.Status = invalidStatus.status
+
+			err := moveRouter.Cancel("", &move)
+
+			suite.Error(err)
+			suite.Contains(err.Error(), "Cannot cancel a move that is already canceled.")
+		}
+	})
+}
+
+func (suite *MoveServiceSuite) TestSendToOfficeUser() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
+	moveRouter := NewMoveRouter(suite.DB(), suite.logger)
+
+	suite.Run("from valid statuses", func() {
+		validStatuses := []struct {
+			desc   string
+			status models.MoveStatus
+		}{
+
+			{"Approved", models.MoveStatusAPPROVED},
+		}
+		for _, validStatus := range validStatuses {
+			move.Status = validStatus.status
+
+			err := moveRouter.SendToOfficeUser(&move)
+
+			suite.NoError(err)
+			suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+		}
+	})
+
+	suite.Run("from invalid statuses", func() {
+		invalidStatuses := []struct {
+			desc   string
+			status models.MoveStatus
+		}{
+			{"Draft", models.MoveStatusDRAFT},
+			{"Submitted", models.MoveStatusSUBMITTED},
+			{"Canceled", models.MoveStatusCANCELED},
+			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
+			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
+		}
+		for _, invalidStatus := range invalidStatuses {
+			move.Status = invalidStatus.status
+
+			err := moveRouter.SendToOfficeUser(&move)
+
+			suite.Error(err)
+			suite.Contains(err.Error(), "A move can only be set to 'Approvals Requested' from the 'Approved' status")
+			suite.Contains(err.Error(), fmt.Sprintf("but its current status is: %s", invalidStatus.status))
+		}
 	})
 }
