@@ -3332,7 +3332,8 @@ func init() {
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "x-nullable": true,
@@ -8448,7 +8449,8 @@ func init() {
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "x-nullable": true,
