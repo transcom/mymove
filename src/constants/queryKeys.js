@@ -1,7 +1,6 @@
 export const PAYMENT_REQUESTS = 'paymentRequests';
 export const MTO_SHIPMENTS = 'mtoShipments';
 export const MTO_SERVICE_ITEMS = 'mtoServiceItems';
-export const MOVE_TASK_ORDERS = 'moveTaskOrders';
 export const ORDERS = 'orders';
 export const MOVE_PAYMENT_REQUESTS = 'movePaymentRequests';
 export const ORDERS_DOCUMENTS = 'documents';

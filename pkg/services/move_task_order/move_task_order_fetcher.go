@@ -20,25 +20,6 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 	return &moveTaskOrderFetcher{db}
 }
 
-// ListMoveTaskOrders retrieves all MTOs for a specific Order. Can filter out hidden MTOs (show=False)
-func (f moveTaskOrderFetcher) ListMoveTaskOrders(orderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) ([]models.Move, error) {
-	var moveTaskOrders []models.Move
-	query := f.db.Where("orders_id = $1", orderID)
-
-	setMTOQueryFilters(query, searchParams)
-
-	err := query.Eager().All(&moveTaskOrders)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return []models.Move{}, services.NotFoundError{}
-		default:
-			return []models.Move{}, err
-		}
-	}
-	return moveTaskOrders, nil
-}
-
 // ListAllMoveTaskOrders retrieves all Move Task Orders that may or may not be available to prime, and may or may not be enabled.
 func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moveTaskOrders models.Moves

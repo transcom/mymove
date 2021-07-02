@@ -36,11 +36,9 @@ const unapprovedMTOQuery = {
       },
     },
   },
-  moveTaskOrders: {
-    2: {
-      id: '2',
-      status: MOVE_STATUSES.SUBMITTED,
-    },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.SUBMITTED,
   },
   mtoShipments: [
     {
@@ -114,11 +112,9 @@ const someShipmentsApprovedMTOQuery = {
       },
     },
   },
-  moveTaskOrders: {
-    2: {
-      id: '2',
-      status: MOVE_STATUSES.APPROVALS_REQUESTED,
-    },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
   },
   mtoShipments: [
     {
@@ -221,12 +217,10 @@ const allApprovedMTOQuery = {
       },
     },
   },
-  moveTaskOrders: {
-    2: {
-      id: '2',
-      status: MOVE_STATUSES.APPROVALS_REQUESTED,
-      availableToPrimeAt: '2020-03-01T00:00:00.000Z',
-    },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
   },
   mtoShipments: [
     {
@@ -378,12 +372,10 @@ const approvedMTOWithCancelledShipmentQuery = {
       },
     },
   },
-  moveTaskOrders: {
-    2: {
-      id: '2',
-      status: MOVE_STATUSES.APPROVED,
-      availableToPrimeAt: '2020-03-01T00:00:00.000Z',
-    },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
   },
   mtoShipments: [
     {
