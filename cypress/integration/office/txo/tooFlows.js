@@ -71,7 +71,7 @@ describe('TOO user', () => {
 
     // Redirected to Move Task Order page
     cy.url().should('include', `/moves/${moveLocator}/mto`);
-    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ShipmentContainer"]');
     cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
 
@@ -112,6 +112,7 @@ describe('TOO user', () => {
       cy.get('.acceptButton').first().click();
     });
     cy.contains('Approved service items (7 items)');
+    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
 
     // Reject a requested service item
@@ -300,7 +301,7 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
