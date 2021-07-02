@@ -297,14 +297,16 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 			{"Draft", models.MoveStatusDRAFT},
 			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
 		}
-		for _, validStatus := range validStatuses {
-			move.Status = validStatus.status
-			move.Orders.Status = models.OrderStatusSUBMITTED
+		for _, tt := range validStatuses {
+			suite.Run(tt.desc, func() {
+				move.Status = tt.status
+				move.Orders.Status = models.OrderStatusSUBMITTED
 
-			err := moveRouter.Cancel("", &move)
+				err := moveRouter.Cancel("", &move)
 
-			suite.NoError(err)
-			suite.Equal(models.MoveStatusCANCELED, move.Status)
+				suite.NoError(err)
+				suite.Equal(models.MoveStatusCANCELED, move.Status)
+			})
 		}
 	})
 
@@ -317,13 +319,15 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		}{
 			{"Canceled", models.MoveStatusCANCELED},
 		}
-		for _, invalidStatus := range invalidStatuses {
-			move.Status = invalidStatus.status
+		for _, tt := range invalidStatuses {
+			suite.Run(tt.desc, func() {
+				move.Status = tt.status
 
-			err := moveRouter.Cancel("", &move)
+				err := moveRouter.Cancel("", &move)
 
-			suite.Error(err)
-			suite.Contains(err.Error(), "Cannot cancel a move that is already canceled.")
+				suite.Error(err)
+				suite.Contains(err.Error(), "Cannot cancel a move that is already canceled.")
+			})
 		}
 	})
 }
@@ -343,13 +347,15 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
 			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
 		}
-		for _, validStatus := range validStatuses {
-			move.Status = validStatus.status
+		for _, tt := range validStatuses {
+			suite.Run(tt.desc, func() {
+				move.Status = tt.status
 
-			err := moveRouter.SendToOfficeUser(&move)
+				err := moveRouter.SendToOfficeUser(&move)
 
-			suite.NoError(err)
-			suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+				suite.NoError(err)
+				suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+			})
 		}
 	})
 
@@ -360,14 +366,16 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 		}{
 			{"Canceled", models.MoveStatusCANCELED},
 		}
-		for _, invalidStatus := range invalidStatuses {
-			move.Status = invalidStatus.status
+		for _, tt := range invalidStatuses {
+			suite.Run(tt.desc, func() {
+				move.Status = tt.status
 
-			err := moveRouter.SendToOfficeUser(&move)
+				err := moveRouter.SendToOfficeUser(&move)
 
-			suite.Error(err)
-			suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s", move.ID))
-			suite.Contains(err.Error(), "can not be sent to 'Approvals Requested' if the status is cancelled.")
+				suite.Error(err)
+				suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s", move.ID))
+				suite.Contains(err.Error(), "can not be sent to 'Approvals Requested' if the status is cancelled.")
+			})
 		}
 	})
 }
