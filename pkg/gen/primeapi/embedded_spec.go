@@ -2594,7 +2594,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location. One move may include multiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\n",
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location. All of the items in a shipment are weighed and transported as a discrete unit. One move may include multiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\nAll of the shipments in a move, or **moveTaskOrder**, are combined and compared to the customer's weight allowance. If the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and the contractor should keep this in mind when planning a move and the shipments within it. \n",
       "name": "mtoShipment"
     },
     {
@@ -5445,7 +5445,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location. One move may include multiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\n",
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location. All of the items in a shipment are weighed and transported as a discrete unit. One move may include multiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\nAll of the shipments in a move, or **moveTaskOrder**, are combined and compared to the customer's weight allowance. If the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and the contractor should keep this in mind when planning a move and the shipments within it. \n",
       "name": "mtoShipment"
     },
     {
