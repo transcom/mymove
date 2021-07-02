@@ -10,6 +10,7 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
+  HelperAmendedOrders,
 } from 'pages/MyMove/Home/HomeHelpers';
 import { MockProviders } from 'testUtils';
 
@@ -56,3 +57,4 @@ export const SubmittedPPM = () => (
     <HelperSubmittedPPM />
   </MockProviders>
 );
+export const AmendedOrders = () => <HelperAmendedOrders />;

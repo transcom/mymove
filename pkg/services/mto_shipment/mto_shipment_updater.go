@@ -78,10 +78,6 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		dbShipment.ScheduledPickupDate = requestedUpdatedShipment.ScheduledPickupDate
 	}
 
-	if requestedUpdatedShipment.ScheduledPickupDate != nil {
-		dbShipment.ApprovedDate = requestedUpdatedShipment.ApprovedDate
-	}
-
 	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
 		now := time.Now()
 		dbShipment.PrimeEstimatedWeight = requestedUpdatedShipment.PrimeEstimatedWeight

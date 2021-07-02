@@ -233,7 +233,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.T().Run("Successful update to a minimal MTO shipment", func(t *testing.T) {
-		// Minimal MTO Shipment has only pickup address created by default
+		// Minimal MTO Shipment has no associated addresses created by default.
 		// Part of this test ensures that if an address doesn't exist on a shipment,
 		// the updater can successfully create it.
 		oldShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
@@ -258,7 +258,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			ScheduledPickupDate:              &scheduledPickupDate,
 			RequestedDeliveryDate:            &requestedDeliveryDate,
 			ActualPickupDate:                 &actualPickupDate,
-			ApprovedDate:                     &firstAvailableDeliveryDate,
 			PrimeActualWeight:                &primeActualWeight,
 			PrimeEstimatedWeight:             &primeEstimatedWeight,
 			FirstAvailableDeliveryDate:       &firstAvailableDeliveryDate,
@@ -275,7 +274,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
 		suite.True(requestedDeliveryDate.Equal(*newShipment.RequestedDeliveryDate))
 		suite.True(actualPickupDate.Equal(*newShipment.ActualPickupDate))
-		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.ApprovedDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.FirstAvailableDeliveryDate))
 		suite.True(primeEstimatedWeightRecordedDate.Equal(*newShipment.PrimeEstimatedWeightRecordedDate))
 		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
@@ -287,7 +285,45 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+	})
 
+	suite.T().Run("Updating a shipment does not nullify ApprovedDate", func(t *testing.T) {
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+		})
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		customerRemarks := "I have a grandfather clock"
+		counselorRemarks := "Counselor approved"
+		updatedShipment := models.MTOShipment{
+			ID:                       oldShipment.ID,
+			DestinationAddress:       &newDestinationAddress,
+			DestinationAddressID:     &newDestinationAddress.ID,
+			PickupAddress:            &newPickupAddress,
+			PickupAddressID:          &newPickupAddress.ID,
+			SecondaryPickupAddress:   &secondaryPickupAddress,
+			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			RequestedPickupDate:      &requestedPickupDate,
+			RequestedDeliveryDate:    &requestedDeliveryDate,
+			CustomerRemarks:          &customerRemarks,
+			CounselorRemarks:         &counselorRemarks,
+		}
+
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentCustomer(context.Background(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotEmpty(newShipment.ApprovedDate)
 	})
 
 	suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
@@ -421,6 +457,63 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		err = suite.DB().Find(&updatedMove, move.ID)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+	})
+
+	// Test UpdateMTOShipmentPrime
+	// TODO: Add more tests, such as making sure this function fails if the
+	// move is not available to the prime.
+	suite.T().Run("Updating a shipment does not nullify ApprovedDate", func(t *testing.T) {
+		// This test was added because of a bug that nullified the ApprovedDate
+		// when ScheduledPickupDate was included in the payload. See PR #6919.
+		// ApprovedDate affects shipment diversions, so we want to make sure it
+		// never gets nullified, regardless of which fields are being updated.
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+			Move: move,
+		})
+
+		suite.NotNil(oldShipment.ApprovedDate)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
+		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
+		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		updatedShipment := models.MTOShipment{
+			ID:                         oldShipment.ID,
+			DestinationAddress:         &newDestinationAddress,
+			DestinationAddressID:       &newDestinationAddress.ID,
+			PickupAddress:              &newPickupAddress,
+			PickupAddressID:            &newPickupAddress.ID,
+			SecondaryPickupAddress:     &secondaryPickupAddress,
+			SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
+			RequestedPickupDate:        &requestedPickupDate,
+			ScheduledPickupDate:        &scheduledPickupDate,
+			RequestedDeliveryDate:      &requestedDeliveryDate,
+			ActualPickupDate:           &actualPickupDate,
+			PrimeActualWeight:          &primeActualWeight,
+			PrimeEstimatedWeight:       &primeEstimatedWeight,
+			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
+		}
+
+		newShipment, err := mtoShipmentUpdater.UpdateMTOShipmentPrime(context.Background(), &updatedShipment, eTag)
+
+		suite.Require().NoError(err)
+		suite.NotEmpty(newShipment.ApprovedDate)
+		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
+		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
+		suite.True(requestedDeliveryDate.Equal(*newShipment.RequestedDeliveryDate))
+		suite.True(actualPickupDate.Equal(*newShipment.ActualPickupDate))
+		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.FirstAvailableDeliveryDate))
+		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
+		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
+		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
+		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
+		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
 	})
 }
 
