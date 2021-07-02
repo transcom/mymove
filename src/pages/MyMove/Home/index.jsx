@@ -134,10 +134,8 @@ export class Home extends Component {
     if (this.hasUnapprovedAmendedOrders) {
       return (
         <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
-          <p>
-            The transportation office will review your new documents and update your move info. Contact your movers to
-            coordinate any changes to your move.
-          </p>
+          The transportation office will review your new documents and update your move info. Contact your movers to
+          coordinate any changes to your move.
           <p>You don&apos;t need to do anything else in MilMove.</p>
         </Alert>
       );
