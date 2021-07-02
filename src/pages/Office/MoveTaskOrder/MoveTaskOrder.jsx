@@ -102,8 +102,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
       mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
         newMTOServiceItem;
-      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, false], mtoServiceItems);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveTaskOrderId]);
+      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
       setIsModalVisible(false);
       setSelectedServiceItem({});
     },

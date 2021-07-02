@@ -59,17 +59,11 @@ export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }
 
-export async function patchMTOServiceItemStatus({
-  moveTaskOrderId,
-  mtoServiceItemID,
-  ifMatchEtag,
-  status,
-  rejectionReason,
-}) {
+export async function patchMTOServiceItemStatus({ moveId, mtoServiceItemID, ifMatchEtag, status, rejectionReason }) {
   return makeGHCRequest(
     'mtoServiceItem.updateMTOServiceItemStatus',
     {
-      moveTaskOrderID: moveTaskOrderId,
+      moveTaskOrderID: moveId,
       mtoServiceItemID,
       'If-Match': ifMatchEtag,
       body: { status, rejectionReason },

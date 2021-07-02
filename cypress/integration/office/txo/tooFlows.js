@@ -111,7 +111,6 @@ describe('TOO user', () => {
       cy.get('tbody tr').should('have.length', 2);
       cy.get('.acceptButton').first().click();
     });
-    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.contains('Approved service items (7 items)');
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
 
