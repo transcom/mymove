@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -457,8 +459,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 		handler := UpdateMTOPostCounselingInformationHandler{
@@ -501,9 +504,10 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,

@@ -15,6 +15,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/go-openapi/swag"
@@ -45,7 +47,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
-	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -233,11 +236,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		// Minimal MTO Shipment has only pickup address created by default
 		// Part of this test ensures that if an address doesn't exist on a shipment,
 		// the updater can successfully create it.
-		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusDraft,
-			},
-		})
+		oldShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 
@@ -265,7 +264,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			FirstAvailableDeliveryDate:       &firstAvailableDeliveryDate,
 			PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightRecordedDate,
 			Status:                           models.MTOShipmentStatusSubmitted,
-			Diversion:                        true,
 			CustomerRemarks:                  &customerRemarks,
 			CounselorRemarks:                 &counselorRemarks,
 		}
@@ -285,7 +283,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
 		suite.Equal(counselorRemarks, *newShipment.CounselorRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
-		suite.Equal(true, newShipment.Diversion)
 		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
@@ -530,7 +527,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
 
 	builder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
 		mock.Anything,
@@ -865,7 +863,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	updater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	updater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(primeShipment.ID)

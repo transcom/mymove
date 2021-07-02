@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
@@ -72,7 +74,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 	router := NewShipmentRouter(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
 	approver := NewShipmentApprover(suite.DB(), router, siCreator, planner)
 

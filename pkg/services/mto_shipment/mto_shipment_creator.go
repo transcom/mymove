@@ -3,8 +3,6 @@ package mtoshipment
 import (
 	"fmt"
 
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
@@ -28,12 +26,12 @@ type mtoShipmentCreator struct {
 	db      *pop.Connection
 	builder createMTOShipmentQueryBuilder
 	services.Fetcher
-	createNewBuilder      func(db *pop.Connection) createMTOShipmentQueryBuilder
-	mtoServiceItemCreator services.MTOServiceItemCreator
+	createNewBuilder func(db *pop.Connection) createMTOShipmentQueryBuilder
+	moveRouter       services.MoveRouter
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBuilder, fetcher services.Fetcher) services.MTOShipmentCreator {
+func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter) services.MTOShipmentCreator {
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
@@ -43,7 +41,7 @@ func NewMTOShipmentCreator(db *pop.Connection, builder createMTOShipmentQueryBui
 		builder,
 		fetch.NewFetcher(builder),
 		createNewBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(builder),
+		moveRouter,
 	}
 }
 
@@ -218,7 +216,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 
 		// transition the move to "Approvals Requested" if a shipment was created with the "Submitted" status:
 		if shipment.Status == models.MTOShipmentStatusSubmitted && move.Status == models.MoveStatusAPPROVED {
-			err = move.SetApprovalsRequested()
+			err = f.moveRouter.SendToOfficeUser(&move)
 			if err != nil {
 				return err
 			}
