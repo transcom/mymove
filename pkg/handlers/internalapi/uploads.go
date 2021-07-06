@@ -77,7 +77,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
-	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
@@ -122,7 +122,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
-	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
@@ -142,7 +142,7 @@ type DeleteUploadsHandler struct {
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}

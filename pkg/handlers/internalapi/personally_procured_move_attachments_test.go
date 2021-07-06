@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			suite.NoError(err)
 
 			// Create upload for expense document model
-			userUploader, err := uploader.NewUserUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), 100*uploader.MB)
+			userUploader, err := uploader.NewUserUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 			suite.NoError(err)
 			//RA Summary: gosec - errcheck - Unchecked return value
 			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.

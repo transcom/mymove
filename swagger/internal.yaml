@@ -1636,6 +1636,9 @@ definitions:
         type: string
         format: mime-type
         example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
       bytes:
         type: integer
       status:
@@ -2085,6 +2088,10 @@ definitions:
         $ref: '#/definitions/DocumentPayload'
       uploaded_amended_orders:
         $ref: '#/definitions/DocumentPayload'
+      uploaded_amended_orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       moves:
         $ref: '#/definitions/IndexMovesPayload'
       orders_number:
@@ -2949,6 +2956,8 @@ paths:
       operationId: uploadAmendedOrders
       tags:
         - orders
+      consumes:
+        - multipart/form-data
       parameters:
         - in: path
           name: ordersId
@@ -2956,33 +2965,28 @@ paths:
           format: uuid
           required: true
           description: UUID of the order
-        - in: body
-          name: amendedOrders
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
           required: true
+      responses:
+        '201':
+          description: created upload
           schema:
             $ref: '#/definitions/UploadPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-      responses:
-        '200':
-          description: the instance of the amended orders
-          schema:
-            $ref: '#/definitions/Orders'
         '400':
           description: invalid request
-        '401':
-          description: request requires user authentication
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
         '403':
-          description: user is not authorized
+          description: not authorized
         '404':
-          description: order is not found
+          description: not found
+        '413':
+          description: payload is too large
         '500':
-          description: internal server error
+          description: server error
   /moves/{moveId}:
     patch:
       summary: Patches the move

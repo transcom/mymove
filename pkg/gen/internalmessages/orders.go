@@ -100,6 +100,10 @@ type Orders struct {
 	// uploaded amended orders
 	UploadedAmendedOrders *DocumentPayload `json:"uploaded_amended_orders,omitempty"`
 
+	// uploaded amended orders id
+	// Format: uuid
+	UploadedAmendedOrdersID strfmt.UUID `json:"uploaded_amended_orders_id,omitempty"`
+
 	// uploaded orders
 	// Required: true
 	UploadedOrders *DocumentPayload `json:"uploaded_orders"`
@@ -170,6 +174,10 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUploadedAmendedOrders(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedAmendedOrdersID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -408,6 +416,19 @@ func (m *Orders) validateUploadedAmendedOrders(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Orders) validateUploadedAmendedOrdersID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedAmendedOrdersID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("uploaded_amended_orders_id", "body", "uuid", m.UploadedAmendedOrdersID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
