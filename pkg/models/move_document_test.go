@@ -99,7 +99,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	}
 
 	// When: the logged in user is an office user
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
 	session.UserID = *officeUser.UserID
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp
@@ -217,7 +217,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 func (suite *ModelSuite) TestFetchMovingExpenseDocumentsAuth() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
 	authorizedSession := &auth.Session{
 		ApplicationName: auth.MilApp,
 		UserID:          sm.UserID,
@@ -278,7 +278,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	}
 
 	// When: the logged in user is an office user
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := testdatagen.MakeStubbedOfficeUser(suite.DB())
 	session.UserID = *officeUser.UserID
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp

@@ -321,6 +321,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		})
 	}
+	if api.MovesSubmitAmendedOrdersHandler == nil {
+		api.MovesSubmitAmendedOrdersHandler = moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
+		})
+	}
 	if api.MovesSubmitMoveForApprovalHandler == nil {
 		api.MovesSubmitMoveForApprovalHandler = moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
@@ -359,6 +364,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		api.BackupContactsUpdateServiceMemberBackupContactHandler = backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
+		})
+	}
+	if api.OrdersUploadAmendedOrdersHandler == nil {
+		api.OrdersUploadAmendedOrdersHandler = orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
 		})
 	}
 	if api.AccesscodeValidateAccessCodeHandler == nil {

@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../types/address';
 
@@ -21,22 +21,31 @@ function formatDestinationAddress(address) {
 function ShipmentHeading({ shipmentInfo, handleShowCancellationModal }) {
   return (
     <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
-      <h2 data-testid="office-shipment-heading-h2">{shipmentInfo.shipmentType}</h2>
+      <div className={styles.shipmentHeadingType}>
+        <h2>{shipmentInfo.shipmentType}</h2>
+        {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
+        {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
+        {!shipmentInfo.isDiversion && shipmentInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
+          <Tag>diversion requested</Tag>
+        )}
+      </div>
       <div className={styles.row}>
         <small>
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
         ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
         </small>
-        <Button
-          type="button"
-          onClick={() => handleShowCancellationModal(shipmentInfo)}
-          unstyled
-          disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
-        >
-          {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
-            ? 'Cancellation Requested'
-            : 'Request Cancellation'}
-        </Button>
+        {shipmentInfo.shipmentStatus !== shipmentStatuses.CANCELED && (
+          <Button
+            type="button"
+            onClick={() => handleShowCancellationModal(shipmentInfo)}
+            unstyled
+            disabled={shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED}
+          >
+            {shipmentInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED
+              ? 'Cancellation Requested'
+              : 'Request Cancellation'}
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -46,6 +55,7 @@ ShipmentHeading.propTypes = {
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string.isRequired,
     shipmentType: PropTypes.string.isRequired,
+    isDiversion: PropTypes.bool,
     originCity: PropTypes.string.isRequired,
     originState: PropTypes.string.isRequired,
     originPostalCode: PropTypes.string.isRequired,

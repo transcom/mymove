@@ -20,10 +20,21 @@
     p {
       @include u-text('bold');
       color: $base-darkest;
-      flex-grow: 1;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
+      display: flex;
+      min-width: 0;
+
+      span:first-child {
+        text-overflow: ellipsis;
+        flex-grow: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        padding-right: 3px;
+      }
+      span:last-child {
+        @include u-font-weight(normal);
+        color: $base;
+        white-space: nowrap;
+      }
     }
 
     button {

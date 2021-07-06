@@ -36,6 +36,7 @@ const initialValues = {
   ordersTypeDetail: 'HHG_PERMITTED',
   tac: 'Tac',
   sac: 'Sac',
+  ordersAcknowledgement: true,
 };
 
 const deptOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
@@ -45,6 +46,7 @@ const defaultProps = {
   deptIndicatorOptions: deptOptions,
   ordersTypeOptions,
   ordersTypeDetailOptions,
+  showOrdersAcknowledgement: true,
   validateTac: jest.fn,
 };
 
@@ -77,6 +79,10 @@ describe('OrdersDetailForm', () => {
     expect(wrapper.find('DropdownInput[name="ordersTypeDetail"]').prop('options')).toBe(ordersTypeDetailOptions);
   });
 
+  it('accepts showOrdersAcknowledgement prop', () => {
+    expect(wrapper.find('input[name="ordersAcknowledgement"]').prop('value')).toBe(true);
+  });
+
   it('populates initial field values', () => {
     /*
     expect(wrapper.find('[name="originDutyStation"]').value).toBe(dutyStation);
@@ -98,5 +104,31 @@ describe('OrdersDetailForm', () => {
 
     expect(wrapperWarn.find('[data-testid="textInputWarning"]').exists()).toBe(true);
     expect(wrapperWarn.find('[data-testid="textInputWarning"]').text()).toEqual(tacWarning);
+  });
+
+  it('hides hideable fields', () => {
+    const form = mountOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showTac: false,
+      showSac: false,
+      showOrdersAcknowledgement: false,
+    });
+
+    // fields are visible
+    expect(form.find('input[name="originDutyStation"]').length).toBe(1);
+    expect(form.find('input[name="newDutyStation"]').length).toBe(1);
+    expect(form.find('input[name="issueDate"]').length).toBe(1);
+    expect(form.find('input[name="reportByDate"]').length).toBe(1);
+    expect(form.find('select[name="ordersType"]').length).toBe(1);
+
+    // fields are hidden
+    expect(form.find('select[name="departmentIndicator"]').length).toBe(0);
+    expect(form.find('input[name="ordersNumber"]').length).toBe(0);
+    expect(form.find('select[name="ordersTypeDetail"]').length).toBe(0);
+    expect(form.find('input[name="tac"]').length).toBe(0);
+    expect(form.find('input[name="sac"]').length).toBe(0);
+    expect(form.find('input[name="ordersAcknowledgement"]').length).toBe(0);
   });
 });

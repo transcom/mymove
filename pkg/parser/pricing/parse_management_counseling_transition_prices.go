@@ -3,8 +3,7 @@ package pricing
 import (
 	"fmt"
 
-	"github.com/tealeg/xlsx"
-	"go.uber.org/zap"
+	"github.com/tealeg/xlsx/v3"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -20,13 +19,14 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 		return nil, fmt.Errorf("parseShipmentManagementServices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing shipment management services prices")
+	prefixPrinter := newDebugPrefix("StageShipmentManagementServicesPrice")
+
 	var mgmtPrices []models.StageShipmentManagementServicesPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := mgmtRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		shipMgmtSrvcPrice := models.StageShipmentManagementServicesPrice{
-			ContractYear:      getCell(row.Cells, contractYearColIndexStart),
-			PricePerTaskOrder: getCell(row.Cells, priceColumnIndexStart),
+			ContractYear:      mustGetCell(sheet, rowIndex, contractYearColIndexStart),
+			PricePerTaskOrder: mustGetCell(sheet, rowIndex, priceColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -34,9 +34,8 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageShipmentManagementServicesPrice", shipMgmtSrvcPrice))
-		}
+		prefixPrinter.Printf("%+v\n", shipMgmtSrvcPrice)
+
 		mgmtPrices = append(mgmtPrices, shipMgmtSrvcPrice)
 	}
 
@@ -54,13 +53,14 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 		return nil, fmt.Errorf("parseCounselingServicesPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing counseling services prices")
+	prefixPrinter := newDebugPrefix("StageCounselingServicesPrice")
+
 	var counPrices []models.StageCounselingServicesPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := counRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		cnslSrvcPrice := models.StageCounselingServicesPrice{
-			ContractYear:      getCell(row.Cells, contractYearColIndexStart),
-			PricePerTaskOrder: getCell(row.Cells, priceColumnIndexStart),
+			ContractYear:      mustGetCell(sheet, rowIndex, contractYearColIndexStart),
+			PricePerTaskOrder: mustGetCell(sheet, rowIndex, priceColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -68,9 +68,8 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageCounselingServicesPrice", cnslSrvcPrice))
-		}
+		prefixPrinter.Printf("%+v\n", cnslSrvcPrice)
+
 		counPrices = append(counPrices, cnslSrvcPrice)
 	}
 
@@ -88,13 +87,14 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 		return nil, fmt.Errorf("parseTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	logger.Info("Parsing transition prices")
+	prefixPrinter := newDebugPrefix("StageTransitionPrice")
+
 	var tranPrices []models.StageTransitionPrice
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart:]
-	for _, row := range dataRows {
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+	for rowIndex := tranRowIndexStart; rowIndex < sheet.MaxRow; rowIndex++ {
 		tranPrice := models.StageTransitionPrice{
-			ContractYear:      getCell(row.Cells, contractYearColIndexStart),
-			PricePerTaskOrder: getCell(row.Cells, priceColumnIndexStart),
+			ContractYear:      mustGetCell(sheet, rowIndex, contractYearColIndexStart),
+			PricePerTaskOrder: mustGetCell(sheet, rowIndex, priceColumnIndexStart),
 		}
 
 		// All the rows are consecutive, if we get a blank we're done
@@ -102,9 +102,8 @@ var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex
 			break
 		}
 
-		if params.ShowOutput {
-			logger.Info("", zap.Any("StageTransitionPrice", tranPrice))
-		}
+		prefixPrinter.Printf("%+v\n", tranPrice)
+
 		tranPrices = append(tranPrices, tranPrice)
 	}
 
@@ -126,42 +125,39 @@ var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamC
 	}
 
 	// Shipment Management Services Headers
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart-1 : mgmtRowIndexStart]
-	err := helperCheckHeadersFor4b("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
+
+	err := helperCheckHeadersFor4b("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, sheet, mgmtRowIndexStart-1, mgmtRowIndexStart)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart-2 : mgmtRowIndexStart-1]
-	err = helperCheckHeadersFor4b("Contract Year", "ShipmentManagementServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err = helperCheckHeadersFor4b("Contract Year", "ShipmentManagementServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, sheet, mgmtRowIndexStart-2, mgmtRowIndexStart-1)
 	if err != nil {
 		return err
 	}
 
 	// Counseling Services
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart-1 : counRowIndexStart]
-	err = helperCheckHeadersFor4b("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err = helperCheckHeadersFor4b("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, sheet, counRowIndexStart-1, counRowIndexStart)
 	if err != nil {
 		return err
 	}
 
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart-2 : counRowIndexStart-1]
-	err = helperCheckHeadersFor4b("Contract Year", "CounselingServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err = helperCheckHeadersFor4b("Contract Year", "CounselingServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, sheet, counRowIndexStart-2, counRowIndexStart-1)
 	if err != nil {
 		return err
 	}
 
 	// Transition
-	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart-1 : tranRowIndexStart]
-	return helperCheckHeadersFor4b("Contract Year", "TransitionPrice($totalcost)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	return helperCheckHeadersFor4b("Contract Year", "TransitionPrice($totalcost)", contractYearColIndexStart, priceColumnIndexStart, sheet, tranRowIndexStart-1, tranRowIndexStart)
 }
 
-func helperCheckHeadersFor4b(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, dataRows []*xlsx.Row) error {
-	for _, dataRow := range dataRows {
-		if header := getCell(dataRow.Cells, contractYearColIndexStart); header != contractYearHeader {
+func helperCheckHeadersFor4b(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, sheet *xlsx.Sheet, dataRowsIndexBegin, dataRowsIndexEnd int) error {
+	for rowIndex := dataRowsIndexBegin; rowIndex < dataRowsIndexEnd; rowIndex++ {
+		if header := mustGetCell(sheet, rowIndex, contractYearColIndexStart); header != contractYearHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
 		}
-		if header := removeWhiteSpace(getCell(dataRow.Cells, priceColumnIndexStart)); header != priceColumnHeader {
+		if header := removeWhiteSpace(mustGetCell(sheet, rowIndex, priceColumnIndexStart)); header != priceColumnHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", priceColumnHeader, header)
 		}
 	}

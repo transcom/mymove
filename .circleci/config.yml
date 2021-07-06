@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-55d6d1fc05e24d833c7b6ddc8f43ca901a40f22c
 
   postgres: &postgres postgres:12.4
 
@@ -258,6 +258,42 @@ commands:
           name: Check deployed commits
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
       - announce_failure
+  deploy_app_niprnet_steps:
+    parameters:
+      compare_host:
+        type: string
+      health_check_hosts:
+        type: string
+      ecr_env:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - deploy:
+          name: Deploy app-niprnet service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-niprnet "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+          no_output_timeout: 20m
+      - run:
+          name: Health Check
+          command: bin/health-checker --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: TLS Check
+          command: bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
+      - announce_failure
   deploy_app_client_tls_steps:
     parameters:
       compare_host:
@@ -283,6 +319,44 @@ commands:
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+          no_output_timeout: 20m
+      - run:
+          name: Health Check
+          command: |
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: TLS Check
+          command: |
+            bin/tls-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+      - announce_failure
+  deploy_app_client_tls_niprnet_steps:
+    parameters:
+      compare_host:
+        type: string
+      health_check_hosts:
+        type: string
+      ecr_env:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Get Digest from filesystem
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
+      - deploy:
+          name: Deploy app-client-tls-niprnet service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls-niprnet "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
           no_output_timeout: 20m
       - run:
           name: Health Check
@@ -430,6 +504,18 @@ commands:
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
       - run:
+          name: make db_test_truncate for <<parameters.application>>
+          command: make db_test_truncate
+          environment:
+            APPLICATION: '<< parameters.application >>'
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+      - run:
           name: make server_test_standalone for <<parameters.application>>
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
@@ -556,7 +642,7 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: rm -rf pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate mocks_generate
-      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "mocks" -exec echo -n '{} ' \;)
+      - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -1012,6 +1098,9 @@ jobs:
           root: /home/circleci/transcom/mymove/
           paths:
             - storybook-static
+      - store_artifacts:
+          path: ~/transcom/mymove/storybook-static
+          destination: storybook
       - announce_failure
 
   # `build_migrations` builds the migrations container
@@ -1302,6 +1391,18 @@ jobs:
           health_check_hosts: my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
           ecr_env: stg
 
+  # `deploy_stg_app_niprnet` updates the server-TLS app service in stg environment for NIPRNet
+  deploy_stg_app_niprnet:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_app_niprnet_steps:
+          compare_host: my.stg.move.mil
+          health_check_hosts: my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
+          ecr_env: stg
+
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
     executor: mymove_small
@@ -1310,6 +1411,18 @@ jobs:
     steps:
       - aws_vars_stg
       - deploy_app_client_tls_steps:
+          compare_host: gex.stg.move.mil
+          health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
+          ecr_env: stg
+
+  # `deploy_stg_app_client_tls_niprnet` updates the mutual-TLS service in the stg environment for NIPRNet
+  deploy_stg_app_client_tls_niprnet:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_app_client_tls_niprnet_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
           ecr_env: stg
@@ -1622,7 +1735,21 @@ workflows:
             branches:
               only: master
 
+      - deploy_stg_app_niprnet:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: master
+
       - deploy_stg_app_client_tls:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_stg_app_client_tls_niprnet:
           requires:
             - deploy_stg_migrations
           filters:
@@ -1641,7 +1768,9 @@ workflows:
           requires:
             - deploy_stg_tasks
             - deploy_stg_app
+            - deploy_stg_app_niprnet
             - deploy_stg_app_client_tls
+            - deploy_stg_app_client_tls_niprnet
             - deploy_stg_webhook_client
 
       - deploy_storybook_dp3:

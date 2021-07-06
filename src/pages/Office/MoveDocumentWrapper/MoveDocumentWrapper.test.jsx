@@ -1,9 +1,8 @@
-import React, { Suspense } from 'react';
-import { mount } from 'enzyme';
+import React from 'react';
+import { shallow } from 'enzyme';
+import { useLocation } from 'react-router-dom';
 
 import MoveDocumentWrapper from './MoveDocumentWrapper';
-
-import { MockProviders } from 'testUtils';
 
 const mockOriginDutyStation = {
   address: {
@@ -79,20 +78,27 @@ jest.mock('hooks/queries', () => ({
       documents: {
         2: {
           id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
+          uploads: ['z'],
         },
       },
       upload: {
         z: {
           id: 'z',
           filename: 'test.pdf',
+          contentType: 'application/pdf',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+      },
+      amendedDocuments: {
+        3: {
+          id: '3',
+          uploads: ['x'],
+        },
+      },
+      amendedUpload: {
+        x: {
+          id: 'z',
+          filename: 'amended_test.pdf',
           contentType: 'application/pdf',
           url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
         },
@@ -106,23 +112,46 @@ const testMoveId = '10000';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: jest.fn().mockReturnValue({ orderId: testMoveId }),
+  useLocation: jest.fn(),
 }));
 
 describe('MoveDocumentWrapper', () => {
-  const wrapper = mount(
-    <MockProviders initialEntries={[`/moves/${testMoveId}/orders`]}>
-      <Suspense fallback={<div>Loading</div>}>
-        <MoveDocumentWrapper />
-      </Suspense>
-    </MockProviders>,
-  );
+  it('renders the document viewer', () => {
+    useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/orders` }));
+    const wrapper = shallow(<MoveDocumentWrapper />);
 
-  it('renders the orders document viewer', () => {
     expect(wrapper.find('DocumentViewer').exists()).toBe(true);
   });
 
-  it('renders the sidebar orders detail form', async () => {
-    await wrapper.update();
-    expect(wrapper.find('OrdersDetailForm').exists()).toBe(true);
+  it('renders the sidebar Orders component', () => {
+    useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/orders` }));
+    const wrapper = shallow(<MoveDocumentWrapper />);
+    expect(wrapper.find('Orders').exists()).toBe(true);
+  });
+
+  it('renders the sidebar MoveAllowances component', () => {
+    useLocation.mockImplementation(() => ({ pathname: `/moves/${testMoveId}/allowances` }));
+    const wrapper = shallow(<MoveDocumentWrapper />);
+    expect(wrapper.find('MoveAllowances').exists()).toBe(true);
+  });
+
+  it('combines orders and amended orders', () => {
+    const wrapper = shallow(<MoveDocumentWrapper />);
+    expect(wrapper.find('DocumentViewer').props('files')).toEqual({
+      files: [
+        {
+          contentType: 'application/pdf',
+          filename: 'test.pdf',
+          id: 'z',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+        {
+          contentType: 'application/pdf',
+          filename: 'amended_test.pdf',
+          id: 'z',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
+      ],
+    });
   });
 });

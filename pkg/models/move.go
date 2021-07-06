@@ -81,22 +81,22 @@ type Move struct {
 	UpdatedAt                    time.Time               `json:"updated_at" db:"updated_at"`
 	SubmittedAt                  *time.Time              `json:"submitted_at" db:"submitted_at"`
 	OrdersID                     uuid.UUID               `json:"orders_id" db:"orders_id"`
-	Orders                       Order                   `belongs_to:"orders"`
+	Orders                       Order                   `belongs_to:"orders" fk_id:"orders_id"`
 	SelectedMoveType             *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	MoveDocuments                MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
+	PersonallyProcuredMoves      PersonallyProcuredMoves `has_many:"personally_procured_moves" fk_id:"move_id" order_by:"created_at desc"`
+	MoveDocuments                MoveDocuments           `has_many:"move_documents" fk_id:"move_id" order_by:"created_at desc"`
 	Status                       MoveStatus              `json:"status" db:"status"`
-	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
+	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
 	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                         *bool                   `json:"show" db:"show"`
 	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
 	ContractorID                 *uuid.UUID              `db:"contractor_id"`
-	Contractor                   *Contractor             `belongs_to:"contractors"`
+	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`
 	PPMEstimatedWeight           *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                      *string                 `db:"ppm_type"`
-	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items"`
-	PaymentRequests              PaymentRequests         `has_many:"payment_requests"`
-	MTOShipments                 MTOShipments            `has_many:"mto_shipments"`
+	MTOServiceItems              MTOServiceItems         `has_many:"mto_service_items" fk_id:"move_id"`
+	PaymentRequests              PaymentRequests         `has_many:"payment_requests" fk_id:"move_id"`
+	MTOShipments                 MTOShipments            `has_many:"mto_shipments" fk_id:"move_id"`
 	ReferenceID                  *string                 `db:"reference_id"`
 	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
 }
@@ -132,136 +132,6 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// State Machine
-// Avoid calling Move.Status = ... ever. Use these methods to change the state.
-
-// Submit submits the Move
-func (m *Move) Submit() error {
-	if m.Status != MoveStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, "Submit")
-	}
-	m.Status = MoveStatusSUBMITTED
-	submitDate := swag.Time(time.Now())
-	m.SubmittedAt = submitDate
-
-	// Update PPM status too
-	for i := range m.PersonallyProcuredMoves {
-		ppm := &m.PersonallyProcuredMoves[i]
-		err := ppm.Submit(*submitDate)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, ppm := range m.PersonallyProcuredMoves {
-		if ppm.Advance != nil {
-			err := ppm.Advance.Request()
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// SendToServiceCounseling sends the move to needs service counseling
-func (m *Move) SendToServiceCounseling() error {
-	if m.Status != MoveStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s", m.Status))
-	}
-	m.Status = MoveStatusNeedsServiceCounseling
-	submitDate := swag.Time(time.Now())
-	m.SubmittedAt = submitDate
-
-	return nil
-}
-
-var validStatusesBeforeApproval = []MoveStatus{
-	MoveStatusSUBMITTED,
-	MoveStatusAPPROVALSREQUESTED,
-	MoveStatusServiceCounselingCompleted,
-}
-
-func statusSliceContains(statusSlice []MoveStatus, status MoveStatus) bool {
-	for _, validStatus := range statusSlice {
-		if status == validStatus {
-			return true
-		}
-	}
-	return false
-}
-
-// Approve approves the Move
-func (m *Move) Approve() error {
-	if m.approvable() {
-		m.Status = MoveStatusAPPROVED
-		return nil
-	}
-	if m.alreadyApproved() {
-		return nil
-	}
-	return errors.Wrap(
-		ErrInvalidTransition, fmt.Sprintf(
-			"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
-			validStatusesBeforeApproval, m.Status,
-		),
-	)
-}
-
-func (m *Move) alreadyApproved() bool {
-	return m.Status == MoveStatusAPPROVED
-}
-
-func (m *Move) approvable() bool {
-	return statusSliceContains(validStatusesBeforeApproval, m.Status)
-}
-
-// SetApprovalsRequested sets the move to approvals requested
-func (m *Move) SetApprovalsRequested() error {
-	// Do nothing if it's already in the desired state
-	if m.Status == MoveStatusAPPROVALSREQUESTED {
-		return nil
-	}
-	if m.Status != MoveStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Approvals Requested' from the 'Approved' status, but its current status is %s.", m.ID, m.Status))
-	}
-	m.Status = MoveStatusAPPROVALSREQUESTED
-	return nil
-}
-
-// Cancel cancels the Move and its associated PPMs
-func (m *Move) Cancel(reason string) error {
-	// We can cancel any move that isn't already complete.
-	if m.Status == MoveStatusCANCELED {
-		return errors.Wrap(ErrInvalidTransition, "Cancel")
-	}
-
-	m.Status = MoveStatusCANCELED
-
-	// If a reason was submitted, add it to the move record.
-	if reason != "" {
-		m.CancelReason = &reason
-	}
-
-	// This will work only if you use the PPM in question rather than a var representing it
-	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range m.PersonallyProcuredMoves {
-		err := m.PersonallyProcuredMoves[i].Cancel()
-		if err != nil {
-			return err
-		}
-	}
-
-	// TODO: Orders can exist after related moves are canceled
-	err := m.Orders.Cancel()
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
@@ -269,9 +139,12 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.DestinationAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
 		"SignedCertifications",
 		"Orders",
+		"Orders.UploadedAmendedOrders",
 		"MoveDocuments.Document",
 	).Where("show = TRUE").Find(&move, id)
 
@@ -654,10 +527,11 @@ func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 
-	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&Move{})
+	exists, err := db.Where(`reference_id= $1`, newReferenceID).Exists(&Move{})
+
 	if err != nil {
 		return "", err
-	} else if count > 0 {
+	} else if exists {
 		return "", errors.New("move: reference_id already exists")
 	}
 

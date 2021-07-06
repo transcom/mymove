@@ -34,8 +34,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest 
 			query.NewQueryFilter("payment_request_id", "=", id),
 			query.NewQueryFilter("status", "=", models.PaymentServiceItemStatusRequested),
 		}
-		associations := query.NewQueryAssociations([]services.QueryAssociation{})
-		error := p.builder.FetchMany(&paymentServiceItems, serviceItemFilter, associations, nil, nil)
+		error := p.builder.FetchMany(&paymentServiceItems, serviceItemFilter, nil, nil, nil)
 
 		if error != nil {
 			return nil, error

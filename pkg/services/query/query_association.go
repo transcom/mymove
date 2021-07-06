@@ -22,6 +22,7 @@ func NewQueryAssociation(field string) services.QueryAssociation {
 
 type queryAssociations struct {
 	associations []services.QueryAssociation
+	preload      bool
 }
 
 // StringGetAssociations returns a slice of string associations
@@ -35,9 +36,23 @@ func (qa queryAssociations) StringGetAssociations() []string {
 	return associations
 }
 
+// Preload returns whether the association should be preloaded or not
+func (qa queryAssociations) Preload() bool {
+	return qa.preload
+}
+
 // NewQueryAssociations returns new query associations
 func NewQueryAssociations(associations []services.QueryAssociation) services.QueryAssociations {
 	return queryAssociations{
 		associations,
+		false,
+	}
+}
+
+// NewQueryAssociationsPreload returns new query associations using preload
+func NewQueryAssociationsPreload(associations []services.QueryAssociation) services.QueryAssociations {
+	return queryAssociations{
+		associations,
+		true,
 	}
 }

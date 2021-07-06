@@ -11,11 +11,6 @@ import (
 )
 
 func (suite *ModelSuite) Test_PrimeUploadCreate() {
-	t := suite.T()
-
-	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
-
 	upload := models.Upload{
 		Filename:    "test.pdf",
 		Bytes:       1048576,
@@ -24,76 +19,22 @@ func (suite *ModelSuite) Test_PrimeUploadCreate() {
 		UploadType:  models.UploadTypePRIME,
 	}
 
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
-	}
+	verrs, err := upload.Validate(nil)
 
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect PrimeUpload validation errors: %v", verrs)
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 
 	primeUpload := models.PrimeUpload{
-		ProofOfServiceDocID: posDoc.ID,
-		ContractorID:        contractor.ID,
+		ID:                  uuid.Must(uuid.NewV4()),
+		ProofOfServiceDocID: uuid.Must(uuid.NewV4()),
+		ContractorID:        uuid.Must(uuid.NewV4()),
 		Upload:              upload,
 	}
 
-	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
+	verrs, err = primeUpload.Validate(nil)
 
-	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect PrimeUpload validation errors: %v", verrs)
-	}
-}
-
-func (suite *ModelSuite) Test_PrimeUploadCreateWithID() {
-	t := suite.T()
-
-	upload := models.Upload{
-		Filename:    "test.pdf",
-		Bytes:       1048576,
-		ContentType: "application/pdf",
-		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		UploadType:  models.UploadTypePRIME,
-	}
-
-	verrs, err := suite.DB().ValidateAndSave(&upload)
-	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect PrimeUpload validation errors: %v", verrs)
-	}
-
-	posDoc := testdatagen.MakeDefaultProofOfServiceDoc(suite.DB())
-	contractor := testdatagen.MakeDefaultContractor(suite.DB())
-
-	id := uuid.Must(uuid.NewV4())
-	primeUpload := models.PrimeUpload{
-		ID:                  id,
-		ProofOfServiceDocID: posDoc.ID,
-		ContractorID:        contractor.ID,
-		Upload:              upload,
-	}
-
-	verrs, err = suite.DB().ValidateAndSave(&primeUpload)
-
-	if err != nil {
-		t.Fatalf("could not save PrimeUpload: %v", err)
-	}
-
-	if verrs.Count() != 0 {
-		t.Errorf("did not expect PrimeUpload validation errors: %v", verrs)
-	}
-
-	if primeUpload.ID.String() != id.String() {
-		t.Errorf("wrong uuid for PrimeUpload: expected %s, got %s", id.String(), primeUpload.ID.String())
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) Test_PrimeUploadValidations() {

@@ -39,19 +39,20 @@ func Move(move *models.Move) *ghcmessages.Move {
 	}
 
 	payload := &ghcmessages.Move{
-		ID:                 strfmt.UUID(move.ID.String()),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ContractorID:       handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:         Contractor(move.Contractor),
-		Locator:            move.Locator,
-		OrdersID:           strfmt.UUID(move.OrdersID.String()),
-		Orders:             Order(&move.Orders),
-		ReferenceID:        handlers.FmtStringPtr(move.ReferenceID),
-		Status:             ghcmessages.MoveStatus(move.Status),
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		SubmittedAt:        handlers.FmtDateTimePtr(move.SubmittedAt),
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		ID:                           strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:                   Contractor(move.Contractor),
+		Locator:                      move.Locator,
+		OrdersID:                     strfmt.UUID(move.OrdersID.String()),
+		Orders:                       Order(&move.Orders),
+		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
+		Status:                       ghcmessages.MoveStatus(move.Status),
+		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
+		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
+		ETag:                         etag.GenerateEtag(move.UpdatedAt),
+		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
 	}
 
 	return payload
@@ -91,6 +92,8 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		ID:             strfmt.UUID(customer.ID.String()),
 		LastName:       swag.StringValue(customer.LastName),
 		Phone:          customer.Telephone,
+		Suffix:         customer.Suffix,
+		MiddleName:     customer.MiddleName,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 		BackupContact:  BackupContact(customer.BackupContacts),
@@ -140,27 +143,29 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
-		Grade:                  &grade,
-		OrderNumber:            order.OrdersNumber,
-		OrderTypeDetail:        &ordersTypeDetail,
-		ID:                     strfmt.UUID(order.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(order.UpdatedAt),
-		Agency:                 branch,
-		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:               Customer(&order.ServiceMember),
-		FirstName:              swag.StringValue(order.ServiceMember.FirstName),
-		LastName:               swag.StringValue(order.ServiceMember.LastName),
-		ReportByDate:           strfmt.Date(order.ReportByDate),
-		DateIssued:             strfmt.Date(order.IssueDate),
-		OrderType:              ghcmessages.OrdersType(order.OrdersType),
-		DepartmentIndicator:    &deptIndicator,
-		Tac:                    handlers.FmtStringPtr(order.TAC),
-		Sac:                    handlers.FmtStringPtr(order.SAC),
-		UploadedOrderID:        strfmt.UUID(order.UploadedOrdersID.String()),
-		MoveCode:               moveCode,
+		DestinationDutyStation:      destinationDutyStation,
+		Entitlement:                 entitlements,
+		Grade:                       &grade,
+		OrderNumber:                 order.OrdersNumber,
+		OrderTypeDetail:             &ordersTypeDetail,
+		ID:                          strfmt.UUID(order.ID.String()),
+		OriginDutyStation:           originDutyStation,
+		ETag:                        etag.GenerateEtag(order.UpdatedAt),
+		Agency:                      branch,
+		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                    Customer(&order.ServiceMember),
+		FirstName:                   swag.StringValue(order.ServiceMember.FirstName),
+		LastName:                    swag.StringValue(order.ServiceMember.LastName),
+		ReportByDate:                strfmt.Date(order.ReportByDate),
+		DateIssued:                  strfmt.Date(order.IssueDate),
+		OrderType:                   ghcmessages.OrdersType(order.OrdersType),
+		DepartmentIndicator:         &deptIndicator,
+		Tac:                         handlers.FmtStringPtr(order.TAC),
+		Sac:                         handlers.FmtStringPtr(order.SAC),
+		UploadedOrderID:             strfmt.UUID(order.UploadedOrdersID.String()),
+		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
+		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
+		MoveCode:                    moveCode,
 	}
 
 	return &payload
@@ -276,8 +281,9 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             mtoShipment.ShipmentType,
+		ShipmentType:             ghcmessages.MTOShipmentType(mtoShipment.ShipmentType),
 		Status:                   ghcmessages.MTOShipmentStatus(mtoShipment.Status),
+		CounselorRemarks:         mtoShipment.CounselorRemarks,
 		CustomerRemarks:          mtoShipment.CustomerRemarks,
 		RejectionReason:          mtoShipment.RejectionReason,
 		PickupAddress:            Address(mtoShipment.PickupAddress),
@@ -288,21 +294,28 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
+		Diversion:                mtoShipment.Diversion,
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		DeletedAt:                handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
+		ApprovedDate:             handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
+	if mtoShipment.ActualPickupDate != nil && !mtoShipment.ActualPickupDate.IsZero() {
+		payload.ActualPickupDate = handlers.FmtDatePtr(mtoShipment.ActualPickupDate)
+	}
+
+	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
+		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
 	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
 	return payload
@@ -596,7 +609,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(move.Status),
-			ID:                     *handlers.FmtUUID(move.Orders.ID),
+			ID:                     *handlers.FmtUUID(move.ID),
 			Locator:                move.Locator,
 			SubmittedAt:            handlers.FmtDateTimePtr(move.SubmittedAt),
 			RequestedMoveDate:      handlers.FmtDatePtr(earliestRequestedPickup),

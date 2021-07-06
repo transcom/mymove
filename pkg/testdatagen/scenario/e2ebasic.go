@@ -15,6 +15,8 @@ import (
 	"log"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
@@ -31,11 +33,17 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+/**************
+
+We should not be creating random data in e2ebasic! Tests should be deterministic.
+
+***************/
+
 // E2eBasicScenario builds a basic set of data for e2e testing
 type e2eBasicScenario NamedScenario
 
 // E2eBasicScenario Is the thing
-var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
+var E2eBasicScenario = e2eBasicScenario{Name: "e2e_basic"}
 
 // Often weekends and holidays are not allowable dates
 var cal = dates.NewUSCalendar()
@@ -44,8 +52,60 @@ var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
+func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator string) {
+	submittedAt := time.Now()
+	ordersSC := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			ProvidesServicesCounseling: true,
+		},
+	})
+
+	moveSC := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:     locator,
+			Status:      models.MoveStatusNeedsServiceCounseling,
+			SubmittedAt: &submittedAt,
+		},
+		Order: ordersSC,
+	})
+
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: moveSC,
+		MTOShipment: models.MTOShipment{
+			ShipmentType:          models.MTOShipmentTypeHHG,
+			Status:                models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate:   &requestedPickupDate,
+			RequestedDeliveryDate: &requestedDeliveryDate,
+		},
+	})
+}
+
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+	moveRouter := moverouter.NewMoveRouter(db, logger)
+	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
+	var allDutyStations []models.DutyStation
+	db.All(&allDutyStations)
+
+	var originDutyStationsInGBLOC []models.DutyStation
+	db.Where("transportation_offices.GBLOC = ?", "LKNQ").
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		All(&originDutyStationsInGBLOC)
+
 	/*
 	 * Basic user with office access
 	 */
@@ -134,7 +194,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm0.Move.Submit()
+	moveRouter.Submit(&ppm0.Move)
 	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -172,7 +232,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit()
+	moveRouter.Submit(&ppmNoAdvance.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -209,8 +269,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmStorage.Move.Submit()
-	ppmStorage.Move.Approve()
+	moveRouter.Submit(&ppmStorage.Move)
+	moveRouter.Approve(&ppmStorage.Move)
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
@@ -250,8 +310,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoStorage.Move.Submit()
-	ppmNoStorage.Move.Approve()
+	moveRouter.Submit(&ppmNoStorage.Move)
+	moveRouter.Approve(&ppmNoStorage.Move)
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
@@ -292,7 +352,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmToCancel.Move.Submit()
+	moveRouter.Submit(&ppmToCancel.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -331,8 +391,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm1.Move.Submit()
-	ppm1.Move.Approve()
+	moveRouter.Submit(&ppm1.Move)
+	moveRouter.Approve(&ppm1.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppm1.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -379,8 +439,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit()
-	ppm2.Move.Approve()
+	moveRouter.Submit(&ppm2.Move)
+	moveRouter.Approve(&ppm2.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -449,8 +509,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	}
 	testdatagen.MakeMoveDocument(db, docAssertions)
-	ppm3.Move.Submit()
-	ppm3.Move.Approve()
+	moveRouter.Submit(&ppm3.Move)
+	moveRouter.Approve(&ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -508,8 +568,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	}
 	ppmExcludedCalculations := testdatagen.MakePPM(db, assertions)
 
-	ppmExcludedCalculations.Move.Submit()
-	ppmExcludedCalculations.Move.Approve()
+	moveRouter.Submit(&ppmExcludedCalculations.Move)
+	moveRouter.Approve(&ppmExcludedCalculations.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -572,12 +632,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit()
+	moveRouter.Submit(&ppmCanceled.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-	ppmCanceled.Move.Cancel("reasons")
+	moveRouter.Cancel("reasons", &ppmCanceled.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -740,7 +800,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit()
+	moveRouter.Submit(&move)
 	verrs, err = models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -887,6 +947,91 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	/*
+	 * ANOTHER service member with an NTS, NTS-R shipment, & unsubmitted move
+	 */
+	email = "nts2@ntsr.unsubmitted"
+	uuidStr = "80da86f3-9dac-4298-8b03-b753b443668e"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithNTSID = "947645ca-06d6-4be9-82fe-3d7bd0a5792d"
+	smWithNTS = testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithNTSID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Unsubmitted"),
+			LastName:      models.StringPointer("Nts&Nts-r"),
+			Edipi:         models.StringPointer("0933240105"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	selectedMoveType = models.SelectedMoveTypeNTS
+	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
+			ServiceMember:   smWithNTS,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("a1ed9091-e44c-410c-b028-78589dbc0a77"),
+			Locator:          "NTSR02",
+			SelectedMoveType: &selectedMoveType,
+		},
+	})
+
+	estimatedNTSWeight = unit.Pound(1400)
+	actualNTSWeight = unit.Pound(2000)
+	ntsShipment = testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("52d03f2c-179e-450a-b726-23cbb99304b9"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("2675ed07-4f1e-44fd-995f-f6d6e5c461b0"),
+			MTOShipment:   ntsShipment,
+			MTOShipmentID: ntsShipment.ID,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	ntsrShipment = testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("d95ba5b9-af82-417a-b901-b25d34ce79fa"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("2068f14e-4a04-420e-a7e1-b8a89683bbe8"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	/*
 	* Creates two valid, unclaimed access codes
 	 */
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
@@ -976,8 +1121,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit()
-	ppm6.Move.Approve()
+	moveRouter.Submit(&ppm6.Move)
+	moveRouter.Approve(&ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	verrs, err = models.SaveMoveDependencies(db, &ppm6.Move)
@@ -1024,8 +1169,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm7.Move.Submit()
-	ppm7.Move.Approve()
+	moveRouter.Submit(&ppm7.Move)
+	moveRouter.Approve(&ppm7.Move)
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	verrs, err = models.SaveMoveDependencies(db, &ppm7.Move)
@@ -1072,8 +1217,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm5.Move.Submit()
-	ppm5.Move.Approve()
+	moveRouter.Submit(&ppm5.Move)
+	moveRouter.Approve(&ppm5.Move)
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1123,8 +1268,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmApproved.Move.Submit()
-	ppmApproved.Move.Approve()
+	moveRouter.Submit(&ppmApproved.Move)
+	moveRouter.Approve(&ppmApproved.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1387,15 +1532,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	dcrtCost := unit.Cents(99999)
-	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
-		},
 	})
 
 	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
@@ -1737,26 +1879,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
-	dcrtDescription := "Decorated horse head to be crated."
-	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:          uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
-			Description: &dcrtDescription,
+			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
-		},
-	})
-
-	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
-		MTOServiceItem: serviceItemDCRT,
-		MTOServiceItemDimension: models.MTOServiceItemDimension{
-			Length: 10000,
-			Height: 5000,
-			Width:  2500,
-		},
 	})
 
 	/* Customer with two payment requests */
@@ -2315,4 +2443,135 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	email = "nts.test.user@example.com"
+	uuidStr = "2194daed-3589-408f-b988-e9889c9f120e"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1319a13d-019b-4afa-b8fe-f51c15572681"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7273579005"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7c4c7aa0-9e28-4065-93d2-74ea75e6323c"),
+			Locator: "NTS000",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user1@example.com"
+	uuidStr = "4635b5a7-0f57-4557-8ba4-bbbb760c300a"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("7d756c59-1a46-4f59-9c51-6e708886eaf1"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("2342122439"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("4397b137-f4ee-49b7-baae-3aa0b237d08e"),
+			Locator: "PPM001",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user2@example.com"
+	uuidStr = "324dec0a-850c-41c8-976b-068e27121b84"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a9b51cc4-e73e-4734-9714-a2066f207c3b"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("6213314987"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a738f6b8-4dee-4875-bdb1-1b4da2aa4f4b"),
+			Locator: "PPM002",
+		},
+		UserUploader: userUploader,
+	})
+
+	email = "ppm.test.user3@example.com"
+	uuidStr = "f154929c-5f07-41f5-b90c-d90b83d5773d"
+	loginGovID = uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("9027d05d-4c4e-4e5d-9954-6a6ba4017b4d"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("7814245500"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    false,
+			SpouseHasProGear: false,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("460011f4-126d-40e5-b4f4-62cc9c2f0b7a"),
+			Locator: "PPM003",
+		},
+		UserUploader: userUploader,
+	})
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE1ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE2ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE3ET")
+	createHHGNeedsServicesCounselingWithLocator(db, "SCE4ET")
 }

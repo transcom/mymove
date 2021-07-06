@@ -7,6 +7,9 @@ import (
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"time"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
 
@@ -29,9 +32,9 @@ type BaseHandlerTestSuite struct {
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
-		PopTestSuite:       testingsuite.NewPopTestSuite(packageName),
+		PopTestSuite:       testingsuite.NewPopTestSuite(packageName, opts...),
 		logger:             logger,
 		notificationSender: sender,
 	}
@@ -228,4 +231,17 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	suite.CloseFile(returnFile)
 
 	return returnFile
+}
+
+// EqualDatePtr compares the time.Time from the model with the strfmt.date from the payload
+// If one is nil, both should be nil, else they should match in value
+// This is to be strictly used for dates as it drops any time parameters in the comparison
+func (suite *BaseHandlerTestSuite) EqualDatePtr(expected *time.Time, actual *strfmt.Date) {
+	if expected == nil || actual == nil {
+		suite.Nil(expected)
+		suite.Nil(actual)
+	} else {
+		isoDate := "2006-01-02" // Create a date format
+		suite.Equal(expected.Format(isoDate), time.Time(*actual).Format(isoDate))
+	}
 }

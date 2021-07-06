@@ -826,7 +826,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
-	suite.MustCreate(suite.DB(), &tspPerformance1)
+	suite.MustCreate(&tspPerformance1)
 
 	tspPerformance2 := TransportationServiceProviderPerformance{
 		ID:                              uuid.FromStringOrNil("5f5b3950-5962-4d54-a963-e508ef3f3252"),
@@ -841,7 +841,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(52.0),
 	}
-	suite.MustCreate(suite.DB(), &tspPerformance2)
+	suite.MustCreate(&tspPerformance2)
 
 	// Given matching BVS scores, the TSPP with the alphabetically first ID should be returned.  Make that our target.
 	targetTspPerformance := tspPerformance1

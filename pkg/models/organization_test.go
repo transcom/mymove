@@ -1,14 +1,10 @@
 package models_test
 
 import (
-	"github.com/gofrs/uuid"
-
 	. "github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestOrganizationCreation() {
-	t := suite.T()
-
+func (suite *ModelSuite) TestOrganizationValidation() {
 	email := "test@truss.works"
 	phone := "9144825484"
 
@@ -18,13 +14,10 @@ func (suite *ModelSuite) TestOrganizationCreation() {
 		PocPhone: &phone,
 	}
 
-	if verrs, err := suite.DB().ValidateAndCreate(&newOrganization); err != nil || verrs.HasAny() {
-		t.Fatal("Didn't create admin user in db.")
-	}
+	verrs, err := newOrganization.Validate(nil)
 
-	if newOrganization.ID == uuid.Nil {
-		t.Error("Didn't get an id back for admin user.")
-	}
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
 }
 
 func (suite *ModelSuite) TestOrganizationCreationWithoutValues() {

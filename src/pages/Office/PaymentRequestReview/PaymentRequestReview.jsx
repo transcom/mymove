@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMutation, queryCache } from 'react-query';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from './PaymentRequestReview.module.scss';
 
+import { formatPaymentRequestReviewAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MatchShape, HistoryShape } from 'types/router';
+import { HistoryShape, MatchShape } from 'types/router';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
@@ -17,9 +18,8 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
-  const { paymentRequest, paymentRequests, paymentServiceItems, isLoading, isError } = usePaymentRequestQueries(
-    paymentRequestId,
-  );
+  const { paymentRequest, paymentRequests, paymentServiceItems, mtoShipments, isLoading, isError } =
+    usePaymentRequestQueries(paymentRequestId);
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
@@ -58,6 +58,7 @@ export const PaymentRequestReview = ({ history, match }) => {
         },
       });
     },
+    throwOnError: true,
   });
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -71,7 +72,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
 
-    mutatePaymentServiceItemStatus({
+    return mutatePaymentServiceItemStatus({
       moveTaskOrderID: paymentRequest.moveTaskOrderID,
       paymentServiceItemID,
       status: values.status,
@@ -100,10 +101,19 @@ export const PaymentRequestReview = ({ history, match }) => {
   };
 
   const serviceItemCards = paymentServiceItemsArr.map((item) => {
+    const selectedShipment = mtoShipments.find((shipment) => shipment.id === item.mtoShipmentID);
     return {
       id: item.id,
       mtoShipmentID: item.mtoShipmentID,
       mtoShipmentType: item.mtoShipmentType,
+      mtoShipmentDepartureDate: selectedShipment?.actualPickupDate,
+      mtoShipmentPickupAddress: selectedShipment
+        ? formatPaymentRequestReviewAddressString(selectedShipment.pickupAddress)
+        : undefined,
+      mtoShipmentDestinationAddress: selectedShipment
+        ? formatPaymentRequestReviewAddressString(selectedShipment.destinationAddress)
+        : undefined,
+      mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
       mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
       amount: item.priceCents ? item.priceCents / 100 : 0,

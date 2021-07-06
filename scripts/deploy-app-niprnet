@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Deploy the app
+#
+
+usage() {
+  echo "$0 <environment>"
+  exit 1
+}
+
+readonly environment="${1}"
+
+[[ -z "${environment}" ]] && usage
+
+case "${environment}" in
+  stg)
+    compare_host=my.stg.move.mil
+    health_check_hosts=my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
+    export AWS_ACCOUNT_ID=015932076428
+    ;;
+  prd)
+    compare_host=my.move.mil
+    health_check_hosts=my.move.mil,office.move.mil,admin.move.mil
+    export AWS_ACCOUNT_ID=015533997236
+    ;;
+  *)
+    echo "<environment> must be one of stg or prd"
+    exit 1
+    ;;
+esac
+
+APP_ENVIRONMENT="${environment}"
+AWS_DEFAULT_REGION=us-gov-west-1
+CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
+
+scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
+
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}"
+scripts/ecs-deploy-service-container app-niprnet "${image}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+
+bin/health-checker --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m
+bin/tls-checker --schemes https --hosts "${health_check_hosts}" --log-level info --timeout 15m
+
+scripts/check-deployed-commit "${health_check_hosts}" "${CIRCLE_SHA1}"

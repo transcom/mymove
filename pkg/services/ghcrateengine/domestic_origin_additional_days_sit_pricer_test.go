@@ -3,7 +3,6 @@ package ghcrateengine
 import (
 	"fmt"
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -30,7 +29,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	paymentServiceItem := suite.setupDomesticOriginAdditionalDaysSITServiceItem()
 	pricer := NewDomesticOriginAdditionalDaysSITPricer(suite.DB())
 
-	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success using PaymentServiceItemParams", func() {
 		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(doasitTestPriceCents, priceCents)
@@ -44,33 +43,33 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success without PaymentServiceItemParams", func() {
 		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.NoError(err)
 		suite.Equal(doasitTestPriceCents, priceCents)
 	})
 
-	suite.T().Run("PriceUsingParams but sending empty params", func(t *testing.T) {
+	suite.Run("PriceUsingParams but sending empty params", func() {
 		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 		// this is the first param checked for, otherwise error doesn't matter
 		suite.Equal("could not find param with key ContractCode", err.Error())
 	})
 
-	suite.T().Run("invalid weight", func(t *testing.T) {
+	suite.Run("invalid weight", func() {
 		badWeight := unit.Pound(250)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, badWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
-	suite.T().Run("not finding a rate record", func(t *testing.T) {
+	suite.Run("not finding a rate record", func() {
 		_, _, err := pricer.Price("BOGUS", doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin additional days SIT rate")
 	})
 
-	suite.T().Run("not finding a contract year record", func(t *testing.T) {
+	suite.Run("not finding a contract year record", func() {
 		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
@@ -194,7 +193,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 			data.psiParams,
 		)
 
-		suite.T().Run(data.testDescription, func(t *testing.T) {
+		suite.Run(data.testDescription, func() {
 			_, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 			suite.Error(err)
 			suite.Contains(err.Error(), data.expectedError)

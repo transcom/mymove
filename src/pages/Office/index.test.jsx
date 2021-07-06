@@ -28,8 +28,8 @@ describe('Office App', () => {
       expect(wrapper.find('SomethingWentWrong')).toHaveLength(0);
     });
 
-    it('renders the basic header by default', () => {
-      expect(wrapper.find('QueueHeader')).toHaveLength(1);
+    it('renders the logged out header by default', () => {
+      expect(wrapper.find('LoggedOutHeader')).toHaveLength(1);
     });
 
     it('fetches initial data', () => {
@@ -406,16 +406,23 @@ describe('Office App', () => {
         },
       };
 
-      it('handles the ServicesCounselingMoveInfo URL', () => {
+      it.each([
+        [
+          'ServicesCounselorEditShipmentDetails',
+          '/counseling/moves/AU67C6/shipments/a05d0a28-3bd4-4180-88ba-0a0e7f22b14e',
+          '/counseling/moves/:moveCode/shipments/:shipmentId',
+        ],
+        ['ServicesCounselingMoveInfo', '/counseling/moves/AU67C6', '/counseling/moves/:moveCode'],
+      ])('handles a %s URL (%s) with a given path of %s', (pageName, initialURL, pathToMatch) => {
         const app = mount(
-          <MockProviders initialState={loggedInServicesCounselorState} initialEntries={['/counseling/moves/AU67C6']}>
+          <MockProviders initialState={loggedInServicesCounselorState} initialEntries={[initialURL]}>
             <ConnectedOffice />
           </MockProviders>,
         );
 
         const renderedRoute = app.find('PrivateRoute');
         expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/counseling/moves/:moveCode');
+        expect(renderedRoute.prop('path')).toEqual(pathToMatch);
       });
     });
   });

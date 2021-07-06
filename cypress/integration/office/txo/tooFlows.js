@@ -10,14 +10,16 @@ describe('TOO user', () => {
     cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
-    cy.intercept('**/ghc/v1/orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/approve').as('approveShipment');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
 
-    const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
+    // This user has multiple roles, which is the kind of user we use to test in staging.
+    // By using this type of user, we can catch bugs like the one fixed in PR 6706.
+    const userId = '8d78c849-0853-4eb8-a7a7-73055db7a6a8';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
   });
 
@@ -64,12 +66,12 @@ describe('TOO user', () => {
 
       // Click approve
       cy.contains('Approve and send').click();
-      cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
+      cy.wait(['@approveShipment', '@patchMTOStatus']);
     });
 
     // Redirected to Move Task Order page
     cy.url().should('include', `/moves/${moveLocator}/mto`);
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ShipmentContainer"]');
     cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
 
@@ -92,7 +94,7 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
@@ -298,7 +300,7 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
@@ -314,7 +316,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.wait(['@patchMTOShipmentStatus']);
+    cy.wait(['@requestShipmentCancellation']);
     // After updating, the button is disabeld and an alert is shown
     cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
     cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');

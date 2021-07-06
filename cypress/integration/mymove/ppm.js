@@ -11,7 +11,7 @@ describe('the PPM flow', function () {
 
   it('can submit a PPM move', () => {
     // profile2@complete.draft
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
+    const userId = '4635b5a7-0f57-4557-8ba4-bbbb760c300a';
     cy.apiSignInAsPpmUser(userId);
     SMSubmitsMove();
   });
@@ -25,14 +25,14 @@ describe('the PPM flow', function () {
 
   it('doesn’t allow a user to enter the same origin and destination zip', () => {
     // profile@co.mple.te
-    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    const userId = '324dec0a-850c-41c8-976b-068e27121b84';
     cy.apiSignInAsPpmUser(userId);
     SMInputsSamePostalCodes();
   });
 
   it('doesn’t allow SM to progress if don’t have rate data for zips"', () => {
     // profile@co.mple.te
-    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    const userId = 'f154929c-5f07-41f5-b90c-d90b83d5773d';
     cy.apiSignInAsPpmUser(userId);
     SMInputsInvalidPostalCodes();
   });
@@ -63,7 +63,7 @@ describe('the PPM flow', function () {
 
 function SMSubmitsMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -163,10 +163,11 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-testid="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  // we are hardcoding PPM rates so this will never come with this message
+  // cy.get('[data-icon="question-circle"]').click();
+  // cy.get('[data-testid="tooltip"]').contains(
+  //   'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+  // );
   cy.nextPage();
 
   cy.location().should((loc) => {

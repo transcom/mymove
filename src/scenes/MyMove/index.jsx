@@ -1,17 +1,17 @@
 import React, { Component, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { LastLocationProvider } from 'react-router-last-location';
-
 import { Route, Switch } from 'react-router-dom';
 import { push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { GovBanner } from '@trussworks/react-uswds';
 
-import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'styles/customer.scss';
 
-import Header from 'shared/Header/MyMove';
+import BypassBlock from 'components/BypassBlock';
+import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
+import CustomerLoggedInHeader from 'containers/Headers/CustomerLoggedInHeader';
 import Alert from 'shared/Alert';
 import Footer from 'components/Customer/Footer';
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
@@ -23,6 +23,7 @@ import { withContext } from 'shared/AppContext';
 import { no_op } from 'shared/utils';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
+import { selectIsLoggedIn } from 'store/auth/selectors';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -60,6 +61,7 @@ const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
+const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -98,13 +100,17 @@ export class CustomerApp extends Component {
 
   render() {
     const props = this.props;
+    const { userIsLoggedIn } = this.props;
     const { hasError } = this.state;
 
     return (
       <>
         <LastLocationProvider>
           <div className="my-move site" id="app-root">
-            <Header />
+            <BypassBlock />
+            <GovBanner />
+
+            {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
 
             <main role="main" className="site__content my-move-container" id="main">
               <ConnectedLogoutOnInactivity />
@@ -164,6 +170,7 @@ export class CustomerApp extends Component {
                     component={EditContactInfo}
                   />
                   <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"
                     component={EditDateAndLocation}
@@ -214,6 +221,7 @@ CustomerApp.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
   initOnboarding: PropTypes.func,
+  userIsLoggedIn: PropTypes.bool,
   conusStatus: PropTypes.string,
   context: PropTypes.shape({
     flags: PropTypes.shape({
@@ -227,6 +235,7 @@ CustomerApp.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
   initOnboarding: no_op,
+  userIsLoggedIn: false,
   conusStatus: '',
   context: {
     flags: {
@@ -242,6 +251,7 @@ const mapStateToProps = (state) => {
   const move = selectCurrentMove(state) || {};
 
   return {
+    userIsLoggedIn: selectIsLoggedIn(state),
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: selectHasCanceledMove(state),
     moveId: move?.id,
@@ -250,16 +260,12 @@ const mapStateToProps = (state) => {
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      goBack,
-      push,
-      loadInternalSchema,
-      loadUser: loadUserAction,
-      initOnboarding: initOnboardingAction,
-    },
-    dispatch,
-  );
+const mapDispatchToProps = {
+  goBack,
+  push,
+  loadInternalSchema,
+  loadUser: loadUserAction,
+  initOnboarding: initOnboardingAction,
+};
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(CustomerApp));

@@ -30,4 +30,8 @@
       align-self: center;
     }
   }
+
+  .noPaddingBottom {
+    @include u-padding-bottom(0)
+  }
 }

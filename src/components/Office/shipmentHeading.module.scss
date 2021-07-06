@@ -3,9 +3,29 @@
 @import '../../shared/styles/colors';
 
 .shipmentHeading {
-  h3 {
-    @include u-margin-bottom(0);
+  .shipmentHeadingType {
+    @include u-display(flex);
+    @include u-padding-top(2);
+    @include u-margin-bottom(1);
+    align-items: center;
+
+    h2 {
+      @include u-margin-y(0);
+    }
+
+    :global(.usa-tag) {
+      @include u-font-size('body', 3xs);
+      @include u-margin-left(1);
+      background-color: $info-light;
+    }
+
+    :global(.usa-tag--red) {
+      @include u-font-size('body', 3xs);
+      @include u-margin-left(1);
+      background-color: $error-light;
+    }
   }
+
   small {
     @include u-text('base-light');
   }

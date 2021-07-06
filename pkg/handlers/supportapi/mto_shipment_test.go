@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -25,7 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
+func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -71,7 +73,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Used for all tests except 500 error:
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(queryBuilder)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,

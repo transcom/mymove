@@ -10,7 +10,6 @@
 package models_test
 
 import (
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -129,122 +128,6 @@ func (suite *ModelSuite) TestFetchMove() {
 	})
 }
 
-func (suite *ModelSuite) TestMoveCancellationWithReason() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
-	suite.MustSave(&orders)
-	testdatagen.MakeDefaultContractor(suite.DB())
-
-	selectedMoveType := SelectedMoveTypeHHGPPM
-
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	move.Orders = orders
-	reason := "SM's orders revoked"
-
-	// Check to ensure move shows SUBMITTED before Cancel()
-	err = move.Submit()
-	suite.NoError(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-
-	// Can cancel move, and status changes as expected
-	err = move.Cancel(reason)
-	suite.NoError(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-	suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
-
-}
-
-func (suite *ModelSuite) TestMoveStateMachine() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
-	suite.MustSave(&orders)
-	testdatagen.MakeDefaultContractor(suite.DB())
-
-	selectedMoveType := SelectedMoveTypeHHGPPM
-
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	reason := ""
-	move.Orders = orders
-
-	// Create PPM on this move
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: PersonallyProcuredMove{
-			Move:      *move,
-			MoveID:    move.ID,
-			Status:    PPMStatusDRAFT,
-			Advance:   &advance,
-			AdvanceID: &advance.ID,
-		},
-	})
-	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
-
-	// Once submitted
-	err = move.Submit()
-	suite.MustSave(move)
-	suite.DB().Reload(move)
-	suite.NoError(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
-	// Can cancel move
-	err = move.Cancel(reason)
-	suite.NoError(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-	suite.Nil(move.CancelReason)
-}
-
-func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
-	// Given: A move with Orders, PPM and Move all in submitted state
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
-	suite.MustSave(&orders)
-	testdatagen.MakeDefaultContractor(suite.DB())
-
-	selectedMoveType := SelectedMoveTypeHHGPPM
-
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	move.Orders = orders
-
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
-
-	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.NoError(err)
-	suite.False(verrs.HasAny())
-
-	// Associate PPM with the move it's on.
-	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
-	err = move.Submit()
-	suite.NoError(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-
-	// When move is canceled, expect associated PPM and Order to be canceled
-	reason := "Orders changed"
-	err = move.Cancel(reason)
-	suite.NoError(err)
-
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
-	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
-}
-
 func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
@@ -323,48 +206,4 @@ func (suite *ModelSuite) TestFetchMoveByOrderID() {
 		}
 		suite.Equal(move.ID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
 	}
-}
-
-func (suite *ModelSuite) TestMoveApproval() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-
-	suite.Run("from valid statuses", func() {
-		validStatuses := []struct {
-			desc   string
-			status MoveStatus
-		}{
-			{"Submitted", MoveStatusSUBMITTED},
-			{"Approvals Requested", MoveStatusAPPROVALSREQUESTED},
-			{"Service Counseling Completed", MoveStatusServiceCounselingCompleted},
-			{"Approved", MoveStatusAPPROVED},
-		}
-		for _, validStatus := range validStatuses {
-			move.Status = validStatus.status
-
-			err := move.Approve()
-
-			suite.NoError(err)
-			suite.Equal(MoveStatusAPPROVED, move.Status)
-		}
-	})
-
-	suite.Run("from invalid statuses", func() {
-		invalidStatuses := []struct {
-			desc   string
-			status MoveStatus
-		}{
-			{"Draft", MoveStatusDRAFT},
-			{"Canceled", MoveStatusCANCELED},
-			{"Needs Service Counseling", MoveStatusNeedsServiceCounseling},
-		}
-		for _, invalidStatus := range invalidStatuses {
-			move.Status = invalidStatus.status
-
-			err := move.Approve()
-
-			suite.Error(err)
-			suite.Contains(err.Error(), "A move can only be approved if it's in one of these states")
-			suite.Contains(err.Error(), fmt.Sprintf("However, its current status is: %s", invalidStatus.status))
-		}
-	})
 }

@@ -230,18 +230,20 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 	for _, s := range mto.MtoShipments {
 		var sstrs []string
 		sstrs = append(sstrs, fmt.Sprintf("TOO approval date: %s\n", s.ApprovedDate.String()))
-		if s.PickupAddress == nil {
+		pickupAddress := s.PickupAddress.Address
+		if pickupAddress.StreetAddress1 == nil {
 			sstrs = append(sstrs, "Pickup address: <missing>\n")
 		} else {
-			sstrs = append(sstrs, fmt.Sprintf("Pickup address: %s, %s, %s\n", *s.PickupAddress.City,
-				*s.PickupAddress.State, *s.PickupAddress.PostalCode))
+			sstrs = append(sstrs, fmt.Sprintf("Pickup address: %s, %s, %s\n", *pickupAddress.City,
+				*pickupAddress.State, *pickupAddress.PostalCode))
 		}
 
-		if s.DestinationAddress == nil {
+		destinationAddress := s.DestinationAddress.Address
+		if destinationAddress.StreetAddress1 == nil {
 			sstrs = append(sstrs, "Dest. address: <missing>\n")
 		} else {
-			sstrs = append(sstrs, fmt.Sprintf("Dest. address: %s, %s, %s\n", *s.DestinationAddress.City,
-				*s.DestinationAddress.State, *s.DestinationAddress.PostalCode))
+			sstrs = append(sstrs, fmt.Sprintf("Dest. address: %s, %s, %s\n", *destinationAddress.City,
+				*destinationAddress.State, *destinationAddress.PostalCode))
 		}
 
 		sstrs = append(sstrs, fmt.Sprintf("Estimated weight: %d\n", s.PrimeEstimatedWeight))
@@ -594,7 +596,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			if err != nil {
 				log.Fatal("Cannot get date input", err)
 			}
-			shipment.ActualPickupDate = strFmtDate
+			shipment.ActualPickupDate = &strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
 				isString: true,
@@ -607,7 +609,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			if err != nil {
 				log.Fatal("Cannot get date input", err)
 			}
-			shipment.RequestedPickupDate = strFmtDate
+			shipment.RequestedPickupDate = &strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
 				isString: true,
@@ -620,7 +622,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 			if err != nil {
 				log.Fatal("Cannot get date input", err)
 			}
-			shipment.ScheduledPickupDate = strFmtDate
+			shipment.ScheduledPickupDate = &strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
 				isString: true,

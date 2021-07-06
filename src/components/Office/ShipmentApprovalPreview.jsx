@@ -1,20 +1,20 @@
-import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { MTOShipmentShape, OrdersInfoShape } from '../../types/order';
-import { formatAddress } from '../../utils/shipmentDisplay';
-
 import styles from './shipmentApprovalPreview.module.scss';
-import AllowancesList from './DefinitionLists/AllowancesList';
-import CustomerInfoList from './DefinitionLists/CustomerInfoList';
-import ShipmentContainer from './ShipmentContainer';
-import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
-import { mtoShipmentTypes } from 'constants/shipments';
 import { serviceItemCodes } from 'content/serviceItems';
+import { mtoShipmentTypes } from 'constants/shipments';
+import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
+import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
+import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
+import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
+import { MTOShipmentShape, OrdersInfoShape } from 'types/order';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -67,55 +67,21 @@ const ShipmentApprovalPreview = ({
                   className={classNames(styles.previewShipments)}
                 >
                   <div className={styles.innerWrapper}>
-                    <h4 className="text-normal">{mtoShipmentTypes[shipment.shipmentType]}</h4>
-                    <div className="display-flex">
-                      <table className={classNames('table--stacked', styles.shipmentInfo)}>
-                        <tbody>
-                          <tr>
-                            <th className="text-bold" scope="row">
-                              Requested Move Date
-                            </th>
-                            <td>{shipment.requestedPickupDate}</td>
-                          </tr>
-                          <tr>
-                            <th className="text-bold" scope="row">
-                              Current Address
-                            </th>
-                            <td>{shipment.pickupAddress && formatAddress(shipment.pickupAddress)}</td>
-                          </tr>
-                          <tr>
-                            <th className="text-bold" scope="row">
-                              Destination Address
-                            </th>
-                            <td data-testid="destinationAddress">
-                              {shipment.destinationAddress
-                                ? formatAddress(shipment.destinationAddress)
-                                : ordersInfo.newDutyStation.address.postal_code}
-                            </td>
-                          </tr>
-                          <tr>
-                            <th className="text-bold" scope="row">
-                              Customer Remarks
-                            </th>
-                            <td>{shipment.customerRemarks}</td>
-                          </tr>
-                          {shipment.mtoAgents &&
-                            shipment.mtoAgents.map((agent) => (
-                              <Fragment key={`${agent.type}-${agent.email}`}>
-                                <tr>
-                                  <th className="text-bold" scope="row">
-                                    {agent.type === 'RELEASING_AGENT' ? 'Releasing Agent' : 'Receiving Agent'}
-                                  </th>
-                                  <td>
-                                    {agent.firstName} {agent.lastName}
-                                    <br />
-                                    {agent.phone} <br /> {agent.email}
-                                  </td>
-                                </tr>
-                              </Fragment>
-                            ))}
-                        </tbody>
-                      </table>
+                    <div className={styles.shipmentTypeHeading}>
+                      <h3>{mtoShipmentTypes[shipment.shipmentType]}</h3>
+                      {shipment.diversion && <Tag>diversion</Tag>}
+                    </div>
+                    <div className={styles.shipmentDetailWrapper}>
+                      <ShipmentInfoList
+                        className={styles.shipmentInfo}
+                        shipment={{
+                          ...shipment,
+                          destinationAddress: shipment.destinationAddress
+                            ? shipment.destinationAddress
+                            : { postal_code: ordersInfo.newDutyStation.address.postal_code },
+                          agents: shipment.mtoAgents,
+                        }}
+                      />
                       <ShipmentServiceItemsTable
                         className={classNames(styles.shipmentServiceItems)}
                         shipmentType={shipment.shipmentType}
@@ -125,12 +91,12 @@ const ShipmentApprovalPreview = ({
                 </ShipmentContainer>
               ))}
           </div>
-          <div className={classNames(styles.previewContainer, 'container')}>
+          <div className={classNames(styles.previewContainer, styles.basicMoveDetails, 'container')}>
             <h2>Basic move details</h2>
             {(shipmentManagementFee || counselingFee) && (
               <>
-                <h4 className={classNames(styles.tableH4)}>Approved service items for this move</h4>
-                <table className="table--stacked">
+                <h4>Approved service items for this move</h4>
+                <table className={classNames(styles.basicServiceItemsTable, 'table--stacked')}>
                   <tbody>
                     {shipmentManagementFee && (
                       <tr>
@@ -146,9 +112,9 @@ const ShipmentApprovalPreview = ({
                 </table>
               </>
             )}
-            <h2>Allowances</h2>
+            <h4>Allowances</h4>
             <AllowancesList info={allowancesInfo} />
-            <h2>Customer info</h2>
+            <h4>Customer info</h4>
             <CustomerInfoList customerInfo={customerInfo} />
           </div>
         </Modal>

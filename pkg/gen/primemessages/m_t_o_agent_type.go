@@ -13,7 +13,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOAgentType MTO Agent Type
+// MTOAgentType Agent Type
+//
+// The type for this agent. `RELEASING` means they have authority on pickup, `RECEIVING` means they can receive the shipment on delivery.
+//
 //
 // swagger:model MTOAgentType
 type MTOAgentType string

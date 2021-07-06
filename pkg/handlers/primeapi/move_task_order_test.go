@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -32,21 +34,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestTruncateAll() {
-
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	fmt.Println("created move", move.ID, move.ContractorID)
-
-	err := suite.DB().TruncateAll()
-	fmt.Println(err)
-	fmt.Println("truncated db")
-
-	foundMove := models.Move{}
-	err = suite.DB().Find(&foundMove, move.ID.String())
-	fmt.Println(err)
-	fmt.Println("found move", foundMove.ID, foundMove.ContractorID)
-}
-
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	// unavailable MTO
 	testdatagen.MakeDefaultMove(suite.DB())
@@ -55,6 +42,9 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			CounselorRemarks: handlers.FmtString("counselor remarks"),
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -71,6 +61,17 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 		HandlerContext:       context,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
 	}
+
+	suite.T().Run("mto shipment has relevant fields", func(t *testing.T) {
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+		suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
+		suite.Equal(string("counselor remarks"), *moveTaskOrdersPayload[0].MtoShipments[0].CounselorRemarks)
+	})
 
 	suite.T().Run("with mto service item dimensions", func(t *testing.T) {
 		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -304,17 +305,6 @@ func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Addr
 	return move
 }
 
-func (suite *HandlerSuite) equalAddress(expected models.Address, actual *primemessages.Address) {
-	suite.Equal(expected.ID.String(), actual.ID.String())
-	suite.Equal(expected.StreetAddress1, *actual.StreetAddress1)
-	suite.Equal(*expected.StreetAddress2, *actual.StreetAddress2)
-	suite.Equal(*expected.StreetAddress3, *actual.StreetAddress3)
-	suite.Equal(expected.City, *actual.City)
-	suite.Equal(expected.State, *actual.State)
-	suite.Equal(expected.PostalCode, *actual.PostalCode)
-	suite.Equal(*expected.Country, *actual.Country)
-}
-
 func (suite *HandlerSuite) equalPaymentRequest(expected models.PaymentRequest, actual *primemessages.PaymentRequest) {
 	suite.Equal(expected.ID.String(), actual.ID.String())
 	suite.Equal(expected.MoveTaskOrderID.String(), actual.MoveTaskOrderID.String())
@@ -387,8 +377,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 		move2Payload = moveTaskOrdersPayload[0]
 	}
 
-	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address)
-	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address)
+	suite.EqualAddress(move1.Orders.NewDutyStation.Address, move1Payload.Order.DestinationDutyStation.Address, true)
+	suite.EqualAddress(move2.Orders.NewDutyStation.Address, move2Payload.Order.DestinationDutyStation.Address, true)
 
 	// Check the two payment requests across the second move.
 	// NOTE: The payload isn't ordered, so I have to associate the correct payment request.
@@ -469,8 +459,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 		handler := UpdateMTOPostCounselingInformationHandler{
@@ -513,9 +504,10 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,

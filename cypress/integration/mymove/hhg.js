@@ -24,9 +24,8 @@ describe('A customer following HHG Setup flow', function () {
 function customerChoosesAnHHGMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
-  cy.get('h2').contains('Choose 1 shipment at a time.');
 
-  cy.get('input[type="radio"]').eq(1).check({ force: true });
+  cy.get('input[type="radio"]').eq(0).check({ force: true });
   cy.nextPage();
 }
 
@@ -74,6 +73,13 @@ function customerSetsUpAnHHGMove() {
   // overwrites data typed from above
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
 
+  // secondary pickup location
+  cy.get(`input[data-testid="has-secondary-pickup"]`).check({ force: true });
+  cy.get(`input[name="secondaryPickup.address.street_address_1"]`).type('123 Some address');
+  cy.get(`input[name="secondaryPickup.address.city"]`).type('Some city');
+  cy.get(`select[name="secondaryPickup.address.state"]`).select('CA');
+  cy.get(`input[name="secondaryPickup.address.postal_code"]`).type('90210').blur();
+
   // releasing agent
   cy.get(`input[name="pickup.agent.firstName"]`).type('John');
   cy.get(`input[name="pickup.agent.lastName"]`).type('Lee');
@@ -89,7 +95,7 @@ function customerSetsUpAnHHGMove() {
   cy.get('input[name="delivery.requestedDate"]').first().type('09/20/2020').blur();
 
   // checks has delivery address (default does not have delivery address)
-  cy.get('input[type="radio"]').first().check({ force: true });
+  cy.get('input[title="Yes, I know my delivery address"]').check({ force: true });
 
   // delivery location
   cy.get(`input[name="delivery.address.street_address_1"]`).type('412 Avenue M');
@@ -97,6 +103,14 @@ function customerSetsUpAnHHGMove() {
   cy.get(`input[name="delivery.address.city"]`).type('Los Angeles');
   cy.get(`select[name="delivery.address.state"]`).select('CA');
   cy.get(`input[name="delivery.address.postal_code"]`).type('91111').blur();
+
+  // secondary delivery location
+  cy.get('input[data-testid="has-secondary-delivery"]').check({ force: true });
+  cy.get('input[name="secondaryDelivery.address.street_address_1"]').type('123 Oak Street');
+  cy.get('input[name="secondaryDelivery.address.street_address_2"]').type('5A');
+  cy.get('input[name="secondaryDelivery.address.city"]').type('San Diego');
+  cy.get('select[name="secondaryDelivery.address.state"]').select('CA');
+  cy.get('input[name="secondaryDelivery.address.postal_code"]').type('91111').blur();
 
   // releasing agent
   cy.get(`input[name="delivery.agent.firstName"]`).type('John');
@@ -116,6 +130,7 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="ShipmentContainer"]').contains('HHG 1');
+  cy.get('[data-testid="hhg-summary"]').contains('123 Oak Street');
 
   cy.get('[data-testid="edit-shipment-btn"]').contains('Edit').click();
 
@@ -128,7 +143,14 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   // Ensure remarks is displayed in form
   cy.get(`[data-testid="remarks"]`).should('have.value', 'some customer remark');
 
-  // Edit remarks and agent info
+  // Check secondary pickup address was saved correctly
+  cy.get(`input[name="secondaryPickup.address.street_address_1"]`).should('have.value', '123 Some address');
+  cy.get(`input[name="secondaryPickup.address.city"]`).should('have.value', 'Some city');
+  cy.get(`select[name="secondaryPickup.address.state"]`).should('have.value', 'CA');
+  cy.get(`input[name="secondaryPickup.address.postal_code"]`).should('have.value', '90210');
+
+  // Edit secondary address, remarks, and agent info
+  cy.get(`input[name="secondaryPickup.address.city"]`).clear().type('Beverly Hills');
   cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
   cy.get(`input[name="delivery.agent.email"]`).clear().type('John@example.com').blur();
   cy.get('button').contains('Save').click();
@@ -141,6 +163,7 @@ function customerReviewsMoveDetailsAndEditsHHG() {
 
   cy.get('[data-testid="hhg-summary"]').find('dl').contains('some edited customer remark');
   cy.get('[data-testid="hhg-summary"]').find('dl').contains('JohnJohnson Lee');
+  cy.get('[data-testid="hhg-summary"]').find('dl').contains('Beverly Hills');
 
   cy.get('button').contains('Finish later').click();
   cy.get('h3').contains('Time to submit your move');

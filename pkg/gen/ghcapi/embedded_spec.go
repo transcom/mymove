@@ -36,6 +36,136 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/counseling/orders/{orderID}": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order (performed by a services counselor)",
+        "operationId": "counselingUpdateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to update",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/counseling/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "counselingUpdateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -55,34 +185,78 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates customer info by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Updates customer info",
+        "operationId": "updateCustomer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/UpdateCustomerPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -123,46 +297,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -186,83 +339,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Deletes a move by ID",
-        "operationId": "deleteMoveTaskOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -303,46 +392,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -375,34 +443,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -454,40 +507,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -527,83 +565,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a line item by ID for a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Deletes a line item by ID for a move by ID",
-        "operationId": "deleteMTOServiceItem",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -644,40 +618,22 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -736,46 +692,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -841,52 +776,28 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
+            "$ref": "#/responses/Conflict"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -928,52 +839,28 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
+            "$ref": "#/responses/Conflict"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -997,31 +884,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The locator provided is invalid"
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1054,22 +929,13 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1103,22 +969,13 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1132,6 +989,83 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
       "get": {
@@ -1152,22 +1086,13 @@ func init() {
             }
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1176,94 +1101,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move task order",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
-      "patch": {
-        "description": "Updates a shipment's status",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Updates a shipment's status",
-        "operationId": "patchMTOShipmentStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatus"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "409": {
-            "description": "Conflict error",
-            "schema": {
-              "$ref": "#/responses/Conflict"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -1297,28 +1134,16 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1332,6 +1157,51 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateMTOShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/orders/{orderID}": {
       "get": {
@@ -1352,34 +1222,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1420,43 +1275,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was unauthenticated",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "403": {
-            "description": "The request was unauthorized",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "internal server error"
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1471,53 +1308,57 @@ func init() {
         }
       ]
     },
-    "/orders/{orderID}/move-task-orders": {
-      "get": {
-        "description": "Gets move task orders associated with an order",
+    "/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
         "tags": [
           "order"
         ],
-        "summary": "Gets move task orders associated with an order",
-        "operationId": "listMoveTaskOrders",
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "updateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders associated with an order",
+            "description": "updated instance of allowance",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/Order"
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1551,34 +1392,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       },
@@ -1639,46 +1465,25 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "412": {
-            "description": "Precondition Failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
+            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -1806,16 +1611,10 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -1917,16 +1716,10 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2037,19 +1830,358 @@ func init() {
             }
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
+    },
+    "/shipments/{shipmentID}": {
+      "delete": {
+        "description": "Soft deletes a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Soft deletes a shipment by ID",
+        "operationId": "deleteShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be deleted",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentID}/approve": {
+      "post": {
+        "description": "Approves a shipment",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves a shipment",
+        "operationId": "approveShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/approve-diversion": {
+      "post": {
+        "description": "Approves a shipment diversion",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves a shipment diversion",
+        "operationId": "approveShipmentDiversion",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipment diversion",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/reject": {
+      "post": {
+        "description": "rejects a shipment",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "rejects a shipment",
+        "operationId": "rejectShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RejectShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully rejected the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/request-cancellation": {
+      "post": {
+        "description": "Requests a shipment cancellation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Requests a shipment cancellation",
+        "operationId": "requestShipmentCancellation",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully requested the shipment cancellation",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/request-diversion": {
+      "post": {
+        "description": "Requests a shipment diversion",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Requests a shipment diversion",
+        "operationId": "requestShipmentDiversion",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully requested the shipment diversion",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/tac/valid": {
       "get": {
@@ -2077,34 +2209,19 @@ func init() {
             }
           },
           "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
+            "$ref": "#/responses/InvalidRequest"
           },
           "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2278,22 +2395,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -2354,6 +2473,146 @@ func init() {
         }
       }
     },
+    "CounselingUpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "CounselingUpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "originDutyStationId",
+        "newDutyStationId"
+      ],
+      "properties": {
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        }
+      }
+    },
+    "CreateMTOShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "requestedPickupDate",
+        "pickupAddress",
+        "destinationAddress"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedPickupDate": {
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -2362,11 +2621,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -2394,11 +2651,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -2933,9 +3200,21 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -2946,9 +3225,18 @@ func init() {
           "x-nullable": true,
           "example": "handle with care"
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean",
+          "example": true
         },
         "eTag": {
           "type": "string"
@@ -2988,13 +3276,18 @@ func init() {
           "x-nullable": true,
           "example": "MTO Shipment not good enough"
         },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "x-nullable": true,
@@ -3027,7 +3320,9 @@ func init() {
         "SUBMITTED",
         "REJECTED",
         "APPROVED",
-        "CANCELLATION_REQUESTED"
+        "CANCELLATION_REQUESTED",
+        "CANCELED",
+        "DIVERSION_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -3212,6 +3507,11 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
+        "amendedOrdersAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -3307,6 +3607,12 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "uploadedAmendedOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "uploaded_order_id": {
           "type": "string",
           "format": "uuid",
@@ -3367,21 +3673,6 @@ func init() {
             "APPROVED",
             "REJECTED"
           ]
-        }
-      }
-    },
-    "PatchMTOShipmentStatus": {
-      "required": [
-        "status"
-      ],
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -3728,6 +4019,17 @@ func init() {
         }
       }
     },
+    "RejectShipment": {
+      "required": [
+        "rejectionReason"
+      ],
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "example": "MTO Shipment not good enough"
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -3823,16 +4125,8 @@ func init() {
         }
       }
     },
-    "UpdateOrderPayload": {
+    "UpdateAllowancePayload": {
       "type": "object",
-      "required": [
-        "issueDate",
-        "reportByDate",
-        "ordersType",
-        "newDutyStationId",
-        "originDutyStationId",
-        "agency"
-      ],
       "properties": {
         "agency": {
           "description": "the branch that the service member belongs to",
@@ -3846,16 +4140,96 @@ func init() {
           "x-nullable": true,
           "example": 2000
         },
-        "departmentIndicator": {
-          "x-nullable": true,
-          "$ref": "#/definitions/DeptIndicator"
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 2000,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "UpdateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "backup_contact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "current_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        }
+      }
+    },
+    "UpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "newDutyStationId",
+        "originDutyStationId"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -3869,6 +4243,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "ordersAcknowledgement": {
+          "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "ordersNumber": {
           "type": "string",
           "title": "Orders Number",
@@ -3881,29 +4260,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "organizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -3911,12 +4271,6 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
-        },
-        "requiredMedicalEquipmentWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -3927,6 +4281,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -3945,6 +4301,54 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "UpdateShipment": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ],
+          "x-nullable": true
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -4058,6 +4462,12 @@ func init() {
       "schema": {
         "$ref": "#/definitions/Error"
       }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   },
   "tags": [
@@ -4112,6 +4522,166 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/counseling/orders/{orderID}": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an order (performed by a services counselor)",
+        "operationId": "counselingUpdateOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to update",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/counseling/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "counselingUpdateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CounselingUpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -4133,46 +4703,111 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates customer info by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "customer"
+        ],
+        "summary": "Updates customer info",
+        "operationId": "updateCustomer",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCustomerPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4216,50 +4851,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4267,10 +4887,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4297,110 +4914,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Deletes a move by ID",
-        "operationId": "deleteMoveTaskOrder",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4444,50 +4982,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -4495,10 +5018,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4534,46 +5054,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4628,55 +5133,43 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4719,110 +5212,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Deletes a line item by ID for a move by ID",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Deletes a line item by ID for a move by ID",
-        "operationId": "deleteMTOServiceItem",
-        "responses": {
-          "200": {
-            "description": "Successfully deleted move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4866,55 +5280,37 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -4976,50 +5372,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5027,10 +5408,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5099,59 +5477,41 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "409": {
             "description": "Conflict error",
             "schema": {
-              "description": "Conflict error",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5159,10 +5519,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5207,59 +5564,41 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "409": {
             "description": "Conflict error",
             "schema": {
-              "description": "Conflict error",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5267,10 +5606,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5295,42 +5631,33 @@ func init() {
             }
           },
           "400": {
-            "description": "The locator provided is invalid"
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5366,14 +5693,11 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5381,10 +5705,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5421,14 +5742,11 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5436,10 +5754,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5454,6 +5769,104 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents": {
       "get": {
@@ -5476,14 +5889,11 @@ func init() {
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5491,10 +5901,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5504,106 +5911,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "ID of move task order",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        },
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of the shipment",
-          "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
-      "patch": {
-        "description": "Updates a shipment's status",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoShipment"
-        ],
-        "summary": "Updates a shipment's status",
-        "operationId": "patchMTOShipmentStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/PatchMTOShipmentStatus"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict error",
-            "schema": {
-              "description": "Conflict error",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of move task order for mto shipment to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -5639,23 +5946,17 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -5663,10 +5964,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5681,6 +5979,63 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateMTOShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/orders/{orderID}": {
       "get": {
@@ -5703,46 +6058,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5786,56 +6126,44 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was unauthenticated",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
-            "description": "The request was unauthorized",
+            "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
             "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
-            "description": "internal server error"
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       },
@@ -5850,67 +6178,71 @@ func init() {
         }
       ]
     },
-    "/orders/{orderID}/move-task-orders": {
-      "get": {
-        "description": "Gets move task orders associated with an order",
+    "/orders/{orderID}/allowances": {
+      "patch": {
+        "description": "All fields sent in this request will be set on the order referenced",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
         "tags": [
           "order"
         ],
-        "summary": "Gets move task orders associated with an order",
-        "operationId": "listMoveTaskOrders",
+        "summary": "Updates an allowance (Orders with Entitlements)",
+        "operationId": "updateAllowance",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateAllowancePayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders associated with an order",
+            "description": "updated instance of allowance",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Order"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -5947,46 +6279,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6050,50 +6367,35 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "412": {
-            "description": "Precondition Failed",
+            "description": "Precondition failed",
             "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "422": {
-            "description": "Validation error",
+            "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
             }
@@ -6101,10 +6403,7 @@ func init() {
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6235,19 +6534,13 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6352,19 +6645,13 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6478,23 +6765,461 @@ func init() {
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
       }
+    },
+    "/shipments/{shipmentID}": {
+      "delete": {
+        "description": "Soft deletes a shipment by ID",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Soft deletes a shipment by ID",
+        "operationId": "deleteShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the shipment to be deleted",
+            "name": "shipmentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully soft deleted the shipment"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentID}/approve": {
+      "post": {
+        "description": "Approves a shipment",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves a shipment",
+        "operationId": "approveShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/approve-diversion": {
+      "post": {
+        "description": "Approves a shipment diversion",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Approves a shipment diversion",
+        "operationId": "approveShipmentDiversion",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully approved the shipment diversion",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/reject": {
+      "post": {
+        "description": "rejects a shipment",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "rejects a shipment",
+        "operationId": "rejectShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RejectShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully rejected the shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/request-cancellation": {
+      "post": {
+        "description": "Requests a shipment cancellation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Requests a shipment cancellation",
+        "operationId": "requestShipmentCancellation",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully requested the shipment cancellation",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/shipments/{shipmentID}/request-diversion": {
+      "post": {
+        "description": "Requests a shipment diversion",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment"
+        ],
+        "summary": "Requests a shipment diversion",
+        "operationId": "requestShipmentDiversion",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully requested the shipment diversion",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/tac/valid": {
       "get": {
@@ -6524,46 +7249,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -6738,22 +7448,24 @@ func init() {
     },
     "BackupContact": {
       "type": "object",
+      "required": [
+        "name",
+        "email",
+        "phone"
+      ],
       "properties": {
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         },
         "name": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
     },
@@ -6814,6 +7526,149 @@ func init() {
         }
       }
     },
+    "CounselingUpdateAllowancePayload": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "description": "the branch that the service member belongs to",
+          "$ref": "#/definitions/Branch"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "grade": {
+          "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "CounselingUpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "originDutyStationId",
+        "newDutyStationId"
+      ],
+      "properties": {
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        }
+      }
+    },
+    "CreateMTOShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "requestedPickupDate",
+        "pickupAddress",
+        "destinationAddress"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "customerRemarks": {
+          "description": "The customer can use the customer remarks field to inform the services counselor and the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCustomer enters this information during onboarding. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "moveTaskOrderID": {
+          "description": "The ID of the move this new shipment is for.",
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoServiceItems": {
+          "description": "A list of service items connected to this shipment.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedPickupDate": {
+          "description": "The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.\n",
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -6822,11 +7677,9 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "backup_contact": {
-          "x-nullable": true,
           "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -6854,11 +7707,21 @@ func init() {
           "type": "string",
           "example": "Doe"
         },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
         "phone": {
           "type": "string",
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "userID": {
           "type": "string",
@@ -7393,9 +8256,21 @@ func init() {
     },
     "MTOShipment": {
       "properties": {
+        "actualPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "approvedDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -7406,9 +8281,18 @@ func init() {
           "x-nullable": true,
           "example": "handle with care"
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "destinationAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean",
+          "example": true
         },
         "eTag": {
           "type": "string"
@@ -7448,13 +8332,18 @@ func init() {
           "x-nullable": true,
           "example": "MTO Shipment not good enough"
         },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
         },
         "scheduledPickupDate": {
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "x-nullable": true
         },
         "secondaryDeliveryAddress": {
           "x-nullable": true,
@@ -7487,7 +8376,9 @@ func init() {
         "SUBMITTED",
         "REJECTED",
         "APPROVED",
-        "CANCELLATION_REQUESTED"
+        "CANCELLATION_REQUESTED",
+        "CANCELED",
+        "DIVERSION_REQUESTED"
       ],
       "example": "SUBMITTED"
     },
@@ -7672,6 +8563,11 @@ func init() {
           "type": "string",
           "$ref": "#/definitions/Branch"
         },
+        "amendedOrdersAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -7767,6 +8663,12 @@ func init() {
           "x-nullable": true,
           "example": "F8J1"
         },
+        "uploadedAmendedOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "uploaded_order_id": {
           "type": "string",
           "format": "uuid",
@@ -7827,21 +8729,6 @@ func init() {
             "APPROVED",
             "REJECTED"
           ]
-        }
-      }
-    },
-    "PatchMTOShipmentStatus": {
-      "required": [
-        "status"
-      ],
-      "properties": {
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "MTO Shipment not good enough"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -8188,6 +9075,17 @@ func init() {
         }
       }
     },
+    "RejectShipment": {
+      "required": [
+        "rejectionReason"
+      ],
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "example": "MTO Shipment not good enough"
+        }
+      }
+    },
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
@@ -8283,16 +9181,8 @@ func init() {
         }
       }
     },
-    "UpdateOrderPayload": {
+    "UpdateAllowancePayload": {
       "type": "object",
-      "required": [
-        "issueDate",
-        "reportByDate",
-        "ordersType",
-        "newDutyStationId",
-        "originDutyStationId",
-        "agency"
-      ],
       "properties": {
         "agency": {
           "description": "the branch that the service member belongs to",
@@ -8306,16 +9196,99 @@ func init() {
           "x-nullable": true,
           "example": 2000
         },
-        "departmentIndicator": {
-          "x-nullable": true,
-          "$ref": "#/definitions/DeptIndicator"
-        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
         },
         "grade": {
           "$ref": "#/definitions/Grade"
+        },
+        "organizationalClothingAndIndividualEquipment": {
+          "description": "only for Army",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "proGearWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 2000,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 0,
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 0,
+          "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "UpdateCustomerPayload": {
+      "type": "object",
+      "properties": {
+        "backup_contact": {
+          "$ref": "#/definitions/BackupContact"
+        },
+        "current_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "middle_name": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "David"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "suffix": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Jr."
+        }
+      }
+    },
+    "UpdateOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "newDutyStationId",
+        "originDutyStationId"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -8329,6 +9302,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "ordersAcknowledgement": {
+          "description": "Confirmation that the new amended orders were reviewed after previously approving the original orders",
+          "type": "boolean",
+          "x-nullable": true
+        },
         "ordersNumber": {
           "type": "string",
           "title": "Orders Number",
@@ -8341,31 +9319,10 @@ func init() {
         "ordersTypeDetail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
-        "organizationalClothingAndIndividualEquipment": {
-          "description": "only for Army",
-          "type": "boolean",
-          "x-nullable": true
-        },
         "originDutyStationId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proGearWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
-        },
-        "proGearWeightSpouse": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 2000
         },
         "reportByDate": {
           "description": "Report By Date",
@@ -8373,13 +9330,6 @@ func init() {
           "format": "date",
           "title": "Report-by date",
           "example": "2018-04-26"
-        },
-        "requiredMedicalEquipmentWeight": {
-          "description": "unit is in lbs",
-          "type": "integer",
-          "minimum": 0,
-          "x-formatting": "weight",
-          "example": 2000
         },
         "sac": {
           "type": "string",
@@ -8390,6 +9340,8 @@ func init() {
         "tac": {
           "type": "string",
           "title": "TAC",
+          "maxLength": 4,
+          "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
         }
@@ -8408,6 +9360,54 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "UpdateShipment": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "counselorRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "counselor approved"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ],
+          "x-nullable": true
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -8523,6 +9523,12 @@ func init() {
       "description": "A server error occurred",
       "schema": {
         "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
       }
     }
   },

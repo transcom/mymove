@@ -1,0 +1,63 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+@import 'shared/styles/_variables';
+
+.ShipmentsHeader {
+  @media (max-width: $tablet) {
+    font-weight: bold;
+  }
+}
+
+.IconSection {
+  @include u-margin-bottom('3');
+}
+
+.SectionIcon {
+  @include u-padding-right('205');
+  width: 46px;
+  color: $base-light;
+
+  svg {
+    height: 26px;
+
+    @media (max-width: $tablet) {
+      height: 20px;
+    }
+  }
+}
+
+.SectionContent {
+  @include u-padding-y('2px');
+
+  ul {
+    margin-inline-start: 20px;
+    @include u-margin-y('0');
+  }
+
+  p {
+    @include u-margin-y('0');
+
+    @media (max-width: $tablet) {
+      display: inline;
+    }
+
+    & + p {
+      @include u-margin-top('1');
+    }
+  }
+}
+
+.SectionHeadline {
+  font-weight: bold;
+  font-size: 1.1em;
+  @include u-margin-bottom('1');
+
+  @media (max-width: $tablet) {
+    display: inline;
+    font-size: 1em;
+  }
+}
+
+.Wrapper {
+  @include u-margin-bottom('5');
+}

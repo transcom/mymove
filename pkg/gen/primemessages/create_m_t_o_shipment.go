@@ -26,31 +26,49 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// customer remarks
+	// The customer can use the customer remarks field to inform the services counselor and the movers about any
+	// special circumstances for this shipment. Typical examples:
+	//   * bulky or fragile items,
+	//   * weapons,
+	//   * access info for their address.
+	//
+	// Customer enters this information during onboarding. Optional field.
+	//
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// destination address
+	// Where the movers should deliver this shipment.
 	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress struct {
+		Address
+	} `json:"destinationAddress"`
 
-	// move task order ID
+	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
+	//
+	Diversion bool `json:"diversion,omitempty"`
+
+	// The ID of the move this new shipment is for.
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// pickup address
+	// The address where the movers should pick up this shipment.
 	// Required: true
-	PickupAddress *Address `json:"pickupAddress"`
+	PickupAddress struct {
+		Address
+	} `json:"pickupAddress"`
 
-	// Email or id of a contact person for this update
+	// Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.
+	//
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// prime estimated weight
+	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
+	//
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
-	// The date the customer requested that this shipment be picked up.
+	// The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the pack date, are derived from this date.
+	//
 	// Required: true
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
@@ -77,13 +95,19 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress"`
+
+		Diversion bool `json:"diversion,omitempty"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
 
-		PickupAddress *Address `json:"pickupAddress"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -121,6 +145,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// destinationAddress
 	result.DestinationAddress = data.DestinationAddress
 
+	// diversion
+	result.Diversion = data.Diversion
+
 	// moveTaskOrderID
 	result.MoveTaskOrderID = data.MoveTaskOrderID
 
@@ -156,11 +183,17 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-		DestinationAddress *Address `json:"destinationAddress"`
+		DestinationAddress struct {
+			Address
+		} `json:"destinationAddress"`
+
+		Diversion bool `json:"diversion,omitempty"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
-		PickupAddress *Address `json:"pickupAddress"`
+		PickupAddress struct {
+			Address
+		} `json:"pickupAddress"`
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
@@ -176,6 +209,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		CustomerRemarks: m.CustomerRemarks,
 
 		DestinationAddress: m.DestinationAddress,
+
+		Diversion: m.Diversion,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
 
@@ -261,19 +296,6 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
-		return err
-	}
-
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -311,19 +333,6 @@ func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) err
 }
 
 func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error {
-
-	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
-		return err
-	}
-
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			}
-			return err
-		}
-	}
 
 	return nil
 }

@@ -32,9 +32,6 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			ppmStatus = models.PPMStatusSUBMITTED
 		}
 
-		err := suite.TruncateAll()
-		suite.FatalNoError(err)
-
 		// Given: An office user
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 

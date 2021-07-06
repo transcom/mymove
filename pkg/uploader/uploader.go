@@ -16,6 +16,26 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+// ErrFailedToInitUploader represents an error creating a new file uploader
+type ErrFailedToInitUploader struct {
+	message string
+}
+
+// ErrFailedToInitUploader is the string representation of an error
+func (e ErrFailedToInitUploader) Error() string {
+	return fmt.Sprintf("failed not instantiate uploader: %s", e.message)
+}
+
+// ErrFile represents an file error
+type ErrFile struct {
+	message string
+}
+
+// ErrFile is the string representation of an error
+func (e ErrFile) Error() string {
+	return e.message
+}
+
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
@@ -33,6 +53,16 @@ var ErrFileSizeLimitExceedsMax = errors.Errorf("FileSizeLimit exceeds max of %d 
 // Any unscanned files will not be available for download so while we can upload a larger
 // file of any size the file will be locked from downloading forever.
 const MaxFileSizeLimit = 250 * MB
+
+// MaxCustomerUserUploadFileSizeLimit sets the maximum file size limit for a logged in customer user file upload.
+// The 25MB limit was intended to apply to individual document uploads (customer UI).
+// If working with the office UI, the office users are expected to generate PDFs of combined documents
+// which can exceed this limit.
+const MaxCustomerUserUploadFileSizeLimit = 25 * MB
+
+// MaxOfficeUploadFileSizeLimit sets the maximum file size limit for a logged in office generated file.
+// Office users can generate PDFs of combined documents with a max size of 100MB
+const MaxOfficeUploadFileSizeLimit = 100 * MB
 
 // ErrTooLarge is the string representation of an error
 func (e ErrTooLarge) Error() string {

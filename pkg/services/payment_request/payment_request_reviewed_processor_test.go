@@ -1,18 +1,10 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used set up environment variables
-//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
-// nolint:errcheck
 package paymentrequest
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"testing"
+	"sort"
 	"time"
 
 	"github.com/benbjohnson/clock"
@@ -20,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -168,15 +161,20 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
-
-	os.Setenv("SYNCADA_SFTP_PORT", "1234")
-	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	err := os.Setenv("SYNCADA_SFTP_PORT", "1234")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+	suite.FatalNoError(err)
+	err = os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+	suite.FatalNoError(err)
 	// generated fake host key to pass parser used following command and only saved the pub key
 	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	err = os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
+	suite.FatalNoError(err)
 
 	var responseSuccess = http.Response{}
 	responseSuccess.StatusCode = http.StatusOK
@@ -186,13 +184,14 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	responseFailure.StatusCode = http.StatusInternalServerError
 	responseFailure.Status = "500 Internal Server Error"
 
-	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
+	suite.Run("process reviewed payment request successfully (0 Payments to review)", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		gexSender := services.GexSender(nil)
@@ -207,8 +206,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -221,7 +219,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("process reviewed payment request successfully (1 payment request reviewed all rejected excluded)", func(t *testing.T) {
+	suite.Run("process reviewed payment request successfully (1 payment request reviewed all rejected excluded)", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -236,7 +234,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		gexSender := services.GexSender(nil)
@@ -251,8 +250,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		// Ensure that payment requst was not sent to gex
 		fetcher := NewPaymentRequestFetcher(suite.DB())
@@ -272,7 +270,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("process reviewed payment request successfully (do not send file)", func(t *testing.T) {
+	suite.Run("process reviewed payment request successfully (do not send file)", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -286,7 +284,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		})
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
@@ -302,8 +301,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		// Ensure that sent_to_gex_at timestamp has been added
 		fetcher := NewPaymentRequestFetcher(suite.DB())
@@ -326,7 +324,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("process reviewed payment request, failed EDI generator", func(t *testing.T) {
+	suite.Run("process reviewed payment request, failed EDI generator", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -354,8 +352,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher(suite.DB())
@@ -363,6 +360,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(pr.ID)
 			suite.NoError(fetchErr)
 			suite.Nil(paymentRequest.SentToGexAt)
+			suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
 		}
 
 		var ediProcessing models.EDIProcessing
@@ -379,11 +377,22 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		var ediErrors models.EdiErrors
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).All(&ediErrors)
 		suite.NoError(err)
-		// ProcessReviewedPaymentRequest() stops processing requests after it hits an error, so
-		// we only expect the first payment request with an error to be recorded.
-		suite.Len(ediErrors, 1)
-		suite.Contains(*(ediErrors[0].Description), "test error")
-		suite.Equal(ediErrors[0].PaymentRequestID, prs[0].ID)
+		suite.Len(ediErrors, len(prs))
+
+		prsIDs := []string{}
+		ediErrorPRIDs := []string{}
+		for idx := range ediErrors {
+			suite.Contains(*(ediErrors[idx].Description), "test error")
+			prsIDs = append(prsIDs, prs[idx].ID.String())
+			ediErrorPRIDs = append(ediErrorPRIDs, ediErrors[idx].PaymentRequestID.String())
+		}
+		sort.Slice(prsIDs, func(i, j int) bool {
+			return prsIDs[i] < prsIDs[j]
+		})
+		sort.Slice(ediErrorPRIDs, func(i, j int) bool {
+			return ediErrorPRIDs[i] < ediErrorPRIDs[j]
+		})
+		suite.Equal(prsIDs, ediErrorPRIDs)
 
 		// Make sure that PR status is updated
 		var updatedPaymentRequest models.PaymentRequest
@@ -392,7 +401,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(updatedPaymentRequest.Status, models.PaymentRequestStatusEDIError)
 	})
 
-	suite.T().Run("process reviewed payment request, failed EDI generator (mock GEX HTTP)", func(t *testing.T) {
+	suite.Run("process reviewed payment request, failed EDI generator (mock GEX HTTP)", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -402,15 +411,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		sendToSyncada := false
 
 		// Get list of PRs before processing them
-		prs, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
-		suite.NoError(err)
-
-		// Record PR statuses
-		type prStatus struct {
-			id     uuid.UUID
-			status models.PaymentRequestStatus
-		}
-		type prStatuses []prStatus
+		prs := suite.createPaymentRequest(2)
 
 		// Set up mock HTTP server and mock GEX
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -436,18 +437,16 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			mockGexSender,
 			SFTPSender)
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
-		afterProcessingStatus := prStatuses{}
 		fetcher := NewPaymentRequestFetcher(suite.DB())
 		for _, pr := range prs {
 			var paymentRequest models.PaymentRequest
 			paymentRequest, err = fetcher.FetchPaymentRequest(pr.ID)
 			suite.NoError(err)
 			suite.Nil(paymentRequest.SentToGexAt)
-			afterProcessingStatus = append(afterProcessingStatus, prStatus{id: paymentRequest.ID, status: paymentRequest.Status})
+			suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
 		}
 
 		var ediProcessing models.EDIProcessing
@@ -461,45 +460,25 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 
 		// Check that an error was recorded in the EdiErrors table.
-		var ediError models.EdiError
-		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("created_at desc").First(&ediError)
+		var ediErrors models.EdiErrors
+		err = suite.DB().Where("edi_type = ?", models.EDIType858).All(&ediErrors)
 		suite.NoError(err)
-
-		// ProcessReviewedPaymentRequest() stops processing requests after it hits an error, so
-		// we only expect the first payment request with an error to be recorded.
-		suite.Contains(*(ediError.Description), "test error")
-		paymentRequest, err := fetcher.FetchPaymentRequest(ediError.PaymentRequestID)
-		suite.NoError(err)
-		suite.Equal(ediError.PaymentRequestID, paymentRequest.ID)
-
-		countUpdated := 0
-		foundUpdatedPR := false
-
-		for _, pr := range prs {
-			for _, uPR := range afterProcessingStatus {
-				if pr.ID == uPR.id {
-					if pr.Status != uPR.status {
-						suite.Equal(ediError.PaymentRequestID, uPR.id)
-						suite.Equal(models.PaymentRequestStatusEDIError, uPR.status)
-						foundUpdatedPR = true
-						countUpdated++
-					}
-				}
-			}
+		suite.Len(ediErrors, len(prs))
+		for idx := range ediErrors {
+			suite.Contains(*(ediErrors[idx].Description), "test error")
+			suite.Equal(ediErrors[idx].PaymentRequestID, prs[idx].ID)
 		}
-		suite.True(foundUpdatedPR, "Found expected PR with EDI_ERROR")
-		suite.Equal(1, countUpdated, "Expected 1 update to PR status")
-
 	})
 
-	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
+	suite.Run("process reviewed payment request, failed payment request fetcher", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
 
 		prs := suite.createPaymentRequest(2)
 
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
 		suite.NoError(SFTPSessionError)
 		gexSender := services.GexSender(nil)
@@ -520,8 +499,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			SFTPSession)
 
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher(suite.DB())
@@ -543,7 +521,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("process reviewed payment request, Failure SendToSyncada", func(t *testing.T) {
+	suite.Run("process reviewed payment request, Failure SendToSyncada", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -551,7 +529,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		pr := suite.createPaymentRequest(1)[0]
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sftpSender := services.SyncadaSFTPSender(nil)
 		sendToSyncada := true
 
@@ -569,8 +548,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			sftpSender)
 
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher(suite.DB())
@@ -590,7 +568,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 	})
 
-	suite.T().Run("process reviewed payment request, successful SendToSyncada", func(t *testing.T) {
+	suite.Run("process reviewed payment request, successful SendToSyncada", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -599,7 +577,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		prs := suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sftpSender := services.SyncadaSFTPSender(nil)
 		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
 
@@ -617,14 +596,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			sftpSender)
 
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
 		suite.NoError(err, "Get number of processed files")
-		// There are 4 in this test and 5 payment request from other failure tests that leave the request in REVIEWED status
-		suite.Equal(9, ediProcessing.NumEDIsProcessed)
+		// There are 4 in this test
+		suite.Equal(4, ediProcessing.NumEDIsProcessed)
 
 		newCount, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessing)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -640,15 +618,16 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		}
 	})
 
-	suite.T().Run("process reviewed payment request, successfully test init function", func(t *testing.T) {
+	suite.Run("process reviewed payment request, successfully test init function", func() {
 		// Run init with no issues
-		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, suite.icnSequencer, nil)
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		_, err := InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false, icnSequencer, nil)
 		suite.NoError(err)
 	})
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailedGEXMock() {
-	suite.T().Run("process reviewed payment request, failed mock GEX HTTP send", func(t *testing.T) {
+	suite.Run("process reviewed payment request, failed mock GEX HTTP send", func() {
 		var ediProcessingBefore models.EDIProcessing
 		countProcessingRecordsBefore, err := suite.DB().Where("edi_type = ?", models.EDIType858).Count(&ediProcessingBefore)
 		suite.NoError(err, "Get count of EDIProcessing")
@@ -657,7 +636,8 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		prs := suite.createPaymentRequest(numPrs)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock())
 		sendToSyncada := true // Call GEXSender but using mock here
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -680,8 +660,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 			mockGexSender,
 			sftpSender)
 
-		err = paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -696,69 +675,5 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		paymentRequest, err := fetcher.FetchPaymentRequest(prs[0].ID)
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
-	})
-}
-
-func (suite *PaymentRequestServiceSuite) lockPR(prID uuid.UUID) {
-	query := `
-		BEGIN;
-		SELECT * FROM payment_requests
-		WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
-		UPDATE payment_requests
-		SET
-			status = $2,
-		WHERE id = $1;
-	`
-	suite.DB().RawQuery(query, prID, models.PaymentRequestStatusPaid).Exec()
-	time.Sleep(1 * time.Second)
-	suite.DB().RawQuery(`COMMIT;`).Exec()
-}
-
-func (suite *PaymentRequestServiceSuite) TestProcessLockedReviewedPaymentRequest() {
-	os.Setenv("SYNCADA_SFTP_PORT", "1234")
-	os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-	os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-	os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-	os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
-	// generated fake host key to pass parser used following command and only saved the pub key
-	//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
-	os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
-
-	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
-	SFTPSession, SFTPSessionError := invoice.InitNewSyncadaSFTPSession()
-	suite.NoError(SFTPSessionError)
-	gexSender := services.GexSender(nil)
-	sendToSyncada := false
-
-	paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
-		suite.DB(),
-		suite.logger,
-		reviewedPaymentRequestFetcher,
-		generator,
-		sendToSyncada,
-		gexSender,
-		SFTPSession)
-
-	suite.T().Run("successfully process prs even when a locked row has a delay", func(t *testing.T) {
-		reviewedPaymentRequests := suite.createPaymentRequest(2)
-
-		go suite.lockPR(reviewedPaymentRequests[0].ID)
-
-		for _, pr := range reviewedPaymentRequests {
-			err := paymentRequestReviewedProcessor.ProcessAndLockReviewedPR(pr)
-			suite.NoError(err)
-		}
-
-		fetcher := NewPaymentRequestFetcher(suite.DB())
-		for i, pr := range reviewedPaymentRequests {
-			paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
-			suite.NoError(err)
-			if i == 0 {
-				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
-			} else {
-				suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
-			}
-		}
 	})
 }

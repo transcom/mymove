@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -22,30 +23,99 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"service_member_id":   {"ServiceMemberID can not be blank."},
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
 		"status":              {"Status can not be blank."},
+		"uploaded_orders_id":  {"UploadedOrdersID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
 }
 
-func (suite *ModelSuite) TestTacNotNilAfterSubmission() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
+func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
+	move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 	order := move.Orders
-	order.TAC = nil
-	err := move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
-	err = suite.DB().Load(&order, "Moves")
-	suite.NoError(err)
+	order.Moves = append(order.Moves, move)
 
-	expErrors := map[string][]string{
-		"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
-	}
+	suite.T().Run("test valid UploadedAmendedOrdersID", func(t *testing.T) {
+		testUUID := uuid.Must(uuid.NewV4())
+		order.UploadedAmendedOrdersID = &testUUID
 
-	suite.verifyValidationErrors(&order, expErrors)
+		expErrors := map[string][]string{}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	})
+
+	suite.T().Run("test blank fields", func(t *testing.T) {
+		order.TAC = nil
+		order.DepartmentIndicator = nil
+		order.UploadedAmendedOrdersID = &uuid.Nil
+
+		expErrors := map[string][]string{
+			// TODO We are disabling validation for these fields for now.
+			// TODO With the implementation of amended orders, the customer can upload an amended order which
+			// TODO will need to update/save the order. The order is failing because the customer
+			// TODO does not update these fields. There is a thread going about this
+			// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+			// https://dp3.atlassian.net/browse/MB-8665
+			//"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
+			//"department_indicator":           {"DepartmentIndicator cannot be blank."},
+			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	})
 }
 
+func (suite *ModelSuite) TestTacCanBeNilBeforeSubmissionToTOO() {
+	validStatuses := []struct {
+		desc  string
+		value MoveStatus
+	}{
+		{"Draft", MoveStatusDRAFT},
+		{"NeedsServiceCounseling", MoveStatusNeedsServiceCounseling},
+	}
+	for _, validStatus := range validStatuses {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), validStatus.value)
+		order := move.Orders
+		order.TAC = nil
+		order.Moves = append(order.Moves, move)
+
+		expErrors := map[string][]string{}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
+func (suite *ModelSuite) TestTacFormat() {
+	invalidCases := []struct {
+		desc string
+		tac  string
+	}{
+		{"TestOneCharacter", "A"},
+		{"TestTwoCharacters", "AB"},
+		{"TestThreeCharacters", "ABC"},
+		{"TestGreaterThanFourChars", "ABCD1"},
+		{"TestNonAlphaNumChars", "AB-C"},
+	}
+	for _, invalidCase := range invalidCases {
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
+		order := move.Orders
+		order.TAC = &invalidCase.tac
+		order.Moves = append(order.Moves, move)
+
+		expErrors := map[string][]string{
+			"transportation_accounting_code": {"TAC must be exactly 4 alphanumeric characters."},
+		}
+
+		suite.verifyValidationErrors(&order, expErrors)
+	}
+}
+
+// TODO Some validation rules for orders have been disabled for now.
+// TODO with the implementation of amended orders, the customer can upload an amended order which
+// TODO will need to update/save the order. The order is failing because the customer
+// TODO does not update these fields. There is a thread going about this
+// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+// https://dp3.atlassian.net/browse/MB-8665
+/*
 func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 	invalidCases := []struct {
 		desc  string
@@ -55,16 +125,10 @@ func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 		{"Nil", nil},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 		order := move.Orders
 		order.OrdersNumber = invalidCase.value
-		err := move.Submit()
-		if err != nil {
-			suite.T().Fatal("Should transition.")
-		}
-		suite.MustSave(&move)
-		err = suite.DB().Load(&order, "Moves")
-		suite.NoError(err)
+		order.Moves = append(order.Moves, move)
 
 		expErrors := map[string][]string{
 			"orders_number": {"OrdersNumber cannot be blank."},
@@ -85,17 +149,10 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		{"Nil", nil},
 	}
 	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeDefaultMove(suite.DB())
+		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
 		order := move.Orders
-
 		order.OrdersTypeDetail = invalidCase.value
-		err := move.Submit()
-		if err != nil {
-			suite.T().Fatal("Should transition.")
-		}
-		suite.MustSave(&move)
-		err = suite.DB().Load(&order, "Moves")
-		suite.NoError(err)
+		order.Moves = append(order.Moves, move)
 
 		expErrors := map[string][]string{
 			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
@@ -104,28 +161,9 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		suite.verifyValidationErrors(&order, expErrors)
 	}
 }
-
-func (suite *ModelSuite) TestDepartmentIndicatorNotNilAfterSubmission() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	order := move.Orders
-	order.DepartmentIndicator = nil
-	err := move.Submit()
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
-	err = suite.DB().Load(&order, "Moves")
-	suite.NoError(err)
-
-	expErrors := map[string][]string{
-		"department_indicator": {"DepartmentIndicator cannot be blank."},
-	}
-
-	suite.verifyValidationErrors(&order, expErrors)
-}
+*/
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
@@ -206,7 +244,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -295,63 +332,6 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	err = order.Cancel()
 	suite.NoError(err)
 	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
-}
-
-func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
-	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
-	testdatagen.MakeDefaultContractor(suite.DB())
-
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	hasDependents := true
-	spouseHasProGear := true
-	uploadedOrder := Document{
-		ServiceMember:   serviceMember1,
-		ServiceMemberID: serviceMember1.ID,
-	}
-	deptIndicator := testdatagen.DefaultDepartmentIndicator
-	TAC := testdatagen.DefaultTransportationAccountingCode
-	suite.MustSave(&uploadedOrder)
-	orders := Order{
-		ServiceMemberID:     serviceMember1.ID,
-		ServiceMember:       serviceMember1,
-		IssueDate:           issueDate,
-		ReportByDate:        reportByDate,
-		OrdersType:          ordersType,
-		HasDependents:       hasDependents,
-		SpouseHasProGear:    spouseHasProGear,
-		NewDutyStationID:    dutyStation.ID,
-		NewDutyStation:      dutyStation,
-		UploadedOrdersID:    uploadedOrder.ID,
-		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
-		TAC:                 &TAC,
-		DepartmentIndicator: &deptIndicator,
-	}
-	suite.MustSave(&orders)
-
-	selectedMoveType := SelectedMoveTypeHHGPPM
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	move.Orders = orders
-	suite.MustSave(move)
-
-	err = move.Submit()
-	suite.NoError(err)
-
-	reason := "Mistaken identity"
-	err = move.Cancel(reason)
-	suite.NoError(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
-
 }
 
 func (suite *ModelSuite) TestSaveOrder() {

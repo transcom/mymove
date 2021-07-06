@@ -1,7 +1,6 @@
 package ghcrateengine
 
 import (
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +20,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	paymentServiceItem := suite.setupCounselingServicesItem()
 	counselingServicesPricer := NewCounselingServicesPricer(suite.DB())
 
-	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success using PaymentServiceItemParams", func() {
 		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
@@ -33,18 +32,18 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success without PaymentServiceItemParams", func() {
 		priceCents, _, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, csAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
 
-	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
+	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		_, _, err := counselingServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
-	suite.T().Run("not finding a rate record", func(t *testing.T) {
+	suite.Run("not finding a rate record", func() {
 		_, _, err := counselingServicesPricer.Price("BOGUS", csAvailableToPrimeAt)
 		suite.Error(err)
 	})

@@ -176,6 +176,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	sendToSyncada := v.GetBool(cli.SendToSyncada)
 	logger.Info(fmt.Sprintf("SendToSyncada is %v", sendToSyncada))
+	processEdiDeleteFiles := v.GetBool(ProcessEDIDeleteFilesFlag)
+	logger.Info(fmt.Sprintf("ProcessEDIDeleteFiles is %v", processEdiDeleteFiles))
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
@@ -216,10 +218,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 
 	// Process 858s
-	err = reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
-	if err != nil {
-		logger.Fatal("Could not process reviewed payment request(s)", zap.Error(err))
-	}
+	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 	logger.Info("Finished processing reviewed payment requests")
 
 	if !sendToSyncada {
@@ -234,7 +233,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	defer func() {
 		if closeErr := sshClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
@@ -244,7 +243,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}
 	defer func() {
 		if closeErr := sftpClient.Close(); closeErr != nil {
-			logger.Fatal("could not close SFTP client", zap.Error(closeErr))
+			logger.Error("could not close SFTP client", zap.Error(closeErr))
 		}
 	}()
 
