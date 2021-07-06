@@ -14,6 +14,9 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
+      <Hint data-testid="proGearWeightHint">
+        <p>Max. 2,000 lbs</p>
+      </Hint>
       <MaskedTextField
         data-testid="proGearWeightInput"
         defaultValue="0"
@@ -26,7 +29,6 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         thousandsSeparator=","
         lazy={false} // immediate masking evaluation
         formGroupClassName={styles.fieldWithHint}
-        labelHint="Max. 2,000 lbs"
       />
 
       <Hint data-testid="proGearWeightSpouseHint">
