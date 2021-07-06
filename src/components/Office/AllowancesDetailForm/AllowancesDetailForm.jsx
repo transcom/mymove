@@ -14,9 +14,6 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
-      <Hint data-testid="proGearWeightHint">
-        <p>Max. 2,000 lbs</p>
-      </Hint>
       <MaskedTextField
         data-testid="proGearWeightInput"
         defaultValue="0"
@@ -30,10 +27,10 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         lazy={false} // immediate masking evaluation
         formGroupClassName={styles.fieldWithHint}
       />
-
-      <Hint data-testid="proGearWeightSpouseHint">
-        <p>Max. 500 lbs</p>
+      <Hint data-testid="proGearWeightHint">
+        <p>Max. 2,000 lbs</p>
       </Hint>
+
       <MaskedTextField
         data-testid="proGearWeightSpouseInput"
         defaultValue="0"
@@ -47,6 +44,9 @@ const AllowancesDetailForm = ({ header, entitlements, rankOptions, branchOptions
         lazy={false} // immediate masking evaluation
         formGroupClassName={styles.fieldWithHint}
       />
+      <Hint data-testid="proGearWeightSpouseHint">
+        <p>Max. 500 lbs</p>
+      </Hint>
 
       <MaskedTextField
         data-testid="rmeInput"
