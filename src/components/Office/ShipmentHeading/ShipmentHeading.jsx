@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { PropTypes } from 'prop-types';
 import { Button, Tag } from '@trussworks/react-uswds';
 
-import { AddressShape } from '../../types/address';
+import { AddressShape } from '../../../types/address';
 
 import styles from './shipmentHeading.module.scss';
 
