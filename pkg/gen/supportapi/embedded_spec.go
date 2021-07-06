@@ -1535,6 +1535,8 @@ func init() {
             "actualWeight": {
               "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4000
             },
             "description": {
@@ -1545,6 +1547,8 @@ func init() {
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4200
             },
             "reServiceCode": {
@@ -4246,6 +4250,8 @@ func init() {
             "actualWeight": {
               "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4000
             },
             "description": {
@@ -4256,6 +4262,8 @@ func init() {
             "estimatedWeight": {
               "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
               "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
               "example": 4200
             },
             "reServiceCode": {
