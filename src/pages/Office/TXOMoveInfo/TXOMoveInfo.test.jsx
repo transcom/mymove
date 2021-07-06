@@ -42,14 +42,12 @@ const basicUseTXOMoveInfoQueriesValue = {
 };
 
 const loadingReturnValue = {
-  ...basicUseTXOMoveInfoQueriesValue,
   isLoading: true,
   isError: false,
   isSuccess: false,
 };
 
 const errorReturnValue = {
-  ...basicUseTXOMoveInfoQueriesValue,
   isLoading: false,
   isError: true,
   isSuccess: false,
@@ -60,12 +58,8 @@ const updatedOrdersUseTXOMoveInfoQueriesValue = {
   order: { ...basicUseTXOMoveInfoQueriesValue.order, uploadedAmendedOrderID: '123' },
 };
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
 describe('TXO Move Info Container', () => {
-  describe('check different component states', () => {
+  describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useTXOMoveInfoQueries.mockReturnValue(loadingReturnValue);
 
