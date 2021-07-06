@@ -224,6 +224,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesShowShipmentSummaryWorksheetHandler: moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		}),
+		MovesSubmitAmendedOrdersHandler: moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
+		}),
 		MovesSubmitMoveForApprovalHandler: moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
 		}),
@@ -405,6 +408,8 @@ type MymoveAPI struct {
 	ServiceMembersShowServiceMemberOrdersHandler service_members.ShowServiceMemberOrdersHandler
 	// MovesShowShipmentSummaryWorksheetHandler sets the operation handler for the show shipment summary worksheet operation
 	MovesShowShipmentSummaryWorksheetHandler moves.ShowShipmentSummaryWorksheetHandler
+	// MovesSubmitAmendedOrdersHandler sets the operation handler for the submit amended orders operation
+	MovesSubmitAmendedOrdersHandler moves.SubmitAmendedOrdersHandler
 	// MovesSubmitMoveForApprovalHandler sets the operation handler for the submit move for approval operation
 	MovesSubmitMoveForApprovalHandler moves.SubmitMoveForApprovalHandler
 	// PpmSubmitPersonallyProcuredMoveHandler sets the operation handler for the submit personally procured move operation
@@ -659,6 +664,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MovesShowShipmentSummaryWorksheetHandler == nil {
 		unregistered = append(unregistered, "moves.ShowShipmentSummaryWorksheetHandler")
+	}
+	if o.MovesSubmitAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "moves.SubmitAmendedOrdersHandler")
 	}
 	if o.MovesSubmitMoveForApprovalHandler == nil {
 		unregistered = append(unregistered, "moves.SubmitMoveForApprovalHandler")
@@ -1000,6 +1008,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{moveId}/submit_amended_orders"] = moves.NewSubmitAmendedOrders(o.context, o.MovesSubmitAmendedOrdersHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

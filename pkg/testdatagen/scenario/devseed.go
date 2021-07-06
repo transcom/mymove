@@ -694,6 +694,100 @@ func createUnsubmittedHHGMoveMultiplePickup(db *pop.Connection) {
 	})
 }
 
+func createSubmittedHHGMoveMultiplePickupAmendedOrders(db *pop.Connection, userUploader *uploader.UserUploader) {
+	/*
+	 * A service member with an hhg only, submitted move, with multiple addresses and amended orders
+	 */
+	email := "hhg@multiple.pickup.amendedOrders.submitted"
+	uuidStr := "c5f202b3-90d3-46aa-8e3b-83e937fcca99"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithHHGID := "cfb9024b-39f3-47ca-b14b-a4e78a41e9db"
+	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithHHGID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("MultiplePickup"),
+			LastName:      models.StringPointer("Hhg"),
+			Edipi:         models.StringPointer("5833908165"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.Must(uuid.NewV4()),
+			ServiceMemberID: smWithHHG.ID,
+			ServiceMember:   smWithHHG,
+		},
+		UserUploader: userUploader,
+	})
+
+	orders = makeAmendedOrders(orders, db, userUploader, &[]string{"medium.jpg", "small.pdf"})
+
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: orders,
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("e0463784-d5ea-4974-b526-f2a58c79ed07"),
+			Locator:          "AMENDO",
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+	})
+
+	pickupAddress1 := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "1 First St",
+			StreetAddress2: swag.String("Apt 1"),
+			StreetAddress3: swag.String("Suite A"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	pickupAddress2 := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ID:                       uuid.FromStringOrNil("3c207b2a-d946-11eb-b8bc-0242ac130003"),
+			PickupAddress:            &pickupAddress1,
+			PickupAddressID:          &pickupAddress1.ID,
+			SecondaryPickupAddress:   &pickupAddress2,
+			SecondaryPickupAddressID: &pickupAddress2.ID,
+			ShipmentType:             models.MTOShipmentTypeHHG,
+			ApprovedDate:             swag.Time(time.Now()),
+			Status:                   models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:            move,
+			MoveTaskOrderID:          move.ID,
+		},
+	})
+
+}
+
 func getNtsAndNtsrUuids(move int) [7]string {
 	if move == 1 {
 		return [7]string{
@@ -3815,6 +3909,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createUnsubmittedHHGMoveMultipleDestinations(db)
 	createServiceMemberWithOrdersButNoMoveType(db)
 	createServiceMemberWithNoUploadedOrders(db)
+	createSubmittedHHGMoveMultiplePickupAmendedOrders(db, userUploader)
 
 	// Services Counseling
 	createHHGNeedsServicesCounseling(db)

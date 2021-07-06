@@ -19,9 +19,6 @@ const GhcGetMovesQueueEndpointKey = "Ghc.GetMovesQueue"
 // GhcGetOrderEndpointKey is the key for the getOrder endpoint in ghc
 const GhcGetOrderEndpointKey = "Ghc.GetOrder"
 
-// GhcListMoveTaskOrdersEndpointKey is the key for the listMoveTaskOrders endpoint in ghc
-const GhcListMoveTaskOrdersEndpointKey = "Ghc.ListMoveTaskOrders"
-
 // GhcGetMoveTaskOrderEndpointKey is the key for the getMoveTaskOrder endpoint in ghc
 const GhcGetMoveTaskOrderEndpointKey = "Ghc.GetMoveTaskOrder"
 
@@ -120,10 +117,6 @@ var ghcEndpoints = EndpointMapType{
 	GhcGetOrderEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "getOrder",
-	},
-	GhcListMoveTaskOrdersEndpointKey: {
-		APIName:     GhcAPIName,
-		OperationID: "listMoveTaskOrders",
 	},
 	GhcGetMoveTaskOrderEndpointKey: {
 		APIName:     GhcAPIName,
