@@ -23,6 +23,13 @@ if [[ ! -x "${PKCS15}" ]]; then
   exit 1
 fi
 
+# Looks like placement of this module can vary by versions. Some even have both. The module's docs don't really have
+# info on this, so we'll just have to check both.
+if [[ ! -f /usr/local/lib/opensc-pkcs11.so && ! -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
+  echo "Could not find the opensc-pkcs11 module. You are either missing it or the CAC scripts need to be updated."
+  exit 1
+fi
+
 readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
 
 if [[ -f "${MODULE}" ]]; then

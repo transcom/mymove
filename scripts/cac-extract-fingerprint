@@ -9,12 +9,19 @@ set -eu -o pipefail
 # middleware gets cert, terminates at tls, passes on to middleware
 # in middleware we pull out key, digest it and compare fingerprint
 # to what's stored in DB and then we can authorize effectively
-
-readonly MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
-readonly PKCS11=/usr/local/bin/pkcs11-tool
+#
 
 # Check the CAC Pre-Requirements
 cac-prereqs
+
+if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
+  MODULE=/usr/local/lib/opensc-pkcs11.so
+elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
+  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+fi
+
+readonly MODULE
+readonly PKCS11=/usr/local/bin/pkcs11-tool
 
 # Fingerprint
 "${PKCS11}" --module "${MODULE}" -r --id 01 --type cert 2>/dev/null | openssl dgst -sha256 | perl -ne 's/^\(stdin\)= //; print'

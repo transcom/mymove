@@ -6,11 +6,17 @@ set -eu -o pipefail
 # Get a public key from CAC
 #
 
-readonly MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
-readonly PKCS11=/usr/local/bin/pkcs11-tool
-
 # Check the CAC Pre-Requirements
 cac-prereqs
+
+if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
+  MODULE=/usr/local/lib/opensc-pkcs11.so
+elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
+  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+fi
+
+readonly MODULE
+readonly PKCS11=/usr/local/bin/pkcs11-tool
 
 # Pubkey
 "${PKCS11}" --module "${MODULE}" -r --id 01 --type cert 2>/dev/null | openssl x509 -inform der -pubkey -noout
