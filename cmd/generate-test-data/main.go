@@ -227,11 +227,11 @@ func main() {
 		}
 		storer := storage.InitStorage(v, session, logger)
 
-		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, 25*uploader.MB)
+		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate user uploader", zap.Error(err))
 		}
-		primeUploader, uploaderErr := uploader.NewPrimeUploader(dbConnection, logger, storer, 25*uploader.MB)
+		primeUploader, uploaderErr := uploader.NewPrimeUploader(dbConnection, logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}

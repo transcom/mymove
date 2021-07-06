@@ -41,6 +41,14 @@ const TXOMoveInfo = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  let moveDetailsTagCount = 0;
+  if (unapprovedShipmentCount > 0) {
+    moveDetailsTagCount += unapprovedShipmentCount;
+  }
+  if (order.uploadedAmendedOrderID && !order.amendedOrdersAcknowledgedAt) {
+    moveDetailsTagCount += 1;
+  }
+
   return (
     <>
       <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
@@ -57,7 +65,7 @@ const TXOMoveInfo = () => {
                   data-testid="MoveDetails-Tab"
                 >
                   <span className="tab-title">Move details</span>
-                  {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
+                  {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
                 </NavLink>,
                 <NavLink
                   data-testid="MoveTaskOrder-Tab"

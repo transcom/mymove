@@ -1743,6 +1743,52 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/submit_amended_orders": {
+      "post": {
+        "description": "Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.",
+        "tags": [
+          "moves"
+        ],
+        "summary": "Submits amended orders for review",
+        "operationId": "submitAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns updated (submitted) move object",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to approve this move"
+          },
+          "409": {
+            "description": "the move is not in a state to be approved",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -2089,6 +2135,9 @@ func init() {
     "/orders/{ordersId}/upload_amended_orders": {
       "patch": {
         "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "orders"
         ],
@@ -2104,42 +2153,37 @@ func init() {
             "required": true
           },
           {
-            "name": "amendedOrders",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UploadPayload"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
             "required": true
           }
         ],
         "responses": {
-          "200": {
-            "description": "the instance of the amended orders",
+          "201": {
+            "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/Orders"
+              "$ref": "#/definitions/UploadPayload"
             }
           },
           "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
           },
           "403": {
-            "description": "user is not authorized"
+            "description": "not authorized"
           },
           "404": {
-            "description": "order is not found"
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
-            "description": "internal server error"
+            "description": "server error"
           }
         }
       }
@@ -4849,7 +4893,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "CANCELED",
-        "NEEDS SERVICE COUNSELING"
+        "NEEDS SERVICE COUNSELING",
+        "APPROVALS REQUESTED"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -5052,6 +5097,11 @@ func init() {
         },
         "uploaded_amended_orders": {
           "$ref": "#/definitions/DocumentPayload"
+        },
+        "uploaded_amended_orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
@@ -6367,6 +6417,10 @@ func init() {
       "properties": {
         "bytes": {
           "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
         },
         "content_type": {
           "type": "string",
@@ -8246,6 +8300,52 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/submit_amended_orders": {
+      "post": {
+        "description": "Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.",
+        "tags": [
+          "moves"
+        ],
+        "summary": "Submits amended orders for review",
+        "operationId": "submitAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns updated (submitted) move object",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to approve this move"
+          },
+          "409": {
+            "description": "the move is not in a state to be approved",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -8643,6 +8743,9 @@ func init() {
     "/orders/{ordersId}/upload_amended_orders": {
       "patch": {
         "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
         "tags": [
           "orders"
         ],
@@ -8658,42 +8761,37 @@ func init() {
             "required": true
           },
           {
-            "name": "amendedOrders",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UploadPayload"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
             "required": true
           }
         ],
         "responses": {
-          "200": {
-            "description": "the instance of the amended orders",
+          "201": {
+            "description": "created upload",
             "schema": {
-              "$ref": "#/definitions/Orders"
+              "$ref": "#/definitions/UploadPayload"
             }
           },
           "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
           },
           "403": {
-            "description": "user is not authorized"
+            "description": "not authorized"
           },
           "404": {
-            "description": "order is not found"
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
-            "description": "internal server error"
+            "description": "server error"
           }
         }
       }
@@ -11420,7 +11518,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "CANCELED",
-        "NEEDS SERVICE COUNSELING"
+        "NEEDS SERVICE COUNSELING",
+        "APPROVALS REQUESTED"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -11623,6 +11722,11 @@ func init() {
         },
         "uploaded_amended_orders": {
           "$ref": "#/definitions/DocumentPayload"
+        },
+        "uploaded_amended_orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
@@ -12945,6 +13049,10 @@ func init() {
       "properties": {
         "bytes": {
           "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
         },
         "content_type": {
           "type": "string",

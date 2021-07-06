@@ -34,7 +34,6 @@ type MoveTaskOrderCreator interface {
 //go:generate mockery --name MoveTaskOrderFetcher --disable-version-string
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *MoveTaskOrderFetcherParams) (*models.Move, error)
-	ListMoveTaskOrders(orderID uuid.UUID, searchParams *MoveTaskOrderFetcherParams) ([]models.Move, error)
 	ListAllMoveTaskOrders(searchParams *MoveTaskOrderFetcherParams) (models.Moves, error)
 }
 
@@ -55,7 +54,7 @@ type MoveTaskOrderChecker interface {
 }
 
 // MoveTaskOrderFetcherParams is a public struct that's used to pass filter arguments to
-// ListMoveTaskOrders, ListAllMoveTaskOrders, and FetchMoveTaskOrder queries
+// ListAllMoveTaskOrders, and FetchMoveTaskOrder queries
 type MoveTaskOrderFetcherParams struct {
 	IsAvailableToPrime bool   // indicates if all MTOs returned must be Prime-available
 	IncludeHidden      bool   // indicates if hidden/disabled MTOs should be included in the output
