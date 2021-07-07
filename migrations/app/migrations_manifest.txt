@@ -649,4 +649,3 @@
 20210628223755_add_actual_and_estimated_weight_to_mto_service_items.up.sql
 20210629133827_remove_char_limit_payment_service_item_rejection_reason.up.sql
 20210630143013_add_demo_users.up.sql
-20210701131712_update_demo_admins.up.sql
