@@ -4346,9 +4346,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -9405,9 +9402,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
