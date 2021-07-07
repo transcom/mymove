@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -474,7 +473,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
-		fmt.Println(payload)
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{

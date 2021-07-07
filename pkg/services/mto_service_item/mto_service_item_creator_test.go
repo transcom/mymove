@@ -224,7 +224,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.NotNil(createdServiceItem)
 
 		createdServiceItemList := *createdServiceItem
-		suite.Equal(len(createdServiceItemList), 1)
+		suite.Require().Equal(len(createdServiceItemList), 1)
 		suite.Equal(unit.Pound(4200), *createdServiceItemList[0].EstimatedWeight)
 		suite.Equal(unit.Pound(4000), *createdServiceItemList[0].ActualWeight)
 	})
