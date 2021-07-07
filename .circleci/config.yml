@@ -1673,7 +1673,7 @@ workflows:
           # if testing on experimental or demo, you can enable these tests by using your branch name here
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - integration_tests:
           requires:
@@ -1687,7 +1687,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: demo-env
 
       - integration_tests_mtls:
           requires:
@@ -1700,7 +1700,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: demo-env
 
       - client_test:
           requires:
@@ -1708,7 +1708,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: demo-env
 
       - server_test:
           requires:
@@ -1716,7 +1716,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: demo-env
 
       - build_app:
           requires:
@@ -1760,28 +1760,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - push_migrations_demo:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - push_tasks_demo:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - push_webhook_client_demo:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - deploy_demo_migrations:
           requires:
@@ -1796,28 +1796,28 @@ workflows:
             - push_webhook_client_demo
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - deploy_demo_tasks:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - deploy_demo_app:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - deploy_demo_webhook_client:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: demo-env
 
       - push_app_exp:
           requires:
