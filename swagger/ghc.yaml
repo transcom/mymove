@@ -2956,6 +2956,12 @@ definitions:
       total:
         format: cents
         type: integer
+      estimatedWeight:
+        type: integer
+        description: estimated weight of the shuttle service item provided by the prime
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string
