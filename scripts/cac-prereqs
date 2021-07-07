@@ -13,13 +13,13 @@ readonly PKCS15=/usr/local/bin/pkcs15-tool
 
 if [[ ! -x "${PKCS11}" ]]; then
   echo "${PKCS11} has not been installed"
-  echo "Please install with 'brew install opensc'"
+  echo "Please install with 'brew install --cask opensc'"
   exit 1
 fi
 
 if [[ ! -x "${PKCS15}" ]]; then
   echo "${PKCS15} has not been installed"
-  echo "Please install with 'brew install opensc'"
+  echo "Please install with 'brew install --cask opensc'"
   exit 1
 fi
 
