@@ -292,6 +292,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
 		model.Description = shuttleService.Description
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -349,8 +352,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 	// Here we initialize more fields below for the specific model types.
 	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
-	modelType := mtoServiceItem.ModelType()
-	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+	switch mtoServiceItem.ModelType() {
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
@@ -363,6 +366,11 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 			return nil, verrs
 		}
 
+		return model, nil
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
 		return model, nil
 	}
 

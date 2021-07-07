@@ -1501,6 +1501,18 @@ definitions:
             type: string
             example: Things to be moved to the place by shuttle.
             description: Further details about the shuttle service.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reason
           - reServiceCode
@@ -2065,14 +2077,42 @@ definitions:
       Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DDSHUT - UpdateMTOServiceItemShuttle
+        * DOSHUT - UpdateMTOServiceItemShuttle
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
+      - UpdateMTOServiceItemShuttle
+  UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDSHUT # Domestic Destination Shuttle
+              - DOSHUT # Domestic Origin Shuttle
   UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
-      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
+      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.
     allOf:
       - $ref: '#/definitions/UpdateMTOServiceItem'
       - type: object

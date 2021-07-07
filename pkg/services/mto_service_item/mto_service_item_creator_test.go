@@ -19,6 +19,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop/v5"
 
@@ -74,7 +75,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	return serviceItemForUnapprovedMove
 }
 
-func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() models.MTOServiceItem {
+func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMove() models.MTOServiceItem {
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	dimension := models.MTOServiceItemDimension{
 		Type:      models.DimensionTypeItem,
@@ -96,6 +97,39 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithValidMove() mo
 		MTOShipmentID:   &shipment.ID,
 		MTOShipment:     shipment,
 		Dimensions:      models.MTOServiceItemDimensions{dimension},
+		Status:          models.MTOServiceItemStatusSubmitted,
+	}
+
+	return serviceItem
+}
+
+func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMove() models.MTOServiceItem {
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	reServiceDOSHUT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOSHUT,
+		},
+	})
+
+	estimatedPrimeWeight := unit.Pound(6000)
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedPrimeWeight,
+		},
+	})
+
+	estimatedWeight := unit.Pound(4200)
+	actualWeight := unit.Pound(4000)
+
+	serviceItem := models.MTOServiceItem{
+		MoveTaskOrderID: move.ID,
+		MoveTaskOrder:   move,
+		ReService:       reServiceDOSHUT,
+		MTOShipmentID:   &shipment.ID,
+		MTOShipment:     shipment,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
 		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 
@@ -153,14 +187,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	serviceItem := suite.buildValidServiceItemWithValidMove()
+	serviceItem := suite.buildValidDDFSITServiceItemWithValidMove()
 	move := serviceItem.MoveTaskOrder
+	shutServiceItem := suite.buildValidDOSHUTServiceItemWithValidMove()
+	shutMove := shutServiceItem.MoveTaskOrder
 	builder := query.NewQueryBuilder(suite.DB())
 	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
-	suite.T().Run("success", func(t *testing.T) {
+	suite.T().Run("200 Success - SIT Service Item Creation", func(t *testing.T) {
 		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
 
 		var foundMove models.Move
@@ -174,6 +210,23 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(len(createdServiceItemList), 3)
 		suite.NotEmpty(createdServiceItemList[2].Dimensions)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, foundMove.Status)
+	})
+
+	// Happy path: If the service item is created successfully it should be returned
+	suite.T().Run("200 Success - SHUT Service Item Creation", func(t *testing.T) {
+		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&shutServiceItem)
+
+		var foundMove models.Move
+		suite.DB().Find(&foundMove, shutMove.ID)
+
+		suite.NoError(err)
+		suite.Nil(verrs)
+		suite.NotNil(createdServiceItem)
+
+		createdServiceItemList := *createdServiceItem
+		suite.Require().Equal(len(createdServiceItemList), 1)
+		suite.Equal(unit.Pound(4200), *createdServiceItemList[0].EstimatedWeight)
+		suite.Equal(unit.Pound(4000), *createdServiceItemList[0].ActualWeight)
 	})
 
 	// Status default value: If we try to create an mto service item and haven't set the status, we default to SUBMITTED
