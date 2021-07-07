@@ -2455,7 +2455,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -2484,7 +2484,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemShuttle": {
-      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -5352,7 +5352,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -5381,7 +5381,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemShuttle": {
-      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"

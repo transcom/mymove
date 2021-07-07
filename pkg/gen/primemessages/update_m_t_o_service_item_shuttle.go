@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateMTOServiceItemShuttle Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating and existing service item.
+// UpdateMTOServiceItemShuttle Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
 //
 //
 // swagger:model UpdateMTOServiceItemShuttle
