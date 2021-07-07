@@ -1373,52 +1373,6 @@ func init() {
         }
       ]
     },
-    "/orders/{orderID}/move-task-orders": {
-      "get": {
-        "description": "Gets move task orders associated with an order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Gets move task orders associated with an order",
-        "operationId": "listMoveTaskOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move task orders associated with an order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of order to use",
-          "name": "orderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -6283,67 +6237,6 @@ func init() {
             "description": "The payload was unprocessable.",
             "schema": {
               "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "format": "uuid",
-          "description": "ID of order to use",
-          "name": "orderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/orders/{orderID}/move-task-orders": {
-      "get": {
-        "description": "Gets move task orders associated with an order",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "order"
-        ],
-        "summary": "Gets move task orders associated with an order",
-        "operationId": "listMoveTaskOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move task orders associated with an order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
             }
           },
           "500": {

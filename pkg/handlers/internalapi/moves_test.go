@@ -614,3 +614,53 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	suite.NoError(err)
 	suite.NotZero(bytesRead)
 }
+
+func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
+	suite.Run("Submits move with amended orders for review", func() {
+		// Given: a set of orders, a move, user and service member
+		document := testdatagen.MakeDefaultDocument(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				UploadedAmendedOrders:   &document,
+				UploadedAmendedOrdersID: &document.ID,
+			},
+		})
+
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+			Order: order,
+		})
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit_amended_orders", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+		params := moveop.SubmitAmendedOrdersParams{
+			HTTPRequest: req,
+			MoveID:      strfmt.UUID(move.ID.String()),
+		}
+		// And: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := SubmitAmendedOrdersHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitAmendedOrdersOK{}, response)
+		okResponse := response.(*moveop.SubmitAmendedOrdersOK)
+
+		// And: Returned query to have a submitted status
+		suite.Assertions.Equal(internalmessages.MoveStatusAPPROVALSREQUESTED, okResponse.Payload.Status)
+
+		// And: Check status in database
+		move, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
+		suite.NoError(err)
+		suite.Assertions.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+	})
+}

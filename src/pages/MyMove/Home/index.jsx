@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { withRouter } from 'react-router-dom';
 
@@ -129,6 +129,19 @@ export class Home extends Component {
     }
     return 'Set up your shipments';
   }
+
+  renderAlert = () => {
+    if (this.hasUnapprovedAmendedOrders) {
+      return (
+        <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
+          The transportation office will review your new documents and update your move info. Contact your movers to
+          coordinate any changes to your move.
+          <p>You don&apos;t need to do anything else in MilMove.</p>
+        </Alert>
+      );
+    }
+    return null;
+  };
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
@@ -278,6 +291,7 @@ export class Home extends Component {
 
             {isProfileComplete && (
               <>
+                {this.renderAlert()}
                 {this.renderHelper()}
                 <SectionWrapper>
                   <Step
