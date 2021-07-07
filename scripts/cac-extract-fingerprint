@@ -12,16 +12,8 @@ set -eu -o pipefail
 #
 
 # Check the CAC Pre-Requirements
-cac-prereqs
-
-if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
-  MODULE=/usr/local/lib/opensc-pkcs11.so
-elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
-  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
-fi
-
-readonly MODULE
-readonly PKCS11=/usr/local/bin/pkcs11-tool
+# shellcheck source=scripts/cac-prereqs
+. cac-prereqs
 
 # Fingerprint
 "${PKCS11}" --module "${MODULE}" -r --id 01 --type cert 2>/dev/null | openssl dgst -sha256 | perl -ne 's/^\(stdin\)= //; print'
