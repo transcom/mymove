@@ -148,6 +148,7 @@ func (e *edi997Processor) logEDI(edi ediResponse997.EDI) {
 	e.logger.Info("EDI 997 log",
 		zap.Int64("997 ICN", edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
 		zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
+		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }
 
@@ -165,5 +166,6 @@ func (e *edi997Processor) logEDIWithPaymentRequest(edi ediResponse997.EDI, payme
 		zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
 		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
 		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }
