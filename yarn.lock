@@ -6943,7 +6943,7 @@ create-thenable@~1.0.0:
     object.omit "~2.0.0"
     unique-concat "~0.2.2"
 
-cross-fetch@^3.0.1, cross-fetch@^3.0.4, cross-fetch@^3.0.6:
+cross-fetch@^3.0.1, cross-fetch@^3.0.4, cross-fetch@^3.1.4:
   version "3.1.4"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.4.tgz#9723f3a3a247bf8b89039f3a380a9244e8fa2f39"
   integrity sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==
@@ -18852,16 +18852,16 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.13.5:
-  version "3.13.5"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.5.tgz#39528db74007a2b3c946fa5392ee2d1a64aa9414"
-  integrity sha512-n4+yS0+jvx7PNq95TulWhjN+v9Cz6GRkdloF3LL0JV2eQ8E8a3a+0/XEppsYGIzb7i2/h7ZMcM5hIxIr7Gr1RA==
+swagger-client@^3.13.6:
+  version "3.13.6"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.6.tgz#144a17348d2ad26e56186415ed89b8def8284bfb"
+  integrity sha512-hmE1qMqEw0C16pIiNlQAfUBO5s7tYLRq2/KPXr96V5BLXe5sAGeffBISuMX5l78wFgDMdAmctqBzEUM4eL3msg==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     btoa "^1.2.1"
     buffer "^6.0.3"
     cookie "~0.4.1"
-    cross-fetch "^3.0.6"
+    cross-fetch "^3.1.4"
     deep-extend "~0.6.0"
     fast-json-patch "^3.0.0-1"
     isomorphic-form-data "~2.0.0"
