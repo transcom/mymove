@@ -15,11 +15,13 @@ const hhgShipmentSchema = Yup.object().shape({
 
 const ntsShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
 });
 
 const ntsReleaseShipmentSchema = Yup.object().shape({
   delivery: OptionalPlaceSchema,
+  secondaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
 });
 
