@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 
@@ -151,19 +152,63 @@ const newMoveDetailsQuery = {
   isSuccess: true,
 };
 
-describe('Services Counseling Move Info Container', () => {
-  useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-  it('should render the move tab container', () => {
-    const wrapper = mount(
-      <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
-        <ServicesCounselingMoveInfo />
-      </MockProviders>,
-    );
+const loadingReturnValue = {
+  ...newMoveDetailsQuery,
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
 
-    expect(wrapper.find('CustomerHeader').exists()).toBe(true);
+const errorReturnValue = {
+  ...newMoveDetailsQuery,
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
+describe('Services Counseling Move Info Container', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
+  describe('Basic rendering', () => {
+    useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+    it('should render the move tab container', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find('CustomerHeader').exists()).toBe(true);
+    });
+  });
   describe('routing', () => {
+    useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
     it('should handle the Services Counseling Move Details route', () => {
       const wrapper = mount(
         <MockProviders initialEntries={[`/counseling/moves/${testMoveCode}/details`]}>

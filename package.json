@@ -173,10 +173,10 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 40,
-        "functions": 35,
-        "lines": 40,
-        "statements": 40
+        "branches": 60,
+        "functions": 55,
+        "lines": 65,
+        "statements": 65
       }
     },
     "transformIgnorePatterns": [
