@@ -2473,7 +2473,7 @@ func init() {
   },
   "tags": [
     {
-      "description": "A military move.",
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
@@ -5196,7 +5196,7 @@ func init() {
   },
   "tags": [
     {
-      "description": "A military move.",
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {

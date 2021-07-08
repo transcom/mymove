@@ -21,7 +21,11 @@ schemes:
   - http
 tags:
   - name: moveTaskOrder
-    description: A military move.
+    description: >
+      The **moveTaskOrder** represents a military move that has been sent to a
+      contractor. It contains all the information about shipments, including
+      service items, estimated weights, actual weights, requested and scheduled
+      move dates, etc.
   - name: paymentRequest
   - name: mtoServiceItem
   - name: mtoShipment
@@ -1372,13 +1376,17 @@ definitions:
           estimatedWeight:
             type: integer
             example: 4200
-            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              a shuttling (DDSHUT & DOSHUT) service item.
             x-nullable: true
             x-omitempty: false
           actualWeight:
             type: integer
             example: 4000
-            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            description: >-
+              Provided by the movers, based on weight tickets. Relevant for
+              shuttling (DDSHUT & DOSHUT) service items.
             x-nullable: true
             x-omitempty: false
         required:
