@@ -111,6 +111,11 @@ export const selectUploadsForCurrentOrders = (state) => {
   return orders ? orders.uploaded_orders?.uploads : [];
 };
 
+export const selectUploadsForCurrentAmendedOrders = (state) => {
+  const orders = selectCurrentOrders(state);
+  return orders ? orders.uploaded_amended_orders?.uploads : [];
+};
+
 /** Moves */
 export const selectMovesForLoggedInUser = (state) => {
   const orders = selectOrdersForLoggedInUser(state);

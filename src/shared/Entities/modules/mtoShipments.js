@@ -9,30 +9,6 @@ export function getMTOShipments(moveTaskOrderID, label = getMTOShipmentsOperatio
   return swaggerRequest(getGHCClient, getMTOShipmentsOperation, { moveTaskOrderID }, { label, schemaKey });
 }
 
-const mtoShipmentSchemaKey = 'mtoShipment';
-const patchMTOShipmentStatusOperation = 'mtoShipment.patchMTOShipmentStatus';
-export function patchMTOShipmentStatus(
-  moveTaskOrderID,
-  shipmentID,
-  shipmentStatus,
-  ifMatchETag,
-  rejectionReason,
-  label = patchMTOShipmentStatusOperation,
-  schemaKey = mtoShipmentSchemaKey,
-) {
-  return swaggerRequest(
-    getGHCClient,
-    patchMTOShipmentStatusOperation,
-    {
-      moveTaskOrderID,
-      shipmentID,
-      'If-Match': ifMatchETag,
-      body: { status: shipmentStatus, rejectionReason },
-    },
-    { label, schemaKey },
-  );
-}
-
 const loadMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
 export function loadMTOShipments(
   moveTaskOrderID,

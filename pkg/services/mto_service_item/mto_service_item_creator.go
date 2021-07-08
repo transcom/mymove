@@ -24,6 +24,7 @@ type createMTOServiceItemQueryBuilder interface {
 type mtoServiceItemCreator struct {
 	builder          createMTOServiceItemQueryBuilder
 	createNewBuilder func(db *pop.Connection) createMTOServiceItemQueryBuilder
+	moveRouter       services.MoveRouter
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
@@ -290,7 +291,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 
 		if moveShouldBeApproved {
-			err = move.Approve()
+			err = o.moveRouter.Approve(&move)
 			if err != nil {
 				return fmt.Errorf("%e", err)
 			}
@@ -299,7 +300,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
 		} else {
-			err = move.SetApprovalsRequested()
+			err = o.moveRouter.SendToOfficeUser(&move)
 			if err != nil {
 				return fmt.Errorf("%e", err)
 			}
@@ -375,13 +376,13 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(firstSIT *models.MTOServ
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
 
-	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder}
+	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter}
 }
 
 func validateTimeMilitaryField(timeMilitary string) error {

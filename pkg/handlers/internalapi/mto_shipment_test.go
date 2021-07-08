@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -20,7 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"net/http/httptest"
-	"testing"
 
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -31,22 +32,32 @@ import (
 // CREATE
 //
 
-func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+type mtoCreateSubtestData struct {
+	serviceMember models.ServiceMember
+	pickupAddress models.Address
+	mtoShipment   models.MTOShipment
+	builder       *query.Builder
+	params        mtoshipmentops.CreateMTOShipmentParams
+}
 
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtestData) {
+	subtestData = &mtoCreateSubtestData{}
+	db := suite.DB()
+	mto := testdatagen.MakeDefaultMove(db)
 
-	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	subtestData.serviceMember = testdatagen.MakeDefaultServiceMember(db)
+
+	subtestData.pickupAddress = testdatagen.MakeDefaultAddress(db)
 	secondaryPickupAddress := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
 
 	destinationAddress := testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{})
 	secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	subtestData.mtoShipment = testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: models.MTOShipment{},
 	})
-	mtoShipment.MoveTaskOrderID = mto.ID
+	subtestData.mtoShipment.MoveTaskOrderID = mto.ID
 
 	mtoAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
@@ -59,26 +70,25 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	customerRemarks := "I have some grandfather clocks."
 
-	builder := query.NewQueryBuilder(suite.DB())
+	subtestData.builder = query.NewQueryBuilder(db)
 
 	req := httptest.NewRequest("POST", "/mto_shipments", nil)
-	unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
-	req = suite.AuthenticateRequest(req, serviceMember)
+	req = suite.AuthenticateRequest(req, subtestData.serviceMember)
 
-	params := mtoshipmentops.CreateMTOShipmentParams{
+	subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &internalmessages.CreateShipment{
-			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
 			Agents:          agents,
 			CustomerRemarks: &customerRemarks,
 			PickupAddress: &internalmessages.Address{
-				City:           &pickupAddress.City,
-				Country:        pickupAddress.Country,
-				PostalCode:     &pickupAddress.PostalCode,
-				State:          &pickupAddress.State,
-				StreetAddress1: &pickupAddress.StreetAddress1,
-				StreetAddress2: pickupAddress.StreetAddress2,
-				StreetAddress3: pickupAddress.StreetAddress3,
+				City:           &subtestData.pickupAddress.City,
+				Country:        subtestData.pickupAddress.Country,
+				PostalCode:     &subtestData.pickupAddress.PostalCode,
+				State:          &subtestData.pickupAddress.State,
+				StreetAddress1: &subtestData.pickupAddress.StreetAddress1,
+				StreetAddress2: subtestData.pickupAddress.StreetAddress2,
+				StreetAddress3: subtestData.pickupAddress.StreetAddress3,
 			},
 			SecondaryPickupAddress: &internalmessages.Address{
 				City:           &secondaryPickupAddress.City,
@@ -107,20 +117,28 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
 				StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
 			},
-			RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
-			RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
+			RequestedPickupDate:   strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate),
+			RequestedDeliveryDate: strfmt.Date(*subtestData.mtoShipment.RequestedDeliveryDate),
 			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
 		},
 	}
 
-	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+	return subtestData
+}
+
+func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+
+	suite.Run("Successful POST - Integration Test", func() {
+		subtestData := suite.makeCreateSubtestData()
+		params := subtestData.params
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
 		}
-		response := handler.Handle(params)
+		response := handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 
@@ -145,16 +163,17 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
-	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+	suite.Run("POST failure - 400 - invalid input, missing pickup address", func() {
+		subtestData := suite.makeCreateSubtestData()
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
 		}
 
-		badParams := params
+		badParams := subtestData.params
 		badParams.Body.PickupAddress = nil
 
 		response := handler.Handle(badParams)
@@ -162,26 +181,29 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 	})
 
-	suite.T().Run("POST failure - 401- permission denied - not authenticated", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+	suite.Run("POST failure - 401- permission denied - not authenticated", func() {
+		subtestData := suite.makeCreateSubtestData()
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+
+		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		unauthorizedParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: unauthorizedReq,
 			Body: &internalmessages.CreateShipment{
-				MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+				MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
 				Agents:          internalmessages.MTOAgents{},
 				CustomerRemarks: nil,
 				PickupAddress: &internalmessages.Address{
-					City:           &pickupAddress.City,
-					Country:        pickupAddress.Country,
-					PostalCode:     &pickupAddress.PostalCode,
-					State:          &pickupAddress.State,
-					StreetAddress1: &pickupAddress.StreetAddress1,
-					StreetAddress2: pickupAddress.StreetAddress2,
-					StreetAddress3: pickupAddress.StreetAddress3,
+					City:           &subtestData.pickupAddress.City,
+					Country:        subtestData.pickupAddress.Country,
+					PostalCode:     &subtestData.pickupAddress.PostalCode,
+					State:          &subtestData.pickupAddress.State,
+					StreetAddress1: &subtestData.pickupAddress.StreetAddress1,
+					StreetAddress2: subtestData.pickupAddress.StreetAddress2,
+					StreetAddress3: subtestData.pickupAddress.StreetAddress3,
 				},
-				RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
-				RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
+				RequestedPickupDate:   strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate),
+				RequestedDeliveryDate: strfmt.Date(*subtestData.mtoShipment.RequestedDeliveryDate),
 				ShipmentType:          internalmessages.MTOShipmentTypeHHG,
 			},
 		}
@@ -196,12 +218,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
 	})
 
-	suite.T().Run("POST failure - 403- permission denied - wrong application", func(t *testing.T) {
+	suite.Run("POST failure - 403- permission denied - wrong application", func() {
+		subtestData := suite.makeCreateSubtestData()
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
-		unauthorizedReq = suite.AuthenticateOfficeRequest(req, officeUser)
-		unauthorizedParams := params
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		req := subtestData.params.HTTPRequest
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedParams := subtestData.params
 		unauthorizedParams.HTTPRequest = unauthorizedReq
 
 		handler := CreateMTOShipmentHandler{
@@ -214,10 +238,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnauthorized{}, response)
 	})
 
-	suite.T().Run("POST failure - 404 -- not found", func(t *testing.T) {
+	suite.Run("POST failure - 404 -- not found", func() {
+		subtestData := suite.makeCreateSubtestData()
 
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -225,7 +250,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
-		badParams := params
+		badParams := subtestData.params
 		badParams.Body.MoveTaskOrderID = handlers.FmtUUID(uuid.FromStringOrNil(uuidString))
 
 		response := handler.Handle(badParams)
@@ -233,9 +258,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("POST failure - 400 -- nil body", func(t *testing.T) {
-		fetcher := fetch.NewFetcher(builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+	suite.Run("POST failure - 400 -- nil body", func() {
+		subtestData := suite.makeCreateSubtestData()
+		fetcher := fetch.NewFetcher(subtestData.builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -243,14 +269,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 
 		otherParams := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
+			HTTPRequest: subtestData.params.HTTPRequest,
 		}
 		response := handler.Handle(otherParams)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentBadRequest{}, response)
 	})
 
-	suite.T().Run("POST failure - 500", func(t *testing.T) {
+	suite.Run("POST failure - 500", func() {
+		subtestData := suite.makeCreateSubtestData()
 		mockCreator := mocks.MTOShipmentCreator{}
 
 		handler := CreateMTOShipmentHandler{
@@ -265,7 +292,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		response := handler.Handle(params)
+		response := handler.Handle(subtestData.params)
 
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
 
@@ -365,16 +392,17 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 }
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
-	builder := query.NewQueryBuilder(suite.DB())
 	planner := &routemocks.Planner{}
 	planner.On("TransitDistance",
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 
-	suite.T().Run("Successful PATCH - Integration Test", func(t *testing.T) {
+	suite.Run("Successful PATCH - Integration Test", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -407,9 +435,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.NotEmpty(updatedShipment.Agents[0].ID)
 	})
 
-	suite.T().Run("Successful PATCH - Can update shipment status", func(t *testing.T) {
+	suite.Run("Successful PATCH - Can update shipment status", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -430,9 +459,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(expectedStatus, updatedResponse.Payload.Status)
 	})
 
-	suite.T().Run("PATCH failure - 400 -- nil body", func(t *testing.T) {
+	suite.Run("PATCH failure - 400 -- nil body", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -447,9 +477,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 400 -- invalid requested status update", func(t *testing.T) {
+	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -464,9 +495,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 401- permission denied - not authenticated", func(t *testing.T) {
+	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -484,10 +516,11 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnauthorized{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 403- permission denied - wrong application / user", func(t *testing.T) {
+	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -506,9 +539,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentForbidden{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 404 -- not found", func(t *testing.T) {
+	suite.Run("PATCH failure - 404 -- not found", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -524,9 +558,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("PATCH failure - 412 -- etag mismatch", func(t *testing.T) {
+	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
+		builder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -545,7 +580,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Update: This test is not passing due swagger validation failing and no server-side validation
 	// happening. These changes weren't covered in MB-3691, so we'll need to do addt'l
 	// work to fix. Since we have refactoring slated for addresses, we can do then.
-	// suite.T().Run("PATCH failure - 422 -- invalid input", func(t *testing.T) {
+	// suite.Run("PATCH failure - 422 -- invalid input", func() {
 	// 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	// 	fetcher := fetch.NewFetcher(builder)
 	// 	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
@@ -585,7 +620,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	// })
 
-	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
+	suite.Run("PATCH failure - 500", func() {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 
 		handler := UpdateMTOShipmentHandler{
@@ -595,7 +630,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		err := errors.New("ServerError")
 
-		mockUpdater.On("UpdateMTOShipment",
+		mockUpdater.On("UpdateMTOShipmentCustomer",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)
@@ -616,7 +652,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 // GET ALL
 //
 
-func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
+type mtoListSubtestData struct {
+	shipments models.MTOShipments
+	params    mtoshipmentops.ListMTOShipmentsParams
+}
+
+func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestData) {
+	subtestData = &mtoListSubtestData{}
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -653,27 +695,33 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
-			Status:                   models.MTOShipmentStatusSubmitted,
-			RequestedPickupDate:      &requestedPickupDate,
-			PickupAddress:            &pickupAddress,
-			SecondaryPickupAddress:   &secondaryPickupAddress,
-			DestinationAddress:       &deliveryAddress,
-			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &requestedPickupDate,
 		},
+		PickupAddress:            pickupAddress,
+		SecondaryPickupAddress:   secondaryPickupAddress,
+		DestinationAddress:       deliveryAddress,
+		SecondaryDeliveryAddress: secondaryDeliveryAddress,
 	})
 
-	shipments := models.MTOShipments{mtoShipment, mtoShipment2}
+	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
-	params := mtoshipmentops.ListMTOShipmentsParams{
+	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 	}
 
-	suite.T().Run("Successful list fetch - 200 - Integration Test", func(t *testing.T) {
+	return subtestData
+
+}
+
+func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
+	suite.Run("Successful list fetch - 200 - Integration Test", func() {
+		subtestData := suite.makeListSubtestData()
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -683,22 +731,21 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			fetcher,
 		}
 
-		response := handler.Handle(params)
+		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-
 		suite.Len(okResponse.Payload, 2)
 
 		firstShipmentReturned := okResponse.Payload[0]
 		secondShipmentReturned := okResponse.Payload[1]
 
 		// we expect the shipment that was created first to come first in the response
-		suite.Equal(mtoShipment.ID.String(), firstShipmentReturned.ID.String())
-		suite.Equal(mtoShipment2.ID.String(), secondShipmentReturned.ID.String())
+		suite.Equal(subtestData.shipments[0].ID.String(), firstShipmentReturned.ID.String())
+		suite.Equal(subtestData.shipments[1].ID.String(), secondShipmentReturned.ID.String())
 
 		for i, returnedShipment := range okResponse.Payload {
-			expectedShipment := shipments[i]
+			expectedShipment := subtestData.shipments[i]
 
 			suite.Equal(expectedShipment.Status, models.MTOShipmentStatus(returnedShipment.Status))
 
@@ -711,12 +758,14 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.PickupAddress.State, *returnedShipment.PickupAddress.State)
 			suite.Equal(expectedShipment.PickupAddress.PostalCode, *returnedShipment.PickupAddress.PostalCode)
 
-			suite.Equal(expectedShipment.SecondaryPickupAddress.StreetAddress1, *returnedShipment.SecondaryPickupAddress.StreetAddress1)
-			suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress2, *returnedShipment.SecondaryPickupAddress.StreetAddress2)
-			suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress3, *returnedShipment.SecondaryPickupAddress.StreetAddress3)
-			suite.Equal(expectedShipment.SecondaryPickupAddress.City, *returnedShipment.SecondaryPickupAddress.City)
-			suite.Equal(expectedShipment.SecondaryPickupAddress.State, *returnedShipment.SecondaryPickupAddress.State)
-			suite.Equal(expectedShipment.SecondaryPickupAddress.PostalCode, *returnedShipment.SecondaryPickupAddress.PostalCode)
+			if expectedShipment.SecondaryPickupAddress != nil {
+				suite.Equal(expectedShipment.SecondaryPickupAddress.StreetAddress1, *returnedShipment.SecondaryPickupAddress.StreetAddress1)
+				suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress2, *returnedShipment.SecondaryPickupAddress.StreetAddress2)
+				suite.Equal(*expectedShipment.SecondaryPickupAddress.StreetAddress3, *returnedShipment.SecondaryPickupAddress.StreetAddress3)
+				suite.Equal(expectedShipment.SecondaryPickupAddress.City, *returnedShipment.SecondaryPickupAddress.City)
+				suite.Equal(expectedShipment.SecondaryPickupAddress.State, *returnedShipment.SecondaryPickupAddress.State)
+				suite.Equal(expectedShipment.SecondaryPickupAddress.PostalCode, *returnedShipment.SecondaryPickupAddress.PostalCode)
+			}
 
 			suite.Equal(expectedShipment.DestinationAddress.StreetAddress1, *returnedShipment.DestinationAddress.StreetAddress1)
 			suite.Equal(*expectedShipment.DestinationAddress.StreetAddress2, *returnedShipment.DestinationAddress.StreetAddress2)
@@ -725,18 +774,21 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.DestinationAddress.State, *returnedShipment.DestinationAddress.State)
 			suite.Equal(expectedShipment.DestinationAddress.PostalCode, *returnedShipment.DestinationAddress.PostalCode)
 
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
-			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
-			suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
-			suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
+			if expectedShipment.SecondaryDeliveryAddress != nil {
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
+				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
+				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
+				suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
+			}
 		}
 	})
 
-	suite.T().Run("POST failure - 400 - Bad Request", func(t *testing.T) {
+	suite.Run("POST failure - 400 - Bad Request", func() {
+		subtestData := suite.makeListSubtestData()
 		emtpyMTOID := mtoshipmentops.ListMTOShipmentsParams{
-			HTTPRequest:     req,
+			HTTPRequest:     subtestData.params.HTTPRequest,
 			MoveTaskOrderID: "",
 		}
 		mockListFetcher := mocks.ListFetcher{}
@@ -752,12 +804,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsBadRequest{}, response)
 	})
 
-	suite.T().Run("POST failure - 401 - permission denied - not authenticated", func(t *testing.T) {
+	suite.Run("POST failure - 401 - permission denied - not authenticated", func() {
+		subtestData := suite.makeListSubtestData()
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedReq := suite.AuthenticateOfficeRequest(subtestData.params.HTTPRequest, officeUser)
 		unauthorizedParams := mtoshipmentops.ListMTOShipmentsParams{
 			HTTPRequest:     unauthorizedReq,
-			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			MoveTaskOrderID: *handlers.FmtUUID(subtestData.shipments[0].MoveTaskOrderID),
 		}
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
@@ -772,7 +825,8 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsUnauthorized{}, response)
 	})
 
-	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+	suite.Run("Failure list fetch - 404 Not Found - Move Task Order ID", func() {
+		subtestData := suite.makeListSubtestData()
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
@@ -788,11 +842,12 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			mock.Anything,
 		).Return(notfound)
 
-		response := handler.Handle(params)
+		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})
 
-	suite.T().Run("Failure list fetch - 500 Internal Server Error", func(t *testing.T) {
+	suite.Run("Failure list fetch - 500 Internal Server Error", func() {
+		subtestData := suite.makeListSubtestData()
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
@@ -816,7 +871,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			mock.Anything,
 		).Return(internalServerErr)
 
-		response := handler.Handle(params)
+		response := handler.Handle(subtestData.params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
 	})
 }

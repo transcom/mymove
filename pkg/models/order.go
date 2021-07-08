@@ -33,34 +33,35 @@ const (
 
 // Order is a set of orders received by a service member
 type Order struct {
-	ID                      uuid.UUID                          `json:"id" db:"id"`
-	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
-	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
-	ServiceMemberID         uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
-	ServiceMember           ServiceMember                      `belongs_to:"service_members" fk_id:"service_member_id"`
-	IssueDate               time.Time                          `json:"issue_date" db:"issue_date"`
-	ReportByDate            time.Time                          `json:"report_by_date" db:"report_by_date"`
-	OrdersType              internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
-	OrdersTypeDetail        *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
-	HasDependents           bool                               `json:"has_dependents" db:"has_dependents"`
-	SpouseHasProGear        bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
-	OriginDutyStation       *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
-	OriginDutyStationID     *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
-	NewDutyStationID        uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation          DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
-	UploadedOrders          Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
-	UploadedOrdersID        uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
-	OrdersNumber            *string                            `json:"orders_number" db:"orders_number"`
-	Moves                   Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
-	Status                  OrderStatus                        `json:"status" db:"status"`
-	TAC                     *string                            `json:"tac" db:"tac"`
-	SAC                     *string                            `json:"sac" db:"sac"`
-	DepartmentIndicator     *string                            `json:"department_indicator" db:"department_indicator"`
-	Grade                   *string                            `json:"grade" db:"grade"`
-	Entitlement             *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
-	EntitlementID           *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
-	UploadedAmendedOrders   *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
-	UploadedAmendedOrdersID *uuid.UUID                         `json:"uploaded_amended_orders_id" db:"uploaded_amended_orders_id"`
+	ID                          uuid.UUID                          `json:"id" db:"id"`
+	CreatedAt                   time.Time                          `json:"created_at" db:"created_at"`
+	UpdatedAt                   time.Time                          `json:"updated_at" db:"updated_at"`
+	ServiceMemberID             uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
+	ServiceMember               ServiceMember                      `belongs_to:"service_members" fk_id:"service_member_id"`
+	IssueDate                   time.Time                          `json:"issue_date" db:"issue_date"`
+	ReportByDate                time.Time                          `json:"report_by_date" db:"report_by_date"`
+	OrdersType                  internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
+	OrdersTypeDetail            *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
+	HasDependents               bool                               `json:"has_dependents" db:"has_dependents"`
+	SpouseHasProGear            bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
+	OriginDutyStation           *DutyStation                       `belongs_to:"duty_stations" fk_id:"origin_duty_station_id"`
+	OriginDutyStationID         *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
+	NewDutyStationID            uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
+	NewDutyStation              DutyStation                        `belongs_to:"duty_stations" fk_id:"new_duty_station_id"`
+	UploadedOrders              Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
+	UploadedOrdersID            uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
+	OrdersNumber                *string                            `json:"orders_number" db:"orders_number"`
+	Moves                       Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
+	Status                      OrderStatus                        `json:"status" db:"status"`
+	TAC                         *string                            `json:"tac" db:"tac"`
+	SAC                         *string                            `json:"sac" db:"sac"`
+	DepartmentIndicator         *string                            `json:"department_indicator" db:"department_indicator"`
+	Grade                       *string                            `json:"grade" db:"grade"`
+	Entitlement                 *Entitlement                       `belongs_to:"entitlements" fk_id:"entitlement_id"`
+	EntitlementID               *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
+	UploadedAmendedOrders       *Document                          `belongs_to:"documents" fk_id:"uploaded_amended_orders_id"`
+	UploadedAmendedOrdersID     *uuid.UUID                         `json:"uploaded_amended_orders_id" db:"uploaded_amended_orders_id"`
+	AmendedOrdersAcknowledgedAt *time.Time                         `json:"amended_orders_acknowledged_at" db:"amended_orders_acknowledged_at"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -82,10 +83,17 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
 		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
-		&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx},
-		&StringIsPresentAfterSubmission{Name: "DepartmentIndicator", Field: o.DepartmentIndicator, Order: *o, DB: tx},
-		&StringIsPresentAfterSubmission{Name: "OrdersNumber", Field: o.OrdersNumber, Order: *o, DB: tx},
-		&OrdersTypeDetailIsPresentAfterSubmission{Name: "OrdersTypeDetail", Field: o.OrdersTypeDetail, Order: *o, DB: tx},
+		// TODO with the implementation of amended orders, the customer can upload an amended order which
+		// TODO will need to update/save the order. The order is failing because the customer
+		// TODO does not update these fields. There is a thread going about this
+		// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+		// https://dp3.atlassian.net/browse/MB-8665
+		// TODO thinking that implementing something similar to AllowedFileTypes for validation
+		// TODO on office required fields vs customer required fields might be an option
+		//&StringIsPresentAfterSubmission{Name: "TransportationAccountingCode", Field: o.TAC, Order: *o, DB: tx},
+		//&StringIsPresentAfterSubmission{Name: "DepartmentIndicator", Field: o.DepartmentIndicator, Order: *o, DB: tx},
+		//&StringIsPresentAfterSubmission{Name: "OrdersNumber", Field: o.OrdersNumber, Order: *o, DB: tx},
+		//&OrdersTypeDetailIsPresentAfterSubmission{Name: "OrdersTypeDetail", Field: o.OrdersTypeDetail, Order: *o, DB: tx},
 		&OptionalRegexMatch{Name: "TransportationAccountingCode", Field: o.TAC, Expr: `\A([A-Za-z0-9]){4}\z`, Message: "TAC must be exactly 4 alphanumeric characters."},
 		&validators.UUIDIsPresent{Field: o.UploadedOrdersID, Name: "UploadedOrdersID"},
 		&OptionalUUIDIsPresent{Field: o.UploadedAmendedOrdersID, Name: "UploadedAmendedOrdersID"},
@@ -202,6 +210,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"NewDutyStation.Address",
 		"NewDutyStation.TransportationOffice",
 		"UploadedOrders",
+		"UploadedAmendedOrders",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications",
 		"Entitlement",

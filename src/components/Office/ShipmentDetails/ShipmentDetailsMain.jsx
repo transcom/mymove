@@ -18,18 +18,19 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
     primeActualWeight,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
+
   return (
     <div className={className}>
       <ImportantShipmentDates
         requestedPickupDate={formatDate(requestedPickupDate)}
-        scheduledPickupDate={formatDate(scheduledPickupDate)}
+        scheduledPickupDate={scheduledPickupDate ? formatDate(scheduledPickupDate) : null}
       />
       <ShipmentAddresses
         pickupAddress={pickupAddress}
         destinationAddress={destinationAddress || destinationDutyStationAddress?.postal_code}
         originDutyStation={originDutyStationAddress}
         destinationDutyStation={destinationDutyStationAddress}
-        shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag }}
+        shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag, shipmentStatus: shipment.status }}
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />

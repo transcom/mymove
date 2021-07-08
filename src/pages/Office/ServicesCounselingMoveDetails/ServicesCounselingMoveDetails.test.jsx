@@ -82,7 +82,7 @@ const mtoShipments = [
   },
   {
     customerRemarks: 'do not drop!',
-    counselorRemarks: '',
+    counselorRemarks: 'looks good',
     destinationAddress: {
       city: 'Fairfield',
       country: 'US',
@@ -489,6 +489,23 @@ describe('MoveDetails page', () => {
           }),
         );
       }
+    });
+
+    it('shows the customer and counselor remarks', async () => {
+      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+
+      render(mockedComponent);
+
+      const customerRemarks1 = await screen.findByText('please treat gently');
+      const customerRemarks2 = await screen.findByText('do not drop!');
+
+      const counselorRemarks1 = await screen.findByText('all good');
+      const counselorRemarks2 = await screen.findByText('looks good');
+
+      expect(customerRemarks1).toBeInTheDocument();
+      expect(customerRemarks2).toBeInTheDocument();
+      expect(counselorRemarks1).toBeInTheDocument();
+      expect(counselorRemarks2).toBeInTheDocument();
     });
   });
 

@@ -158,14 +158,12 @@ func MakeStubbedMoveWithStatus(db *pop.Connection, status models.MoveStatus) mod
 }
 
 // MakeApprovalsRequestedMove makes a Move with status 'Approvals Requested'
-func MakeApprovalsRequestedMove(db *pop.Connection) models.Move {
+func MakeApprovalsRequestedMove(db *pop.Connection, assertions Assertions) models.Move {
 	now := time.Now()
-	move := MakeMove(db, Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Status:             models.MoveStatusAPPROVALSREQUESTED,
-		},
-	})
+	assertions.Move.AvailableToPrimeAt = &now
+	assertions.Move.Status = models.MoveStatusAPPROVALSREQUESTED
+
+	move := MakeMove(db, assertions)
 	return move
 }
 
@@ -180,14 +178,11 @@ func MakeNeedsServiceCounselingMove(db *pop.Connection) models.Move {
 }
 
 // MakeServiceCounselingCompletedMove makes a Move with status 'Service Counseling Completed'
-func MakeServiceCounselingCompletedMove(db *pop.Connection) models.Move {
+func MakeServiceCounselingCompletedMove(db *pop.Connection, assertions Assertions) models.Move {
 	now := time.Now()
-	move := MakeMove(db, Assertions{
-		Move: models.Move{
-			ServiceCounselingCompletedAt: &now,
-			Status:                       models.MoveStatusServiceCounselingCompleted,
-		},
-	})
+	assertions.Move.ServiceCounselingCompletedAt = &now
+	assertions.Move.Status = models.MoveStatusServiceCounselingCompleted
+	move := MakeMove(db, assertions)
 	return move
 }
 

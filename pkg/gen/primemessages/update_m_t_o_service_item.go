@@ -121,6 +121,12 @@ func unmarshalUpdateMTOServiceItem(data []byte, consumer runtime.Consumer) (Upda
 			return nil, err
 		}
 		return &result, nil
+	case "UpdateMTOServiceItemShuttle":
+		var result UpdateMTOServiceItemShuttle
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 }

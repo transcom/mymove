@@ -27,7 +27,7 @@ type UploadInformation struct {
 }
 
 // UploadInformationFetcher is the service object interface for FetchUploadInformation
-//go:generate mockery --name UploadInformationFetcher
+//go:generate mockery --name UploadInformationFetcher --disable-version-string
 type UploadInformationFetcher interface {
 	FetchUploadInformation(uuid uuid.UUID) (UploadInformation, error)
 }

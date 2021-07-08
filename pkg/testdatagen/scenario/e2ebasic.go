@@ -15,6 +15,8 @@ import (
 	"log"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
@@ -41,7 +43,7 @@ We should not be creating random data in e2ebasic! Tests should be deterministic
 type e2eBasicScenario NamedScenario
 
 // E2eBasicScenario Is the thing
-var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
+var E2eBasicScenario = e2eBasicScenario{Name: "e2e_basic"}
 
 // Often weekends and holidays are not allowable dates
 var cal = dates.NewUSCalendar()
@@ -94,6 +96,7 @@ func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator str
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+	moveRouter := moverouter.NewMoveRouter(db, logger)
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
 	var allDutyStations []models.DutyStation
 	db.All(&allDutyStations)
@@ -191,7 +194,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm0.Move.Submit()
+	moveRouter.Submit(&ppm0.Move)
 	verrs, err := models.SaveMoveDependencies(db, &ppm0.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -229,7 +232,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoAdvance.Move.Submit()
+	moveRouter.Submit(&ppmNoAdvance.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -266,8 +269,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmStorage.Move.Submit()
-	ppmStorage.Move.Approve()
+	moveRouter.Submit(&ppmStorage.Move)
+	moveRouter.Approve(&ppmStorage.Move)
 	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
@@ -307,8 +310,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmNoStorage.Move.Submit()
-	ppmNoStorage.Move.Approve()
+	moveRouter.Submit(&ppmNoStorage.Move)
+	moveRouter.Approve(&ppmNoStorage.Move)
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
@@ -349,7 +352,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmToCancel.Move.Submit()
+	moveRouter.Submit(&ppmToCancel.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmToCancel.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -388,8 +391,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm1.Move.Submit()
-	ppm1.Move.Approve()
+	moveRouter.Submit(&ppm1.Move)
+	moveRouter.Approve(&ppm1.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppm1.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -436,8 +439,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm2.Move.Submit()
-	ppm2.Move.Approve()
+	moveRouter.Submit(&ppm2.Move)
+	moveRouter.Approve(&ppm2.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -506,8 +509,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	}
 	testdatagen.MakeMoveDocument(db, docAssertions)
-	ppm3.Move.Submit()
-	ppm3.Move.Approve()
+	moveRouter.Submit(&ppm3.Move)
+	moveRouter.Approve(&ppm3.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -565,8 +568,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	}
 	ppmExcludedCalculations := testdatagen.MakePPM(db, assertions)
 
-	ppmExcludedCalculations.Move.Submit()
-	ppmExcludedCalculations.Move.Approve()
+	moveRouter.Submit(&ppmExcludedCalculations.Move)
+	moveRouter.Approve(&ppmExcludedCalculations.Move)
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -629,12 +632,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmCanceled.Move.Submit()
+	moveRouter.Submit(&ppmCanceled.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-	ppmCanceled.Move.Cancel("reasons")
+	moveRouter.Cancel("reasons", &ppmCanceled.Move)
 	verrs, err = models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -797,7 +800,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	move.Submit()
+	moveRouter.Submit(&move)
 	verrs, err = models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
@@ -1118,8 +1121,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm6.Move.Submit()
-	ppm6.Move.Approve()
+	moveRouter.Submit(&ppm6.Move)
+	moveRouter.Approve(&ppm6.Move)
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	verrs, err = models.SaveMoveDependencies(db, &ppm6.Move)
@@ -1166,8 +1169,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm7.Move.Submit()
-	ppm7.Move.Approve()
+	moveRouter.Submit(&ppm7.Move)
+	moveRouter.Approve(&ppm7.Move)
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	verrs, err = models.SaveMoveDependencies(db, &ppm7.Move)
@@ -1214,8 +1217,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppm5.Move.Submit()
-	ppm5.Move.Approve()
+	moveRouter.Submit(&ppm5.Move)
+	moveRouter.Approve(&ppm5.Move)
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -1265,8 +1268,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
-	ppmApproved.Move.Submit()
-	ppmApproved.Move.Approve()
+	moveRouter.Submit(&ppmApproved.Move)
+	moveRouter.Approve(&ppmApproved.Move)
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())

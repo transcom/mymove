@@ -198,7 +198,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 	mtoShipment.ID = shipmentID
 
-	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
+	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(params.HTTPRequest.Context(), mtoShipment, params.IfMatch)
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -257,60 +257,6 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 	returnPayload := payloads.MTOShipment(updatedMtoShipment)
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
-}
-
-// PatchShipmentHandler patches shipments
-type PatchShipmentHandler struct {
-	handlers.HandlerContext
-	services.Fetcher
-	services.MTOShipmentStatusUpdater
-}
-
-// Handle patches shipments
-func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	bodyStatus := params.Body.Status
-	status := models.MTOShipmentStatus(*bodyStatus)
-	rejectionReason := params.Body.RejectionReason
-	eTag := params.IfMatch
-	shipment, err := h.UpdateMTOShipmentStatus(shipmentID, status, rejectionReason, eTag)
-	if err != nil {
-		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
-
-		switch e := err.(type) {
-		case services.NotFoundError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
-		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.ValidationErrors)
-			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		case mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewPatchMTOShipmentStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
-		default:
-			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
-		}
-	}
-
-	_, err = event.TriggerEvent(event.Event{
-		EndpointKey: event.GhcPatchMTOShipmentStatusEndpointKey,
-		// Endpoint that is being handled
-		EventKey:        event.MTOShipmentUpdateEventKey, // Event that you want to trigger
-		UpdatedObjectID: shipment.ID,                     // ID of the updated logical object
-		MtoID:           shipment.MoveTaskOrderID,        // ID of the associated Move
-		Request:         params.HTTPRequest,              // Pass on the http.Request
-		DBConnection:    h.DB(),                          // Pass on the pop.Connection
-		HandlerContext:  h,                               // Pass on the handlerContext
-	})
-	// If the event trigger fails, just log the error.
-	if err != nil {
-		logger.Error("ghcapi.PatchShipmentHandler could not generate the event")
-	}
-
-	payload := payloads.MTOShipment(shipment)
-	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
 }
 
 // DeleteShipmentHandler soft deletes a shipment

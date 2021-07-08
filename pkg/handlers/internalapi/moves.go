@@ -415,3 +415,47 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerContext
 }
+
+// SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
+type SubmitAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveRouter
+}
+
+// Handle ... submit a move to TOO for approval
+func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+	h.MoveRouter.SetLogger(logger)
+
+	err = h.MoveRouter.Submit(move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	if verrs, saveErr := h.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(saveErr, "Error Saving Move")
+	}
+
+	if responseVErrors.HasAny() {
+		return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+	}
+
+	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
+}

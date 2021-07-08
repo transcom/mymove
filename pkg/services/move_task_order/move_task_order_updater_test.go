@@ -2,8 +2,9 @@ package movetaskorder_test
 
 import (
 	"encoding/base64"
-	"testing"
 	"time"
+
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -28,11 +29,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		},
 		Order: expectedOrder,
 	})
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	mtoUpdater := NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 
-	suite.T().Run("MTO status is updated succesfully", func(t *testing.T) {
+	suite.RunWithRollback("MTO status is updated succesfully", func() {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
 		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
@@ -43,7 +50,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.Equal(actualMTO.Status, models.MoveStatusServiceCounselingCompleted)
 	})
 
-	suite.T().Run("MTO status is in a conflicted state", func(t *testing.T) {
+	suite.RunWithRollback("MTO status is in a conflicted state", func() {
 		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusDRAFT,
@@ -57,7 +64,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		suite.IsType(services.ConflictError{}, err)
 	})
 
-	suite.T().Run("Etag is stale", func(t *testing.T) {
+	suite.RunWithRollback("Etag is stale", func() {
 		expectedMTO = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusNeedsServiceCounseling,
@@ -79,14 +86,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	})
 
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	mtoUpdater := NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 	body := movetaskorderops.UpdateMTOPostCounselingInformationBody{
 		PpmType:            "FULL",
 		PpmEstimatedWeight: 3000,
 		PointOfContact:     "user@prime.com",
 	}
 
-	suite.T().Run("MTO post counseling information is updated succesfully", func(t *testing.T) {
+	suite.RunWithRollback("MTO post counseling information is updated succesfully", func() {
 		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
 
 		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(expectedMTO.ID, body, eTag)
@@ -107,7 +120,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		suite.NotNil(expectedMTO.Orders.NewDutyStation.Address.State)
 	})
 
-	suite.T().Run("Etag is stale", func(t *testing.T) {
+	suite.RunWithRollback("Etag is stale", func() {
 		eTag := etag.GenerateEtag(time.Now())
 		_, err := mtoUpdater.UpdatePostCounselingInfo(expectedMTO.ID, body, eTag)
 
@@ -127,10 +140,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Set up the necessary updater objects:
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	updater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder))
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	updater := NewMoveTaskOrderUpdater(
+		suite.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
 
 	// Case: Move successfully deactivated
-	suite.T().Run("Success - Set show field to false", func(t *testing.T) {
+	suite.RunWithRollback("Success - Set show field to false", func() {
 		show = false
 		updatedMove, err := updater.ShowHide(move.ID, &show)
 
@@ -141,7 +160,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Move successfully activated
-	suite.T().Run("Success - Set show field to true", func(t *testing.T) {
+	suite.RunWithRollback("Success - Set show field to true", func() {
 		show = true
 		updatedMove, err := updater.ShowHide(move.ID, &show)
 
@@ -152,7 +171,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Move UUID not found in DB
-	suite.T().Run("Fail - Move not found", func(t *testing.T) {
+	suite.Run("Fail - Move not found", func() {
 		badMoveID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		updatedMove, err := updater.ShowHide(badMoveID, &show)
 
@@ -163,7 +182,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Show input value is nil, not True or False
-	suite.T().Run("Fail - Nil value in show field", func(t *testing.T) {
+	suite.RunWithRollback("Fail - Nil value in show field", func() {
 		updatedMove, err := updater.ShowHide(move.ID, nil)
 
 		suite.Nil(updatedMove)
@@ -174,7 +193,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Invalid input found while updating the move
 	// TODO: Is there a way to mock ValidateUpdate so that these tests actually mean something?
-	suite.T().Run("Fail - Invalid input found on move", func(t *testing.T) {
+	suite.RunWithRollback("Fail - Invalid input found on move", func() {
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
 			mock.Anything, // our arguments aren't important here because there's no specific way to trigger this error
@@ -189,7 +208,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Case: Query error encountered while updating the move
-	suite.T().Run("Fail - Query error", func(t *testing.T) {
+	suite.RunWithRollback("Fail - Query error", func() {
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
 			mock.Anything, // our arguments aren't important here because there's no specific way to trigger this error
@@ -207,9 +226,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
 	mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
 
-	suite.T().Run("Service item creator is not called if move fails to get approved", func(t *testing.T) {
+	suite.RunWithRollback("Service item creator is not called if move fails to get approved", func() {
 		// Create move in DRAFT status, which should fail to get approved
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
@@ -219,7 +239,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		suite.Error(err)
 	})
 
-	suite.T().Run("When ETag is stale", func(t *testing.T) {
+	suite.RunWithRollback("When ETag is stale", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,

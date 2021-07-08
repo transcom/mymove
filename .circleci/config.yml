@@ -13,7 +13,7 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-55d6d1fc05e24d833c7b6ddc8f43ca901a40f22c
 
   postgres: &postgres postgres:12.4
 
@@ -503,6 +503,18 @@ commands:
             DB_NAME_TEST: test_db
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
+      - run:
+          name: make db_test_truncate for <<parameters.application>>
+          command: make db_test_truncate
+          environment:
+            APPLICATION: '<< parameters.application >>'
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
       - run:
           name: make server_test_standalone for <<parameters.application>>
           command: |

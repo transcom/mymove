@@ -20,6 +20,10 @@ type Order struct {
 	// agency
 	Agency Branch `json:"agency,omitempty"`
 
+	// amended orders acknowledged at
+	// Format: date-time
+	AmendedOrdersAcknowledgedAt *strfmt.DateTime `json:"amendedOrdersAcknowledgedAt,omitempty"`
+
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 
@@ -93,6 +97,10 @@ type Order struct {
 	// TAC
 	Tac *string `json:"tac,omitempty"`
 
+	// uploaded amended order ID
+	// Format: uuid
+	UploadedAmendedOrderID *strfmt.UUID `json:"uploadedAmendedOrderID,omitempty"`
+
 	// uploaded order id
 	// Format: uuid
 	UploadedOrderID strfmt.UUID `json:"uploaded_order_id,omitempty"`
@@ -103,6 +111,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAgency(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAmendedOrdersAcknowledgedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -158,6 +170,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateUploadedAmendedOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUploadedOrderID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -178,6 +194,19 @@ func (m *Order) validateAgency(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("agency")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) validateAmendedOrdersAcknowledgedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AmendedOrdersAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("amendedOrdersAcknowledgedAt", "body", "date-time", m.AmendedOrdersAcknowledgedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -385,6 +414,19 @@ func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("report_by_date", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) validateUploadedAmendedOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedAmendedOrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("uploadedAmendedOrderID", "body", "uuid", m.UploadedAmendedOrderID.String(), formats); err != nil {
 		return err
 	}
 

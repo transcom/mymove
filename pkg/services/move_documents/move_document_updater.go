@@ -24,7 +24,7 @@ type moveDocumentUpdater struct {
 }
 
 //Updater interface for individual document updaters
-//go:generate mockery --name Updater
+//go:generate mockery --name Updater --disable-version-string
 type Updater interface {
 	Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }

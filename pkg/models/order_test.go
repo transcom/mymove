@@ -49,9 +49,15 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 		order.UploadedAmendedOrdersID = &uuid.Nil
 
 		expErrors := map[string][]string{
-			"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
-			"department_indicator":           {"DepartmentIndicator cannot be blank."},
-			"uploaded_amended_orders_id":     {"UploadedAmendedOrdersID can not be blank."},
+			// TODO We are disabling validation for these fields for now.
+			// TODO With the implementation of amended orders, the customer can upload an amended order which
+			// TODO will need to update/save the order. The order is failing because the customer
+			// TODO does not update these fields. There is a thread going about this
+			// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+			// https://dp3.atlassian.net/browse/MB-8665
+			//"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
+			//"department_indicator":           {"DepartmentIndicator cannot be blank."},
+			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
 		}
 
 		suite.verifyValidationErrors(&order, expErrors)
@@ -103,6 +109,13 @@ func (suite *ModelSuite) TestTacFormat() {
 	}
 }
 
+// TODO Some validation rules for orders have been disabled for now.
+// TODO with the implementation of amended orders, the customer can upload an amended order which
+// TODO will need to update/save the order. The order is failing because the customer
+// TODO does not update these fields. There is a thread going about this
+// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+// https://dp3.atlassian.net/browse/MB-8665
+/*
 func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 	invalidCases := []struct {
 		desc  string
@@ -148,11 +161,9 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		suite.verifyValidationErrors(&order, expErrors)
 	}
 }
+*/
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
@@ -233,9 +244,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 }
 
 func (suite *ModelSuite) TestFetchOrderNotForUser() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -282,8 +290,6 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -318,7 +324,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	suite.MustSave(&order)
 
 	// Submit Orders
-	err = order.Submit()
+	err := order.Submit()
 	suite.NoError(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
@@ -329,8 +335,6 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 }
 
 func (suite *ModelSuite) TestSaveOrder() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	orderID := uuid.Must(uuid.NewV4())
 	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
 
