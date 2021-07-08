@@ -1,3 +1,5 @@
+import { fileUploadTimeout } from '../../support/constants';
+
 describe('orders entry', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -64,9 +66,9 @@ describe('orders entry', function () {
       expect(loc.pathname).to.eq('/orders/amend');
     });
 
-    // cy.get('.filepond--label-action').click();
     cy.upload_file('.filepond--root', 'top-secret.png');
-    // cy.get('button').contains('Save').click();
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
+
     cy.nextPage();
 
     cy.location().should((loc) => {
