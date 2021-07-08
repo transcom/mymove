@@ -3,6 +3,10 @@ describe('orders entry', function () {
     cy.prepareCustomerApp();
   });
 
+  beforeEach(() => {
+    cy.logout();
+  });
+
   it('will accept orders information', function () {
     // needs@orde.rs
     cy.apiSignInAsPpmUser('feac0e92-66ec-4cab-ad29-538129bf918e');
@@ -48,6 +52,28 @@ describe('orders entry', function () {
     cy.contains('Continue Move Setup').click();
     cy.location().should((loc) => {
       expect(loc.pathname).to.eq('/orders/upload');
+    });
+  });
+
+  it('will allow amended orders upload', function () {
+    const userId = '6016e423-f8d5-44ca-98a8-af03c8445c94';
+    cy.apiSignInAsUser(userId);
+    cy.contains('Upload documents').click();
+
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.eq('/orders/amend');
+    });
+
+    // cy.get('.filepond--label-action').click();
+    cy.upload_file('.filepond--root', 'top-secret.png');
+    // cy.get('button').contains('Save').click();
+    cy.nextPage();
+
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.eq('/');
+    });
+    cy.get('.usa-alert--success').within(() => {
+      cy.contains('The transportation office will review your new documents');
     });
   });
 });
