@@ -23,7 +23,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
     "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -169,11 +169,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -301,11 +297,7 @@ func init() {
             "required": true
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -419,11 +411,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -497,11 +485,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -641,11 +625,7 @@ func init() {
             }
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
@@ -703,11 +683,7 @@ func init() {
             "required": true
           },
           {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
+            "$ref": "#/parameters/ifMatch"
           },
           {
             "name": "body",
@@ -2455,7 +2431,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -2555,37 +2531,64 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
+      ]
+    }
+  },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
     }
   },
   "responses": {
@@ -2644,7 +2647,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location.\nAll of the items in a shipment are weighed and transported as a discrete unit. One move may include multiple shipments.\nAn **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance.\nIf the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
@@ -2672,7 +2675,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the details and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
+    "description": "The Prime API is a RESTful API that enables the Prime contractor to request information about upcoming moves, update the\ndetails and status of those moves, and make payment requests. It uses Mutual TLS for authentication procedures.\n\nAll endpoints are located at ` + "`" + `primelocal/prime/v1/` + "`" + `.\n",
     "title": "Milmove Prime API",
     "contact": {
       "email": "dp3@truss.works"
@@ -5353,7 +5356,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -5453,40 +5456,64 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
     "ValidationError": {
-      "required": [
-        "invalidFields"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "$ref": "#/definitions/ValidationErrorAllOf1"
-        }
-      ],
-      "properties": {
-        "invalidFields": {
           "type": "object",
-          "additionalProperties": {
-            "description": "List of errors for the field",
-            "type": "array",
-            "items": {
-              "type": "string"
+          "required": [
+            "invalidFields"
+          ],
+          "properties": {
+            "invalidFields": {
+              "type": "object",
+              "additionalProperties": {
+                "description": "List of errors for the field",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
-      }
-    },
-    "ValidationErrorAllOf1": {
-      "type": "object"
+      ]
+    }
+  },
+  "parameters": {
+    "ifMatch": {
+      "type": "string",
+      "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+      "name": "If-Match",
+      "in": "header",
+      "required": true
     }
   },
   "responses": {
@@ -5545,7 +5572,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another location.\nAll of the items in a shipment are weighed and transported as a discrete unit. One move may include multiple shipments.\nAn **mtoShipment**, in particular, is a shipment that belongs to a [moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance.\nIf the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
