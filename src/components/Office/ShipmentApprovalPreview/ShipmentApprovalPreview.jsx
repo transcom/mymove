@@ -10,7 +10,7 @@ import { serviceItemCodes } from 'content/serviceItems';
 import { mtoShipmentTypes } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import ShipmentServiceItemsTable from 'components/Office/ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';

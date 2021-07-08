@@ -7,7 +7,7 @@ import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
 
 import { AddressShape } from 'types/address';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { customerRoutes } from 'constants/routes';
 

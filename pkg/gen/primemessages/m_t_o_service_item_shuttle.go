@@ -33,9 +33,15 @@ type MTOServiceItemShuttle struct {
 
 	statusField MTOServiceItemStatus
 
+	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+	ActualWeight *int64 `json:"actualWeight"`
+
 	// Further details about the shuttle service.
 	// Required: true
 	Description *string `json:"description"`
+
+	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Service codes allowed for this model type.
 	// Required: true
@@ -130,9 +136,15 @@ func (m *MTOServiceItemShuttle) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		ActualWeight *int64 `json:"actualWeight"`
+
 		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
+
+		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
 		// Required: true
@@ -198,7 +210,9 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 	result.statusField = base.Status
 
+	result.ActualWeight = data.ActualWeight
 	result.Description = data.Description
+	result.EstimatedWeight = data.EstimatedWeight
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
 
@@ -213,9 +227,15 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
+		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		ActualWeight *int64 `json:"actualWeight"`
+
 		// Further details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
+
+		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
 		// Required: true
@@ -227,7 +247,11 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		Reason *string `json:"reason"`
 	}{
 
+		ActualWeight: m.ActualWeight,
+
 		Description: m.Description,
+
+		EstimatedWeight: m.EstimatedWeight,
 
 		ReServiceCode: m.ReServiceCode,
 

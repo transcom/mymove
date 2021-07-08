@@ -1,13 +1,13 @@
 import React from 'react';
 import { text, object, number, boolean } from '@storybook/addon-knobs';
 
-import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+import ShipmentHeading from '../ShipmentHeading/ShipmentHeading';
 
 import ShipmentContainer from './ShipmentContainer';
-import ShipmentHeading from './ShipmentHeading';
 
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
-import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
+import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 

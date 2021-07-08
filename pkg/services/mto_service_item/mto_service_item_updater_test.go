@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/swag"
@@ -90,23 +91,29 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.SITEntryDate = &sitEntryDate
 		newServiceItem.Status = "" // should keep the status from the original service item
 		newServiceItem.SITDestinationFinalAddress = &newAddress
+		actualWeight := int64(4000)
+		estimatedWeight := int64(4200)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
-		suite.Equal(updatedServiceItem.ID, serviceItem.ID)
-		suite.Equal(updatedServiceItem.MTOShipmentID, serviceItem.MTOShipmentID)
-		suite.Equal(updatedServiceItem.MoveTaskOrderID, serviceItem.MoveTaskOrderID)
-		suite.Equal(updatedServiceItem.Reason, newServiceItem.Reason)
-		suite.Equal(updatedServiceItem.SITEntryDate.Local(), newServiceItem.SITEntryDate.Local())
-		suite.Equal(updatedServiceItem.Status, serviceItem.Status) // should not have been updated
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.StreetAddress1, newAddress.StreetAddress1)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.City, newAddress.City)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.State, newAddress.State)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.Country, newAddress.Country)
-		suite.Equal(updatedServiceItem.SITDestinationFinalAddress.PostalCode, newAddress.PostalCode)
-		suite.NotEqual(updatedServiceItem.Status, newServiceItem.Status)
+		suite.Equal(serviceItem.ID, updatedServiceItem.ID)
+		suite.Equal(serviceItem.MTOShipmentID, updatedServiceItem.MTOShipmentID)
+		suite.Equal(serviceItem.MoveTaskOrderID, updatedServiceItem.MoveTaskOrderID)
+		suite.Equal(newServiceItem.Reason, updatedServiceItem.Reason)
+		suite.Equal(newServiceItem.SITEntryDate.Local(), updatedServiceItem.SITEntryDate.Local())
+		suite.Equal(serviceItem.Status, updatedServiceItem.Status) // should not have been updated
+		suite.Equal(newAddress.StreetAddress1, updatedServiceItem.SITDestinationFinalAddress.StreetAddress1)
+		suite.Equal(newAddress.City, updatedServiceItem.SITDestinationFinalAddress.City)
+		suite.Equal(newAddress.State, updatedServiceItem.SITDestinationFinalAddress.State)
+		suite.Equal(newAddress.Country, updatedServiceItem.SITDestinationFinalAddress.Country)
+		suite.Equal(newAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
+		suite.Equal(newServiceItem.ActualWeight, updatedServiceItem.ActualWeight)
+		suite.Equal(newServiceItem.EstimatedWeight, updatedServiceItem.EstimatedWeight)
+		suite.NotEqual(newServiceItem.Status, updatedServiceItem.Status)
 	})
 }
 

@@ -10,7 +10,7 @@ import styles from './ServiceItemCard.module.scss';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 import { shipmentTypes, shipmentModificationTypes } from 'constants/shipments';
 import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { toDollarString, formatDateFromIso } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
