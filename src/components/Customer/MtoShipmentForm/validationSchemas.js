@@ -58,8 +58,3 @@ export const OptionalPlaceSchema = Yup.object().shape({
 export const AdditionalAddressSchema = Yup.object().shape({
   address: OptionalAddressSchema,
 });
-
-/*
-(street_addres_2, city, state, postal_code) =>
-street_addres_2 !== '' || city !== '' || (state !== '' && state !== 'Select') || postal_code !== '',
-*/
