@@ -1345,38 +1345,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 
-	email = "profile2@complete.hhg"
-	uuidStr = "72f5faa3-6ea7-42f8-8270-6af3aad3b0dd"
-	loginGovID = uuid.Must(uuid.NewV4())
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovUUID:  &loginGovID,
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("1d72f572-a790-405e-81aa-cc595416edbd"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Move"),
-			LastName:      models.StringPointer("Complete"),
-			Edipi:         models.StringPointer("8893308161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("864e17d0-cd7e-4f5d-a0a2-576eb7a158b1"),
-			Locator: "DFTMFD",
-		},
-		UserUploader: userUploader,
-	})
-
 	email = "profile2@complete.draft"
 	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884077"
 	loginGovID = uuid.Must(uuid.NewV4())
