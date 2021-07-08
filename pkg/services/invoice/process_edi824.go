@@ -200,6 +200,7 @@ func (e *edi824Processor) logEDI(edi ediResponse824.EDI) {
 		zap.Int64("824 ICN", icn),
 		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
 		zap.Int64("858 GCN", otiGCN),
+		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }
 
@@ -228,5 +229,6 @@ func (e *edi824Processor) logEDIWithPaymentRequest(edi ediResponse824.EDI, payme
 		zap.Int64("858 GCN", otiGCN),
 		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
 		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }
