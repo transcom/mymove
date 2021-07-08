@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrime` + "`" + ` timestamp has been\nset, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -344,7 +344,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -2640,10 +2640,11 @@ func init() {
   },
   "tags": [
     {
-      "description": "The **moveTaskOrder** represents a military move that has been sent to the GHC contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
@@ -2686,7 +2687,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrime` + "`" + ` timestamp has been\nset, that move will always appear in this list.\n",
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -3082,7 +3083,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -5540,10 +5541,11 @@ func init() {
   },
   "tags": [
     {
-      "description": "The **moveTaskOrder** represents a military move that has been sent to the GHC contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
