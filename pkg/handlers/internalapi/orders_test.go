@@ -156,17 +156,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersCreated{}, response)
 	okResponse := response.(*ordersop.UploadAmendedOrdersCreated)
 	suite.Assertions.NotNil(okResponse.Payload.ID.String()) // UploadPayload
-
-	/*
-		suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-		suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
-		suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
-		suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
-		suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
-		suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
-		suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
-		suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
-	*/
+	suite.Assertions.Equal("test.pdf", *okResponse.Payload.Filename)
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem
