@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
-import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPointGroup from '../components/DataPointGroup';
 
@@ -308,11 +307,7 @@ export const ServiceItemTables = () => (
   <div id="sb-tables" style={{ padding: '20px' }}>
     <hr />
     <h3>Service item table</h3>
-    <ServiceItemTable />
-    <br />
-    <hr />
-    <h3>Service item table with buttons</h3>
-    <ServiceItemTableHasImg
+    <ServiceItemTable
       statusForTableType="SUBMITTED"
       serviceItems={[
         {

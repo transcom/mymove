@@ -4,9 +4,9 @@ import { mount } from 'enzyme';
 
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 
-import ServiceItemTableHasImg from './index';
+import ServiceItemTable from './index';
 
-describe('ServiceItemTableHasImg', () => {
+describe('ServiceItemTable', () => {
   const defaultProps = {
     handleUpdateMTOServiceItemStatus: jest.fn(),
     handleShowRejectionDialog: jest.fn(),
@@ -23,7 +23,7 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemTable
         {...defaultProps}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
         serviceItems={serviceItems}
@@ -48,7 +48,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -76,7 +76,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -110,7 +110,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -138,7 +138,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -170,7 +170,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}

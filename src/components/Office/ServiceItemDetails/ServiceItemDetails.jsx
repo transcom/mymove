@@ -78,7 +78,7 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
         crateDimensions?.height,
       )}"`;
       detailSection = (
-        <div className={styles.detailImage}>
+        <div className={styles.detailCrating}>
           <dl>
             <p className={styles.detailLine}>{description}</p>
             {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}

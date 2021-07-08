@@ -45,7 +45,7 @@ const serviceItemWithDetails = {
 };
 
 const testDetails = (wrapper) => {
-  expect(wrapper.find('.detailImage p').text()).toBe('grandfather clock');
+  expect(wrapper.find('.detailCrating p').text()).toBe('grandfather clock');
   expect(wrapper.find('.detailType').at(0).text()).toBe('Item Dimensions:');
   expect(wrapper.find('.detail dd').at(0).text()).toBe('7"x2"x3.5"');
 
