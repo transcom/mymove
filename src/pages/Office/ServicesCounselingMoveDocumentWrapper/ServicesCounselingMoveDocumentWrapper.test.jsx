@@ -1,8 +1,11 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 
 import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
+
+import { useOrdersDocumentQueries } from 'hooks/queries';
 
 const mockOriginDutyStation = {
   address: {
@@ -39,70 +42,71 @@ const mockDestinationDutyStation = {
 };
 
 jest.mock('hooks/queries', () => ({
-  useOrdersDocumentQueries: () => {
-    return {
-      orders: {
-        1: {
-          agency: 'ARMY',
-          customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
-          date_issued: '2018-03-15',
-          department_indicator: 'AIR_FORCE',
-          destinationDutyStation: mockDestinationDutyStation,
-          eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
-          entitlement: {
-            authorizedWeight: 5000,
-            dependentsAuthorized: true,
-            eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
-            id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
-            nonTemporaryStorage: true,
-            privatelyOwnedVehicle: true,
-            proGearWeight: 2000,
-            proGearWeightSpouse: 500,
-            requiredMedicalEquipmentWeight: 1000,
-            organizationalClothingAndIndividualEquipment: true,
-            storageInTransit: 2,
-            totalDependents: 1,
-            totalWeight: 5000,
-          },
-          first_name: 'Leo',
-          grade: 'E_1',
-          id: '1',
-          last_name: 'Spacemen',
-          order_number: 'ORDER3',
-          order_type: 'PERMANENT_CHANGE_OF_STATION',
-          order_type_detail: 'HHG_PERMITTED',
-          originDutyStation: mockOriginDutyStation,
-          report_by_date: '2018-08-01',
-          tac: 'F8E1',
-          sac: 'E2P3',
-        },
-      },
-      documents: {
-        2: {
-          id: '2',
-          uploads: [
-            {
-              id: 'z',
-              filename: 'test.pdf',
-              contentType: 'application/pdf',
-              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            },
-          ],
-        },
-      },
-      upload: {
-        z: {
-          id: 'z',
-          filename: 'test.pdf',
-          contentType: 'application/pdf',
-          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-        },
-      },
-    };
-  },
+  useOrdersDocumentQueries: jest.fn(),
 }));
 
 const testMoveId = '10000';
+
+const useOrdersDocumentQueriesReturnValue = {
+  orders: {
+    1: {
+      agency: 'ARMY',
+      customerID: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+      date_issued: '2018-03-15',
+      department_indicator: 'AIR_FORCE',
+      destinationDutyStation: mockDestinationDutyStation,
+      eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC43MTE0Nlo=',
+      entitlement: {
+        authorizedWeight: 5000,
+        dependentsAuthorized: true,
+        eTag: 'MjAyMC0wOS0xNFQxNzo0MTozOC42ODAwOVo=',
+        id: '0dbc9029-dfc5-4368-bc6b-dfc95f5fe317',
+        nonTemporaryStorage: true,
+        privatelyOwnedVehicle: true,
+        proGearWeight: 2000,
+        proGearWeightSpouse: 500,
+        requiredMedicalEquipmentWeight: 1000,
+        organizationalClothingAndIndividualEquipment: true,
+        storageInTransit: 2,
+        totalDependents: 1,
+        totalWeight: 5000,
+      },
+      first_name: 'Leo',
+      grade: 'E_1',
+      id: '1',
+      last_name: 'Spacemen',
+      order_number: 'ORDER3',
+      order_type: 'PERMANENT_CHANGE_OF_STATION',
+      order_type_detail: 'HHG_PERMITTED',
+      originDutyStation: mockOriginDutyStation,
+      report_by_date: '2018-08-01',
+      tac: 'F8E1',
+      sac: 'E2P3',
+    },
+  },
+  upload: {
+    z: {
+      id: 'z',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
+};
+
+const loadingReturnValue = {
+  ...useOrdersDocumentQueriesReturnValue,
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  ...useOrdersDocumentQueriesReturnValue,
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -111,22 +115,49 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('ServicesCounselingMoveDocumentWrapper', () => {
-  it('renders the document viewer', () => {
-    useLocation.mockImplementation(() => ({ pathname: `/counseling/moves/${testMoveId}/orders` }));
-    const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
+      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
 
-    expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+      render(<ServicesCounselingMoveDocumentWrapper />);
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
+      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+
+      render(<ServicesCounselingMoveDocumentWrapper />);
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
-  it('renders the sidebar ServicesCounselingOrders component', () => {
-    useLocation.mockImplementation(() => ({ pathname: `/counseling/moves/${testMoveId}/orders` }));
-    const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
-    expect(wrapper.find('ServicesCounselingOrders').exists()).toBe(true);
-  });
+  describe('Basic rendering', () => {
+    it('renders the document viewer', () => {
+      useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
 
-  it('renders the sidebar ServicesCounselingMoveAllowances component', () => {
-    useLocation.mockImplementation(() => ({ pathname: `/counseling/moves/${testMoveId}/allowances` }));
-    const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
-    expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
+      expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+    });
+
+    it('renders the sidebar ServicesCounselingOrders component', () => {
+      useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
+      expect(wrapper.find('ServicesCounselingOrders').exists()).toBe(true);
+    });
+
+    it('renders the sidebar ServicesCounselingMoveAllowances component', () => {
+      useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/allowances` });
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
+      expect(wrapper.find('ServicesCounselingMoveAllowances').exists()).toBe(true);
+    });
   });
 });
