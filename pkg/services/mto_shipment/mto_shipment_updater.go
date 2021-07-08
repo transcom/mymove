@@ -192,13 +192,17 @@ func (f *mtoShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(mtoShipment *models.
 }
 
 func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoShipmentID),
-	}
-
 	var shipment models.MTOShipment
 
-	err := f.FetchRecord(&shipment, queryFilters)
+	err := f.db.EagerPreload(
+		"PickupAddress",
+		"DestinationAddress",
+		"SecondaryPickupAddress",
+		"SecondaryDeliveryAddress",
+		"MTOAgents",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.Dimensions",
+		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID.String())
 
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipmentID, "Shipment not found")
@@ -276,11 +280,6 @@ func (f *mtoShipmentUpdater) updateMTOShipment(ctx context.Context, mtoShipment 
 	}
 
 	updatedShipment, err := f.RetrieveMTOShipment(mtoShipment.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = f.db.Eager("MTOServiceItems.ReService").Find(updatedShipment, mtoShipment.ID.String())
 	if err != nil {
 		return nil, err
 	}
