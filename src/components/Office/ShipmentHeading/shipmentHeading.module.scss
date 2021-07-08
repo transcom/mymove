@@ -1,6 +1,6 @@
-@import '../../shared/styles/basics';
-@import '../../shared/styles/mixins';
-@import '../../shared/styles/colors';
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+@import 'shared/styles/colors';
 
 .shipmentHeading {
   .shipmentHeadingType {
@@ -35,19 +35,16 @@
     justify-content: space-between;
 
     button {
-     color: $link;
-     padding: 2px 8px;
-     font-size: 13px;
+      color: $link;
+      padding: 2px 8px;
+      font-size: 13px;
     }
 
     button:disabled {
-        background-color: $base-dark;
-        text-transform: uppercase;
-        border-radius: 2px;
-        color: #ffffff;
-
+      background-color: $base-dark;
+      text-transform: uppercase;
+      border-radius: 2px;
+      color: #ffffff;
     }
   }
 }
-
-

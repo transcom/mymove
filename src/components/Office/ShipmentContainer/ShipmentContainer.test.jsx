@@ -1,7 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import ShipmentHeading from './ShipmentHeading';
+import ShipmentHeading from '../ShipmentHeading/ShipmentHeading';
+
 import ShipmentContainer from './ShipmentContainer';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
