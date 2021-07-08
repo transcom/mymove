@@ -77,7 +77,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
-	newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocument(
+	newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
 		h.DB(),
 		logger,
 		session.UserID,
