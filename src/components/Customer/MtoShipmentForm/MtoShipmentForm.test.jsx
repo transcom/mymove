@@ -479,6 +479,99 @@ describe('MtoShipmentForm component', () => {
       expect(zip[3]).toHaveValue(mockMtoShipment.destinationAddress.postal_code);
     });
 
+    it.each([
+      ['Address 1', 'Some Address'],
+      [/Address 2/, '123'],
+      ['City', 'Some City'],
+      ['ZIP', '92131'],
+    ])(
+      'does not allow the user to save the form if the %s field on a secondary addreess is the only one filled out',
+      async (fieldName, text) => {
+        render(
+          <MtoShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            mtoShipment={mockMtoShipment}
+            selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          />,
+        );
+
+        // Verify that the form is good to submit by checking that the save button is not disabled.
+        const saveButton = await screen.findByRole('button', { name: 'Save' });
+        expect(saveButton).not.toBeDisabled();
+
+        userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+        userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+
+        const address = await screen.findAllByLabelText(fieldName);
+        // The second instance of a field is the secondary pickup
+        userEvent.type(address[1], text);
+        await waitFor(() => {
+          expect(saveButton).toBeDisabled();
+        });
+
+        // Clear the field so that the secondary delivery address can be checked
+        userEvent.clear(address[1]);
+        await waitFor(() => {
+          expect(saveButton).not.toBeDisabled();
+        });
+
+        // The fourth instance found is the secondary delivery
+        userEvent.type(address[3], text);
+        await waitFor(() => {
+          expect(saveButton).toBeDisabled();
+        });
+
+        userEvent.clear(address[3]);
+        await waitFor(() => {
+          expect(saveButton).not.toBeDisabled();
+        });
+      },
+    );
+
+    // Similar test as above, but with the state input.
+    // Extracted out since the state field is not a text input.
+    it('does not allow the user to save the form if the state field on a secondary addreess is the only one filled out', async () => {
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          mtoShipment={mockMtoShipment}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+        />,
+      );
+      // Verify that the form is good to submit by checking that the save button is not disabled.
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+
+      userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+      userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+
+      const state = await screen.findAllByLabelText('State');
+      // The second instance of a field is the secondary pickup
+      userEvent.selectOptions(state[1], 'CA');
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+      });
+
+      // Change the selection to blank so that the secondary delivery address can be checked
+      userEvent.selectOptions(state[1], '');
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
+
+      // The fourth instance found is the secondary delivery
+      userEvent.selectOptions(state[3], 'CA');
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+      });
+
+      userEvent.selectOptions(state[3], '');
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
+    });
+
     it('goes back when the cancel button is clicked', async () => {
       render(
         <MtoShipmentForm
