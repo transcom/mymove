@@ -24,7 +24,8 @@ if [[ ! -x "${PKCS15}" ]]; then
 fi
 
 # Looks like placement of this module can vary by versions. Some even have both. The module's docs don't really have
-# info on this, so we'll just have to check both.
+# info on this, so we'll just have to check both. It seems though, like if we move in the direction of using the cask
+# version of opensc, that one may only use the /usr/local/lib/opensc-pkcs11.so path.
 MODULE=
 if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/opensc-pkcs11.so
