@@ -1,7 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
-import { isHappoRun } from 'happo-plugin-storybook/register';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import QueueTable from '../components/QueueTable';
@@ -312,7 +311,7 @@ export const ServiceItemTables = () => (
     <ServiceItemTable />
     <br />
     <hr />
-    <h3>Service item table with images and buttons</h3>
+    <h3>Service item table with buttons</h3>
     <ServiceItemTableHasImg
       statusForTableType="SUBMITTED"
       serviceItems={[
@@ -325,7 +324,6 @@ export const ServiceItemTables = () => (
             description: "Here's the description",
             itemDimensions: { length: 8400, width: 2600, height: 4200 },
             crateDimensions: { length: 110000, width: 36000, height: 54000 },
-            imgURL: isHappoRun() ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           },
         },
       ]}

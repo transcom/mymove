@@ -63,7 +63,6 @@ RequestedServiceItemsTable.propTypes = {
       details: PropTypes.shape({
         reason: PropTypes.string,
         pickupPostalCode: PropTypes.string,
-        imgURL: PropTypes.string,
         itemDimensions: MTOServiceItemDimensionShape,
         crateDimensions: MTOServiceItemDimensionShape,
         firstCustContact: MTOServiceItemCustomerContactShape,

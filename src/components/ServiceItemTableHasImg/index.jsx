@@ -136,7 +136,6 @@ ServiceItemTableHasImg.propTypes = {
       details: PropTypes.shape({
         pickupPostalCode: PropTypes.string,
         reason: PropTypes.string,
-        imgURL: PropTypes.string,
         itemDimensions: MTOServiceItemDimensionShape,
         createDimensions: MTOServiceItemDimensionShape,
         firstCustomerContact: MTOServiceItemCustomerContactShape,

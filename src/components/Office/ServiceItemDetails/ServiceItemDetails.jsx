@@ -66,7 +66,7 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
       break;
     }
     case 'DCRT': {
-      const { imgURL, description, itemDimensions, crateDimensions } = details;
+      const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
       )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
@@ -79,29 +79,11 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
       )}"`;
       detailSection = (
         <div className={styles.detailImage}>
-          {imgURL ? (
-            <>
-              <img
-                className={styles.siThumbnail}
-                alt={description}
-                aria-labelledby={`si-thumbnail--caption-${id}`}
-                src={imgURL}
-              />
-              <small className={styles.detailCaption} id={`si-thumbnail--caption-${id}`}>
-                <dl>
-                  <p className={styles.detailLine}>{description}</p>
-                  {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
-                  {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
-                </dl>
-              </small>
-            </>
-          ) : (
-            <dl>
-              <p className={styles.detailLine}>{description}</p>
-              {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
-              {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
-            </dl>
-          )}
+          <dl>
+            <p className={styles.detailLine}>{description}</p>
+            {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
+          </dl>
         </div>
       );
       break;
@@ -129,7 +111,6 @@ ServiceItemDetails.propTypes = {
     description: PropTypes.string,
     pickupPostalCode: PropTypes.string,
     reason: PropTypes.string,
-    imgURL: PropTypes.string,
     itemDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
     crateDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
     firstCustomerContact: PropTypes.shape({
