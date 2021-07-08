@@ -1,11 +1,12 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
+import ShipmentContainer from '../ShipmentContainer/ShipmentContainer';
+import ShipmentInfoList from '../DefinitionLists/ShipmentInfoList';
+import AllowancesList from '../DefinitionLists/AllowancesList';
+import CustomerInfoList from '../DefinitionLists/CustomerInfoList';
+
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
-import ShipmentContainer from './ShipmentContainer';
-import ShipmentInfoList from './DefinitionLists/ShipmentInfoList';
-import AllowancesList from './DefinitionLists/AllowancesList';
-import CustomerInfoList from './DefinitionLists/CustomerInfoList';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
