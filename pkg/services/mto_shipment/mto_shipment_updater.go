@@ -202,7 +202,7 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mode
 		"MTOAgents",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID.String())
+		"MTOServiceItems.CustomerContacts").Find(&shipment, mtoShipmentID)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipmentID, "Shipment not found")
