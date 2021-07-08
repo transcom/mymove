@@ -117,7 +117,7 @@
     "@redocly/openapi-cli": "^1.0.0-beta.53",
     "@stoplight/spectral": "^5.9.1",
     "@storybook/addon-a11y": "^6.3.2",
-    "@storybook/addon-essentials": "^6.3.2",
+    "@storybook/addon-essentials": "^6.3.3",
     "@storybook/addon-knobs": "^6.2.9",
     "@storybook/addon-links": "^6.3.2",
     "@storybook/addons": "^6.3.2",
