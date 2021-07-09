@@ -46,9 +46,6 @@ type UpdateShipment struct {
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
-
-	// status
-	Status MTOShipmentStatus `json:"status,omitempty"`
 }
 
 // Validate validates this update shipment
@@ -76,10 +73,6 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -158,22 +151,6 @@ func (m *UpdateShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateShipment) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	if err := m.Status.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("status")
 		}
 		return err
 	}

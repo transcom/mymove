@@ -3041,6 +3041,13 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "estimatedWeight": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -4346,9 +4353,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -8097,6 +8101,13 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "estimatedWeight": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -9405,9 +9416,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
