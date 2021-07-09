@@ -113,7 +113,47 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	primeEstimatedWeight = unit.Pound(4500)
 
 	suite.T().Run("Can retrieve existing shipment", func(t *testing.T) {
-		existingShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+
+		existingShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		reServiceDomCrating := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: "DCRT",
+				Name: "Dom. Crating",
+			},
+		})
+
+		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				MoveTaskOrderID: existingShipment.MoveTaskOrderID,
+				MTOShipmentID:   &existingShipment.ID,
+			},
+			ReService: reServiceDomCrating,
+		})
+
+		item := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				Type:      models.DimensionTypeItem,
+				Length:    1000,
+				Height:    1000,
+				Width:     1000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
+			},
+			MTOServiceItem: mtoServiceItem1,
+		})
+
+		crate := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
+			MTOServiceItemDimension: models.MTOServiceItemDimension{
+				MTOServiceItemID: mtoServiceItem1.ID,
+				Type:             models.DimensionTypeCrate,
+				Length:           2000,
+				Height:           2000,
+				Width:            2000,
+				CreatedAt:        time.Time{},
+				UpdatedAt:        time.Time{},
+			},
+		})
+
 		shipment, err := mtoShipmentUpdater.RetrieveMTOShipment(existingShipment.ID)
 
 		suite.NoError(err)
@@ -122,6 +162,16 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(existingShipment.CreatedAt.UTC(), shipment.CreatedAt.UTC())
 		suite.Equal(existingShipment.ShipmentType, shipment.ShipmentType)
 		suite.Equal(existingShipment.UpdatedAt.UTC(), shipment.UpdatedAt.UTC())
+
+		suite.Require().Equal(1, len(shipment.MTOServiceItems))
+		suite.Require().Equal(2, len(shipment.MTOServiceItems[0].Dimensions))
+		for _, s := range shipment.MTOServiceItems[0].Dimensions {
+			if s.Type == models.DimensionTypeCrate {
+				suite.Equal(crate.Height, s.Height)
+			} else {
+				suite.Equal(item.Height, s.Height)
+			}
+		}
 	})
 
 	servicesCounselor := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{})

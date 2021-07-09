@@ -195,6 +195,7 @@ func (f *mtoShipmentUpdater) RetrieveMTOShipment(mtoShipmentID uuid.UUID) (*mode
 	var shipment models.MTOShipment
 
 	err := f.db.EagerPreload(
+		"MoveTaskOrder",
 		"PickupAddress",
 		"DestinationAddress",
 		"SecondaryPickupAddress",
