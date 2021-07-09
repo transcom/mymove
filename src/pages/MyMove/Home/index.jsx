@@ -428,7 +428,7 @@ Home.propTypes = {
     shipmentType: string,
   }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
-  uploadedAmendedOrderDocuments: arrayOf(UploadShape).isRequired,
+  uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
@@ -443,6 +443,7 @@ Home.defaultProps = {
   orders: null,
   serviceMember: null,
   signedCertification: {},
+  uploadedAmendedOrderDocuments: [],
 };
 
 const mapStateToProps = (state) => {
@@ -452,9 +453,9 @@ const mapStateToProps = (state) => {
   return {
     currentPpm: selectCurrentPPM(state) || {},
     isProfileComplete: selectIsProfileComplete(state),
-    orders: selectCurrentOrders(state) || {},
+    orders: selectCurrentOrders(state),
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
-    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state) || [],
+    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
