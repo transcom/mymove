@@ -2751,8 +2751,6 @@ definitions:
   UpdateShipment:
     type: object
     properties:
-      status:
-        $ref: '#/definitions/MTOShipmentStatus'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
