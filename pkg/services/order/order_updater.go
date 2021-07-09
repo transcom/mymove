@@ -219,7 +219,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 	var userUpload *models.UserUpload
 	var verrs *validate.Errors
 	var url string
-	userUpload, url, verrs, err = uploader.CreateUserUploadForDocument(
+	userUpload, url, verrs, err = uploader.CreateUserUploadForDocumentWrapper(
 		db,
 		logger,
 		userID,
