@@ -442,7 +442,7 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
-  orders: null,
+  orders: {},
   serviceMember: null,
   signedCertification: {},
   uploadedAmendedOrderDocuments: [],
