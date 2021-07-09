@@ -12,27 +12,29 @@ export const AgentSchema = Yup.object().shape({
 
 export const OptionalAddressSchema = Yup.object().shape(
   {
-    street_address_1: Yup.string().when(['street_address_2', 'city', 'state', 'postal_code'], {
-      is: (street2, city, state, postalCode) => street2 || city || state || postalCode,
-      then: Yup.string().required('Required'),
-    }),
+    street_address_1: Yup.string().when(
+      ['street_address_2', 'city', 'state', 'postal_code'],
+      (street2, city, state, postalCode, schema) =>
+        street2 || city || state || postalCode ? schema.required('Required') : schema,
+    ),
     street_address_2: Yup.string(),
-    city: Yup.string().when(['street_address_1', 'street_address_2', 'state', 'postal_code'], {
-      is: (street1, street2, state, postalCode) => street1 || street2 || state || postalCode,
-      then: Yup.string().required('Required'),
-    }),
+    city: Yup.string().when(
+      ['street_address_1', 'street_address_2', 'state', 'postal_code'],
+      (street1, street2, state, postalCode, schema) =>
+        street1 || street2 || state || postalCode ? schema.required('Required') : schema,
+    ),
     state: Yup.string()
       .length(2, 'Must use state abbreviation')
-      .when(['street_address_1', 'street_address_2', 'city', 'postal_code'], {
-        is: (street1, street2, city, postalCode) => street1 || street2 || city || postalCode,
-        then: Yup.string().required('Required'),
-      }),
+      .when(
+        ['street_address_1', 'street_address_2', 'city', 'postal_code'],
+        (street1, street2, city, postalCode, schema) =>
+          street1 || street2 || city || postalCode ? schema.required('Required') : schema,
+      ),
     postal_code: Yup.string()
       .matches(ZIP_CODE_REGEX, 'Must be valid zip code')
-      .when(['street_address_1', 'street_address_2', 'city', 'state'], {
-        is: (street1, street2, city, state) => street1 || street2 || city || state,
-        then: Yup.string().required('Required'),
-      }),
+      .when(['street_address_1', 'street_address_2', 'city', 'state'], (street1, street2, city, state, schema) =>
+        street1 || street2 || city || state ? schema.required('Required') : schema,
+      ),
   },
   [
     ['street_address_1', 'street_address_2'],
