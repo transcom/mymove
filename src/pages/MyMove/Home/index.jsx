@@ -136,7 +136,9 @@ export class Home extends Component {
         <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
           The transportation office will review your new documents and update your move info. Contact your movers to
           coordinate any changes to your move.
-          <p>You don&apos;t need to do anything else in MilMove.</p>
+          <br />
+          <br />
+          You don&apos;t need to do anything else in MilMove.
         </Alert>
       );
     }
