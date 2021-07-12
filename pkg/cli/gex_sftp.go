@@ -2,9 +2,9 @@ package cli
 
 import (
 	"fmt"
-	"net"
 
 	"github.com/pkg/sftp"
+	"github.com/rdegges/go-ipify"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -69,21 +69,7 @@ func CheckGEXSFTP(v *viper.Viper) error {
 // would be coming from. https://docs.aws.amazon.com/sdk-for-go/api/service/elbv2/#ELBV2.DescribeLoadBalancerAttributes
 // The only way I could possibly see which is which is to implement both methods, and compare the IPs, and see which matches
 // the IP needed for troubleshooting?
-func GetLocalIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return ""
-	}
-	for _, address := range addrs {
-		// check the address type and if it is not a loopback the display it
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP.String()
-			}
-		}
-	}
-	return ""
-}
+// another option: ipify?
 
 // InitGEXSSH initializes a GEX SSH client from command line flags.
 func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
@@ -93,7 +79,13 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	remote := v.GetString(GEXSFTPIPAddressFlag)
 	port := v.GetString(GEXSFTPPortFlag)
 
-	logger.Info("Connecting from:", zap.String("source_address", GetLocalIP()))
+	ip, err := ipify.GetIp()
+	if err != nil {
+		logger.Error("ipify failure", zap.Error(err))
+	} else {
+		logger.Info("Connecting from:", zap.String("source_address", ip))
+	}
+
 	logger.Info("Parsing GEX SFTP host key...")
 	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
 	if err != nil {
