@@ -16200,7 +16200,7 @@ ra-i18n-polyglot@^3.17.0:
     node-polyglot "^2.2.2"
     ra-core "^3.17.0"
 
-ra-language-english@^3.16.3, ra-language-english@^3.17.0:
+ra-language-english@^3.17.0:
   version "3.17.0"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.17.0.tgz#8eb0f1fc480949430cf1f86164cd6bf31ec0e0e4"
   integrity sha512-pj7H5S6jcIPMtSZnpl1PceoD53XRcE2Vmf3Ig099IH3SDXU78oCqp9BWFFGfYFUCb6s6P4ihaKGZPY/E/EM6lQ==
