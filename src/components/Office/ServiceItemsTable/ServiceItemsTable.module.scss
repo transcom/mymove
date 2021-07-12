@@ -2,7 +2,7 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.ServiceItemTable {
+.ServiceItemsTable {
   @include u-margin-bottom(4);
   td {
     @include u-padding-top(2);

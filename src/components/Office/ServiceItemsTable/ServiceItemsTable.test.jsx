@@ -2,11 +2,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+import ServiceItemsTable from './ServiceItemsTable';
 
-import ServiceItemTableHasImg from './index';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
-describe('ServiceItemTableHasImg', () => {
+describe('ServiceItemsTable', () => {
   const defaultProps = {
     handleUpdateMTOServiceItemStatus: jest.fn(),
     handleShowRejectionDialog: jest.fn(),
@@ -23,7 +23,7 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemsTable
         {...defaultProps}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
         serviceItems={serviceItems}
@@ -41,7 +41,6 @@ describe('ServiceItemTableHasImg', () => {
         code: 'DCRT',
         details: {
           description: 'grandfather clock',
-          imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           itemDimensions: { length: 7000, width: 2000, height: 3500 },
           crateDimensions: { length: 10000, width: 2500, height: 5000 },
         },
@@ -49,15 +48,13 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemsTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
 
-    expect(wrapper.find('.siThumbnail').exists()).toBe(true);
-    expect(wrapper.find('img').prop('src')).toBe(serviceItems[0].details.imgURL);
     expect(wrapper.find('dt').at(0).text()).toBe('Item Dimensions:');
     expect(wrapper.find('dd').at(0).text()).toBe('7"x2"x3.5"');
     expect(wrapper.find('dt').at(1).text()).toBe('Crate Dimensions:');
@@ -79,7 +76,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemsTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -87,7 +84,6 @@ describe('ServiceItemTableHasImg', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('.siThumbnail').exists()).toBe(false);
     expect(wrapper.find('dt').at(0).text()).toBe('First Customer Contact:');
     expect(wrapper.find('dd').at(0).text()).toBe('0400Z');
     expect(wrapper.find('dt').at(1).text()).toBe('First Available Delivery Date:');
@@ -114,7 +110,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemsTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -142,7 +138,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemsTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
@@ -174,7 +170,7 @@ describe('ServiceItemTableHasImg', () => {
     ];
 
     const wrapper = mount(
-      <ServiceItemTableHasImg
+      <ServiceItemsTable
         {...defaultProps}
         serviceItems={serviceItems}
         statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}

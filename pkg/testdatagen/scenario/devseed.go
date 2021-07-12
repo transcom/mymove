@@ -1262,6 +1262,134 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 		}
 	}
 
+	description := "leg lamp"
+	reason := "family heirloom extremely fragile"
+	approvedAt := time.Now()
+	itemDimension := models.MTOServiceItemDimension{
+		Type:   models.DimensionTypeItem,
+		Length: unit.ThousandthInches(2500),
+		Height: unit.ThousandthInches(5000),
+		Width:  unit.ThousandthInches(7500),
+	}
+	crateDimension := models.MTOServiceItemDimension{
+		Type:   models.DimensionTypeCrate,
+		Length: unit.ThousandthInches(3000),
+		Height: unit.ThousandthInches(6000),
+		Width:  unit.ThousandthInches(10000),
+	}
+	crating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDCRT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Status:      models.MTOServiceItemStatusApproved,
+			Description: &description,
+			Reason:      &reason,
+			Dimensions: models.MTOServiceItemDimensions{
+				itemDimension,
+				crateDimension,
+			},
+			ApprovedAt: &approvedAt,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		Stub:        true,
+	})
+
+	uncrating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDUCRT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Description: &description,
+			Reason:      &reason,
+			Dimensions: models.MTOServiceItemDimensions{
+				itemDimension,
+				crateDimension,
+			},
+			Status:     models.MTOServiceItemStatusApproved,
+			ApprovedAt: &approvedAt,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		Stub:        true,
+	})
+
+	standaloneDesc := "baby grand piano"
+	standaloneReason := "in a Billy Joel cover band"
+	cratingStandalone := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDCRTSA,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Description: &standaloneDesc,
+			Reason:      &standaloneReason,
+			Dimensions: models.MTOServiceItemDimensions{
+				itemDimension,
+				crateDimension,
+			},
+			Status:     models.MTOServiceItemStatusApproved,
+			ApprovedAt: &approvedAt,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		Stub:        true,
+	})
+
+	cratingServiceItems := []models.MTOServiceItem{crating, uncrating, cratingStandalone}
+	for index := range cratingServiceItems {
+		_, _, cratingErr := serviceItemCreator.CreateMTOServiceItem(&cratingServiceItems[index])
+		if cratingErr != nil {
+			logger.Fatal("Error creating crating service item", zap.Error(cratingErr))
+		}
+	}
+
+	shuttleDesc := "our smallest capacity shuttle vehicle"
+	shuttleReason := "the bridge clearance was too low"
+	estimatedShuttleWeigtht := unit.Pound(1000)
+	actualShuttleWeight := unit.Pound(1500)
+	originShuttle := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOSHUT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Description:     &shuttleDesc,
+			Reason:          &shuttleReason,
+			EstimatedWeight: &estimatedShuttleWeigtht,
+			ActualWeight:    &actualShuttleWeight,
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAt,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		Stub:        true,
+	})
+
+	destShuttle := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDSHUT,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Description:     &shuttleDesc,
+			Reason:          &shuttleReason,
+			EstimatedWeight: &estimatedShuttleWeigtht,
+			ActualWeight:    &actualShuttleWeight,
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAt,
+		},
+		Move:        move,
+		MTOShipment: longhaulShipment,
+		Stub:        true,
+	})
+
+	shuttleServiceItems := []models.MTOServiceItem{originShuttle, destShuttle}
+	for index := range shuttleServiceItems {
+		_, _, shuttlingErr := serviceItemCreator.CreateMTOServiceItem(&shuttleServiceItems[index])
+		if shuttlingErr != nil {
+			logger.Fatal("Error creating shuttle service item", zap.Error(shuttlingErr))
+		}
+	}
+
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		db,
 		planner,
