@@ -16,7 +16,6 @@
 }
 
 .detailCrating {
-  @include u-display(flex);
   p {
     @include u-margin-top(0);
   }

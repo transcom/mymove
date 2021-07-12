@@ -6,7 +6,7 @@ import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import styles from './RequestedServiceItemsTable.module.scss';
 
-import ServiceItemTable from 'components/ServiceItemTable/index';
+import ServiceItemsTable from 'components/Office/ServiceItemsTable/ServiceItemsTable';
 
 const RequestedServiceItemsTable = ({
   serviceItems,
@@ -37,7 +37,7 @@ const RequestedServiceItemsTable = ({
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
       </h3>
-      <ServiceItemTable
+      <ServiceItemsTable
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
         handleShowRejectionDialog={handleShowRejectionDialog}

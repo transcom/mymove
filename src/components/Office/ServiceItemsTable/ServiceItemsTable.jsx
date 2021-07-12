@@ -4,15 +4,14 @@ import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { SERVICE_ITEM_STATUS } from '../../shared/constants';
-import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/order';
+import styles from './ServiceItemsTable.module.scss';
 
-import styles from './index.module.scss';
-
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from 'types/order';
 import { formatDateFromIso } from 'shared/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 
-const ServiceItemTable = ({
+const ServiceItemsTable = ({
   serviceItems,
   statusForTableType,
   handleUpdateMTOServiceItemStatus,
@@ -107,7 +106,7 @@ const ServiceItemTable = ({
   });
 
   return (
-    <div className={classnames(styles.ServiceItemTable, 'table--service-item', 'table--service-item--hasimg')}>
+    <div className={classnames(styles.ServiceItemsTable, 'table--service-item', 'table--service-item--hasimg')}>
       <table>
         <thead className="table--small">
           <tr>
@@ -122,7 +121,7 @@ const ServiceItemTable = ({
   );
 };
 
-ServiceItemTable.propTypes = {
+ServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
@@ -145,4 +144,4 @@ ServiceItemTable.propTypes = {
   ).isRequired,
 };
 
-export default ServiceItemTable;
+export default ServiceItemsTable;
