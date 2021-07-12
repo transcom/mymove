@@ -80,7 +80,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       newItem.details = {
         pickupPostalCode: item.pickupPostalCode,
         reason: item.reason,
-        imgURL: '',
         description: item.description,
         itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
         crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
