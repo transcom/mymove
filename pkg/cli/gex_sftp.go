@@ -108,10 +108,11 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 		},
 		HostKeyCallback: ssh.FixedHostKey(hostKey),
 	}
-
 	// Connect to SSH client
 	address := remote + ":" + port
+
 	logger.Info("Connecting to GEX SSH...", zap.String("destination_address", address), zap.String("source_address", GetLocalIP()))
+
 	sshClient, err := ssh.Dial("tcp", address, config)
 	if err != nil {
 		logger.Error("Failed to connect to GEX SSH", zap.Error(err))
