@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { push } from 'connected-react-router';
-import { getFormValues } from 'redux-form';
 
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
@@ -22,10 +21,8 @@ import {
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { OrdersShape, HistoryShape } from 'types/customerShapes';
 import { EntitlementShape, ExistingUploadsShape } from 'types';
-
 import 'scenes/Review/Review.css';
 
-const editOrdersFormName = 'edit_orders';
 class EditOrders extends Component {
   constructor(props) {
     super(props);
@@ -102,7 +99,7 @@ class EditOrders extends Component {
   };
 
   render() {
-    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
+    const { error, schema, currentOrders, existingUploads, moveIsApproved } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -130,7 +127,6 @@ class EditOrders extends Component {
               onUploadComplete={this.handleUploadComplete}
               existingUploads={existingUploads}
               onDelete={this.handleDeleteFile}
-              formValues={formValues}
             />
           </div>
         )}
@@ -151,7 +147,6 @@ EditOrders.propTypes = {
   error: PropTypes.shape({
     message: PropTypes.string.isRequired,
   }),
-  formValues: PropTypes.shape({}),
   schema: PropTypes.shape({}),
   spouseHasProGear: PropTypes.bool,
 };
@@ -160,7 +155,6 @@ EditOrders.defaultProps = {
   existingUploads: [],
   error: null,
   spouseHasProGear: false,
-  formValues: {},
   schema: {},
 };
 
@@ -175,7 +169,6 @@ function mapStateToProps(state) {
     serviceMemberId,
     existingUploads: uploads,
     error: get(state, 'orders.error'),
-    formValues: getFormValues(editOrdersFormName)(state),
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),

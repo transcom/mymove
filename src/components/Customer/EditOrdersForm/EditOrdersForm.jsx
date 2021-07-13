@@ -15,7 +15,7 @@ import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox
 import 'scenes/Review/Review.css';
 import profileImage from 'scenes/Review/images/profile.png';
 import { ExistingUploadsShape } from 'types';
-import { UploadsShape } from 'types/customerShapes';
+import { OrdersShape } from 'types/customerShapes';
 
 const editOrdersFormName = 'edit_orders';
 
@@ -102,12 +102,7 @@ EditOrdersForm.propTypes = {
     current: PropTypes.shape({}),
   }),
   schema: PropTypes.shape({}).isRequired,
-  initialValues: PropTypes.shape({
-    uploaded_orders: PropTypes.shape({
-      id: PropTypes.string,
-      uploads: UploadsShape,
-    }),
-  }).isRequired,
+  initialValues: OrdersShape.isRequired,
 };
 
 EditOrdersForm.defaultProps = {
