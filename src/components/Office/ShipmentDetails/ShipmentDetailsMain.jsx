@@ -35,8 +35,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
-      {shipment.customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={shipment.customerRemarks} />}
       {shipment.counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={shipment.counselorRemarks} />}
+      {shipment.customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={shipment.customerRemarks} />}
     </div>
   );
 };
