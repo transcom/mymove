@@ -11,6 +11,11 @@ const details = {
   crateDimensions: { length: 2000, width: 3500, height: 4000 },
   firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
   secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+  estimatedWeight: 2500,
+};
+
+const nilDetails = {
+  estimatedWeight: null,
 };
 
 describe('ServiceItemDetails Domestic Origin SIT', () => {
@@ -53,10 +58,19 @@ describe('ServiceItemDetails Crating', () => {
 });
 
 describe('ServiceItemDetails Domestic Shuttling', () => {
-  it.each([['DOSHUT'], ['DDSHUT']])('renders estimated weight and reason', (code) => {
+  it.each([['DOSHUT'], ['DDSHUT']])('renders formatted estimated weight and reason', (code) => {
     render(<ServiceItemDetails id="1" code={code} details={details} />);
 
-    expect(screen.getByText('Estimated Weight:')).toBeInTheDocument();
+    expect(screen.getByText('2,500 lbs')).toBeInTheDocument();
+    expect(screen.getByText('estimated weight')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
     expect(screen.getByText('some reason')).toBeInTheDocument();
+  });
+
+  it.each([['DOSHUT'], ['DDSHUT']])('renders estimated weight nil values with an em dash', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={nilDetails} />);
+
+    expect(screen.getByText('— lbs')).toBeInTheDocument();
+    expect(screen.getByText('estimated weight')).toBeInTheDocument();
   });
 });
