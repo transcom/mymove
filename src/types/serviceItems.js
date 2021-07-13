@@ -17,6 +17,8 @@ export const ServiceItemCardShape = PropTypes.shape({
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
 });
 
+export const ServiceItemCardsShape = PropTypes.arrayOf(ServiceItemCardShape);
+
 export const ServiceItemDetailsShape = PropTypes.shape({
   id: PropTypes.string,
   mtoShipmentID: PropTypes.string,
@@ -37,6 +39,3 @@ export const ServiceItemDetailsShape = PropTypes.shape({
     estimatedWeight: PropTypes.number,
   }),
 });
-
-// eslint-disable-next-line import/prefer-default-export
-export const ServiceItemCardsShape = PropTypes.arrayOf(ServiceItemCardShape);
