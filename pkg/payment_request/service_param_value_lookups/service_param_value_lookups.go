@@ -44,7 +44,7 @@ func ServiceParamLookupInitialize(
 
 	// Get the MTOServiceItem
 	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("ReService").Find(&mtoServiceItem, mtoServiceItemID)
+	err := db.Eager("ReService", "Dimensions").Find(&mtoServiceItem, mtoServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -359,6 +359,12 @@ func ServiceParamLookupInitialize(
 	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
 		ServiceItem: mtoServiceItem,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameCubicFeetCrating
+	err = s.setLookup(serviceItemCode, paramKey, CubicFeetCratingLookup{})
 	if err != nil {
 		return nil, err
 	}
