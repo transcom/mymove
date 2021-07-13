@@ -2,9 +2,12 @@ package cli
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
 	"github.com/pkg/sftp"
-	"github.com/rdegges/go-ipify"
+	// "github.com/rdegges/go-ipify"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -71,11 +74,17 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	remote := v.GetString(GEXSFTPIPAddressFlag)
 	port := v.GetString(GEXSFTPPortFlag)
 
-	ip, err := ipify.GetIp()
+	resp, err := http.Get("https://checkip.amazonaws.com")
 	if err != nil {
-		logger.Error("ipify failure", zap.Error(err))
+		logger.Error("%w", zap.Error(err))
 	} else {
-		logger.Info("Connecting from:", zap.String("source_address", ip))
+		body, e := ioutil.ReadAll(resp.Body)
+		if e != nil {
+			logger.Error("%w", zap.Error(e))
+		}
+		parsed := string(body)
+		parsed = strings.TrimSpace(parsed)
+		logger.Info("Getting Source Address...", zap.String("source_address", parsed))
 	}
 
 	logger.Info("Parsing GEX SFTP host key...")
