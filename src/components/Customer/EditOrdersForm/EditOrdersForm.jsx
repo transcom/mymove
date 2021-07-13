@@ -19,20 +19,19 @@ import { UploadsShape } from 'types/customerShapes';
 
 const editOrdersFormName = 'edit_orders';
 
-const EditOrdersForm = (props) => {
-  const {
-    createUpload,
-    onDelete,
-    schema,
-    handleSubmit,
-    submitting,
-    valid,
-    initialValues,
-    existingUploads,
-    onUploadComplete,
-    filePondEl,
-    context,
-  } = props;
+const EditOrdersForm = ({
+  createUpload,
+  onDelete,
+  schema,
+  handleSubmit,
+  submitting,
+  valid,
+  initialValues,
+  existingUploads,
+  onUploadComplete,
+  filePondEl,
+  context,
+}) => {
   const showAllOrdersTypes = context.flags.allOrdersTypes;
   const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
 
