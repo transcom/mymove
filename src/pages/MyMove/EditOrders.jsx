@@ -65,18 +65,19 @@ class EditOrders extends Component {
     const { setFlashMessage, entitlement, updateOrders, currentOrders, spouseHasProGear, history } = this.props;
 
     let entitlementCouldChange = false;
-    const modifiedFieldValues = fieldValues;
 
-    modifiedFieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
-    modifiedFieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
-    if (
-      fieldValues.has_dependents !== currentOrders.has_dependents ||
-      fieldValues.spouse_has_pro_gear !== spouseHasProGear
-    ) {
+    const fromFormSpouseHasProGear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
+
+    if (fieldValues.has_dependents !== currentOrders.has_dependents || fromFormSpouseHasProGear !== spouseHasProGear) {
       entitlementCouldChange = true;
     }
 
-    return patchOrders(modifiedFieldValues)
+    const newDutyStationId = fieldValues.new_duty_station.id;
+    return patchOrders({
+      ...fieldValues,
+      new_duty_station_id: newDutyStationId,
+      spouse_has_pro_gear: fromFormSpouseHasProGear,
+    })
       .then((response) => {
         updateOrders(response);
 
