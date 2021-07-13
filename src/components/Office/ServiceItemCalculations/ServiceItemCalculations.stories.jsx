@@ -150,3 +150,12 @@ export const DDASIT = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DDSHUT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationShuttleService}
+    totalAmountRequested={642}
+    itemCode="DDSHUT"
+    tableSize={data.tableSize}
+  />
+);

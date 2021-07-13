@@ -184,6 +184,13 @@ const destinationPrice = (params) => {
   return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), peak(params));
 };
 
+const destinationShuttlePrice = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
+
+  return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params));
+};
+
 const priceEscalationFactor = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
     ? getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
@@ -459,6 +466,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       result = [
         billableWeight(params),
         unpackPrice(params),
+        priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic destination shuttle service
+    case SERVICE_ITEM_CODES.DDSHUT:
+      result = [
+        billableWeight(params),
+        destinationShuttlePrice(params),
         priceEscalationFactor(params),
         totalAmountRequested(totalAmount),
       ];

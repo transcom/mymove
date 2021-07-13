@@ -93,6 +93,7 @@ const SERVICE_ITEM_CODES = {
   DSH: 'DSH',
   DUPK: 'DUPK',
   FSC: 'FSC',
+  DDSHUT: 'DDSHUT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -111,6 +112,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DUPK,
   SERVICE_ITEM_CODES.FSC,
+  SERVICE_ITEM_CODES.DDSHUT,
 ];
 
 export {

@@ -649,12 +649,14 @@ const testParams = {
   ],
   DomesticDestinationShuttleService: [
     RequestedPickupDate,
-    WeightBilledActual,
-    WeightActual,
-    WeightEstimated,
-    ServicesScheduleDest,
     ServiceAreaDest,
+    WeightActual,
+    WeightBilledActual,
+    WeightEstimated,
     ZipDestAddress,
+    PriceRateOrFactor,
+    EscalationCompounded,
+    ContractYearName,
   ],
   NonStandardHHG: [
     RequestedPickupDate,

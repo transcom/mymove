@@ -445,8 +445,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticDestinationShuttleService', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticDestinationShuttleService);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DDSHUT', 99999, testParams.DomesticDestinationShuttleService);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '1.71',
+        label: 'Destination price',
+        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: ['Base year: 2'],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for NonStandardHHG', () => {
