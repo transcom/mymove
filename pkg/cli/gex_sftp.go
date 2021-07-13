@@ -63,14 +63,6 @@ func CheckGEXSFTP(v *viper.Viper) error {
 	return nil
 }
 
-// GetLocalIP returns the non loopback local IP of the host
-// This might be source address, however, we can also try to use the
-// aws sdk to get the IP of the load balancer, since I think that's where the connection request
-// would be coming from. https://docs.aws.amazon.com/sdk-for-go/api/service/elbv2/#ELBV2.DescribeLoadBalancerAttributes
-// The only way I could possibly see which is which is to implement both methods, and compare the IPs, and see which matches
-// the IP needed for troubleshooting?
-// another option: ipify?
-
 // InitGEXSSH initializes a GEX SSH client from command line flags.
 func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	userID := v.GetString(GEXSFTPUserIDFlag)
