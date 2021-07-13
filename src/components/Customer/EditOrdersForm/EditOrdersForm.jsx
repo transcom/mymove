@@ -19,7 +19,7 @@ import { UploadsShape } from 'types/customerShapes';
 
 const editOrdersFormName = 'edit_orders';
 
-let EditOrdersForm = (props) => {
+const EditOrdersForm = (props) => {
   const {
     createUpload,
     onDelete,
@@ -99,7 +99,9 @@ EditOrdersForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   existingUploads: ExistingUploadsShape,
   submitting: PropTypes.bool.isRequired,
-  filePondEl: PropTypes.element.isRequired,
+  filePondEl: PropTypes.shape({
+    current: PropTypes.shape({}),
+  }),
   schema: PropTypes.shape({}).isRequired,
   initialValues: PropTypes.shape({
     uploaded_orders: PropTypes.shape({
@@ -111,9 +113,10 @@ EditOrdersForm.propTypes = {
 
 EditOrdersForm.defaultProps = {
   existingUploads: [],
+  filePondEl: null,
 };
 
-EditOrdersForm = withContext(
+export default withContext(
   reduxForm({
     form: editOrdersFormName,
   })(EditOrdersForm),
