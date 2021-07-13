@@ -7,6 +7,7 @@ import { ShipmentShape } from 'types/shipment';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 
 const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handleDivertShipment }) => {
   const {
@@ -34,6 +35,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
+      {shipment.customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={shipment.customerRemarks} />}
+      {shipment.counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={shipment.counselorRemarks} />}
     </div>
   );
 };
