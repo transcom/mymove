@@ -224,6 +224,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesShowShipmentSummaryWorksheetHandler: moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		}),
+		MovesSubmitAmendedOrdersHandler: moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
+		}),
 		MovesSubmitMoveForApprovalHandler: moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
 		}),
@@ -247,6 +250,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		BackupContactsUpdateServiceMemberBackupContactHandler: backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
+		}),
+		OrdersUploadAmendedOrdersHandler: orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
 		}),
 		AccesscodeValidateAccessCodeHandler: accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
 			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
@@ -402,6 +408,8 @@ type MymoveAPI struct {
 	ServiceMembersShowServiceMemberOrdersHandler service_members.ShowServiceMemberOrdersHandler
 	// MovesShowShipmentSummaryWorksheetHandler sets the operation handler for the show shipment summary worksheet operation
 	MovesShowShipmentSummaryWorksheetHandler moves.ShowShipmentSummaryWorksheetHandler
+	// MovesSubmitAmendedOrdersHandler sets the operation handler for the submit amended orders operation
+	MovesSubmitAmendedOrdersHandler moves.SubmitAmendedOrdersHandler
 	// MovesSubmitMoveForApprovalHandler sets the operation handler for the submit move for approval operation
 	MovesSubmitMoveForApprovalHandler moves.SubmitMoveForApprovalHandler
 	// PpmSubmitPersonallyProcuredMoveHandler sets the operation handler for the submit personally procured move operation
@@ -418,6 +426,8 @@ type MymoveAPI struct {
 	PpmUpdatePersonallyProcuredMoveEstimateHandler ppm.UpdatePersonallyProcuredMoveEstimateHandler
 	// BackupContactsUpdateServiceMemberBackupContactHandler sets the operation handler for the update service member backup contact operation
 	BackupContactsUpdateServiceMemberBackupContactHandler backup_contacts.UpdateServiceMemberBackupContactHandler
+	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
+	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// AccesscodeValidateAccessCodeHandler sets the operation handler for the validate access code operation
 	AccesscodeValidateAccessCodeHandler accesscode.ValidateAccessCodeHandler
 	// EntitlementsValidateEntitlementHandler sets the operation handler for the validate entitlement operation
@@ -655,6 +665,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MovesShowShipmentSummaryWorksheetHandler == nil {
 		unregistered = append(unregistered, "moves.ShowShipmentSummaryWorksheetHandler")
 	}
+	if o.MovesSubmitAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "moves.SubmitAmendedOrdersHandler")
+	}
 	if o.MovesSubmitMoveForApprovalHandler == nil {
 		unregistered = append(unregistered, "moves.SubmitMoveForApprovalHandler")
 	}
@@ -678,6 +691,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.UpdateServiceMemberBackupContactHandler")
+	}
+	if o.OrdersUploadAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "orders.UploadAmendedOrdersHandler")
 	}
 	if o.AccesscodeValidateAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.ValidateAccessCodeHandler")
@@ -995,6 +1011,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/moves/{moveId}/submit_amended_orders"] = moves.NewSubmitAmendedOrders(o.context, o.MovesSubmitAmendedOrdersHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{moveId}/submit"] = moves.NewSubmitMoveForApproval(o.context, o.MovesSubmitMoveForApprovalHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1024,6 +1044,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewUpdateServiceMemberBackupContact(o.context, o.BackupContactsUpdateServiceMemberBackupContactHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{ordersId}/upload_amended_orders"] = orders.NewUploadAmendedOrders(o.context, o.OrdersUploadAmendedOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -48,7 +47,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 
 	pricer := NewDomesticDestinationPricer(suite.DB())
 
-	suite.T().Run("failure during pricing bubbles up", func(t *testing.T) {
+	suite.Run("failure during pricing bubbles up", func() {
 		_, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
@@ -61,14 +60,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 
 	pricer := NewDomesticDestinationPricer(suite.DB())
 
-	suite.T().Run("success all params for destination available", func(t *testing.T) {
+	suite.Run("success all params for destination available", func() {
 		cost, _, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 	})
 
-	suite.T().Run("validation errors", func(t *testing.T) {
+	suite.Run("validation errors", func() {
 		// No contract code
 		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
@@ -99,7 +98,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 
 	pricer := NewDomesticDestinationPricer(suite.DB())
 
-	suite.T().Run("success destination cost within peak period", func(t *testing.T) {
+	suite.Run("success destination cost within peak period", func() {
 		cost, displayParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
@@ -119,7 +118,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("success destination cost within non-peak period", func(t *testing.T) {
+	suite.Run("success destination cost within non-peak period", func() {
 		nonPeakDate := peakStart.addDate(0, -1)
 		cost, displayParams, err := pricer.Price(
 			testdatagen.DefaultContractCode,
@@ -140,7 +139,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("failure if contract code bogus", func(t *testing.T) {
+	suite.Run("failure if contract code bogus", func() {
 		_, _, err := pricer.Price(
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
@@ -152,7 +151,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.Equal("Could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
 	})
 
-	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
+	suite.Run("failure if move date is outside of contract year", func() {
 		_, _, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
@@ -164,7 +163,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.Equal("Could not lookup contract year: "+models.RecordNotFoundErrorString, err.Error())
 	})
 
-	suite.T().Run("weight below minimum", func(t *testing.T) {
+	suite.Run("weight below minimum", func() {
 		cost, _, err := pricer.Price(
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
@@ -176,7 +175,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
 
-	suite.T().Run("validation errors", func(t *testing.T) {
+	suite.Run("validation errors", func() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code

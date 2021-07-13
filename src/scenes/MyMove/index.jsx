@@ -61,6 +61,7 @@ const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
+const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -169,6 +170,7 @@ export class CustomerApp extends Component {
                     component={EditContactInfo}
                   />
                   <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"
                     component={EditDateAndLocation}

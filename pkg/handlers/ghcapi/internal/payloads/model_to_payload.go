@@ -143,27 +143,29 @@ func Order(order *models.Order) *ghcmessages.Order {
 	}
 
 	payload := ghcmessages.Order{
-		DestinationDutyStation: destinationDutyStation,
-		Entitlement:            entitlements,
-		Grade:                  &grade,
-		OrderNumber:            order.OrdersNumber,
-		OrderTypeDetail:        &ordersTypeDetail,
-		ID:                     strfmt.UUID(order.ID.String()),
-		OriginDutyStation:      originDutyStation,
-		ETag:                   etag.GenerateEtag(order.UpdatedAt),
-		Agency:                 branch,
-		CustomerID:             strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:               Customer(&order.ServiceMember),
-		FirstName:              swag.StringValue(order.ServiceMember.FirstName),
-		LastName:               swag.StringValue(order.ServiceMember.LastName),
-		ReportByDate:           strfmt.Date(order.ReportByDate),
-		DateIssued:             strfmt.Date(order.IssueDate),
-		OrderType:              ghcmessages.OrdersType(order.OrdersType),
-		DepartmentIndicator:    &deptIndicator,
-		Tac:                    handlers.FmtStringPtr(order.TAC),
-		Sac:                    handlers.FmtStringPtr(order.SAC),
-		UploadedOrderID:        strfmt.UUID(order.UploadedOrdersID.String()),
-		MoveCode:               moveCode,
+		DestinationDutyStation:      destinationDutyStation,
+		Entitlement:                 entitlements,
+		Grade:                       &grade,
+		OrderNumber:                 order.OrdersNumber,
+		OrderTypeDetail:             &ordersTypeDetail,
+		ID:                          strfmt.UUID(order.ID.String()),
+		OriginDutyStation:           originDutyStation,
+		ETag:                        etag.GenerateEtag(order.UpdatedAt),
+		Agency:                      branch,
+		CustomerID:                  strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                    Customer(&order.ServiceMember),
+		FirstName:                   swag.StringValue(order.ServiceMember.FirstName),
+		LastName:                    swag.StringValue(order.ServiceMember.LastName),
+		ReportByDate:                strfmt.Date(order.ReportByDate),
+		DateIssued:                  strfmt.Date(order.IssueDate),
+		OrderType:                   ghcmessages.OrdersType(order.OrdersType),
+		DepartmentIndicator:         &deptIndicator,
+		Tac:                         handlers.FmtStringPtr(order.TAC),
+		Sac:                         handlers.FmtStringPtr(order.SAC),
+		UploadedOrderID:             strfmt.UUID(order.UploadedOrdersID.String()),
+		UploadedAmendedOrderID:      handlers.FmtUUIDPtr(order.UploadedAmendedOrdersID),
+		AmendedOrdersAcknowledgedAt: handlers.FmtDateTimePtr(order.AmendedOrdersAcknowledgedAt),
+		MoveCode:                    moveCode,
 	}
 
 	return &payload
@@ -297,6 +299,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 		DeletedAt:                handlers.FmtDateTimePtr(mtoShipment.DeletedAt),
+		ApprovedDate:             handlers.FmtDateTimePtr(mtoShipment.ApprovedDate),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -311,12 +314,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		payload.RequestedDeliveryDate = *handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
-	if mtoShipment.ApprovedDate != nil {
-		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
-	}
-
 	if mtoShipment.ScheduledPickupDate != nil {
-		payload.ScheduledPickupDate = strfmt.Date(*mtoShipment.ScheduledPickupDate)
+		payload.ScheduledPickupDate = handlers.FmtDatePtr(mtoShipment.ScheduledPickupDate)
 	}
 
 	return payload
@@ -486,6 +485,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		EstimatedWeight:  handlers.FmtPoundPtr(s.EstimatedWeight),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
 		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),

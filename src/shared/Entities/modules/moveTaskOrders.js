@@ -34,12 +34,6 @@ export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel)
   return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }
 
-const getAllMoveTaskOrdersLabel = 'order.listMoveTaskOrders';
-export function getAllMoveTaskOrders(orderID, label = getAllMoveTaskOrdersLabel) {
-  const swaggerTag = 'order.listMoveTaskOrders';
-  return swaggerRequest(getGHCClient, swaggerTag, { orderID }, { label });
-}
-
 const getCustomerOperation = 'customer.getCustomer';
 export function getCustomer(customerID, label = getCustomerOperation) {
   return swaggerRequest(getGHCClient, getCustomerOperation, { customerID }, { label });

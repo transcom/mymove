@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/gobuffalo/pop/v5"
 
@@ -12,17 +11,20 @@ import (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
-	suite.setupPriceServiceItemData()
-	paymentServiceItem := suite.setupPriceServiceItem()
-	serviceItemPricer := NewServiceItemPricer(suite.DB())
+	suite.Run("golden path", func() {
+		suite.setupPriceServiceItemData()
+		paymentServiceItem := suite.setupPriceServiceItem()
+		serviceItemPricer := NewServiceItemPricer(suite.DB())
 
-	suite.T().Run("golden path", func(t *testing.T) {
 		priceCents, _, err := serviceItemPricer.PriceServiceItem(paymentServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
-	suite.T().Run("not implemented pricer", func(t *testing.T) {
+	suite.Run("not implemented pricer", func() {
+		suite.setupPriceServiceItemData()
+		serviceItemPricer := NewServiceItemPricer(suite.DB())
+
 		badPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: "BOGUS",
@@ -52,9 +54,6 @@ func (suite *GHCRateEngineServiceSuite) TestUsingConnection() {
 }
 
 func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
-	serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
-	serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
-
 	testCases := []struct {
 		serviceCode models.ReServiceCode
 		pricer      services.ParamsPricer
@@ -77,14 +76,20 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 	}
 
 	for _, testCase := range testCases {
-		suite.T().Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func(t *testing.T) {
+		suite.Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func() {
+			serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
+			serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
+
 			pricer, err := serviceItemPricer.getPricer(testCase.serviceCode)
 			suite.NoError(err)
 			suite.IsType(testCase.pricer, pricer)
 		})
 	}
 
-	suite.T().Run("pricer not found", func(t *testing.T) {
+	suite.Run("pricer not found", func() {
+		serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
+		serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
+
 		_, err := serviceItemPricer.getPricer("BOGUS")
 		suite.Error(err)
 		suite.IsType(services.NotImplementedError{}, err)

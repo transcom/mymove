@@ -1,7 +1,0 @@
-{
-    "body": {
-      "sendToSyncada": true,
-      "readFromSyncada": true,
-      "deleteFromSyncada": false
-    }
-  }

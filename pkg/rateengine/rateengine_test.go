@@ -271,7 +271,6 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	move := models.Move{
 		Locator: "ABC123",
 	}
-	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -284,9 +283,11 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	distanceMilesFromOriginPickupZip := 1044
 	distanceMilesFromDutyStationZip := 3300
 	weight := unit.Pound(2000)
-	engine := NewRateEngine(suite.DB(), logger, move)
 
 	suite.Run("TestComputePPMMoveCosts with origin zip results in lower GCC", func() {
+		suite.setupRateEngineTest()
+		engine := NewRateEngine(suite.DB(), logger, move)
+
 		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
 			originZip,
 			destinationZip,
@@ -337,6 +338,9 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 	})
 
 	suite.Run("TestComputePPMMoveCosts when origin duty station results in lower GCC", func() {
+		suite.setupRateEngineTest()
+		engine := NewRateEngine(suite.DB(), logger, move)
+
 		originZip := "50309"
 		originDutyStationZip := "39574"
 		distanceMilesFromOriginPickupZip := 3300
@@ -396,17 +400,12 @@ type RateEngineSuite struct {
 	logger Logger
 }
 
-func (suite *RateEngineSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestRateEngineSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger, _ := zap.NewDevelopment()
 
 	hs := &RateEngineSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

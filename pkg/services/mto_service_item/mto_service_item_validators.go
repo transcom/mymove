@@ -236,5 +236,12 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		}
 	}
 
+	// Set weight fields:
+	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(
+		v.updatedServiceItem.EstimatedWeight, newMTOServiceItem.EstimatedWeight)
+
+	newMTOServiceItem.ActualWeight = services.SetOptionalPoundField(
+		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
+
 	return &newMTOServiceItem
 }

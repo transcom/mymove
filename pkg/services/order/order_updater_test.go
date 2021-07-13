@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"go.uber.org/zap"
+
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -84,7 +87,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
 		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
@@ -136,7 +139,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		emptyStrSAC := ""
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
@@ -262,7 +265,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
 		orderUpdater := NewOrderUpdater(suite.DB())
-		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB()).Orders
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		newAuthorizedWeight := int64(10000)
 		grade := ghcmessages.GradeO5
@@ -495,5 +498,161 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 		suite.NoError(err)
 		suite.NotEqual(payload.ProGearWeightSpouse, orderInDB.Entitlement.ProGearWeightSpouse)
 		suite.Nil(updatedOrder)
+	})
+}
+
+func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
+
+	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation: &dutyStation,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
+		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
+
+		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			order.ServiceMember.UserID,
+			order.ID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+
+		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+		if upload.Checksum != expectedChecksum {
+			t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
+		}
+
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(orderInDB.ID.String(), order.ID.String())
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
+
+		findUpload := models.Upload{}
+		err = suite.DB().Find(&findUpload, upload.ID)
+		if err != nil {
+			t.Fatalf("Couldn't find expected upload.")
+		}
+		suite.Equal(upload.ID.String(), findUpload.ID.String(), "found upload in db")
+		suite.NotEmpty(url, "URL is populated")
+	})
+
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			nonexistentUUID,
+			nonexistentUUID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Contains(err.Error(), "not found while looking for order")
+		suite.NoVerrs(verrs)
+	})
+
+	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
+		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation:       &dutyStation,
+				UploadedAmendedOrders:   &document,
+				UploadedAmendedOrdersID: &document.ID,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
+		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
+
+		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			order.ServiceMember.UserID,
+			order.ID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.NotNil(orderInDB.ID)
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
+		suite.Equal(document.ID, *orderInDB.UploadedAmendedOrdersID)
+		suite.NotNil(order.UploadedAmendedOrders)
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
 	})
 }

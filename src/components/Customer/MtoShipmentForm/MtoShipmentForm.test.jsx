@@ -60,10 +60,10 @@ describe('MtoShipmentForm component', () => {
 
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
 
-      expect(screen.getByText('Pickup date')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByText('Date')[0]).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getAllByText('Location')[0]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -81,10 +81,10 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByLabelText('Phone')[0]).toHaveAttribute('name', 'pickup.agent.phone');
       expect(screen.getAllByLabelText('Email')[0]).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(screen.getByText('Delivery date')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByText('Date')[1]).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Preferred delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getAllByText('Location')[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
 
@@ -99,7 +99,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByLabelText('Email')[1]).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(
-        screen.getByLabelText('Is there anything special about this shipment that the movers should know?'),
+        screen.getByLabelText(
+          'Are there things about this shipment that your counselor or movers should discuss with you?',
+        ),
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
@@ -183,7 +185,7 @@ describe('MtoShipmentForm component', () => {
 
       userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second Destination Location' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second Destination' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
     });
@@ -267,7 +269,7 @@ describe('MtoShipmentForm component', () => {
 
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      const pickupDateInput = await screen.findByLabelText('Requested pickup date');
+      const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
       userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
 
       const pickupAddress1Input = screen.getByLabelText('Address 1');
@@ -285,7 +287,7 @@ describe('MtoShipmentForm component', () => {
       const pickupPostalCodeInput = screen.getByLabelText('ZIP');
       userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
 
-      const deliveryDateInput = await screen.findByLabelText('Requested delivery date');
+      const deliveryDateInput = await screen.findByLabelText('Preferred delivery date');
       userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
 
       const nextButton = await screen.findByRole('button', { name: 'Next' });
@@ -321,7 +323,7 @@ describe('MtoShipmentForm component', () => {
 
       render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      const pickupDateInput = await screen.findByLabelText('Requested pickup date');
+      const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
       userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
 
       const pickupAddress1Input = screen.getByLabelText('Address 1');
@@ -339,7 +341,7 @@ describe('MtoShipmentForm component', () => {
       const pickupPostalCodeInput = screen.getByLabelText('ZIP');
       userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postal_code);
 
-      const deliveryDateInput = await screen.findByLabelText('Requested delivery date');
+      const deliveryDateInput = await screen.findByLabelText('Preferred delivery date');
       userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
 
       const nextButton = await screen.findByRole('button', { name: 'Next' });
@@ -397,14 +399,14 @@ describe('MtoShipmentForm component', () => {
         />,
       );
 
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(screen.getByLabelText('Requested delivery date')).toHaveValue('11 Aug 2021');
+      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
@@ -412,7 +414,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
       expect(
-        screen.getByLabelText('Is there anything special about this shipment that the movers should know?'),
+        screen.getByLabelText(
+          'Are there things about this shipment that your counselor or movers should discuss with you?',
+        ),
       ).toHaveValue('mock remarks');
     });
 
@@ -473,6 +477,99 @@ describe('MtoShipmentForm component', () => {
       expect(city[3]).toHaveValue(mockMtoShipment.destinationAddress.city);
       expect(state[3]).toHaveValue(mockMtoShipment.destinationAddress.state);
       expect(zip[3]).toHaveValue(mockMtoShipment.destinationAddress.postal_code);
+    });
+
+    it.each([
+      ['Address 1', 'Some Address'],
+      [/Address 2/, '123'],
+      ['City', 'Some City'],
+      ['ZIP', '92131'],
+    ])(
+      'does not allow the user to save the form if the %s field on a secondary addreess is the only one filled out',
+      async (fieldName, text) => {
+        render(
+          <MtoShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            mtoShipment={mockMtoShipment}
+            selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          />,
+        );
+
+        // Verify that the form is good to submit by checking that the save button is not disabled.
+        const saveButton = await screen.findByRole('button', { name: 'Save' });
+        expect(saveButton).not.toBeDisabled();
+
+        userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+        userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+
+        const address = await screen.findAllByLabelText(fieldName);
+        // The second instance of a field is the secondary pickup
+        userEvent.type(address[1], text);
+        await waitFor(() => {
+          expect(saveButton).toBeDisabled();
+        });
+
+        // Clear the field so that the secondary delivery address can be checked
+        userEvent.clear(address[1]);
+        await waitFor(() => {
+          expect(saveButton).not.toBeDisabled();
+        });
+
+        // The fourth instance found is the secondary delivery
+        userEvent.type(address[3], text);
+        await waitFor(() => {
+          expect(saveButton).toBeDisabled();
+        });
+
+        userEvent.clear(address[3]);
+        await waitFor(() => {
+          expect(saveButton).not.toBeDisabled();
+        });
+      },
+    );
+
+    // Similar test as above, but with the state input.
+    // Extracted out since the state field is not a text input.
+    it('does not allow the user to save the form if the state field on a secondary addreess is the only one filled out', async () => {
+      render(
+        <MtoShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          mtoShipment={mockMtoShipment}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+        />,
+      );
+      // Verify that the form is good to submit by checking that the save button is not disabled.
+      const saveButton = await screen.findByRole('button', { name: 'Save' });
+      expect(saveButton).not.toBeDisabled();
+
+      userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+      userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+
+      const state = await screen.findAllByLabelText('State');
+      // The second instance of a field is the secondary pickup
+      userEvent.selectOptions(state[1], 'CA');
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+      });
+
+      // Change the selection to blank so that the secondary delivery address can be checked
+      userEvent.selectOptions(state[1], '');
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
+
+      // The fourth instance found is the secondary delivery
+      userEvent.selectOptions(state[3], 'CA');
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled();
+      });
+
+      userEvent.selectOptions(state[3], '');
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
     });
 
     it('goes back when the cancel button is clicked', async () => {
@@ -634,36 +731,34 @@ describe('MtoShipmentForm component', () => {
 
   describe('creating a new NTS shipment', () => {
     it('renders the NTS shipment form', async () => {
-      const { queryByText, queryByLabelText } = render(
-        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />,
-      );
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTS} />);
 
-      await waitFor(() => {
-        expect(queryByText('NTS')).toHaveClass('usa-tag');
-      });
-      expect(queryByText('Pickup date')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+      expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
-      expect(queryByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('First name')).toHaveAttribute('name', 'pickup.agent.firstName');
-      expect(queryByLabelText('Last name')).toHaveAttribute('name', 'pickup.agent.lastName');
-      expect(queryByLabelText('Phone')).toHaveAttribute('name', 'pickup.agent.phone');
-      expect(queryByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
+      expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'pickup.agent.firstName');
+      expect(screen.getByLabelText('Last name')).toHaveAttribute('name', 'pickup.agent.lastName');
+      expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'pickup.agent.phone');
+      expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(queryByText('Delivery date')).not.toBeInTheDocument();
-      expect(queryByText('Delivery location')).not.toBeInTheDocument();
-      expect(queryByText(/Receiving agent/)).not.toBeInTheDocument();
+      expect(screen.getAllByText('Date')).toHaveLength(1);
+      expect(screen.getAllByText('Location')).toHaveLength(1);
+      expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
       expect(
-        queryByLabelText('Is there anything special about this shipment that the movers should know?'),
+        screen.getByLabelText(
+          'Are there things about this shipment that your counselor or movers should discuss with you?',
+        ),
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
@@ -678,33 +773,34 @@ describe('MtoShipmentForm component', () => {
 
   describe('creating a new NTS-R shipment', () => {
     it('renders the NTS-R shipment form', async () => {
-      const { queryByText, queryByLabelText } = render(
-        <MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />,
-      );
+      render(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
-      await waitFor(() => {
-        expect(queryByText('NTS-R')).toHaveClass('usa-tag');
-      });
+      expect(await screen.findByText('NTS-R')).toHaveClass('usa-tag');
 
-      expect(queryByText('Pickup date')).not.toBeInTheDocument();
-      expect(queryByText('Pickup location')).not.toBeInTheDocument();
-      expect(queryByText(/Releasing agent/)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Preferred pickup date')).not.toBeInTheDocument();
+      expect(screen.queryByText('Pickup Info')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
-      expect(queryByText('Delivery date')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getAllByText('Date')).toHaveLength(1);
+      expect(screen.getAllByText('Location')).toHaveLength(1);
 
-      expect(queryByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(queryByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Preferred delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(queryByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
-      expect(queryByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
-      expect(queryByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
-      expect(queryByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
-      expect(queryByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
+      expect(screen.getByText('Location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
+      expect(screen.getByLabelText('Last name')).toHaveAttribute('name', 'delivery.agent.lastName');
+      expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'delivery.agent.phone');
+      expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'delivery.agent.email');
 
       expect(
-        queryByLabelText('Is there anything special about this shipment that the movers should know?'),
+        screen.getByLabelText(
+          'Are there things about this shipment that your counselor or movers should discuss with you?',
+        ),
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 

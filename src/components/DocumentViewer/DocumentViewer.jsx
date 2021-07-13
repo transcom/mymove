@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
+import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { FilesShape } from './types';
@@ -7,6 +8,7 @@ import styles from './DocumentViewer.module.scss';
 import Content from './Content/Content';
 import Menu from './Menu/Menu';
 
+import { formatDate } from 'shared/dates';
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { filenameFromPath } from 'shared/formatters';
 
@@ -22,7 +24,9 @@ const DocumentViewer = ({ files }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
-  const selectedFile = files[parseInt(selectedFileIndex, 10)];
+  const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
+
+  const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
   if (!selectedFile) {
     return (
@@ -72,14 +76,17 @@ const DocumentViewer = ({ files }) => {
 
   const selectedFilename = filenameFromPath(selectedFile.filename);
 
+  const selectedFileDate = formatDate(moment(selectedFile.createdAt), 'DD MMM YYYY');
+
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
         <Button data-testid="openMenu" type="button" onClick={openMenu} aria-label="Open menu" unstyled>
           <FontAwesomeIcon icon="th-list" />
         </Button>
-
-        <p title={selectedFilename}>{selectedFilename}</p>
+        <p title={selectedFilename} data-testid="documentTitle">
+          <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
+        </p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>
@@ -90,7 +97,7 @@ const DocumentViewer = ({ files }) => {
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
-        files={files}
+        files={sortedFiles}
         handleClose={closeMenu}
         selectedFileIndex={selectedFileIndex}
         handleSelectFile={handleSelectFile}

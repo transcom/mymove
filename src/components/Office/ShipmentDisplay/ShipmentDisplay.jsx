@@ -5,11 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape } from 'types/address';
+import { shipmentStatuses } from 'constants/shipments';
+import { ShipmentStatusesOneOf } from 'types/shipment';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -36,6 +38,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h3>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
+            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
           </div>
 
           <FontAwesomeIcon icon="chevron-down" />
@@ -71,6 +74,7 @@ ShipmentDisplay.propTypes = {
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     isDiversion: PropTypes.bool,
+    shipmentStatus: ShipmentStatusesOneOf,
     requestedPickupDate: PropTypes.string.isRequired,
     pickupAddress: AddressShape.isRequired,
     secondaryPickupAddress: AddressShape,

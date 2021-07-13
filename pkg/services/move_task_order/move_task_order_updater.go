@@ -25,11 +25,12 @@ type moveTaskOrderUpdater struct {
 	moveTaskOrderFetcher
 	builder            UpdateMoveTaskOrderQueryBuilder
 	serviceItemCreator services.MTOServiceItemCreator
+	moveRouter         services.MoveRouter
 }
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator}
+func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}, builder, serviceItemCreator, moveRouter}
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
@@ -111,7 +112,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 		now := time.Now()
 		move.AvailableToPrimeAt = &now
 
-		err = move.Approve()
+		err = o.moveRouter.Approve(move)
 		if err != nil {
 			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 		}
@@ -256,4 +257,24 @@ func (o *moveTaskOrderUpdater) ShowHide(moveID uuid.UUID, show *bool) (*models.M
 	}
 
 	return updatedMove, nil
+}
+
+func (o *moveTaskOrderUpdater) UpdateApprovedAmendedOrders(move models.Move) error {
+	eTag := etag.GenerateEtag(move.UpdatedAt)
+	verrs, err := o.builder.UpdateOne(&move, &eTag)
+
+	if verrs != nil && verrs.HasAny() {
+		return services.NewInvalidInputError(move.ID, err, verrs, "")
+	}
+
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return services.NewPreconditionFailedError(move.ID, err)
+		default:
+			return err
+		}
+	}
+
+	return nil
 }

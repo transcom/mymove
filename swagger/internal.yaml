@@ -1636,6 +1636,9 @@ definitions:
         type: string
         format: mime-type
         example: application/pdf
+      checksum:
+        type: string
+        example: ImGQ2Ush0bDHsaQthV5BnQ==
       bytes:
         type: integer
       status:
@@ -1970,6 +1973,7 @@ definitions:
       - APPROVED
       - CANCELED
       - 'NEEDS SERVICE COUNSELING'
+      - 'APPROVALS REQUESTED'
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -2082,6 +2086,12 @@ definitions:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      uploaded_amended_orders:
+        $ref: '#/definitions/DocumentPayload'
+      uploaded_amended_orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       moves:
         $ref: '#/definitions/IndexMovesPayload'
       orders_number:
@@ -2939,6 +2949,44 @@ paths:
           description: order is not found
         '500':
           description: internal server error
+  /orders/{ordersId}/upload_amended_orders:
+    patch:
+      summary: Patch the amended orders for a given order
+      description: Patch the amended orders for a given order
+      operationId: uploadAmendedOrders
+      tags:
+        - orders
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /moves/{moveId}:
     patch:
       summary: Patches the move
@@ -3661,6 +3709,38 @@ paths:
           description: not authorized to cancel this move
         '409':
           description: the move is not in a state to be canceled
+          schema:
+            $ref: '#/definitions/MovePayload'
+        '500':
+          description: server error
+  /moves/{moveId}/submit_amended_orders:
+    post:
+      summary: Submits amended orders for review
+      description: Submits amended orders for review by the office. The status of the move will be updated to an
+        appropriate status depending on whether it needs services counseling or not.
+      operationId: submitAmendedOrders
+      tags:
+        - moves
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        '200':
+          description: returns updated (submitted) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        '400':
+          description: invalid request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: not authorized to approve this move
+        '409':
+          description: the move is not in a state to be approved
           schema:
             $ref: '#/definitions/MovePayload'
         '500':
