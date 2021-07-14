@@ -1,7 +1,6 @@
 import React, { createRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { push } from 'connected-react-router';
 
 import Alert from 'shared/Alert';
@@ -26,8 +25,9 @@ import {
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { OrdersShape, HistoryShape } from 'types/customerShapes';
-import { EntitlementShape, ExistingUploadsShape } from 'types';
-import 'scenes/Review/Review.css';
+import { DutyStationShape, EntitlementShape, ExistingUploadsShape } from 'types';
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { dropdownInputOptions } from 'shared/formatters';
 
 const EditOrders = ({
   currentOrders,
@@ -37,12 +37,20 @@ const EditOrders = ({
   moveIsApproved,
   spouseHasProGear,
   history,
-  schema,
+  currentStation,
   setFlashMessage,
   entitlement,
+  context,
 }) => {
   const filePondEl = createRef();
   const [serverError, setServerError] = useState(null);
+
+  // Only allow PCS unless feature flag is on
+  const showAllOrdersTypes = context.flags?.allOrdersTypes;
+  const allowedOrdersTypes = showAllOrdersTypes
+    ? ORDERS_TYPE_OPTIONS
+    : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
+  const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrders?.uploaded_orders?.id;
@@ -107,35 +115,40 @@ const EditOrders = ({
   };
 
   return (
-    <div className="usa-grid">
-      {serverError && (
-        <div className="usa-width-one-whole error-message">
-          <Alert type="error" heading="An error occurred">
-            {serverError}
-          </Alert>
+    <div className="grid-container usa-prose">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          {serverError && (
+            <div className="usa-width-one-whole error-message">
+              <Alert type="error" heading="An error occurred">
+                {serverError}
+              </Alert>
+            </div>
+          )}
+          {moveIsApproved && (
+            <div className="usa-width-one-whole error-message">
+              <Alert type="warning" heading="Your move is approved">
+                To make a change to your orders, you will need to contact your local PPPO office.
+              </Alert>
+            </div>
+          )}
+          {!moveIsApproved && (
+            <div className="usa-width-one-whole">
+              <EditOrdersForm
+                initialValues={currentOrders}
+                onSubmit={submitOrders}
+                filePondEl={filePondEl}
+                createUpload={handleUploadFile}
+                onUploadComplete={handleUploadComplete}
+                existingUploads={existingUploads}
+                onDelete={handleDeleteFile}
+                ordersTypeOptions={ordersTypeOptions}
+                currentStation={currentStation}
+              />
+            </div>
+          )}
         </div>
-      )}
-      {moveIsApproved && (
-        <div className="usa-width-one-whole error-message">
-          <Alert type="warning" heading="Your move is approved">
-            To make a change to your orders, you will need to contact your local PPPO office.
-          </Alert>
-        </div>
-      )}
-      {!moveIsApproved && (
-        <div className="usa-width-one-whole">
-          <EditOrdersForm
-            initialValues={currentOrders}
-            onSubmit={submitOrders}
-            schema={schema}
-            filePondEl={filePondEl}
-            createUpload={handleUploadFile}
-            onUploadComplete={handleUploadComplete}
-            existingUploads={existingUploads}
-            onDelete={handleDeleteFile}
-          />
-        </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -151,12 +164,19 @@ EditOrders.propTypes = {
   existingUploads: ExistingUploadsShape,
   schema: PropTypes.shape({}),
   spouseHasProGear: PropTypes.bool,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      allOrdersTypes: PropTypes.bool,
+    }).isRequired,
+  }).isRequired,
+  currentStation: DutyStationShape,
 };
 
 EditOrders.defaultProps = {
   existingUploads: [],
   spouseHasProGear: false,
   schema: {},
+  currentStation: {},
 };
 
 function mapStateToProps(state) {
@@ -171,8 +191,8 @@ function mapStateToProps(state) {
     existingUploads: uploads,
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
-    schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     entitlement: selectEntitlementsForLoggedInUser(state),
+    currentStation: serviceMember?.current_station || {},
   };
 }
 
