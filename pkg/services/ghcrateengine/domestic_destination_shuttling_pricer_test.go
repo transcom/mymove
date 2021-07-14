@@ -14,7 +14,7 @@ import (
 const (
 	testServiceSchedule      = 2
 	testBasePriceCents       = unit.Cents(353)
-	testContractYearName     = "DOFSIT Test Year"
+	testContractYearName     = "Test Year 1"
 	testEscalationCompounded = 1.125
 	testWeight               = unit.Pound(4000)
 	testPriceCents           = unit.Cents(15885) // testBasePriceCents * (testWeight / 100) * testEscalationCompounded
@@ -23,7 +23,7 @@ const (
 var testRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer() {
-	suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, testServiceSchedule, testPriceCents, testContractYearName, testEscalationCompounded)
+	suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, testServiceSchedule, testBasePriceCents, testdatagen.DefaultContractCode, testEscalationCompounded)
 
 	paymentServiceItem := suite.setupDomesticDestinationShuttlingServiceItem()
 	pricer := NewDomesticDestinationShuttlingPricer(suite.DB())
@@ -34,9 +34,9 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 		suite.Equal(testPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: ddfsitTestContractYearName},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ddfsitTestEscalationCompounded)},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ddfsitTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(testEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(testBasePriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -91,7 +91,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationShuttlingService
 			{
 				Key:     models.ServiceItemParamNameServicesScheduleDest,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(servicesScheduleDest),
+				Value:   strconv.Itoa(testServiceSchedule),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightActual,
