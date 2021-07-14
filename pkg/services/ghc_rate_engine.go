@@ -79,6 +79,13 @@ type DomesticOriginShuttlingPricer interface {
 	ParamsPricer
 }
 
+// DomesticDestinationShuttlingPricer prices the domestic origin shuttling service for a GHC Move
+//go:generate mockery --name DomesticDestinationShuttlingPricer --disable-version-string
+type DomesticDestinationShuttlingPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
 // DomesticPackPricer prices the domestic packing and unpacking for a GHC Move
 //go:generate mockery --name DomesticPackPricer --disable-version-string
 type DomesticPackPricer interface {
