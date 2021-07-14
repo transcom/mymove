@@ -255,7 +255,7 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Validator: leodis.f.scott.civ@mail.mil
-     //RA Modified Severity: CAT III
+	//RA Modified Severity: CAT III
 	// #nosec G402
 	clientTLSConfig := tls.Config{
 		RootCAs:      caCertPool,
