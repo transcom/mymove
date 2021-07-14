@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -25,9 +25,10 @@ import {
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { OrdersShape, HistoryShape } from 'types/customerShapes';
-import { DutyStationShape, EntitlementShape, ExistingUploadsShape } from 'types';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
+import { EntitlementShape, ExistingUploadsShape } from 'types';
+import { DutyStationShape } from 'types/dutyStation';
 
 const EditOrders = ({
   currentOrders,
@@ -51,6 +52,12 @@ const EditOrders = ({
     ? ORDERS_TYPE_OPTIONS
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+
+  useEffect(() => {
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
+  }, [updateOrders, serviceMemberId]);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrders?.uploaded_orders?.id;
