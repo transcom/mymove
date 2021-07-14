@@ -455,12 +455,12 @@ describe('makeCalculations', () => {
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020'],
+        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic'],
       },
       {
         value: '1.033',
         label: 'Price escalation factor',
-        details: ['Base year: 2'],
+        details: [],
       },
       {
         value: '$999.99',

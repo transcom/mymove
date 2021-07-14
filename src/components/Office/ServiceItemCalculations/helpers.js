@@ -188,7 +188,7 @@ const destinationShuttlePrice = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
 
-  return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params));
+  return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), 'Domestic');
 };
 
 const priceEscalationFactor = (params) => {
@@ -475,7 +475,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       result = [
         billableWeight(params),
         destinationShuttlePrice(params),
-        priceEscalationFactor(params),
+        priceEscalationFactorDomDestShuttle(params),
         totalAmountRequested(totalAmount),
       ];
       break;

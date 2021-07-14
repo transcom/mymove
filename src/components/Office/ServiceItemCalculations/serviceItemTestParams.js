@@ -656,7 +656,8 @@ const testParams = {
     ZipDestAddress,
     PriceRateOrFactor,
     EscalationCompounded,
-    ContractYearName,
+    ServicesScheduleDest,
+    ContractCode,
   ],
   NonStandardHHG: [
     RequestedPickupDate,
