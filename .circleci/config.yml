@@ -1674,28 +1674,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - push_migrations_stg:
           requires:
             - build_migrations
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - push_tasks_stg:
           requires:
             - build_tasks
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - push_webhook_client_stg:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - check_circle_against_stg_sha:
           requires:
@@ -1712,42 +1712,42 @@ workflows:
             - integration_tests_mtls
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - deploy_stg_migrations:
           requires:
             - check_circle_against_stg_sha
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - deploy_stg_tasks:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - deploy_stg_app:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - deploy_stg_app_niprnet:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - deploy_stg_app_client_tls:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - deploy_stg_app_client_tls_niprnet:
           requires:
@@ -1761,7 +1761,7 @@ workflows:
             - deploy_stg_migrations
           filters:
             branches:
-              only: MB-8065
+              only: master
 
       - approve_prd_deploy:
           type: approval
