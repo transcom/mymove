@@ -21,12 +21,12 @@ func (c CubicFeetCratingLookup) lookup(keyData *ServiceItemParamKeyData) (string
 	// look for the first crating dimension.
 	for _, dimension := range keyData.MTOServiceItem.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-			lengthFeet := dimension.Length / thousandthInchesPerFoot
-			heightFeet := dimension.Height / thousandthInchesPerFoot
-			widthFeet := dimension.Width / thousandthInchesPerFoot
+			lengthFeet := float64(dimension.Length) / thousandthInchesPerFoot
+			heightFeet := float64(dimension.Height) / thousandthInchesPerFoot
+			widthFeet := float64(dimension.Width) / thousandthInchesPerFoot
 
 			volume := lengthFeet * heightFeet * widthFeet
-			return fmt.Sprint(*volume.Int32Ptr()), nil
+			return fmt.Sprintf("%.2f", volume), nil
 		}
 	}
 

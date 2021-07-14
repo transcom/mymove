@@ -19,11 +19,13 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
 				MTOServiceItemID: mtoServiceItem.ID,
 				Type:             models.DimensionTypeCrate,
-				Length:           24000,
-				Height:           12000,
-				Width:            48000,
-				CreatedAt:        time.Time{},
-				UpdatedAt:        time.Time{},
+				// These dimensions are chosen to overflow 32bit ints if multiplied, and give a fractional result
+				// when converted to cubic feet.
+				Length:    16*12*1000 + 1000,
+				Height:    8 * 12 * 1000,
+				Width:     8 * 12 * 1000,
+				CreatedAt: time.Time{},
+				UpdatedAt: time.Time{},
 			},
 		})
 		itemDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
@@ -45,7 +47,7 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 		stringValue, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 
-		suite.Equal("8", stringValue)
+		suite.Equal("1029.33", stringValue)
 	})
 
 	suite.T().Run("missing dimension should error", func(t *testing.T) {
