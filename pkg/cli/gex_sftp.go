@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pkg/sftp"
-	// "github.com/rdegges/go-ipify"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -66,6 +65,22 @@ func CheckGEXSFTP(v *viper.Viper) error {
 	return nil
 }
 
+// CheckOutboundIP checks outbound IP for logging purposes
+func CheckOutboundIP(logger Logger) {
+	resp, err := http.Get("https://checkip.amazonaws.com")
+	if err != nil {
+		logger.Error("Error fetching outbound IP: %w", zap.Error(err))
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error("Error parsing body: %w", zap.Error(err))
+	}
+	parsed := string(body)
+	parsed = strings.TrimSpace(parsed)
+	logger.Info("Getting Source Address...", zap.String("source_address", parsed))
+}
+
 // InitGEXSSH initializes a GEX SSH client from command line flags.
 func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	userID := v.GetString(GEXSFTPUserIDFlag)
@@ -74,18 +89,7 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	remote := v.GetString(GEXSFTPIPAddressFlag)
 	port := v.GetString(GEXSFTPPortFlag)
 
-	resp, err := http.Get("https://checkip.amazonaws.com")
-	if err != nil {
-		logger.Error("%w", zap.Error(err))
-	} else {
-		body, e := ioutil.ReadAll(resp.Body)
-		if e != nil {
-			logger.Error("%w", zap.Error(e))
-		}
-		parsed := string(body)
-		parsed = strings.TrimSpace(parsed)
-		logger.Info("Getting Source Address...", zap.String("source_address", parsed))
-	}
+	CheckOutboundIP(logger)
 
 	logger.Info("Parsing GEX SFTP host key...")
 	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
