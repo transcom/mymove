@@ -91,7 +91,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
     }
     case 'DOSHUT':
     case 'DDSHUT': {
-      const estimatedWeight = details.estimatedWeight ? formatWeight(details.estimatedWeight) : `— lbs`;
+      const estimatedWeight = details.estimatedWeight != null ? formatWeight(details.estimatedWeight) : `— lbs`;
       detailSection = (
         <div>
           <dl>
