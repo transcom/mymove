@@ -10,20 +10,18 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// todo test for multiple crating dimensions?
-
 func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 	key := models.ServiceItemParamNameCubicFeetCrating
 
-	suite.T().Run("golden path", func(t *testing.T) {
+	suite.T().Run("successful CubicFeetCrating lookup", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		cratingDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
 				MTOServiceItemID: mtoServiceItem.ID,
 				Type:             models.DimensionTypeCrate,
 				Length:           24000,
-				Height:           24000,
-				Width:            24000,
+				Height:           12000,
+				Width:            48000,
 				CreatedAt:        time.Time{},
 				UpdatedAt:        time.Time{},
 			},

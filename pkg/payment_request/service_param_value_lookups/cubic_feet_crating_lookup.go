@@ -16,11 +16,11 @@ type CubicFeetCratingLookup struct {
 }
 
 func (c CubicFeetCratingLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	// Each service item has an array of dimensions. We expect there to be at most one
-	// dimension for the crate size.
+	// Each service item has an array of dimensions. There is a DB constraint preventing
+	// more than one dimension of each type for a given service item, so we just have to
+	// look for the first crating dimension.
 	for _, dimension := range keyData.MTOServiceItem.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-			// is there a classier way to work with unit.ThousandthInches?
 			lengthFeet := dimension.Length / thousandthInchesPerFoot
 			heightFeet := dimension.Height / thousandthInchesPerFoot
 			widthFeet := dimension.Width / thousandthInchesPerFoot
@@ -29,7 +29,6 @@ func (c CubicFeetCratingLookup) lookup(keyData *ServiceItemParamKeyData) (string
 			return fmt.Sprint(*volume.Int32Ptr()), nil
 		}
 	}
-	// TODO maybe add a check for multiple crating dimensions
 
 	return "", services.NewConflictError(keyData.MTOServiceItemID, "unable to calculate crate volume due to missing crate dimensions")
 }
