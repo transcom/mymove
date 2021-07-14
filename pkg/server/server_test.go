@@ -4,7 +4,8 @@
 //RA: Given the functions causing the lint errors are used to close a local server connection for testing purposes, it is not deemed a risk
 //RA Developer Status: Mitigated
 //RA Validator Status: Mitigated
-//RA Modified Severity: N/A
+//RA Validator: leodis.f.scott.civ@mail.mil
+//RA Modified Severity: CAT III
 // nolint:errcheck
 package server
 
