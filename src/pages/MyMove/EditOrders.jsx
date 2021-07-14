@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -43,6 +43,12 @@ const EditOrders = ({
 }) => {
   const filePondEl = createRef();
   const [serverError, setServerError] = useState(null);
+
+  useEffect(() => {
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
+  }, [updateOrders, serviceMemberId]);
 
   const handleUploadFile = (file) => {
     const documentId = currentOrders?.uploaded_orders?.id;
