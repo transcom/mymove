@@ -45,7 +45,6 @@ require (
 	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jmoiron/sqlx v1.3.4
-	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.1
@@ -58,7 +57,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.2
 	github.com/pterm/pterm v0.12.27
-	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rickar/cal v1.0.5
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.2.1
