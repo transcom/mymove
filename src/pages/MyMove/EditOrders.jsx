@@ -121,6 +121,10 @@ const EditOrders = ({
       });
   };
 
+  const handleCancel = () => {
+    history.goBack();
+  };
+
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -151,6 +155,7 @@ const EditOrders = ({
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
                 currentStation={currentStation}
+                onCancel={handleCancel}
               />
             </div>
           )}

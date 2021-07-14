@@ -32,7 +32,7 @@ export default {
   component: EditOrdersForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
-    onBack: { action: 'go back' },
+    onCancel: { action: 'go back' },
   },
 };
 
@@ -55,7 +55,7 @@ export const PrefillNoDependents = (argTypes) => (
     {...testProps}
     initialValues={testInitialValues}
     onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
+    onCancel={argTypes.onCancel}
   />
 );
 
@@ -64,7 +64,7 @@ export const PrefillYesDependents = (argTypes) => (
     {...testProps}
     initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
     onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
+    onCancel={argTypes.onCancel}
   />
 );
 
@@ -73,6 +73,6 @@ export const PCSOnly = (argTypes) => (
     {...testProps}
     ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
     onSubmit={argTypes.onSubmit}
-    onBack={argTypes.onBack}
+    onCancel={argTypes.onCancel}
   />
 );

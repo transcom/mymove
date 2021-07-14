@@ -28,7 +28,7 @@ const EditOrdersForm = ({
   onSubmit,
   ordersTypeOptions,
   currentStation,
-  onBack,
+  onCancel,
 }) => {
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -125,7 +125,8 @@ const EditOrdersForm = ({
 
             <div className={formStyles.formActions}>
               <WizardNavigation
-                onBackClick={onBack}
+                editMode
+                onCancelClick={onCancel}
                 disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
               />
@@ -149,7 +150,7 @@ EditOrdersForm.propTypes = {
   }),
   initialValues: OrdersShape.isRequired,
   currentStation: DutyStationShape.isRequired,
-  onBack: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 EditOrdersForm.defaultProps = {
