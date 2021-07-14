@@ -1,6 +1,7 @@
 package iampostgres
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -14,9 +15,14 @@ type RDSUTest struct {
 	passes []string
 }
 
-func (r RDSUTest) GetToken(endpoint string, region string, user string, iamcreds *credentials.Credentials) (string, error) {
+func (r *RDSUTest) GetToken(endpoint string, region string, user string, iamcreds *credentials.Credentials) (string, error) {
+	if len(r.passes) == 0 {
+		return "", errors.New("no passwords to rotate")
+	}
+
+	// Rotate the slice: first item goes to back of slice
 	pass := r.passes[0]
-	r.passes = append(r.passes[:0], r.passes[1:]...)
+	r.passes = append(r.passes[1:], pass)
 
 	return pass, nil
 }
@@ -33,7 +39,7 @@ func TestEnableIamNilCreds(t *testing.T) {
 
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
-		rdsu,
+		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
@@ -61,7 +67,7 @@ func TestGetCurrentPassword(t *testing.T) {
 
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
-		rdsu,
+		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
@@ -91,7 +97,7 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
-		rdsu,
+		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)
@@ -147,7 +153,7 @@ func TestEnableIAMNormal(t *testing.T) {
 	// Start cycling through the list of passwords.
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
-		rdsu,
+		&rdsu,
 		tmr,
 		logger,
 		shouldQuitChan)

@@ -49,9 +49,15 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 		order.UploadedAmendedOrdersID = &uuid.Nil
 
 		expErrors := map[string][]string{
-			"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
-			"department_indicator":           {"DepartmentIndicator cannot be blank."},
-			"uploaded_amended_orders_id":     {"UploadedAmendedOrdersID can not be blank."},
+			// TODO We are disabling validation for these fields for now.
+			// TODO With the implementation of amended orders, the customer can upload an amended order which
+			// TODO will need to update/save the order. The order is failing because the customer
+			// TODO does not update these fields. There is a thread going about this
+			// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+			// https://dp3.atlassian.net/browse/MB-8665
+			//"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
+			//"department_indicator":           {"DepartmentIndicator cannot be blank."},
+			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
 		}
 
 		suite.verifyValidationErrors(&order, expErrors)
@@ -103,6 +109,13 @@ func (suite *ModelSuite) TestTacFormat() {
 	}
 }
 
+// TODO Some validation rules for orders have been disabled for now.
+// TODO with the implementation of amended orders, the customer can upload an amended order which
+// TODO will need to update/save the order. The order is failing because the customer
+// TODO does not update these fields. There is a thread going about this
+// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+// https://dp3.atlassian.net/browse/MB-8665
+/*
 func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
 	invalidCases := []struct {
 		desc  string
@@ -148,6 +161,7 @@ func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
 		suite.verifyValidationErrors(&order, expErrors)
 	}
 }
+*/
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())

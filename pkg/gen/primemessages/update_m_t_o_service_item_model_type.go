@@ -16,6 +16,8 @@ import (
 // UpdateMTOServiceItemModelType Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
 //   * DDDSIT - UpdateMTOServiceItemSIT
 //   * DOPSIT - UpdateMTOServiceItemSIT
+//   * DDSHUT - UpdateMTOServiceItemShuttle
+//   * DOSHUT - UpdateMTOServiceItemShuttle
 //
 // The documentation will then update with the supported fields.
 //
@@ -27,6 +29,9 @@ const (
 
 	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT captures enum value "UpdateMTOServiceItemSIT"
 	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT UpdateMTOServiceItemModelType = "UpdateMTOServiceItemSIT"
+
+	// UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle captures enum value "UpdateMTOServiceItemShuttle"
+	UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle UpdateMTOServiceItemModelType = "UpdateMTOServiceItemShuttle"
 )
 
 // for schema
@@ -34,7 +39,7 @@ var updateMTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []UpdateMTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["UpdateMTOServiceItemSIT","UpdateMTOServiceItemShuttle"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

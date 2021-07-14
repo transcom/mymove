@@ -44,6 +44,9 @@ type MTOServiceItem struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// estimated weight of the shuttle service item provided by the prime
+	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
+
 	// fee type
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
 	FeeType string `json:"feeType,omitempty"`

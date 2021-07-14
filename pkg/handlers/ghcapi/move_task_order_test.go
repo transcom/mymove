@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -119,11 +121,12 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		}
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// setup the handler
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 		}
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")
@@ -199,12 +202,20 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
 }
 
+// TODO Some validation rules for orders have been disabled for now.
+// TODO with the implementation of amended orders, the customer can upload an amended order which
+// TODO will need to update/save the order. The order is failing because the customer
+// TODO does not update these fields. There is a thread going about this
+// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
+// https://dp3.atlassian.net/browse/MB-8665
+/*
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
 	order.TAC = nil
 	suite.MustSave(&order)
-	err := move.Submit()
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	err := moveRouter.Submit(&move)
 	if err != nil {
 		suite.T().Fatal("Should transition.")
 	}
@@ -220,11 +231,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -234,6 +245,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
 }
+*/
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
 	order := testdatagen.MakeDefaultOrder(suite.DB())
@@ -249,10 +261,11 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 
 	params := move_task_order.UpdateMTOStatusServiceCounselingCompletedParams{

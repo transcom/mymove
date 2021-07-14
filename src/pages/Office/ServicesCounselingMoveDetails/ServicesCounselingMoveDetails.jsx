@@ -64,6 +64,7 @@ const ServicesCounselingMoveDetails = ({ customerEditAlert }) => {
           },
           secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
           counselorRemarks: shipment.counselorRemarks,
+          customerRemarks: shipment.customerRemarks,
         },
         editURL,
       };

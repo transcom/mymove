@@ -8,7 +8,7 @@ import styles from './RequestedShipments.module.scss';
 
 import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
-import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview';
+import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -44,6 +44,8 @@ const RequestedShipments = ({
       secondaryPickupAddress: shipment.secondaryPickupAddress,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
       secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
+      counselorRemarks: shipment.counselorRemarks,
+      customerRemarks: shipment.customerRemarks,
     };
   };
 

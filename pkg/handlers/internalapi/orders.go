@@ -3,9 +3,13 @@ package internalapi
 import (
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/uploader"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -15,6 +19,25 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upload models.Upload, url string) (*internalmessages.UploadPayload, error) {
+	uploadPayload := &internalmessages.UploadPayload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
+}
+
 func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
 	orderPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
@@ -22,7 +45,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 	}
 
 	var amendedOrderPayload *internalmessages.DocumentPayload
-	if order.UploadedAmendedOrdersID != nil {
+	if order.UploadedAmendedOrders != nil {
 		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
 		if err != nil {
 			return nil, err
@@ -254,30 +277,48 @@ type UploadAmendedOrdersHandler struct {
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
+	session, logger := h.SessionAndLoggerFromContext(ctx)
+
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return handlers.ResponseForError(logger, nil)
+	}
+
+	logger.Info(
+		"File uploader and size",
+		zap.String("userID", session.UserID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
+		zap.Int64("size", file.Header.Size),
+	)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+
+	if verrs.HasAny() || err != nil {
+		switch err.(type) {
+		case uploader.ErrTooLarge:
+			return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
+		case uploader.ErrFile:
+			return ordersop.NewUploadAmendedOrdersInternalServerError()
+		case uploader.ErrFailedToInitUploader:
+			return ordersop.NewUploadAmendedOrdersInternalServerError()
+		case services.NotFoundError:
+			return ordersop.NewUploadAmendedOrdersNotFound()
+		default:
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
+	}
+
+	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-
-	newOrder, _, err := h.OrderUpdater.UploadAmendedOrders(order, params.AmendedOrders, params.IfMatch)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	verrs, err := models.SaveOrder(h.DB(), newOrder)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
-	}
-
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), *newOrder)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+	return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
 }

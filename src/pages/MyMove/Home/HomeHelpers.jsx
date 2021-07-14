@@ -82,3 +82,12 @@ export const HelperSubmittedPPM = () => (
     </ul>
   </Helper>
 );
+
+export const HelperAmendedOrders = () => (
+  <Helper title="Next step: Contact your movers (if you have them)">
+    <p>
+      If your destination changed or your move was canceled, contact your movers ASAP to let them know. They&apos;ll
+      work with you to coordinate any changes.
+    </p>
+  </Helper>
+);

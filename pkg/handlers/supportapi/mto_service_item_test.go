@@ -12,6 +12,8 @@ package supportapi
 import (
 	"net/http/httptest"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -72,8 +74,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// CALL FUNCTION UNDER TEST
@@ -119,8 +122,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// CALL FUNCTION UNDER TEST
@@ -166,8 +170,9 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// CALL FUNCTION UNDER TEST

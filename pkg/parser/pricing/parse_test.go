@@ -206,16 +206,19 @@ func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 		outputFilename: swag.String("3_test_process_4"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &testProcessFunc4,
-				adtlSuffix: swag.String("suffix1"),
+				process:     &testProcessFunc4,
+				description: swag.String("suffix1 description"),
+				adtlSuffix:  swag.String("suffix1"),
 			},
 			{
-				process:    &testProcessFunc5,
-				adtlSuffix: swag.String("suffix2"),
+				process:     &testProcessFunc5,
+				description: swag.String("suffix2 description"),
+				adtlSuffix:  swag.String("suffix2"),
 			},
 			{
-				process:    &testProcessFunc6,
-				adtlSuffix: swag.String("suffix4"),
+				process:     &testProcessFunc6,
+				description: swag.String("suffix4 description"),
+				adtlSuffix:  swag.String("suffix4"),
 			},
 		},
 		verify: &testVerifyFunc4,

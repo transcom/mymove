@@ -175,14 +175,6 @@ jest.mock('services/ghcApi', () => ({
         },
       },
     }),
-  getMoveTaskOrderList: () =>
-    Promise.resolve({
-      moveTaskOrders: {
-        1: {
-          id: '1',
-        },
-      },
-    }),
   getDocument: (key, id) =>
     Promise.resolve({
       documents: {
@@ -355,14 +347,33 @@ describe('usePaymentRequestQueries', () => {
   });
 });
 
-describe('useMoveTaskOrderQueries', () => {
+describe('useMoveDetailsQueries', () => {
   it('loads data', async () => {
-    const testOrderId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testOrderId));
+    const moveCode = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode));
 
     expect(result.current).toEqual({
-      orders: undefined,
-      moveTaskOrders: undefined,
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
+      },
+      order: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
+        },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
+      },
       mtoShipments: undefined,
       mtoServiceItems: undefined,
       isLoading: true,
@@ -373,28 +384,26 @@ describe('useMoveTaskOrderQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      orders: {
-        4321: {
-          id: '4321',
-          customerID: '2468',
-          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-          uploaded_order_id: '2',
-          uploadedAmendedOrderID: '3',
-          departmentIndicator: 'Navy',
-          grade: 'E-6',
-          originDutyStation: {
-            name: 'JBSA Lackland',
-          },
-          destinationDutyStation: {
-            name: 'JB Lewis-McChord',
-          },
-          report_by_date: '2018-08-01',
-        },
+      move: {
+        id: '1234',
+        ordersId: '4321',
+        moveCode: 'ABCDEF',
       },
-      moveTaskOrders: {
-        1: {
-          id: '1',
+      order: {
+        id: '4321',
+        customerID: '2468',
+        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+        uploaded_order_id: '2',
+        uploadedAmendedOrderID: '3',
+        departmentIndicator: 'Navy',
+        grade: 'E-6',
+        originDutyStation: {
+          name: 'JBSA Lackland',
         },
+        destinationDutyStation: {
+          name: 'JB Lewis-McChord',
+        },
+        report_by_date: '2018-08-01',
       },
       mtoShipments: [
         {
@@ -457,63 +466,36 @@ describe('useMoveTaskOrderQueries', () => {
   });
 });
 
-describe('useMoveDetailsQueries', () => {
+describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
-    const moveCode = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveDetailsQueries(moveCode));
-
-    expect(result.current).toEqual({
-      move: {
-        id: '1234',
-        ordersId: '4321',
-        moveCode: 'ABCDEF',
-      },
-      order: {
-        id: '4321',
-        customerID: '2468',
-        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-        uploaded_order_id: '2',
-        uploadedAmendedOrderID: '3',
-        departmentIndicator: 'Navy',
-        grade: 'E-6',
-        originDutyStation: {
-          name: 'JBSA Lackland',
-        },
-        destinationDutyStation: {
-          name: 'JB Lewis-McChord',
-        },
-        report_by_date: '2018-08-01',
-      },
-      mtoShipments: undefined,
-      mtoServiceItems: undefined,
-      isLoading: true,
-      isError: false,
-      isSuccess: false,
-    });
+    const moveId = 'ABCDEF';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId));
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
+      orders: {
+        4321: {
+          id: '4321',
+          customerID: '2468',
+          customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+          uploaded_order_id: '2',
+          uploadedAmendedOrderID: '3',
+          departmentIndicator: 'Navy',
+          grade: 'E-6',
+          originDutyStation: {
+            name: 'JBSA Lackland',
+          },
+          destinationDutyStation: {
+            name: 'JB Lewis-McChord',
+          },
+          report_by_date: '2018-08-01',
+        },
+      },
       move: {
         id: '1234',
-        ordersId: '4321',
         moveCode: 'ABCDEF',
-      },
-      order: {
-        id: '4321',
-        customerID: '2468',
-        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-        uploaded_order_id: '2',
-        uploadedAmendedOrderID: '3',
-        departmentIndicator: 'Navy',
-        grade: 'E-6',
-        originDutyStation: {
-          name: 'JBSA Lackland',
-        },
-        destinationDutyStation: {
-          name: 'JB Lewis-McChord',
-        },
-        report_by_date: '2018-08-01',
+        ordersId: '4321',
       },
       mtoShipments: [
         {

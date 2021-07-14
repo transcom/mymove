@@ -157,6 +157,19 @@ export async function createUpload(file) {
   );
 }
 
+export async function createUploadForAmendedOrdersDocument(file, ordersId) {
+  return makeInternalRequest(
+    'orders.uploadAmendedOrders',
+    {
+      ordersId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeInternalRequest(
     'uploads.createUpload',
@@ -216,6 +229,18 @@ export async function submitMoveForApproval(moveId, certificate) {
       submitMoveForApprovalPayload: {
         certificate,
       },
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function submitAmendedOrders(moveId) {
+  return makeInternalRequest(
+    'moves.submitAmendedOrders',
+    {
+      moveId,
     },
     {
       normalize: false,

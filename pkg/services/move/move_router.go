@@ -95,11 +95,20 @@ func (router moveRouter) needsServiceCounseling(move *models.Move) (bool, error)
 		router.logger.Error("failure finding the origin duty station", zap.Error(err))
 		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 	}
+
+	if move.ServiceCounselingCompletedAt != nil {
+		return false, nil
+	}
+
 	return originDutyStation.ProvidesServicesCounseling, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(move *models.Move) error {
+	if move.Status == models.MoveStatusNeedsServiceCounseling {
+		return nil
+	}
+
 	if move.Status != models.MoveStatusDRAFT {
 		router.logger.Warn(fmt.Sprintf(
 			"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is: %s",
@@ -165,6 +174,7 @@ func (router moveRouter) Approve(move *models.Move) error {
 	router.logMove(move)
 	if router.approvable(move) {
 		move.Status = models.MoveStatusAPPROVED
+		router.logger.Info("SUCCESS: Move approved")
 		return nil
 	}
 	if router.alreadyApproved(move) {
@@ -211,22 +221,30 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 // "Approvals Requested", which indicates to the TOO that they have new
 // service items to review.
 func (router moveRouter) SendToOfficeUser(move *models.Move) error {
+	router.logMove(move)
 	// Do nothing if it's already in the desired state
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
 		return nil
 	}
-	if move.Status != models.MoveStatusAPPROVED {
-		return errors.Wrap(models.ErrInvalidTransition, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Approvals Requested' from the 'Approved' status, but its current status is %s.", move.ID, move.Status))
+	if move.Status == models.MoveStatusCANCELED {
+		errorMessage := fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID)
+		router.logger.Warn(errorMessage)
+
+		return errors.Wrap(models.ErrInvalidTransition, errorMessage)
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
+	router.logger.Info("SUCCESS: Move sent to TOO to request approval")
+
 	return nil
 }
 
 // Cancel cancels the Move and its associated PPMs
 func (router moveRouter) Cancel(reason string, move *models.Move) error {
+	router.logMove(move)
 	// We can cancel any move that isn't already complete.
+	// TODO: What does complete mean? How do we determine when a move is complete?
 	if move.Status == models.MoveStatusCANCELED {
-		return errors.Wrap(models.ErrInvalidTransition, "Cancel")
+		return errors.Wrap(models.ErrInvalidTransition, "Cannot cancel a move that is already canceled.")
 	}
 
 	move.Status = models.MoveStatusCANCELED
@@ -251,6 +269,7 @@ func (router moveRouter) Cancel(reason string, move *models.Move) error {
 		return err
 	}
 
+	router.logger.Info("SUCCESS: Move Canceled")
 	return nil
 
 }

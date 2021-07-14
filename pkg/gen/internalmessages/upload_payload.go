@@ -23,6 +23,9 @@ type UploadPayload struct {
 	// Required: true
 	Bytes *int64 `json:"bytes"`
 
+	// checksum
+	Checksum string `json:"checksum,omitempty"`
+
 	// content type
 	// Required: true
 	ContentType *string `json:"content_type"`

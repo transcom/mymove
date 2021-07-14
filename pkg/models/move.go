@@ -132,135 +132,6 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// State Machine
-// Avoid calling Move.Status = ... ever. Use these methods to change the state.
-
-// Submit submits the Move
-func (m *Move) Submit() error {
-	if m.Status != MoveStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, "Submit")
-	}
-	m.Status = MoveStatusSUBMITTED
-	submitDate := swag.Time(time.Now())
-	m.SubmittedAt = submitDate
-
-	// Update PPM status too
-	for i := range m.PersonallyProcuredMoves {
-		ppm := &m.PersonallyProcuredMoves[i]
-		err := ppm.Submit(*submitDate)
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, ppm := range m.PersonallyProcuredMoves {
-		if ppm.Advance != nil {
-			err := ppm.Advance.Request()
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-// SendToServiceCounseling sends the move to needs service counseling
-func (m *Move) SendToServiceCounseling() error {
-	if m.Status != MoveStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is %s", m.Status))
-	}
-	m.Status = MoveStatusNeedsServiceCounseling
-	submitDate := swag.Time(time.Now())
-	m.SubmittedAt = submitDate
-
-	return nil
-}
-
-var validStatusesBeforeApproval = []MoveStatus{
-	MoveStatusSUBMITTED,
-	MoveStatusAPPROVALSREQUESTED,
-	MoveStatusServiceCounselingCompleted,
-}
-
-func statusSliceContains(statusSlice []MoveStatus, status MoveStatus) bool {
-	for _, validStatus := range statusSlice {
-		if status == validStatus {
-			return true
-		}
-	}
-	return false
-}
-
-// Approve approves the Move
-func (m *Move) Approve() error {
-	if m.approvable() {
-		m.Status = MoveStatusAPPROVED
-		return nil
-	}
-	if m.alreadyApproved() {
-		return nil
-	}
-	return errors.Wrap(
-		ErrInvalidTransition, fmt.Sprintf(
-			"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
-			validStatusesBeforeApproval, m.Status,
-		),
-	)
-}
-
-func (m *Move) alreadyApproved() bool {
-	return m.Status == MoveStatusAPPROVED
-}
-
-func (m *Move) approvable() bool {
-	return statusSliceContains(validStatusesBeforeApproval, m.Status)
-}
-
-// SetApprovalsRequested sets the move to approvals requested
-func (m *Move) SetApprovalsRequested() error {
-	// Do nothing if it's already in the desired state
-	if m.Status == MoveStatusAPPROVALSREQUESTED {
-		return nil
-	}
-	if m.Status != MoveStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("The status for the Move with ID %s can only be set to 'Approvals Requested' from the 'Approved' status, but its current status is %s.", m.ID, m.Status))
-	}
-	m.Status = MoveStatusAPPROVALSREQUESTED
-	return nil
-}
-
-// Cancel cancels the Move and its associated PPMs
-func (m *Move) Cancel(reason string) error {
-	if m.Status == MoveStatusCANCELED {
-		return errors.Wrap(ErrInvalidTransition, "Cannot cancel a move that is already canceled.")
-	}
-
-	m.Status = MoveStatusCANCELED
-
-	// If a reason was submitted, add it to the move record.
-	if reason != "" {
-		m.CancelReason = &reason
-	}
-
-	// This will work only if you use the PPM in question rather than a var representing it
-	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range m.PersonallyProcuredMoves {
-		err := m.PersonallyProcuredMoves[i].Cancel()
-		if err != nil {
-			return err
-		}
-	}
-
-	// TODO: Orders can exist after related moves are canceled
-	err := m.Orders.Cancel()
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
@@ -273,6 +144,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"MTOShipments.SecondaryDeliveryAddress",
 		"SignedCertifications",
 		"Orders",
+		"Orders.UploadedAmendedOrders",
 		"MoveDocuments.Document",
 	).Where("show = TRUE").Find(&move, id)
 

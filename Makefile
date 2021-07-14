@@ -661,6 +661,11 @@ db_test_truncate:
 	@echo "Truncating ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
 
+.PHONY: db_e2e_test_truncate
+db_e2e_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -730,7 +735,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
-db_e2e_up: check_app bin/generate-test-data db_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
+db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
@@ -1056,7 +1061,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
+	docker pull milmove/circleci-docker:milmove-app-75d11654ab683e5d8b7889aa02bfdcff25e1269f
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

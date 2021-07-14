@@ -13,6 +13,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -892,12 +894,13 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 
-	err := move.Submit()
+	err := moveRouter.Submit(&move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = move.Approve()
+	err = moveRouter.Approve(&move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

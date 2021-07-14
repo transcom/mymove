@@ -55,7 +55,7 @@ var pkcs11Modules = []string{
 // InitCACFlags initializes the CAC Flags
 func InitCACFlags(flag *pflag.FlagSet) {
 	flag.Bool(CACFlag, false, "Use a CAC for authentication")
-	flag.String(PKCS11ModuleFlag, "/usr/local/lib/pkcs11/opensc-pkcs11.so", "Smart card: Path to the PKCS11 module to use")
+	flag.String(PKCS11ModuleFlag, "/usr/local/lib/opensc-pkcs11.so", "Smart card: Path to the PKCS11 module to use")
 	flag.String(TokenLabelFlag, "", "Smart card: name of the token to use")
 	flag.String(CertLabelFlag, "Certificate for PIV Authentication", "Smart card: label of the public cert")
 	flag.String(KeyLabelFlag, "PIV AUTH key", "Smart card: label of the private key")

@@ -41,6 +41,7 @@ const uploadOrdersProps = {
     status: 'DRAFT',
   },
   uploadedOrderDocuments: [],
+  uploadedAmendedOrderDocuments: [],
 };
 
 const shipmentSelectionProps = {
@@ -96,6 +97,20 @@ const submittedProps = {
   },
 };
 
+const amendedOrderProps = {
+  ...submittedProps,
+  move: {
+    ...submittedProps.move,
+    status: 'APPROVALS REQUESTED',
+  },
+  uploadedAmendedOrderDocuments: [
+    {
+      id: 'file3',
+      filename: 'Amended_Orders.pdf',
+    },
+  ],
+};
+
 export const Step2 = () => {
   return (
     <MockProviders>
@@ -131,6 +146,16 @@ export const SubmittedMove = () => {
     <MockProviders>
       <div className="grid-container usa-prose">
         <Home {...submittedProps} />
+      </div>
+    </MockProviders>
+  );
+};
+
+export const AmendedOrders = () => {
+  return (
+    <MockProviders>
+      <div className="grid-container usa-prose">
+        <Home {...amendedOrderProps} />
       </div>
     </MockProviders>
   );

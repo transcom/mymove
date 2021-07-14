@@ -12,5 +12,6 @@ export {
   MTOServiceItemShape,
   PaymentRequestShape,
   PaymentServiceItemShape,
+  ExistingUploadsShape,
 } from './order';
 export { MatchShape, LocationShape } from './router';

@@ -7,6 +7,7 @@ package orders
 
 import (
 	"io"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -14,8 +15,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewUploadAmendedOrdersParams creates a new UploadAmendedOrdersParams object
@@ -34,17 +33,11 @@ type UploadAmendedOrdersParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-
+	/*The file to upload.
 	  Required: true
-	  In: header
+	  In: formData
 	*/
-	IfMatch string
-	/*
-	  Required: true
-	  In: body
-	*/
-	AmendedOrders *internalmessages.UploadPayload
+	File io.ReadCloser
 	/*UUID of the order
 	  Required: true
 	  In: path
@@ -61,32 +54,24 @@ func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 
 	o.HTTPRequest = r
 
-	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body internalmessages.UploadPayload
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("amendedOrders", "body", ""))
-			} else {
-				res = append(res, errors.NewParseError("amendedOrders", "body", "", err))
-			}
-		} else {
-			// validate body object
-			if err := body.Validate(route.Formats); err != nil {
-				res = append(res, err)
-			}
-
-			if len(res) == 0 {
-				o.AmendedOrders = &body
-			}
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		if err != http.ErrNotMultipart {
+			return errors.New(400, "%v", err)
+		} else if err := r.ParseForm(); err != nil {
+			return errors.New(400, "%v", err)
 		}
-	} else {
-		res = append(res, errors.Required("amendedOrders", "body", ""))
 	}
+
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		res = append(res, errors.New(400, "reading file %q failed: %v", "file", err))
+	} else if err := o.bindFile(file, fileHeader); err != nil {
+		// Required: true
+		res = append(res, err)
+	} else {
+		o.File = &runtime.File{Data: file, Header: fileHeader}
+	}
+
 	rOrdersID, rhkOrdersID, _ := route.Params.GetOK("ordersId")
 	if err := o.bindOrdersID(rOrdersID, rhkOrdersID, route.Formats); err != nil {
 		res = append(res, err)
@@ -98,24 +83,10 @@ func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 	return nil
 }
 
-// bindIfMatch binds and validates parameter IfMatch from header.
-func (o *UploadAmendedOrdersParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	if !hasKey {
-		return errors.Required("If-Match", "header", rawData)
-	}
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-
-	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
-		return err
-	}
-
-	o.IfMatch = raw
-
+// bindFile binds file parameter File.
+//
+// The only supported validations on files are MinLength and MaxLength
+func (o *UploadAmendedOrdersParams) bindFile(file multipart.File, header *multipart.FileHeader) error {
 	return nil
 }
 

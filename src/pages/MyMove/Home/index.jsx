@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button } from '@trussworks/react-uswds';
+import { Alert, Button } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 import { withRouter } from 'react-router-dom';
 
@@ -13,6 +13,7 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
+  HelperAmendedOrders,
 } from './HomeHelpers';
 
 import ScrollToTop from 'components/ScrollToTop';
@@ -32,6 +33,7 @@ import {
   selectIsProfileComplete,
   selectMTOShipmentsForCurrentMove,
   selectServiceMemberFromLoggedInUser,
+  selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import {
@@ -83,6 +85,11 @@ export class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
+  get hasUnapprovedAmendedOrders() {
+    const { move, uploadedAmendedOrderDocuments } = this.props;
+    return !!uploadedAmendedOrderDocuments?.length && move.status !== 'APPROVED';
+  }
+
   get hasOrdersNoUpload() {
     const { orders, uploadedOrderDocuments } = this.props;
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
@@ -123,10 +130,24 @@ export class Home extends Component {
     return 'Set up your shipments';
   }
 
+  renderAlert = () => {
+    if (this.hasUnapprovedAmendedOrders) {
+      return (
+        <Alert type="success" slim data-testid="unapproved-amended-orders-alert">
+          The transportation office will review your new documents and update your move info. Contact your movers to
+          coordinate any changes to your move.
+          <p>You don&apos;t need to do anything else in MilMove.</p>
+        </Alert>
+      );
+    }
+    return null;
+  };
+
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    if (this.hasUnapprovedAmendedOrders) return <HelperAmendedOrders />;
     if (this.hasPPMShipment)
       return (
         <>
@@ -270,6 +291,7 @@ export class Home extends Component {
 
             {isProfileComplete && (
               <>
+                {this.renderAlert()}
                 {this.renderHelper()}
                 <SectionWrapper>
                   <Step
@@ -406,6 +428,7 @@ Home.propTypes = {
     shipmentType: string,
   }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
+  uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
@@ -417,9 +440,10 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
-  orders: null,
+  orders: {},
   serviceMember: null,
   signedCertification: {},
+  uploadedAmendedOrderDocuments: [],
 };
 
 const mapStateToProps = (state) => {
@@ -431,6 +455,7 @@ const mapStateToProps = (state) => {
     isProfileComplete: selectIsProfileComplete(state),
     orders: selectCurrentOrders(state) || {},
     uploadedOrderDocuments: selectUploadsForCurrentOrders(state),
+    uploadedAmendedOrderDocuments: selectUploadsForCurrentAmendedOrders(state),
     serviceMember,
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),

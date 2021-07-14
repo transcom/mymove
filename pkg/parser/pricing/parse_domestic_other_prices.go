@@ -3,8 +3,6 @@ package pricing
 import (
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -17,11 +15,11 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	logger.Info("Parsing domestic other (pack/unpack) prices")
-
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
+
+	prefixPrinter := newDebugPrefix("StageDomesticOtherPackPrice")
 
 	var packUnpackPrices []models.StageDomesticOtherPackPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
@@ -35,9 +33,7 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 
 		if packPrice.ServicesSchedule != "" {
 			packUnpackPrices = append(packUnpackPrices, packPrice)
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageDomesticOtherPackPrice", packPrice))
-			}
+			prefixPrinter.Printf("%+v\n", packPrice)
 		} else {
 			break
 		}
@@ -55,11 +51,11 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
 
-	logger.Info("Parsing domestic other (SIT pickup/delivery) prices")
-
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
+
+	prefixPrinter := newDebugPrefix("StageDomesticOtherSitPrice")
 
 	var sitPrices []models.StageDomesticOtherSitPrice
 	sheet := params.XlsxFile.Sheets[xlsxDataSheetNum]
@@ -73,9 +69,7 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 
 		if sitPrice.SITPickupDeliverySchedule != "" {
 			sitPrices = append(sitPrices, sitPrice)
-			if params.ShowOutput {
-				logger.Info("", zap.Any("StageDomesticOtherSitPrice", sitPrice))
-			}
+			prefixPrinter.Printf("%+v\n", sitPrice)
 		} else {
 			break
 		}
