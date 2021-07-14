@@ -475,7 +475,7 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       result = [
         billableWeight(params),
         destinationPriceNoPeak(params),
-        priceEscalationFactorNoBase(params),
+        priceEscalationFactorNoContractYear(params),
         totalAmountRequested(totalAmount),
       ];
       break;
