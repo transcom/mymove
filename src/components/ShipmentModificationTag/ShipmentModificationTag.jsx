@@ -6,12 +6,14 @@ import styles from './ShipmentModificationTag.module.scss';
 
 import { shipmentModificationTypes } from 'constants/shipments';
 
-const ShipmentModificationTag = ({ shipmentModificationType }) => (
-  <Tag className={styles.ShipmentModificationTag}>{shipmentModificationType}</Tag>
-);
+const ShipmentModificationTag = ({ shipmentModificationType }) =>
+  shipmentModificationType !== null && <Tag className={styles.ShipmentModificationTag}>{shipmentModificationType}</Tag>;
 
 ShipmentModificationTag.propTypes = {
-  shipmentModificationType: PropTypes.oneOf(Object.keys(shipmentModificationTypes)).isRequired,
+  shipmentModificationType: PropTypes.oneOf(Object.keys(shipmentModificationTypes)),
+};
+ShipmentModificationTag.defaultProps = {
+  shipmentModificationType: null,
 };
 
 export default ShipmentModificationTag;

@@ -42,7 +42,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
-              {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
+              {modificationType !== null && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
           </div>
           {(departureDate || address) && (
