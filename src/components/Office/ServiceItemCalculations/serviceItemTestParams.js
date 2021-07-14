@@ -144,15 +144,6 @@ const NumberDaysSIT = {
   type: 'INTEGER',
   value: '2',
 };
-const CanStandAlone = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '1df2468b-8fb4-4371-b8ce-3c05d7da2050',
-  key: 'CanStandAlone',
-  origin: 'PRIME',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'STRING',
-  value: '',
-};
 const CubicFeetBilled = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '1fe986ae-dbff-4fe1-b528-714560f7d2f5',
@@ -612,7 +603,6 @@ const testParams = {
   ],
   DomesticCrating: [
     RequestedPickupDate,
-    CanStandAlone,
     CubicFeetBilled,
     CubicFeetCrating,
     ServicesScheduleOrigin,
@@ -621,7 +611,6 @@ const testParams = {
   ],
   DomesticCratingStandalone: [
     RequestedPickupDate,
-    CanStandAlone,
     CubicFeetBilled,
     CubicFeetCrating,
     ServicesScheduleOrigin,
