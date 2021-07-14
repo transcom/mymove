@@ -2,9 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
 
 	"github.com/pkg/sftp"
 	"github.com/spf13/pflag"
@@ -63,22 +60,6 @@ func CheckGEXSFTP(v *viper.Viper) error {
 	}
 
 	return nil
-}
-
-// CheckOutboundIP checks outbound IP for logging purposes
-func CheckOutboundIP(logger Logger) {
-	resp, err := http.Get("https://checkip.amazonaws.com")
-	if err != nil {
-		logger.Error("Error fetching outbound IP: %w", zap.Error(err))
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error("Error parsing body: %w", zap.Error(err))
-	}
-	parsed := string(body)
-	parsed = strings.TrimSpace(parsed)
-	logger.Info("Getting Source Address...", zap.String("source_address", parsed))
 }
 
 // InitGEXSSH initializes a GEX SSH client from command line flags.
