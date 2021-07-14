@@ -33,18 +33,13 @@ func NewCreateMTOShipment(ctx *middleware.Context, handler CreateMTOShipmentHand
 
 createMTOShipment
 
-Creates a MTO shipment for the specified Move Task Order.
-Required fields include:
-* Shipment Type
-* Customer requested pick-up date
-* Pick-up Address
-* Delivery Address
-* Releasing / Receiving agents
+Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
+approve it before the contractor can proceed with billing.
 
-Optional fields include:
-* Customer Remarks
-* Releasing / Receiving agents
-* An array of optional accessorial service item codes
+**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
+one of their moves. Otherwise, the Prime can fetch the related move using the
+[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
 
 
 */

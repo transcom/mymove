@@ -18,10 +18,19 @@ schemes:
 tags:
   - name: moveTaskOrder
     description: >
-      The **moveTaskOrder** represents a military move that has been sent to the GHC contractor. It contains all the
+      The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the
       information about shipments, including service items, estimated weights, actual weights, requested and scheduled
       move dates, etc.
   - name: mtoShipment
+    description: |
+      A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another
+      location. All of the items in a shipment are weighed and transported as a discrete unit. One move may include
+      multiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a
+      [moveTaskOrder](#tag/moveTaskOrder).
+
+      The weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If
+      the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and
+      the contractor should keep this potential cost in mind when planning a move and the shipments within it.
   - name: paymentRequest
   - name: mtoServiceItem
 x-tagGroups:
@@ -43,8 +52,8 @@ paths:
         **WIP**: The original goal was to also look at the `updateAt` timestamps of the nested objects - such as the
         shipments, service items, etc. This has not been implemented.
 
-        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrime` timestamp has been
-        set, that move will always appear in this list.
+        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
+        been set, that move will always appear in this list.
       operationId: fetchMTOUpdates
       tags:
         - moveTaskOrder
@@ -175,18 +184,13 @@ paths:
     post:
       summary: createMTOShipment
       description: |
-        Creates a MTO shipment for the specified Move Task Order.
-        Required fields include:
-        * Shipment Type
-        * Customer requested pick-up date
-        * Pick-up Address
-        * Delivery Address
-        * Releasing / Receiving agents
+        Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+        need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
+        approve it before the contractor can proceed with billing.
 
-        Optional fields include:
-        * Customer Remarks
-        * Releasing / Receiving agents
-        * An array of optional accessorial service item codes
+        **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
+        one of their moves. Otherwise, the Prime can fetch the related move using the
+        [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
       consumes:
         - application/json
       produces:
@@ -1501,6 +1505,18 @@ definitions:
             type: string
             example: Things to be moved to the place by shuttle.
             description: Further details about the shuttle service.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reason
           - reServiceCode
@@ -2065,14 +2081,42 @@ definitions:
       Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
+        * DDSHUT - UpdateMTOServiceItemShuttle
+        * DOSHUT - UpdateMTOServiceItemShuttle
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
+      - UpdateMTOServiceItemShuttle
+  UpdateMTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDSHUT # Domestic Destination Shuttle
+              - DOSHUT # Domestic Origin Shuttle
   UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
-      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
+      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.
     allOf:
       - $ref: '#/definitions/UpdateMTOServiceItem'
       - type: object

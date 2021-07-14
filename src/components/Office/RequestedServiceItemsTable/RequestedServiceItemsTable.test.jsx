@@ -11,14 +11,13 @@ const defaultProps = {
   handleUpdateMTOServiceItemStatus: jest.fn(),
 };
 
-const serviceItemWithImg = {
+const serviceItemWithCrating = {
   id: 'abc123',
   createdAt: '2020-11-20',
   serviceItem: 'Domestic crating',
   code: 'DCRT',
   details: {
     description: 'grandfather clock',
-    imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
     itemDimensions: { length: 7000, width: 2000, height: 3500 },
   },
 };
@@ -46,7 +45,7 @@ const serviceItemWithDetails = {
 };
 
 const testDetails = (wrapper) => {
-  expect(wrapper.find('.detailImage p').text()).toBe('grandfather clock');
+  expect(wrapper.find('.detailCrating p').text()).toBe('grandfather clock');
   expect(wrapper.find('.detailType').at(0).text()).toBe('Item Dimensions:');
   expect(wrapper.find('.detail dd').at(0).text()).toBe('7"x2"x3.5"');
 
@@ -68,7 +67,7 @@ const testDetails = (wrapper) => {
 
 describe('RequestedServiceItemsTable', () => {
   it('shows the correct number of service items in the table', () => {
-    const serviceItems = [serviceItemWithImg];
+    const serviceItems = [serviceItemWithCrating];
 
     let wrapper = shallow(
       <RequestedServiceItemsTable
@@ -93,7 +92,7 @@ describe('RequestedServiceItemsTable', () => {
   });
 
   it('displays the service item name and submitted date', () => {
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -113,7 +112,7 @@ describe('RequestedServiceItemsTable', () => {
   });
 
   it('shows the service item detail text', () => {
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -126,10 +125,10 @@ describe('RequestedServiceItemsTable', () => {
 
   it('displays the approve and reject status buttons', () => {
     serviceItemWithContact.status = 'SUBMITTED';
-    serviceItemWithImg.status = 'SUBMITTED';
+    serviceItemWithCrating.status = 'SUBMITTED';
     serviceItemWithDetails.status = 'SUBMITTED';
 
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -151,9 +150,9 @@ describe('RequestedServiceItemsTable', () => {
 
   it('shows the service item detail text when approved and shows the reject button', () => {
     serviceItemWithDetails.status = 'APPROVED';
-    serviceItemWithImg.status = 'APPROVED';
+    serviceItemWithCrating.status = 'APPROVED';
     serviceItemWithContact.status = 'APPROVED';
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -171,9 +170,9 @@ describe('RequestedServiceItemsTable', () => {
 
   it('shows the service item detail text when rejected and shows the approve text button', () => {
     serviceItemWithDetails.status = 'REJECTED';
-    serviceItemWithImg.status = 'REJECTED';
+    serviceItemWithCrating.status = 'REJECTED';
     serviceItemWithContact.status = 'REJECTED';
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}

@@ -4,15 +4,14 @@ import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { SERVICE_ITEM_STATUS } from '../../shared/constants';
-import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/order';
+import styles from './ServiceItemsTable.module.scss';
 
-import styles from './index.module.scss';
-
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from 'types/order';
 import { formatDateFromIso } from 'shared/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 
-const ServiceItemTableHasImg = ({
+const ServiceItemsTable = ({
   serviceItems,
   statusForTableType,
   handleUpdateMTOServiceItemStatus,
@@ -107,7 +106,7 @@ const ServiceItemTableHasImg = ({
   });
 
   return (
-    <div className={classnames(styles.ServiceItemTable, 'table--service-item', 'table--service-item--hasimg')}>
+    <div className={classnames(styles.ServiceItemsTable, 'table--service-item', 'table--service-item--hasimg')}>
       <table>
         <thead className="table--small">
           <tr>
@@ -122,7 +121,7 @@ const ServiceItemTableHasImg = ({
   );
 };
 
-ServiceItemTableHasImg.propTypes = {
+ServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
@@ -136,7 +135,6 @@ ServiceItemTableHasImg.propTypes = {
       details: PropTypes.shape({
         pickupPostalCode: PropTypes.string,
         reason: PropTypes.string,
-        imgURL: PropTypes.string,
         itemDimensions: MTOServiceItemDimensionShape,
         createDimensions: MTOServiceItemDimensionShape,
         firstCustomerContact: MTOServiceItemCustomerContactShape,
@@ -146,4 +144,4 @@ ServiceItemTableHasImg.propTypes = {
   ).isRequired,
 };
 
-export default ServiceItemTableHasImg;
+export default ServiceItemsTable;

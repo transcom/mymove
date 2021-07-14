@@ -44,7 +44,7 @@ const MovePaymentRequests = ({
   }, [mtoShipments, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
-    const pendingCount = paymentRequests.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
+    const pendingCount = paymentRequests?.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 

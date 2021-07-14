@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
@@ -515,9 +516,54 @@ const approvedMoveDetailsQuery = {
   ],
 };
 
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
 describe('MoveDetails page', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
+          <MoveDetails
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
   describe('requested shipment', () => {
-    useMoveDetailsQueries.mockImplementation(() => requestedMoveDetailsQuery);
+    useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQuery);
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
@@ -579,7 +625,7 @@ describe('MoveDetails page', () => {
   });
 
   describe('requested shipment with amended orders', () => {
-    useMoveDetailsQueries.mockImplementation(() => requestedMoveDetailsAmendedOrdersQuery);
+    useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsAmendedOrdersQuery);
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
@@ -600,7 +646,7 @@ describe('MoveDetails page', () => {
   });
 
   describe('requested and approved shipment', () => {
-    useMoveDetailsQueries.mockImplementation(() => requestedAndApprovedMoveDetailsQuery);
+    useMoveDetailsQueries.mockReturnValue(requestedAndApprovedMoveDetailsQuery);
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
@@ -635,7 +681,7 @@ describe('MoveDetails page', () => {
   });
 
   describe('approved shipment', () => {
-    useMoveDetailsQueries.mockImplementation(() => approvedMoveDetailsQuery);
+    useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>
@@ -655,7 +701,7 @@ describe('MoveDetails page', () => {
   });
 
   describe('When required Orders information (like TAC) is missing', () => {
-    useMoveDetailsQueries.mockImplementation(() => requestedMoveDetailsMissingInfoQuery);
+    useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
     const wrapper = mount(
       <MockProviders initialEntries={[`/moves/${mockRequestedMoveCode}/details`]}>

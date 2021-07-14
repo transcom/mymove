@@ -2,7 +2,7 @@ import React from 'react';
 import { func, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import ShipmentContainer from '../../../../Office/ShipmentContainer';
+import ShipmentContainer from '../../../../Office/ShipmentContainer/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';

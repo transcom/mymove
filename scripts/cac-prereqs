@@ -8,29 +8,41 @@ set -eu -o pipefail
 # Note: This script has no output other than Exit 0 on success  so it can be used in other scripts.
 #
 
-readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
-readonly PKCS11=/usr/local/bin/pkcs11-tool
-readonly PKCS15=/usr/local/bin/pkcs15-tool
+PKCS11=/usr/local/bin/pkcs11-tool
+PKCS15=/usr/local/bin/pkcs15-tool
 
 if [[ ! -x "${PKCS11}" ]]; then
   echo "${PKCS11} has not been installed"
-  echo "Please install with 'brew install opensc'"
+  echo "Please install with 'brew install --cask opensc'"
   exit 1
 fi
 
 if [[ ! -x "${PKCS15}" ]]; then
   echo "${PKCS15} has not been installed"
-  echo "Please install with 'brew install opensc'"
+  echo "Please install with 'brew install --cask opensc'"
   exit 1
 fi
 
-OS_VERSION=$(/usr/bin/sw_vers -productVersion)
-MAC_OS="10.15"
-if [[ $OS_VERSION != *$MAC_OS* && ! -f "${MODULE}" ]]; then
-  echo "${MODULE} must be installed for MacOS versions prior to ${MAC_OS}"
-  echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
+# Looks like placement of this module can vary by versions. Some even have both. The module's docs don't really have
+# info on this, so we'll just have to check both. It seems though, like if we move in the direction of using the cask
+# version of opensc, that one may only use the /usr/local/lib/opensc-pkcs11.so path.
+MODULE=
+if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
+  MODULE=/usr/local/lib/opensc-pkcs11.so
+elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
+  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+fi
+
+readonly MODULE
+
+if [[ -z "${MODULE}" ]]; then
+  echo "Could not find the opensc-pkcs11 module. You are either missing it or the CAC scripts need to be updated."
   exit 1
-elif [[ -f "${MODULE}" ]]; then
-  echo "${MODULE} must be removed for MacOS versions equal to or after ${MAC_OS}"
+fi
+
+readonly OLD_MODULE=/usr/local/lib/pkcs11/cackey.dylib
+
+if [[ -f "${OLD_MODULE}" ]]; then
+  echo "${OLD_MODULE} must be removed for MacOS versions 10.15 or later"
   exit 1
 fi
