@@ -649,3 +649,4 @@
 20210628223755_add_actual_and_estimated_weight_to_mto_service_items.up.sql
 20210629133827_remove_char_limit_payment_service_item_rejection_reason.up.sql
 20210706214857_felipe_cac.up.sql
+20210714221936_change_cubic_feet_crating_to_decimal.up.sql
