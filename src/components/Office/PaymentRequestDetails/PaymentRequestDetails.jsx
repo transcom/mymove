@@ -105,7 +105,7 @@ PaymentRequestDetails.defaultProps = {
   shipment: {
     departureDate: '',
     address: '',
-    modificationType: '',
+    modificationType: null,
   },
 };
 
