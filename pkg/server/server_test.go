@@ -4,8 +4,7 @@
 //RA: Given the functions causing the lint errors are used to close a local server connection for testing purposes, it is not deemed a risk
 //RA Developer Status: Mitigated
 //RA Validator Status: Mitigated
-//RA Validator: leodis.f.scott.civ@mail.mil
-//RA Modified Severity: CAT III
+//RA Modified Severity: N/A
 // nolint:errcheck
 package server
 
@@ -254,9 +253,9 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 	//RA: The code is part of a test function that tests TLS configuration with multiple TLS levels (currently 1.2 and 1.3).
 	//RA: It is executed as part of our test suite and is not included in the production system.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator:
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Validator: leodis.f.scott.civ@mail.mil
+     //RA Modified Severity: CAT III
 	// #nosec G402
 	clientTLSConfig := tls.Config{
 		RootCAs:      caCertPool,
