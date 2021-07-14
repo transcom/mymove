@@ -184,7 +184,7 @@ const destinationPrice = (params) => {
   return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), peak(params));
 };
 
-const destinationShuttlePrice = (params) => {
+const destinationPriceNoPeak = (params) => {
   const value = getPriceRateOrFactor(params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
 
@@ -474,8 +474,8 @@ const makeCalculations = (itemCode, totalAmount, params) => {
     case SERVICE_ITEM_CODES.DDSHUT:
       result = [
         billableWeight(params),
-        destinationShuttlePrice(params),
-        priceEscalationFactorDomDestShuttle(params),
+        destinationPriceNoPeak(params),
+        priceEscalationFactorNoBase(params),
         totalAmountRequested(totalAmount),
       ];
       break;
