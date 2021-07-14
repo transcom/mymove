@@ -3,21 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { push } from 'connected-react-router';
-import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import FileUpload from 'components/FileUpload/FileUpload';
-import UploadsTable from 'components/UploadsTable/UploadsTable';
-import SectionWrapper from 'components/Customer/SectionWrapper';
-import SaveCancelButtons from './SaveCancelButtons';
-
 import scrollToTop from 'shared/scrollToTop';
-import { documentSizeLimitMsg } from 'shared/constants';
-import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 import { getOrdersForServiceMember, patchOrders, createUploadForDocument, deleteUpload } from 'services/internalApi';
 import { updateOrders as updateOrdersAction } from 'store/entities/actions';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
@@ -29,97 +18,23 @@ import {
   selectHasCurrentPPM,
   selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
-
-import './Review.css';
-import profileImage from './images/profile.png';
-
-const editOrdersFormName = 'edit_orders';
-
-let EditOrdersForm = (props) => {
-  const {
-    createUpload,
-    onDelete,
-    schema,
-    handleSubmit,
-    submitting,
-    valid,
-    initialValues,
-    existingUploads,
-    onUploadComplete,
-    filePondEl,
-  } = props;
-  const showAllOrdersTypes = props.context.flags.allOrdersTypes;
-  const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
-
-  return (
-    <div className="grid-container usa-prose">
-      <div className="grid-row">
-        <div className="grid-col-12">
-          <form onSubmit={handleSubmit}>
-            <img src={profileImage} alt="" />
-            <h1
-              style={{
-                display: 'inline-block',
-                marginLeft: 10,
-                marginBottom: 16,
-                marginTop: 20,
-              }}
-            >
-              Orders
-            </h1>
-            <SectionWrapper>
-              <h2>Edit Orders:</h2>
-              <SwaggerField
-                fieldName="orders_type"
-                swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}
-                required
-              />
-              <SwaggerField fieldName="issue_date" swagger={schema} required />
-              <SwaggerField fieldName="report_by_date" swagger={schema} required />
-              <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-              <br />
-              <Field name="new_duty_station" component={DutyStationSearchBox} />
-              <p>Uploads:</p>
-              {existingUploads?.length > 0 && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
-              {initialValues?.uploaded_orders && (
-                <div>
-                  <p>{documentSizeLimitMsg}</p>
-                  <FileUpload
-                    ref={filePondEl}
-                    createUpload={createUpload}
-                    onChange={onUploadComplete}
-                    labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
-                  />
-                </div>
-              )}
-            </SectionWrapper>
-            <SaveCancelButtons valid={valid} submitting={submitting} />
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-EditOrdersForm.propTypes = {
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
-};
-
-EditOrdersForm = withContext(
-  reduxForm({
-    form: editOrdersFormName,
-  })(EditOrdersForm),
-);
+import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
+import { OrdersShape, HistoryShape } from 'types/customerShapes';
+import { EntitlementShape, ExistingUploadsShape } from 'types';
+import 'scenes/Review/Review.css';
 
 class EditOrders extends Component {
   constructor(props) {
     super(props);
 
     this.filePondEl = createRef();
+  }
+
+  componentDidMount() {
+    const { serviceMemberId, updateOrders } = this.props;
+    getOrdersForServiceMember(serviceMemberId).then((response) => {
+      updateOrders(response);
+    });
   }
 
   handleUploadFile = (file) => {
@@ -147,22 +62,24 @@ class EditOrders extends Component {
   };
 
   submitOrders = (fieldValues) => {
-    const { setFlashMessage, entitlement } = this.props;
+    const { setFlashMessage, entitlement, updateOrders, currentOrders, spouseHasProGear, history } = this.props;
 
     let entitlementCouldChange = false;
 
-    fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
-    fieldValues.spouse_has_pro_gear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
-    if (
-      fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
-      fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
-    ) {
+    const fromFormSpouseHasProGear = (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
+
+    if (fieldValues.has_dependents !== currentOrders.has_dependents || fromFormSpouseHasProGear !== spouseHasProGear) {
       entitlementCouldChange = true;
     }
 
-    return patchOrders(fieldValues)
+    const newDutyStationId = fieldValues.new_duty_station.id;
+    return patchOrders({
+      ...fieldValues,
+      new_duty_station_id: newDutyStationId,
+      spouse_has_pro_gear: fromFormSpouseHasProGear,
+    })
       .then((response) => {
-        this.props.updateOrders(response);
+        updateOrders(response);
 
         if (entitlementCouldChange) {
           setFlashMessage(
@@ -175,22 +92,15 @@ class EditOrders extends Component {
           setFlashMessage('EDIT_ORDERS_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
 
-        this.props.history.goBack();
+        history.goBack();
       })
-      .catch((e) => {
+      .catch(() => {
         scrollToTop();
       });
   };
 
-  componentDidMount() {
-    const { serviceMemberId, updateOrders } = this.props;
-    getOrdersForServiceMember(serviceMemberId).then((response) => {
-      updateOrders(response);
-    });
-  }
-
   render() {
-    const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
+    const { error, schema, currentOrders, existingUploads, moveIsApproved } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -218,7 +128,6 @@ class EditOrders extends Component {
               onUploadComplete={this.handleUploadComplete}
               existingUploads={existingUploads}
               onDelete={this.handleDeleteFile}
-              formValues={formValues}
             />
           </div>
         )}
@@ -226,6 +135,29 @@ class EditOrders extends Component {
     );
   }
 }
+
+EditOrders.propTypes = {
+  moveIsApproved: PropTypes.bool.isRequired,
+  serviceMemberId: PropTypes.string.isRequired,
+  setFlashMessage: PropTypes.func.isRequired,
+  updateOrders: PropTypes.func.isRequired,
+  currentOrders: OrdersShape.isRequired,
+  history: HistoryShape.isRequired,
+  entitlement: EntitlementShape.isRequired,
+  existingUploads: ExistingUploadsShape,
+  error: PropTypes.shape({
+    message: PropTypes.string.isRequired,
+  }),
+  schema: PropTypes.shape({}),
+  spouseHasProGear: PropTypes.bool,
+};
+
+EditOrders.defaultProps = {
+  existingUploads: [],
+  error: null,
+  spouseHasProGear: false,
+  schema: {},
+};
 
 function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
@@ -238,7 +170,6 @@ function mapStateToProps(state) {
     serviceMemberId,
     existingUploads: uploads,
     error: get(state, 'orders.error'),
-    formValues: getFormValues(editOrdersFormName)(state),
     moveIsApproved: selectMoveIsApproved(state),
     isPpm: selectHasCurrentPPM(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
