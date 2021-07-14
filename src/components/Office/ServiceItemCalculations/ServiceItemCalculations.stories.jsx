@@ -124,6 +124,15 @@ export const DOPSIT = (data) => (
   />
 );
 
+export const DOSHUT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginShuttleService}
+    totalAmountRequested={642}
+    itemCode="DOSHUT"
+    tableSize={data.tableSize}
+  />
+);
+
 export const DDP = (data) => (
   <ServiceItemCalculations
     serviceItemParams={testParams.DomesticDestinationPrice}
