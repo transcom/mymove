@@ -1858,6 +1858,53 @@ func createHHGMoveWith10ServiceItems(db *pop.Connection, userUploader *uploader.
 		MTOServiceItem: serviceItemDDFSIT,
 	})
 
+	doshutCost := unit.Cents(623)
+	serviceItemDOSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894b"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAt,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        move8,
+		MTOShipment: mtoShipment8,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+		},
+	})
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &doshutCost,
+		},
+		PaymentRequest: paymentRequest8,
+		MTOServiceItem: serviceItemDOSHUT,
+	})
+
+	serviceItemDDSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("2b0ce635-d71b-4000-a22a-7c098a3b6ae9"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAt,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        move8,
+		MTOShipment: mtoShipment8,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("556663e3-675a-4b06-8da3-e4f1e9a9d3cd"), // DDSHUT - Dom Dest Shuttling
+		},
+	})
+
+	ddshutCost := unit.Cents(852)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ddshutCost,
+		},
+		PaymentRequest: paymentRequest8,
+		MTOServiceItem: serviceItemDDSHUT,
+	})
+
 	testdatagen.MakeMTOServiceItemDomesticCrating(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
@@ -4069,6 +4116,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 		createDefaultHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE)
 	}
 	createDefaultHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationMARINES)
+
 	// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
 	createHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
 		Move: models.Move{
