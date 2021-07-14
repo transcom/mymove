@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -368,17 +367,6 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 		suite.Contains(err.Error(), "PricingDisplayParams must not be empty")
 	})
 }
-
-const (
-	testServiceSchedule      = 2
-	testBasePriceCents       = unit.Cents(353)
-	testContractYearName     = "DOFSIT Test Year"
-	testEscalationCompounded = 1.125
-	testWeight               = unit.Pound(4000)
-	testPriceCents           = unit.Cents(15885) // testBasePriceCents * (testWeight / 100) * testEscalationCompounded
-)
-
-var testRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 	suite.Run("destination golden path", func() {

@@ -16,14 +16,20 @@ type WeightBilledActualLookup struct {
 func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
 	var actualWeight *unit.Pound
+
 	switch keyData.MTOServiceItem.ReService.Code {
-	case models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
+	case models.ReServiceCodeDOSHUT,
+		models.ReServiceCodeDDSHUT,
+		models.ReServiceCodeIOSHUT,
+		models.ReServiceCodeIDSHUT:
 		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
+
 		if estimatedWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
 			return "", fmt.Errorf("could not find estimated weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
 		}
 		actualWeight = keyData.MTOServiceItem.ActualWeight
+
 		if actualWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
 			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
