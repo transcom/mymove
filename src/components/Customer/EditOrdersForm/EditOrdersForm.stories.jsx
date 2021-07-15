@@ -32,7 +32,10 @@ export default {
   component: EditOrdersForm,
   argTypes: {
     onSubmit: { action: 'submit form' },
-    onCancel: { action: 'go back' },
+    onCancel: { action: 'go cancel' },
+    createUpload: { action: 'create upload' },
+    onUploadComplete: { action: 'upload complete' },
+    onDelete: { action: 'delete' },
   },
 };
 
@@ -47,7 +50,14 @@ const testProps = {
 };
 
 export const EmptyValues = (argTypes) => (
-  <EditOrdersForm {...testProps} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <EditOrdersForm
+    {...testProps}
+    onSubmit={argTypes.onSubmit}
+    onCancel={argTypes.onCancel}
+    createUpload={argTypes.createUpload}
+    onUploadComplete={argTypes.onUploadComplete}
+    onDelete={argTypes.onDelete}
+  />
 );
 
 export const PrefillNoDependents = (argTypes) => (
@@ -56,6 +66,9 @@ export const PrefillNoDependents = (argTypes) => (
     initialValues={testInitialValues}
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
+    createUpload={argTypes.createUpload}
+    onUploadComplete={argTypes.onUploadComplete}
+    onDelete={argTypes.onDelete}
   />
 );
 
@@ -65,6 +78,9 @@ export const PrefillYesDependents = (argTypes) => (
     initialValues={{ ...testInitialValues, has_dependents: 'yes' }}
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
+    createUpload={argTypes.createUpload}
+    onUploadComplete={argTypes.onUploadComplete}
+    onDelete={argTypes.onDelete}
   />
 );
 
@@ -74,5 +90,8 @@ export const PCSOnly = (argTypes) => (
     ordersTypeOptions={[testProps.ordersTypeOptions[0]]}
     onSubmit={argTypes.onSubmit}
     onCancel={argTypes.onCancel}
+    createUpload={argTypes.createUpload}
+    onUploadComplete={argTypes.onUploadComplete}
+    onDelete={argTypes.onDelete}
   />
 );

@@ -13,7 +13,7 @@ import profileImage from 'scenes/Review/images/profile.png';
 import Hint from 'components/Hint/index';
 import { DropdownArrayOf, ExistingUploadsShape } from 'types';
 import { DutyStationShape } from 'types/dutyStation';
-import { OrdersShape } from 'types/customerShapes';
+import { UploadsShape } from 'types/customerShapes';
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
@@ -148,7 +148,19 @@ EditOrdersForm.propTypes = {
   filePondEl: PropTypes.shape({
     current: PropTypes.shape({}),
   }),
-  initialValues: OrdersShape.isRequired,
+  initialValues: PropTypes.shape({
+    orders_type: PropTypes.string,
+    issue_date: PropTypes.string,
+    report_by_date: PropTypes.string,
+    has_dependents: PropTypes.string,
+    new_duty_station: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    uploaded_orders: PropTypes.shape({
+      id: PropTypes.string,
+      uploads: UploadsShape,
+    }),
+  }).isRequired,
   currentStation: DutyStationShape.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
