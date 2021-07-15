@@ -50,7 +50,8 @@ fi
 readonly production_migration_file="$1"
 
 # Migration files need to have the suffix ".up.sql"
-readonly basename_production_migration_file=$(basename "${production_migration_file}")
+basename_production_migration_file=$(basename "${production_migration_file}")
+readonly basename_production_migration_file
 if [[ "${basename_production_migration_file#*.}" != "up.sql" ]]; then
   echo "error: migration filename extensions must be '.up.sql'"
   exit 1

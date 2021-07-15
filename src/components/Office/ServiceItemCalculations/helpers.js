@@ -63,6 +63,21 @@ const billableWeight = (params) => {
   return calculation(value, label, weightBilledActualDetail, weightEstimatedDetail);
 };
 
+const shuttleBillableWeight = (params) => {
+  const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params));
+  const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
+
+  const weightBilledActualDetail = `${SERVICE_ITEM_CALCULATION_LABELS.ShuttleWeight}: ${formatWeight(
+    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params), 10),
+  )}`;
+
+  const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
+  const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
+    weightEstimated ? formatWeight(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10)) : ''
+  }`;
+  return calculation(value, label, weightBilledActualDetail, weightEstimatedDetail);
+};
+
 // display the first 3 digits of the ZIP code
 const mileageFirstThreeZip = (params) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.DistanceZip3, params);
@@ -143,6 +158,23 @@ const originPrice = (params) => {
   return calculation(value, label, serviceAreaOrigin(params), requestedPickupDate(params), peak(params));
 };
 
+const shuttleOriginPriceDomestic = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin,
+    params,
+  )}`;
+
+  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  return calculation(value, label, serviceSchedule, pickupDate, SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
 // There is no param representing the destination price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
 const destinationPrice = (params) => {
@@ -163,6 +195,15 @@ const priceEscalationFactor = (params) => {
   }`;
 
   return calculation(value, label, contractYearName);
+};
+
+const priceEscalationFactorWithoutContractYear = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
+    : '';
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PriceEscalationFactor;
+
+  return calculation(value, label);
 };
 
 const fuelSurchargePrice = (params) => {
@@ -393,6 +434,14 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         mileageZipSITOrigin(params),
         pickupSITPrice(params),
         priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    case SERVICE_ITEM_CODES.DOSHUT:
+      result = [
+        shuttleBillableWeight(params),
+        shuttleOriginPriceDomestic(params),
+        priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];
       break;
