@@ -42,7 +42,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
-              {modificationType !== null && <ShipmentModificationTag shipmentModificationType={modificationType} />}
+              {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
           </div>
           {(departureDate || address) && (
@@ -95,7 +95,10 @@ PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipment: PropTypes.shape({
     address: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-    modificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    modificationType: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    ]),
     departureDate: PropTypes.string,
   }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
@@ -105,7 +108,7 @@ PaymentRequestDetails.defaultProps = {
   shipment: {
     departureDate: '',
     address: '',
-    modificationType: null,
+    modificationType: '',
   },
 };
 
