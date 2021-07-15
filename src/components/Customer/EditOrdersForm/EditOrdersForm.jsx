@@ -69,6 +69,7 @@ const EditOrdersForm = ({
               Orders
             </h1>
             <SectionWrapper className={formStyles.formSection}>
+              <h2>Edit Orders:</h2>
               <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
               <DatePickerInput
                 name="issue_date"

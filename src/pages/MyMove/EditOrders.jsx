@@ -25,12 +25,13 @@ import {
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { OrdersShape, HistoryShape } from 'types/customerShapes';
+import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
 import { EntitlementShape, ExistingUploadsShape } from 'types';
 import { DutyStationShape } from 'types/dutyStation';
 
-const EditOrders = ({
+export const EditOrders = ({
   currentOrders,
   serviceMemberId,
   updateOrders,
@@ -45,6 +46,14 @@ const EditOrders = ({
 }) => {
   const filePondEl = createRef();
   const [serverError, setServerError] = useState(null);
+
+  const initialValues = {
+    orders_type: currentOrders?.orders_type || '',
+    issue_date: currentOrders?.issue_date || '',
+    report_by_date: currentOrders?.report_by_date || '',
+    has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
+    new_duty_station: currentOrders?.new_duty_station || null,
+  };
 
   // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
@@ -91,6 +100,7 @@ const EditOrders = ({
     const newDutyStationId = fieldValues.new_duty_station.id;
     return patchOrders({
       ...fieldValues,
+      has_dependents: formatYesNoAPIValue(fieldValues.has_dependents),
       new_duty_station_id: newDutyStationId,
       spouse_has_pro_gear: fromFormSpouseHasProGear,
     })
@@ -146,7 +156,7 @@ const EditOrders = ({
           {!moveIsApproved && (
             <div className="usa-width-one-whole">
               <EditOrdersForm
-                initialValues={currentOrders}
+                initialValues={initialValues}
                 onSubmit={submitOrders}
                 filePondEl={filePondEl}
                 createUpload={handleUploadFile}
