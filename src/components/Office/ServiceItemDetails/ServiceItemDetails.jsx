@@ -99,6 +99,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
             <p className={styles.detailLine}>{description}</p>
             {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
           </dl>
         </div>
