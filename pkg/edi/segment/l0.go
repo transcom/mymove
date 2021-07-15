@@ -10,9 +10,12 @@ type L0 struct {
 	LadingLineItemNumber   int     `validate:"min=1,max=999"`
 	BilledRatedAsQuantity  float64 `validate:"required_with=BilledRatedAsQualifier"`
 	BilledRatedAsQualifier string  `validate:"required_with=BilledRatedAsQuantity,omitempty,len=2"`
-	Weight                 float64 `validate:"required_with=WeightQualifier WeightUnitCode"`
-	WeightQualifier        string  `validate:"required_with=Weight WeightUnitCode,omitempty,eq=B"`
-	WeightUnitCode         string  `validate:"required_with=Weight WeightQualifier,omitempty,eq=L"`
+	Weight                 float64 `validate:"required_with=WeightQualifier"`
+	WeightQualifier        string  `validate:"required_with=Weight,omitempty,eq=B"`
+	Volume                 float64 `validate:"required_with=VolumeUnitQualifier,omitempty"`
+	VolumeUnitQualifier    string  `validate:"required_with=Volume,omitempty,eq=E,len=1"`
+	LadingQuantity         int     `validate:"omitempty"`
+	WeightUnitCode         string  //`validate:"oneof=L CRT"`
 }
 
 // StringArray converts L0 to an array of strings
@@ -32,6 +35,13 @@ func (s *L0) StringArray() []string {
 		billedRatedAsQuantity = strconv.FormatFloat(s.BilledRatedAsQuantity, 'f', 3, 64)
 	}
 
+	var volume string
+	if s.Volume == 0 {
+		volume = ""
+	} else {
+		volume = strconv.FormatFloat(s.Volume, 'f', 3, 64)
+	}
+
 	return []string{
 		"L0",
 		strconv.Itoa(s.LadingLineItemNumber),
@@ -40,12 +50,10 @@ func (s *L0) StringArray() []string {
 		weight,
 		s.WeightQualifier,
 		// TODO: will need to fill in the blank fields for crating
+		volume,
+		s.VolumeUnitQualifier,
 		"",
-		"",
-		"",
-		"",
-		"",
-		s.WeightUnitCode,
+		s.WeightUnitCode, // Packaging Form Code
 	}
 }
 
@@ -67,13 +75,14 @@ func (s *L0) Parse(parts []string) error {
 	}
 	s.BilledRatedAsQualifier = parts[2]
 
-	if numElements == 11 {
+	// TODO update to add in other parts
+	if numElements == 9 {
 		s.Weight, err = strconv.ParseFloat(parts[3], 64)
 		if err != nil {
 			return err
 		}
-		s.WeightQualifier = parts[4]
-		s.WeightUnitCode = parts[10]
+		s.WeightQualifier = parts[5]
+		s.WeightUnitCode = parts[9]
 	}
 
 	return nil
