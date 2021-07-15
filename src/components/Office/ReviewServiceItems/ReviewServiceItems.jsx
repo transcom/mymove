@@ -14,7 +14,7 @@ import RejectRequest from './RejectRequest';
 import PaymentReviewed from './PaymentReviewed';
 
 import Alert from 'shared/Alert';
-import { ServiceItemCardsShape } from 'types/serviceItemCard';
+import { ServiceItemCardsShape } from 'types/serviceItems';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
