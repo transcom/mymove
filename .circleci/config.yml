@@ -725,7 +725,10 @@ jobs:
       - run:
           name: Run eslint checks
           command: yarn lint
-      # adding danger checks here as they are similar to our pre-commit hooks
+      # Add DangerJS checks here since they are similar to our pre-commit hooks. This requires that
+      # the DANGER_GITHUB_API_TOKEN environment variable is set in the project settings for
+      # CircleCI. To generate a new token, log into the robot-mymove account and regenerate the
+      # personal access token named "MyMove Report Danger bot".
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
