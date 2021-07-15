@@ -15,19 +15,19 @@ const (
 
 // InitSessionFlags initializes SessionFlags command line flags
 func InitSessionFlags(flag *pflag.FlagSet) {
-	flag.Int(SessionIdleTimeoutInMinutesFlag, 15, "Session idle timeout in minutes")
-	flag.Int(SessionLifetimeInHoursFlag, 24, "Session absolute expiry in hours")
+	flag.Int(SessionIdleTimeoutInMinutesFlag, 1, "Session idle timeout in minutes")
+	flag.Int(SessionLifetimeInHoursFlag, 1, "Session absolute expiry in hours")
 }
 
 // CheckSession validates session command line flags
 func CheckSession(v *viper.Viper) error {
-	if err := ValidateSessionTimeout(v, SessionIdleTimeoutInMinutesFlag); err != nil {
-		return err
-	}
+	// if err := ValidateSessionTimeout(v, SessionIdleTimeoutInMinutesFlag); err != nil {
+	// 	return err
+	// }
 
-	if err := ValidateSessionLifetime(v, SessionLifetimeInHoursFlag); err != nil {
-		return err
-	}
+	// if err := ValidateSessionLifetime(v, SessionLifetimeInHoursFlag); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
