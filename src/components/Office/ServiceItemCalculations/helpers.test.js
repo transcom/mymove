@@ -64,7 +64,7 @@ describe('makeCalculations', () => {
     ]);
   });
 
-  it('returns correct data for DomesticOrignPrice', () => {
+  it('returns correct data for DomesticOriginPrice', () => {
     const resultDOP = makeCalculations('DOP', 99998, testParams.DomesticOriginPrice);
     expect(resultDOP).toEqual([
       {
@@ -419,8 +419,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticOriginShuttleService', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticOriginShuttleService);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DOSHUT', 99999, testParams.DomesticOriginShuttleService);
+    expect(result).toEqual([
+      {
+        details: ['Shuttle weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        details: ['Service schedule: 3', 'Pickup date: 09 Mar 2020', 'Domestic'],
+        label: 'Origin price',
+        value: '1.71',
+      },
+      {
+        details: [],
+        label: 'Price escalation factor',
+        value: '1.033',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
   });
 
   it('returns correct data for DomesticDestinationShuttleService', () => {
