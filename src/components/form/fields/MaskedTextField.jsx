@@ -7,8 +7,6 @@ import { FormGroup, Label } from '@trussworks/react-uswds';
 
 import { ErrorMessage } from '../index';
 
-import Hint from 'components/Hint';
-
 const MaskedTextField = ({
   label,
   labelClassName,
