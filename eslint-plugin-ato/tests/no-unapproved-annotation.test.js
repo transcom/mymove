@@ -66,8 +66,7 @@ ruleTester.run('no-unapproved-annotation', rule, {
 
   invalid: [
     {
-      code:
-        '// RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}\n// eslint-disable no-console',
+      code: '// RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}\n// eslint-disable no-console',
       errors: [{ message: ERRORS.REQUIRES_APPROVAL_MSG }],
     },
     {
