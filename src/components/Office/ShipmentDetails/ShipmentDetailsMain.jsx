@@ -17,6 +17,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
     destinationAddress,
     primeEstimatedWeight,
     primeActualWeight,
+    counselorRemarks,
+    customerRemarks,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
@@ -35,8 +37,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
-      {shipment.counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={shipment.counselorRemarks} />}
-      {shipment.customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={shipment.customerRemarks} />}
+      {counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={counselorRemarks} />}
+      {customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={customerRemarks} />}
     </div>
   );
 };
