@@ -450,12 +450,12 @@ describe('makeCalculations', () => {
       {
         value: '85 cwt',
         label: 'Billable weight (cwt)',
-        details: ['Shipment weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        details: ['Shuttle weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
       },
       {
         value: '1.71',
         label: 'Destination price',
-        details: ['Destination service area: 080', 'Requested pickup: 09 Mar 2020', 'Domestic'],
+        details: ['Service schedule: 3', 'Delivery date: 09 Mar 2020', 'Domestic'],
       },
       {
         value: '1.033',
