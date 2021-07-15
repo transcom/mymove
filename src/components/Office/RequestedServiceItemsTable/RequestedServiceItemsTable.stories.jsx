@@ -46,6 +46,7 @@ const serviceItems = [
     status: 'SUBMITTED',
     details: {
       reason: "Here's the reason",
+      estimatedWeight: 4999,
     },
   },
   {
@@ -58,6 +59,7 @@ const serviceItems = [
     status: 'SUBMITTED',
     details: {
       reason: "Here's the reason",
+      estimatedWeight: 4999,
     },
   },
   {
