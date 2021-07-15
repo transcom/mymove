@@ -14,7 +14,11 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetCratingLookup() {
 	key := models.ServiceItemParamNameCubicFeetCrating
 
 	suite.T().Run("successful CubicFeetCrating lookup", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDCRT,
+			},
+		})
 		cratingDimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{
 			MTOServiceItemDimension: models.MTOServiceItemDimension{
 				MTOServiceItemID: mtoServiceItem.ID,
