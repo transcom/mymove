@@ -12,7 +12,6 @@ export const ServiceItemCardShape = PropTypes.shape({
   mtoServiceItemName: PropTypes.string,
   amount: PropTypes.number,
   status: PropTypes.oneOf(Object.values(PAYMENT_SERVICE_ITEM_STATUS)),
-  rejectionReason: PropTypes.string,
   createdAt: PropTypes.string,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
 });
@@ -30,6 +29,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
   code: PropTypes.string,
   details: PropTypes.shape({
     reason: PropTypes.string,
+    rejectionReason: PropTypes.string,
     description: PropTypes.string,
     pickupPostalCode: PropTypes.string,
     itemDimensions: MTOServiceItemDimensionShape,

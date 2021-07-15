@@ -30,6 +30,7 @@ const serviceItemWithContact = {
   details: {
     firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
     secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+    reason: 'Took a detour',
   },
 };
 
@@ -59,10 +60,10 @@ const testDetails = (wrapper) => {
   expect(wrapper.find('.detailType').at(4).text()).toBe('Second Available Delivery Date:');
   expect(wrapper.find('.detail dd').at(4).text().includes('21 Sep 2020')).toBe(true);
 
-  expect(wrapper.find('.detailType').at(5).text()).toBe('ZIP:');
-  expect(wrapper.find('.detail dd').at(5).text().includes('20050')).toBe(true);
-  expect(wrapper.find('.detailType').at(6).text()).toBe('Reason:');
-  expect(wrapper.find('.detail dd').at(6).text().includes('Took a detour')).toBe(true);
+  expect(wrapper.find('.detailType').at(6).text()).toBe('ZIP:');
+  expect(wrapper.find('.detail dd').at(6).text().includes('20050')).toBe(true);
+  expect(wrapper.find('.detailType').at(5).text()).toBe('Reason:');
+  expect(wrapper.find('.detail dd').at(5).text().includes('Took a detour')).toBe(true);
 };
 
 describe('RequestedServiceItemsTable', () => {
