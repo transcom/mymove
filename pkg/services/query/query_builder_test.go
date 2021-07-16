@@ -843,3 +843,35 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	})
 
 }
+
+func (suite *QueryBuilderSuite) TestTransactions() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	builder := NewQueryBuilder(suite.DB())
+
+	// from outside transaction, we can find user created outside
+	// transaction using builder created outside
+	filters := []services.QueryFilter{
+		NewQueryFilter("id", "=", user.ID.String()),
+	}
+	var actualUser models.User
+	err := builder.FetchOne(&actualUser, filters)
+	suite.NoError(err)
+	suite.Equal(user.ID.String(), actualUser.ID.String())
+
+	suite.DB().Transaction(func(tx *pop.Connection) error {
+
+		// Using txn connection to create user and then querying from
+		// builder created outside transaction should still find it
+		user2 := testdatagen.MakeDefaultUser(tx)
+		id := user2.ID.String()
+		filters = []services.QueryFilter{
+			NewQueryFilter("id", "=", id),
+		}
+		actualUser = models.User{}
+		err = builder.FetchOne(&actualUser, filters)
+		suite.NoError(err)
+		suite.Equal(user2.ID.String(), actualUser.ID.String())
+
+		return nil
+	})
+}
