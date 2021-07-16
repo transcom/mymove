@@ -19,14 +19,17 @@ function usage() {
 
 environment="${1:-staging}"
 case "$environment" in
-  prod)
+  demo)
+    url_env="${environment}."
+    ;;
+  exp)
+    url_env="${environment}."
+    ;;
+  stg)
+    url_env="${environment}."
+    ;;
+  prd)
     url_env=""
-    ;;
-  staging)
-    url_env="${environment}."
-    ;;
-  experimental)
-    url_env="${environment}."
     ;;
   *)
     echo "error: unknown environment: $1"
