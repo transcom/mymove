@@ -350,14 +350,19 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
 			h.logger.Info("session exists but has an empty IDToken")
-			err := resetUserCurrentSessionID(session, h.db, h.logger)
-			if err != nil {
-				h.logger.Error("failed to reset user's current_x_session_id")
+
+			if session.UserID != uuid.Nil {
+				err := resetUserCurrentSessionID(session, h.db, h.logger)
+				if err != nil {
+					h.logger.Error("failed to reset user's current_x_session_id")
+				}
 			}
-			err = h.sessionManager(session).Destroy(r.Context())
+
+			err := h.sessionManager(session).Destroy(r.Context())
 			if err != nil {
 				h.logger.Error("failed to destroy session")
 			}
+
 			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, redirectURL)
 		}
