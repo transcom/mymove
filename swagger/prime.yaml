@@ -1521,6 +1521,8 @@ definitions:
           - reason
           - reServiceCode
           - description
+          - estimatedWeight
+          - actualWeight
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem.
     type: string
