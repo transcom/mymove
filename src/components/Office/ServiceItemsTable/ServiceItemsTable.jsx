@@ -4,10 +4,11 @@ import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { ServiceItemDetailsShape } from '../../../types/serviceItems';
+
 import styles from './ServiceItemsTable.module.scss';
 
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
-import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from 'types/order';
 import { formatDateFromIso } from 'shared/formatters';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 
@@ -125,23 +126,7 @@ ServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
-  serviceItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      mtoShipmentID: PropTypes.string,
-      submittedAt: PropTypes.string,
-      serviceItem: PropTypes.string,
-      code: PropTypes.string,
-      details: PropTypes.shape({
-        pickupPostalCode: PropTypes.string,
-        reason: PropTypes.string,
-        itemDimensions: MTOServiceItemDimensionShape,
-        createDimensions: MTOServiceItemDimensionShape,
-        firstCustomerContact: MTOServiceItemCustomerContactShape,
-        secondCustmoerContact: MTOServiceItemCustomerContactShape,
-      }),
-    }),
-  ).isRequired,
+  serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
 };
 
 export default ServiceItemsTable;

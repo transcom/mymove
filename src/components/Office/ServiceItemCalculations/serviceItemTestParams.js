@@ -644,6 +644,8 @@ const testParams = {
     ServicesScheduleOrigin,
     ServiceAreaOrigin,
     ZipPickupAddress,
+    PriceRateOrFactor,
+    EscalationCompounded,
   ],
   DomesticDestinationShuttleService: [
     RequestedPickupDate,

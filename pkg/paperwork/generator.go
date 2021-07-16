@@ -50,13 +50,7 @@ type pdfCPUWrapper struct {
 // Merge merges files
 func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
 	var rscs []io.ReadSeeker
-	for _, f := range files {
-		frsc, ok := f.(io.ReadSeeker)
-		if !ok {
-			return errors.Errorf("file %T does not implement io.ReadSeeker", f)
-		}
-		rscs = append(rscs, frsc)
-	}
+	rscs = append(rscs, files...)
 	return api.Merge(rscs, w, pcw.Configuration)
 }
 
