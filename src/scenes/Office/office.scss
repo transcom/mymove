@@ -502,3 +502,7 @@ head .panel-subhead {
 .editable-panel-column .missing-info-alert {
   margin-bottom: 20px;
 }
+
+header.nav-header {
+  border-bottom: 1px solid $base-lighter;
+}

@@ -33,7 +33,8 @@ func (suite *PaperworkSuite) AfterTest() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		file.Close() // nolint:errcheck
+		// nolint:errcheck
+		file.Close()
 	}
 }
 
@@ -70,7 +71,7 @@ func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
 	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
-	newUploader, err := uploader.NewUserUploader(popSuite.DB(), logger, storer, 25*uploader.MB)
+	newUploader, err := uploader.NewUserUploader(popSuite.DB(), logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Panic(err)
 	}

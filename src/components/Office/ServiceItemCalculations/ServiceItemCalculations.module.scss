@@ -1,7 +1,5 @@
 @import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
-@import 'shared/styles/_custom';
 
 .ServiceItemCalculations {
   @include u-padding(2);

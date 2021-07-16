@@ -30,7 +30,7 @@ func NewEDI824Processor(db *pop.Connection,
 
 //ProcessFile parses an EDI 824 response and updates the payment request status
 func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
-	fmt.Printf(path)
+	fmt.Print(path)
 
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
@@ -68,10 +68,11 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 
 		// In the 858, the EDI only has 1 group, and the ICN and the GCN are the same. Therefore, we'll query the PR to ICN table
 		// to find the associated payment request using the reported GCN from the 824.
+		// we are only processing 824s in response to 858s
 		var paymentRequest models.PaymentRequest
 		err = e.db.Q().
 			Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
-			Where("payment_request_to_interchange_control_numbers.interchange_control_number = ?", int(otiGCN)).
+			Where("payment_request_to_interchange_control_numbers.interchange_control_number = ? and payment_request_to_interchange_control_numbers.edi_type = ?", int(otiGCN), models.EDIType858).
 			First(&paymentRequest)
 		if err != nil {
 			e.logger.Error("unable to find PaymentRequest with GCN", zap.Error(err))
@@ -81,6 +82,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 		prToICN := models.PaymentRequestToInterchangeControlNumber{
 			InterchangeControlNumber: int(icn),
 			PaymentRequestID:         paymentRequest.ID,
+			EDIType:                  models.EDIType824,
 		}
 		err = tx.Save(&prToICN)
 		if err != nil {
@@ -95,7 +97,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
@@ -114,17 +116,13 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 			return fmt.Errorf("unable to find move with associated payment request: %w", err)
 		}
 
-		// The BGN02 Reference Identification field from the 824 stores the reference identification used in the 858.
-		// For MilMove we use the MTO Reference ID in the 858 (which used to the field for the GBLOC, but is not relevant for GHC MilMove).
+		// The BGN02 Reference Identification field from the 824 stores the payment request number used in the 858.
+		// For MilMove we use the Payment Request Number in the 858
 		bgnRefIdentification := bgn.ReferenceIdentification
-		mtoRefID := move.ReferenceID
-		if mtoRefID == nil {
-			e.logger.Error(fmt.Sprintf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID), zap.Error(err))
-			return fmt.Errorf("An associated move with mto.ReferenceID: %s was not found", *mtoRefID)
-		}
-		if bgnRefIdentification != *mtoRefID {
-			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %s of the associated move", bgnRefIdentification, *mtoRefID), zap.Error(err))
-			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the Reference ID %v of the associated move", bgnRefIdentification, *mtoRefID)
+		paymentRequestNumber := paymentRequest.PaymentRequestNumber
+		if bgnRefIdentification != paymentRequestNumber {
+			e.logger.Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %s of the associated payment request", bgnRefIdentification, paymentRequestNumber), zap.Error(err))
+			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %v of the associated payment request", bgnRefIdentification, paymentRequestNumber)
 		}
 
 		teds := fetchTEDSegments(edi824)
@@ -136,7 +134,7 @@ func (e *edi824Processor) ProcessFile(path string, stringEDI824 string) error {
 				Code:                       &code,
 				Description:                &desc,
 				PaymentRequestID:           paymentRequest.ID,
-				InterchangeControlNumberID: prToICN.ID,
+				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
 			err = tx.Save(&ediError)
@@ -202,6 +200,7 @@ func (e *edi824Processor) logEDI(edi ediResponse824.EDI) {
 		zap.Int64("824 ICN", icn),
 		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
 		zap.Int64("858 GCN", otiGCN),
+		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }
 
@@ -230,5 +229,6 @@ func (e *edi824Processor) logEDIWithPaymentRequest(edi ediResponse824.EDI, payme
 		zap.Int64("858 GCN", otiGCN),
 		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
 		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }

@@ -1,0 +1,1 @@
+CREATE INDEX moves_submitted_at_idx ON moves (submitted_at);

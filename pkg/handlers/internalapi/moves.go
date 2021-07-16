@@ -30,6 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -86,7 +87,6 @@ type ShowMoveHandler struct {
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -116,7 +116,6 @@ type PatchMoveHandler struct {
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -154,13 +153,13 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler struct {
 	handlers.HandlerContext
+	services.MoveRouter
 }
 
-// Handle ... submit a move for approval
+// Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -168,9 +167,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
-
-	submitDate := time.Now()
-	err = move.Submit(submitDate)
+	h.MoveRouter.SetLogger(logger)
+	err = h.MoveRouter.Submit(move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -416,4 +414,48 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerContext
+}
+
+// SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
+type SubmitAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveRouter
+}
+
+// Handle ... submit a move to TOO for approval
+func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+	h.MoveRouter.SetLogger(logger)
+
+	err = h.MoveRouter.Submit(move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	if verrs, saveErr := h.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(saveErr, "Error Saving Move")
+	}
+
+	if responseVErrors.HasAny() {
+		return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+	}
+
+	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
 }

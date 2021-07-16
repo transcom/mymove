@@ -252,6 +252,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		successServiceItem.Reason = handlers.FmtString("")
 		successServiceItem.SITEntryDate = &now
 		successServiceItem.ApprovedAt = new(time.Time) // this is the zero time, what we need to nullify the field
+		actualWeight := int64(4000)
+		estimatedWeight := int64(4200)
+		successServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
+		successServiceItem.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem,

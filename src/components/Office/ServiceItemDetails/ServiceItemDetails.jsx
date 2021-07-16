@@ -1,10 +1,11 @@
 import React from 'react';
-import { PropTypes } from 'prop-types';
+
+import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
 import styles from './ServiceItemDetails.module.scss';
 
 import { formatDate } from 'shared/dates';
-import { convertFromThousandthInchToInch } from 'shared/formatters';
+import { convertFromThousandthInchToInch, formatWeight } from 'shared/formatters';
 
 function generateDetailText(details, id) {
   const detailList = Object.keys(details).map((detail) => (
@@ -16,7 +17,7 @@ function generateDetailText(details, id) {
   return detailList;
 }
 
-const ServiceItemDetails = ({ className, id, code, details }) => {
+const ServiceItemDetails = ({ id, code, details }) => {
   let detailSection;
   switch (code) {
     case 'DOFSIT':
@@ -24,7 +25,16 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
     case 'DOPSIT': {
       detailSection = (
         <div>
-          <dl>{generateDetailText({ ZIP: details.pickupPostalCode, Reason: details.reason }, id)}</dl>
+          <dl>
+            {generateDetailText(
+              {
+                ZIP: details.pickupPostalCode ? details.pickupPostalCode : '-',
+                Reason: details.reason ? details.reason : '-',
+              },
+              id,
+            )}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+          </dl>
         </div>
       );
       break;
@@ -47,6 +57,8 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
                 },
                 id,
               )}
+            {!firstCustomerContact &&
+              generateDetailText({ 'First Customer Contact': '-', 'First Available Delivery Date': '-' })}
             <div className={styles.customerContact}>
               {secondCustomerContact &&
                 generateDetailText(
@@ -59,14 +71,18 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
                   },
                   id,
                 )}
+              {!secondCustomerContact &&
+                generateDetailText({ 'Second Customer Contact': '-', 'Second Available Delivery Date': '-' })}
             </div>
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
           </dl>
         </div>
       );
       break;
     }
     case 'DCRT': {
-      const { imgURL, description, itemDimensions, crateDimensions } = details;
+      const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
       )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
@@ -78,74 +94,48 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
         crateDimensions?.height,
       )}"`;
       detailSection = (
-        <div className={styles.detailImage}>
-          {imgURL ? (
-            <>
-              <img
-                className={styles.siThumbnail}
-                alt={description}
-                aria-labelledby={`si-thumbnail--caption-${id}`}
-                src={imgURL}
-              />
-              <small className={styles.detailCaption} id={`si-thumbnail--caption-${id}`}>
-                <dl>
-                  <p className={styles.detailLine}>{description}</p>
-                  {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
-                  {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
-                </dl>
-              </small>
-            </>
-          ) : (
-            <dl>
-              <p className={styles.detailLine}>{description}</p>
-              {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
-              {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
-            </dl>
-          )}
+        <div className={styles.detailCrating}>
+          <dl>
+            <p className={styles.detailLine}>{description}</p>
+            {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+          </dl>
         </div>
       );
       break;
     }
     case 'DOSHUT':
     case 'DDSHUT': {
+      const estimatedWeight = details.estimatedWeight != null ? formatWeight(details.estimatedWeight) : `— lbs`;
       detailSection = (
         <div>
-          <dl>{generateDetailText({ 'Estimated Weight': '', Reason: details.reason })}</dl>
+          <dl>
+            <div key={`${id}-estimatedWeight`} className={styles.detailLine}>
+              <dd className={styles.detailType}>{estimatedWeight}</dd> <dt>estimated weight</dt>
+            </div>
+            {generateDetailText({ Reason: details.reason })}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+          </dl>
         </div>
       );
       break;
     }
     default:
-      detailSection = <div>—</div>;
+      detailSection = (
+        <div>
+          <div>—</div>
+          <dl>{details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}</dl>
+        </div>
+      );
   }
-  return <div className={className}>{detailSection}</div>;
+  return <div>{detailSection}</div>;
 };
 
-ServiceItemDetails.propTypes = {
-  className: PropTypes.string,
-  id: PropTypes.string.isRequired,
-  code: PropTypes.string.isRequired,
-  details: PropTypes.shape({
-    description: PropTypes.string,
-    pickupPostalCode: PropTypes.string,
-    reason: PropTypes.string,
-    imgURL: PropTypes.string,
-    itemDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
-    crateDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
-    firstCustomerContact: PropTypes.shape({
-      timeMilitary: PropTypes.string,
-      firstAvailableDeliveryDate: PropTypes.string,
-    }),
-    secondCustomerContact: PropTypes.shape({
-      timeMilitary: PropTypes.string,
-      firstAvailableDeliveryDate: PropTypes.string,
-    }),
-  }),
-};
+ServiceItemDetails.propTypes = ServiceItemDetailsShape.isRequired;
 
 ServiceItemDetails.defaultProps = {
-  className: undefined,
   details: {},
 };
-
 export default ServiceItemDetails;

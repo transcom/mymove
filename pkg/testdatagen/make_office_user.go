@@ -21,11 +21,21 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		if assertions.User.LoginGovEmail == "" {
 			assertions.User.LoginGovEmail = email
 		}
+
 		user = MakeUser(db, assertions)
 	}
 
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail
+	}
+	if user.Roles == nil {
+		officeRole := roles.Role{
+			ID:       uuid.Must(uuid.NewV4()),
+			RoleType: roles.RoleTypePPMOfficeUsers,
+			RoleName: "PPM Office Users",
+		}
+
+		user.Roles = []roles.Role{officeRole}
 	}
 
 	office := assertions.OfficeUser.TransportationOffice
@@ -100,6 +110,7 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 	officeUser := MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
 			User: tioUser,
 		},
 		Stub: assertions.Stub,
@@ -146,6 +157,52 @@ func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 	return officeUser
 }
 
+// MakeServicesCounselorOfficeUser makes an OfficeUser with the ServicesCounselor role
+func MakeServicesCounselorOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	servicesUser := models.User{
+		Roles: []roles.Role{servicesRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: servicesUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
+// MakePPMOfficeUser makes an OfficeUser with the PPM role
+func MakePPMOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	ppmRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypePPMOfficeUsers,
+		RoleName: "PPP Office User",
+	}
+
+	ppmUser := models.User{
+		Roles: []roles.Role{ppmRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: ppmUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
 // MakeOfficeUserWithUSMCGBLOC makes an OfficeUser tied to the USMC GBLOC
 func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 	officeUUID, _ := uuid.NewV4()
@@ -156,9 +213,120 @@ func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
 		},
 	})
 
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	txoUser := models.User{
+		Roles: []roles.Role{tooRole, tioRole},
+	}
+
 	return MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
+			ID:                   uuid.Must(uuid.NewV4()),
+			User:                 txoUser,
 			TransportationOffice: transportationOffice,
 		},
+	})
+}
+
+// MakeServicesCounselorOfficeUserWithUSMCGBLOC makes a Services Counselor tied to the USMC GBLOC
+func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
+	officeUUID, _ := uuid.NewV4()
+	transportationOffice := MakeTransportationOffice(db, Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "USMC",
+			ID:    officeUUID,
+		},
+	})
+
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	servicesUser := models.User{
+		Roles: []roles.Role{servicesRole},
+	}
+
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.Must(uuid.NewV4()),
+			User:                 servicesUser,
+			TransportationOffice: transportationOffice,
+		},
+	})
+}
+
+// MakeOfficeUserWithMultipleRoles makes an OfficeUser with Counselor and TXO roles
+func MakeOfficeUserWithMultipleRoles(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	multipleRoleUser := models.User{
+		Roles: []roles.Role{tooRole, tioRole, servicesRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: multipleRoleUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	// save roles to db
+	rolesList := officeUser.User.Roles
+	for _, role := range rolesList {
+		newRole := MakeRole(db, Assertions{
+			Role: role,
+			Stub: assertions.Stub,
+		})
+		MakeUsersRoles(db, Assertions{
+			UsersRoles: models.UsersRoles{
+				UserID: officeUser.User.ID,
+				RoleID: newRole.ID,
+			},
+			Stub: assertions.Stub,
+		})
+	}
+
+	return officeUser
+}
+
+// MakeStubbedOfficeUser returns a user without hitting the DB
+func MakeStubbedOfficeUser(db *pop.Connection) models.OfficeUser {
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		User: models.User{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
 	})
 }

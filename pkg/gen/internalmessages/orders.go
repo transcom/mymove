@@ -97,6 +97,13 @@ type Orders struct {
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updated_at"`
 
+	// uploaded amended orders
+	UploadedAmendedOrders *DocumentPayload `json:"uploaded_amended_orders,omitempty"`
+
+	// uploaded amended orders id
+	// Format: uuid
+	UploadedAmendedOrdersID strfmt.UUID `json:"uploaded_amended_orders_id,omitempty"`
+
 	// uploaded orders
 	// Required: true
 	UploadedOrders *DocumentPayload `json:"uploaded_orders"`
@@ -163,6 +170,14 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedAmendedOrders(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedAmendedOrdersID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -382,6 +397,37 @@ func (m *Orders) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Orders) validateUploadedAmendedOrders(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedAmendedOrders) { // not required
+		return nil
+	}
+
+	if m.UploadedAmendedOrders != nil {
+		if err := m.UploadedAmendedOrders.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("uploaded_amended_orders")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) validateUploadedAmendedOrdersID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedAmendedOrdersID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("uploaded_amended_orders_id", "body", "uuid", m.UploadedAmendedOrdersID.String(), formats); err != nil {
 		return err
 	}
 

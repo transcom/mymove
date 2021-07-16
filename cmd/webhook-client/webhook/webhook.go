@@ -96,7 +96,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 				}
 			}
 		}
-		if foundSub == false {
+		if !foundSub {
 			//If no subscription was found, update notification status to skipped.
 			eng.Logger.Info("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
 			notif.Status = models.WebhookNotificationSkipped
@@ -330,7 +330,7 @@ func (eng *Engine) Start() error {
 			eng.Logger.Info("Interrupt signal recieved...")
 			eng.DoneChannel <- true
 		default:
-			eng.run()
+			err = eng.run()
 			if err != nil {
 				return err
 			}

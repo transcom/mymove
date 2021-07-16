@@ -7,6 +7,8 @@
     "no-debugger": "warn",
     "jsx-a11y/anchor-is-valid": "off",
     "react/jsx-no-target-blank": "error",
-    "react/jsx-curly-brace-presence": "error"
+    "react/jsx-curly-brace-presence": "error",
+    "react/no-danger": "error",
+    "security/detect-object-injection": "off"
   }
 }

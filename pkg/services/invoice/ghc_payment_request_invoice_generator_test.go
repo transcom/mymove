@@ -30,6 +30,10 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	hierarchicalLevelCodeExpected string = "9"
+)
+
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger       Logger
@@ -61,7 +65,8 @@ const testTimeFormat = "1504"
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -295,7 +300,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(127, result.SE.NumberOfIncludedSegments)
+		suite.Equal(128, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -347,6 +352,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
+
+	suite.T().Run("adds currency to header", func(t *testing.T) {
+		currency := result.Header.Currency
+		suite.IsType(edisegment.C3{}, currency)
+		suite.Equal("USD", currency.CurrencyCodeC301)
+	})
 
 	suite.T().Run("adds actual pickup date to header", func(t *testing.T) {
 		g62Requested := result.Header.RequestedPickupDate
@@ -426,7 +437,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
-		suite.Equal(destPhoneLines[0], per.CommunicationNumber)
+		g := ghcPaymentRequestInvoiceGenerator{}
+		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
+		suite.NoError(phoneExpectedErr)
+		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
 
 	suite.T().Run("adds orders origin address", func(t *testing.T) {
@@ -471,7 +485,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		per := *phone
 		suite.Equal("CN", per.ContactFunctionCode)
 		suite.Equal("TE", per.CommunicationNumberQualifier)
-		suite.Equal(originPhoneLines[0], per.CommunicationNumber)
+		g := ghcPaymentRequestInvoiceGenerator{}
+		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
+		suite.NoError(phoneExpectedErr)
+		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
 
 	for idx, paymentServiceItem := range paymentServiceItems {
@@ -482,7 +499,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.T().Run("adds hl service item segment", func(t *testing.T) {
 			hl := result.ServiceItems[segmentOffset].HL
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
-			suite.Equal("I", hl.HierarchicalLevelCode)
+			suite.Equal(hierarchicalLevelCodeExpected, hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {
@@ -597,7 +614,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -665,7 +683,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		},
 	}
 
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, mockClock)
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
+	generator.InitDB(suite.DB())
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -695,16 +714,17 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	// This won't work because we don't have PaymentServiceItems on the PaymentRequest right now.
 	// nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 
-	//RA Summary: gosec - errcheck - Unchecked return value
-	//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-	//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
-	//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
-	//RA: in a unit test, then there is no risk
-	//RA Developer Status: Mitigated
-	//RA Validator Status: Mitigated
-	//RA Modified Severity: N/A
 	panicFunc := func() {
-		generator.Generate(nilPaymentRequest, false) // nolint:errcheck
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+		//RA: in a unit test, then there is no risk
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: N/A
+		// nolint:errcheck
+		generator.Generate(nilPaymentRequest, false)
 	}
 
 	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {
@@ -766,7 +786,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB(), suite.icnSequencer, clock.NewMock())
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -845,4 +866,12 @@ func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
 	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
 	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
 	suite.Equal("Too short", truncateStr("Too short", 200))
+}
+
+func (suite *GHCInvoiceSuite) TestGeneratorFailedToInitDB() {
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+
+	_, err := generator.Generate(paymentRequest, false)
+	suite.Error(err, "DB pointer is nil")
 }

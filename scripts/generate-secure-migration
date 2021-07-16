@@ -6,7 +6,8 @@
 
 set -eu -o pipefail
 
-readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly dir
 
 readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
 readonly prod_migrations_temp_dir="${dir}/../tmp"
@@ -34,7 +35,8 @@ readonly migration_name="$1"
 # - remove ".up.fizz" from filename
 # - remove "migrations/" from filename
 # - append ".sql"
-readonly version=$(date +"%Y%m%d%H%M%S")
+version=$(date +"%Y%m%d%H%M%S")
+readonly version
 readonly secure_migration_name="${version}_${migration_name}.up.sql"
 
 readonly local_test_migration_name="${local_secure_migrations_dir}/${secure_migration_name}"

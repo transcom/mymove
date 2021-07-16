@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveTaskOrder move task order
+// MoveTaskOrder The Move (MoveTaskOrder)
 //
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
@@ -42,9 +42,6 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// is canceled
-	IsCanceled *bool `json:"isCanceled,omitempty"`
-
 	// locator
 	Locator string `json:"locator,omitempty"`
 
@@ -65,6 +62,10 @@ type MoveTaskOrder struct {
 	// requested pickup date
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+
+	// service counseling completed at
+	// Format: date-time
+	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -112,6 +113,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -264,6 +269,19 @@ func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) err
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateServiceCounselingCompletedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceCounselingCompletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("serviceCounselingCompletedAt", "body", "date-time", m.ServiceCounselingCompletedAt.String(), formats); err != nil {
 		return err
 	}
 

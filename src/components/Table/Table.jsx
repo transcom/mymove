@@ -93,6 +93,7 @@ const Table = ({
               id="table-rows-per-page"
               className={styles.paginationSelect}
               name="table-rows-per-page"
+              aria-labelledby="rows-per-page"
               defaultValue={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
@@ -104,7 +105,7 @@ const Table = ({
                 </option>
               ))}
             </Dropdown>
-            <div>rows per page</div>
+            <div id="rows-per-page">rows per page</div>
           </div>
           <div className={styles.tableControlPagination}>
             <Button
@@ -123,6 +124,7 @@ const Table = ({
               name="table-pagination"
               value={pageIndex}
               onChange={(e) => gotoPage(Number(e.target.value))}
+              aria-label="page number"
             >
               {pageOptions.length > 0 ? (
                 pageOptions.map((pageOption) => (

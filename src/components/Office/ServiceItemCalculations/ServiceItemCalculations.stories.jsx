@@ -27,6 +27,15 @@ export default {
 
 export const DDDSIT = (data) => (
   <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticDestinationSITDeliveryLonghaul}
+    totalAmountRequested={642}
+    itemCode="DDDSIT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DDDSITShorthaulDifferentZIP3 = (data) => (
+  <ServiceItemCalculations
     serviceItemParams={testParams.DomesticDestinationSITDelivery}
     totalAmountRequested={642}
     itemCode="DDDSIT"
@@ -111,6 +120,15 @@ export const DOPSIT = (data) => (
     serviceItemParams={testParams.DomesticOriginSITPickup}
     totalAmountRequested={642}
     itemCode="DOPSIT"
+    tableSize={data.tableSize}
+  />
+);
+
+export const DOSHUT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticOriginShuttleService}
+    totalAmountRequested={642}
+    itemCode="DOSHUT"
     tableSize={data.tableSize}
   />
 );

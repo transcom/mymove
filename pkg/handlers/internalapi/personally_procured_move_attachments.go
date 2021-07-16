@@ -21,8 +21,10 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 	logger.Info("got ppm id: ", zap.Any("id", ppmID))
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
@@ -41,7 +43,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader, err := uploader.NewUserUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
+	loader, err := uploader.NewUserUploader(h.DB(), logger, h.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 	if err != nil {
 		logger.Error("could not instantiate uploader", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()

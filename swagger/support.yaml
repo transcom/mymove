@@ -270,7 +270,7 @@ paths:
     patch:
       summary: updatePaymentRequestStatus
       description: |
-        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.
 
         A status of REVIEWED can optionally have a `rejectionReason`.
 
@@ -864,6 +864,13 @@ definitions:
         type: integer
         x-formatting: weight
         readOnly: true
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        type: boolean
+        example: false
       storageInTransit:
         example: 90
         type: integer
@@ -945,11 +952,6 @@ definitions:
           Indicates this MoveTaskOrder is available for Prime API handling.
 
           In production, only MoveTaskOrders for which this is set will be available to the API.
-      isCanceled:
-        type: boolean
-        x-nullable: true
-        readOnly: true
-        description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
         format: uuid
@@ -1304,6 +1306,18 @@ definitions:
             type: string
             example: Things to be moved to the place by shuttle.
             description: Further details about the shuttle service.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reason
           - reServiceCode
@@ -1398,6 +1412,11 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+          - CANCELLATION_REQUESTED
+          - CANCELED
+          - DIVERSION_REQUESTED
+      diversion:
+        type: boolean
       rejectionReason:
         type: string
         readOnly: true
@@ -1619,6 +1638,7 @@ definitions:
       - SENT_TO_GEX
       - RECEIVED_BY_GEX
       - PAID
+      - EDI_ERROR
     title: Payment Request Status
     type: string
   ProcessReviewedPaymentRequests:
@@ -1639,9 +1659,14 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      deleteFromSyncada:
+        example: true
+        type: boolean
+        x-nullable: true
     required:
       - sendToSyncada
       - readFromSyncada
+      - deleteFromSyncada
   ProofOfServicePackage:
     properties:
       id:
@@ -1773,6 +1798,8 @@ definitions:
           - APPROVED
           - SUBMITTED
           - CANCELLATION_REQUESTED
+          - CANCELED
+          - DIVERSION_REQUESTED
       rejectionReason:
         type: string
         example: MTO Shipment not good enough

@@ -37,6 +37,8 @@ type ClientService interface {
 
 	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams) (*UpdateMTOShipmentAddressOK, error)
 
+	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) (*UpdateMTOShipmentStatusOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -89,18 +91,13 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams) (*CreateMTOAgentOK
 /*
   CreateMTOShipment creates m t o shipment
 
-  Creates a MTO shipment for the specified Move Task Order.
-Required fields include:
-* Shipment Type
-* Customer requested pick-up date
-* Pick-up Address
-* Delivery Address
-* Releasing / Receiving agents
+  Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
+need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
+approve it before the contractor can proceed with billing.
 
-Optional fields include:
-* Customer Remarks
-* Releasing / Receiving agents
-* An array of optional accessorial service item codes
+**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
+one of their moves. Otherwise, the Prime can fetch the related move using the
+[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
 
 */
 func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error) {
@@ -183,19 +180,15 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK
 /*
   UpdateMTOShipment updates m t o shipment
 
-  Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+  Updates an existing shipment for a move.
 
-* `scheduledPickupDate`
-* `actualPickupDate`
-* `firstAvailableDeliveryDate`
-* `destinationAddress`
-* `pickupAddress`
-* `secondaryDeliveryAddress`
-* `secondaryPickupAddress`
-* `primeEstimatedWeight`
-* `primeActualWeight`
-* `shipmentType`
-* `agents` - all subfields except `mtoShipmentID`, `createdAt`, `updatedAt`. You cannot add new agents to a shipment.
+Note that there are some restrictions on nested objects:
+
+* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
+* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
+* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
+
+These restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.
 
 Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
 
@@ -208,7 +201,7 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOShipment",
-		Method:             "PUT",
+		Method:             "PATCH",
 		PathPattern:        "/mto-shipments/{mtoShipmentID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -278,6 +271,45 @@ func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for updateMTOShipmentAddress: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  UpdateMTOShipmentStatus updates m t o shipment status
+
+  ### Functionality
+This endpoint should be used by the Prime to confirm the cancellation of a shipment. It allows the shipment
+status to be changed to "CANCELED." Currently, the Prime cannot update the shipment to any other status.
+
+*/
+func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) (*UpdateMTOShipmentStatusOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateMTOShipmentStatusParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateMTOShipmentStatus",
+		Method:             "PATCH",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/status",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateMTOShipmentStatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateMTOShipmentStatusOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateMTOShipmentStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

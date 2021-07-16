@@ -287,7 +287,6 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
-	// #nosec - indexPath does not come from user input
 	indexHTML, err := ioutil.ReadFile(filepath.Clean(indexPath))
 	if err != nil {
 		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
@@ -602,6 +601,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}))
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
+			"",
 			false,
 			&tls.Config{MinVersion: tls.VersionTLS12},
 			"",
@@ -610,6 +610,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		gexRequester = invoice.NewGexSenderHTTP(
 			gexURL,
+			cli.GEXChannelInvoice,
 			true,
 			gexTLSConfig,
 			v.GetString(cli.GEXBasicAuthUsernameFlag),
@@ -740,7 +741,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		// Log the number of headers, which can be used for finding abnormal requests
 		fields = append(fields, zap.Int("headers", len(r.Header)))
 
-		logger.Info("Request", fields...)
+		logger.Info("Request health", fields...)
 
 	})
 
@@ -819,7 +820,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux := goji.SubMux()
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
 		primeMux.Use(primeDetectionMiddleware)
-		primeMux.Use(clientCertMiddleware)
+		if v.GetBool(cli.DevlocalAuthFlag) {
+			devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(logger, dbConnection)
+			primeMux.Use(devlocalClientCertMiddleware)
+		} else {
+			primeMux.Use(clientCertMiddleware)
+		}
 		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
 		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(middleware.RequestLogger(logger))
@@ -973,7 +979,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
 
-		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
 			devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))

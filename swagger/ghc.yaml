@@ -41,30 +41,59 @@ paths:
           schema:
             $ref: '#/definitions/Customer'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - customer
       description: Returns a given customer
       operationId: getCustomer
       summary: Returns a given customer
+    patch:
+      summary: Updates customer info
+      description: Updates customer info by ID
+      operationId: updateCustomer
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateCustomerPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/Customer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move/{locator}':
     parameters:
       - description: Code used to identify a move in the system
@@ -82,28 +111,63 @@ paths:
           schema:
             $ref: '#/definitions/Move'
         '400':
-          description: The locator provided is invalid
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - move
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
+  '/counseling/orders/{orderID}':
+    parameters:
+      - description: ID of order to update
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates an order (performed by a services counselor)
+      description: All fields sent in this request will be set on the order referenced
+      operationId: counselingUpdateOrder
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CounselingUpdateOrderPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/orders/{orderID}':
     parameters:
       - description: ID of order to use
@@ -138,31 +202,19 @@ paths:
           schema:
             $ref: '#/definitions/Order'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was unauthenticated
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/InvalidRequest'
         '403':
-          description: The request was unauthorized
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: internal server error
+          $ref: '#/responses/ServerError'
     get:
       produces:
         - application/json
@@ -173,31 +225,21 @@ paths:
           schema:
             $ref: '#/definitions/Order'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - order
       description: Gets an order
       operationId: getOrder
       summary: Gets an order by ID
-  '/orders/{orderID}/move-task-orders':
+  '/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
         in: path
@@ -205,40 +247,84 @@ paths:
         required: true
         type: string
         format: uuid
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved all move task orders associated with an order
-          schema:
-            $ref: '#/definitions/MoveTaskOrders'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+    patch:
+      summary: Updates an allowance (Orders with Entitlements)
+      description: All fields sent in this request will be set on the order referenced
+      operationId: updateAllowance
       tags:
         - order
-      description: Gets move task orders associated with an order
-      operationId: listMoveTaskOrders
-      summary: Gets move task orders associated with an order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateAllowancePayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of allowance
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/counseling/orders/{orderID}/allowances':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates an allowance (Orders with Entitlements)
+      description: All fields sent in this request will be set on the order referenced
+      operationId: counselingUpdateAllowance
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CounselingUpdateAllowancePayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of allowance
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move to use
@@ -246,40 +332,6 @@ paths:
         name: moveTaskOrderID
         required: true
         type: string
-    delete:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully deleted move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Deletes a move by ID
-      operationId: deleteMoveTaskOrder
-      summary: Deletes a move by ID
     get:
       produces:
         - application/json
@@ -290,25 +342,15 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Gets a move
@@ -335,33 +377,19 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Updates a move by ID
@@ -385,22 +413,57 @@ paths:
           schema:
             $ref: '#/definitions/MTOServiceItems'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Gets all line items for a move
       operationId: listMTOServiceItems
       summary: Gets all line items for a move
+  '/mto-shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateMTOShipment'
+      responses:
+        '200':
+          description: Successfully created a MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -419,81 +482,316 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipments'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoShipment
       description: Gets all shipments for a move task order
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
+  '/shipments/{shipmentID}':
+    delete:
+      summary: Soft deletes a shipment by ID
+      description: Soft deletes a shipment by ID
+      operationId: deleteShipment
+      tags:
+        - shipment
+      produces:
+        - application/json
+      parameters:
+        - description: ID of the shipment to be deleted
+          in: path
+          name: shipmentID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Successfully soft deleted the shipment
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
+    patch:
+      summary: updateMTOShipment
+      description: |
+        Updates a specified MTO shipment.
+
+        Required fields include:
+        * MTO Shipment ID required in path
+        * If-Match required in headers
+        * No fields required in body
+
+        Optional fields include:
+        * New shipment status type
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Customer Remarks
+        * Counselor Remarks
+        * Releasing / Receiving agents
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: updateMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+          description: ID of move task order for mto shipment to use
+        - in: path
+          name: shipmentID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the MTO Shipment to update
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UpdateShipment'
+      responses:
+        '200':
+          description: Successfully updated the specified MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/shipments/{shipmentID}/approve':
     parameters:
-      - description: ID of move task order for mto shipment to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        format: uuid
-        type: string
       - description: ID of the shipment
         in: path
         name: shipmentID
         required: true
         format: uuid
         type: string
-    patch:
+    post:
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PatchMTOShipmentStatus'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
         '200':
-          description: Successfully updated shipment
+          description: Successfully approved the shipment
           schema:
             $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
-        - mtoShipment
-      description: Updates a shipment's status
-      operationId: patchMTOShipmentStatus
-      summary: Updates a shipment's status
+        - shipment
+      description: Approves a shipment
+      operationId: approveShipment
+      summary: Approves a shipment
+  '/shipments/{shipmentID}/request-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment diversion
+      operationId: requestShipmentDiversion
+      summary: Requests a shipment diversion
+  '/shipments/{shipmentID}/approve-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves a shipment diversion
+      operationId: approveShipmentDiversion
+      summary: Approves a shipment diversion
+  '/shipments/{shipmentID}/reject':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RejectShipment'
+      responses:
+        '200':
+          description: Successfully rejected the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: rejects a shipment
+      operationId: rejectShipment
+      summary: rejects a shipment
+  '/shipments/{shipmentID}/request-cancellation':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment cancellation
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment cancellation
+      operationId: requestShipmentCancellation
+      summary: Requests a shipment cancellation
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -518,17 +816,11 @@ paths:
           schema:
             $ref: '#/definitions/MTOAgents'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoAgent
       description: Fetches a list of agents associated with a move task order.
@@ -546,40 +838,6 @@ paths:
         name: mtoServiceItemID
         required: true
         type: string
-    delete:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully deleted move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: Deletes a line item by ID for a move by ID
-      operationId: deleteMTOServiceItem
-      summary: Deletes a line item by ID for a move by ID
     get:
       produces:
         - application/json
@@ -590,25 +848,15 @@ paths:
           schema:
             $ref: '#/definitions/MTOServiceItem'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Gets a line item by ID for a move by ID
@@ -635,29 +883,17 @@ paths:
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Updates a service item by ID for a move by ID
@@ -698,33 +934,19 @@ paths:
           schema:
             $ref: '#/definitions/MTOServiceItem'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - mtoServiceItem
       description: Changes the status of a line item for a move by ID
@@ -757,42 +979,68 @@ paths:
           schema:
             $ref: '#/definitions/Move'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move task order to make it available to prime
+  '/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/Move'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Changes move (move task order) status to service counseling completed
+      operationId: updateMTOStatusServiceCounselingCompleted
+      summary: Changes move (move task order) status to service counseling completed
   '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
       - description: ID of move to use
@@ -828,29 +1076,19 @@ paths:
           schema:
             $ref: '#/definitions/PaymentServiceItem'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentServiceItem
       description: Changes the status of a line item for a move by ID
@@ -875,25 +1113,15 @@ paths:
           schema:
             $ref: '#/definitions/Entitlements'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move by ID
@@ -915,25 +1143,15 @@ paths:
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Fetches an instance of a payment request by id
@@ -957,21 +1175,13 @@ paths:
           schema:
             $ref: '#/definitions/PaymentRequests'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Fetches payment requests for a move
@@ -1005,33 +1215,19 @@ paths:
           schema:
             $ref: '#/definitions/PaymentRequest'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
       description: Updates status of a payment request by id
@@ -1052,38 +1248,116 @@ paths:
           required: true
           description: UUID of the document to return
       responses:
-        200:
+        '200':
           description: the requested document
           schema:
             $ref: '#/definitions/DocumentPayload'
         '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
+          $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+          $ref: '#/responses/NotFound'
         '412':
-          description: Precondition Failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
+          $ref: '#/responses/PreconditionFailed'
         '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
+          $ref: '#/responses/UnprocessableEntity'
         '500':
-          description: A server error occurred
+          $ref: '#/responses/ServerError'
+  /queues/counseling:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all customer moves needing services counseling by GBLOC origin
+      description: >
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
+      operationId: getServicesCounselingQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page number of paginated move results
+        - in: query
+          name: perPage
+          type: integer
+          description: maximum number of moves to show on each page of paginated results
+        - in: query
+          name: sort
+          type: string
+          enum:
+            [
+              lastName,
+              dodID,
+              branch,
+              locator,
+              status,
+              requestedMoveDate,
+              submittedAt,
+              originGBLOC,
+              destinationDutyStation,
+            ]
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum: [asc, desc]
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+          description: filters by the branch of the move's service member
+        - in: query
+          name: locator
+          type: string
+          description: filters to match the unique move code locator
+        - in: query
+          name: lastName
+          type: string
+          description: filters using a prefix match on the service member's last name
+        - in: query
+          name: dodID
+          type: string
+          description: filters to match the unique service member's DoD ID
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: submittedAt
+          type: string
+          format: date-time
+          description: Start of the submitted at date in the user's local time zone converted to UTC
+        - in: query
+          name: originGBLOC
+          type: string
+          description: filters the GBLOC of the service member's origin duty station
+        - in: query
+          name: destinationDutyStation
+          type: string
+          description: filters the name of the destination duty station on the orders
+        - in: query
+          name: status
+          type: array
+          description: filters the status of the move
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - NEEDS SERVICE COUNSELING
+              - SERVICE COUNSELING COMPLETED
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
           schema:
-            $ref: '#/responses/ServerError'
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/moves:
     get:
       produces:
@@ -1145,13 +1419,9 @@ paths:
           schema:
             $ref: '#/definitions/QueueMovesResult'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   /queues/payment-requests:
     get:
       produces:
@@ -1184,8 +1454,8 @@ paths:
         - in: query
           name: submittedAt
           type: string
-          format: date
-          description: limit results to those matching submitted at date
+          format: date-time
+          description: Start of the submitted at date in the user's local time zone converted to UTC
         - in: query
           name: branch
           type: string
@@ -1219,52 +1489,38 @@ paths:
           schema:
             $ref: '#/definitions/QueuePaymentRequestsResult'
         '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
+          $ref: '#/responses/ServerError'
   '/tac/valid':
-      get:
-        summary: Validation of a TAC value
-        description: Returns a boolean based on whether a tac value is valid or not
-        operationId: tacValidation
-        tags:
-          - tac
-          - order
-        parameters:
-          - in: query
-            name: tac
-            type: string
-            required: true
-            description: The tac value to validate
-        responses:
-          '200':
-            description: Successfully retrieved validation status
-            schema:
-              $ref: '#/definitions/TacValid'
-          '400':
-            description: The request payload is invalid
-            schema:
-              $ref: '#/responses/InvalidRequest'
-          '401':
-            description: The request was denied
-            schema:
-              $ref: '#/responses/PermissionDenied'
-          '403':
-            description: The request was denied
-            schema:
-              $ref: '#/responses/PermissionDenied'
-          '404':
-            description: The requested resource wasn't found
-            schema:
-              $ref: '#/responses/NotFound'
-          '500':
-            description: A server error occurred
-            schema:
-              $ref: '#/responses/ServerError'
+    get:
+      summary: Validation of a TAC value
+      description: Returns a boolean based on whether a tac value is valid or not
+      operationId: tacValidation
+      tags:
+        - tac
+        - order
+      parameters:
+        - in: query
+          name: tac
+          type: string
+          required: true
+          description: The tac value to validate
+      responses:
+        '200':
+          description: Successfully retrieved validation status
+          schema:
+            $ref: '#/definitions/TacValid'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -1447,17 +1703,18 @@ definitions:
     properties:
       name:
         type: string
-        x-nullable: true
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        x-nullable: true
       phone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        x-nullable: true
+    required:
+      - name
+      - email
+      - phone
   Contractor:
     properties:
       contractNumber:
@@ -1491,11 +1748,17 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
-      current_address:
+      suffix:
+        type: string
+        example: Jr.
         x-nullable: true
+      middle_name:
+        type: string
+        example: David
+        x-nullable: true
+      current_address:
         $ref: '#/definitions/Address'
       backup_contact:
-        x-nullable: true
         $ref: '#/definitions/BackupContact'
       id:
         type: string
@@ -1509,6 +1772,37 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+  UpdateCustomerPayload:
+    type: object
+    properties:
+      first_name:
+        type: string
+        example: John
+      last_name:
+        type: string
+        example: Doe
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+      middle_name:
+        type: string
+        example: David
+        x-nullable: true
+      current_address:
+        $ref: '#/definitions/Address'
+      backup_contact:
+        $ref: '#/definitions/BackupContact'
   DutyStation:
     type: object
     properties:
@@ -1569,6 +1863,13 @@ definitions:
       totalDependents:
         example: 2
         type: integer
+      requiredMedicalEquipmentWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        example: true
+        type: boolean
       eTag:
         type: string
     type: object
@@ -1664,6 +1965,10 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      serviceCounselingCompletedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       availableToPrimeAt:
         format: date-time
         type: string
@@ -1705,6 +2010,8 @@ definitions:
     type: string
     enum:
       - DRAFT
+      - NEEDS SERVICE COUNSELING
+      - SEVICE COUNSELING COMPLETED
       - SUBMITTED
       - APPROVALS REQUESTED
       - APPROVED
@@ -1796,6 +2103,15 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      uploadedAmendedOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        x-nullable: true
+      amendedOrdersAcknowledgedAt:
+        type: string
+        format: date-time
+        x-nullable: true
       order_number:
         type: string
         x-nullable: true
@@ -1837,6 +2153,37 @@ definitions:
       eTag:
         type: string
     type: object
+  CounselingUpdateOrderPayload:
+    type: object
+    properties:
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        example: '2018-04-26'
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        example: '2018-04-26'
+        title: Report-by date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      originDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      newDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - issueDate
+      - reportByDate
+      - ordersType
+      - originDutyStationId
+      - newDutyStationId
   UpdateOrderPayload:
     type: object
     properties:
@@ -1872,6 +2219,8 @@ definitions:
       tac:
         type: string
         title: TAC
+        minLength: 4
+        maxLength: 4
         example: 'F8J1'
         x-nullable: true
       sac:
@@ -1882,10 +2231,23 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
         x-nullable: true
+      ordersAcknowledgement:
+        description: Confirmation that the new amended orders were reviewed after previously approving the original orders
+        type: boolean
+        x-nullable: true
+    required:
+      - issueDate
+      - reportByDate
+      - ordersType
+      - newDutyStationId
+      - originDutyStationId
+  UpdateAllowancePayload:
+    type: object
+    properties:
       authorizedWeight:
-        minimum: 1
         description: unit is in lbs
         example: 2000
+        minimum: 1
         type: integer
         x-formatting: weight
         x-nullable: true
@@ -1897,14 +2259,69 @@ definitions:
       agency:
         description: the branch that the service member belongs to
         $ref: '#/definitions/Branch'
-    required:
-      - issueDate
-      - reportByDate
-      - ordersType
-      - newDutyStationId
-      - originDutyStationId
-      - agency
+      proGearWeight:
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        minimum: 0
+        maximum: 2000
+        x-formatting: weight
+        x-nullable: true
+      proGearWeightSpouse:
+        description: unit is in lbs
+        example: 500
+        type: integer
+        minimum: 0
+        maximum: 500
+        x-formatting: weight
+        x-nullable: true
+      requiredMedicalEquipmentWeight:
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        minimum: 0
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        description: only for Army
+        type: boolean
+        x-nullable: true
+  CounselingUpdateAllowancePayload:
+    type: object
+    properties:
+      grade:
+        $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
+      agency:
+        description: the branch that the service member belongs to
+        $ref: '#/definitions/Branch'
+      proGearWeight:
+        minimum: 0
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      proGearWeightSpouse:
+        minimum: 0
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      requiredMedicalEquipmentWeight:
+        minimum: 0
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        description: only for Army
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
+    description: The Move (MoveTaskOrder)
     properties:
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -1923,12 +2340,13 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-      availableToPrimeAt:
+      serviceCounselingCompletedAt:
         format: date-time
         type: string
         x-nullable: true
-      isCanceled:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
       updatedAt:
         format: date-time
@@ -2144,6 +2562,7 @@ definitions:
       - ActualPickupDate
       - CanStandAlone
       - ContractCode
+      - ContractYearName
       - CubicFeetBilled
       - CubicFeetCrating
       - DistanceZip3
@@ -2151,7 +2570,11 @@ definitions:
       - DistanceZipSITDest
       - DistanceZipSITOrigin
       - EIAFuelPrice
+      - EscalationCompounded
+      - FSCMultiplier
+      - FSCPriceDifferenceInCents
       - FSCWeightBasedDistanceMultiplier
+      - IsPeak
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
@@ -2160,6 +2583,7 @@ definitions:
       - PriceAreaIntlDest
       - PriceAreaIntlOrigin
       - PriceAreaOrigin
+      - PriceRateOrFactor
       - PSI_LinehaulDom
       - PSI_LinehaulDomPrice
       - PSI_LinehaulShort
@@ -2193,6 +2617,8 @@ definitions:
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
+      - ZipSITOriginHHGActualAddress
+      - ZipSITOriginHHGOriginalAddress
   ServiceItemParamOrigin:
     type: string
     enum:
@@ -2244,6 +2670,10 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      deletedAt:
+        x-nullable: true
+        format: date-time
+        type: string
       primeEstimatedWeight:
         x-nullable: true
         example: 2000
@@ -2255,12 +2685,24 @@ definitions:
       scheduledPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
-      approvedDate:
+      actualPickupDate:
+        x-nullable: true
         format: date
         type: string
+      requestedDeliveryDate:
+        format: date
+        type: string
+      approvedDate:
+        format: date-time
+        type: string
+        x-nullable: true
+      diversion:
+        type: boolean
+        example: true
       pickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -2274,6 +2716,18 @@ definitions:
         x-nullable: true
         $ref: '#/definitions/Address'
       customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
         type: string
         example: handle with care
         x-nullable: true
@@ -2294,10 +2748,97 @@ definitions:
         $ref: '#/definitions/MTOServiceItems'
       eTag:
         type: string
+  UpdateShipment:
+    type: object
+    properties:
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      requestedPickupDate:
+        format: date
+        type: string
+      requestedDeliveryDate:
+        format: date
+        type: string
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      counselorRemarks:
+        type: string
+        example: counselor approved
+        x-nullable: true
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  CreateMTOShipment:
+    type: object
+    properties:
+      moveTaskOrderID:
+        description: The ID of the move this new shipment is for.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedPickupDate:
+        description: >
+          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
+          pack date, are derived from this date.
+        format: date
+        type: string
+      customerRemarks:
+        description: |
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+      pickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+    required:
+      - moveTaskOrderID
+      - requestedPickupDate
+      - pickupAddress
+      - destinationAddress
   MTOShipmentStatus:
     type: string
     title: Shipment Status
@@ -2307,6 +2848,8 @@ definitions:
       - REJECTED
       - APPROVED
       - CANCELLATION_REQUESTED
+      - CANCELED
+      - DIVERSION_REQUESTED
   MTOShipmentType:
     type: string
     title: Shipment Type
@@ -2323,16 +2866,13 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
-  PatchMTOShipmentStatus:
+  RejectShipment:
     properties:
-      status:
-        $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
-        x-nullable: true
     required:
-      - status
+      - rejectionReason
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
@@ -2414,6 +2954,12 @@ definitions:
       total:
         format: cents
         type: integer
+      estimatedWeight:
+        type: integer
+        description: estimated weight of the shuttle service item provided by the prime
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string
@@ -2610,6 +3156,14 @@ definitions:
         $ref: '#/definitions/QueueMoveStatus'
       locator:
         type: string
+      submittedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      requestedMoveDate:
+        format: date
+        type: string
+        x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
       shipmentsCount:
@@ -2710,6 +3264,10 @@ responses:
     description: The requested resource wasn't found
     schema:
       $ref: '#/definitions/Error'
+  Conflict:
+    description: Conflict error
+    schema:
+      $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
     schema:
@@ -2722,7 +3280,7 @@ responses:
     description: Precondition failed
     schema:
       $ref: '#/definitions/Error'
-  Conflict:
-    description: Conflict error
+  UnprocessableEntity:
+    description: The payload was unprocessable.
     schema:
-      $ref: '#/definitions/Error'
+      $ref: '#/definitions/ValidationError'

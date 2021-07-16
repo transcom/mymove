@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 import React from 'react';
 import { string, arrayOf, shape, func, number, bool } from 'prop-types';
 import classnames from 'classnames';

@@ -260,7 +260,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
-		Driver:   "custompostgres",
+		Driver:   iampg.CustomPostgres,
 		Database: dbName,
 		Host:     dbHost,
 		Port:     dbPort,
@@ -335,7 +335,7 @@ func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Lo
 		IdlePool: dbConnDetails.IdlePool,
 	}
 
-	if useIam == true {
+	if useIam {
 		dbConnectionDetails.Password = iampg.GetCurrentPass()
 	}
 

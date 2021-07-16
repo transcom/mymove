@@ -28,10 +28,15 @@ func payloadForClientError(title string, detail string, instance uuid.UUID) *ghc
 }
 
 func payloadForValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *ghcmessages.ValidationError {
-	return &ghcmessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *payloadForClientError(title, detail, instance),
+	payload := &ghcmessages.ValidationError{
+		ClientError: *payloadForClientError(title, detail, instance),
 	}
+
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+	}
+
+	return payload
 }
 
 // UpdateMTOServiceItemStatusHandler struct that describes updating service item status
@@ -77,8 +82,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a mto service item", h.GetTraceID())
-			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.InvalidInputError:
@@ -146,7 +150,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
-	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
+	queryAssociations := query.NewQueryAssociationsPreload([]services.QueryAssociation{
 		query.NewQueryAssociation("ReService"),
 		query.NewQueryAssociation("CustomerContacts"),
 		query.NewQueryAssociation("Dimensions"),

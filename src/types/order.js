@@ -77,6 +77,7 @@ export const MTOShipmentShape = PropTypes.shape({
   requestedPickupDate: PropTypes.string,
   pickupAddress: AddressShape,
   destinationAddress: AddressShape,
+  diversion: PropTypes.bool,
 });
 
 export const MTOAgentShape = PropTypes.shape({
@@ -160,3 +161,13 @@ export const PaymentRequestShape = PropTypes.shape({
   serviceItems: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PaymentServiceItemShape])),
   reviewedAt: PropTypes.string,
 });
+
+export const ExistingUploadsShape = PropTypes.arrayOf(
+  PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    created_at: PropTypes.string.isRequired,
+    bytes: PropTypes.number.isRequired,
+    url: PropTypes.string.isRequired,
+    filename: PropTypes.string.isRequired,
+  }),
+);

@@ -41,13 +41,9 @@ linters:
     - typecheck
     - varcheck
     - gomodguard
-  disable:
-    - errcheck #requires patching code
-    - staticcheck # 30+files need to be patched
-    - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
-    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
+    - errcheck
+    - staticcheck
   fast: false
-
 issues:
   # Disable defaults for the exclude patterns and instead list them all out
   # TODO: Slowly remove these where they make sense and fix code
@@ -57,7 +53,6 @@ issues:
     # TODO: Remove this when errcheck is enabled above - duplication is ok
     - G104
   fix: true
-
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   deadline: 8m

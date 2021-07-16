@@ -1,13 +1,31 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
-@import 'shared/styles/_custom';
 
 .PaymentRequestDetails {
   :global .stackedtable-header {
     max-width: unset;
+
     h3 {
-      margin-top: 10px;
+      @include u-margin-top(2);
+      @include u-margin-bottom(1.5);
+      display: flex;
+      align-items: center;
+
+      span {
+        @include u-margin-left(1);
+        vertical-align: middle;
+      }
+    }
+    display: block;
+
+    .departureDate {
+        @include u-text('bold');
+    }
+
+    p {
+      @include u-margin-top(-.5);
+      @include u-margin-bottom(3);
     }
   }
 

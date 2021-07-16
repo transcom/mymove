@@ -7,6 +7,7 @@ import styles from './Review.module.scss';
 
 import ScrollToTop from 'components/ScrollToTop';
 import { hasShortHaulError } from 'utils/incentives';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import ConnectedSummary from 'components/Customer/Review/Summary/index';
 import 'scenes/Review/Review.css';
 import formStyles from 'styles/form.module.scss';
@@ -27,14 +28,15 @@ const Review = ({ push, canMoveNext }) => {
   return (
     <GridContainer>
       <ScrollToTop />
+      <ConnectedFlashMessage />
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
           <div className={styles.reviewMoveContainer}>
             <div className={styles.reviewMoveHeaderContainer}>
               <h1 data-testid="review-move-header">Review your details</h1>
               <p>
-                You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
-                on to the final step.
+                You’re almost done setting up your move. Double&#8209;check that your information is accurate, add more
+                shipments if needed, then move on to the final step.
               </p>
             </div>
             <ConnectedSummary />

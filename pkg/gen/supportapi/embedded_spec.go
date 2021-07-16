@@ -585,7 +585,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1086,6 +1086,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -1101,6 +1105,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -1523,10 +1532,24 @@ func init() {
             "description"
           ],
           "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
             "description": {
               "description": "Further details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
             },
             "reServiceCode": {
               "description": "Service codes allowed for this model type.",
@@ -1582,6 +1605,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean"
         },
         "eTag": {
           "type": "string",
@@ -1663,7 +1689,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -1747,12 +1776,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "description": "Indicated this MoveTaskOrder has been canceled.",
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -2047,7 +2070,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -2060,9 +2084,15 @@ func init() {
       "type": "object",
       "required": [
         "sendToSyncada",
-        "readFromSyncada"
+        "readFromSyncada",
+        "deleteFromSyncada"
       ],
       "properties": {
+        "deleteFromSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "paymentRequestID": {
           "type": "string",
           "format": "uuid",
@@ -2230,7 +2260,9 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }
@@ -3226,7 +3258,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, or EDI_ERROR.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -3769,6 +3801,10 @@ func init() {
           "x-nullable": true,
           "example": false
         },
+        "organizationalClothingAndIndividualEquipment": {
+          "type": "boolean",
+          "example": false
+        },
         "privatelyOwnedVehicle": {
           "type": "boolean",
           "x-nullable": true,
@@ -3784,6 +3820,11 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "readOnly": true,
+          "example": 500
+        },
+        "requiredMedicalEquipmentWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -4206,10 +4247,24 @@ func init() {
             "description"
           ],
           "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
             "description": {
               "description": "Further details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
             },
             "reServiceCode": {
               "description": "Service codes allowed for this model type.",
@@ -4265,6 +4320,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "diversion": {
+          "type": "boolean"
         },
         "eTag": {
           "type": "string",
@@ -4346,7 +4404,10 @@ func init() {
           "enum": [
             "APPROVED",
             "SUBMITTED",
-            "REJECTED"
+            "REJECTED",
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ],
           "readOnly": true
         },
@@ -4430,12 +4491,6 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isCanceled": {
-          "description": "Indicated this MoveTaskOrder has been canceled.",
-          "type": "boolean",
-          "x-nullable": true,
-          "readOnly": true
         },
         "moveCode": {
           "description": "Unique 6-character code the customer can use to refer to their move",
@@ -4730,7 +4785,8 @@ func init() {
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
         "RECEIVED_BY_GEX",
-        "PAID"
+        "PAID",
+        "EDI_ERROR"
       ]
     },
     "PaymentRequests": {
@@ -4743,9 +4799,15 @@ func init() {
       "type": "object",
       "required": [
         "sendToSyncada",
-        "readFromSyncada"
+        "readFromSyncada",
+        "deleteFromSyncada"
       ],
       "properties": {
+        "deleteFromSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "paymentRequestID": {
           "type": "string",
           "format": "uuid",
@@ -4913,7 +4975,9 @@ func init() {
             "REJECTED",
             "APPROVED",
             "SUBMITTED",
-            "CANCELLATION_REQUESTED"
+            "CANCELLATION_REQUESTED",
+            "CANCELED",
+            "DIVERSION_REQUESTED"
           ]
         }
       }

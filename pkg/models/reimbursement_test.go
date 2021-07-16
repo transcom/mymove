@@ -50,12 +50,13 @@ func (suite *ModelSuite) TestBasicReimbursement() {
 	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: N/A
-	reimbursement.Request() // nolint:errcheck
+	// nolint:errcheck
+	reimbursement.Request()
 
-	verrs, err := suite.DB().ValidateAndCreate(&reimbursement)
+	verrs, err := reimbursement.Validate(nil)
+
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
-
 	suite.NotNil(reimbursement.ID)
 
 	since := time.Since(*reimbursement.RequestedDate)

@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
@@ -8,12 +7,12 @@ import { Field, reduxForm } from 'redux-form';
 
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -21,19 +20,21 @@ import {
   selectCurrentOrders,
   selectCurrentMove,
   selectHasCurrentPPM,
+  selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import ServiceInfoTable from 'components/Customer/Review/ServiceInfoTable';
+import ServiceInfoDisplay from 'components/Customer/Review/ServiceInfoDisplay/ServiceInfoDisplay';
 
 const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = (props) => {
   const { schema, handleSubmit, submitting, valid, moveIsInDraft, initialValues, serviceMember } = props;
   const currentStation = get(serviceMember, 'current_station');
-  const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
+  const transportationOfficeName = get(currentStation, 'transportation_office.name');
+  const transportationOfficePhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
     <div className="grid-container usa-prose">
       <div className="grid-row">
@@ -66,14 +67,16 @@ let EditProfileForm = (props) => {
                 </>
               )}
               {!moveIsInDraft && (
-                <ServiceInfoTable
+                <ServiceInfoDisplay
                   firstName={initialValues.first_name}
                   lastName={initialValues.last_name}
-                  currentDutyStationName={currentStation.name}
-                  currentDutyStationPhone={stationPhone}
+                  originDutyStationName={currentStation.name}
+                  originTransportationOfficeName={transportationOfficeName}
+                  originTransportationOfficePhone={transportationOfficePhone}
                   affiliation={initialValues.affiliation}
                   rank={initialValues.rank}
                   edipi={initialValues.edipi}
+                  isEditable={false}
                 />
               )}
             </SectionWrapper>
@@ -100,10 +103,14 @@ class EditProfile extends Component {
   }
 
   updateProfile = (fieldValues) => {
+    const { setFlashMessage, entitlement } = this.props;
+
+    let entitlementCouldChange = false;
+
     fieldValues.current_station_id = fieldValues.current_station.id;
     fieldValues.id = this.props.serviceMember.id;
     if (fieldValues.rank !== this.props.serviceMember.rank) {
-      this.props.entitlementChanged();
+      entitlementCouldChange = true;
     }
 
     return patchServiceMember(fieldValues)
@@ -111,12 +118,18 @@ class EditProfile extends Component {
         // Update Redux with new data
         this.props.updateServiceMember(response);
 
-        this.props.editSuccessful();
-        this.props.history.goBack();
-        if (this.props.isPpm) {
-          const moveId = this.props.move?.id;
-          this.props.checkEntitlement(moveId);
+        if (entitlementCouldChange) {
+          setFlashMessage(
+            'EDIT_PROFILE_SUCCESS',
+            'info',
+            `Your weight entitlement is now ${entitlement.sum.toLocaleString()} lbs.`,
+            'Your changes have been saved. Note that the entitlement has also changed.',
+          );
+        } else {
+          setFlashMessage('EDIT_PROFILE_SUCCESS', 'success', '', 'Your changes have been saved.');
         }
+
+        this.props.history.goBack();
       })
       .catch((e) => {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -130,11 +143,6 @@ class EditProfile extends Component {
         scrollToTop();
       });
   };
-
-  componentDidMount() {
-    this.props.editBegin();
-    this.props.entitlementChangeBegin();
-  }
 
   render() {
     const { schema, serviceMember, moveIsInDraft, schemaAffiliation, schemaRank, currentOrders } = this.props;
@@ -183,22 +191,14 @@ function mapStateToProps(state) {
     isPpm: selectHasCurrentPPM(state),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
+    entitlement: selectEntitlementsForLoggedInUser(state),
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      push,
-      updateServiceMember: updateServiceMemberAction,
-      editBegin,
-      entitlementChangeBegin,
-      editSuccessful,
-      entitlementChanged,
-      checkEntitlement,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  push,
+  updateServiceMember: updateServiceMemberAction,
+  setFlashMessage: setFlashMessageAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);

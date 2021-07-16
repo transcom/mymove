@@ -3,6 +3,8 @@ package internalapi
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -16,6 +18,7 @@ import (
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
 type ApproveMoveHandler struct {
 	handlers.HandlerContext
+	services.MoveRouter
 }
 
 // Handle ... approves a Move from a request payload
@@ -25,8 +28,12 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
 	}
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
@@ -40,7 +47,9 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return officeop.NewApprovePPMBadRequest()
 	}
 
-	err = move.Approve()
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+	h.MoveRouter.SetLogger(logger)
+	err = h.MoveRouter.Approve(move)
 	if err != nil {
 		logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)
@@ -63,6 +72,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 // CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
 type CancelMoveHandler struct {
 	handlers.HandlerContext
+	services.MoveRouter
 }
 
 // Handle ... cancels a Move from a request payload
@@ -72,16 +82,20 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return officeop.NewCancelMoveForbidden()
 	}
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+	h.MoveRouter.SetLogger(logger)
 	// Canceling move will result in canceled associated PPMs
-	err = move.Cancel(*params.CancelMove.CancelReason)
+	err = h.MoveRouter.Cancel(*params.CancelMove.CancelReason, move)
 	if err != nil {
 		logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)
@@ -121,8 +135,10 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return officeop.NewApprovePPMForbidden()
 	}
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
@@ -172,8 +188,10 @@ func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursement
 		return officeop.NewApproveReimbursementForbidden()
 	}
 
-	// #nosec UUID is pattern matched by swagger and will be ok
-	reimbursementID, _ := uuid.FromString(params.ReimbursementID.String())
+	reimbursementID, err := uuid.FromString(params.ReimbursementID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	reimbursement, err := models.FetchReimbursement(h.DB(), session, reimbursementID)
 	if err != nil {

@@ -1,6 +1,8 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 
+import testParams from '../ServiceItemCalculations/serviceItemTestParams';
+
 import ReviewServiceItems from './ReviewServiceItems';
 
 import {
@@ -72,8 +74,13 @@ export const HHG = () => (
       {
         id: '1',
         mtoShipmentID: '10',
+        mtoShipmentDepartureDate: '2020-04-29',
+        mtoShipmentPickupAddress: 'Fairfield, CA 94535',
+        mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -93,6 +100,8 @@ export const NonTemporaryStorage = () => (
         mtoShipmentID: '10',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 6423.51,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -117,7 +126,12 @@ export const MultipleShipmentsGroups = () => (
         id: '3',
         mtoShipmentID: '20',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+        mtoShipmentDepartureDate: '04 May 2021',
+        mtoShipmentPickupAddress: 'Fairfield, CA 94535',
+        mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 5678.05,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
@@ -126,6 +140,8 @@ export const MultipleShipmentsGroups = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 6423.51,
         createdAt: '2020-01-01T00:07:30.999Z',
       },
@@ -134,6 +150,8 @@ export const MultipleShipmentsGroups = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.FSC,
+        mtoServiceItemCode: 'FSC',
+        paymentServiceItemParams: testParams.FuelSurchage,
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
       },
@@ -166,8 +184,13 @@ export const WithStatusAndReason = () => (
       {
         id: '3',
         mtoShipmentID: '20',
+        mtoShipmentDepartureDate: '04 May 2021',
+        mtoShipmentPickupAddress: 'Fairfield, CA 94535',
+        mtoShipmentDestinationAddress: 'Beverly Hills, CA 90210',
         mtoShipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 5678.05,
         status: SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:00.999Z',
@@ -177,6 +200,8 @@ export const WithStatusAndReason = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.DLH,
+        mtoServiceItemCode: 'DLH',
+        paymentServiceItemParams: testParams.DomesticLongHaul,
         amount: 6423.51,
         status: SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:07:30.999Z',
@@ -186,6 +211,8 @@ export const WithStatusAndReason = () => (
         mtoShipmentID: '30',
         mtoShipmentType: SHIPMENT_OPTIONS.NTS,
         mtoServiceItemName: serviceItemCodes.FSC,
+        mtoServiceItemCode: 'FSC',
+        paymentServiceItemParams: testParams.FuelSurchage,
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
       },

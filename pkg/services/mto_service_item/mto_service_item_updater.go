@@ -29,16 +29,17 @@ type mtoServiceItemQueryBuilder interface {
 type mtoServiceItemUpdater struct {
 	builder          mtoServiceItemQueryBuilder
 	createNewBuilder func(db *pop.Connection) mtoServiceItemQueryBuilder
+	moveRouter       services.MoveRouter
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func(db *pop.Connection) mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder(db)
 	}
 
-	return &mtoServiceItemUpdater{builder: builder, createNewBuilder: createNewBuilder}
+	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter}
 }
 
 func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
@@ -130,10 +131,16 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 				break
 			}
 		}
+
+		// All service items may be reviewed but amended orders should keep the move in
+		// APPROVALS REQUESTED status
+		if move.Orders.UploadedAmendedOrdersID != nil && move.Orders.AmendedOrdersAcknowledgedAt == nil {
+			moveShouldBeMoveApproved = false
+		}
 	}
 
 	if moveShouldBeMoveApproved {
-		err = move.Approve()
+		err = p.moveRouter.Approve(&move)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +159,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	// being in SUBMITTED status) then it needs to be set to APPROVALS REQUESTED
 	// so the TOO can review it.
 	if !moveShouldBeMoveApproved {
-		err = move.SetApprovalsRequested()
+		err = p.moveRouter.SendToOfficeUser(&move)
 		if err != nil {
 			return nil, err
 		}

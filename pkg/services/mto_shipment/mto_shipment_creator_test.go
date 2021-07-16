@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -19,20 +19,20 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
+func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return builder
 	}
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
 	fetcher := fetch.NewFetcher(builder)
 	creator := mtoShipmentCreator{
 		suite.DB(),
 		builder,
 		fetcher,
 		createNewBuilder,
-		mtoServiceItemCreator,
+		moveRouter,
 	}
 
 	// Invalid ID fields set
@@ -91,6 +91,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
+		suite.NotEmpty(createdShipment.PickupAddressID)
+		suite.NotEmpty(createdShipment.DestinationAddressID)
 	})
 
 	suite.T().Run("If the shipment is created successfully with submitted status it should be returned", func(t *testing.T) {
@@ -197,6 +199,75 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
 	})
+
+	suite.T().Run("422 Validation Error - only one mto agent of each type", func(t *testing.T) {
+		firstName := "First"
+		lastName := "Last"
+		email := "test@gmail.com"
+
+		var agents models.MTOAgents
+
+		agent1 := models.MTOAgent{
+			FirstName:    &firstName,
+			LastName:     &lastName,
+			Email:        &email,
+			MTOAgentType: models.MTOAgentReceiving,
+		}
+
+		agent2 := models.MTOAgent{
+			FirstName:    &firstName,
+			LastName:     &lastName,
+			Email:        &email,
+			MTOAgentType: models.MTOAgentReceiving,
+		}
+
+		agents = append(agents, agent1, agent2)
+
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MTOAgents: agents,
+			},
+		})
+
+		serviceItemsList := models.MTOServiceItems{}
+		createdShipment, err := creator.CreateMTOShipment(&shipment, serviceItemsList)
+
+		suite.Nil(createdShipment)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("Move status transitions when a new shipment is created and SUBMITTED", func(t *testing.T) {
+		// If a new shipment is added to an APPROVED move and given the SUBMITTED status,
+		// the move should transition to "APPROVALS REQUESTED"
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+		})
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrder: move,
+				Status:        models.MTOShipmentStatusSubmitted,
+			},
+			Stub: true,
+		})
+		cleanShipment := clearShipmentIDFields(&shipment)
+		serviceItemsList := models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(cleanShipment, serviceItemsList)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
+		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
+
+		var updatedMove models.Move
+		err = suite.DB().Find(&updatedMove, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
+	})
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
@@ -209,10 +280,16 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 		shipment.DestinationAddressID = nil
 		shipment.DestinationAddress.ID = uuid.Nil
 	}
-	shipment.SecondaryPickupAddressID = nil
-	shipment.SecondaryPickupAddress = nil
-	shipment.SecondaryDeliveryAddressID = nil
-	shipment.SecondaryDeliveryAddress = nil
+	if shipment.SecondaryPickupAddress != nil {
+		shipment.SecondaryPickupAddressID = nil
+		shipment.SecondaryPickupAddress.ID = uuid.Nil
+	}
+
+	if shipment.SecondaryDeliveryAddress != nil {
+		shipment.SecondaryDeliveryAddressID = nil
+		shipment.SecondaryDeliveryAddress.ID = uuid.Nil
+	}
+
 	shipment.ID = uuid.Nil
 	if len(shipment.MTOAgents) > 0 {
 		for _, agent := range shipment.MTOAgents {

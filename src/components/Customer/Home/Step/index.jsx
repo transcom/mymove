@@ -39,8 +39,10 @@ const Step = ({
     secondaryBtnClassName,
   );
 
+  const containerCN = classnames(styles['step-container'], styles[containerClassName]);
+
   return (
-    <div data-testid={`stepContainer${step}`} className={`${styles['step-container']} ${containerClassName}`}>
+    <div data-testid={`stepContainer${step}`} className={containerCN}>
       <div className={styles['step-header-container']}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>

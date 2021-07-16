@@ -2,11 +2,15 @@ import React from 'react';
 import { PropTypes } from 'prop-types';
 
 import ExpandableServiceItemRow from '../ExpandableServiceItemRow/ExpandableServiceItemRow';
+import ShipmentModificationTag from '../../ShipmentModificationTag/ShipmentModificationTag';
 
 import styles from './PaymentRequestDetails.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
+import { formatDateFromIso } from 'shared/formatters';
+import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 const shipmentHeadingAndStyle = (mtoShipmentType) => {
   switch (mtoShipmentType) {
@@ -16,7 +20,7 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
     case SHIPMENT_OPTIONS.HHG:
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
     case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
-      return ['Household goods', styles.hhgShipmentType];
+      return ['HHG', styles.hhgShipmentType];
     case SHIPMENT_OPTIONS.NTS:
       return ['Non-temp storage', styles.ntsrShipmentType];
     case SHIPMENT_OPTIONS.NTSR:
@@ -26,9 +30,10 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
+const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
+  const { modificationType, departureDate, address } = shipment;
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -37,9 +42,23 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
             <div className={shipmentStyle} />
             <h3>
               {headingType} ({serviceItems.length} {serviceItems.length > 1 ? 'items' : 'item'})
+              {modificationType && <ShipmentModificationTag shipmentModificationType={modificationType} />}
             </h3>
           </div>
-          {shipmentAddress !== '' && <p data-testid="pickup-to-destination">{shipmentAddress}</p>}
+          {(departureDate || address) && (
+            <div>
+              <p>
+                <small>
+                  {departureDate && (
+                    <strong data-testid="departure-date">
+                      Departed {formatDateFromIso(departureDate, 'DD MMM YYYY')}
+                    </strong>
+                  )}{' '}
+                  {address && <span data-testid="pickup-to-destination">{address}</span>}
+                </small>
+              </p>
+            </div>
+          )}
         </div>
         <table className="table--stacked">
           <colgroup>
@@ -56,7 +75,14 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
           </thead>
           <tbody>
             {serviceItems.map((item, index) => {
-              return <ExpandableServiceItemRow serviceItem={item} key={item.id} index={index} />;
+              return (
+                <ExpandableServiceItemRow
+                  serviceItem={item}
+                  key={item.id}
+                  index={index}
+                  disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
+                />
+              );
             })}
           </tbody>
         </table>
@@ -67,11 +93,20 @@ const PaymentRequestDetails = ({ serviceItems, shipmentAddress }) => {
 
 PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
-  shipmentAddress: PropTypes.string,
+  shipment: PropTypes.shape({
+    address: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    modificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    departureDate: PropTypes.string,
+  }),
+  paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
 
 PaymentRequestDetails.defaultProps = {
-  shipmentAddress: '',
+  shipment: {
+    departureDate: '',
+    address: '',
+    modificationType: '',
+  },
 };
 
 export default PaymentRequestDetails;

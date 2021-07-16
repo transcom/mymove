@@ -50,6 +50,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: Prime API](#setup-prime-api)
   * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
+  * [Setup: Nix](#setup-nix)
 * [Development](#development)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -67,6 +68,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
   * [GoLand](#goland)
+  * [Storybook](#storybook)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
@@ -101,6 +103,9 @@ To create an account in the sandbox, follow the same instructions, but [in the s
 ### Setup: Developer Setup
 
 Note: These instructions are a living document and often fall out-of-date. If you run into anything that needs correcting or updating, please create a PR with those changes to help those coming after you.
+
+See [Setup: Nix](#setup-nix) for an experiment with a possibly simpler
+way to install all the developer dependencies
 
 There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
 
@@ -258,7 +263,7 @@ You can feel free to skip running the pre-commit checks at this time. Before you
 
 #### Troubleshooting install issues (process hanging on install hooks)
 
-Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 12.21.0`). You can find the current supported node version [here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported version.
+Since pre-commit uses node to hook things up in both your local repo and its cache folder (located at `~/.cache/pre-commit`),it requires a global node install. If you are using nodenv to manage multiple installed nodes, you'll need to set a global version to proceed (eg `nodenv global 14.17.1`). You can find the current supported node version [here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported version.
 
 ### Setup: Dependencies
 
@@ -340,6 +345,30 @@ The API that the Prime will use is authenticated via mutual TSL so there are a f
 If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. You will also need to follow these steps when using Chamber and AWS vault to [set up direnv](#setup-direnv).
 
 AWS credentials are managed via `aws-vault`. Once you have received AWS credentials (which are provided by the infrastructure team), you can follow these instructions to [finish setting up AWS](https://github.com/transcom/transcom-infrasec-gov/blob/master/docs/runbook/0001-aws-organization-authentication.md).
+
+### Setup: Nix
+
+NOTE: Nix is an experiment. If you are setting things up with Nix you
+do not need to follow the instructions above about [Setup: Golang](#setup-golang) and [Setup: Quick Initial Setup](#setup-quick-initial-setup).
+
+NOTE: Nix as an experiment means you ask for help in the `#code-nix`
+slack channel. It's not an officially supported development environment.
+
+1. First read the overview in the [Truss Engineering Playbook](https://github.com/trussworks/Engineering-Playbook/tree/main/developing/nix).
+1. Follow the [macOS installation instructions](https://nixos.org/manual/nix/stable/#sect-macos-installation).
+1. Ensure you have `direnv` and a modern `bash` installed. To install
+   globally with nix, run `nix-env -i direnv bash`
+1. Ensure you have run `direnv allow` to set up the appropriate nix
+   environment variables.
+1. Make sure you have disabled any `nodeenv`, `asdf` or any other
+   version switchers for mymove.
+1. Run `./nix/update.sh`
+
+If the nix dependencies change, you should see a warning from direnv:
+
+```text
+direnv: WARNING: nix packages out of date. Run nix/update.sh
+```
 
 ## Development
 
@@ -559,6 +588,17 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 ### GoLand
 
 * GoLand supports [attaching the debugger to a running process](https://blog.jetbrains.com/go/2019/02/06/debugging-with-goland-getting-started/#debugging-a-running-application-on-the-local-machine), however this requires that the server has been built with specific flags. If you wish to use this feature in development add the following line `export GOLAND=1` to your `.envrc.local`. Once the server starts follow the steps outlined in the article above and you should now be able to set breakpoints using the GoLand debugger.
+
+### Storybook
+
+We use [Storybook](https://storybook.js.org) for reviewing our
+component library. The current components are deployed to
+[https://storybook.dp3.us](https://storybook.dp3.us) after each build
+of the master branch.
+
+Each PR saves storybook as an artifact in CircleCI. Find the
+`build_storybook` task and then go to the "ARTIFACTS" tab. Find the
+link to `storybook/index.html` and click on it.
 
 ### Troubleshooting
 

@@ -41,7 +41,6 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         moveTaskOrder.IsCanceled(),
 		Order:              Order(&moveTaskOrder.Orders),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		ContractorID:       handlers.FmtUUIDPtr(moveTaskOrder.ContractorID),
@@ -145,10 +144,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	var totalWeight int64
 	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
 		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
 	var authorizedWeight *int64
@@ -165,17 +162,18 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
 	return &supportmessages.Entitlement{
-		ID:                    strfmt.UUID(entitlement.ID.String()),
-		AuthorizedWeight:      authorizedWeight,
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
-		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
-		ProGearWeight:         proGearWeight,
-		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      sit,
-		TotalDependents:       totalDependents,
-		TotalWeight:           totalWeight,
-		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),
+		ID:                             strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:               authorizedWeight,
+		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:                  int64(entitlement.ProGearWeight),
+		ProGearWeightSpouse:            int64(entitlement.ProGearWeightSpouse),
+		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
+		StorageInTransit:               sit,
+		TotalDependents:                totalDependents,
+		TotalWeight:                    totalWeight,
+		ETag:                           etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 
@@ -352,9 +350,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &supportmessages.MTOServiceItemShuttle{
-			Description:   mtoServiceItem.Description,
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:        mtoServiceItem.Reason,
+			Description:     mtoServiceItem.Description,
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:          mtoServiceItem.Reason,
+			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
+			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
 	default:
 		// otherwise, basic service item

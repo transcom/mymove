@@ -52,7 +52,8 @@ function registerValidSW(swUrl) {
               // the fresh content will have been added to the cache.
               // It's the perfect time to display a "New content is
               // available; please refresh." message in your web app.
-              console.log('New content is available; please refresh.'); // eslint-disable-line no-console
+              // eslint-disable-next-line no-console
+              console.log('New content is available; please refresh.');
             } else {
               // RA Summary: eslint: no-console - System Information Leak: External
               // RA: The linter flags any console.
@@ -67,7 +68,8 @@ function registerValidSW(swUrl) {
               // At this point, everything has been precached.
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
-              console.log('Content is cached for offline use.'); // eslint-disable-line no-console
+              // eslint-disable-next-line no-console
+              console.log('Content is cached for offline use.');
             }
           }
         };
@@ -82,7 +84,8 @@ function registerValidSW(swUrl) {
       // RA Developer Status: Known Issue
       // RA Validator Status: Known Issue
       // RA Modified Severity: CAT II
-      console.error('Error during service worker registration:', error); // eslint-disable-line no-console
+      // eslint-disable-next-line no-console
+      console.error('Error during service worker registration:', error);
     });
 }
 
@@ -114,7 +117,8 @@ function checkValidServiceWorker(swUrl) {
       // RA Validator Status: Mitigated
       // RA Validator: jneuner@mitre.org
       // RA Modified Severity: CAT III
-      console.log('No internet connection found. App is running in offline mode.'); // eslint-disable-line no-console
+      // eslint-disable-next-line no-console
+      console.log('No internet connection found. App is running in offline mode.');
     });
 }
 

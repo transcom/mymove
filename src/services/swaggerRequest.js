@@ -4,6 +4,8 @@ import { normalize } from 'normalizr';
 import * as Cookies from 'js-cookie';
 
 import * as schema from 'shared/Entities/schema';
+import { interceptInjection } from 'store/interceptor/injectionMiddleware';
+import { interceptResponse } from 'store/interceptor/actions';
 
 // setting up the same config from Swagger/api.js
 export const requestInterceptor = (req) => {
@@ -27,6 +29,21 @@ export const requestInterceptor = (req) => {
     }
   }
   return req;
+};
+
+export const responseInterceptor = (res) => {
+  switch (res.status) {
+    case 500: {
+      interceptInjection(interceptResponse(true));
+      break;
+    }
+
+    default: {
+      interceptInjection(interceptResponse(false));
+    }
+  }
+
+  return res;
 };
 
 /**
@@ -63,7 +80,6 @@ const toCamelCase = (str) => str[0].toLowerCase() + str.slice(1);
 // This key can be used to determine what key to find the object's
 // definition in within our normalizr schema.
 function successfulReturnType(routeDefinition, status) {
-  // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {

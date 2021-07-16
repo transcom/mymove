@@ -7,10 +7,10 @@ import {
   getMTOServiceItems,
   getOrder,
   getMove,
-  getMoveTaskOrderList,
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getServicesCounselingQueue,
   getMovePaymentRequests,
   getCustomer,
 } from 'services/ghcApi';
@@ -23,13 +23,14 @@ import {
   MOVES,
   ORDERS,
   MOVE_PAYMENT_REQUESTS,
-  MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
   USER,
   CUSTOMER,
+  SERVICES_COUNSELING_QUEUE,
 } from 'constants/queryKeys';
+import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
 export const useUserQueries = () => {
   const { data = {}, ...userQuery } = useQuery([USER, false], getLoggedInUserQueries);
@@ -79,13 +80,48 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
+  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery]);
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
+    enabled: !!mtoID,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestQuery, mtoShipmentQuery]);
 
   return {
     paymentRequest,
     paymentRequests,
     paymentServiceItems,
+    mtoShipments,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useEditShipmentQueries = (moveCode) => {
+  // Get the orders info
+  const { data: move = {}, ...moveQuery } = useQuery([MOVES, moveCode], getMove);
+
+  const moveId = move?.id;
+  const orderId = move?.ordersId;
+
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
+    enabled: !!orderId,
+  });
+
+  const order = Object.values(orders || {})?.[0];
+
+  const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, moveId, false], getMTOShipments, {
+    enabled: !!moveId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, mtoShipmentQuery]);
+
+  return {
+    move,
+    order,
+    mtoShipments,
     isLoading,
     isError,
     isSuccess,
@@ -101,15 +137,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
     enabled: !!orderId,
   });
 
-  // get move task orders
-  const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
-    [MOVE_TASK_ORDERS, orderId],
-    getMoveTaskOrderList,
-    { enabled: !!orderId },
-  );
-
-  const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
-  const mtoID = moveTaskOrder?.id;
+  const mtoID = move?.id;
 
   // get MTO shipments
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
@@ -126,14 +154,13 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
-    moveTaskOrderQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
 
   return {
     orders,
-    moveTaskOrders,
+    move,
     mtoShipments,
     mtoServiceItems,
     isLoading,
@@ -156,6 +183,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const order = orders && orders[`${orderId}`];
   // eslint-disable-next-line camelcase
   const documentId = order?.uploaded_order_id;
+  const amendedOrderDocumentId = order?.uploadedAmendedOrderID;
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
@@ -172,20 +200,41 @@ export const useOrdersDocumentQueries = (moveCode) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, ordersDocumentsQuery]);
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], getDocument, {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    orderQuery,
+    ordersDocumentsQuery,
+    amendedOrdersDocumentsQuery,
+  ]);
 
   return {
     move,
     orders,
     documents,
+    amendedDocuments,
     upload,
+    amendedUpload,
     isLoading,
     isError,
     isSuccess,
   };
 };
 
-export const useMovesQueueQueries = ({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) => {
+export const useMovesQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
   const { data = {}, ...movesQueueQuery } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
     getMovesQueue,
@@ -200,7 +249,34 @@ export const useMovesQueueQueries = ({ sort, order, filters = [], currentPage = 
   };
 };
 
-export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) => {
+export const useServicesCounselingQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
+    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    getServicesCounselingQueue,
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([servicesCounselingQueueQuery]);
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePaymentRequestQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
     [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
     getPaymentRequestsQueue,

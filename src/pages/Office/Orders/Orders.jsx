@@ -85,6 +85,14 @@ const Orders = () => {
   };
 
   const order = Object.values(orders)?.[0];
+  const { entitlement, uploadedAmendedOrderID, amendedOrdersAcknowledgedAt } = order;
+  // TODO - passing in these fields so they don't get unset. Need to rework the endpoint.
+  const {
+    proGearWeight,
+    proGearWeightSpouse,
+    requiredMedicalEquipmentWeight,
+    organizationalClothingAndIndividualEquipment,
+  } = entitlement;
 
   useEffect(() => {
     // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
@@ -102,12 +110,18 @@ const Orders = () => {
       newDutyStationId: values.newDutyStation.id,
       issueDate: formatSwaggerDate(values.issueDate),
       reportByDate: formatSwaggerDate(values.reportByDate),
+      proGearWeight,
+      proGearWeightSpouse,
+      requiredMedicalEquipmentWeight,
+      organizationalClothingAndIndividualEquipment,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const tacWarningMsg =
     'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
+
+  const hasAmendedOrders = !!uploadedAmendedOrderID;
 
   const initialValues = {
     agency: order?.agency,
@@ -121,6 +135,7 @@ const Orders = () => {
     ordersTypeDetail: order?.order_type_detail,
     tac: order?.tac,
     sac: order?.sac,
+    ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
   };
 
   return (
@@ -156,6 +171,7 @@ const Orders = () => {
                     ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
                     tacWarning={tacWarning}
                     validateTac={handleTacValidation}
+                    showOrdersAcknowledgement={hasAmendedOrders}
                   />
                 </div>
                 <div className={styles.bottom}>

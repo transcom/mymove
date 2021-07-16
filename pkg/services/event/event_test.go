@@ -233,7 +233,8 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		json.Unmarshal([]byte(notification.Payload), &mtoInPayload) // nolint:errcheck
+		// nolint:errcheck
+		json.Unmarshal([]byte(notification.Payload), &mtoInPayload)
 		// Check some params
 		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
 		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
@@ -271,7 +272,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			MtoID:           mtoID,
 			UpdatedObjectID: mtoShipmentID,
 			Request:         &dummyRequest,
-			EndpointKey:     GhcPatchMTOShipmentStatusEndpointKey,
+			EndpointKey:     GhcApproveShipmentEndpointKey,
 			HandlerContext:  handler,
 			DBConnection:    suite.DB(),
 		})
@@ -293,7 +294,8 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		json.Unmarshal([]byte(notification.Payload), &mtoShipmentInPayload) // nolint:errcheck
+		// nolint:errcheck
+		json.Unmarshal([]byte(notification.Payload), &mtoShipmentInPayload)
 		// Check some params
 		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
 		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())

@@ -16,7 +16,14 @@ export default {
 export const all = () => (
   <div style={{ padding: '20px', background: '#f0f0f0' }}>
     <h3>Icons</h3>
-    <div id="icons" style={{ display: 'flex', flexWrap: 'wrap' }}>
+    <div
+      id="icons"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat( auto-fit, minmax(150px, 1fr)`,
+        gridTemplateRows: `repeat(5, 1fr)`,
+      }}
+    >
       <div>
         <FontAwesomeIcon icon="file" />
         <code>documents | icon=&quot;file&quot;</code>
@@ -178,6 +185,38 @@ export const all = () => (
         <code>
           external link | <strong>uses local svg, not FontAwesome</strong>
         </code>
+      </div>
+      <div>
+        <FontAwesomeIcon className="fa-2x" icon={['far', 'user']} />
+        <code>user | icon=&quot;user&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="pencil-alt" />
+        <code>pencil-alt | icon=&quot;pencil-alt&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="weight-hanging" />
+        <code>weight-hanging | icon=&quot;weight-hanging&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="truck-moving" />
+        <code>truck-moving | icon=&quot;truck-moving&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="car" />
+        <code>car | icon=&quot;car&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="hand-holding-usd" />
+        <code>hand-holding-usd | icon=&quot;hand-holding-usd&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="file-image" />
+        <code>file-image | icon=&quot;file-image&quot;</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="file-pdf" />
+        <code>file-pdf | icon=&quot;file-pdf&quot;</code>
       </div>
     </div>
   </div>

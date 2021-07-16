@@ -88,6 +88,7 @@ const multiplePaymentRequests = {
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-09T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -112,6 +113,7 @@ const multiplePaymentRequests = {
       id: '3',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-10T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -136,6 +138,7 @@ const multiplePaymentRequests = {
       id: '4',
       moveTaskOrderID: '1',
       status: shipmentStatuses.SUBMITTED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -193,6 +196,7 @@ const singleReviewedPaymentRequest = {
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
+      scheduledPickupDate: '2020-01-11T00:00:00.000Z',
       destinationAddress: { city: 'Princeton', state: 'NJ', postal_code: '08540' },
       pickupAddress: { city: 'Boston', state: 'MA', postal_code: '02101' },
       mtoServiceItems: [
@@ -211,6 +215,18 @@ const emptyPaymentRequests = {
   mtoShipments: [],
 };
 
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
 function renderMovePaymentRequests(props) {
   return render(
     <MockProviders initialEntries={[`/moves/L2BKD6/payment-requests`]}>
@@ -220,9 +236,29 @@ function renderMovePaymentRequests(props) {
 }
 
 describe('MovePaymentRequests', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
+
+      renderMovePaymentRequests(testProps);
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
+
+      renderMovePaymentRequests(testProps);
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
+
   describe('with multiple payment requests', () => {
     beforeEach(() => {
-      useMovePaymentRequestsQueries.mockImplementation(() => multiplePaymentRequests);
+      useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     });
 
     it('renders without errors', () => {
@@ -263,7 +299,7 @@ describe('MovePaymentRequests', () => {
 
   describe('with one reviewed payment request', () => {
     beforeEach(() => {
-      useMovePaymentRequestsQueries.mockImplementation(() => singleReviewedPaymentRequest);
+      useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
     });
 
     it('updates the pending payment request count callback', async () => {
@@ -290,7 +326,7 @@ describe('MovePaymentRequests', () => {
 
   describe('with no payment requests for move', () => {
     beforeEach(() => {
-      useMovePaymentRequestsQueries.mockImplementation(() => emptyPaymentRequests);
+      useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
     });
 
     it('renders with empty message when no payment requests exist', async () => {

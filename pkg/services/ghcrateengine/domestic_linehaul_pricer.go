@@ -65,7 +65,7 @@ func (p domesticLinehaulPricer) Price(isShortHaul bool, contractCode string, req
 
 	params := services.PricingDisplayParams{
 		{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
-		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatFloat(contractYear.EscalationCompounded, 5)},
+		{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
 		{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
 		{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: ratePriceDollarFloat},
 	}
@@ -107,7 +107,7 @@ func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceIte
 
 	isShortHaul := isSameZip3(zipPickup, zipDestination)
 	var distanceZip int
-	if isShortHaul == true {
+	if isShortHaul {
 		distanceZip, err = getParamInt(params, models.ServiceItemParamNameDistanceZip5)
 		if err != nil {
 			return unit.Cents(0), nil, err
@@ -169,7 +169,7 @@ func (p domesticLinehaulPricer) priceShorthaul(contractCode string, requestedPic
 		return "", 0, models.ReContractYear{}, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
-	ratePriceDollarFloat := FormatFloat(domServiceAreaPrice.PriceCents.ToDollarFloat(), 3)
+	ratePriceDollarFloat := FormatFloat(domServiceAreaPrice.PriceCents.ToDollarFloatNoRound(), 3)
 
 	contractYear, err := fetchContractYear(p.db, domServiceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {

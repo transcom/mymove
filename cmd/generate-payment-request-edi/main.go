@@ -112,7 +112,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection, icnSequencer, clock.New())
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
+	generator.InitDB(dbConnection)
 	edi858c, err := generator.Generate(paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())

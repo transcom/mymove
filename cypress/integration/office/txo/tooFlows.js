@@ -10,14 +10,16 @@ describe('TOO user', () => {
     cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
     cy.intercept('**/ghc/v1/orders/**').as('getOrders');
-    cy.intercept('**/ghc/v1/orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/approve').as('approveShipment');
+    cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
 
-    const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
+    // This user has multiple roles, which is the kind of user we use to test in staging.
+    // By using this type of user, we can catch bugs like the one fixed in PR 6706.
+    const userId = '8d78c849-0853-4eb8-a7a7-73055db7a6a8';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);
   });
 
@@ -64,14 +66,14 @@ describe('TOO user', () => {
 
       // Click approve
       cy.contains('Approve and send').click();
-      cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
+      cy.wait(['@approveShipment', '@patchMTOStatus']);
     });
 
     // Redirected to Move Task Order page
     cy.url().should('include', `/moves/${moveLocator}/mto`);
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.get('[data-testid="ShipmentContainer"]');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] h4').contains('Approved service items (6 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] h3').contains('Approved service items (6 items)');
 
     // Navigate back to Move Details
     cy.get('[data-testid="MoveDetails-Tab"]').click();
@@ -92,7 +94,7 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
@@ -243,7 +245,7 @@ describe('TOO user', () => {
     cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
 
     // Navigate to Edit allowances page
-    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
 
     // Toggle between Edit Allowances and Edit Orders page
     cy.get('[data-testid="view-orders"]').click();
@@ -252,6 +254,12 @@ describe('TOO user', () => {
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
 
     cy.get('form').within(($form) => {
+      // Edit pro-gear, pro-gear spouse, RME, and OCIE fields
+      cy.get('input[name="proGearWeight"]').clear().type('1999');
+      cy.get('input[name="proGearWeightSpouse"]').clear().type('499');
+      cy.get('input[name="requiredMedicalEquipmentWeight"]').clear().type('999');
+      cy.get('input[name="organizationalClothingAndIndividualEquipment"]').click({ force: true });
+
       // Edit grade and authorized weight
       cy.get('select[name=agency]').contains('Army');
       cy.get('select[name=agency]').select('Navy');
@@ -260,7 +268,7 @@ describe('TOO user', () => {
       cy.get('input[name="authorizedWeight"]').clear().type('11111');
 
       //Edit DependentsAuthorized
-      cy.get('input[name="dependentsAuthorized"]').click();
+      cy.get('input[name="dependentsAuthorized"]').click({ force: true });
 
       // Edit allowances page | Save
       cy.get('button').contains('Save').click();
@@ -268,13 +276,18 @@ describe('TOO user', () => {
 
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
-    cy.get('[data-testid="authorizedWeight"]').contains('11,111 lbs');
+    cy.get('[data-testid="progear"]').contains('1,999');
+    cy.get('[data-testid="spouseProgear"]').contains('499');
+    cy.get('[data-testid="rme"]').contains('999');
+    cy.get('[data-testid="ocie"]').contains('Unauthorized');
+
+    cy.get('[data-testid="authorizedWeight"]').contains('11,111');
     cy.get('[data-testid="branchRank"]').contains('Navy');
     cy.get('[data-testid="branchRank"]').contains('W-2');
     cy.get('[data-testid="dependents"]').contains('Unauthorized');
 
     // Edit allowances page | Cancel
-    cy.get('[data-testid="edit-allowances"]').contains('Edit Allowances').click();
+    cy.get('[data-testid="edit-allowances"]').contains('Edit allowances').click();
     cy.get('button').contains('Cancel').click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
   });
@@ -287,7 +300,7 @@ describe('TOO user', () => {
     cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveLocator}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
-    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+    // cy.wait(['@getMTOShipments', '@getMTOServiceItems']);
     cy.url().should('include', `/moves/${moveLocator}/mto`);
 
     // Move Task Order page
@@ -303,7 +316,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.wait(['@patchMTOShipmentStatus']);
+    cy.wait(['@requestShipmentCancellation']);
     // After updating, the button is disabeld and an alert is shown
     cy.get('[data-testid="request-cancellation-modal"]').should('not.exist');
     cy.get('.shipment-heading').find('button').should('be.disabled').and('contain', 'Cancellation Requested');

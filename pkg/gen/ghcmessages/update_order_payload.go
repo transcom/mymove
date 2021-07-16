@@ -17,22 +17,8 @@ import (
 // swagger:model UpdateOrderPayload
 type UpdateOrderPayload struct {
 
-	// the branch that the service member belongs to
-	// Required: true
-	Agency Branch `json:"agency"`
-
-	// unit is in lbs
-	// Minimum: 1
-	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
-
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
-
-	// dependents authorized
-	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
-
-	// grade
-	Grade *Grade `json:"grade,omitempty"`
 
 	// Orders date
 	//
@@ -45,6 +31,9 @@ type UpdateOrderPayload struct {
 	// Required: true
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
+
+	// Confirmation that the new amended orders were reviewed after previously approving the original orders
+	OrdersAcknowledgement *bool `json:"ordersAcknowledgement,omitempty"`
 
 	// Orders Number
 	OrdersNumber *string `json:"ordersNumber,omitempty"`
@@ -72,6 +61,8 @@ type UpdateOrderPayload struct {
 	Sac *string `json:"sac,omitempty"`
 
 	// TAC
+	// Max Length: 4
+	// Min Length: 4
 	Tac *string `json:"tac,omitempty"`
 }
 
@@ -79,19 +70,7 @@ type UpdateOrderPayload struct {
 func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAgency(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateAuthorizedWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDepartmentIndicator(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateGrade(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,34 +98,13 @@ func (m *UpdateOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateTac(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateAgency(formats strfmt.Registry) error {
-
-	if err := m.Agency.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("agency")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateAuthorizedWeight(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.AuthorizedWeight) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("authorizedWeight", "body", int64(*m.AuthorizedWeight), 1, false); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -160,24 +118,6 @@ func (m *UpdateOrderPayload) validateDepartmentIndicator(formats strfmt.Registry
 		if err := m.DepartmentIndicator.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("departmentIndicator")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *UpdateOrderPayload) validateGrade(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Grade) { // not required
-		return nil
-	}
-
-	if m.Grade != nil {
-		if err := m.Grade.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("grade")
 			}
 			return err
 		}
@@ -262,6 +202,23 @@ func (m *UpdateOrderPayload) validateReportByDate(formats strfmt.Registry) error
 	}
 
 	if err := validate.FormatOf("reportByDate", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateOrderPayload) validateTac(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Tac) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("tac", "body", string(*m.Tac), 4); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("tac", "body", string(*m.Tac), 4); err != nil {
 		return err
 	}
 

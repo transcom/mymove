@@ -34,14 +34,12 @@ type MTOServiceItemDestSIT struct {
 	statusField MTOServiceItemStatus
 
 	// First available date that Prime can deliver SIT service item.
-	// Required: true
 	// Format: date
-	FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
+	FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1,omitempty"`
 
 	// Second available date that Prime can deliver SIT service item.
-	// Required: true
 	// Format: date
-	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
+	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 	// Service code allowed for this model type.
 	// Required: true
@@ -61,14 +59,12 @@ type MTOServiceItemDestSIT struct {
 	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-	// Required: true
 	// Pattern: \d{4}Z
-	TimeMilitary1 *string `json:"timeMilitary1"`
+	TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-	// Required: true
 	// Pattern: \d{4}Z
-	TimeMilitary2 *string `json:"timeMilitary2"`
+	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -155,14 +151,12 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// First available date that Prime can deliver SIT service item.
-		// Required: true
 		// Format: date
-		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
+		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1,omitempty"`
 
 		// Second available date that Prime can deliver SIT service item.
-		// Required: true
 		// Format: date
-		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
+		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
 		// Required: true
@@ -182,14 +176,12 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-		// Required: true
 		// Pattern: \d{4}Z
-		TimeMilitary1 *string `json:"timeMilitary1"`
+		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-		// Required: true
 		// Pattern: \d{4}Z
-		TimeMilitary2 *string `json:"timeMilitary2"`
+		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -267,14 +259,12 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 
 		// First available date that Prime can deliver SIT service item.
-		// Required: true
 		// Format: date
-		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1"`
+		FirstAvailableDeliveryDate1 *strfmt.Date `json:"firstAvailableDeliveryDate1,omitempty"`
 
 		// Second available date that Prime can deliver SIT service item.
-		// Required: true
 		// Format: date
-		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
+		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
 		// Required: true
@@ -294,14 +284,12 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
-		// Required: true
 		// Pattern: \d{4}Z
-		TimeMilitary1 *string `json:"timeMilitary1"`
+		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
-		// Required: true
 		// Pattern: \d{4}Z
-		TimeMilitary2 *string `json:"timeMilitary2"`
+		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 	}{
 
 		FirstAvailableDeliveryDate1: m.FirstAvailableDeliveryDate1,
@@ -479,8 +467,8 @@ func (m *MTOServiceItemDestSIT) validateStatus(formats strfmt.Registry) error {
 
 func (m *MTOServiceItemDestSIT) validateFirstAvailableDeliveryDate1(formats strfmt.Registry) error {
 
-	if err := validate.Required("firstAvailableDeliveryDate1", "body", m.FirstAvailableDeliveryDate1); err != nil {
-		return err
+	if swag.IsZero(m.FirstAvailableDeliveryDate1) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("firstAvailableDeliveryDate1", "body", "date", m.FirstAvailableDeliveryDate1.String(), formats); err != nil {
@@ -492,8 +480,8 @@ func (m *MTOServiceItemDestSIT) validateFirstAvailableDeliveryDate1(formats strf
 
 func (m *MTOServiceItemDestSIT) validateFirstAvailableDeliveryDate2(formats strfmt.Registry) error {
 
-	if err := validate.Required("firstAvailableDeliveryDate2", "body", m.FirstAvailableDeliveryDate2); err != nil {
-		return err
+	if swag.IsZero(m.FirstAvailableDeliveryDate2) { // not required
+		return nil
 	}
 
 	if err := validate.FormatOf("firstAvailableDeliveryDate2", "body", "date", m.FirstAvailableDeliveryDate2.String(), formats); err != nil {
@@ -583,8 +571,8 @@ func (m *MTOServiceItemDestSIT) validateSitEntryDate(formats strfmt.Registry) er
 
 func (m *MTOServiceItemDestSIT) validateTimeMilitary1(formats strfmt.Registry) error {
 
-	if err := validate.Required("timeMilitary1", "body", m.TimeMilitary1); err != nil {
-		return err
+	if swag.IsZero(m.TimeMilitary1) { // not required
+		return nil
 	}
 
 	if err := validate.Pattern("timeMilitary1", "body", string(*m.TimeMilitary1), `\d{4}Z`); err != nil {
@@ -596,8 +584,8 @@ func (m *MTOServiceItemDestSIT) validateTimeMilitary1(formats strfmt.Registry) e
 
 func (m *MTOServiceItemDestSIT) validateTimeMilitary2(formats strfmt.Registry) error {
 
-	if err := validate.Required("timeMilitary2", "body", m.TimeMilitary2); err != nil {
-		return err
+	if swag.IsZero(m.TimeMilitary2) { // not required
+		return nil
 	}
 
 	if err := validate.Pattern("timeMilitary2", "body", string(*m.TimeMilitary2), `\d{4}Z`); err != nil {

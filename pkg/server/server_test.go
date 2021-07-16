@@ -234,7 +234,11 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 		Certificates: certificates,
 		ClientCAs:    caCertPool,
 	})
-	defer srv.Close()
+	defer func() {
+		if srvCloseErr := srv.Close(); srvCloseErr != nil {
+			suite.logger.Error("Failed to close named server", zap.Error(srvCloseErr))
+		}
+	}()
 	suite.NoError(err)
 
 	// Start the Server
@@ -243,6 +247,16 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 	srv.WaitUntilReady()
 
 	// Send a request
+
+	//RA Summary: gosec - G402 - TLS MinVersion too low
+	//RA: The linter flagged this line of code because we are passing in a tlsVersion which could be deemed too low.
+	//RA: The code is part of a test function that tests TLS configuration with multiple TLS levels (currently 1.2 and 1.3).
+	//RA: It is executed as part of our test suite and is not included in the production system.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Validator: leodis.f.scott.civ@mail.mil
+	//RA Modified Severity: CAT III
+	// #nosec G402
 	clientTLSConfig := tls.Config{
 		RootCAs:      caCertPool,
 		Certificates: certificates,
@@ -267,7 +281,13 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 
 	// Check the TLS connection directly
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &clientTLSConfig)
-	defer conn.Close()
+
+	defer func() {
+		if connCloseErr := conn.Close(); connCloseErr != nil {
+			suite.logger.Error("Failed to close TLS connection", zap.Error(connCloseErr))
+		}
+	}()
+
 	suite.NoError(err)
 }
 
@@ -308,7 +328,11 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 		Certificates: certificates,
 		ClientCAs:    caCertPool,
 	})
-	defer srv.Close()
+	defer func() {
+		if srvCloseErr := srv.Close(); srvCloseErr != nil {
+			suite.logger.Error("Failed to close named server", zap.Error(srvCloseErr))
+		}
+	}()
 	suite.NoError(err)
 
 	// Start the Server
@@ -326,7 +350,9 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 
 	// Check the TLS connection directly
 	// This should fail and conn should be nil
-	config := tls.Config{}
+	config := tls.Config{
+		MinVersion: tls.VersionTLS13,
+	}
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
 	suite.Nil(conn)
 	suite.Error(err)
@@ -360,7 +386,12 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 		Certificates: certificates,
 		ClientCAs:    caCertPool,
 	})
-	defer srv.Close()
+	defer func() {
+		if srvCloseErr := srv.Close(); srvCloseErr != nil {
+			suite.logger.Error("Failed to close named server", zap.Error(srvCloseErr))
+		}
+	}()
+
 	suite.NoError(err)
 
 	// Start the Server
@@ -382,6 +413,7 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 	config := tls.Config{
 		RootCAs:      invalidCaCertPool,
 		Certificates: invalidCertificates,
+		MinVersion:   tls.VersionTLS13,
 	}
 	client := &http.Client{
 		Transport: &http.Transport{

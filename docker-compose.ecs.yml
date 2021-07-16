@@ -1,0 +1,84 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:12.4
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=dev_db
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: mymove
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: mymove
+
+  redis:
+    image: redis:5.0.6
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: mymove
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: mymove
+
+  milmove_migrate:
+    image: ${MILMOVE_MIGRATE_IMG}
+    env_file:
+      - config/env/review.app.env
+    environment:
+      - DB_HOST=127.0.0.1
+      - DB_DEBUG=0
+      - MIGRATION_PATH=file:///migrate/schema;file:///migrate/secure
+      - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
+      - MOVE_MIL_DOD_CA_CERT
+      - MOVE_MIL_DOD_TLS_CERT
+      - MOVE_MIL_DOD_TLS_KEY
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: mymove
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: mymove
+
+  milmove:
+    image: ${MILMOVE_IMG}
+    ports:
+      - '4000:4000'
+      - '9443:9443'
+    env_file:
+      - config/env/review.app.env
+    environment:
+      - DB_HOST=127.0.0.1
+      - CLIENT_AUTH_SECRET_KEY
+      - CSRF_AUTH_KEY
+      - DPS_AUTH_COOKIE_SECRET_KEY
+      - DPS_COOKIE_EXPIRES_IN_MINUTES
+      - HERE_MAPS_APP_CODE
+      - HERE_MAPS_APP_ID
+      - HERE_MAPS_GEOCODE_ENDPOINT
+      - HERE_MAPS_ROUTING_ENDPOINT
+      - HTTP_ADMIN_SERVER_NAME=admin-${REVIEW_BASE_DOMAIN}
+      - HTTP_MY_SERVER_NAME=my-${REVIEW_BASE_DOMAIN}
+      - HTTP_OFFICE_SERVER_NAME=office-${REVIEW_BASE_DOMAIN}
+      - HTTP_ORDERS_SERVER_NAME=orders-${REVIEW_BASE_DOMAIN}
+      - HTTP_PRIME_SERVER_NAME=prime-${REVIEW_BASE_DOMAIN}
+      - IWS_RBS_HOST
+      - LOGIN_GOV_ADMIN_CLIENT_ID
+      - LOGIN_GOV_CALLBACK_PROTOCOL
+      - LOGIN_GOV_HOSTNAME
+      - LOGIN_GOV_MY_CLIENT_ID
+      - LOGIN_GOV_OFFICE_CLIENT_ID
+      - LOGIN_GOV_SECRET_KEY
+      - MOVE_MIL_DOD_CA_CERT
+      - MOVE_MIL_DOD_TLS_CERT
+      - MOVE_MIL_DOD_TLS_KEY
+      - REDIS_HOST=127.0.0.1
+      - REVIEW_BASE_DOMAIN
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: mymove
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: mymove

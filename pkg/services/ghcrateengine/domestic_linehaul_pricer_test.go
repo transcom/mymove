@@ -2,10 +2,10 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -33,26 +33,27 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 	linehaulServicePricer := NewDomesticLinehaulPricer(suite.DB())
 
-	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success using PaymentServiceItemParams", func() {
 		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
 
-		if suite.Len(displayParams, 4) {
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameContractYearName, dlhTestContractYearName)
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameEscalationCompounded, FormatFloat(dlhTestEscalationCompounded, 5))
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNameIsPeak, FormatBool(dlhTestIsPeakPeriod))
-			suite.HasDisplayParam(displayParams, models.ServiceItemParamNamePriceRateOrFactor, FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3))
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dlhTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dlhTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dlhTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3)},
 		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success without PaymentServiceItemParams", func() {
 		priceCents, _, err := linehaulServicePricer.Price(dlhIsShortHaul, testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
 	})
 
-	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
+	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		_, _, err := linehaulServicePricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
@@ -60,22 +61,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
 	weightBilledActualIndex := 5
 	if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-		suite.T().Fatalf("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
+		suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
 	}
 	paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
-	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
+	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func() {
 		priceCents, _, err := linehaulServicePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
 		suite.Error(err)
 		suite.Equal("Weight must be at least 500", err.Error())
 		suite.Equal(unit.Cents(0), priceCents)
 	})
 
-	suite.T().Run("not finding a rate record", func(t *testing.T) {
+	suite.Run("not finding a rate record", func() {
 		_, _, err := linehaulServicePricer.Price(dlhIsShortHaul, "BOGUS", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
 	})
 
-	suite.T().Run("validation errors", func(t *testing.T) {
+	suite.Run("validation errors", func() {
 		// No contract code
 		_, _, err := linehaulServicePricer.Price(dlhIsShortHaul, "", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)

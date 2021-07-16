@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6 as builder
+FROM milmove/circleci-docker:milmove-app-75d11654ab683e5d8b7889aa02bfdcff25e1269f as builder
 
 ENV CIRCLECI=true
 
@@ -20,6 +20,7 @@ RUN rm -f bin/milmove && make bin/milmove
 # FINAL #
 #########
 
+# hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem

@@ -20,12 +20,6 @@ type HandlerSuite struct {
 	handlers.BaseHandlerTestSuite
 }
 
-// SetupTest sets up the test suite by preparing the DB
-func (suite *HandlerSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 // AfterTest completes tests by trying to close open files
 func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.TestFilesToClose() {
@@ -36,7 +30,8 @@ func (suite *HandlerSuite) AfterTest() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		file.Data.Close() // nolint:errcheck
+		// nolint:errcheck
+		file.Data.Close()
 	}
 }
 
@@ -48,7 +43,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("adminlocal", logger), testingsuite.CurrentPackage()),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("adminlocal", logger), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, hs)

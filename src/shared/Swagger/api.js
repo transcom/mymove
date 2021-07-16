@@ -1,7 +1,7 @@
 import Swagger from 'swagger-client';
 import * as Cookies from 'js-cookie';
+import { getInternalClient } from 'services/internalApi';
 
-let client = null;
 let publicClient = null;
 let ghcClient = null;
 
@@ -18,13 +18,7 @@ export const requestInterceptor = (req) => {
 };
 
 export async function getClient() {
-  if (!client) {
-    client = await Swagger({
-      url: '/internal/swagger.yaml',
-      requestInterceptor: requestInterceptor,
-    });
-  }
-  return client;
+  return await getInternalClient();
 }
 
 export async function getPublicClient() {

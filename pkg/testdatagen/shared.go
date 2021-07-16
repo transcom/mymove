@@ -3,11 +3,18 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"mime/multipart"
 	"os"
 	"path"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"time"
+
+	"github.com/go-openapi/runtime"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/random"
 
@@ -46,6 +53,7 @@ type Assertions struct {
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
 	MTOServiceItemDimension                  models.MTOServiceItemDimension
+	MTOServiceItemDimensionCrate             models.MTOServiceItemDimension
 	MTOServiceItemCustomerContact            models.MTOServiceItemCustomerContact
 	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification
@@ -72,6 +80,7 @@ type Assertions struct {
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
+	Role                                     roles.Role
 	SecondaryPickupAddress                   models.Address
 	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
@@ -94,6 +103,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	UsersRoles                               models.UsersRoles
 	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 	Zip3Distance                             models.Zip3Distance
@@ -181,14 +191,48 @@ func Fixture(name string) afero.File {
 		log.Panic(fmt.Errorf("failed to get current directory: %s", err))
 	}
 
+	// if this is called from inside another package remove so we're left with the parent dir
+	cwd = strings.Split(cwd, "pkg")[0]
+
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
-	// #nosec This will only be using test data
 	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
 		log.Panic(fmt.Errorf("Error opening local file: %v", err))
 	}
 
 	return file
+}
+
+// FixtureRuntimeFile allows us to include a fixture like a PDF in the test
+func FixtureRuntimeFile(name string) *runtime.File {
+	fixtureDir := "testdatagen/testdata"
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
+
+	file, err := os.Open(filepath.Clean(fixturePath))
+	if err != nil {
+		log.Panic("Error opening fixture file", zap.Error(err))
+	}
+
+	info, err := file.Stat()
+	if err != nil {
+		log.Panic("Error accessing fixture stats", zap.Error(err))
+	}
+
+	header := multipart.FileHeader{
+		Filename: info.Name(),
+		Size:     info.Size(),
+	}
+
+	returnFile := &runtime.File{
+		Header: &header,
+		Data:   file,
+	}
+	return returnFile
 }
 
 // customTransformer handles testing for zero values in structs that mergo can't normally deal with

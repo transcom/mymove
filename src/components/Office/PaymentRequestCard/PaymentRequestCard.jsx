@@ -31,7 +31,7 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
+const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
   const sortedShipments = groupByShipment(paymentRequest.serviceItems);
 
   // show details by default if in pending/needs review
@@ -162,13 +162,12 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
       {showDetails && (
         <div data-testid="toggleDrawer" className={styles.drawer}>
           {sortedShipments.map((serviceItems) => {
-            let shipmentAddress = '';
+            let selectedShipment = {};
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
             if (serviceItemShipmentID) {
-              shipmentAddress = shipmentAddresses.find((address) => address.mtoShipmentID === serviceItemShipmentID)
-                ?.shipmentAddress;
+              selectedShipment = shipmentsInfo.find((shipment) => shipment.mtoShipmentID === serviceItemShipmentID);
             }
 
             return (
@@ -176,7 +175,8 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
                 key={serviceItemShipmentID || 'basicServiceItems'}
                 className={styles.paymentRequestDetails}
                 serviceItems={serviceItems}
-                shipmentAddress={shipmentAddress}
+                shipment={selectedShipment}
+                paymentRequestStatus={paymentRequest.status}
               />
             );
           })}
@@ -189,7 +189,14 @@ const PaymentRequestCard = ({ paymentRequest, shipmentAddresses, history }) => {
 PaymentRequestCard.propTypes = {
   history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
-  shipmentAddresses: arrayOf(shape({ mtoShipmentId: PropTypes.string, shipmentAddress: PropTypes.string })).isRequired,
+  shipmentsInfo: arrayOf(
+    shape({
+      mtoShipmentID: PropTypes.string,
+      shipmentAddress: PropTypes.node,
+      departureDate: PropTypes.string,
+      shipmentModificationType: PropTypes.string,
+    }),
+  ).isRequired,
 };
 
 export default withRouter(PaymentRequestCard);

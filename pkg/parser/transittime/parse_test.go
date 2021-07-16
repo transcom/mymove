@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -172,7 +172,7 @@ var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int,
 }
 
 func (suite *TransitTimeParserSuite) helperTestSetup() []XlsxDataSheetInfo {
-	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax)
 
 	// 0:
 	xlsxDataSheets[0] = XlsxDataSheetInfo{

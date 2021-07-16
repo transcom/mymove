@@ -108,7 +108,8 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSliceWithinTransaction() {
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
-		suite.DB().Transaction(func(tx *pop.Connection) error { // nolint:errcheck
+		// nolint:errcheck
+		suite.DB().Transaction(func(tx *pop.Connection) error {
 			tableFromSliceCreator := NewTableFromSliceCreator(tx, suite.logger, true, true)
 			err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
 			suite.NoError(err)

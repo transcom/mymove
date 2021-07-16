@@ -26,7 +26,7 @@ func fetchDomesticServiceArea(db *pop.Connection, contractCode string, zip3 stri
 
 func distanceZip(planner route.Planner, pickupZip string, destinationZip string) (int, error) {
 	isShortHaul := isSameZip3(pickupZip, destinationZip)
-	if isShortHaul == true {
+	if isShortHaul {
 		return planner.Zip5TransitDistance(pickupZip, destinationZip)
 
 	}

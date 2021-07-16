@@ -14,14 +14,14 @@ import (
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
 	UserID                 *uuid.UUID           `json:"user_id" db:"user_id"`
-	User                   User                 `belongs_to:"user"`
+	User                   User                 `belongs_to:"user" fk_id:"user_id"`
 	LastName               string               `json:"last_name" db:"last_name"`
 	FirstName              string               `json:"first_name" db:"first_name"`
 	MiddleInitials         *string              `json:"middle_initials" db:"middle_initials"`
 	Email                  string               `json:"email" db:"email"`
 	Telephone              string               `json:"telephone" db:"telephone"`
 	TransportationOfficeID uuid.UUID            `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
+	TransportationOffice   TransportationOffice `belongs_to:"transportation_office" fk_id:"transportation_office_id"`
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 	Active                 bool                 `json:"active" db:"active"`

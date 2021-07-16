@@ -3,12 +3,22 @@ import { node, shape, arrayOf, func, string } from 'prop-types';
 import { Provider } from 'react-redux';
 import { createMemoryHistory } from 'history';
 import { ConnectedRouter } from 'connected-react-router';
+import { Router } from 'react-router-dom';
+/* eslint-disable-next-line import/no-extraneous-dependencies */
+import { render } from '@testing-library/react';
 
 import { configureStore } from 'shared/store';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export const createMockHistory = (initialEntries) => {
   return createMemoryHistory({ initialEntries });
+};
+
+export const renderWithRouter = (ui, { route = '/', history = createMockHistory([route]) } = {}) => {
+  return {
+    ...render(<Router history={history}>{ui}</Router>),
+    history,
+  };
 };
 
 export const MockProviders = ({ children, initialState, initialEntries, history }) => {

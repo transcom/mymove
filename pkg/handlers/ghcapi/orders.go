@@ -2,14 +2,15 @@ package ghcapi
 
 import (
 	"database/sql"
-	"time"
+	"errors"
 
-	"github.com/go-openapi/swag"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
 
@@ -46,60 +47,24 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 	return orderop.NewGetOrderOK().WithPayload(orderPayload)
 }
 
-// ListMoveTaskOrdersHandler fetches all the moves
-type ListMoveTaskOrdersHandler struct {
-	handlers.HandlerContext
-	services.MoveTaskOrderFetcher
-}
-
-// Handle getting the all moves
-func (h ListMoveTaskOrdersHandler) Handle(params orderop.ListMoveTaskOrdersParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	orderID, _ := uuid.FromString(params.OrderID.String())
-	moveTaskOrders, err := h.ListMoveTaskOrders(orderID, nil) // nil searchParams exclude disabled MTOs by default
-	if err != nil {
-		logger.Error("fetching all moves", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return orderop.NewListMoveTaskOrdersNotFound()
-		default:
-			return orderop.NewListMoveTaskOrdersInternalServerError()
-		}
-	}
-	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
-	for i, moveTaskOrder := range moveTaskOrders {
-		copyOfMto := moveTaskOrder // Make copy to avoid implicit memory aliasing of items from a range statement.
-		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&copyOfMto)
-	}
-	return orderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
-}
-
 // UpdateOrderHandler updates an order via PATCH /orders/{orderId}
 type UpdateOrderHandler struct {
 	handlers.HandlerContext
 	orderUpdater services.OrderUpdater
+	moveUpdater  services.MoveTaskOrderUpdater
+}
+
+func amendedOrdersRequiresApproval(params orderop.UpdateOrderParams, updatedOrder models.Order) bool {
+	return params.Body.OrdersAcknowledgement != nil &&
+		*params.Body.OrdersAcknowledgement &&
+		updatedOrder.UploadedAmendedOrdersID != nil &&
+		updatedOrder.AmendedOrdersAcknowledgedAt != nil
 }
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
-	orderID, err := uuid.FromString(params.OrderID.String())
-	if err != nil {
-		logger.Error("unable to parse order id param to uuid", zap.Error(err))
-		return orderop.NewUpdateOrderBadRequest()
-	}
-
-	newOrder, err := Order(*params.Body)
-	if err != nil {
-		logger.Error("error converting payload to order model", zap.Error(err))
-		return orderop.NewUpdateOrderBadRequest()
-	}
-	newOrder.ID = orderID
-
-	updatedOrder, err := h.orderUpdater.UpdateOrder(params.IfMatch, newOrder)
-
-	if err != nil {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
@@ -107,39 +72,44 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		case services.InvalidInputError:
 			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
+		case services.ConflictError:
+			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.PreconditionFailedError:
 			return orderop.NewUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return orderop.NewUpdateOrderInternalServerError()
 		}
 	}
 
-	// Find the record where orderID matches order.ID
-	var move models.Move
-	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
-	err = query.First(&move)
-
-	var moveID = move.ID
-
-	if err != nil {
-		logger.Error("ghcapi.UpdateOrderHandler could not find move")
-		moveID = uuid.Nil
+	if !session.IsOfficeUser() || (!session.Roles.HasRole(roles.RoleTypeTOO) && !session.Roles.HasRole(roles.RoleTypeTIO)) {
+		return handleError(services.NewForbiddenError("is not a TXO"))
 	}
 
-	// UpdateOrder event Trigger for the first updated move:
-	_, err = event.TriggerEvent(event.Event{
-		EndpointKey: event.GhcUpdateOrderEndpointKey,
-		// Endpoint that is being handled
-		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
-		UpdatedObjectID: updatedOrder.ID,           // ID of the updated logical object (look at what the payload returns)
-		MtoID:           moveID,                    // ID of the associated Move
-		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    h.DB(),                    // Pass on the pop.Connection
-		HandlerContext:  h,                         // Pass on the handlerContext
-	})
-	// If the event trigger fails, just log the error.
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(orderID, *params.Body, params.IfMatch)
 	if err != nil {
-		logger.Error("ghcapi.UpdateOrderHandler could not generate the event")
+		return handleError(err)
+	}
+
+	h.triggerUpdateOrderEvent(orderID, moveID, params)
+
+	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
+	if amendedOrdersRequiresApproval(params, *updatedOrder) {
+		moveRouter := move.NewMoveRouter(h.DB(), logger)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(moveID, updatedOrder.ID)
+		if approveErr != nil {
+			if errors.Is(approveErr, models.ErrInvalidTransition) {
+				return handleError(services.NewConflictError(moveID, approveErr.Error()))
+			}
+			return handleError(approveErr)
+		}
+
+		updateErr := h.moveUpdater.UpdateApprovedAmendedOrders(approvedMove)
+		if updateErr != nil {
+			handleError(updateErr)
+		}
 	}
 
 	orderPayload := payloads.Order(updatedOrder)
@@ -147,64 +117,212 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	return orderop.NewUpdateOrderOK().WithPayload(orderPayload)
 }
 
-// Order transforms UpdateOrderPayload to Order model
-func Order(payload ghcmessages.UpdateOrderPayload) (models.Order, error) {
+// CounselingUpdateOrderHandler updates an order via PATCH /counseling/orders/{orderId}
+type CounselingUpdateOrderHandler struct {
+	handlers.HandlerContext
+	orderUpdater services.OrderUpdater
+}
 
-	var originDutyStationID uuid.UUID
-	if payload.OriginDutyStationID != nil {
-		originDutyStationID = uuid.FromStringOrNil(payload.OriginDutyStationID.String())
+// Handle ... updates an order as requested by a services counselor
+func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error updating order", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return orderop.NewCounselingUpdateOrderNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewCounselingUpdateOrderForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewCounselingUpdateOrderInternalServerError()
+		}
 	}
 
-	newDutyStationID, err := uuid.FromString(payload.NewDutyStationID.String())
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		return handleError(services.NewForbiddenError("is not a Services Counselor"))
+	}
+
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(orderID, *params.Body, params.IfMatch)
 	if err != nil {
-		return models.Order{}, err
+		return handleError(err)
 	}
 
-	var departmentIndicator *string
-	if payload.DepartmentIndicator != nil {
-		departmentIndicator = (*string)(payload.DepartmentIndicator)
+	h.triggerCounselingUpdateOrderEvent(orderID, moveID, params)
+
+	orderPayload := payloads.Order(updatedOrder)
+
+	return orderop.NewCounselingUpdateOrderOK().WithPayload(orderPayload)
+}
+
+// UpdateAllowanceHandler updates an order and entitlements via PATCH /orders/{orderId}/allowances
+type UpdateAllowanceHandler struct {
+	handlers.HandlerContext
+	orderUpdater services.OrderUpdater
+}
+
+// Handle ... updates an order from a request payload
+func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error updating order allowance", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return orderop.NewUpdateAllowanceNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewUpdateAllowanceInternalServerError()
+		}
 	}
 
-	var grade *string
-	if payload.Grade != nil {
-		grade = (*string)(payload.Grade)
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
 	}
 
-	var entitlement models.Entitlement
-	if payload.AuthorizedWeight != nil {
-		entitlement.DBAuthorizedWeight = swag.Int(int(*payload.AuthorizedWeight))
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(orderID, *params.Body, params.IfMatch)
+	if err != nil {
+		return handleError(err)
 	}
 
-	if payload.DependentsAuthorized != nil {
-		entitlement.DependentsAuthorized = payload.DependentsAuthorized
+	h.triggerUpdatedAllowanceEvent(orderID, moveID, params)
+
+	orderPayload := payloads.Order(updatedOrder)
+
+	return orderop.NewUpdateAllowanceOK().WithPayload(orderPayload)
+}
+
+// CounselingUpdateAllowanceHandler updates an order and entitlements via PATCH /counseling/orders/{orderId}/allowances
+type CounselingUpdateAllowanceHandler struct {
+	handlers.HandlerContext
+	orderUpdater services.OrderUpdater
+}
+
+// Handle ... updates an order from a request payload
+func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdateAllowanceParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error updating order allowance", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return orderop.NewCounselingUpdateAllowanceNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewCounselingUpdateAllowanceForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewCounselingUpdateAllowanceInternalServerError()
+		}
 	}
 
-	var ordersTypeDetail *internalmessages.OrdersTypeDetail
-	if payload.OrdersTypeDetail != nil {
-		orderTypeDetail := internalmessages.OrdersTypeDetail(*payload.OrdersTypeDetail)
-		ordersTypeDetail = &orderTypeDetail
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+		return handleError(services.NewForbiddenError("is not a Services Counselor"))
 	}
 
-	var serviceMember models.ServiceMember
-	if payload.Agency != "" {
-		serviceMemberAffiliation := models.ServiceMemberAffiliation(payload.Agency)
-		serviceMember.Affiliation = &serviceMemberAffiliation
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(orderID, *params.Body, params.IfMatch)
+	if err != nil {
+		return handleError(err)
 	}
 
-	return models.Order{
-		ServiceMember:       serviceMember,
-		DepartmentIndicator: departmentIndicator,
-		Entitlement:         &entitlement,
-		Grade:               grade,
-		IssueDate:           time.Time(*payload.IssueDate),
-		NewDutyStationID:    newDutyStationID,
-		OrdersNumber:        payload.OrdersNumber,
-		OrdersType:          internalmessages.OrdersType(payload.OrdersType),
-		OrdersTypeDetail:    ordersTypeDetail,
-		OriginDutyStationID: &originDutyStationID,
-		ReportByDate:        time.Time(*payload.ReportByDate),
-		SAC:                 payload.Sac,
-		TAC:                 payload.Tac,
-	}, nil
+	h.triggerCounselingUpdateAllowanceEvent(orderID, moveID, params)
 
+	orderPayload := payloads.Order(updatedOrder)
+
+	return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload)
+}
+
+func (h UpdateOrderHandler) triggerUpdateOrderEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateOrderEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: orderID,                   // ID of the updated logical object
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateOrderHandler could not generate the event")
+	}
+}
+
+func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateOrderParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcCounselingUpdateOrderEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: orderID,                   // ID of the updated logical object
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateAllowanceHandler could not generate the event")
+	}
+}
+
+func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateAllowanceParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateAllowanceEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: orderID,                   // ID of the updated logical object
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateAllowanceHandler could not generate the event")
+	}
+}
+
+func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateAllowanceParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcCounselingUpdateAllowanceEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: orderID,                   // ID of the updated logical object
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
+	}
 }

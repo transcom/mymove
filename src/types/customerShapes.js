@@ -1,4 +1,4 @@
-import { arrayOf, bool, func, string, shape, object, number } from 'prop-types';
+import { arrayOf, bool, func, number, object, shape, string } from 'prop-types';
 
 import { AddressShape } from 'types/address';
 import { DutyStationShape } from 'types/dutyStation';
@@ -17,6 +17,8 @@ export const ServiceMemberShape = shape({
   personal_email: string,
   email_is_preferred: bool,
   phone_is_preferred: bool,
+  residential_address: AddressShape,
+  backup_mailing_address: AddressShape,
 });
 
 export const MoveShape = shape({
@@ -55,6 +57,10 @@ export const OrdersShape = shape({
     id: string,
     uploads: UploadsShape,
   }),
+  uploaded_amended_orders: shape({
+    id: string,
+    uploads: UploadsShape,
+  }),
 });
 
 export const DocumentShape = shape({});
@@ -82,11 +88,14 @@ export const MtoShipmentFormValuesShape = shape({
 export const MtoShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
+  counselorRemarks: string,
   shipmentType: string,
   requestedPickupDate: string,
   pickupAddress: AddressShape,
   requestedDeliveryDate: string,
   destinationAddress: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
+  secondaryPickupAddress: AddressShape,
 });
 
 export const HhgShipmentShape = MtoShipmentShape;

@@ -62,6 +62,28 @@ func (r DistanceZipLookup) lookup(keyData *ServiceItemParamKeyData) (string, err
 		return "", err
 	}
 
+	/*
+		errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
+		errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
+		if len(pickupZip) < 5 {
+			return "", services.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf(errorMsgForPickupZip), nil, errorMsgForPickupZip)
+		}
+		if len(destinationZip) < 5 {
+			return "", services.NewInvalidInputError(*mtoServiceItem.MTOShipmentID, fmt.Errorf(errorMsgForDestinationZip), nil, errorMsgForDestinationZip)
+		}
+
+		pickupZip3 := pickupZip[:3]
+		destinationZip3 := destinationZip[:3]
+		if pickupZip3 != destinationZip3 {
+			miles := unit.Miles(distanceMiles)
+			mtoShipment.Distance = &miles
+			err = db.Save(&mtoShipment)
+			if err != nil {
+				return "", err
+			}
+		}
+	*/
+
 	miles := unit.Miles(distanceMiles)
 	mtoShipment.Distance = &miles
 	err = db.Save(&mtoShipment)

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	// FeatureFlagAccessCode is the access-code feature flag
+	// FeatureFlagAccessCode determines whether or not service members are prompted for an access code before they start onboarding
 	FeatureFlagAccessCode string = "feature-flag-access-code"
 )
 

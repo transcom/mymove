@@ -1,3 +1,4 @@
+# hadolint ignore=DL3007
 FROM gcr.io/distroless/base:latest
 
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem

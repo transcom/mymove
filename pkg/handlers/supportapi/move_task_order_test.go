@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -153,39 +155,44 @@ func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+	})
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
 	params := move_task_order.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
-		IfMatch:         etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		MoveTaskOrderID: move.ID.String(),
+		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.MakeMoveTaskOrderAvailableOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+	moveResponse := response.(*movetaskorderops.MakeMoveTaskOrderAvailableOK)
+	movePayload := moveResponse.Payload
 
 	suite.Assertions.IsType(&move_task_order.MakeMoveTaskOrderAvailableOK{}, response)
-	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
+	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+	suite.NotNil(movePayload.AvailableToPrimeAt)
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
+		MoveTaskOrderID: move.ID.String(),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -194,12 +201,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+	suite.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
 
-	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
-	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Nil(moveTaskOrdersPayload.AvailableToPrimeAt)
+	moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+	movePayload := moveResponse.Payload
+	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+	suite.Nil(movePayload.AvailableToPrimeAt)
 }
 
 // moveTaskOrderPopulated function spot checks a few values in the Move, Orders, and Customer to
@@ -314,8 +321,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		//             New MTO and orders are created. MTO can be approved and marked as available to Prime.
 
 		// Let's copy the default mtoPayload so we don't affect the other tests:
-		var integrationMTO supportmessages.MoveTaskOrder
-		integrationMTO = *mtoPayload
+		integrationMTO := *mtoPayload
 
 		// We have to set the status for the orders to APPROVED and the move to SUBMITTED so that we can try to approve
 		// this move later on. We can't approve a DRAFT move.
@@ -350,11 +356,12 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			IfMatch:         createdMTO.ETag,
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
 

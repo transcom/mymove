@@ -60,6 +60,34 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 	suite.Equal(*fetchAccessCodePayload.Code, code)
 }
 
+func (suite *HandlerSuite) TestFetchAccessCodeHandler_Failure() {
+	// create user
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	// makes request
+	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request = suite.AuthenticateRequest(request, serviceMember)
+
+	params := accesscodeops.FetchAccessCodeParams{
+		HTTPRequest: request,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: true},
+	)
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&models.AccessCode{}, models.ErrFetchNotFound)
+
+	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	response := handler.Handle(params)
+
+	fetchAccessCodeResponse := response.(*accesscodeops.FetchAccessCodeNotFound)
+	suite.Assertions.IsType(&accesscodeops.FetchAccessCodeNotFound{}, fetchAccessCodeResponse)
+}
+
 func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 	// create user
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())

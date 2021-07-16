@@ -1,5 +1,11 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faQuestionCircle, faCheckCircle, faTimesCircle, faCalendar } from '@fortawesome/free-regular-svg-icons';
+import {
+  faQuestionCircle,
+  faCheckCircle,
+  faTimesCircle,
+  faCalendar,
+  faUser,
+} from '@fortawesome/free-regular-svg-icons';
 import {
   faQuestionCircle as fasFaQuestionCircle,
   faFile,
@@ -38,6 +44,13 @@ import {
   faCaretDown,
   faCopy,
   faEquals,
+  faPencilAlt,
+  faWeightHanging,
+  faTruckMoving,
+  faCar,
+  faHandHoldingUsd,
+  faFilePdf,
+  faFileImage,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -82,4 +95,12 @@ library.add(
   faCalendar,
   faCopy,
   faEquals,
+  faUser,
+  faPencilAlt,
+  faWeightHanging,
+  faTruckMoving,
+  faCar,
+  faHandHoldingUsd,
+  faFilePdf,
+  faFileImage,
 );

@@ -6,7 +6,7 @@ import { Label, Fieldset } from '@trussworks/react-uswds';
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField';
-import CheckboxField from 'components/form/fields/CheckboxField';
+import { CheckboxField } from 'components/form/fields';
 
 export const CustomerContactInfoFields = ({ legend, className, render }) => {
   const CustomerContactInfoFieldsUUID = useRef(uuidv4());
@@ -24,7 +24,6 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
-                useMaskedValue
                 required
               />
             </div>

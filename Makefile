@@ -24,7 +24,10 @@ ifeq ($(USE_AWS),true)
 endif
 
 # Convenience for LDFLAGS
-WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
+GIT_BRANCH ?= $(shell git branch | grep \* | cut -d ' ' -f2)
+GIT_COMMIT ?= $(shell git rev-list -1 HEAD)
+export GIT_BRANCH GIT_COMMIT
+WEBSERVER_LDFLAGS=-X main.gitBranch=$(GIT_BRANCH) -X main.gitCommit=$(GIT_COMMIT)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
 DB_PORT_TEST=5433
@@ -129,6 +132,10 @@ diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on enviro
 check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
+.PHONY: check_app
+check_app: ## Make sure you're running the correct APP
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 #
 # ----- END CHECK TARGETS -----
 #
@@ -189,19 +196,19 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/gin: .check_go_version.stamp .check_gopath.stamp
+bin/gin: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
-bin/soda: .check_go_version.stamp .check_gopath.stamp
+bin/soda: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v5/soda
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
-bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
+bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
 	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
 # No static linking / $(LDFLAGS) because mockery is only used for testing
-bin/mockery: .check_go_version.stamp .check_gopath.stamp
-	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
+bin/mockery: .check_go_version.stamp .check_gopath.stamp pkg/tools/tools.go
+	go build -o bin/mockery github.com/vektra/mockery/v2
 
 ### Cert Targets
 
@@ -394,8 +401,11 @@ endif
 mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
+.PHONY: server_test_setup
+server_test_setup: db_test_reset db_test_migrate redis_reset db_test_truncate
+
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate redis_reset server_test_standalone ## Run server unit tests
+server_test: server_test_setup server_test_standalone ## Run server unit tests
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
@@ -513,18 +523,17 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
 .PHONY: db_dev_fresh
-db_dev_fresh: db_dev_reset db_dev_migrate
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
+db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
-.PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
+.PHONY: db_dev_truncate
+db_dev_truncate: ## Truncate dev db
 	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
+.PHONY: db_dev_e2e_populate
+db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
@@ -536,11 +545,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
-db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -651,6 +656,16 @@ db_test_run: db_test_start db_test_create ## Run Test DB
 .PHONY: db_test_reset
 db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
 
+.PHONY: db_test_truncate
+db_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database..."
+	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
+
+.PHONY: db_e2e_test_truncate
+db_e2e_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -720,11 +735,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
-db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
@@ -734,6 +745,18 @@ rerun_e2e_tests_with_new_data: db_e2e_up
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+
+.PHONY: db_dev_e2e_backup
+db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-backup e2e_dev
+
+.PHONY: db_dev_e2e_restore
+db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-restore e2e_dev
+
+.PHONY: db_dev_e2e_cleanup
+db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
+	./scripts/db-cleanup e2e_dev
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -1038,7 +1061,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-990c528cc6bfd9e9693fa28aae500d0f577075f6
+	docker pull milmove/circleci-docker:milmove-app-75d11654ab683e5d8b7889aa02bfdcff25e1269f
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images
@@ -1098,6 +1121,20 @@ schemaspy: db_test_reset db_test_migrate ## Generates database documentation usi
 		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
 		-norows -nopages
 	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
+
+.PHONY: reviewapp_docker
+reviewapp_docker:
+	docker-compose -f docker-compose.reviewapp.yml up
+
+.PHONY: reviewapp_docker_build
+reviewapp_docker_build:
+# remove bin to maybe speed up docker builds by removing it from
+# docker context
+	rm -rf ./bin
+	docker-compose -f docker-compose.reviewapp.yml build
+
+reviewapp_docker_destroy:
+	docker-compose -f docker-compose.reviewapp.yml down
 
 #
 # ----- END RANDOM TARGETS -----
