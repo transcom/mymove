@@ -23,7 +23,6 @@ export class LogoutOnInactivity extends React.Component {
     this.idleTimer = null;
     this.onActive = this.onActive.bind(this);
     this.onIdle = this.onIdle.bind(this);
-    this.loggedOut = false;
 
     this.state = {
       isIdle: false,
@@ -48,9 +47,8 @@ export class LogoutOnInactivity extends React.Component {
     const { timeLeftInSeconds } = this.state;
     const { history } = this.props;
 
-    if (timeLeftInSeconds === 0 && !this.loggedOut) {
+    if (timeLeftInSeconds === 0) {
       LogoutUser().then(() => {
-        this.loggedOut = true;
         history.push({
           pathname: '/sign-in',
           state: { timedout: true },
@@ -67,7 +65,7 @@ export class LogoutOnInactivity extends React.Component {
 
     return (
       <>
-        {isLoggedIn && !this.loggedOut && (
+        {isLoggedIn && (
           <IdleTimer
             ref={(ref) => {
               this.idleTimer = ref;
