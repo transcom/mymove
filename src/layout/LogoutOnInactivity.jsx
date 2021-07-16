@@ -48,10 +48,9 @@ export class LogoutOnInactivity extends React.Component {
     const { timeLeftInSeconds } = this.state;
     const { history } = this.props;
 
-    // this needs to be changed
     if (timeLeftInSeconds === 0 && !this.loggedOut) {
       LogoutUser().then(() => {
-        // this.loggedOut = true;
+        this.loggedOut = true;
         history.push({
           pathname: '/sign-in',
           state: { timedout: true },
