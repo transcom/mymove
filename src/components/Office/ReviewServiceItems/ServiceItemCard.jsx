@@ -40,7 +40,9 @@ const ServiceItemCard = ({
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const toggleCalculations =
-    allowedServiceItemCalculations.includes(mtoServiceItemCode) && paymentServiceItemParams.length > 0 ? (
+    mtoServiceItemCode &&
+    allowedServiceItemCalculations.includes(mtoServiceItemCode) &&
+    paymentServiceItemParams.length > 0 ? (
       <>
         <Button
           className={styles.toggleCalculations}
@@ -322,7 +324,7 @@ const ServiceItemCard = ({
 
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
-  mtoServiceItemCode: PropTypes.string.isRequired,
+  mtoServiceItemCode: PropTypes.string,
   mtoShipmentType: ShipmentOptionsOneOf,
   mtoShipmentDepartureDate: PropTypes.string,
   mtoShipmentDestinationAddress: PropTypes.node,
@@ -338,6 +340,7 @@ ServiceItemCard.propTypes = {
 };
 
 ServiceItemCard.defaultProps = {
+  mtoServiceItemCode: null,
   mtoShipmentType: null,
   mtoShipmentDepartureDate: '',
   mtoShipmentDestinationAddress: '',

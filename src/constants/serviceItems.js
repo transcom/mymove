@@ -19,6 +19,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   NumberDaysSIT: 'NumberDaysSIT',
   OriginPrice: 'OriginPrice',
   PriceRateOrFactor: 'PriceRateOrFactor',
+  RequestedDeliveryDate: 'RequestedDeliveryDate',
   RequestedPickupDate: 'RequestedPickupDate',
   ServiceAreaDest: 'ServiceAreaDest',
   ServiceAreaOrigin: 'ServiceAreaOrigin',
@@ -64,6 +65,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   BaselineShorthaulPrice: 'Baseline shorthaul price',
   BillableWeight: 'Billable weight (cwt)',
   DaysInSIT: 'Days in SIT',
+  DeliveryDate: 'Delivery date',
+  DestinationSchedule: 'Destination schedule',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   Mileage: 'Mileage',
@@ -93,6 +96,7 @@ const SERVICE_ITEM_CODES = {
   DSH: 'DSH',
   DUPK: 'DUPK',
   FSC: 'FSC',
+  DDSHUT: 'DDSHUT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -111,6 +115,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DSH,
   SERVICE_ITEM_CODES.DUPK,
   SERVICE_ITEM_CODES.FSC,
+  SERVICE_ITEM_CODES.DDSHUT,
 ];
 
 export {
