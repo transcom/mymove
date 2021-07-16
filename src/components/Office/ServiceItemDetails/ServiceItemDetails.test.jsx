@@ -14,6 +14,8 @@ const details = {
   estimatedWeight: 2500,
 };
 
+const detailsRejectedServiceItem = { ...details, rejectionReason: 'some rejection reason' };
+
 const nilDetails = {
   estimatedWeight: null,
 };
@@ -72,5 +74,18 @@ describe('ServiceItemDetails Domestic Shuttling', () => {
 
     expect(screen.getByText('— lbs')).toBeInTheDocument();
     expect(screen.getByText('estimated weight')).toBeInTheDocument();
+  });
+});
+
+describe('ServiceItemDetails Crating Rejected', () => {
+  it('renders the rejection reason field when it is populated with information', () => {
+    render(<ServiceItemDetails id="1" code="DCRT" details={detailsRejectedServiceItem} />);
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('some rejection reason')).toBeInTheDocument();
   });
 });

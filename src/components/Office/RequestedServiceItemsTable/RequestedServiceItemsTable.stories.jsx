@@ -79,10 +79,17 @@ const serviceItems = [
 ];
 
 const approvedServiceItems = serviceItems.map((serviceItem) => {
-  return { ...serviceItem, status: 'APPROVED' };
+  return {
+    ...serviceItem,
+    status: 'APPROVED',
+  };
 });
 const rejectedServiceItems = serviceItems.map((serviceItem) => {
-  return { ...serviceItem, status: 'REJECTED' };
+  return {
+    ...serviceItem,
+    status: 'REJECTED',
+    details: { ...serviceItem.details, rejectionReason: 'Here is a reason for rejection' },
+  };
 });
 
 export const Default = () => (

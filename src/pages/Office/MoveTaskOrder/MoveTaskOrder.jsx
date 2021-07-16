@@ -86,6 +86,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
         secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
         estimatedWeight: item.estimatedWeight,
+        rejectionReason: item.rejectionReason,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
