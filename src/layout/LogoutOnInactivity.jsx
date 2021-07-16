@@ -61,6 +61,7 @@ export class LogoutOnInactivity extends React.Component {
 
   render() {
     const { isLoggedIn } = this.props;
+
     const { isIdle, timeLeftInSeconds } = this.state;
 
     return (
