@@ -144,7 +144,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 
 		suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
-		suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+		suite.Equal(strfmt.UUID(move.ID.String()), movePayload.ID)
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 

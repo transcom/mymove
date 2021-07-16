@@ -281,17 +281,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		updatedMove, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, true)
 
 		suite.NoError(err)
-		err = suite.DB().Find(&fetchedMove, move.ID)
-		suite.NoError(err)
-		suite.NotNil(fetchedMove.AvailableToPrimeAt)
 		suite.NotNil(updatedMove.AvailableToPrimeAt)
-		suite.Equal(models.MoveStatusAPPROVED, fetchedMove.Status)
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
 		suite.Len(serviceItems, 2, "Expected to find at most 2 service items")
 		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeMS), "Expected to find reServiceCode, MS, in array.")
 		suite.True(suite.containsServiceCode(serviceItems, models.ReServiceCodeCS), "Expected to find reServiceCode, CS, in array.")
+		err = suite.DB().Find(&fetchedMove, move.ID)
+		suite.NoError(err)
+		suite.NotNil(fetchedMove.AvailableToPrimeAt)
+		suite.Equal(models.MoveStatusAPPROVED, fetchedMove.Status)
 	})
 
 	suite.Run("Makes move available to Prime and only creates Move management when it's the only one specified", func() {

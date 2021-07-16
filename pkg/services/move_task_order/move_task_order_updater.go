@@ -159,7 +159,10 @@ func (o *moveTaskOrderUpdater) updateMove(tx *pop.Connection, move models.Move, 
 func (o *moveTaskOrderUpdater) createServiceItem(tx *pop.Connection, move models.Move, code models.ReServiceCode) error {
 	now := time.Now()
 
-	_, verrs, err := o.serviceItemCreator.CreateMTOServiceItem(&models.MTOServiceItem{
+	siCreator := o.serviceItemCreator
+	siCreator.SetConnection(tx)
+
+	_, verrs, err := siCreator.CreateMTOServiceItem(&models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
 		MTOShipmentID:   nil,
 		ReService:       models.ReService{Code: code},
@@ -174,17 +177,11 @@ func (o *moveTaskOrderUpdater) createServiceItem(tx *pop.Connection, move models
 		return err
 	}
 
-	if verrs != nil {
-		return verrs
-	}
-
-	verrs, err = tx.ValidateAndUpdate(&move)
-
 	if verrs != nil && verrs.HasAny() {
 		return services.NewInvalidInputError(move.ID, nil, verrs, "")
 	}
 
-	return err
+	return nil
 }
 
 // UpdateMoveTaskOrderQueryBuilder is the query builder for updating MTO
