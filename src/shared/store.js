@@ -14,6 +14,7 @@ import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
 import rootSaga, { rootCustomerSaga } from 'sagas/index';
+import { interceptorInjectionMiddleware } from 'store/interceptor/injectionMiddleware';
 
 export const history = createBrowserHistory();
 
@@ -27,7 +28,12 @@ function appSelector() {
 
 export const configureStore = (history, initialState = {}) => {
   const sagaMiddleware = createSagaMiddleware();
-  const middlewares = [thunk.withExtraArgument({ schema }), routerMiddleware(history), sagaMiddleware];
+  const middlewares = [
+    thunk.withExtraArgument({ schema }),
+    routerMiddleware(history),
+    sagaMiddleware,
+    interceptorInjectionMiddleware,
+  ];
 
   if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
     middlewares.push(logger);
