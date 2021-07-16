@@ -349,11 +349,6 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
-			err := h.sessionManager(session).Destroy(r.Context())
-			if err != nil {
-				h.logger.Error("failed to destroy session")
-			}
-
 			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, redirectURL)
 		}
