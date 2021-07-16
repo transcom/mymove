@@ -330,6 +330,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// All users logged in via devlocal-auth will have this IDToken. We
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
+			fmt.Println("🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠")
 			if session.IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
