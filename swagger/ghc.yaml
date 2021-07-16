@@ -2560,7 +2560,6 @@ definitions:
     type: string
     enum:
       - ActualPickupDate
-      - CanStandAlone
       - ContractCode
       - ContractYearName
       - CubicFeetBilled

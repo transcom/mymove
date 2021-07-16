@@ -95,7 +95,10 @@ PaymentRequestDetails.propTypes = {
   serviceItems: PropTypes.arrayOf(PaymentServiceItemShape).isRequired,
   shipment: PropTypes.shape({
     address: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
-    modificationType: PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    modificationType: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.oneOf(Object.values(shipmentModificationTypes)),
+    ]),
     departureDate: PropTypes.string,
   }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
