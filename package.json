@@ -127,7 +127,7 @@
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "^7.0.1",
     "@testing-library/user-event": "^13.1.9",
-    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.2",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
     "@zeplin/cli": "1.1.12",
     "@zeplin/cli-connect-react-plugin": "1.1.1",
     "@zeplin/cli-connect-storybook-plugin": "^0.5.4",

@@ -166,7 +166,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
-            if (serviceItemShipmentID) {
+            if (serviceItemShipmentID && shipmentsInfo) {
               selectedShipment = shipmentsInfo.find((shipment) => shipment.mtoShipmentID === serviceItemShipmentID);
             }
 
@@ -196,7 +196,11 @@ PaymentRequestCard.propTypes = {
       departureDate: PropTypes.string,
       shipmentModificationType: PropTypes.string,
     }),
-  ).isRequired,
+  ),
+};
+
+PaymentRequestCard.defaultProps = {
+  shipmentsInfo: [],
 };
 
 export default withRouter(PaymentRequestCard);
