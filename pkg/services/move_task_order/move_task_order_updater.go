@@ -84,7 +84,10 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(moveTaskOrd
 	return move, nil
 }
 
-//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
+// MakeAvailableToPrime approves a Move, makes it available to prime, and
+// creates Move-level service items (counseling and move management) if the
+// TOO selected them. If the move received service counseling, the counseling
+// service item will automatically be created without the TOO having to select it.
 func (o *moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string,
 	includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
 
@@ -116,11 +119,9 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, e
 				return err
 			}
 
-			// When provided, this will auto create and approve MTO level service items. This is going to typically happen
-			// from the ghc api via the office app. The handler in question is this one: UpdateMoveTaskOrderStatusHandlerFunc
-			// in ghcapi/move_task_order.go
+			// When provided, this will create and approve these Move-level service items.
 			if includeServiceCodeMS {
-				err = o.createServiceItem(tx, *move, models.ReServiceCodeMS)
+				err = o.createMoveLevelServiceItem(tx, *move, models.ReServiceCodeMS)
 			}
 
 			if err != nil {
@@ -128,7 +129,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, e
 			}
 
 			if includeServiceCodeCS {
-				err = o.createServiceItem(tx, *move, models.ReServiceCodeCS)
+				err = o.createMoveLevelServiceItem(tx, *move, models.ReServiceCodeCS)
 			}
 
 			return err
@@ -156,7 +157,7 @@ func (o *moveTaskOrderUpdater) updateMove(tx *pop.Connection, move models.Move, 
 	return err
 }
 
-func (o *moveTaskOrderUpdater) createServiceItem(tx *pop.Connection, move models.Move, code models.ReServiceCode) error {
+func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(tx *pop.Connection, move models.Move, code models.ReServiceCode) error {
 	now := time.Now()
 
 	siCreator := o.serviceItemCreator
