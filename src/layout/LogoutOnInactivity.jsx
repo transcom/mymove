@@ -9,7 +9,7 @@ import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
 import { HistoryShape } from 'types/customerShapes';
 
-const maxIdleTimeInSeconds = 15 * 60;
+const maxIdleTimeInSeconds = 1 * 60;
 const maxWarningTimeBeforeTimeoutInSeconds = 60;
 const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
 const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;
@@ -23,6 +23,7 @@ export class LogoutOnInactivity extends React.Component {
     this.idleTimer = null;
     this.onActive = this.onActive.bind(this);
     this.onIdle = this.onIdle.bind(this);
+    this.loggedOut = false;
 
     this.state = {
       isIdle: false,
@@ -44,11 +45,14 @@ export class LogoutOnInactivity extends React.Component {
   };
 
   countdown = () => {
+    // let isLoggedOut = false;
     const { timeLeftInSeconds } = this.state;
     const { history } = this.props;
 
-    if (timeLeftInSeconds === 0) {
+    // this needs to be changed
+    if (timeLeftInSeconds === 0 && !this.loggedOut) {
       LogoutUser().then(() => {
+        this.loggedOut = true;
         history.push({
           pathname: '/sign-in',
           state: { timedout: true },
@@ -61,12 +65,11 @@ export class LogoutOnInactivity extends React.Component {
 
   render() {
     const { isLoggedIn } = this.props;
-
     const { isIdle, timeLeftInSeconds } = this.state;
 
     return (
       <>
-        {isLoggedIn && (
+        {isLoggedIn && !this.loggedOut && (
           <IdleTimer
             ref={(ref) => {
               this.idleTimer = ref;

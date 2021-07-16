@@ -323,22 +323,16 @@ func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
-	// fmt.Sprintln("IN LOGOUT HANDLER 🍇🍇🍇🍇🍇🍇")
-	// fmt.Sprintln("SESSION")
-	// fmt.Printf("%+v\n", session)
 	if session != nil {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
-			// fmt.Sprintln("THERE IS AN ID TOKEN 🍑🍑🍑🍑")
 			var logoutURL string
 			// All users logged in via devlocal-auth will have this IDToken. We
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
 			if session.IDToken == "devlocal" {
-				// fmt.Sprintln("DEVLOCAL")
 				logoutURL = redirectURL
 			} else {
-				// fmt.Sprintln("NOT DEV LOCAL")
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 				fmt.Sprintln(logoutURL)
 			}
@@ -355,7 +349,11 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
-			// fmt.Println("NO SESSION IDToken 🍉🍉🍉🍉🍉🍉")
+			err := h.sessionManager(session).Destroy(r.Context())
+			if err != nil {
+				h.logger.Error("failed to destroy session")
+			}
+
 			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, redirectURL)
 		}
@@ -364,7 +362,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
 const loginStateCookieName = "lg_state"
-const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
+const loginStateCookieTTLInSecs = 120 // 30 mins to transit through login.gov.
 
 // RedirectHandler handles redirection
 type RedirectHandler struct {
@@ -415,12 +413,8 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 		Secure:   h.UseSecureCookie,
 	}
-	// fmt.Println("STATE COOOKIE 🍋🍋🍋🍋🍋")
-	// fmt.Println(&stateCookie)
+
 	http.SetCookie(w, &stateCookie)
-	// fmt.Println("REDIRECT URL 🍉🍉🍉🍉")
-	// fmt.Println(loginData.RedirectURL)
-	// Error is thrown here
 	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
 }
 
