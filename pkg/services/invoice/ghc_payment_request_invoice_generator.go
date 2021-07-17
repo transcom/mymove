@@ -275,6 +275,15 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		InterchangeControlNumber:         interchangeControlNumber,
 	}
 
+	if moveTaskOrder.Orders.SAC == nil || *moveTaskOrder.Orders.SAC == "" {
+		return ediinvoice.Invoice858C{}, services.NewConflictError(moveTaskOrder.Orders.ID, "Invalid order. Must have a SAC value")
+	}
+
+	edi858.FA2 = edisegment.FA2{
+		BreakdownStructureDetailCode: "ZZ",
+		FinancialInformationCode:     *moveTaskOrder.Orders.SAC,
+	}
+
 	return edi858, nil
 }
 

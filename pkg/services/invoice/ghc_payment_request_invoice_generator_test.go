@@ -95,7 +95,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	}
 
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			SAC: models.StringPointer("1234"),
+		},
+	})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -623,7 +627,11 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 			Value:   testdatagen.DefaultContractCode,
 		},
 	}
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			SAC: models.StringPointer("1234"),
+		},
+	})
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		PaymentRequest: models.PaymentRequest{
@@ -753,6 +761,34 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
+	})
+
+	suite.T().Run("nil SAC does not cause panic", func(t *testing.T) {
+		oldSAC := nilPaymentRequest.MoveTaskOrder.Orders.SAC
+		nilPaymentRequest.MoveTaskOrder.Orders.SAC = nil
+		suite.NotPanics(panicFunc)
+		nilPaymentRequest.MoveTaskOrder.Orders.SAC = oldSAC
+	})
+
+	suite.T().Run("nil SAC returns error", func(t *testing.T) {
+		oldSAC := nilPaymentRequest.MoveTaskOrder.Orders.SAC
+		nilPaymentRequest.MoveTaskOrder.Orders.SAC = nil
+		_, err := generator.Generate(nilPaymentRequest, false)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a SAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
+		nilPaymentRequest.MoveTaskOrder.Orders.SAC = oldSAC
+	})
+
+	suite.T().Run("empty SAC returns error", func(t *testing.T) {
+		oldSAC := nilPaymentRequest.MoveTaskOrder.Orders.SAC
+		blank := ""
+		nilPaymentRequest.MoveTaskOrder.Orders.SAC = &blank
+		_, err := generator.Generate(nilPaymentRequest, false)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a SAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
+		nilPaymentRequest.MoveTaskOrder.Orders.SAC = oldSAC
 	})
 
 	suite.T().Run("nil country for NewDutyStation does not cause panic", func(t *testing.T) {

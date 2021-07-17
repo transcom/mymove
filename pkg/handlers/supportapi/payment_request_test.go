@@ -308,6 +308,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			PaymentServiceItem: models.PaymentServiceItem{
 				Status: models.PaymentServiceItemStatusApproved,
 			},
+			Order: models.Order{
+				SAC: models.StringPointer("1234"),
+			},
 		},
 	)
 
