@@ -4,12 +4,13 @@ import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 import { withRouter } from 'react-router-dom';
 
+import { logOut as logOutAction } from 'store/auth/actions';
 import { selectIsLoggedIn } from 'store/auth/selectors';
 import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
 import { HistoryShape } from 'types/customerShapes';
 
-const maxIdleTimeInSeconds = 15 * 60;
+const maxIdleTimeInSeconds = 1 * 60;
 const maxWarningTimeBeforeTimeoutInSeconds = 60;
 const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
 const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;
@@ -27,6 +28,7 @@ export class LogoutOnInactivity extends React.Component {
     this.state = {
       isIdle: false,
       timeLeftInSeconds: maxWarningTimeBeforeTimeoutInSeconds,
+      loggedIn: true,
     };
   }
 
@@ -44,11 +46,13 @@ export class LogoutOnInactivity extends React.Component {
   };
 
   countdown = () => {
-    const { timeLeftInSeconds } = this.state;
-    const { history } = this.props;
+    const { timeLeftInSeconds, loggedIn } = this.state;
+    const { history, logOut } = this.props;
 
-    if (timeLeftInSeconds === 0) {
+    if (timeLeftInSeconds === 0 && loggedIn) {
       LogoutUser().then(() => {
+        this.setState({ loggedIn: false });
+        logOut();
         history.push({
           pathname: '/sign-in',
           state: { timedout: true },
@@ -93,6 +97,7 @@ export class LogoutOnInactivity extends React.Component {
 LogoutOnInactivity.propTypes = {
   isLoggedIn: PropTypes.bool,
   history: HistoryShape.isRequired,
+  logOut: PropTypes.func.isRequired,
 };
 
 LogoutOnInactivity.defaultProps = {
@@ -105,4 +110,8 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withRouter(connect(mapStateToProps)(LogoutOnInactivity));
+const mapDispatchToProps = {
+  logOut: logOutAction,
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LogoutOnInactivity));
