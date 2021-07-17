@@ -246,8 +246,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				createDimension := &requestedServiceItem.Dimensions[index]
 				createDimension.MTOServiceItemID = requestedServiceItem.ID
 				verrs, err = txBuilder.CreateOne(createDimension)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
+				if verrs != nil && verrs.HasAny() {
+					return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
+				}
+				if err != nil {
+					return fmt.Errorf("%e", err)
 				}
 			}
 
