@@ -70,6 +70,8 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 	remote := v.GetString(GEXSFTPIPAddressFlag)
 	port := v.GetString(GEXSFTPPortFlag)
 
+	CheckOutboundIP(logger)
+
 	logger.Info("Parsing GEX SFTP host key...")
 	hostKey, _, _, _, err := ssh.ParseAuthorizedKey([]byte(hostKeyString))
 	if err != nil {
@@ -85,10 +87,11 @@ func InitGEXSSH(v *viper.Viper, logger Logger) (*ssh.Client, error) {
 		},
 		HostKeyCallback: ssh.FixedHostKey(hostKey),
 	}
-
 	// Connect to SSH client
 	address := remote + ":" + port
-	logger.Info("Connecting to GEX SSH...", zap.String("address", address))
+
+	logger.Info("Connecting to GEX SSH...", zap.String("destination_address", address))
+
 	sshClient, err := ssh.Dial("tcp", address, config)
 	if err != nil {
 		logger.Error("Failed to connect to GEX SSH", zap.Error(err))
