@@ -30,6 +30,12 @@ const MaskedTextField = ({
         {label}
       </Label>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
+      {!!warning && !hasError && (
+        <p className="usa-hint" data-testid="textInputWarning">
+          {warning}
+        </p>
+      )}
+
       {/* eslint-disable react/jsx-props-no-spreading */}
       <IMaskInput
         className="usa-input"
@@ -47,12 +53,6 @@ const MaskedTextField = ({
         {...props}
       />
       {/* eslint-enable react/jsx-props-no-spreading */}
-
-      {!!warning && !hasError && (
-        <p className="usa-hint" data-testid="textInputWarning">
-          {warning}
-        </p>
-      )}
     </FormGroup>
   );
 };

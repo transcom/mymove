@@ -170,11 +170,10 @@ export const KitchenSinkForm = () => (
       <Checkbox label="A checkbox" />
 
       <Label>Text Input 2 Label</Label>
-      <TextInput />
-
       <Hint>
         <p>Some arbitrary hint text at the end of this fieldset</p>
       </Hint>
+      <TextInput />
     </Fieldset>
     <Fieldset legend="Fieldset containing multiple fields in form groups">
       <FormGroup>
@@ -238,11 +237,10 @@ export const KitchenSinkForm = () => (
         <Checkbox label="A checkbox" />
 
         <Label>Text Input 2 Label</Label>
-        <TextInput />
-
         <Hint>
           <p>Some arbitrary hint text at the end of this fieldset</p>
         </Hint>
+        <TextInput />
       </Fieldset>
 
       <Fieldset legend="Fieldset containing multiple fields in form groups">
@@ -325,11 +323,10 @@ export const KitchenSinkFormWithErrors = () => (
       <Checkbox error label="A checkbox" />
 
       <Label error>Text Input 2 Label</Label>
-      <TextInput error />
-
       <Hint>
         <p>Some arbitrary hint text at the end of this fieldset</p>
       </Hint>
+      <TextInput error />
     </Fieldset>
     <Fieldset legend="Fieldset containing multiple fields in form groups">
       <FormGroup error>
@@ -393,11 +390,10 @@ export const KitchenSinkFormWithErrors = () => (
         <Checkbox error label="A checkbox" />
 
         <Label error>Text Input 2 Label</Label>
-        <TextInput error />
-
         <Hint>
           <p>Some arbitrary hint text at the end of this fieldset</p>
         </Hint>
+        <TextInput error />
       </Fieldset>
 
       <Fieldset legend="Fieldset containing multiple fields in form groups">
