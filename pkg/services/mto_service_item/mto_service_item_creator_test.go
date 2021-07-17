@@ -54,6 +54,9 @@ func (t *testCreateMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Conne
 	return t.fakeTransaction(fn)
 }
 
+func (t *testCreateMTOServiceItemQueryBuilder) SetConnection(db *pop.Connection) {
+}
+
 func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() models.MTOServiceItem {
 	// Default move has status DRAFT, which is invalid for this test because
 	// service items can only be created if a Move's status is Approved or

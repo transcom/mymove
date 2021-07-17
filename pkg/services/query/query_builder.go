@@ -45,6 +45,12 @@ func NewQueryBuilder(db *pop.Connection) *Builder {
 	return &Builder{db}
 }
 
+// SetConnection allows passing in a transaction connection so the builder
+// can use it.
+func (p *Builder) SetConnection(db *pop.Connection) {
+	p.db = db
+}
+
 // Lookup to check if a specific string is inside the db field tags of the type
 func getDBColumn(t reflect.Type, field string) (string, bool) {
 	for i := 0; i < t.NumField(); i++ {
