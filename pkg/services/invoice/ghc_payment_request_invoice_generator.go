@@ -617,6 +617,37 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.Pa
 	return weightInt, nil
 }
 
+func (g ghcPaymentRequestInvoiceGenerator) getServiceItemWeightParams(serviceItem models.PaymentServiceItem) (int, error) {
+	//weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//weightInt, err := strconv.Atoi(weight.Value)
+	//if err != nil {
+	//	return 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	//}
+
+	weightInt := 789
+
+	return weightInt, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(serviceItem models.PaymentServiceItem) (int, int, error) {
+	//weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//weightInt, err := strconv.Atoi(weight.Value)
+	//if err != nil {
+	//	return 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	//}
+
+	dimensions := 456
+	rate := 23
+
+	return dimensions, rate, nil
+}
+
 func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (int, float64, error) {
 	weight, err := g.getWeightParams(serviceItem)
 	if err != nil {
@@ -693,7 +724,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
-		// following service items have weight and no distance
+		// following service items have MTO shipment weight and no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
 			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
@@ -722,6 +753,64 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 				FreightRate:          &weight,
 				RateValueQualifier:   "LB",
+				Charge:               serviceItem.PriceCents.Int64(),
+			}
+
+			// following service items have service item weight and no distance
+		case models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
+			var err error
+			weight, err := g.getServiceItemWeightParams(serviceItem)
+			if err != nil {
+				return segments, l3, err
+			}
+
+			newSegment.L5 = edisegment.L5{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				LadingDescription:      string(serviceCode),
+				CommodityCode:          "TBD",
+				CommodityCodeQualifier: "D",
+			}
+
+			newSegment.L0 = edisegment.L0{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Weight:               float64(weight),
+				WeightQualifier:      "B",
+				WeightUnitCode:       "L",
+			}
+
+			newSegment.L1 = edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				FreightRate:          &weight,
+				RateValueQualifier:   "LB",
+				Charge:               serviceItem.PriceCents.Int64(),
+			}
+
+			// following service items have service item dimensions and no distance
+		case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+			var err error
+			dimensions, rate, err := g.getServiceItemDimensionRateParams(serviceItem)
+			if err != nil {
+				return segments, l3, err
+			}
+
+			newSegment.L5 = edisegment.L5{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				LadingDescription:      string(serviceCode),
+				CommodityCode:          "TBD",
+				CommodityCodeQualifier: "D",
+			}
+
+			newSegment.L0 = edisegment.L0{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Volume:               float64(dimensions),
+				VolumeUnitQualifier:  "E",
+				WeightUnitCode:       "CRT",
+			}
+
+			newSegment.L1 = edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				FreightRate:          &rate,
+				RateValueQualifier:   "PF", // Per Cubic Foot
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
 

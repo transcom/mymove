@@ -9,7 +9,7 @@ import (
 type L1 struct {
 	LadingLineItemNumber int    `validate:"required,min=1,max=999"`
 	FreightRate          *int   `validate:"omitempty,min=0"`
-	RateValueQualifier   string `validate:"required_with=FreightRate,omitempty,eq=LB"`
+	RateValueQualifier   string `validate:"required_with=FreightRate,omitempty,oneof=LB PF"`
 	Charge               int64  `validate:"required,min=-999999999999,max=999999999999"` // Supports negative values
 }
 

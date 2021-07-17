@@ -234,7 +234,21 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		assertions,
 	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit, ddasit, dofsit, doasit, dddsit, dopsit)
+	doshut := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	docrt := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit, ddasit, dofsit, doasit, dddsit, dopsit, doshut, docrt)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -247,6 +261,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
+	ediString, _ := result.EDIString(suite.logger)
+	fmt.Print(ediString)
 	suite.NoError(err)
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
