@@ -68,6 +68,11 @@ var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
 
+const defaultZipPickup30907 = "90210"
+const defaultZipDestination30901 = "30901"
+
+// const defaultZip5Distance30907to30901 = unit.Miles(48)
+
 func mustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
@@ -1052,6 +1057,17 @@ func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *up
 // service item pricing params for displaying cost calculations
 func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploader.PrimeUploader, logger Logger, moveRouter services.MoveRouter) {
 
+	pickupAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			PostalCode: defaultZipPickup30907,
+		},
+	})
+	destinationAddress := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			PostalCode: defaultZipDestination30901,
+		},
+	})
+
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
 	actualPickupDate := issueDate.Add(31 * 24 * time.Hour)
@@ -1062,6 +1078,10 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ActualPickupDate:     &actualPickupDate,
+			PickupAddressID:      &pickupAddress.ID,
+			PickupAddress:        &pickupAddress,
+			DestinationAddressID: &destinationAddress.ID,
+			DestinationAddress:   &destinationAddress,
 		},
 		Move: models.Move{
 			Locator: "PARAMS",
@@ -1122,8 +1142,25 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 	// called for zip 3 domestic linehaul service item
 	planner.On("Zip3TransitDistance", "94535", "94535").Return(348, nil).Once()
 
-	// called for zip 5 domestic linehaul service item
-	planner.On("Zip5TransitDistance", "94535", "94535").Return(348, nil).Once()
+	/*
+		  Getting an error messag:
+		mock: Unexpected Method Call
+		-----------------------------
+
+		Zip5TransitDistance(string,string)
+				0: "94535"
+				1: "94535"
+
+
+		 "94535" -> "94535" should have been calling Zip5TransitDistance,
+		due to recent changes in this PR, which are removing the check for < 50 miles and
+		calling the correct ZIP distance function based on same ZIP3 is causing this error.
+		Now that I've corrected is there are more errors with the devseed file that need fixing
+		and I'm not sure what those are yet.
+
+	*/
+	// called for zip 5 domestic shorthaul service item
+	planner.On("Zip5TransitDistance", "94535", "94535").Return(48, nil).Once()
 
 	// called for domestic shorthaul service item
 	planner.On("Zip5TransitDistance", "90210", "90211").Return(3, nil).Once()

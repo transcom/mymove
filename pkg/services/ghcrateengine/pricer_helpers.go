@@ -140,8 +140,9 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	// 1) Zip3 to same zip3
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
-		shorthaulPricer := NewDomesticShorthaulPricer(db)
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		isShortHaul := true
+		linehaulPricer := NewDomesticLinehaulPricer(db)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(isShortHaul, contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -154,8 +155,9 @@ func priceDomesticPickupDeliverySIT(db *pop.Connection, pickupDeliverySITCode mo
 	// 2) Zip3 to different zip3 and > 50 miles
 	if distance > 50 {
 		// Do a normal linehaul calculation
+		isShortHaul := false
 		linehaulPricer := NewDomesticLinehaulPricer(db)
-		totalPriceCents, displayParams, err := linehaulPricer.Price(contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(isShortHaul, contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}

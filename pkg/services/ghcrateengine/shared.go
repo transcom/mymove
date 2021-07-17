@@ -55,3 +55,13 @@ func IsPeakPeriod(date time.Time) bool {
 	// Otherwise, it's non-peak
 	return false
 }
+
+func isSameZip3(zip1 string, zip2 string) bool {
+	if len(zip1) >= 3 && len(zip2) >= 3 {
+		if zip1[:3] == zip2[:3] {
+			return true
+		}
+	}
+
+	return false
+}

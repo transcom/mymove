@@ -9,6 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+const defaultZipPickup30907 = "30907"
+const defaultZipDestination30901 = "30901"
+const defaultZip5Distance30907to30901 = unit.Miles(48)
+
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	key := models.ServiceItemParamNameDistanceZip3
 
@@ -78,13 +82,13 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 		distanceStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultZip3Distance)
+		expected := strconv.Itoa(defaultZip5Distance)
 		suite.Equal(expected, distanceStr)
 
 		var mtoShipment models.MTOShipment
 		err = suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		suite.NoError(err)
-		suite.Nil(mtoShipment.Distance)
+		suite.NotNil(mtoShipment.Distance)
 	})
 
 	suite.T().Run("Calculate zip3 distance with param cache", func(t *testing.T) {
@@ -225,5 +229,56 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
+	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
+	key := models.ServiceItemParamNameDistanceZip5
+
+	suite.T().Run("golden path", func(t *testing.T) {
+		pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: defaultZipPickup30907,
+			},
+		})
+		destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: defaultZipDestination30901,
+			},
+		})
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PickupAddressID:      &pickupAddress.ID,
+				PickupAddress:        &pickupAddress,
+				DestinationAddressID: &destinationAddress.ID,
+				DestinationAddress:   &destinationAddress,
+			},
+		})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		distanceStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultZip5Distance30907to30901.Int())
+		suite.Equal(expected, distanceStr)
+
+		var mtoShipment models.MTOShipment
+		//RA Summary: gosec - errcheck - Unchecked return value
+		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
+		//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
+		//RA: Given the return value is being checked in a different line and the functions that are flagged by the linter are being used to assign variables
+		//RA: in a unit test, then there is no risk
+		//RA Developer Status: Mitigated
+		//RA Validator Status: Mitigated
+		//RA Modified Severity: N/A
+		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID) // nolint:errcheck
+
+		suite.Equal(unit.Miles(defaultZip5Distance30907to30901), *mtoShipment.Distance)
 	})
 }
