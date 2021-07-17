@@ -367,3 +367,57 @@ func (suite *GHCRateEngineServiceSuite) Test_createPricerGeneratedParams() {
 		suite.Contains(err.Error(), "PricingDisplayParams must not be empty")
 	})
 }
+
+func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
+	suite.Run("destination golden path", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, testServiceSchedule, testBasePriceCents, testContractYearName, testEscalationCompounded)
+
+		priceCents, displayParams, err := priceDomesticShuttling(suite.DB(), models.ReServiceCodeDOSHUT, DefaultContractCode, testRequestedPickupDate, testWeight, testServiceSchedule)
+		suite.NoError(err)
+		suite.Equal(testPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: testContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(testEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(testBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("invalid service code", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, testServiceSchedule, testBasePriceCents, testContractYearName, testEscalationCompounded)
+		_, _, err := priceDomesticShuttling(suite.DB(), models.ReServiceCodeCS, DefaultContractCode, testRequestedPickupDate, testWeight, testServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported domestic shuttling code")
+	})
+
+	suite.Run("invalid weight", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, testServiceSchedule, testBasePriceCents, testContractYearName, testEscalationCompounded)
+
+		badWeight := unit.Pound(250)
+		_, _, err := priceDomesticShuttling(suite.DB(), models.ReServiceCodeDOSHUT, DefaultContractCode, testRequestedPickupDate, badWeight, testServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "Weight must be a minimum of 500")
+	})
+
+	suite.Run("not finding a rate record", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, testServiceSchedule, testBasePriceCents, testContractYearName, testEscalationCompounded)
+
+		_, _, err := priceDomesticShuttling(suite.DB(), models.ReServiceCodeDOSHUT, "BOGUS", testRequestedPickupDate, testWeight, testServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
+	})
+
+	suite.Run("not finding a contract year record", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, testServiceSchedule, testBasePriceCents, testContractYearName, testEscalationCompounded)
+
+		twoYearsLaterPickupDate := ddfsitTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := priceDomesticShuttling(suite.DB(), models.ReServiceCodeDOSHUT, DefaultContractCode, twoYearsLaterPickupDate, testWeight, testServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "Could not lookup contract year")
+	})
+}
