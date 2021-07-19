@@ -650,5 +650,5 @@
 20210629133827_remove_char_limit_payment_service_item_rejection_reason.up.sql
 20210630143013_add_demo_users.up.sql
 20210706214857_felipe_cac.up.sql
-20210714221936_change_cubic_feet_crating_to_decimal.up.sql
 20210713232711_remove_can_stand_alone_parameter.up.sql
+20210714221936_change_cubic_feet_crating_to_decimal.up.sql
