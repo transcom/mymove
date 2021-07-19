@@ -1134,6 +1134,8 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 	// called for domestic destination SIT delivery service item
 	planner.On("Zip3TransitDistance", "94535", "90210").Return(348, nil).Once()
 
+	serviceItemCreator.SetConnection(db)
+
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(db, queryBuilder, serviceItemCreator, planner)
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
