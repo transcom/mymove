@@ -43,7 +43,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.U
 
 	orderToUpdate := orderFromTOOPayload(*order, payload)
 
-	return f.updateOrder(orderToUpdate)
+	return f.updateOrder(orderToUpdate, CheckRequiredFields())
 }
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
@@ -384,7 +384,7 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 	return doc, nil
 }
 
-func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
 	handleError := func(verrs *validate.Errors, err error) error {
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(order.ID, nil, verrs, "")
@@ -399,6 +399,10 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
+
+		if verr := ValidateOrder(&order, checks...); verr != nil {
+			return verr
+		}
 
 		// update service member
 		if order.Grade != nil {
