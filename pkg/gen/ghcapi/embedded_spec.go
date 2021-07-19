@@ -4041,7 +4041,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -9101,7 +9100,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",

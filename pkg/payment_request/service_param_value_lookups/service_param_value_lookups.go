@@ -88,10 +88,17 @@ func ServiceParamLookupInitialize(
 	var pickupAddress models.Address
 	var destinationAddress models.Address
 	var sitDestinationFinalAddress models.Address
+	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
 		// Do nothing, these service items don't use the MTOShipment
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+		err = db.Load(&mtoServiceItem, "Dimensions")
+		if err != nil {
+			return nil, err
+		}
+		serviceItemDimensions = mtoServiceItem.Dimensions
 	case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT:
 		// load destination address from final address on service item
 		if mtoServiceItem.SITDestinationFinalAddressID != nil && *mtoServiceItem.SITDestinationFinalAddressID != uuid.Nil {
@@ -358,6 +365,14 @@ func ServiceParamLookupInitialize(
 	paramKey = models.ServiceItemParamNameDistanceZipSITOrigin
 	err = s.setLookup(serviceItemCode, paramKey, DistanceZipSITOriginLookup{
 		ServiceItem: mtoServiceItem,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameCubicFeetCrating
+	err = s.setLookup(serviceItemCode, paramKey, CubicFeetCratingLookup{
+		Dimensions: serviceItemDimensions,
 	})
 	if err != nil {
 		return nil, err

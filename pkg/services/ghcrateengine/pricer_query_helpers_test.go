@@ -78,6 +78,16 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 	})
 }
 
+func (suite *GHCRateEngineServiceSuite) Test_fetchAccessorialPrice() {
+	suite.Run("golden path", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		domAccessorialPrice, err := fetchAccessorialPrice(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
+
+		suite.NoError(err)
+		suite.Equal(ddshutTestBasePriceCents, domAccessorialPrice.PerUnitCents)
+	})
+}
+
 func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 	testDate := time.Date(testdatagen.TestYear, time.June, 17, 8, 45, 44, 333, time.UTC)
 	testEscalationCompounded := 1.0512

@@ -945,6 +945,18 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 	aws-vault exec transcom-gov-milmove-exp \
 	bin/milmove migrate
 
+.PHONY: run_demo_migrations
+run_demo_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud demo migrations against Deployed Migrations DB
+	@echo "Migrating the demo-migrations database with demo migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-demo-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-demo \
+	bin/milmove migrate
 #
 # ----- END PROD_MIGRATION TARGETS -----
 #

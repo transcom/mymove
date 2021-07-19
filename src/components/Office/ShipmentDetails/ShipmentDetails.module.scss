@@ -12,6 +12,10 @@
   :global .table--data-point-group {
     @include u-margin-bottom(3);
   }
+
+  .ShipmentRemarks:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .ShipmentDetailsSidebar {

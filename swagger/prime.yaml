@@ -1521,6 +1521,8 @@ definitions:
           - reason
           - reServiceCode
           - description
+          - estimatedWeight
+          - actualWeight
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem.
     type: string
@@ -1988,7 +1990,6 @@ definitions:
     type: string
     enum:
       - ActualPickupDate
-      - CanStandAlone
       - ContractCode
       - ContractYearName
       - CubicFeetBilled

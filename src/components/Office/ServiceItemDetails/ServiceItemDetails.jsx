@@ -25,7 +25,16 @@ const ServiceItemDetails = ({ id, code, details }) => {
     case 'DOPSIT': {
       detailSection = (
         <div>
-          <dl>{generateDetailText({ ZIP: details.pickupPostalCode, Reason: details.reason }, id)}</dl>
+          <dl>
+            {generateDetailText(
+              {
+                ZIP: details.pickupPostalCode ? details.pickupPostalCode : '-',
+                Reason: details.reason ? details.reason : '-',
+              },
+              id,
+            )}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+          </dl>
         </div>
       );
       break;
@@ -48,6 +57,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
                 },
                 id,
               )}
+            {!firstCustomerContact &&
+              generateDetailText({ 'First Customer Contact': '-', 'First Available Delivery Date': '-' })}
             <div className={styles.customerContact}>
               {secondCustomerContact &&
                 generateDetailText(
@@ -60,7 +71,11 @@ const ServiceItemDetails = ({ id, code, details }) => {
                   },
                   id,
                 )}
+              {!secondCustomerContact &&
+                generateDetailText({ 'Second Customer Contact': '-', 'Second Available Delivery Date': '-' })}
             </div>
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
           </dl>
         </div>
       );
@@ -84,6 +99,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
             <p className={styles.detailLine}>{description}</p>
             {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
           </dl>
         </div>
       );
@@ -99,13 +116,19 @@ const ServiceItemDetails = ({ id, code, details }) => {
               <dd className={styles.detailType}>{estimatedWeight}</dd> <dt>estimated weight</dt>
             </div>
             {generateDetailText({ Reason: details.reason })}
+            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
           </dl>
         </div>
       );
       break;
     }
     default:
-      detailSection = <div>—</div>;
+      detailSection = (
+        <div>
+          <div>—</div>
+          <dl>{details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}</dl>
+        </div>
+      );
   }
   return <div>{detailSection}</div>;
 };

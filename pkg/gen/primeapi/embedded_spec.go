@@ -1685,7 +1685,9 @@ func init() {
           "required": [
             "reason",
             "reServiceCode",
-            "description"
+            "description",
+            "estimatedWeight",
+            "actualWeight"
           ],
           "properties": {
             "actualWeight": {
@@ -2347,7 +2349,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -4580,7 +4581,9 @@ func init() {
           "required": [
             "reason",
             "reServiceCode",
-            "description"
+            "description",
+            "estimatedWeight",
+            "actualWeight"
           ],
           "properties": {
             "actualWeight": {
@@ -5232,7 +5235,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
