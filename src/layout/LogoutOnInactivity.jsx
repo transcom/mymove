@@ -10,7 +10,7 @@ import Alert from 'shared/Alert';
 import { LogoutUser } from 'utils/api';
 import { HistoryShape } from 'types/customerShapes';
 
-const maxIdleTimeInSeconds = 1 * 60;
+const maxIdleTimeInSeconds = 15 * 60;
 const maxWarningTimeBeforeTimeoutInSeconds = 60;
 const maxIdleTimeInMilliseconds = maxIdleTimeInSeconds * 1000;
 const maxWarningTimeBeforeTimeoutInMilliseconds = maxWarningTimeBeforeTimeoutInSeconds * 1000;

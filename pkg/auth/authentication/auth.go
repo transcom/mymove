@@ -330,12 +330,10 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// All users logged in via devlocal-auth will have this IDToken. We
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
-			fmt.Println("🦠🦠🦠🦠🦠🦠🦠🦠🦠🦠")
 			if session.IDToken == "devlocal" {
 				logoutURL = redirectURL
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
-				fmt.Sprintln(logoutURL)
 			}
 			err := resetUserCurrentSessionID(session, h.db, h.logger)
 			if err != nil {
@@ -372,7 +370,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
 const loginStateCookieName = "lg_state"
-const loginStateCookieTTLInSecs = 120 // 30 mins to transit through login.gov.
+const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 
 // RedirectHandler handles redirection
 type RedirectHandler struct {
