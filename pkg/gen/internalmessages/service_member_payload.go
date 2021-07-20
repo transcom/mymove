@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -37,6 +38,7 @@ type ServiceMemberPayload struct {
 	CurrentStation *DutyStationPayload `json:"current_station,omitempty"`
 
 	// DoD ID number
+	// Example: 5789345789
 	// Max Length: 10
 	// Min Length: 10
 	// Pattern: ^\d{10}$
@@ -46,9 +48,11 @@ type ServiceMemberPayload struct {
 	EmailIsPreferred *bool `json:"email_is_preferred,omitempty"`
 
 	// First name
+	// Example: John
 	FirstName *string `json:"first_name,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -58,15 +62,18 @@ type ServiceMemberPayload struct {
 	IsProfileComplete *bool `json:"is_profile_complete"`
 
 	// Last name
+	// Example: Donut
 	LastName *string `json:"last_name,omitempty"`
 
 	// Middle name
+	// Example: L.
 	MiddleName *string `json:"middle_name,omitempty"`
 
 	// orders
 	Orders []*Orders `json:"orders"`
 
 	// Personal Email Address
+	// Example: john_bob@example.com
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	PersonalEmail *string `json:"personal_email,omitempty"`
 
@@ -84,13 +91,16 @@ type ServiceMemberPayload struct {
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 
 	// Secondary Phone
+	// Example: 212-555-5555
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	SecondaryTelephone *string `json:"secondary_telephone,omitempty"`
 
 	// Suffix
+	// Example: Jr.
 	Suffix *string `json:"suffix,omitempty"`
 
 	// Best contact phone
+	// Example: 212-555-5555
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 
@@ -100,6 +110,7 @@ type ServiceMemberPayload struct {
 	UpdatedAt *strfmt.DateTime `json:"updated_at"`
 
 	// user id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	UserID *strfmt.UUID `json:"user_id"`
@@ -191,7 +202,6 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ServiceMemberPayload) validateAffiliation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Affiliation) { // not required
 		return nil
 	}
@@ -209,7 +219,6 @@ func (m *ServiceMemberPayload) validateAffiliation(formats strfmt.Registry) erro
 }
 
 func (m *ServiceMemberPayload) validateBackupContacts(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.BackupContacts) { // not required
 		return nil
 	}
@@ -225,7 +234,6 @@ func (m *ServiceMemberPayload) validateBackupContacts(formats strfmt.Registry) e
 }
 
 func (m *ServiceMemberPayload) validateBackupMailingAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.BackupMailingAddress) { // not required
 		return nil
 	}
@@ -256,7 +264,6 @@ func (m *ServiceMemberPayload) validateCreatedAt(formats strfmt.Registry) error 
 }
 
 func (m *ServiceMemberPayload) validateCurrentStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CurrentStation) { // not required
 		return nil
 	}
@@ -274,20 +281,19 @@ func (m *ServiceMemberPayload) validateCurrentStation(formats strfmt.Registry) e
 }
 
 func (m *ServiceMemberPayload) validateEdipi(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Edipi) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("edipi", "body", string(*m.Edipi), 10); err != nil {
+	if err := validate.MinLength("edipi", "body", *m.Edipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("edipi", "body", string(*m.Edipi), 10); err != nil {
+	if err := validate.MaxLength("edipi", "body", *m.Edipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("edipi", "body", string(*m.Edipi), `^\d{10}$`); err != nil {
+	if err := validate.Pattern("edipi", "body", *m.Edipi, `^\d{10}$`); err != nil {
 		return err
 	}
 
@@ -317,7 +323,6 @@ func (m *ServiceMemberPayload) validateIsProfileComplete(formats strfmt.Registry
 }
 
 func (m *ServiceMemberPayload) validateOrders(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Orders) { // not required
 		return nil
 	}
@@ -342,12 +347,11 @@ func (m *ServiceMemberPayload) validateOrders(formats strfmt.Registry) error {
 }
 
 func (m *ServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonalEmail) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("personal_email", "body", string(*m.PersonalEmail), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("personal_email", "body", *m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -355,7 +359,6 @@ func (m *ServiceMemberPayload) validatePersonalEmail(formats strfmt.Registry) er
 }
 
 func (m *ServiceMemberPayload) validateRank(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Rank) { // not required
 		return nil
 	}
@@ -382,7 +385,6 @@ func (m *ServiceMemberPayload) validateRequiresAccessCode(formats strfmt.Registr
 }
 
 func (m *ServiceMemberPayload) validateResidentialAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ResidentialAddress) { // not required
 		return nil
 	}
@@ -400,12 +402,11 @@ func (m *ServiceMemberPayload) validateResidentialAddress(formats strfmt.Registr
 }
 
 func (m *ServiceMemberPayload) validateSecondaryTelephone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryTelephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("secondary_telephone", "body", string(*m.SecondaryTelephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("secondary_telephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -413,12 +414,11 @@ func (m *ServiceMemberPayload) validateSecondaryTelephone(formats strfmt.Registr
 }
 
 func (m *ServiceMemberPayload) validateTelephone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Telephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", *m.Telephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -452,13 +452,168 @@ func (m *ServiceMemberPayload) validateUserID(formats strfmt.Registry) error {
 }
 
 func (m *ServiceMemberPayload) validateWeightAllotment(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightAllotment) { // not required
 		return nil
 	}
 
 	if m.WeightAllotment != nil {
 		if err := m.WeightAllotment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("weight_allotment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this service member payload based on the context it is used
+func (m *ServiceMemberPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateBackupContacts(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateBackupMailingAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCurrentStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateResidentialAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateWeightAllotment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Affiliation != nil {
+		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("affiliation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateBackupContacts(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.BackupContacts.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("backup_contacts")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateBackupMailingAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BackupMailingAddress != nil {
+		if err := m.BackupMailingAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backup_mailing_address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateCurrentStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CurrentStation != nil {
+		if err := m.CurrentStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("current_station")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateOrders(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Orders); i++ {
+
+		if m.Orders[i] != nil {
+			if err := m.Orders[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("orders" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateResidentialAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ResidentialAddress != nil {
+		if err := m.ResidentialAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("residential_address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberPayload) contextValidateWeightAllotment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.WeightAllotment != nil {
+		if err := m.WeightAllotment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_allotment")
 			}

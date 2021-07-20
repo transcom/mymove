@@ -29,7 +29,7 @@ func NewGetServicesCounselingQueue(ctx *middleware.Context, handler GetServicesC
 	return &GetServicesCounselingQueue{Context: ctx, Handler: handler}
 }
 
-/*GetServicesCounselingQueue swagger:route GET /queues/counseling queues getServicesCounselingQueue
+/* GetServicesCounselingQueue swagger:route GET /queues/counseling queues getServicesCounselingQueue
 
 Gets queued list of all customer moves needing services counseling by GBLOC origin
 
@@ -45,17 +45,15 @@ type GetServicesCounselingQueue struct {
 func (o *GetServicesCounselingQueue) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetServicesCounselingQueueParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -87,7 +89,6 @@ func (m *QueuePaymentRequest) Validate(formats strfmt.Registry) error {
 }
 
 func (m *QueuePaymentRequest) validateCustomer(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Customer) { // not required
 		return nil
 	}
@@ -105,7 +106,6 @@ func (m *QueuePaymentRequest) validateCustomer(formats strfmt.Registry) error {
 }
 
 func (m *QueuePaymentRequest) validateDepartmentIndicator(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
 	}
@@ -123,7 +123,6 @@ func (m *QueuePaymentRequest) validateDepartmentIndicator(formats strfmt.Registr
 }
 
 func (m *QueuePaymentRequest) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -136,7 +135,6 @@ func (m *QueuePaymentRequest) validateID(formats strfmt.Registry) error {
 }
 
 func (m *QueuePaymentRequest) validateMoveID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveID) { // not required
 		return nil
 	}
@@ -149,7 +147,6 @@ func (m *QueuePaymentRequest) validateMoveID(formats strfmt.Registry) error {
 }
 
 func (m *QueuePaymentRequest) validateOriginGBLOC(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginGBLOC) { // not required
 		return nil
 	}
@@ -165,7 +162,6 @@ func (m *QueuePaymentRequest) validateOriginGBLOC(formats strfmt.Registry) error
 }
 
 func (m *QueuePaymentRequest) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -181,12 +177,89 @@ func (m *QueuePaymentRequest) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *QueuePaymentRequest) validateSubmittedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("submittedAt", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this queue payment request based on the context it is used
+func (m *QueuePaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCustomer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *QueuePaymentRequest) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Customer != nil {
+		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("customer")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) contextValidateOriginGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.OriginGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("originGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

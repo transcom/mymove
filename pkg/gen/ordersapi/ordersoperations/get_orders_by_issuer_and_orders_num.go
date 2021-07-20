@@ -29,7 +29,7 @@ func NewGetOrdersByIssuerAndOrdersNum(ctx *middleware.Context, handler GetOrders
 	return &GetOrdersByIssuerAndOrdersNum{Context: ctx, Handler: handler}
 }
 
-/*GetOrdersByIssuerAndOrdersNum swagger:route GET /issuers/{issuer}/orders/{ordersNum} getOrdersByIssuerAndOrdersNum
+/* GetOrdersByIssuerAndOrdersNum swagger:route GET /issuers/{issuer}/orders/{ordersNum} getOrdersByIssuerAndOrdersNum
 
 Retrieve orders by issuer and orders number
 
@@ -47,17 +47,15 @@ type GetOrdersByIssuerAndOrdersNum struct {
 func (o *GetOrdersByIssuerAndOrdersNum) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetOrdersByIssuerAndOrdersNumParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

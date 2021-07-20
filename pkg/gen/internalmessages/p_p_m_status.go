@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model PPMStatus
 type PPMStatus string
+
+func NewPPMStatus(value PPMStatus) *PPMStatus {
+	v := value
+	return &v
+}
 
 const (
 
@@ -71,5 +77,10 @@ func (m PPMStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this p p m status based on context it is used
+func (m PPMStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

@@ -71,9 +71,8 @@ func (o *GetPaymentRequestEDIReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewGetPaymentRequestEDIOK() *GetPaymentRequestEDIOK {
 	return &GetPaymentRequestEDIOK{}
 }
 
-/*GetPaymentRequestEDIOK handles this case with default header values.
+/* GetPaymentRequestEDIOK describes a response with status code 200, with default header values.
 
 Successfully retrieved payment requests associated with a given move task order
 */
@@ -93,7 +92,6 @@ type GetPaymentRequestEDIOK struct {
 func (o *GetPaymentRequestEDIOK) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIOK  %+v", 200, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIOK) GetPayload() *supportmessages.PaymentRequestEDI {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewGetPaymentRequestEDIBadRequest() *GetPaymentRequestEDIBadRequest {
 	return &GetPaymentRequestEDIBadRequest{}
 }
 
-/*GetPaymentRequestEDIBadRequest handles this case with default header values.
+/* GetPaymentRequestEDIBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -126,7 +124,6 @@ type GetPaymentRequestEDIBadRequest struct {
 func (o *GetPaymentRequestEDIBadRequest) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewGetPaymentRequestEDIUnauthorized() *GetPaymentRequestEDIUnauthorized {
 	return &GetPaymentRequestEDIUnauthorized{}
 }
 
-/*GetPaymentRequestEDIUnauthorized handles this case with default header values.
+/* GetPaymentRequestEDIUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type GetPaymentRequestEDIUnauthorized struct {
 func (o *GetPaymentRequestEDIUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewGetPaymentRequestEDIForbidden() *GetPaymentRequestEDIForbidden {
 	return &GetPaymentRequestEDIForbidden{}
 }
 
-/*GetPaymentRequestEDIForbidden handles this case with default header values.
+/* GetPaymentRequestEDIForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type GetPaymentRequestEDIForbidden struct {
 func (o *GetPaymentRequestEDIForbidden) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIForbidden  %+v", 403, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewGetPaymentRequestEDINotFound() *GetPaymentRequestEDINotFound {
 	return &GetPaymentRequestEDINotFound{}
 }
 
-/*GetPaymentRequestEDINotFound handles this case with default header values.
+/* GetPaymentRequestEDINotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type GetPaymentRequestEDINotFound struct {
 func (o *GetPaymentRequestEDINotFound) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDINotFound  %+v", 404, o.Payload)
 }
-
 func (o *GetPaymentRequestEDINotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewGetPaymentRequestEDIConflict() *GetPaymentRequestEDIConflict {
 	return &GetPaymentRequestEDIConflict{}
 }
 
-/*GetPaymentRequestEDIConflict handles this case with default header values.
+/* GetPaymentRequestEDIConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -258,7 +252,6 @@ type GetPaymentRequestEDIConflict struct {
 func (o *GetPaymentRequestEDIConflict) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIConflict  %+v", 409, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -280,7 +273,7 @@ func NewGetPaymentRequestEDIUnprocessableEntity() *GetPaymentRequestEDIUnprocess
 	return &GetPaymentRequestEDIUnprocessableEntity{}
 }
 
-/*GetPaymentRequestEDIUnprocessableEntity handles this case with default header values.
+/* GetPaymentRequestEDIUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -291,7 +284,6 @@ type GetPaymentRequestEDIUnprocessableEntity struct {
 func (o *GetPaymentRequestEDIUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewGetPaymentRequestEDIInternalServerError() *GetPaymentRequestEDIInternalS
 	return &GetPaymentRequestEDIInternalServerError{}
 }
 
-/*GetPaymentRequestEDIInternalServerError handles this case with default header values.
+/* GetPaymentRequestEDIInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type GetPaymentRequestEDIInternalServerError struct {
 func (o *GetPaymentRequestEDIInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *GetPaymentRequestEDIInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -37,7 +39,6 @@ func (m *PostDocumentPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *PostDocumentPayload) validateServiceMemberID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
 	}
@@ -46,6 +47,11 @@ func (m *PostDocumentPayload) validateServiceMemberID(formats strfmt.Registry) e
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this post document payload based on context it is used
+func (m *PostDocumentPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -17,7 +17,8 @@ import (
 )
 
 // NewShowPPMSitEstimateParams creates a new ShowPPMSitEstimateParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowPPMSitEstimateParams() ShowPPMSitEstimateParams {
 
 	return ShowPPMSitEstimateParams{}
@@ -105,7 +106,6 @@ func (o *ShowPPMSitEstimateParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindWeightEstimate(qWeightEstimate, qhkWeightEstimate, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -124,6 +124,7 @@ func (o *ShowPPMSitEstimateParams) bindDaysInStorage(rawData []string, hasKey bo
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("days_in_storage", "query", raw); err != nil {
 		return err
 	}
@@ -149,6 +150,7 @@ func (o *ShowPPMSitEstimateParams) bindOrdersID(rawData []string, hasKey bool, f
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("orders_id", "query", raw); err != nil {
 		return err
 	}
@@ -188,10 +190,10 @@ func (o *ShowPPMSitEstimateParams) bindOriginZip(rawData []string, hasKey bool, 
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("origin_zip", "query", raw); err != nil {
 		return err
 	}
-
 	o.OriginZip = raw
 
 	if err := o.validateOriginZip(formats); err != nil {
@@ -223,6 +225,7 @@ func (o *ShowPPMSitEstimateParams) bindOriginalMoveDate(rawData []string, hasKey
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("original_move_date", "query", raw); err != nil {
 		return err
 	}
@@ -262,6 +265,7 @@ func (o *ShowPPMSitEstimateParams) bindPersonallyProcuredMoveID(rawData []string
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("personally_procured_move_id", "query", raw); err != nil {
 		return err
 	}
@@ -301,6 +305,7 @@ func (o *ShowPPMSitEstimateParams) bindWeightEstimate(rawData []string, hasKey b
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("weight_estimate", "query", raw); err != nil {
 		return err
 	}

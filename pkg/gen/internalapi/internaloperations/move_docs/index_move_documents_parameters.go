@@ -15,7 +15,8 @@ import (
 )
 
 // NewIndexMoveDocumentsParams creates a new IndexMoveDocumentsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexMoveDocumentsParams() IndexMoveDocumentsParams {
 
 	return IndexMoveDocumentsParams{}
@@ -50,7 +51,6 @@ func (o *IndexMoveDocumentsParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

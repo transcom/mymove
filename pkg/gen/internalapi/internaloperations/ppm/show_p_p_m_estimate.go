@@ -29,7 +29,7 @@ func NewShowPPMEstimate(ctx *middleware.Context, handler ShowPPMEstimateHandler)
 	return &ShowPPMEstimate{Context: ctx, Handler: handler}
 }
 
-/*ShowPPMEstimate swagger:route GET /estimates/ppm ppm showPPMEstimate
+/* ShowPPMEstimate swagger:route GET /estimates/ppm ppm showPPMEstimate
 
 Return a PPM cost estimate
 
@@ -44,17 +44,15 @@ type ShowPPMEstimate struct {
 func (o *ShowPPMEstimate) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowPPMEstimateParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

@@ -6,6 +6,7 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -35,13 +36,18 @@ import (
 // swagger:model OrdersType
 type OrdersType string
 
+func NewOrdersType(value OrdersType) *OrdersType {
+	v := value
+	return &v
+}
+
 const (
 
 	// OrdersTypeAccession captures enum value "accession"
 	OrdersTypeAccession OrdersType = "accession"
 
-	// OrdersTypeBetweenDutyStations captures enum value "between-duty-stations"
-	OrdersTypeBetweenDutyStations OrdersType = "between-duty-stations"
+	// OrdersTypeBetweenDashDutyDashStations captures enum value "between-duty-stations"
+	OrdersTypeBetweenDashDutyDashStations OrdersType = "between-duty-stations"
 
 	// OrdersTypeBrac captures enum value "brac"
 	OrdersTypeBrac OrdersType = "brac"
@@ -49,14 +55,14 @@ const (
 	// OrdersTypeCot captures enum value "cot"
 	OrdersTypeCot OrdersType = "cot"
 
-	// OrdersTypeEmergencyEvac captures enum value "emergency-evac"
-	OrdersTypeEmergencyEvac OrdersType = "emergency-evac"
+	// OrdersTypeEmergencyDashEvac captures enum value "emergency-evac"
+	OrdersTypeEmergencyDashEvac OrdersType = "emergency-evac"
 
 	// OrdersTypeIpcot captures enum value "ipcot"
 	OrdersTypeIpcot OrdersType = "ipcot"
 
-	// OrdersTypeLowCostTravel captures enum value "low-cost-travel"
-	OrdersTypeLowCostTravel OrdersType = "low-cost-travel"
+	// OrdersTypeLowDashCostDashTravel captures enum value "low-cost-travel"
+	OrdersTypeLowDashCostDashTravel OrdersType = "low-cost-travel"
 
 	// OrdersTypeOperational captures enum value "operational"
 	OrdersTypeOperational OrdersType = "operational"
@@ -70,14 +76,14 @@ const (
 	// OrdersTypeSeparation captures enum value "separation"
 	OrdersTypeSeparation OrdersType = "separation"
 
-	// OrdersTypeSpecialPurpose captures enum value "special-purpose"
-	OrdersTypeSpecialPurpose OrdersType = "special-purpose"
+	// OrdersTypeSpecialDashPurpose captures enum value "special-purpose"
+	OrdersTypeSpecialDashPurpose OrdersType = "special-purpose"
 
 	// OrdersTypeTraining captures enum value "training"
 	OrdersTypeTraining OrdersType = "training"
 
-	// OrdersTypeUnitMove captures enum value "unit-move"
-	OrdersTypeUnitMove OrdersType = "unit-move"
+	// OrdersTypeUnitDashMove captures enum value "unit-move"
+	OrdersTypeUnitDashMove OrdersType = "unit-move"
 )
 
 // for schema
@@ -112,5 +118,10 @@ func (m OrdersType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this orders type based on context it is used
+func (m OrdersType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

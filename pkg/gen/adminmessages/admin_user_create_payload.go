@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type AdminUserCreatePayload struct {
 
 	// Email
+	// Example: user@userdomain.com
 	Email string `json:"email,omitempty"`
 
 	// First Name
@@ -27,6 +30,7 @@ type AdminUserCreatePayload struct {
 	LastName string `json:"lastName,omitempty"`
 
 	// organization Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OrganizationID strfmt.UUID `json:"organizationId,omitempty"`
 }
@@ -46,7 +50,6 @@ func (m *AdminUserCreatePayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AdminUserCreatePayload) validateOrganizationID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrganizationID) { // not required
 		return nil
 	}
@@ -55,6 +58,11 @@ func (m *AdminUserCreatePayload) validateOrganizationID(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this admin user create payload based on context it is used
+func (m *AdminUserCreatePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

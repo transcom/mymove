@@ -29,7 +29,7 @@ func NewIndexPersonallyProcuredMoves(ctx *middleware.Context, handler IndexPerso
 	return &IndexPersonallyProcuredMoves{Context: ctx, Handler: handler}
 }
 
-/*IndexPersonallyProcuredMoves swagger:route GET /moves/{moveId}/personally_procured_move ppm indexPersonallyProcuredMoves
+/* IndexPersonallyProcuredMoves swagger:route GET /moves/{moveId}/personally_procured_move ppm indexPersonallyProcuredMoves
 
 Returns a list of all PPMs associated with this move
 
@@ -44,17 +44,15 @@ type IndexPersonallyProcuredMoves struct {
 func (o *IndexPersonallyProcuredMoves) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewIndexPersonallyProcuredMovesParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

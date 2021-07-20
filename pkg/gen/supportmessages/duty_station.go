@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,10 +20,12 @@ import (
 type DutyStation struct {
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// name
+	// Example: Fort Bragg North Station
 	Name string `json:"name,omitempty"`
 }
 
@@ -40,7 +44,6 @@ func (m *DutyStation) Validate(formats strfmt.Registry) error {
 }
 
 func (m *DutyStation) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -49,6 +52,11 @@ func (m *DutyStation) validateID(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this duty station based on context it is used
+func (m *DutyStation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

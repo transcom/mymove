@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetMoveParams creates a new GetMoveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetMoveParams() GetMoveParams {
 
 	return GetMoveParams{}
@@ -49,7 +50,6 @@ func (o *GetMoveParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 	if err := o.bindLocator(rLocator, rhkLocator, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -65,7 +65,6 @@ func (o *GetMoveParams) bindLocator(rawData []string, hasKey bool, formats strfm
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.Locator = raw
 
 	return nil

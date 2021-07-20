@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			PointOfContact:       "John Doe",
 			PrimeEstimatedWeight: 1200,
 			RequestedPickupDate:  handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
-			ShipmentType:         primemessages.MTOShipmentTypeHHG,
+			ShipmentType:         primemessages.NewMTOShipmentType(primemessages.MTOShipmentTypeHHG),
 		},
 	}
 	params.Body.DestinationAddress.Address = primemessages.Address{

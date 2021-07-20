@@ -17,7 +17,8 @@ import (
 )
 
 // NewShowPPMIncentiveParams creates a new ShowPPMIncentiveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowPPMIncentiveParams() ShowPPMIncentiveParams {
 
 	return ShowPPMIncentiveParams{}
@@ -96,7 +97,6 @@ func (o *ShowPPMIncentiveParams) BindRequest(r *http.Request, route *middleware.
 	if err := o.bindWeight(qWeight, qhkWeight, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -115,6 +115,7 @@ func (o *ShowPPMIncentiveParams) bindOrdersID(rawData []string, hasKey bool, for
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("orders_id", "query", raw); err != nil {
 		return err
 	}
@@ -154,10 +155,10 @@ func (o *ShowPPMIncentiveParams) bindOriginDutyStationZip(rawData []string, hasK
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("origin_duty_station_zip", "query", raw); err != nil {
 		return err
 	}
-
 	o.OriginDutyStationZip = raw
 
 	if err := o.validateOriginDutyStationZip(formats); err != nil {
@@ -189,10 +190,10 @@ func (o *ShowPPMIncentiveParams) bindOriginZip(rawData []string, hasKey bool, fo
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("origin_zip", "query", raw); err != nil {
 		return err
 	}
-
 	o.OriginZip = raw
 
 	if err := o.validateOriginZip(formats); err != nil {
@@ -224,6 +225,7 @@ func (o *ShowPPMIncentiveParams) bindOriginalMoveDate(rawData []string, hasKey b
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("original_move_date", "query", raw); err != nil {
 		return err
 	}
@@ -263,6 +265,7 @@ func (o *ShowPPMIncentiveParams) bindWeight(rawData []string, hasKey bool, forma
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("weight", "query", raw); err != nil {
 		return err
 	}

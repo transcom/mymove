@@ -25,13 +25,16 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error)
+	FetchMTOUpdates(params *FetchMTOUpdatesParams, opts ...ClientOption) (*FetchMTOUpdatesOK, error)
 
-	GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error)
+	GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error)
 
-	UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error)
+	UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams, opts ...ClientOption) (*UpdateMTOPostCounselingInformationOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -50,13 +53,12 @@ shipments, service items, etc. This has not been implemented.
 been set, that move will always appear in this list.
 
 */
-func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error) {
+func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams, opts ...ClientOption) (*FetchMTOUpdatesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewFetchMTOUpdatesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "fetchMTOUpdates",
 		Method:             "GET",
 		PathPattern:        "/move-task-orders",
@@ -67,7 +69,12 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 		Reader:             &FetchMTOUpdatesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -90,13 +97,12 @@ This endpoint gets an individual MoveTaskOrder by ID.
 It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
 
 */
-func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
+func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetMoveTaskOrderParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "getMoveTaskOrder",
 		Method:             "GET",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}",
@@ -107,7 +113,12 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 		Reader:             &GetMoveTaskOrderReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +141,12 @@ This endpoint **updates** the MoveTaskOrder after the Prime has completed Counse
 PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
 
 */
-func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error) {
+func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams, opts ...ClientOption) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOPostCounselingInformationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOPostCounselingInformation",
 		Method:             "PATCH",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}/post-counseling-info",
@@ -147,7 +157,12 @@ func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounsel
 		Reader:             &UpdateMTOPostCounselingInformationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

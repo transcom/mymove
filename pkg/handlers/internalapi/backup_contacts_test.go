@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
 		Email:      swag.String("email@example.com"),
 		Name:       swag.String("name"),
-		Permission: internalmessages.BackupContactPermissionEDIT,
+		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionEDIT),
 		Telephone:  swag.String("5555555555"),
 	}
 	req := httptest.NewRequest("POST", fmt.Sprintf("/service_member/%v/backup_contacts", serviceMember.ID.String()), nil)
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
 		Email:      swag.String("otheremail@example.com"),
 		Name:       swag.String("other name"),
-		Permission: internalmessages.BackupContactPermissionNONE,
+		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
 		Telephone:  swag.String("4444444444"),
 	}
 
@@ -211,7 +211,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
 		Email:      swag.String("otheremail@example.com"),
 		Name:       swag.String("other name"),
-		Permission: internalmessages.BackupContactPermissionNONE,
+		Permission: internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermissionNONE),
 		Telephone:  swag.String("4444444444"),
 	}
 

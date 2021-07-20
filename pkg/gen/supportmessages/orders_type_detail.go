@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model OrdersTypeDetail
 type OrdersTypeDetail string
+
+func NewOrdersTypeDetail(value OrdersTypeDetail) *OrdersTypeDetail {
+	v := value
+	return &v
+}
 
 const (
 
@@ -74,5 +80,10 @@ func (m OrdersTypeDetail) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this orders type detail based on context it is used
+func (m OrdersTypeDetail) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

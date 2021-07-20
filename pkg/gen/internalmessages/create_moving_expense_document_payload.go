@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 
@@ -22,13 +23,14 @@ type CreateMovingExpenseDocumentPayload struct {
 
 	// move document type
 	// Required: true
-	MoveDocumentType MoveDocumentType `json:"move_document_type"`
+	MoveDocumentType *MoveDocumentType `json:"move_document_type"`
 
 	// moving expense type
 	// Required: true
-	MovingExpenseType MovingExpenseType `json:"moving_expense_type"`
+	MovingExpenseType *MovingExpenseType `json:"moving_expense_type"`
 
 	// Notes
+	// Example: This document is good to go!
 	Notes *string `json:"notes,omitempty"`
 
 	// Method of Payment
@@ -37,6 +39,7 @@ type CreateMovingExpenseDocumentPayload struct {
 	PaymentMethod *string `json:"payment_method"`
 
 	// personally procured move id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id,omitempty"`
 
@@ -51,14 +54,17 @@ type CreateMovingExpenseDocumentPayload struct {
 	RequestedAmountCents *int64 `json:"requested_amount_cents"`
 
 	// End date of storage for storage expenses
+	// Example: 2018-04-26
 	// Format: date
 	StorageEndDate *strfmt.Date `json:"storage_end_date,omitempty"`
 
 	// Start date of storage for storage expenses
+	// Example: 2018-04-26
 	// Format: date
 	StorageStartDate *strfmt.Date `json:"storage_start_date,omitempty"`
 
 	// title
+	// Example: very_useful_document.pdf
 	// Required: true
 	Title *string `json:"title"`
 
@@ -114,11 +120,21 @@ func (m *CreateMovingExpenseDocumentPayload) Validate(formats strfmt.Registry) e
 
 func (m *CreateMovingExpenseDocumentPayload) validateMoveDocumentType(formats strfmt.Registry) error {
 
-	if err := m.MoveDocumentType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("move_document_type")
-		}
+	if err := validate.Required("move_document_type", "body", m.MoveDocumentType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("move_document_type", "body", m.MoveDocumentType); err != nil {
+		return err
+	}
+
+	if m.MoveDocumentType != nil {
+		if err := m.MoveDocumentType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("move_document_type")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -126,11 +142,21 @@ func (m *CreateMovingExpenseDocumentPayload) validateMoveDocumentType(formats st
 
 func (m *CreateMovingExpenseDocumentPayload) validateMovingExpenseType(formats strfmt.Registry) error {
 
-	if err := m.MovingExpenseType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("moving_expense_type")
-		}
+	if err := validate.Required("moving_expense_type", "body", m.MovingExpenseType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("moving_expense_type", "body", m.MovingExpenseType); err != nil {
+		return err
+	}
+
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("moving_expense_type")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -180,7 +206,6 @@ func (m *CreateMovingExpenseDocumentPayload) validatePaymentMethod(formats strfm
 }
 
 func (m *CreateMovingExpenseDocumentPayload) validatePersonallyProcuredMoveID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonallyProcuredMoveID) { // not required
 		return nil
 	}
@@ -198,7 +223,7 @@ func (m *CreateMovingExpenseDocumentPayload) validateRequestedAmountCents(format
 		return err
 	}
 
-	if err := validate.MinimumInt("requested_amount_cents", "body", int64(*m.RequestedAmountCents), 1, false); err != nil {
+	if err := validate.MinimumInt("requested_amount_cents", "body", *m.RequestedAmountCents, 1, false); err != nil {
 		return err
 	}
 
@@ -206,7 +231,6 @@ func (m *CreateMovingExpenseDocumentPayload) validateRequestedAmountCents(format
 }
 
 func (m *CreateMovingExpenseDocumentPayload) validateStorageEndDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.StorageEndDate) { // not required
 		return nil
 	}
@@ -219,7 +243,6 @@ func (m *CreateMovingExpenseDocumentPayload) validateStorageEndDate(formats strf
 }
 
 func (m *CreateMovingExpenseDocumentPayload) validateStorageStartDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.StorageStartDate) { // not required
 		return nil
 	}
@@ -241,7 +264,6 @@ func (m *CreateMovingExpenseDocumentPayload) validateTitle(formats strfmt.Regist
 }
 
 func (m *CreateMovingExpenseDocumentPayload) validateUploadIds(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UploadIds) { // not required
 		return nil
 	}
@@ -252,6 +274,52 @@ func (m *CreateMovingExpenseDocumentPayload) validateUploadIds(formats strfmt.Re
 			return err
 		}
 
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create moving expense document payload based on the context it is used
+func (m *CreateMovingExpenseDocumentPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateMoveDocumentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateMovingExpenseDocumentPayload) contextValidateMoveDocumentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MoveDocumentType != nil {
+		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("move_document_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMovingExpenseDocumentPayload) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("moving_expense_type")
+			}
+			return err
+		}
 	}
 
 	return nil

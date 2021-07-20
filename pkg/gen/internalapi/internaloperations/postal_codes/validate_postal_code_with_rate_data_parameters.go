@@ -16,7 +16,8 @@ import (
 )
 
 // NewValidatePostalCodeWithRateDataParams creates a new ValidatePostalCodeWithRateDataParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewValidatePostalCodeWithRateDataParams() ValidatePostalCodeWithRateDataParams {
 
 	return ValidatePostalCodeWithRateDataParams{}
@@ -64,7 +65,6 @@ func (o *ValidatePostalCodeWithRateDataParams) BindRequest(r *http.Request, rout
 	if err := o.bindPostalCodeType(qPostalCodeType, qhkPostalCodeType, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -80,7 +80,6 @@ func (o *ValidatePostalCodeWithRateDataParams) bindPostalCode(rawData []string, 
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.PostalCode = raw
 
 	if err := o.validatePostalCode(formats); err != nil {
@@ -112,10 +111,10 @@ func (o *ValidatePostalCodeWithRateDataParams) bindPostalCodeType(rawData []stri
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("postal_code_type", "query", raw); err != nil {
 		return err
 	}
-
 	o.PostalCodeType = raw
 
 	if err := o.validatePostalCodeType(formats); err != nil {
