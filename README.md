@@ -279,7 +279,7 @@ direnv: WARNING: nix packages out of date. Run nix/update.sh
 1. `make deps`
     1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
        [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
-
+1. [Quick Initial Setup](#setup-quick-initial-setup)
 
 #### Manual: Bash
 
