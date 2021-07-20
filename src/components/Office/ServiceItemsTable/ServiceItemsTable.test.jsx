@@ -55,10 +55,12 @@ describe('ServiceItemsTable', () => {
       />,
     );
 
-    expect(wrapper.find('dt').at(0).text()).toBe('Item Dimensions:');
-    expect(wrapper.find('dd').at(0).text()).toBe('7"x2"x3.5"');
-    expect(wrapper.find('dt').at(1).text()).toBe('Crate Dimensions:');
-    expect(wrapper.find('dd').at(1).text()).toBe('10"x2.5"x5"');
+    expect(wrapper.find('dt').at(0).text()).toBe('Description:');
+    expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
+    expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
+    expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
+    expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
+    expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
   });
 
   it('renders the customer contacts for DDFSIT service item', () => {

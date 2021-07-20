@@ -52,9 +52,9 @@ describe('ServiceItemDetails Crating', () => {
     render(<ServiceItemDetails id="1" code="DCRT" details={details} />);
 
     expect(screen.getByText('some description')).toBeInTheDocument();
-    expect(screen.getByText('Item Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
     expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
-    expect(screen.getByText('Crate Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
     expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
   });
 });
@@ -81,10 +81,11 @@ describe('ServiceItemDetails Crating Rejected', () => {
   it('renders the rejection reason field when it is populated with information', () => {
     render(<ServiceItemDetails id="1" code="DCRT" details={detailsRejectedServiceItem} />);
 
+    expect(screen.getByText('Description:')).toBeInTheDocument();
     expect(screen.getByText('some description')).toBeInTheDocument();
-    expect(screen.getByText('Item Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
     expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
-    expect(screen.getByText('Crate Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
     expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
     expect(screen.getByText('some rejection reason')).toBeInTheDocument();
   });

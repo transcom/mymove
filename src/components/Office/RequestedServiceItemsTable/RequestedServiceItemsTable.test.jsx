@@ -46,24 +46,25 @@ const serviceItemWithDetails = {
 };
 
 const testDetails = (wrapper) => {
-  expect(wrapper.find('.detailCrating p').text()).toBe('grandfather clock');
-  expect(wrapper.find('.detailType').at(0).text()).toBe('Item Dimensions:');
-  expect(wrapper.find('.detail dd').at(0).text()).toBe('7"x2"x3.5"');
+  expect(wrapper.find('.detailType').at(0).text()).toBe('Description:');
+  expect(wrapper.find('.detail dd').at(0).text()).toBe('grandfather clock');
+  expect(wrapper.find('.detailType').at(1).text()).toBe('Item size:');
+  expect(wrapper.find('.detail dd').at(1).text()).toBe('7"x2"x3.5"');
 
-  expect(wrapper.find('.detailType').at(2).text()).toBe('First Customer Contact:');
-  expect(wrapper.find('.detail dd').at(2).text().includes('1200Z')).toBe(true);
-  expect(wrapper.find('.detailType').at(3).text()).toBe('First Available Delivery Date:');
-  expect(wrapper.find('.detail dd').at(3).text().includes('15 Sep 2020')).toBe(true);
+  expect(wrapper.find('.detailType').at(3).text()).toBe('First Customer Contact:');
+  expect(wrapper.find('.detail dd').at(3).text().includes('1200Z')).toBe(true);
+  expect(wrapper.find('.detailType').at(4).text()).toBe('First Available Delivery Date:');
+  expect(wrapper.find('.detail dd').at(4).text().includes('15 Sep 2020')).toBe(true);
 
-  expect(wrapper.find('.detailType').at(4).text()).toBe('Second Customer Contact:');
-  expect(wrapper.find('.detail dd').at(4).text().includes('2300Z')).toBe(true);
-  expect(wrapper.find('.detailType').at(5).text()).toBe('Second Available Delivery Date:');
-  expect(wrapper.find('.detail dd').at(5).text().includes('21 Sep 2020')).toBe(true);
+  expect(wrapper.find('.detailType').at(5).text()).toBe('Second Customer Contact:');
+  expect(wrapper.find('.detail dd').at(5).text().includes('2300Z')).toBe(true);
+  expect(wrapper.find('.detailType').at(6).text()).toBe('Second Available Delivery Date:');
+  expect(wrapper.find('.detail dd').at(6).text().includes('21 Sep 2020')).toBe(true);
 
-  expect(wrapper.find('.detailType').at(7).text()).toBe('ZIP:');
-  expect(wrapper.find('.detail dd').at(7).text().includes('20050')).toBe(true);
-  expect(wrapper.find('.detailType').at(6).text()).toBe('Reason:');
-  expect(wrapper.find('.detail dd').at(6).text().includes('Took a detour')).toBe(true);
+  expect(wrapper.find('.detailType').at(8).text()).toBe('ZIP:');
+  expect(wrapper.find('.detail dd').at(8).text().includes('20050')).toBe(true);
+  expect(wrapper.find('.detailType').at(7).text()).toBe('Reason:');
+  expect(wrapper.find('.detail dd').at(7).text().includes('Took a detour')).toBe(true);
 };
 
 describe('RequestedServiceItemsTable', () => {
