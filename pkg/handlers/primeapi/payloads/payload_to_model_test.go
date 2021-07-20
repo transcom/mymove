@@ -54,7 +54,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
-	suite.T().Run("Successfully returns a basic service item model", func(t *testing.T) {
+	suite.T().Run("Success - Returns a basic service item model", func(t *testing.T) {
 		returnedModel, verrs := MTOServiceItemModel(basicServieItem)
 
 		suite.False(verrs.HasAny(), "Error validating model")
