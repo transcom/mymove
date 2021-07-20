@@ -124,6 +124,7 @@ export const MTOServiceItemShape = PropTypes.shape({
   moveTaskOrderID: PropTypes.string,
   mtoShipmentID: PropTypes.string,
   pickupPostalCode: PropTypes.string,
+  SITPostalCode: PropTypes.string,
   reServiceCode: PropTypes.string,
   reServiceID: PropTypes.string,
   reServiceName: PropTypes.string,

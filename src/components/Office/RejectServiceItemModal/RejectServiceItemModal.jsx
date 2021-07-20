@@ -115,6 +115,7 @@ RejectServiceItemModal.propTypes = {
     details: PropTypes.shape({
       description: PropTypes.string,
       pickupPostalCode: PropTypes.string,
+      SITPostalCode: PropTypes.string,
       reason: PropTypes.string,
       itemDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
       crateDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),

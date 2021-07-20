@@ -6,6 +6,7 @@ import ServiceItemDetails from './ServiceItemDetails';
 const details = {
   description: 'some description',
   pickupPostalCode: '90210',
+  SITPostalCode: '12345',
   reason: 'some reason',
   itemDimensions: { length: 1000, width: 2500, height: 3000 },
   crateDimensions: { length: 2000, width: 3500, height: 4000 },
@@ -25,7 +26,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     render(<ServiceItemDetails id="1" code={code} details={details} />);
 
     expect(screen.getByText('ZIP:')).toBeInTheDocument();
-    expect(screen.getByText('90210')).toBeInTheDocument();
+    expect(screen.getByText('12345')).toBeInTheDocument();
     expect(screen.getByText('Reason:')).toBeInTheDocument();
     expect(screen.getByText('some reason')).toBeInTheDocument();
   });

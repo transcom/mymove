@@ -32,6 +32,7 @@ export const ServiceItemDetailsShape = PropTypes.shape({
     rejectionReason: PropTypes.string,
     description: PropTypes.string,
     pickupPostalCode: PropTypes.string,
+    SITPostalCode: PropTypes.string,
     itemDimensions: MTOServiceItemDimensionShape,
     crateDimensions: MTOServiceItemDimensionShape,
     firstCustomerContact: MTOServiceItemCustomerContactShape,
