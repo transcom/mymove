@@ -56,6 +56,8 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	}
 
 	// validation errors passed back if any
+	fmt.Println("🍑🍑🍑🍑🍑")
+	fmt.Printf("%+v\n", params.Body)
 	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
 
 	if verrs != nil && verrs.HasAny() {
