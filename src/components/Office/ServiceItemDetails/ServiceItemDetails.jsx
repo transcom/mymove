@@ -81,7 +81,9 @@ const ServiceItemDetails = ({ id, code, details }) => {
       );
       break;
     }
-    case 'DCRT': {
+    case 'DCRT':
+    case 'DUCRT':
+    case 'DCRTSA': {
       const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
         itemDimensions?.length,
@@ -96,9 +98,9 @@ const ServiceItemDetails = ({ id, code, details }) => {
       detailSection = (
         <div className={styles.detailCrating}>
           <dl>
-            <p className={styles.detailLine}>{description}</p>
-            {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
-            {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
+            {description && generateDetailText({ Description: description }, id)}
+            {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
             {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
           </dl>
