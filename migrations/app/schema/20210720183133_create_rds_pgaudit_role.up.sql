@@ -1,5 +1,4 @@
--- Assume the master role, which has the ability to create roles and grant
--- group membership to the rds_pgaudit role.
+-- Assume the master role, which has the ability to create roles.
 SET ROLE master;
 
 -- Create a new role named "rds_pgaudit" as indicated by the AWS documentation:
