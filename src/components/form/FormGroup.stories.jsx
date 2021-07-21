@@ -1,6 +1,8 @@
 import React from 'react';
 import { FormGroup, Label, TextInput, ErrorMessage } from '@trussworks/react-uswds';
 
+import Hint from 'components/Hint';
+
 export default {
   title: 'Components/FormGroup',
 };
@@ -14,11 +16,11 @@ export const FormGroupDefaultState = () => (
 export const FormGroupWithWarning = () => (
   <FormGroup className="warning">
     <Label htmlFor="input-type-text">Text input label</Label>
-    <TextInput id="input-type-text" name="input-type-text" type="text" />
-    <p className="usa-hint">
+    <Hint>
       This TAC does not appear in TGET, so it might not be valid. Make sure it matches what&apos;s on the orders before
       you continue.
-    </p>
+    </Hint>
+    <TextInput id="input-type-text" name="input-type-text" type="text" />
   </FormGroup>
 );
 
