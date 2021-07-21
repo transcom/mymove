@@ -655,10 +655,10 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		var newSegment ediinvoice.ServiceItemSegments
-		if serviceItem.PriceCents == nil {
-			return segments, l3, services.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
+		if serviceItem.PriceCents != nil {
+			l3.PriceCents += int64(*serviceItem.PriceCents)
+			// return segments, l3, services.NewConflictError(serviceItem.ID, "Invalid service item. Must have a PriceCents value")
 		}
-		l3.PriceCents += int64(*serviceItem.PriceCents)
 		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
 		newSegment.HL = edisegment.HL{
