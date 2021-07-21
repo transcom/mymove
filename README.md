@@ -505,6 +505,21 @@ To fix the missing variables issue, you can do one of the following things:
   export DB_DEBUG=0
   ```
 
+##### Troubleshooting direnv & chamber
+
+Make sure you have the latest version of Chamber that supports the `env` command
+option. If may run into the following error if the version of Chamber you have
+installed does not support `env`. The error presents itself because of the
+`chamber` commands that `direnv` runs as part of the `.envrc.*` files being
+leveraged above.
+
+```shell
+>_ cd mymove
+direnv: loading .envrc.chamber
+Error: unknown command "env" for "chamber"
+Run 'chamber --help' for usage.
+```
+
 #### Setup: Dependencies
 
 This step will check your system for any setup issues. Then it will ensure that you have installed `pre-commit`
