@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"go.uber.org/zap"
 )
@@ -119,12 +120,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	})
 
+	priceCents := unit.Cents(888)
 	assertions := testdatagen.Assertions{
 		Move:           mto,
 		MTOShipment:    mtoShipment,
 		PaymentRequest: paymentRequest,
 		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
+			Status:     models.PaymentServiceItemStatusApproved,
+			PriceCents: &priceCents,
 		},
 	}
 
