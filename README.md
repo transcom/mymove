@@ -52,6 +52,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
       * [Setup: Build Tools](#setup-build-tools)
       * [Setup: Database](#setup-database)
       * [Setup: Server](#setup-server)
+        * [Server Dependencies](#server-dependencies)
       * [Setup: MilMove Local Client](#setup-milmove-local-client)
   * [Other Possible Setups](#other-possible-setups)
     * [Setup: Office Local client](#setup-office-local-client)
@@ -161,10 +162,13 @@ To install it, run:
 
 Use your work email when making commits to our repositories. The simplest path to correctness is setting global config:
 
-  ```bash
-  git config --global user.email "trussel@truss.works"
-  git config --global user.name "Trusty Trussel"
-  ```
+```shell
+git config --global user.email "trussel@truss.works"
+```
+
+```shell
+git config --global user.name "Trusty Trussel"
+```
 
 If you drop the `--global` flag these settings will only apply to the current repo. If you ever re-clone that repo or
 clone another repo, you will need to remember to set the local config again. You won't. Use the global config. :-)
@@ -183,12 +187,23 @@ Install [Docker](https://www.docker.com/products/docker-desktop).
 
 #### Setup: Project Checkout
 
-You can checkout this repository by running `git clone git@github.com:transcom/mymove.git`. Please check out the code
-in a directory like `~/Projects/mymove` and NOT in your `$GOPATH`. As an example:
+You can checkout this repository by running
+
+```shell
+git clone git@github.com:transcom/mymove.git
+```
+
+Please check out the code in a directory like `~/Projects/mymove` and NOT in your `$GOPATH`. As an example:
 
 ```shell
 mkdir -p ~/Projects
+```
+
+```shell
 git clone git@github.com:transcom/mymove.git
+```
+
+```shell
 cd mymove
 ```
 
@@ -209,7 +224,20 @@ If you need help with this setup, you can ask for help in the
 1. [Initial Setup](#nix-initial-setup)
 1. [Clean Up Local Env](#nix-clean-up-local-env)
 1. [Install Dependencies](#nix-installing-dependencies)
-1. Run `make deps_nix`
+1. Set up hosts file. Run
+
+    ```shell
+    make check_hosts
+    ```
+
+    If it tells you to run any commands, do so to set up your hosts file propely.
+
+1. Run
+
+    ```shell
+    make deps_nix
+    ```
+
     1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
        [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
 1. [Quick Initial Setup](#setup-quick-initial-setup)
@@ -230,7 +258,10 @@ necessary which aren't documented here.
 
 1. If you had previously been using `direnv`, `awscli`, `aws-vault`, `chamber`, and `pre-commit` installed via
    `homebrew`, uninstall them.
-    1. `brew uninstall direnv awscli aws-vault chamber pre-commit`
+
+    ```shell
+    brew uninstall direnv awscli aws-vault chamber pre-commit
+    ```
 
 1. Make sure you have disabled or uninstalled `nodenv`, `asdf` or any other version switchers for `mymove`.
     1. `nodenv`:
@@ -273,11 +304,21 @@ direnv: WARNING: nix packages out of date. Run nix/update.sh
 
 1. [Install bash](#manual-bash)
 1. [Setup golang](#manual-golang)
-1. `brew install aws-vault chamber awscli direnv`
+1. Install initial repo dependencies by running:
+
+    ```shell
+    brew install aws-vault chamber awscli direnv
+    ```
+
 1. [Set up AWS services](#setup-aws-services)
 1. [Prereqs](#manual-prerequisites)
 1. [Set up direnv](#setup-direnv)
-1. `make deps`
+1. Set up more dependencies by running
+
+    ```shell
+    make deps
+    ```
+
     1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
        [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
 1. [Quick Initial Setup](#setup-quick-initial-setup)
@@ -299,10 +340,19 @@ Ensure you are using the latest version of bash for this project:
     ```
 
 1. Optional: If you are using `bash` as your shell (and not `zsh`, `fish`, etc.) and want to use the latest shell as
-   well then change it: `chsh -s /usr/local/bin/bash`
+   well then change it:
+
+    ```shell
+    chsh -s /usr/local/bin/bash
+    ```
 
 1. Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH`
-    1. Run `echo $PATH` to check it.
+    1. To check in, run
+
+        ```shell
+        echo $PATH
+        ```
+
     1. If you need to modify your path, edit `~/.zshrc` (or your shell's config file) and change the `PATH`.
     1. Then source your profile/shell config file. E.g.
 
@@ -347,12 +397,17 @@ source ~/.zshrc
 
 You can confirm that the values exist with:
 
-```shell
-env | grep GOPATH
-# Verify the GOPATH is correct
-env | grep PATH
-# Verify the PATH includes your GOPATH bin directory
-```
+* Verify the `GOPATH` is correct
+
+    ```shell
+    env | grep GOPATH
+    ```
+
+* Verify the `PATH` includes your `GOPATH` bin directory
+
+    ```shell
+    env | grep PATH
+    ```
 
 #### Manual: Prerequisites
 
@@ -404,7 +459,10 @@ To fix the missing variables issue, you can do one of the following things:
   ```
 
   * **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with
-  `direnv export fish | source`.
+
+    ```shell
+    direnv export fish | source
+    ```
 
   * **Note also** if you have a very poor internet connection, this method may be
   problematic to you.
@@ -415,100 +473,285 @@ To fix the missing variables issue, you can do one of the following things:
   DISABLE_AWS_VAULT_WRAPPER=1 AWS_REGION=us-gov-west-1 aws-vault exec transcom-gov-dev -- chamber env app-devlocal >> .envrc.local
   ```
 
-* If you don't have access to `chamber`, you can also `touch .envrc.local` and add any values that the output from
-  `direnv` asks you to define.
+* If you don't have access to `chamber`, you can also run
+
+  ```shell
+  touch .envrc.local
+  ```
+
+  then add any values that the output from `direnv` asks you to define.
 
 ##### Helpful variables for `.envrc.local`
 
-* `export GOLANGCI_LINT_CONCURRENCY=8`
-  * variable to increase concurrency of `golangci-lint`; defaults to 6 on dev machines and to 1 in CircleCI.
-* `export GOLAND=1`
-  * variable to enable go code debugging in goland
-* `export DB_DEBUG=0`
-  * We default this to be true in `.envrc`, but if you want to silence the sql logs locally, you can set this to 0.
+* Increase concurrency of `golangci-lint`; defaults to 6 on dev machines and to 1 in CircleCI.
+
+  ```shell
+  export GOLANGCI_LINT_CONCURRENCY=8
+  ```
+
+* Enable go code debugging in goland
+
+  ```shell
+  export GOLAND=1
+  ```
+
+* Silence SQL logs locally; we default this to be true in `.envrc`
+
+  ```shell
+  export DB_DEBUG=0
+  ```
 
 #### Setup: Dependencies
 
-This will check your system for any setup issues. Then it will ensure that you have installed pre-commit
-and go on to install the client (javascript) and server (golang) dependencies for you.
+This step will check your system for any setup issues. Then it will ensure that you have installed `pre-commit`
+and go on to install the client (javascript) and server (golang) dependencies for you. If you are interested in
+more details, you can look at the sections under this one, but it's not required.
 
 ##### Setup: Pre-Commit
 
-Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than
-`brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.
-Next install the pre-commit hook libraries with `pre-commit install-hooks`.
+Part of the `pre-commit` setup run by the `make deps` or `make deps_nix` commands. They in turn run
 
-You can feel free to skip running the pre-commit checks at this time. Before you do run `pre-commit run -a`, you will
-need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this
-is by running `make pre_commit_tests` or `make server_generate client_deps && pre-commit run -a`.
+```shell
+pre-commit install
+```
+
+to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than
+
+```shell
+brew install pre-commit
+```
+
+and must be done so that the hook will check files you are about to commit to the repository.
+
+Next it installs the `pre-commit` hook libraries with
+
+```shell
+pre-commit install-hooks
+```
+
+If you ever want to run the `pre-commit` hooks for all files, you can run
+
+```shell
+pre-commit run -a
+```
+
+though before you can do that, you'll need to have installed the `javascript` dependencies and generated some `golang`
+code from Swagger files. Once you've finished setting up your project locally, you should be good to go. If you want
+to skip ahead and be able to run `pre-commit` checks since now, you can run
+
+```shell
+make pre_commit_tests
+```
+
+or
+
+```shell
+make server_generate client_deps && pre-commit run -a
+```
 
 ###### Troubleshooting install issues (process hanging on install hooks)
 
 Since pre-commit uses node to hook things up in both your local repo and its cache folder
 (located at `~/.cache/pre-commit`),it requires a global node install.
 
-If you are using `nodenv` to manage multiple versions of node, you'll need to set a global version to proceed
-(eg `nodenv global 14.17.1`). You can find the current supported node version
-[here (in `.node-version`)](./.node-version). Make sure you run `nodenv install` to install the current supported
-version.
+If you are using `nodenv` to manage multiple versions of node, you'll need to set a global version to proceed.
+E.g. by running
+
+```shell
+nodenv global 14.17.1
+```
+
+You can find the current supported node version [here (in `.node-version`)](./.node-version). To install the currently
+required version for this project, run:
+
+```shell
+nodenv install
+```
 
 #### Setup: Quick Initial Setup
 
 The following commands will get `mymove` running on your machine for the first time.
 This is an abbreviated list that should get you started. Please read the linked sections for explanations/details.
 
-1. `make build_tools`
+1. Build all tools
+
+    ```shell
+    make build_tools
+    ```
+
     1. [Setup: Build Tools](#setup-build-tools)
-1. `make db_dev_run`
+1. Create and start the development database
+
+    ```shell
+    make db_dev_run
+    ```
+
     1. [Setup: Database](#setup-database)
-1. `make db_dev_migrate`
+1. Run migrations against development database
+
+    ```shell
+    make db_dev_migrate
+    ```
+
     1. [Setup: Database](#setup-database)
-1. `make server_run`
+1. Start backend server
+
+    ```shell
+    make server_run
+    ```
+
     1. [Setup: Server](#setup-server)
-1. `make client_build`
+1. Install javascript dependencies and build client bundle
+
+    ```shell
+    make client_build
+    ```
+
     1. [Setup: MilMove Local Client](#setup-milmove-local-client)
-1. `make client_run`
+1. Run frontend server
+
+    ```shell
+    make client_run
+    ```
+
     1. [Setup: MilMove Local Client](#setup-milmove-local-client)
 
 ##### Setup: Build Tools
 
-Run `make build_tools` to get all the server and tool dependencies built. These will be needed in future steps to not only generate test data but also to interact with the database and more.
+This builds all the server and tool dependencies. These will be needed in future steps to not only generate test data
+but also to interact with the database and more.
+
+```shell
+make build_tools
+```
 
 ##### Setup: Database
 
-You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
+You will need to setup a local database before you can begin working on the local server / client. Docker will need to
+be running for any of this to work.
 
-1. `make db_dev_run` and `make db_test_run`: Creates a PostgreSQL docker container for dev and test, if they don't already exist.
+1. Creates a PostgreSQL docker container for dev, if it doesn't exist already, and starts/runs it.
 
-1. `make db_dev_migrate` and `make db_test_migrate`:  Runs all existing database migrations for dev and test databases, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+    ```shell
+    make db_dev_run
+    ```
 
-You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
-You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+1. Runs all existing database migrations for dev database, which does things like creating table structures, etc.
+   You will run this command again anytime you add new migrations to the app (see below for more).
+
+    ```shell
+    make db_dev_migrate
+    ```
+
+You can validate that your dev database is running by running
+
+```shell
+psql-dev
+```
+
+This puts you in a PostgreSQL shell. To show all the tables, type
+
+```shell
+\dt
+```
+
+If you want to exit out of the PostgreSQL shell, type
+
+```shell
+\q
+```
 
 If you are stuck on this step you may need to see the section on Troubleshooting.
 
 ##### Setup: Server
 
-1. `make server_run`: installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server. It will listen on 8080 and will rebuild the actual server any time a go file changes. Pair this with `make client_run` to have hot reloading of the entire application.
+This step installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server.
+It will listen on port `8080` and will rebuild the actual server any time a go file changes.
 
-In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
+```shell
+make server_run
+```
 
-Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically detected in import statements and added to `go.mod` when you run `go build` or `go run`. You can also manually edit `go.mod` as needed.
+To have hot reloading of the entire application (at least for the customer side), pair the above with
 
-If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in `pkg/tools/tools.go`.
+```shell
+make client_run
+```
 
-After importing _any_ go dependency it's a good practice to run `go mod tidy`, which prunes unused dependencies and calculates dependency requirements for all possible system architectures.
+In rare cases, you may want to run the server standalone, in which case you can run
+
+```shell
+make server_run_standalone
+```
+
+This will build both the client and the server and this invocation can be relied upon to be serving the client JS on
+its own rather than relying on webpack doing so. You can run this without running `make client_run` and the whole app
+should work.
+
+###### Server Dependencies
+
+Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically
+detected in import statements and added to `go.mod` when you run
+
+```shell
+go build
+```
+
+or
+
+```shell
+go run
+```
+
+You can also manually edit `go.mod` as needed.
+
+If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in
+`pkg/tools/tools.go`.
+
+After importing _any_ go dependency it's a good practice to run
+
+```shell
+go mod tidy
+```
+
+which prunes unused dependencies and calculates dependency requirements for all possible system architectures.
 
 ##### Setup: MilMove Local Client
 
-1. `make client_build` (if setting up for first time)
-2. `make client_run`
+Commands in this section:
 
-The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
+```shell
+make client_build
+```
 
-If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/swagger-ui/internal.html>.  If it does not, try running `make client_build` (this only needs to be run the first time).
+and
 
-Dependencies are managed by yarn. To add a new dependency, use `yarn add`
+```shell
+make client_run
+````
+
+These will start the webpack dev server, serving the frontend on port 3000. If paired with
+
+```shell
+make server_run
+```
+
+then the whole app will work, the webpack dev server proxies all API calls through to the server.
+
+If both the server and client are running, you should be able to view the Swagger UI at
+<http://milmovelocal:3000/swagger-ui/internal.html>. If it does not, try running
+
+```shell
+make client_build
+```
+
+(this only needs to be run the first time).
+
+Dependencies are managed by `yarn`. To add a new dependency, use
+
+```shell
+yarn add
+```
 
 ### Other Possible Setups
 
@@ -517,19 +760,33 @@ There are more things you can set up in the following sections.
 
 #### Setup: Office Local client
 
-1. Ensure that you have a test account which can log into the office site:
-    * run `make db_dev_e2e_populate` to load test data
-2. Run `make office_client_run`
-    * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
+1. Ensure that you have a test account which can log into the office site. To load test data, run:
+
+    ```shell
+    make db_dev_e2e_populate
+    ```
+
+1. Run
+
+    ```shell
+    make office_client_run
+    ```
+
+1. Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
 
 #### Setup: Admin Local client
 
-1. `make admin_client_run`
+Run
+
+```shell
+make admin_client_run
+````
 
 #### Setup: DPS user
 
 1. Ensure that you have a login.gov test account
-2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the interface.
+2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the
+   interface.
 
 #### Setup: Orders Gateway
 
@@ -537,11 +794,23 @@ Nothing to do.
 
 #### Setup: Prime API
 
-The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
+The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact
+with it in a local environment.
 
-1. Make sure that the `primelocal` alias is setup for localhost - this should have been completed in the [Setup:Prerequisites](#Setup-Prerequisites) (check your `/etc/hosts` file for an entry for `primelocal`).
-2. run `make server_run`
-3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
+1. Make sure that the `primelocal` alias is setup for localhost
+    1. Check your `/etc/hosts` file for an entry for `primelocal`.
+2. Run
+
+    ```shell
+    make server_run
+    ```
+
+3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl
+   at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, run
+
+    ```shell
+    ./scripts/prime-api move-task-orders
+    ```
 
 ## Development
 
