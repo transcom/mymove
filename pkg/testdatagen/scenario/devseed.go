@@ -12,12 +12,14 @@ package scenario
 
 import (
 	"fmt"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"log"
 	"net/http/httptest"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
@@ -4148,10 +4150,6 @@ func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, pr
 		createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
 		createHHGMoveWithAmendedOrders(db, userUploader, primeUploader)
 	}
-}
-
-func myNewSubScenario(logger Logger) {
-	logger.Info("HELLO")
 }
 
 // Setup initializes the run setup for the devseed scenario

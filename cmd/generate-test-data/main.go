@@ -48,14 +48,8 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	}
 
 	namedScenario := v.GetString(namedScenarioFlag)
-	namedScenarioStruct, err := findNamedScenarioByName(namedScenario)
+	_, err := findNamedScenarioByName(namedScenario)
 	if err != nil {
-		return err
-	}
-
-	// check named sub scenario
-	// optional flag
-	if err = checkConfigNamedSubScenarioFlag(v, namedScenarioStruct); err != nil {
 		return err
 	}
 
@@ -67,7 +61,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
-func checkConfigNamedSubScenarioFlag(v *viper.Viper, namedScenarioStruct *tdgs.NamedScenario) error {
+func checkConfigNamedSubScenarioFlag(v *viper.Viper, namedScenarioStruct tdgs.NamedScenario) error {
 	namedSubScenario := v.GetString(namedSubScenarioFlag)
 	// optional flag, ok if value is empty
 	// ok if there are not any named sub scenarios
@@ -76,9 +70,15 @@ func checkConfigNamedSubScenarioFlag(v *viper.Viper, namedScenarioStruct *tdgs.N
 	}
 
 	// continue, check if named sub scenarios matches expectations
-	if !stringSliceContains(namedScenarioStruct.SubScenarios, namedSubScenario) {
-		return errors.Wrap(&errInvalidScenario{Name: namedSubScenario}, fmt.Sprintf("%s is invalid, expected "+
-			"a value from %v or empty value", namedSubScenario, namedScenarioStruct.SubScenarios))
+	if _, ok := namedScenarioStruct.SubScenarios[namedSubScenario]; !ok {
+		// to get the list of names
+		var namedSubScenarioStringList []string
+		for key := range namedScenarioStruct.SubScenarios {
+			namedSubScenarioStringList = append(namedSubScenarioStringList, key)
+		}
+
+		return fmt.Errorf("%s is an invalid sub-scenario, expected "+
+			"a value from %v or empty value", namedSubScenario, namedSubScenarioStringList)
 	}
 
 	return nil
@@ -103,15 +103,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Don't sort flags
 	flag.SortFlags = false
-}
-
-func stringSliceContains(stringSlice []string, value string) bool {
-	for _, x := range stringSlice {
-		if value == x {
-			return true
-		}
-	}
-	return false
 }
 
 func findNamedScenarioByName(name string) (*tdgs.NamedScenario, error) {
@@ -254,7 +245,18 @@ func main() {
 				logger.Fatal("Failed to initialize GHC route planner")
 			}
 
-			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, routePlanner, logger, namedSubScenario)
+			// Initialize setup
+			tdgs.DevSeedScenario.Setup(dbConnection, userUploader, primeUploader, routePlanner, logger, namedSubScenario)
+
+			// Sub-scenarios are generated at run time
+			// Check config
+			// optional flag
+			if err = checkConfigNamedSubScenarioFlag(v, tdgs.NamedScenario(tdgs.DevSeedScenario)); err != nil {
+				logger.Fatal("invalid configuration", zap.Error(err))
+			}
+
+			// Run seed
+			tdgs.DevSeedScenario.Run(logger, namedSubScenario)
 		} else if namedScenario == tdgs.BandwidthScenario.Name {
 			tdgs.BandwidthScenario.Run(dbConnection, userUploader, primeUploader)
 		}
