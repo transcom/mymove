@@ -53,6 +53,7 @@ type MTOServiceItemDomesticCrating struct {
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// Explanation of why Prime is picking up crating item.
+	// Example: Storage items need to be picked up
 	Reason *string `json:"reason"`
 }
 
@@ -158,6 +159,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up crating item.
+		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
 	}
 	buf := bytes.NewBuffer(raw)
@@ -251,6 +253,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up crating item.
+		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
 	}{
 
