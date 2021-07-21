@@ -366,7 +366,6 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
-		return model, nil
 	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
 		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
 		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
@@ -375,16 +374,14 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
-
-		return model, nil
 	default:
 		// assume basic service item
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
-
-		return model, nil
 	}
+
+	return model, nil
 }
 
 // validateDomesticCrating validates this mto service item domestic crating

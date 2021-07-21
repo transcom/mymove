@@ -57,7 +57,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	suite.T().Run("Success - Returns a basic service item model", func(t *testing.T) {
 		returnedModel, verrs := MTOServiceItemModel(basicServieItem)
 
-		suite.False(verrs.HasAny(), "Error validating model")
+		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
 		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
 		suite.Equal(models.ReServiceCode("FSC"), returnedModel.ReService.Code)
@@ -75,7 +75,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 			}
 		}
 
-		suite.False(verrs.HasAny(), "Error validating model")
+		suite.NoVerrs(verrs)
 		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
 		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
 		suite.Equal(models.ReServiceCode("DCRT"), returnedModel.ReService.Code)
