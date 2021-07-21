@@ -1,11 +1,3 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used set up environment variables
-//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
-// nolint:errcheck
 package invoice
 
 import (
@@ -258,7 +250,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	// setup known next value
-	suite.icnSequencer.SetVal(122)
+	icnErr := suite.icnSequencer.SetVal(122)
+	suite.NoError(icnErr)
 
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
@@ -674,6 +667,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	_, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 }
+
 func (suite *GHCInvoiceSuite) TestNilValues() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
