@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import { ServiceItemDetailsShape } from '../../../types/serviceItems';
 
@@ -7,9 +8,9 @@ import styles from './ServiceItemDetails.module.scss';
 import { formatDate } from 'shared/dates';
 import { convertFromThousandthInchToInch, formatWeight } from 'shared/formatters';
 
-function generateDetailText(details, id) {
+function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
-    <div key={`${id}-${detail}`} className={styles.detailLine}>
+    <div key={`${id}-${detail}`} className={classnames(styles.detailLine, className)}>
       <dt className={styles.detailType}>{detail}:</dt> <dd>{details[`${detail}`]}</dd>
     </div>
   ));
@@ -33,7 +34,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
               },
               id,
             )}
-            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
           </dl>
         </div>
       );
@@ -75,7 +77,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
                 generateDetailText({ 'Second Customer Contact': '-', 'Second Available Delivery Date': '-' })}
             </div>
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
           </dl>
         </div>
       );
@@ -102,7 +105,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
-            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
           </dl>
         </div>
       );
@@ -118,7 +122,8 @@ const ServiceItemDetails = ({ id, code, details }) => {
               <dd className={styles.detailType}>{estimatedWeight}</dd> <dt>estimated weight</dt>
             </div>
             {generateDetailText({ Reason: details.reason })}
-            {details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
           </dl>
         </div>
       );
@@ -128,7 +133,10 @@ const ServiceItemDetails = ({ id, code, details }) => {
       detailSection = (
         <div>
           <div>—</div>
-          <dl>{details.rejectionReason && generateDetailText({ 'Rejection reason': details.rejectionReason }, id)}</dl>
+          <dl>
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+          </dl>
         </div>
       );
   }
