@@ -309,6 +309,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+		Reason:    handlers.FmtString("reason"),
 	}
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Crating", func(t *testing.T) {
