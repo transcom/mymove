@@ -113,6 +113,14 @@ To create an account in the sandbox, follow the same instructions, but [in the
 sandbox server](https://idp.int.identitysandbox.gov/sign_up/enter_email).  Do
 _not_ use your regular email address in the sandbox.
 
+### Creating alternative users with the same email address
+
+You can use the plus sign `+` to create a new Truss email address.
+`name+some_string@truss.works` will be treated as a new address, but will be
+routed to your `name@truss.works` email automatically. Don't use this for the
+office-side of account creation. It's helpful to use these types of accounts for
+the customer-side accounts.
+
 ## Project Layout
 
 All of our code is intermingled in the top level directory of `mymove`. Here is an explanation of what some of these
