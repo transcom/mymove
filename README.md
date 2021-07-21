@@ -516,10 +516,10 @@ To fix the missing variables issue, you can do one of the following things:
 ##### Troubleshooting direnv & chamber
 
 Make sure you have the latest version of Chamber that supports the `env` command
-option. If may run into the following error if the version of Chamber you have
+option. You may run into the following error if the version of Chamber you have
 installed does not support `env`. The error presents itself because of the
-`chamber` commands that `direnv` runs as part of the `.envrc.*` files being
-leveraged above.
+`chamber` commands that `direnv` runs as part of the `.envrc.*` files shown
+above.
 
 ```shell
 >_ cd mymove
