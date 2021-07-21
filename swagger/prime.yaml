@@ -1641,6 +1641,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
         type: array
+        readOnly: true
       pickupAddress:
         description: >
           The address where the movers should pick up this shipment, entered by the customer during onboarding
