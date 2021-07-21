@@ -51,6 +51,9 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	// Enum: [DCRT DCRTSA DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
+
+	// Explanation of why Prime is picking up crating item.
+	Reason *string `json:"reason"`
 }
 
 // ETag gets the e tag of this subtype
@@ -153,6 +156,9 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
+
+		// Explanation of why Prime is picking up crating item.
+		Reason *string `json:"reason"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -213,6 +219,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	result.Description = data.Description
 	result.Item = data.Item
 	result.ReServiceCode = data.ReServiceCode
+	result.Reason = data.Reason
 
 	*m = result
 
@@ -242,6 +249,9 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
+
+		// Explanation of why Prime is picking up crating item.
+		Reason *string `json:"reason"`
 	}{
 
 		Crate: m.Crate,
@@ -251,6 +261,8 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		Item: m.Item,
 
 		ReServiceCode: m.ReServiceCode,
+
+		Reason: m.Reason,
 	})
 	if err != nil {
 		return nil, err

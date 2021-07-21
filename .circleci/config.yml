@@ -15,7 +15,7 @@ version: '2.1'
 references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-d4d040748ffb5ce6085e34eb258eec45a1b7fb42
 
-  postgres: &postgres postgres:12.4
+  postgres: &postgres postgres:12.7
 
 executors:
   av_medium:
