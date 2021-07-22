@@ -31,14 +31,15 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
-const findAdditionalServiceItemData = (mtoServiceItemsList, mtoServiceItemCode) => {
-  return mtoServiceItemsList?.find((mtoServiceItem) => mtoServiceItem.reServiceCode === mtoServiceItemCode);
-};
-
 const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   const { modificationType, departureDate, address, mtoServiceItems } = shipment;
+
+  const findAdditionalServiceItemData = (mtoServiceItemCode) => {
+    return mtoServiceItems?.find((mtoServiceItem) => mtoServiceItem.reServiceCode === mtoServiceItemCode);
+  };
+
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -83,7 +84,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
               return (
                 <ExpandableServiceItemRow
                   serviceItem={item}
-                  additionalServiceItemData={findAdditionalServiceItemData(mtoServiceItems, item.mtoServiceItemCode)}
+                  additionalServiceItemData={findAdditionalServiceItemData(item.mtoServiceItemCode)}
                   key={item.id}
                   index={index}
                   disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
