@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -73,7 +75,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	}
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -164,8 +167,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	suite.T().Run("POST failure - 404 - MTO is not available to Prime", func(t *testing.T) {
 		mtoNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -192,7 +195,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto2,
 		})
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -305,10 +309,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+		Reason:    handlers.FmtString("reason"),
 	}
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Crating", func(t *testing.T) {
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -330,7 +336,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Uncrating", func(t *testing.T) {
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -352,7 +359,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Crating Standalone", func(t *testing.T) {
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -433,8 +441,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		// SETUP
 		// Create the payload
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -463,8 +471,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		// SETUP
 		// Create the payload
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -501,8 +509,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		})
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -559,8 +567,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		// Create the payload
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -637,8 +645,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		// Create the payload
 
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -781,8 +789,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			Description:     handlers.FmtString("description"),
 			SITEntryDate:    &sitEntryDate,
 		}
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -806,7 +814,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 	})
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -827,8 +836,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -855,8 +864,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
-
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -878,7 +887,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		// SETUP
 		// Create the payload
 		mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -938,9 +948,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 
 	// Create the handler
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	handler := UpdateMTOServiceItemHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// create the params struct
@@ -1095,9 +1106,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 
 	// Create the handler
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	handler := UpdateMTOServiceItemHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
 	// create the params struct

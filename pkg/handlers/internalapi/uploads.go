@@ -54,7 +54,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	logger.Info(
 		"File uploader and size",
-		zap.String("userID", session.ServiceMemberID.String()),
+		zap.String("userID", session.UserID.String()),
 		zap.String("serviceMemberID", session.ServiceMemberID.String()),
 		zap.String("officeUserID", session.OfficeUserID.String()),
 		zap.String("AdminUserID", session.AdminUserID.String()),
@@ -77,32 +77,31 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
-	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
-	if err != nil {
-		logger.Fatal("could not instantiate uploader", zap.Error(err))
-	}
+	newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
+		h.DB(),
+		logger,
+		session.UserID,
+		h.FileStorer(),
+		file,
+		file.Header.Filename,
+		uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+		docID,
+	)
 
-	aFile, err := userUploader.PrepareFileForUpload(file.Data, file.Header.Filename)
-	if err != nil {
-		logger.Fatal("could not prepare file for uploader", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-
-	newUserUpload, verrs, err := userUploader.CreateUserUploadForDocument(docID, session.UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesServiceMember)
-	if verrs.HasAny() || err != nil {
-		switch err.(type) {
+	if verrs.HasAny() || createErr != nil {
+		logger.Error("failed to create new user upload", zap.Error(createErr), zap.String("verrs", verrs.Error()))
+		switch createErr.(type) {
 		case uploaderpkg.ErrTooLarge:
 			return uploadop.NewCreateUploadRequestEntityTooLarge()
+		case uploaderpkg.ErrFile:
+			return uploadop.NewCreateUploadInternalServerError()
+		case uploaderpkg.ErrFailedToInitUploader:
+			return uploadop.NewCreateUploadInternalServerError()
 		default:
-			return handlers.ResponseForVErrors(logger, verrs, err)
+			return handlers.ResponseForVErrors(logger, verrs, createErr)
 		}
 	}
 
-	url, err := userUploader.PresignedURL(newUserUpload)
-	if err != nil {
-		logger.Error("failed to get presigned url", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
-	}
 	uploadPayload := payloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
 }
@@ -122,7 +121,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
-	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
@@ -142,7 +141,7 @@ type DeleteUploadsHandler struct {
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
+	userUploader, err := uploaderpkg.NewUserUploader(h.DB(), logger, h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}

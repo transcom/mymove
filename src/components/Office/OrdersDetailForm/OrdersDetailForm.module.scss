@@ -11,4 +11,16 @@
   :global .DayPickerInput {
     display: block;
   }
+
+  .wrappedCheckbox {
+    @include u-margin-top(4);
+    @include u-margin-bottom(4);
+    @include u-padding-top(1);
+    @include u-padding-bottom(1);
+    @include u-padding-left(2);
+    @include u-display(flex);
+    justify-content: center;
+    border: 1px solid $base-lighter;
+    border-radius: 4px;
+  }
 }

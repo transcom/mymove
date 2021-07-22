@@ -1306,10 +1306,24 @@ definitions:
             type: string
             example: Things to be moved to the place by shuttle.
             description: Further details about the shuttle service.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reason
           - reServiceCode
           - description
+          - estimatedWeight
+          - actualWeight
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem.
     type: string

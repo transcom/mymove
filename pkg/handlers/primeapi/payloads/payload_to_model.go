@@ -292,6 +292,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
 		model.Description = shuttleService.Description
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -304,6 +307,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// have to get code from payload
 		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
+		model.Reason = domesticCrating.Reason
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
 				Type:   models.DimensionTypeItem,
@@ -349,8 +353,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 	// Here we initialize more fields below for the specific model types.
 	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
-	modelType := mtoServiceItem.ModelType()
-	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+	switch mtoServiceItem.ModelType() {
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
@@ -362,13 +366,22 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
 
-		return model, nil
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+	default:
+		// assume basic service item
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
 	}
 
-	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
-	return nil, verrs
-
+	return model, nil
 }
 
 // validateDomesticCrating validates this mto service item domestic crating

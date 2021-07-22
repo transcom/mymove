@@ -5,7 +5,7 @@ set -eu -o pipefail
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-VERSION="v6.2"
+VERSION="v6.3"
 
 # first part gets path of aws-vault
 # second part gets version, which is returned on stderr thus rerouted to stdout

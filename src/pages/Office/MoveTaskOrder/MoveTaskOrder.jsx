@@ -19,8 +19,8 @@ import LeftNav from 'components/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
-import ShipmentHeading from 'components/Office/ShipmentHeading';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
@@ -31,6 +31,9 @@ import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
 
 function formatShipmentDate(shipmentDateString) {
+  if (shipmentDateString == null) {
+    return '';
+  }
   const dateObj = new Date(shipmentDateString);
   const weekday = new Intl.DateTimeFormat('en', { weekday: 'long' }).format(dateObj);
   const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(dateObj);
@@ -60,17 +63,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
 
-  const {
-    orders = {},
-    moveTaskOrders,
-    mtoShipments,
-    mtoServiceItems,
-    isLoading,
-    isError,
-  } = useMoveTaskOrderQueries(moveCode);
+  const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
   const order = Object.values(orders)?.[0];
-  const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -85,12 +80,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       newItem.details = {
         pickupPostalCode: item.pickupPostalCode,
         reason: item.reason,
-        imgURL: '',
         description: item.description,
         itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
         crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
         firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
         secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+        estimatedWeight: item.estimatedWeight,
+        rejectionReason: item.rejectionReason,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -107,8 +103,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
       mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
         newMTOServiceItem;
-      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, false], mtoServiceItems);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveTaskOrderId]);
+      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
       setIsModalVisible(false);
       setSelectedServiceItem({});
     },
@@ -136,7 +132,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
@@ -159,9 +155,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   });
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID: moveTaskOrder.id,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.DIVERSION_REQUESTED,
+      operationPath: 'shipment.requestShipmentDiversion',
       ifMatchETag: eTag,
       onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
     });
@@ -169,9 +164,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
+      operationPath: 'shipment.requestShipmentCancellation',
       ifMatchETag: eTag,
       onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
     });
@@ -181,7 +175,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
     mutateMTOServiceItemStatus({
-      moveTaskOrderId: moveTaskOrder.id,
+      moveId: move.id,
       mtoServiceItemID,
       status,
       rejectionReason,
@@ -275,7 +269,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
+  if (move.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
     return (
       <div className={styles.tabContent}>
         <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
@@ -324,7 +318,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
-              <h6>MTO Reference ID #{moveTaskOrder?.referenceId}</h6>
+              <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
           </div>

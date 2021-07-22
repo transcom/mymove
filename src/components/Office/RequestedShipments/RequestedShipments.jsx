@@ -8,7 +8,7 @@ import styles from './RequestedShipments.module.scss';
 
 import { serviceItemCodes } from 'content/serviceItems';
 import { shipmentTypeLabels } from 'content/shipments';
-import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview';
+import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { formatDateFromIso } from 'shared/formatters';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -44,6 +44,8 @@ const RequestedShipments = ({
       secondaryPickupAddress: shipment.secondaryPickupAddress,
       destinationAddress: shipment.destinationAddress || dutyStationPostal,
       secondaryDeliveryAddress: shipment.secondaryDeliveryAddress,
+      counselorRemarks: shipment.counselorRemarks,
+      customerRemarks: shipment.customerRemarks,
     };
   };
 
@@ -71,9 +73,8 @@ const RequestedShipments = ({
             Promise.all(
               filteredShipments.map((shipment) =>
                 approveMTOShipment({
-                  moveTaskOrderID: moveTaskOrder.id,
                   shipmentID: shipment.id,
-                  shipmentStatus: 'APPROVED',
+                  operationPath: 'shipment.approveShipment',
                   ifMatchETag: shipment.eTag,
                   normalize: false,
                 }),
@@ -94,15 +95,20 @@ const RequestedShipments = ({
       } else {
         // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
         Promise.all(
-          filteredShipments.map((shipment) =>
-            approveMTOShipment({
-              moveTaskOrderID: moveTaskOrder.id,
+          filteredShipments.map((shipment) => {
+            let operationPath = 'shipment.approveShipment';
+
+            if (shipment.approvedDate) {
+              operationPath = 'shipment.approveShipmentDiversion';
+            }
+
+            return approveMTOShipment({
               shipmentID: shipment.id,
-              shipmentStatus: 'APPROVED',
+              operationPath,
               ifMatchETag: shipment.eTag,
               normalize: false,
-            }),
-          ),
+            });
+          }),
         )
           .then(() => {
             handleAfterSuccess('mto');

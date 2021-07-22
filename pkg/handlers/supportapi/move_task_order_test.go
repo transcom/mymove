@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -167,11 +169,12 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -353,11 +356,12 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			IfMatch:         createdMTO.ETag,
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
+			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
 

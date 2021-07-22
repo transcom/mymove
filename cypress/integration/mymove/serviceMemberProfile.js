@@ -32,7 +32,7 @@ function serviceMemberChoosesConusOrOconus() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/conus-oconus/);
   });
-  cy.get('[data-testid="radio"] label').contains('CONUS').click();
+  cy.get('[for="input_CONUS"]').click();
   cy.get('button[data-testid="wizardNextButton"]').click();
 }
 
@@ -63,7 +63,12 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //contact info
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="telephone"]').type('6784567890');
-  cy.get('[type="checkbox"]').not('[disabled]').check({ force: true }).should('be.checked');
+  cy.get('[type="checkbox"]')
+    .not('[disabled]')
+    .check({
+      force: true,
+    })
+    .should('be.checked');
   cy.nextPage();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/current-duty/);

@@ -1,7 +1,7 @@
 package order
 
 import (
-	"fmt"
+	"io"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -16,6 +16,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type orderUpdater struct {
@@ -41,7 +43,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.U
 
 	orderToUpdate := orderFromTOOPayload(*order, payload)
 
-	return f.updateOrder(orderToUpdate)
+	return f.updateOrder(orderToUpdate, CheckRequiredFields())
 }
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
@@ -95,29 +97,36 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 	return f.updateOrder(orderToUpdate)
 }
 
-// UploadAmendedOrders add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrders(existingOrder models.Order, payload *internalmessages.UploadPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	orderToUpdate := existingOrder
-	// TODO in MB-8335 when there aren't any uploadedAmendedOrders yet
-	// generate a document ID
-	// if orderToUpdate.UploadedAmendedOrders == nil {
-	// }
-	// TODO in MB-8335 update the etag
-	// existingETag := etag.GenerateEtag(order.UpdatedAt)
-	// if existingETag != eTag {
-	// 	return &models.Order{}, uuid.Nil, services.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
-	// }
-	fmt.Printf("%v", payload)
+// UploadAmendedOrdersAsCustomer add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	orderToUpdate, findErr := f.findOrderWithAmendedOrders(orderID)
+	if findErr != nil {
+		return models.Upload{}, "", nil, findErr
+	}
 
-	// TODO in MB-8335 attach the incoming documents to the order's UploadedAmendedOrders
-	// order.UploadedAmendedOrders = payload
-	return f.updateOrder(orderToUpdate)
+	userUpload, url, verrs, err := f.amendedOrder(f.db, logger, userID, *orderToUpdate, file, filename, storer)
+	if verrs.HasAny() || err != nil {
+		return models.Upload{}, "", verrs, err
+	}
+
+	return userUpload.Upload, url, nil, nil
 }
 
 func (f *orderUpdater) findOrder(orderID uuid.UUID) (*models.Order, error) {
 	var order models.Order
 	err := f.db.Q().EagerPreload("Moves", "ServiceMember", "Entitlement").Find(&order, orderID)
+	if err != nil {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(orderID, "while looking for order")
+		}
+	}
 
+	return &order, nil
+}
+
+func (f *orderUpdater) findOrderWithAmendedOrders(orderID uuid.UUID) (*models.Order, error) {
+	var order models.Order
+	err := f.db.Q().EagerPreload("ServiceMember", "UploadedAmendedOrders").Find(&order, orderID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(orderID, "while looking for order")
@@ -174,7 +183,60 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 
 	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
 
+	// if the order has amended order documents and it has not been previously acknowledged record the current timestamp
+	if payload.OrdersAcknowledgement != nil && *payload.OrdersAcknowledgement && existingOrder.UploadedAmendedOrdersID != nil && existingOrder.AmendedOrdersAcknowledgedAt == nil {
+		acknowledgedAt := time.Now()
+		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
+	}
+
 	return order
+}
+
+func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
+
+	// If Order does not have a Document for amended orders uploads, then create a new one
+	var err error
+	savedAmendedOrdersDoc := order.UploadedAmendedOrders
+	if order.UploadedAmendedOrders == nil {
+		amendedOrdersDoc := &models.Document{
+			ServiceMemberID: order.ServiceMemberID,
+		}
+		savedAmendedOrdersDoc, err = f.saveDocumentForAmendedOrder(amendedOrdersDoc)
+		if err != nil {
+			return models.UserUpload{}, "", nil, err
+		}
+
+		// save new UploadedAmendedOrdersID (document ID) to orders
+		order.UploadedAmendedOrders = savedAmendedOrdersDoc
+		order.UploadedAmendedOrdersID = &savedAmendedOrdersDoc.ID
+		_, _, err = f.updateOrder(order)
+		if err != nil {
+			return models.UserUpload{}, "", nil, err
+		}
+	}
+
+	// Create new user upload for amended order
+	var userUpload *models.UserUpload
+	var verrs *validate.Errors
+	var url string
+	userUpload, url, verrs, err = uploader.CreateUserUploadForDocumentWrapper(
+		db,
+		logger,
+		userID,
+		storer,
+		file,
+		filename,
+		uploader.MaxCustomerUserUploadFileSizeLimit,
+		&savedAmendedOrdersDoc.ID,
+	)
+
+	if verrs.HasAny() || err != nil {
+		return models.UserUpload{}, "", verrs, err
+	}
+
+	order.UploadedAmendedOrders.UserUploads = append(order.UploadedAmendedOrders.UserUploads, *userUpload)
+
+	return *userUpload, url, nil, nil
 }
 
 func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateOrderPayload) models.Order {
@@ -286,7 +348,43 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 	return order
 }
 
-func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*models.Document, error) {
+
+	var docID uuid.UUID
+	if doc != nil {
+		docID = doc.ID
+	}
+
+	handleError := func(verrs *validate.Errors, err error) error {
+		if verrs != nil && verrs.HasAny() {
+			return services.NewInvalidInputError(docID, nil, verrs, "")
+		}
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+		var verrs *validate.Errors
+		var err error
+		verrs, err = tx.ValidateAndSave(doc)
+		if e := handleError(verrs, err); e != nil {
+			return e
+		}
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
+	}
+
+	return doc, nil
+}
+
+func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
 	handleError := func(verrs *validate.Errors, err error) error {
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(order.ID, nil, verrs, "")
@@ -301,6 +399,10 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
+
+		if verr := ValidateOrder(&order, checks...); verr != nil {
+			return verr
+		}
 
 		// update service member
 		if order.Grade != nil {
@@ -364,5 +466,9 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 		return nil, uuid.Nil, transactionError
 	}
 
-	return &order, order.Moves[0].ID, nil
+	var moveID uuid.UUID
+	if len(order.Moves) > 0 {
+		moveID = order.Moves[0].ID
+	}
+	return &order, moveID, nil
 }

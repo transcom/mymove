@@ -13,42 +13,42 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// UploadAmendedOrdersOKCode is the HTTP code returned for type UploadAmendedOrdersOK
-const UploadAmendedOrdersOKCode int = 200
+// UploadAmendedOrdersCreatedCode is the HTTP code returned for type UploadAmendedOrdersCreated
+const UploadAmendedOrdersCreatedCode int = 201
 
-/*UploadAmendedOrdersOK the instance of the amended orders
+/*UploadAmendedOrdersCreated created upload
 
-swagger:response uploadAmendedOrdersOK
+swagger:response uploadAmendedOrdersCreated
 */
-type UploadAmendedOrdersOK struct {
+type UploadAmendedOrdersCreated struct {
 
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.Orders `json:"body,omitempty"`
+	Payload *internalmessages.UploadPayload `json:"body,omitempty"`
 }
 
-// NewUploadAmendedOrdersOK creates UploadAmendedOrdersOK with default headers values
-func NewUploadAmendedOrdersOK() *UploadAmendedOrdersOK {
+// NewUploadAmendedOrdersCreated creates UploadAmendedOrdersCreated with default headers values
+func NewUploadAmendedOrdersCreated() *UploadAmendedOrdersCreated {
 
-	return &UploadAmendedOrdersOK{}
+	return &UploadAmendedOrdersCreated{}
 }
 
-// WithPayload adds the payload to the upload amended orders o k response
-func (o *UploadAmendedOrdersOK) WithPayload(payload *internalmessages.Orders) *UploadAmendedOrdersOK {
+// WithPayload adds the payload to the upload amended orders created response
+func (o *UploadAmendedOrdersCreated) WithPayload(payload *internalmessages.UploadPayload) *UploadAmendedOrdersCreated {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the upload amended orders o k response
-func (o *UploadAmendedOrdersOK) SetPayload(payload *internalmessages.Orders) {
+// SetPayload sets the payload to the upload amended orders created response
+func (o *UploadAmendedOrdersCreated) SetPayload(payload *internalmessages.UploadPayload) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *UploadAmendedOrdersOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *UploadAmendedOrdersCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(200)
+	rw.WriteHeader(201)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
@@ -65,6 +65,11 @@ const UploadAmendedOrdersBadRequestCode int = 400
 swagger:response uploadAmendedOrdersBadRequest
 */
 type UploadAmendedOrdersBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.InvalidRequestResponsePayload `json:"body,omitempty"`
 }
 
 // NewUploadAmendedOrdersBadRequest creates UploadAmendedOrdersBadRequest with default headers values
@@ -73,42 +78,33 @@ func NewUploadAmendedOrdersBadRequest() *UploadAmendedOrdersBadRequest {
 	return &UploadAmendedOrdersBadRequest{}
 }
 
+// WithPayload adds the payload to the upload amended orders bad request response
+func (o *UploadAmendedOrdersBadRequest) WithPayload(payload *internalmessages.InvalidRequestResponsePayload) *UploadAmendedOrdersBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the upload amended orders bad request response
+func (o *UploadAmendedOrdersBadRequest) SetPayload(payload *internalmessages.InvalidRequestResponsePayload) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UploadAmendedOrdersBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
-}
-
-// UploadAmendedOrdersUnauthorizedCode is the HTTP code returned for type UploadAmendedOrdersUnauthorized
-const UploadAmendedOrdersUnauthorizedCode int = 401
-
-/*UploadAmendedOrdersUnauthorized request requires user authentication
-
-swagger:response uploadAmendedOrdersUnauthorized
-*/
-type UploadAmendedOrdersUnauthorized struct {
-}
-
-// NewUploadAmendedOrdersUnauthorized creates UploadAmendedOrdersUnauthorized with default headers values
-func NewUploadAmendedOrdersUnauthorized() *UploadAmendedOrdersUnauthorized {
-
-	return &UploadAmendedOrdersUnauthorized{}
-}
-
-// WriteResponse to the client
-func (o *UploadAmendedOrdersUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(401)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // UploadAmendedOrdersForbiddenCode is the HTTP code returned for type UploadAmendedOrdersForbidden
 const UploadAmendedOrdersForbiddenCode int = 403
 
-/*UploadAmendedOrdersForbidden user is not authorized
+/*UploadAmendedOrdersForbidden not authorized
 
 swagger:response uploadAmendedOrdersForbidden
 */
@@ -132,7 +128,7 @@ func (o *UploadAmendedOrdersForbidden) WriteResponse(rw http.ResponseWriter, pro
 // UploadAmendedOrdersNotFoundCode is the HTTP code returned for type UploadAmendedOrdersNotFound
 const UploadAmendedOrdersNotFoundCode int = 404
 
-/*UploadAmendedOrdersNotFound order is not found
+/*UploadAmendedOrdersNotFound not found
 
 swagger:response uploadAmendedOrdersNotFound
 */
@@ -153,10 +149,34 @@ func (o *UploadAmendedOrdersNotFound) WriteResponse(rw http.ResponseWriter, prod
 	rw.WriteHeader(404)
 }
 
+// UploadAmendedOrdersRequestEntityTooLargeCode is the HTTP code returned for type UploadAmendedOrdersRequestEntityTooLarge
+const UploadAmendedOrdersRequestEntityTooLargeCode int = 413
+
+/*UploadAmendedOrdersRequestEntityTooLarge payload is too large
+
+swagger:response uploadAmendedOrdersRequestEntityTooLarge
+*/
+type UploadAmendedOrdersRequestEntityTooLarge struct {
+}
+
+// NewUploadAmendedOrdersRequestEntityTooLarge creates UploadAmendedOrdersRequestEntityTooLarge with default headers values
+func NewUploadAmendedOrdersRequestEntityTooLarge() *UploadAmendedOrdersRequestEntityTooLarge {
+
+	return &UploadAmendedOrdersRequestEntityTooLarge{}
+}
+
+// WriteResponse to the client
+func (o *UploadAmendedOrdersRequestEntityTooLarge) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(413)
+}
+
 // UploadAmendedOrdersInternalServerErrorCode is the HTTP code returned for type UploadAmendedOrdersInternalServerError
 const UploadAmendedOrdersInternalServerErrorCode int = 500
 
-/*UploadAmendedOrdersInternalServerError internal server error
+/*UploadAmendedOrdersInternalServerError server error
 
 swagger:response uploadAmendedOrdersInternalServerError
 */

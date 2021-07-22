@@ -189,6 +189,50 @@ func (o *UpdateOrderNotFound) WriteResponse(rw http.ResponseWriter, producer run
 	}
 }
 
+// UpdateOrderConflictCode is the HTTP code returned for type UpdateOrderConflict
+const UpdateOrderConflictCode int = 409
+
+/*UpdateOrderConflict Conflict error
+
+swagger:response updateOrderConflict
+*/
+type UpdateOrderConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewUpdateOrderConflict creates UpdateOrderConflict with default headers values
+func NewUpdateOrderConflict() *UpdateOrderConflict {
+
+	return &UpdateOrderConflict{}
+}
+
+// WithPayload adds the payload to the update order conflict response
+func (o *UpdateOrderConflict) WithPayload(payload *ghcmessages.Error) *UpdateOrderConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update order conflict response
+func (o *UpdateOrderConflict) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateOrderConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateOrderPreconditionFailedCode is the HTTP code returned for type UpdateOrderPreconditionFailed
 const UpdateOrderPreconditionFailedCode int = 412
 

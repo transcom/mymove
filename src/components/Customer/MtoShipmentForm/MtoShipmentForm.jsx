@@ -215,19 +215,17 @@ class MtoShipmentForm extends Component {
                           <SectionWrapper className={formStyles.formSection}>
                             {showDeliveryFields && <h2>Pickup info</h2>}
                             <Fieldset legend="Date">
+                              <Hint id="pickupDateHint">
+                                This is the day movers would put this shipment on their truck. Packing starts earlier.
+                                Dates will be finalized when you talk to your movers. Your actual pickup date will fall
+                                within 7 days of your preferred date.
+                              </Hint>
                               <DatePickerInput
                                 name="pickup.requestedDate"
                                 label="Preferred pickup date"
                                 id="requestedPickupDate"
                                 validate={validateDate}
                               />
-                              <Hint id="pickupDateHint">
-                                <p>
-                                  This is the day movers would put this shipment on their truck. Packing starts earlier.
-                                  Dates will be finalized when you talk to your movers. Your actual pickup date will
-                                  fall within 7 days of your preferred date.
-                                </p>
-                              </Hint>
                             </Fieldset>
 
                             <AddressFields
@@ -254,6 +252,7 @@ class MtoShipmentForm extends Component {
                                       <Field
                                         as={Radio}
                                         id="has-secondary-pickup"
+                                        data-testid="has-secondary-pickup"
                                         label="Yes"
                                         name="hasSecondaryPickup"
                                         value="yes"
@@ -263,6 +262,7 @@ class MtoShipmentForm extends Component {
                                       <Field
                                         as={Radio}
                                         id="no-secondary-pickup"
+                                        data-testid="no-secondary-pickup"
                                         label="No"
                                         name="hasSecondaryPickup"
                                         value="no"
@@ -295,18 +295,16 @@ class MtoShipmentForm extends Component {
                           <SectionWrapper className={formStyles.formSection}>
                             {showPickupFields && <h2>Destination info</h2>}
                             <Fieldset legend="Date">
+                              <Hint>
+                                If you’re not sure, use your report-by date. You’ll finalize an actual delivery date
+                                later by talking with your movers once the shipment is underway.
+                              </Hint>
                               <DatePickerInput
                                 name="delivery.requestedDate"
                                 label="Preferred delivery date"
                                 id="requestedDeliveryDate"
                                 validate={validateDate}
                               />
-                              <Hint>
-                                <p>
-                                  If you’re not sure, use your report-by date. You’ll finalize an actual delivery date
-                                  later by talking with your movers once the shipment is underway.
-                                </p>
-                              </Hint>
                             </Fieldset>
 
                             <Fieldset legend="Location">
@@ -348,6 +346,7 @@ class MtoShipmentForm extends Component {
                                         <div className={formStyles.radioGroup}>
                                           <Field
                                             as={Radio}
+                                            data-testid="has-secondary-delivery"
                                             id="has-secondary-delivery"
                                             label="Yes"
                                             name="hasSecondaryDelivery"
@@ -357,6 +356,7 @@ class MtoShipmentForm extends Component {
                                           />
                                           <Field
                                             as={Radio}
+                                            data-testid="no-secondary-delivery"
                                             id="no-secondary-delivery"
                                             label="No"
                                             name="hasSecondaryDelivery"

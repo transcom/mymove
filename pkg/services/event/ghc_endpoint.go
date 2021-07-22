@@ -19,9 +19,6 @@ const GhcGetMovesQueueEndpointKey = "Ghc.GetMovesQueue"
 // GhcGetOrderEndpointKey is the key for the getOrder endpoint in ghc
 const GhcGetOrderEndpointKey = "Ghc.GetOrder"
 
-// GhcListMoveTaskOrdersEndpointKey is the key for the listMoveTaskOrders endpoint in ghc
-const GhcListMoveTaskOrdersEndpointKey = "Ghc.ListMoveTaskOrders"
-
 // GhcGetMoveTaskOrderEndpointKey is the key for the getMoveTaskOrder endpoint in ghc
 const GhcGetMoveTaskOrderEndpointKey = "Ghc.GetMoveTaskOrder"
 
@@ -39,9 +36,6 @@ const GhcListMTOShipmentsEndpointKey = "Ghc.ListMTOShipments"
 
 // GhcUpdateMTOShipmentEndpointKey is the key for the updateMTOShipment endpoint in ghc
 const GhcUpdateMTOShipmentEndpointKey = "Ghc.UpdateMTOShipment"
-
-// GhcPatchMTOShipmentStatusEndpointKey is the key for the patchMTOShipmentStatus endpoint in ghc
-const GhcPatchMTOShipmentStatusEndpointKey = "Ghc.PatchMTOShipmentStatus"
 
 // GhcDeleteShipmentEndpointKey is the key for the deleteShipment endpoint in ghc
 const GhcDeleteShipmentEndpointKey = "Ghc.DeleteShipment"
@@ -124,10 +118,6 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "getOrder",
 	},
-	GhcListMoveTaskOrdersEndpointKey: {
-		APIName:     GhcAPIName,
-		OperationID: "listMoveTaskOrders",
-	},
 	GhcGetMoveTaskOrderEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "getMoveTaskOrder",
@@ -151,10 +141,6 @@ var ghcEndpoints = EndpointMapType{
 	GhcUpdateMTOShipmentEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "updateMTOShipment",
-	},
-	GhcPatchMTOShipmentStatusEndpointKey: {
-		APIName:     GhcAPIName,
-		OperationID: "patchMTOShipmentStatus",
 	},
 	GhcDeleteShipmentEndpointKey: {
 		APIName:     GhcAPIName,

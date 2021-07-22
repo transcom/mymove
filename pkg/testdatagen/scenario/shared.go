@@ -49,8 +49,13 @@ func save(db *pop.Connection, model interface{}) error {
 }
 
 // createRandomMove creates a random move with fake data that has been approved for usage
-func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, allDutyStations []models.DutyStation,
-	dutyStationsInGBLOC []models.DutyStation, assertions testdatagen.Assertions) models.Move {
+func createRandomMove(
+	db *pop.Connection,
+	possibleStatuses []models.MoveStatus,
+	allDutyStations []models.DutyStation,
+	dutyStationsInGBLOC []models.DutyStation,
+	withFullOrder bool,
+	assertions testdatagen.Assertions) models.Move {
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
 		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(err))
@@ -103,7 +108,12 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 	assertions.ServiceMember.FirstName = &randomFirst
 	assertions.ServiceMember.LastName = &randomLast
 
-	orders := testdatagen.MakeOrderWithoutDefaults(db, assertions)
+	var order models.Order
+	if withFullOrder {
+		order = testdatagen.MakeOrder(db, assertions)
+	} else {
+		order = testdatagen.MakeOrderWithoutDefaults(db, assertions)
+	}
 
 	if assertions.Move.SubmittedAt == nil {
 		assertions.Move.SubmittedAt = &submittedAt
@@ -123,7 +133,7 @@ func createRandomMove(db *pop.Connection, possibleStatuses []models.MoveStatus, 
 	}
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move:  assertions.Move,
-		Order: orders,
+		Order: order,
 	})
 
 	shipmentStatus := models.MTOShipmentStatusSubmitted

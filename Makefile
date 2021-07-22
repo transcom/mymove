@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.4
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -661,6 +661,11 @@ db_test_truncate:
 	@echo "Truncating ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
 
+.PHONY: db_e2e_test_truncate
+db_e2e_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -730,7 +735,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
-db_e2e_up: check_app bin/generate-test-data db_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
+db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
@@ -940,6 +945,18 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 	aws-vault exec transcom-gov-milmove-exp \
 	bin/milmove migrate
 
+.PHONY: run_demo_migrations
+run_demo_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud demo migrations against Deployed Migrations DB
+	@echo "Migrating the demo-migrations database with demo migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-demo-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-demo \
+	bin/milmove migrate
 #
 # ----- END PROD_MIGRATION TARGETS -----
 #
@@ -1056,7 +1073,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
+	docker pull milmove/circleci-docker:milmove-app-75d11654ab683e5d8b7889aa02bfdcff25e1269f
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

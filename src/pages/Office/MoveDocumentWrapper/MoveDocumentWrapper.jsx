@@ -14,7 +14,7 @@ const MoveDocumentWrapper = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
 
-  const { upload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { upload, amendedUpload, isLoading, isError } = useOrdersDocumentQueries(moveCode);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -24,7 +24,7 @@ const MoveDocumentWrapper = () => {
     exact: true,
   });
 
-  const documentsForViewer = Object.values(upload);
+  const documentsForViewer = Object.values(upload).concat(Object.values(amendedUpload || {}));
 
   return (
     <div className={ordersStyles.Orders}>

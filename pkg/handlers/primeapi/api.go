@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -33,6 +34,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder(ctx.DB())
+	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
 
 	primeAPI.ServeError = handlers.ServeCustomError
 
@@ -48,18 +50,18 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		ctx,
-		mtoserviceitem.NewMTOServiceItemCreator(builder),
+		mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
 		movetaskorder.NewMoveTaskOrderChecker(ctx.DB()),
 	}
 
 	primeAPI.MtoServiceItemUpdateMTOServiceItemHandler = UpdateMTOServiceItemHandler{
 		ctx,
-		mtoserviceitem.NewMTOServiceItemUpdater(builder),
+		mtoserviceitem.NewMTOServiceItemUpdater(builder, moveRouter),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner()),
+		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
@@ -79,13 +81,18 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInformationHandler{
 		ctx,
 		fetch.NewFetcher(queryBuilder),
-		movetaskorder.NewMoveTaskOrderUpdater(ctx.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		movetaskorder.NewMoveTaskOrderUpdater(
+			ctx.DB(),
+			queryBuilder,
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+			moveRouter,
+		),
 		movetaskorder.NewMoveTaskOrderChecker(ctx.DB()),
 	}
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentCreator(ctx.DB(), builder, fetcher),
+		mtoshipment.NewMTOShipmentCreator(ctx.DB(), builder, fetcher, moveRouter),
 		movetaskorder.NewMoveTaskOrderChecker(ctx.DB()),
 	}
 
@@ -101,14 +108,14 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{
 		ctx,
-		mtoagent.NewMTOAgentUpdater(ctx.DB()),
+		mtoagent.NewMTOAgentUpdater(ctx.DB(), movetaskorder.NewMoveTaskOrderChecker(ctx.DB())),
 	}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner()),
+		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter),
 		mtoshipment.NewMTOShipmentStatusUpdater(ctx.DB(), queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), ctx.Planner()),
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
 	}
 
 	return primeAPI.Serve(nil)
