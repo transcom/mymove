@@ -247,7 +247,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	if payload.OrdersType == nil {
-		return handlers.ResponseForError(logger, errors.New("Missing OrdersType")) // TODO error handling
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
 	}
 
 	order.OrdersNumber = payload.OrdersNumber

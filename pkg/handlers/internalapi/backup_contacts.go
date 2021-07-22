@@ -126,7 +126,6 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
 	if params.UpdateServiceMemberBackupContactPayload.Permission != nil {
-		// TODO should i raise an error if there's no permission?
 		contact.Permission = models.BackupContactPermission(*params.UpdateServiceMemberBackupContactPayload.Permission)
 	}
 
