@@ -57,7 +57,7 @@ func (router moveRouter) Submit(move *models.Move) error {
 			}
 			// Let's get the orders for this move so we can wipe out the acknowledgement if it exists already (from a prior orders amendment process)
 			var ordersForMove models.Order
-			err = router.db.Find(&ordersForMove, move.OrdersID)
+			err = tx.Find(&ordersForMove, move.OrdersID)
 			if err != nil {
 				return err
 			}
@@ -69,7 +69,7 @@ func (router moveRouter) Submit(move *models.Move) error {
 			if ordersForMove.AmendedOrdersAcknowledgedAt != nil {
 				router.logger.Info("Move has a preexisting acknowledgement")
 				ordersForMove.AmendedOrdersAcknowledgedAt = nil
-				_, err = router.db.ValidateAndSave(&ordersForMove)
+				_, err = tx.ValidateAndSave(&ordersForMove)
 				if err != nil {
 					router.logger.Error("failure resetting orders AmendedOrdersAcknowledgeAt field when routing move with amended orders to office user / TOO queue", zap.Error(err))
 					return err
