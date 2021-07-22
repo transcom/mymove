@@ -3,7 +3,7 @@ import testParams from './serviceItemTestParams';
 
 describe('makeCalculations', () => {
   it('returns correct data for DomesticLongHaul', () => {
-    const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul);
+    const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul, testParams.additionalCratingDataDCRT);
     expect(result).toEqual([
       {
         value: '85 cwt',
@@ -404,13 +404,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticCrating', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticCrating);
-    expect(result).toEqual([]);
-  });
-
-  it('returns correct data for DomesticCratingStandalone', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticCratingStandalone);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DCRT', 99999, testParams.DomesticCrating, testParams.additionalCratingDataDCRT);
+    expect(result).toEqual([
+      {
+        value: '2',
+        label: 'Crating size (cu ft)',
+        details: ['Description: Grand piano', 'Dimensions: 50x100x80 in'],
+      },
+      {
+        value: '1.71',
+        label: 'Crating price (per cu ft)',
+        details: ['Service schedule: 3', 'Crating date: 09 Mar 2020', 'Domestic'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticUncrating', () => {

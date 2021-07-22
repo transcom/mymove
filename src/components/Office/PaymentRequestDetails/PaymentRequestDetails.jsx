@@ -8,6 +8,7 @@ import styles from './PaymentRequestDetails.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { PaymentServiceItemShape } from 'types';
+import { MTOServiceItemShape } from 'types/order';
 import { formatDateFromIso } from 'shared/formatters';
 import PAYMENT_REQUEST_STATUSES from 'constants/paymentRequestStatus';
 import { shipmentModificationTypes } from 'constants/shipments';
@@ -30,10 +31,14 @@ const shipmentHeadingAndStyle = (mtoShipmentType) => {
   }
 };
 
+const findAdditionalServiceItemData = (mtoServiceItemsList, mtoServiceItemCode) => {
+  return mtoServiceItemsList?.find((mtoServiceItem) => mtoServiceItem.reServiceCode === mtoServiceItemCode);
+};
+
 const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus }) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
-  const { modificationType, departureDate, address } = shipment;
+  const { modificationType, departureDate, address, mtoServiceItems } = shipment;
   return (
     serviceItems.length > 0 && (
       <div className={styles.PaymentRequestDetails}>
@@ -78,6 +83,7 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus })
               return (
                 <ExpandableServiceItemRow
                   serviceItem={item}
+                  additionalServiceItemData={findAdditionalServiceItemData(mtoServiceItems, item.mtoServiceItemCode)}
                   key={item.id}
                   index={index}
                   disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
@@ -100,6 +106,7 @@ PaymentRequestDetails.propTypes = {
       PropTypes.oneOf(Object.values(shipmentModificationTypes)),
     ]),
     departureDate: PropTypes.string,
+    mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
   }),
   paymentRequestStatus: PropTypes.oneOf(Object.values(PAYMENT_REQUEST_STATUSES)).isRequired,
 };
@@ -109,6 +116,7 @@ PaymentRequestDetails.defaultProps = {
     departureDate: '',
     address: '',
     modificationType: '',
+    mtoServiceItems: [],
   },
 };
 
