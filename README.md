@@ -250,20 +250,14 @@ If you need help with this setup, you can ask for help in the
 
 #### Nix: Clean Up Local Env
 
-This section is only if you had previously set up any of these tools/packages.
+This section is only if you had previously set up any of these tools/packages. It is also optional, with the following
+the caveat of this note:
 
-NOTE: If you need any of the packages/tools for other things that you won't use `nix` for, you can possibly set things
-up so that they both work, but you'll just have to set up your `PATH` properly. And even then, there may be other steps
-necessary which aren't documented here.
+:warning: NOTE: If you need any of the packages/tools for other things that you won't use `nix` for, you can set things
+up so that they both work side by side, but you'll just have to set up your `PATH` properly. And even then, there may be
+other steps necessary which aren't documented here.
 
-1. If you had previously been using `direnv`, `awscli`, `aws-vault`, `chamber`, and `pre-commit` installed via
-   `homebrew`, uninstall them.
-
-    ```shell
-    brew uninstall direnv awscli aws-vault chamber pre-commit
-    ```
-
-1. Make sure you have disabled or uninstalled `nodenv`, `asdf` or any other version switchers for `mymove`.
+1. Disable or uninstall `nodenv`, `asdf` or any other version switchers for `mymove`.
     1. `nodenv`:
         1. TLDR (disable only): remove `eval "$(nodenv init -)"` from `.zshrc` (or your shell's config file)
         1. Full instructions: [Uninstalling nodenv](https://github.com/nodenv/nodenv#uninstalling-nodenv)
