@@ -42,5 +42,16 @@ describe('interceptorReducer', () => {
       expect(newState.hasRecentError).toEqual(false);
       expect(newState.timestamp - oldState.timestamp).toBeGreaterThanOrEqual(LONG_RESPONSE_GAP_MS);
     });
+
+    it('maintains hasRecentError value if action value is false and state timestamp is stale', () => {
+      const oldState = {
+        hasRecentError: false,
+        timestamp: Date.now() - LONG_RESPONSE_GAP_MS,
+      };
+
+      const newState = interceptorReducer(oldState, interceptResponse(false));
+      expect(newState.hasRecentError).toEqual(false);
+      expect(newState.timestamp - oldState.timestamp).toBeGreaterThanOrEqual(LONG_RESPONSE_GAP_MS);
+    });
   });
 });
