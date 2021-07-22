@@ -1424,6 +1424,12 @@ definitions:
           description:
             type: string
             example: Decorated horse head to be crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up crating item.
+            x-nullable: true
+            x-omitempty: false
         required:
           - reServiceCode
           - item

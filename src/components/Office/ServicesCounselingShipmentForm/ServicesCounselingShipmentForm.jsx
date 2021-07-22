@@ -347,6 +347,9 @@ const ServicesCounselingShipmentForm = ({
                       Remarks <span className="float-right">{optionalLabel}</span>
                     </h2>
                     <Label htmlFor="customerRemarks">Customer remarks</Label>
+                    <Hint>
+                      <p>500 characters</p>
+                    </Hint>
                     <Field
                       as={Textarea}
                       data-testid="remarks"
@@ -356,11 +359,11 @@ const ServicesCounselingShipmentForm = ({
                       id="customerRemarks"
                       maxLength={500}
                     />
+
+                    <Label htmlFor="counselorRemarks">Counselor remarks</Label>
                     <Hint>
                       <p>500 characters</p>
                     </Hint>
-
-                    <Label htmlFor="counselorRemarks">Counselor remarks</Label>
                     <Field
                       as={Textarea}
                       data-testid="counselor-remarks"
@@ -370,9 +373,6 @@ const ServicesCounselingShipmentForm = ({
                       id="counselorRemarks"
                       maxLength={500}
                     />
-                    <Hint>
-                      <p>500 characters</p>
-                    </Hint>
                   </Fieldset>
                 </SectionWrapper>
 
