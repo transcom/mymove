@@ -45,13 +45,17 @@ just another documentation resource and the exact same problem.
 
 ### Chosen Alternative: *React-based static-site generator in new repo*
 
-This choice hits all of our main requirements, namely:
+Although Confluence was a close second, this choice hits all of our main requirements, namely:
 
-* Documentation updates have oversight and a well-defined review process.
-* It is well-organized and searchable.
+* Documentation updates can have oversight when desired, and a well-defined review process.
+* It is easy to organize and customize.
 * It integrates well with other tools and resources, most importantly our API docs. The `openapi`/Redocly CLI tools also
   use React as a base.
 * It can be hosted, branded, and made easily accessible to external clients.
+
+The lack of customization and integration in Confluence was the deciding factor. I suspect that having difference spaces
+for internal project documentation and open source, client-facing documentation will be beneficial to us in the long run
+as well.
 
 We will, however, need to decide on a specific framework. Some good options are
 [Gatsby](https://www.gatsbyjs.com/docs/), [Next.js](https://nextjs.org/docs/getting-started), and
@@ -70,16 +74,15 @@ system that is as non-engineer accessible as possible.
 * `+` Can be hosted using GitHub Pages. Easy to share with external clients, devs and non-devs.
 * `+` Highly customizable. Can be styled and branded to match MilMove.
 * `+` Can integrate with API documentation. Can actually become an information hub.
-* `+` Version control with `git`. Documentation updates must be reviewed in PRs.
-* `+` PRs make standards enforceable.
-* `-` Not very accessible for non-engineers to edit.
-* `-` Would need to publicize the link.
+* `+` Version control with `git`. Documentation updates can be reviewed in PRs.
+* `-` Searching isn't always default functionality. We may need to add a plug-in or write a custom solution for searching.
+* `-` Not that accessible for non-engineers to edit.
 
 #### React-based (ex: Gatsby, Next.js, Docusaurus) in new repo
 
 * `+` The framework is a new dependency, but the environment and tech-stack will be familiar.
 * `+` Putting it in an separate repo will let us update our PR requirements for documentation-specific needs. Can have
-  wider permissions for non-engineers as well, making it marginally more accessible.
+  wider permissions for non-engineers as well, making it possible to edit directly in GitHub, without a PR.
 * `+` A new repo gives us a clean slate with regards to setup, organization, etc.
 * `-` Documentation updates can't be easily incorporated into feature PRs (but PRs can be easily linked).
 
@@ -88,6 +91,7 @@ system that is as non-engineer accessible as possible.
 * `+` The framework is a new dependency, but the environment and tech-stack will be familiar.
 * `+` Putting it in the `mymove` repo makes it easy to incorporate documentation updates into our feature PRs.
 * `-` Even less accessible to non-engineers with `mymove`'s repository restrictions.
+* `-` We would _have_ to make PRs to approve documentation. Sometimes we want this oversight, and sometimes it's a blocker.
 * `-` Putting it in the `mymove` repo will create an organizational nightmare.
 * `-` Setting up two distinct React apps (that should be built separately and have different dependencies) in one
   project is complex and painful.
@@ -109,6 +113,7 @@ system that is as non-engineer accessible as possible.
 * `-` No defined process for reviewing documentation. There are alerts for when docs are changed, but they are easily bypassed.
 * `-` Some standards, but they are difficult to review and enforce. Very little oversight on changes.
 * `-` Cannot integrate with API docs.
+* `-` Not customizable, and it has a high learning curve to use what customization is available.
 
 ### `mymove` wiki
 
