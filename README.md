@@ -47,7 +47,8 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
       * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
     * [Setup: Dependencies](#setup-dependencies)
       * [Setup: Pre-Commit](#setup-pre-commit)
-        * [Troubleshooting install issues (process hanging on install hooks)](#troubleshooting-install-issues-process-hanging-on-install-hooks)
+        * [Pre-Commit Troubleshooting (Manual): Process hanging on install hooks](#pre-commit-troubleshooting-manual-process-hanging-on-install-hooks)
+        * [Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED](#pre-commit-troubleshooting-nix-ssl-certificate-verify-failed)
     * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
       * [Setup: Build Tools](#setup-build-tools)
       * [Setup: Database](#setup-database)
@@ -223,7 +224,6 @@ If you need help with this setup, you can ask for help in the
 
 1. [Initial Setup](#nix-initial-setup)
 1. [Clean Up Local Env](#nix-clean-up-local-env)
-1. [Install Dependencies](#nix-installing-dependencies)
 1. Set up hosts file. Run
 
     ```shell
@@ -232,14 +232,7 @@ If you need help with this setup, you can ask for help in the
 
     If it tells you to run any commands, do so to set up your hosts file propely.
 
-1. Run
-
-    ```shell
-    make deps_nix
-    ```
-
-    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
-       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
+1. [Install Dependencies](#nix-installing-dependencies)
 1. [Quick Initial Setup](#setup-quick-initial-setup)
 
 #### Nix: Initial Setup
@@ -287,12 +280,20 @@ other steps necessary which aren't documented here.
        before the `direnv` hook setup.
 
 1. Run `./nix/update.sh`
+    1. NOTE: If the nix dependencies change, you should see a warning from direnv:
 
-NOTE: If the nix dependencies change, you should see a warning from direnv:
+    ```text
+    direnv: WARNING: nix packages out of date. Run nix/update.sh
+    ```
 
-```text
-direnv: WARNING: nix packages out of date. Run nix/update.sh
-```
+1. Run
+
+    ```shell
+    make deps_nix
+    ```
+
+    1. This will install some things like `pre-commit` hooks, `node_modules`, etc. You can see
+       [Setup: Dependencies](#setup-dependencies) for more info on some of the parts.
 
 ### Setup: Manual
 
@@ -543,7 +544,7 @@ or
 make server_generate client_deps && pre-commit run -a
 ```
 
-###### Troubleshooting install issues (process hanging on install hooks)
+###### Pre-Commit Troubleshooting (Manual): Process hanging on install hooks
 
 Since pre-commit uses node to hook things up in both your local repo and its cache folder
 (located at `~/.cache/pre-commit`),it requires a global node install.
@@ -560,6 +561,21 @@ required version for this project, run:
 
 ```shell
 nodenv install
+```
+
+###### Pre-Commit Troubleshooting (Nix): SSL: CERTIFICATE VERIFY FAILED
+
+This can happen because of the way certs need to be handled in this project and `nix`. To get around this issue, you
+can try running:
+
+```shell
+NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt <pre-commit related command>
+```
+
+E.g.
+
+```shell
+NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt pre-commit install-hooks
 ```
 
 #### Setup: Quick Initial Setup
@@ -1004,7 +1020,7 @@ MY_SPECIAL_TOKEN=abcxyz
 {
   "name": "MY_SPECIAL_TOKEN",
   "value": "{{ .MY_SPECIAL_TOKEN }}"
-},
+}
 ```
 
 ### Documentation
