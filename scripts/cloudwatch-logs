@@ -7,8 +7,8 @@
 readonly environment="$1"
 
 # Validate the environments
-if [[ "${environment}" != "exp" ]] && [[ "${environment}" != "stg" ]] && [[ "${environment}" != "prd" ]] ; then
-  echo "<environment> must be one of exp, stg, prd."
+if [[ "${environment}" != "demo" ]] && [[ "${environment}" != "exp" ]] && [[ "${environment}" != "stg" ]] && [[ "${environment}" != "prd" ]] ; then
+  echo "<environment> must be one of demo, exp, stg, prd."
   exit 1
 fi
 

@@ -144,7 +144,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 
 		suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
-		suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+		suite.Equal(strfmt.UUID(move.ID.String()), movePayload.ID)
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 
@@ -202,24 +202,14 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
 }
 
-// TODO Some validation rules for orders have been disabled for now.
-// TODO with the implementation of amended orders, the customer can upload an amended order which
-// TODO will need to update/save the order. The order is failing because the customer
-// TODO does not update these fields. There is a thread going about this
-// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
-// https://dp3.atlassian.net/browse/MB-8665
-/*
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncompleteOrder() {
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	order := move.Orders
-	order.TAC = nil
-	suite.MustSave(&order)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
-	err := moveRouter.Submit(&move)
-	if err != nil {
-		suite.T().Fatal("Should transition.")
-	}
-	suite.MustSave(&move)
+	orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusServiceCounselingCompleted,
+		},
+		Order: orderWithoutDefaults,
+	})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -231,6 +221,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
@@ -244,8 +235,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	errorDetail := invalidResponse.Detail
 
 	suite.Contains(*errorDetail, "TransportationAccountingCode cannot be blank.")
+	suite.Contains(*errorDetail, "OrdersNumber cannot be blank.")
+	suite.Contains(*errorDetail, "DepartmentIndicator cannot be blank.")
+	suite.Contains(*errorDetail, "OrdersTypeDetail cannot be blank.")
 }
-*/
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
 	order := testdatagen.MakeDefaultOrder(suite.DB())

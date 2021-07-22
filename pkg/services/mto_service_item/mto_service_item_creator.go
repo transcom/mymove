@@ -19,12 +19,19 @@ type createMTOServiceItemQueryBuilder interface {
 	CreateOne(model interface{}) (*validate.Errors, error)
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 	Transaction(fn func(tx *pop.Connection) error) error
+	SetConnection(db *pop.Connection)
 }
 
 type mtoServiceItemCreator struct {
 	builder          createMTOServiceItemQueryBuilder
 	createNewBuilder func(db *pop.Connection) createMTOServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
+}
+
+// SetConnection allows passing in a transaction connection so the builder
+// can use it.
+func (o *mtoServiceItemCreator) SetConnection(db *pop.Connection) {
+	o.builder = o.createNewBuilder(db)
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
@@ -239,8 +246,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 				createDimension := &requestedServiceItem.Dimensions[index]
 				createDimension.MTOServiceItemID = requestedServiceItem.ID
 				verrs, err = txBuilder.CreateOne(createDimension)
-				if verrs != nil || err != nil {
-					return fmt.Errorf("%#v %e", verrs, err)
+				if verrs != nil && verrs.HasAny() {
+					return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
+				}
+				if err != nil {
+					return fmt.Errorf("%e", err)
 				}
 			}
 

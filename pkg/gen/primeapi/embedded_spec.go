@@ -1606,6 +1606,13 @@ func init() {
                 "DCRTSA",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up crating item.",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -1685,7 +1692,9 @@ func init() {
           "required": [
             "reason",
             "reServiceCode",
-            "description"
+            "description",
+            "estimatedWeight",
+            "actualWeight"
           ],
           "properties": {
             "actualWeight": {
@@ -2347,7 +2356,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -4501,6 +4509,13 @@ func init() {
                 "DCRTSA",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up crating item.",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -4580,7 +4595,9 @@ func init() {
           "required": [
             "reason",
             "reServiceCode",
-            "description"
+            "description",
+            "estimatedWeight",
+            "actualWeight"
           ],
           "properties": {
             "actualWeight": {
@@ -5232,7 +5249,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",

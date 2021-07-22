@@ -12,6 +12,7 @@ import (
 //go:generate mockery --name MTOServiceItemCreator --disable-version-string
 type MTOServiceItemCreator interface {
 	CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
+	SetConnection(db *pop.Connection)
 }
 
 // MTOServiceItemUpdater is the exported interface for updating an mto service item

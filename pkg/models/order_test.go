@@ -43,20 +43,10 @@ func (suite *ModelSuite) TestMiscValidationsAfterSubmission() {
 		suite.verifyValidationErrors(&order, expErrors)
 	})
 
-	suite.T().Run("test blank fields", func(t *testing.T) {
-		order.TAC = nil
-		order.DepartmentIndicator = nil
+	suite.T().Run("test UploadedAmendedOrdersID is not nil UUID", func(t *testing.T) {
 		order.UploadedAmendedOrdersID = &uuid.Nil
 
 		expErrors := map[string][]string{
-			// TODO We are disabling validation for these fields for now.
-			// TODO With the implementation of amended orders, the customer can upload an amended order which
-			// TODO will need to update/save the order. The order is failing because the customer
-			// TODO does not update these fields. There is a thread going about this
-			// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
-			// https://dp3.atlassian.net/browse/MB-8665
-			//"transportation_accounting_code": {"TransportationAccountingCode cannot be blank."},
-			//"department_indicator":           {"DepartmentIndicator cannot be blank."},
 			"uploaded_amended_orders_id": {"UploadedAmendedOrdersID can not be blank."},
 		}
 
@@ -108,60 +98,6 @@ func (suite *ModelSuite) TestTacFormat() {
 		suite.verifyValidationErrors(&order, expErrors)
 	}
 }
-
-// TODO Some validation rules for orders have been disabled for now.
-// TODO with the implementation of amended orders, the customer can upload an amended order which
-// TODO will need to update/save the order. The order is failing because the customer
-// TODO does not update these fields. There is a thread going about this
-// https://ustcdp3.slack.com/archives/CP6F568DC/p1625237648094700
-// https://dp3.atlassian.net/browse/MB-8665
-/*
-func (suite *ModelSuite) TestOrdersNumberPresenceAfterSubmission() {
-	invalidCases := []struct {
-		desc  string
-		value *string
-	}{
-		{"EmptyString", swag.String("")},
-		{"Nil", nil},
-	}
-	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
-		order := move.Orders
-		order.OrdersNumber = invalidCase.value
-		order.Moves = append(order.Moves, move)
-
-		expErrors := map[string][]string{
-			"orders_number": {"OrdersNumber cannot be blank."},
-		}
-
-		suite.verifyValidationErrors(&order, expErrors)
-	}
-}
-
-func (suite *ModelSuite) TestOrdersTypeDetailPresenceAfterSubmission() {
-	emptyString := internalmessages.OrdersTypeDetail("")
-
-	invalidCases := []struct {
-		desc  string
-		value *internalmessages.OrdersTypeDetail
-	}{
-		{"EmptyString", &emptyString},
-		{"Nil", nil},
-	}
-	for _, invalidCase := range invalidCases {
-		move := testdatagen.MakeStubbedMoveWithStatus(suite.DB(), MoveStatusSUBMITTED)
-		order := move.Orders
-		order.OrdersTypeDetail = invalidCase.value
-		order.Moves = append(order.Moves, move)
-
-		expErrors := map[string][]string{
-			"orders_type_detail": {"OrdersTypeDetail cannot be blank."},
-		}
-
-		suite.verifyValidationErrors(&order, expErrors)
-	}
-}
-*/
 
 func (suite *ModelSuite) TestFetchOrderForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
