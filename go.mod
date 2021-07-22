@@ -13,7 +13,6 @@ require (
 	github.com/benbjohnson/clock v1.1.0
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/dustin/go-humanize v1.0.0
 	github.com/felixge/httpsnoop v1.0.2
@@ -38,6 +37,7 @@ require (
 	github.com/gobuffalo/validate/v3 v3.3.0
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/uuid v3.4.0+incompatible
+	github.com/golang-jwt/jwt v3.2.1+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.0
