@@ -3602,7 +3602,7 @@
 
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#ds-pdfjs-getDocument-deprecation":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#1be484c80160c40f8eec83e833186d90bb63b291"
+  resolved "https://github.com/trussworks/react-file-viewer#6dfbf8a5b6b03c6b52f5ee972681fbf5667f1e96"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
