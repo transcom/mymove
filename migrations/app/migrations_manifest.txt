@@ -652,3 +652,5 @@
 20210706214857_felipe_cac.up.sql
 20210713232711_remove_can_stand_alone_parameter.up.sql
 20210714221936_change_cubic_feet_crating_to_decimal.up.sql
+20210720183133_create_rds_pgaudit_role.up.sql
+20210721192603_remove_erin_cac_certs.up.sql
