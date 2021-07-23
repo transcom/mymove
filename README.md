@@ -194,7 +194,8 @@ You can checkout this repository by running
 git clone git@github.com:transcom/mymove.git
 ```
 
-Please check out the code in a directory like `~/Projects/mymove` and NOT in your `$GOPATH`. As an example:
+Please check out the code in a directory like `~/Projects/mymove`. You can check the code out anywhere EXCEPT
+inside your `$GOPATH`. As an example:
 
 ```shell
 mkdir -p ~/Projects
@@ -208,8 +209,7 @@ git clone git@github.com:transcom/mymove.git
 cd mymove
 ```
 
-You will then find the code at `~/Projects/mymove`. You can check the code out anywhere EXCEPT inside your `$GOPATH`.
-So this is customization that is up to you.
+You will then find the code at `~/Projects/mymove`.
 
 #### Setup: Editor Config
 
