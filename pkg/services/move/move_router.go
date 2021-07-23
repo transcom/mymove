@@ -71,7 +71,7 @@ func (router moveRouter) Submit(move *models.Move) error {
 				ordersForMove.AmendedOrdersAcknowledgedAt = nil
 				_, err = tx.ValidateAndSave(&ordersForMove)
 				if err != nil {
-					router.logger.Error("failure resetting orders AmendedOrdersAcknowledgeAt field when routing move with amended orders to office user / TOO queue", zap.Error(err))
+					router.logger.Error("failure resetting orders AmendedOrdersAcknowledgeAt field when routing move submission with amended orders ", zap.Error(err))
 					return err
 				}
 				router.logger.Info("Successfully reset orders acknowledgement")
