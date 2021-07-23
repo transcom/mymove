@@ -60,6 +60,7 @@ const MovePaymentRequests = ({
         address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
         modificationType: getShipmentModificationType(shipment),
+        mtoServiceItems: shipment.mtoServiceItems,
       });
     });
   }

@@ -55,10 +55,12 @@ describe('ServiceItemsTable', () => {
       />,
     );
 
-    expect(wrapper.find('dt').at(0).text()).toBe('Item Dimensions:');
-    expect(wrapper.find('dd').at(0).text()).toBe('7"x2"x3.5"');
-    expect(wrapper.find('dt').at(1).text()).toBe('Crate Dimensions:');
-    expect(wrapper.find('dd').at(1).text()).toBe('10"x2.5"x5"');
+    expect(wrapper.find('dt').at(0).text()).toBe('Description:');
+    expect(wrapper.find('dd').at(0).text()).toBe('grandfather clock');
+    expect(wrapper.find('dt').at(1).text()).toBe('Item size:');
+    expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
+    expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
+    expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
   });
 
   it('renders the customer contacts for DDFSIT service item', () => {
@@ -95,7 +97,7 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('dd').at(3).text()).toBe('01 Jan 2021');
   });
 
-  it('should render a zip and reason for DOFSIT service item', () => {
+  it('should render the SITPostalCode ZIP, and reason for DOFSIT service item', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -104,6 +106,7 @@ describe('ServiceItemsTable', () => {
         code: 'DOFSIT',
         details: {
           pickupPostalCode: '11111',
+          SITPostalCode: '12345',
           reason: 'This is the reason',
         },
       },
@@ -117,7 +120,7 @@ describe('ServiceItemsTable', () => {
       />,
     );
     expect(wrapper.find('dt').at(0).contains('ZIP')).toBe(true);
-    expect(wrapper.find('dd').at(0).contains('11111')).toBe(true);
+    expect(wrapper.find('dd').at(0).contains('12345')).toBe(true);
     expect(wrapper.find('dt').at(1).contains('Reason')).toBe(true);
     expect(wrapper.find('dd').at(1).contains('This is the reason')).toBe(true);
   });

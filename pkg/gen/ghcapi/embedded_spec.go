@@ -3016,6 +3016,11 @@ func init() {
         "description"
       ],
       "properties": {
+        "SITPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -8075,6 +8080,11 @@ func init() {
         "description"
       ],
       "properties": {
+        "SITPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
