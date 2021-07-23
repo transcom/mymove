@@ -151,7 +151,7 @@ const CubicFeetBilled = {
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'INTEGER',
-  value: '',
+  value: '1.71',
 };
 const CubicFeetCrating = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -160,7 +160,7 @@ const CubicFeetCrating = {
   origin: 'PRIME',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
   type: 'INTEGER',
-  value: '',
+  value: '2',
 };
 const DistanceZipSITOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -602,14 +602,9 @@ const testParams = {
     ZipDestAddress,
   ],
   DomesticCrating: [
-    RequestedPickupDate,
-    CubicFeetBilled,
-    CubicFeetCrating,
-    ServicesScheduleOrigin,
-    ServiceAreaOrigin,
-    ZipPickupAddress,
-  ],
-  DomesticCratingStandalone: [
+    ContractYearName,
+    EscalationCompounded,
+    PriceRateOrFactor,
     RequestedPickupDate,
     CubicFeetBilled,
     CubicFeetCrating,
@@ -695,6 +690,18 @@ const testParams = {
     PSIPriceDomDestPrice,
   ],
   DomesticNTSPackingFactor: [PSIPackingDom, PSIPackingDomPrice],
+  additionalCratingDataDCRT: {
+    reServiceCode: 'DCRT',
+    description: 'Grand piano',
+    dimensions: [
+      {
+        type: 'CRATE',
+        width: 100,
+        height: 80,
+        length: 50,
+      },
+    ],
+  },
 };
 
 export default testParams;

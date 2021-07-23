@@ -8,10 +8,11 @@ import styles from './ExpandableServiceItemRow.module.scss';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
 import { PaymentServiceItemShape } from 'types';
+import { MTOServiceItemShape } from 'types/order';
 import { formatCents, toDollarString } from 'shared/formatters';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 
-const ExpandableServiceItemRow = ({ serviceItem, index, disableExpansion }) => {
+const ExpandableServiceItemRow = ({ serviceItem, additionalServiceItemData, index, disableExpansion }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canClickToExpandContent = (canShowExpandableContent, item) => {
     return canShowExpandableContent && item.status !== PAYMENT_SERVICE_ITEM_STATUS.REQUESTED;
@@ -78,6 +79,7 @@ const ExpandableServiceItemRow = ({ serviceItem, index, disableExpansion }) => {
               itemCode={serviceItem.mtoServiceItemCode}
               totalAmountRequested={serviceItem.priceCents}
               serviceItemParams={serviceItem.paymentServiceItemParams}
+              additionalServiceItemData={additionalServiceItemData}
             />
           </td>
         </tr>
@@ -90,10 +92,12 @@ ExpandableServiceItemRow.propTypes = {
   serviceItem: PaymentServiceItemShape.isRequired,
   index: PropTypes.number.isRequired,
   disableExpansion: PropTypes.bool,
+  additionalServiceItemData: MTOServiceItemShape,
 };
 
 ExpandableServiceItemRow.defaultProps = {
   disableExpansion: false,
+  additionalServiceItemData: {},
 };
 
 export default ExpandableServiceItemRow;
