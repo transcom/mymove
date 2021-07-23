@@ -13,7 +13,7 @@ import (
 )
 
 func payloadForBackupContactModel(contact models.BackupContact) internalmessages.ServiceMemberBackupContactPayload {
-	permission := internalmessages.BackupContactPermission(contact.Permission)
+	permission := internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermission(contact.Permission))
 	contactPayload := internalmessages.ServiceMemberBackupContactPayload{
 		ID:              handlers.FmtUUID(contact.ID),
 		ServiceMemberID: *handlers.FmtUUID(contact.ServiceMemberID),
@@ -22,7 +22,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		Name:            &contact.Name,
 		Email:           &contact.Email,
 		Telephone:       contact.Phone,
-		Permission:      &permission,
+		Permission:      permission,
 	}
 	return contactPayload
 }

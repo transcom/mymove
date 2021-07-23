@@ -43,12 +43,11 @@ func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessa
 		revisionPayloads = append(revisionPayloads, payload)
 	}
 
-	issuer := ordersmessages.Issuer(order.Issuer)
 	ordersPayload := &ordersmessages.Orders{
 		UUID:      strfmt.UUID(order.ID.String()),
 		OrdersNum: order.OrdersNumber,
 		Edipi:     order.Edipi,
-		Issuer:    &issuer,
+		Issuer:    ordersmessages.NewIssuer(ordersmessages.Issuer(order.Issuer)),
 		Revisions: revisionPayloads,
 	}
 	return ordersPayload, nil
@@ -56,10 +55,10 @@ func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessa
 
 func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRevision) (*ordersmessages.Revision, error) {
 	seqNum := int64(revision.SeqNum)
-	affiliation := ordersmessages.Affiliation(revision.Affiliation)
-	rank := ordersmessages.Rank(revision.Paygrade)
-	status := ordersmessages.Status(revision.Status)
-	ordersType := ordersmessages.OrdersType(revision.OrdersType)
+	affiliation := ordersmessages.NewAffiliation(ordersmessages.Affiliation(revision.Affiliation))
+	rank := ordersmessages.NewRank(ordersmessages.Rank(revision.Paygrade))
+	status := ordersmessages.NewStatus(ordersmessages.Status(revision.Status))
+	ordersType := ordersmessages.NewOrdersType(ordersmessages.OrdersType(revision.OrdersType))
 
 	revisionPayload := &ordersmessages.Revision{
 		SeqNum: &seqNum,
@@ -68,16 +67,16 @@ func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRev
 			MiddleName:  revision.MiddleName,
 			FamilyName:  revision.FamilyName,
 			Suffix:      revision.NameSuffix,
-			Affiliation: &affiliation,
-			Rank:        &rank,
+			Affiliation: affiliation,
+			Rank:        rank,
 			Title:       revision.Title,
 		},
-		Status:        &status,
+		Status:        status,
 		DateIssued:    handlers.FmtDateTimePtr(&revision.DateIssued),
 		NoCostMove:    revision.NoCostMove,
 		TdyEnRoute:    revision.TdyEnRoute,
 		TourType:      ordersmessages.TourType(revision.TourType),
-		OrdersType:    &ordersType,
+		OrdersType:    ordersType,
 		HasDependents: &revision.HasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        revision.LosingUIC,

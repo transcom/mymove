@@ -86,8 +86,7 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
 	if customer.Rank != nil {
-		rank := supportmessages.Rank(*customer.Rank)
-		payload.Rank = &rank
+		payload.Rank = supportmessages.NewRank(supportmessages.Rank(*customer.Rank))
 	}
 	return &payload
 }
@@ -106,20 +105,17 @@ func Order(order *models.Order) *supportmessages.Order {
 
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
-	ordersType := supportmessages.OrdersType(order.OrdersType)
-	status := supportmessages.OrdersStatus(order.Status)
-
 	payload := supportmessages.Order{
 		DestinationDutyStation:   destinationDutyStation,
 		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyStationID),
 		Entitlement:              Entitlement(order.Entitlement),
 		Customer:                 Customer(&order.ServiceMember),
 		OrderNumber:              order.OrdersNumber,
-		OrdersType:               &ordersType,
+		OrdersType:               supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
 		ID:                       strfmt.UUID(order.ID.String()),
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(order.UpdatedAt),
-		Status:                   &status,
+		Status:                   supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         handlers.FmtUUID(order.UploadedOrdersID),
 		ReportByDate:             &reportByDate,
@@ -362,9 +358,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 		}
 	default:
 		// otherwise, basic service item
-		reServiceCode := supportmessages.ReServiceCode(mtoServiceItem.ReService.Code)
 		payload = &supportmessages.MTOServiceItemBasic{
-			ReServiceCode: &reServiceCode,
+			ReServiceCode: supportmessages.NewReServiceCode(supportmessages.ReServiceCode(mtoServiceItem.ReService.Code)),
 		}
 	}
 
