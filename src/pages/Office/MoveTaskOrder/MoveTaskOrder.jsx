@@ -79,6 +79,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       newItem.serviceItem = item.reServiceName;
       newItem.details = {
         pickupPostalCode: item.pickupPostalCode,
+        SITPostalCode: item.SITPostalCode,
         reason: item.reason,
         description: item.description,
         itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),

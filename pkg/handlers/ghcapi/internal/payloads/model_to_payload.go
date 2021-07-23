@@ -481,6 +481,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
+		SITPostalCode:    handlers.FmtStringPtr(s.SITPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),

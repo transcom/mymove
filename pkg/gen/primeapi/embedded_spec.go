@@ -1606,6 +1606,13 @@ func init() {
                 "DCRTSA",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up crating item.",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -4581,6 +4588,13 @@ func init() {
                 "DCRTSA",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up crating item.",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
             }
           }
         }
