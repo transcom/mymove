@@ -86,16 +86,26 @@ func mustSave(db *pop.Connection, model interface{}) {
 }
 
 func createPPMOfficeUser(db *pop.Connection) {
+	email := "ppm_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
 	/*
 	 * Basic user with office access
 	 */
 	ppmOfficeRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
+	err = db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
 	}
 
-	email := "ppm_role@office.mil"
 	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
@@ -3238,14 +3248,24 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db *pop.Co
 }
 
 func createTOO(db *pop.Connection) {
+	email := "too_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
 	/* A user with too role */
 	tooRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
-	email := "too_role@office.mil"
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -3268,14 +3288,24 @@ func createTOO(db *pop.Connection) {
 }
 
 func createTIO(db *pop.Connection) {
+	email := "tio_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
 	/* A user with tio role */
 	tioRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
-	email := "tio_role@office.mil"
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -3298,14 +3328,24 @@ func createTIO(db *pop.Connection) {
 }
 
 func createServicesCounselor(db *pop.Connection) {
+	email := "services_counselor_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
 	/* A user with services counselor role */
 	servicesCounselorRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
 	}
 
-	email := "services_counselor_role@office.mil"
 	servicesCounselorUUID := uuid.Must(uuid.FromString("a6c8663f-998f-4626-a978-ad60da2476ec"))
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -3330,8 +3370,18 @@ func createServicesCounselor(db *pop.Connection) {
 func createTXO(db *pop.Connection) {
 	/* A user with both too and tio roles */
 	email := "too_tio_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
+
 	tooRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
 	}
@@ -3367,14 +3417,41 @@ func createTXO(db *pop.Connection) {
 			UserID: user.ID,
 		},
 	})
+}
+
+func createTXOUSMC(db *pop.Connection) {
+	emailUSMC := "too_tio_role_usmc@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", emailUSMC).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
 
 	// Makes user with both too and tio role with USMC gbloc
+	tooRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
+	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
 	transportationOfficeUSMC := models.TransportationOffice{}
 	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
 	}
-	emailUSMC := "too_tio_role_usmc@office.mil"
+
+	// Makes user with both too and tio role with USMC gbloc
+
 	tooTioWithUsmcUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-bbbbbbbbbbbb"))
 	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
@@ -3395,15 +3472,25 @@ func createTXO(db *pop.Connection) {
 			TransportationOffice: transportationOfficeUSMC,
 		},
 	})
+
 }
 
 func createTXOServicesCounselor(db *pop.Connection) {
 	/* A user with both too, tio, and services counselor roles */
 	email := "too_tio_services_counselor_role@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
 
 	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
 	var userRoles roles.Roles
-	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+	err = db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
 	}
@@ -3434,11 +3521,21 @@ func createTXOServicesCounselor(db *pop.Connection) {
 }
 
 func createTXOServicesUSMCCounselor(db *pop.Connection) {
+	emailUSMC := "too_tio_services_counselor_role_usmc@office.mil"
+	officeUser := models.OfficeUser{}
+	officeUserExists, err := db.Where("email = $1", emailUSMC).Exists(&officeUser)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to query OfficeUser in the DB: %w", err))
+	}
+	// no need to create
+	if officeUserExists {
+		return
+	}
 
 	/* A user with both too, tio, and services counselor roles */
 	officeUserRoleTypes := []roles.RoleType{roles.RoleTypeTOO, roles.RoleTypeTIO, roles.RoleTypeServicesCounselor}
 	var userRoles roles.Roles
-	err := db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
+	err = db.Where("role_type IN (?)", officeUserRoleTypes).All(&userRoles)
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find office user RoleType in the DB: %w", err))
 	}
@@ -3449,7 +3546,6 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
 	}
-	emailUSMC := "too_tio_services_counselor_role_usmc@office.mil"
 	tooTioServicesWithUsmcUUID := uuid.Must(uuid.FromString("9aae1a83-6515-4c1d-84e8-f7b53dc3d5fc"))
 	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
 

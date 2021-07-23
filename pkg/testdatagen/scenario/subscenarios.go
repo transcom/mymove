@@ -16,6 +16,9 @@ import (
 
 func subScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
 	return func() {
+		createTXO(db)
+		createTXOUSMC(db)
+
 		validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
 		// shipment cancelled was approved before
 		approvedDate := time.Now()
@@ -52,8 +55,9 @@ func subScenarioShipmentHHGCancelled(db *pop.Connection, allDutyStations []model
 
 func subScenarioPPMOfficeQueue(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
-		// PPM Office Queue
 		createPPMOfficeUser(db)
+
+		// PPM Office Queue
 		createPPMWithAdvance(db, userUploader, moveRouter)
 		createPPMWithNoAdvance(db, userUploader, moveRouter)
 		createPPMWithPaymentRequest(db, userUploader, moveRouter)
@@ -71,6 +75,9 @@ func subScenarioAdditionalPPMUsers(db *pop.Connection, userUploader *uploader.Us
 
 func subScenarioHHGOnboarding(db *pop.Connection, userUploader *uploader.UserUploader) func() {
 	return func() {
+		createTXO(db)
+		createTXOUSMC(db)
+
 		// Onboarding
 		createUnsubmittedHHGMove(db)
 		createUnsubmittedMoveWithNTSAndNTSR(db, 1)
@@ -86,6 +93,9 @@ func subScenarioHHGOnboarding(db *pop.Connection, userUploader *uploader.UserUpl
 func subScenarioHHGServicesCounseling(db *pop.Connection, userUploader *uploader.UserUploader,
 	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
 	return func() {
+		createTXOServicesCounselor(db)
+		createTXOServicesUSMCCounselor(db)
+
 		// Services Counseling
 		createHHGNeedsServicesCounseling(db)
 		createHHGNeedsServicesCounselingUSMC(db, userUploader)
@@ -104,13 +114,15 @@ func subScenarioHHGServicesCounseling(db *pop.Connection, userUploader *uploader
 
 func subScenarioTXOQueues(db *pop.Connection, userUploader *uploader.UserUploader, logger Logger) func() {
 	return func() {
-		// TXO Queues
 		createTOO(db)
 		createTIO(db)
 		createTXO(db)
+		createTXOUSMC(db)
 		createServicesCounselor(db)
 		createTXOServicesCounselor(db)
 		createTXOServicesUSMCCounselor(db)
+
+		// TXO Queues
 		createNTSMove(db)
 		createNTSRMove(db)
 
@@ -126,6 +138,9 @@ func subScenarioTXOQueues(db *pop.Connection, userUploader *uploader.UserUploade
 func subScenarioPaymentRequestCalculations(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter, logger Logger) func() {
 	return func() {
+		createTXO(db)
+		createTXOUSMC(db)
+
 		// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
 		createHHGMoveWithPaymentRequest(db, userUploader, logger, models.AffiliationAIRFORCE, testdatagen.Assertions{
 			Move: models.Move{
@@ -146,6 +161,9 @@ func subScenarioPaymentRequestCalculations(db *pop.Connection, userUploader *upl
 
 func subScenarioPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
+		createTXO(db)
+		createTXOUSMC(db)
+
 		createMoveWithPPMAndHHG(db, userUploader, moveRouter)
 	}
 }
@@ -153,6 +171,9 @@ func subScenarioPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUploade
 func subScenarioDivertedShipments(db *pop.Connection, userUploader *uploader.UserUploader,
 	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
 	return func() {
+		createTXO(db)
+		createTXOUSMC(db)
+
 		// Create diverted shipments that need TOO approval
 		createMoveWithDivertedShipments(db, userUploader)
 
@@ -176,6 +197,9 @@ func subScenarioDivertedShipments(db *pop.Connection, userUploader *uploader.Use
 func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter) func() {
 	return func() {
+		createTXOServicesCounselor(db)
+		createTXOServicesUSMCCounselor(db)
+
 		// A move with missing required order fields
 		createMoveWithHHGMissingOrdersInfo(db, moveRouter)
 
