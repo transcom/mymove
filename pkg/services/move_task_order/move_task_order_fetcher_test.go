@@ -100,7 +100,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		// Put 1 Move updatedAt in the past
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 			now.Add(-2*time.Second), oldMTO.ID).Exec())
-		since := now.Unix()
+		since := time.Now()
 		searchParams.Since = &since
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)

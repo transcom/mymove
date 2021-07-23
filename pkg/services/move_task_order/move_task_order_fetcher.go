@@ -2,7 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -97,7 +96,6 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.Mov
             WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
 
 	if searchParams != nil && searchParams.Since != nil {
-		since := time.Unix(*searchParams.Since, 0)
 		sql = sql + ` AND (moves.updated_at >= $1 OR orders.updated_at >= $1 OR
                           (moves.id IN (SELECT mto_shipments.move_id
                                         FROM mto_shipments WHERE mto_shipments.updated_at >= $1
@@ -109,7 +107,7 @@ func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.Mov
 			                            SELECT payment_requests.move_id
 			                            FROM payment_requests
 			                            WHERE payment_requests.updated_at >= $1)));`
-		err = f.db.RawQuery(sql, since).All(&moveTaskOrders)
+		err = f.db.RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
 	} else {
 		sql = sql + `;`
 		err = f.db.RawQuery(sql).All(&moveTaskOrders)
@@ -137,8 +135,7 @@ func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFe
 		}
 
 		if searchParams.Since != nil {
-			since := time.Unix(*searchParams.Since, 0)
-			query.Where("updated_at > ?", since)
+			query.Where("updated_at > ?", *searchParams.Since)
 		}
 	}
 	// No return since this function uses pointers to modify the referenced query directly
