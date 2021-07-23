@@ -973,8 +973,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		payload := primemessages.UpdateMTOShipment{
-			//mtoShipmentID:        uuid.FromStringOrNil(oldShipment.ID.String()),
-			//strfmt.UUID(oldShipment.ID.String()),
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
