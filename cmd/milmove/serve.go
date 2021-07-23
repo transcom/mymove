@@ -27,8 +27,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/golang-jwt/jwt"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
