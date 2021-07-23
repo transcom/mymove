@@ -174,7 +174,7 @@ func subScenarioDivertedShipments(db *pop.Connection, userUploader *uploader.Use
 }
 
 func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
-	moveRouter services.MoveRouter, logger Logger, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+	moveRouter services.MoveRouter) func() {
 	return func() {
 		// A move with missing required order fields
 		createMoveWithHHGMissingOrdersInfo(db, moveRouter)

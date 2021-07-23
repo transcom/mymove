@@ -56,7 +56,7 @@ func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserU
 		"ppm_office_queue":             subScenarioPPMOfficeQueue(db, userUploader, moveRouter),
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC),
 		"txo_queues":                   subScenarioTXOQueues(db, userUploader, logger),
-		"misc":                         subScenarioMisc(db, userUploader, primeUploader, moveRouter, logger, allDutyStations, originDutyStationsInGBLOC),
+		"misc":                         subScenarioMisc(db, userUploader, primeUploader, moveRouter),
 	}
 }
 
