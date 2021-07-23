@@ -87,6 +87,41 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 	return mto, nil
 }
 
+// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targetting the Prime API.
+func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	var moveTaskOrders models.Moves
+	var err error
+
+	sql := `SELECT moves.*
+            FROM moves INNER JOIN orders ON moves.orders_id = orders.id
+            WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
+
+	if searchParams != nil && searchParams.Since != nil {
+		since := time.Unix(*searchParams.Since, 0)
+		sql = sql + ` AND (moves.updated_at >= $1 OR orders.updated_at >= $1 OR
+                          (moves.id IN (SELECT mto_shipments.move_id
+                                        FROM mto_shipments WHERE mto_shipments.updated_at >= $1
+                                        UNION
+                                        SELECT mto_service_items.move_id
+			                            FROM mto_service_items
+			                            WHERE mto_service_items.updated_at >= $1
+			                            UNION
+			                            SELECT payment_requests.move_id
+			                            FROM payment_requests
+			                            WHERE payment_requests.updated_at >= $1)));`
+		err = f.db.RawQuery(sql, since).All(&moveTaskOrders)
+	} else {
+		sql = sql + `;`
+		err = f.db.RawQuery(sql).All(&moveTaskOrders)
+	}
+
+	if err != nil {
+		return models.Moves{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+	}
+
+	return moveTaskOrders, nil
+}
+
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
 	// Always exclude hidden moves by default:
 	if searchParams == nil {
