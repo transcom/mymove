@@ -271,10 +271,6 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	}
 
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	err = ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(err)
-	}
 	err = ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	if err != nil {
 		log.Panic(err)
@@ -1014,10 +1010,6 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 		log.Panic(err)
 	}
 
-	err = ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	if err != nil {
-		log.Panic(err)
-	}
 	err = ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	if err != nil {
 		log.Panic(err)
