@@ -26,7 +26,7 @@ import (
 // The following are strings to be used in the title field of errors sent to the client
 
 // SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
-const SQLErrMessage string = "Unhandled SQL error encountered"
+const SQLErrMessage string = "Unhandled data error encountered"
 
 // NotFoundMessage indicates a resource was not found
 const NotFoundMessage string = "Not Found Error"

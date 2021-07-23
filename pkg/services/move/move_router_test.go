@@ -3,6 +3,7 @@ package move
 import (
 	"fmt"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -114,6 +115,32 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		err := moveRouter.Submit(&move)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID))
+	})
+
+	suite.Run("moves with amended orders that already had amended orders go into the 'Approvals Requested' status and have a nil value for 'AmendedOrdersAcknowledgedAt", func() {
+		document := testdatagen.MakeDefaultDocument(suite.DB())
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				ID:                    uuid.Must(uuid.NewV4()),
+				UploadedAmendedOrders: &document,
+				// we need a time here that's non-nil
+				AmendedOrdersAcknowledgedAt: swag.Time(testdatagen.DateInsidePerformancePeriod),
+			},
+		})
+		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusAPPROVED,
+			},
+			Order: order,
+		})
+		suite.NotNil(move.Orders.AmendedOrdersAcknowledgedAt)
+		err := moveRouter.Submit(&move)
+		suite.NoError(err)
+		var updatedOrders models.Order
+		err = suite.DB().Find(&updatedOrders, move.OrdersID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
+		suite.Nil(updatedOrders.AmendedOrdersAcknowledgedAt)
 	})
 
 	suite.Run("moves going to the TOO return errors if the move doesn't have DRAFT status", func() {
