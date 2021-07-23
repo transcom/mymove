@@ -16,7 +16,6 @@ import (
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -29,8 +28,7 @@ var DevSeedScenario = devSeedScenario{
 }
 
 // Setup initializes the run setup for the devseed scenario
-func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
-	routePlanner route.Planner, logger Logger, namedSubScenario string) {
+func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
 
 	moveRouter := moverouter.NewMoveRouter(db, logger)
 
