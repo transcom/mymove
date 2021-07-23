@@ -51,6 +51,16 @@ func checkStatus() validator {
 	})
 }
 
+//func checkServiceItem() validator {
+//	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
+//		verrs := validate.NewErrors()
+//		if  len(newer.MTOServiceItems) > 0 {
+//			verrs.Add("shipment", "can not update or create service items.")
+//		}
+//		return verrs
+//	})
+//}
+
 func checkAvailToPrime(db *pop.Connection) validator {
 	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		var move models.Move

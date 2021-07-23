@@ -39,6 +39,23 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			})
 		}
 	})
+	//
+	//suite.Run("checkServiceItem", func() {
+	//	 var mtoshipment models.MTOShipment
+	//	//testCases := shipment.MtoServiceItem
+	//	testCase := mtoshipment.MTOServiceItems
+	//
+	//	if serviceItem := testCase > 0 {
+	//		suite.Run("service item "+ serviceItem, func() {
+	//			err := checkServiceItem().Validate(
+	//				context.Background(),
+	//				&models.MTOShipment{MTOServiceItems: models.MTOServiceItems},
+	//				nil,
+	//			)
+	//			suite.NotEmpty(err.Error())
+	//		})
+	//	}
+	//})
 
 	suite.Run("checkAvailToPrime", func() {
 		now := time.Now()
