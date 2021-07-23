@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.4
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -275,12 +275,6 @@ bin/report-ecs: cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
-
-bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
-
-bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
 
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker

@@ -29,7 +29,7 @@ const ServiceItemDetails = ({ id, code, details }) => {
           <dl>
             {generateDetailText(
               {
-                ZIP: details.pickupPostalCode ? details.pickupPostalCode : '-',
+                ZIP: details.SITPostalCode ? details.SITPostalCode : '-',
                 Reason: details.reason ? details.reason : '-',
               },
               id,

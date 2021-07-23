@@ -2194,12 +2194,12 @@
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-"@redocly/openapi-cli@^1.0.0-beta.53":
-  version "1.0.0-beta.53"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.53.tgz#0076b1f848fb68f5d0bc1cdcbff0c8501dc51006"
-  integrity sha512-F568h5Xuz5omdoH6F9sxDbhRlNQJOauUgQA/p50nZSTIcd/1U+NUFDTmqrSwbOEYSXVnmDf2YENTBH9X5/bR1A==
+"@redocly/openapi-cli@^1.0.0-beta.54":
+  version "1.0.0-beta.54"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-cli/-/openapi-cli-1.0.0-beta.54.tgz#0129d7d239cf8ec002760fea2113a534e71f5a06"
+  integrity sha512-AQWIAS4OaxDL/NYnR5Jlw7+zL805pNDAaJEqMaHA1lGZr9VNbCew6lBEVqBsk/PFCi4wKR4As47xLgf3D99kAA==
   dependencies:
-    "@redocly/openapi-core" "^1.0.0-beta.53"
+    "@redocly/openapi-core" "^1.0.0-beta.54"
     "@types/node" "^14.11.8"
     assert-node-version "^1.0.3"
     chokidar "^3.5.1"
@@ -2212,10 +2212,10 @@
     simple-websocket "^9.0.0"
     yargs "17.0.1"
 
-"@redocly/openapi-core@^1.0.0-beta.53":
-  version "1.0.0-beta.53"
-  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.53.tgz#3fd1bd7b36e2dc97518936a5982f74b216d80943"
-  integrity sha512-n5WixBRb7oWS31v3/cdOW/eNXbr2M4N8+HjHfCA/oQX6Z4ZYqPOJCekw64sQ/fnUQMIQyT6fKqyaf+iO4tG7YA==
+"@redocly/openapi-core@^1.0.0-beta.54":
+  version "1.0.0-beta.54"
+  resolved "https://registry.yarnpkg.com/@redocly/openapi-core/-/openapi-core-1.0.0-beta.54.tgz#42575a849c4dd54b9d0c6413fb8ca547e087cd11"
+  integrity sha512-uYs0N1Trjkh7u8IMIuCU2VxCXhMyGWSZUkP/WNdTR1OgBUtvNdF9C32zoQV+hyCIH4gVu42ROHkjisy333ZX+w==
   dependencies:
     "@redocly/ajv" "^8.6.2"
     "@types/node" "^14.11.8"
@@ -3588,10 +3588,10 @@
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^8.0.0"
 
-"@testing-library/user-event@^13.1.9":
-  version "13.1.9"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-13.1.9.tgz#29e49a42659ac3c1023565ff56819e0153a82e99"
-  integrity sha512-NZr0zL2TMOs2qk+dNlqrAdbaRW5dAmYwd1yuQ4r7HpkVEOj0MWuUjDWwKhcLd/atdBy8ZSMHSKp+kXSQe47ezg==
+"@testing-library/user-event@^13.2.0":
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-13.2.0.tgz#8d63aaae1f5ec1d683d3afe57acd5f175f819f0f"
+  integrity sha512-wDEuKkkChNfA02Fpd9A39AXmdmxkvRcHyt/cK3WWiPAQTyMhcKFNM51aQgpEDJUcdj7uPsOaDEESoW/L1b2kZA==
   dependencies:
     "@babel/runtime" "^7.12.5"
 
@@ -3602,7 +3602,7 @@
 
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#5344ad893ce5b4e0038b4d8956b281154ce49ae3"
+  resolved "https://github.com/trussworks/react-file-viewer#fe70df7fe43d96a4cdc4a5314ed0496d6a84f495"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
@@ -16324,10 +16324,10 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin-import-csv@^1.0.19:
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.19.tgz#f09655dd385bd1052710901ddd4f76977298b550"
-  integrity sha512-WnUQpn9sPpWRZZYXuQ+5eqJupOsc6dbyb8RblsiQgQVORZ8fOkfUH2dNdNWrRP1hfIltSu4URpuxvdt2UoR56A==
+react-admin-import-csv@^1.0.22:
+  version "1.0.22"
+  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.22.tgz#bc0a1bd4558994fcf74ff997305105b41ecc8e45"
+  integrity sha512-lzC5jXTwpR19K2Pvwj/lBmvCiAcrHSDLSpTCiTYQCjakZguyx+pt2bSf5hUDm4DHwd7rDhOM8jdmf+I0AZAN4g==
   dependencies:
     papaparse "5.x"
     ramda "^0.27.0"
