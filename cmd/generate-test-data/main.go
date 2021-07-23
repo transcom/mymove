@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
@@ -18,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 	tdgs "github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -237,16 +235,8 @@ func main() {
 				logger.Fatal("Failed to initialize DOD certificates", zap.Error(certErr))
 			}
 
-			// Create a secondary planner specifically for GHC.
-			routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
-			routePlanner, plannerErr := route.InitGHCRoutePlanner(v, logger, dbConnection, routeTLSConfig)
-
-			if plannerErr != nil {
-				logger.Fatal("Failed to initialize GHC route planner")
-			}
-
 			// Initialize setup
-			tdgs.DevSeedScenario.Setup(dbConnection, userUploader, primeUploader, routePlanner, logger, namedSubScenario)
+			tdgs.DevSeedScenario.Setup(dbConnection, userUploader, primeUploader, logger)
 
 			// Sub-scenarios are generated at run time
 			// Check config
