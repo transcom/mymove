@@ -85,7 +85,6 @@ const ServiceItemDetails = ({ id, code, details }) => {
       break;
     }
     case 'DCRT':
-    case 'DUCRT':
     case 'DCRTSA': {
       const { description, itemDimensions, crateDimensions } = details;
       const itemDimensionFormat = `${convertFromThousandthInchToInch(
@@ -105,6 +104,31 @@ const ServiceItemDetails = ({ id, code, details }) => {
             {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
             {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+          </dl>
+        </div>
+      );
+      break;
+    }
+    case 'DUCRT': {
+      const { description, itemDimensions, crateDimensions } = details;
+      const itemDimensionFormat = `${convertFromThousandthInchToInch(
+        itemDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
+        itemDimensions?.height,
+      )}"`;
+      const crateDimensionFormat = `${convertFromThousandthInchToInch(
+        crateDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
+        crateDimensions?.height,
+      )}"`;
+      detailSection = (
+        <div className={styles.detailCrating}>
+          <dl>
+            {description && generateDetailText({ Description: description }, id)}
+            {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
             {details.rejectionReason &&
               generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
           </dl>
