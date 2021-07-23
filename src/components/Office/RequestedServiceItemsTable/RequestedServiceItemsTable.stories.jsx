@@ -20,6 +20,7 @@ const serviceItems = [
     status: 'SUBMITTED',
     details: {
       pickupPostalCode: '60612',
+      SITPostalCode: '22030',
       reason: "here's the reason",
     },
   },

@@ -41,6 +41,7 @@ const serviceItemWithDetails = {
   code: 'DOFSIT',
   details: {
     pickupPostalCode: '20050',
+    SITPostalCode: '12345',
     reason: 'Took a detour',
   },
 };
@@ -61,7 +62,7 @@ const testDetails = (wrapper) => {
   expect(wrapper.find('.detail dd').at(5).text().includes('21 Sep 2020')).toBe(true);
 
   expect(wrapper.find('.detailType').at(7).text()).toBe('ZIP:');
-  expect(wrapper.find('.detail dd').at(7).text().includes('20050')).toBe(true);
+  expect(wrapper.find('.detail dd').at(7).text().includes('12345')).toBe(true);
   expect(wrapper.find('.detailType').at(6).text()).toBe('Reason:');
   expect(wrapper.find('.detail dd').at(6).text().includes('Took a detour')).toBe(true);
 };
