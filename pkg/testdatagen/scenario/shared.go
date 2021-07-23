@@ -1374,28 +1374,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 		Stub:        true,
 	})
 
-	standaloneDesc := "baby grand piano"
-	standaloneReason := "in a Billy Joel cover band"
-	cratingStandalone := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: models.ReServiceCodeDCRTSA,
-		},
-		MTOServiceItem: models.MTOServiceItem{
-			Description: &standaloneDesc,
-			Reason:      &standaloneReason,
-			Dimensions: models.MTOServiceItemDimensions{
-				itemDimension,
-				crateDimension,
-			},
-			Status:     models.MTOServiceItemStatusApproved,
-			ApprovedAt: &approvedAt,
-		},
-		Move:        move,
-		MTOShipment: longhaulShipment,
-		Stub:        true,
-	})
-
-	cratingServiceItems := []models.MTOServiceItem{crating, uncrating, cratingStandalone}
+	cratingServiceItems := []models.MTOServiceItem{crating, uncrating}
 	for index := range cratingServiceItems {
 		_, _, cratingErr := serviceItemCreator.CreateMTOServiceItem(&cratingServiceItems[index])
 		if cratingErr != nil {
