@@ -51,7 +51,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
 
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
-      if (item.priceCents !== undefined) {
+      if (item.priceCents != null) {
         requestedAmount += item.priceCents;
 
         if (item.status === 'APPROVED') {
