@@ -3602,7 +3602,8 @@
 
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#5344ad893ce5b4e0038b4d8956b281154ce49ae3"
+  uid fe70df7fe43d96a4cdc4a5314ed0496d6a84f495
+  resolved "https://github.com/trussworks/react-file-viewer#fe70df7fe43d96a4cdc4a5314ed0496d6a84f495"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
