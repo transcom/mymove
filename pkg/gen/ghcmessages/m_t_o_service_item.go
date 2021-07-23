@@ -477,6 +477,10 @@ func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateSITPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCustomerContacts(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -492,6 +496,15 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSITPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "SITPostalCode", "body", m.SITPostalCode); err != nil {
+		return err
+	}
+
 	return nil
 }
 
