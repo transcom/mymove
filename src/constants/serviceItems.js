@@ -7,6 +7,8 @@ const SERVICE_ITEM_STATUSES = {
 const SERVICE_ITEM_PARAM_KEYS = {
   ActualPickupDate: 'ActualPickupDate',
   ContractYearName: 'ContractYearName',
+  CubicFeetCrating: 'CubicFeetCrating',
+  CubicFeetBilled: 'CubicFeetBilled',
   DestinationPrice: 'DestinationPrice',
   DistanceZip3: 'DistanceZip3',
   DistanceZip5: 'DistanceZip5',
@@ -64,9 +66,14 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   BaselineLinehaulPrice: 'Baseline linehaul price',
   BaselineShorthaulPrice: 'Baseline shorthaul price',
   BillableWeight: 'Billable weight (cwt)',
+  CratingDate: 'Crating date',
+  CubicFeetBilled: 'Crating price (per cu ft)',
+  CubicFeetCrating: 'Crating size (cu ft)',
   DaysInSIT: 'Days in SIT',
   DeliveryDate: 'Delivery date',
+  Description: 'Description',
   DestinationSchedule: 'Destination schedule',
+  Dimensions: 'Dimensions',
   Domestic: 'Domestic',
   FuelSurchargePrice: 'Fuel surcharge price (per mi)',
   Mileage: 'Mileage',
@@ -97,6 +104,7 @@ const SERVICE_ITEM_CODES = {
   DUPK: 'DUPK',
   FSC: 'FSC',
   DDSHUT: 'DDSHUT',
+  DCRT: 'DCRT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -116,6 +124,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.DUPK,
   SERVICE_ITEM_CODES.FSC,
   SERVICE_ITEM_CODES.DDSHUT,
+  SERVICE_ITEM_CODES.DCRT,
 ];
 
 export {

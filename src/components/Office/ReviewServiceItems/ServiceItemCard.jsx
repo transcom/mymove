@@ -14,7 +14,7 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import { toDollarString, formatDateFromIso } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { PaymentServiceItemParam } from 'types/order';
+import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
 
 /** This component represents a Payment Request Service Item */
@@ -33,6 +33,7 @@ const ServiceItemCard = ({
   patchPaymentServiceItem,
   requestComplete,
   paymentServiceItemParams,
+  additionalServiceItemData,
 }) => {
   const [calculationsVisible, setCalulationsVisible] = useState(false);
   const [canEditRejection, setCanEditRejection] = useState(!rejectionReason);
@@ -63,6 +64,7 @@ const ServiceItemCard = ({
             <ServiceItemCalculations
               totalAmountRequested={amount * 100}
               serviceItemParams={paymentServiceItemParams}
+              additionalServiceItemData={additionalServiceItemData}
               itemCode={mtoServiceItemCode}
               tableSize="small"
             />
@@ -337,6 +339,7 @@ ServiceItemCard.propTypes = {
   patchPaymentServiceItem: PropTypes.func.isRequired,
   requestComplete: PropTypes.bool,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
+  additionalServiceItemData: MTOServiceItemShape,
 };
 
 ServiceItemCard.defaultProps = {
@@ -351,6 +354,7 @@ ServiceItemCard.defaultProps = {
   rejectionReason: '',
   requestComplete: false,
   paymentServiceItemParams: [],
+  additionalServiceItemData: {},
 };
 
 export default ServiceItemCard;
