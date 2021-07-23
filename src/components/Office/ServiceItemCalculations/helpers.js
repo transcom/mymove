@@ -1,6 +1,6 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
+import { convertFromThousandthInchToInch, formatWeight, formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
 import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
@@ -349,11 +349,13 @@ const cratingSize = (params, mtoParams) => {
 
   const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
 
-  const dimension = mtoParams.dimensions.find((dim) => dim.type === 'CRATE');
+  const dimensions = mtoParams.dimensions.find((dim) => dim.type === 'CRATE');
 
-  const dimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${dimension.length}x${dimension.width}x${dimension.height} in`;
+  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${convertFromThousandthInchToInch(
+    dimensions.length,
+  )}x${convertFromThousandthInchToInch(dimensions.width)}x${convertFromThousandthInchToInch(dimensions.height)} in`;
 
-  return calculation(value, label, description, dimensions);
+  return calculation(value, label, description, formattedDimensions);
 };
 
 // totalAmountRequested is not a service item param

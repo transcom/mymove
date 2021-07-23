@@ -51,12 +51,14 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
 
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
-      requestedAmount += item.priceCents;
+      if (item.priceCents !== undefined) {
+        requestedAmount += item.priceCents;
 
-      if (item.status === 'APPROVED') {
-        approvedAmount += item.priceCents;
-      } else if (item.status === 'DENIED') {
-        rejectedAmount += item.priceCents;
+        if (item.status === 'APPROVED') {
+          approvedAmount += item.priceCents;
+        } else if (item.status === 'DENIED') {
+          rejectedAmount += item.priceCents;
+        }
       }
     });
 

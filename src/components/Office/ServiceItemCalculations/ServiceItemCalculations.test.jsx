@@ -196,7 +196,7 @@ describe('ServiceItemCalculations DCRT', () => {
     {
       value: '2',
       label: 'Crating size (cu ft)',
-      details: ['Description: Grand piano', 'Dimensions: 50x100x80 in'],
+      details: ['Description: Grand piano', 'Dimensions: 0.05x0.1x0.08 in'],
     },
     {
       value: '1.71',
