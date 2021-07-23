@@ -52,7 +52,7 @@ func (router moveRouter) Submit(move *models.Move) error {
 		transactionError := router.db.Transaction(func(tx *pop.Connection) error {
 			err = router.SendToOfficeUser(move)
 			if err != nil {
-				router.logger.Error("failure routing move with amended orders to office user / TOO queue", zap.Error(err))
+				router.logger.Error("failure routing move submission with amended orders", zap.Error(err))
 				return err
 			}
 			// Let's get the orders for this move so we can wipe out the acknowledgement if it exists already (from a prior orders amendment process)
