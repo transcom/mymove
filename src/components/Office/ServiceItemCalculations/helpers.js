@@ -1,6 +1,6 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
+import { convertFromThousandthInchToInch, formatWeight, formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
 import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
@@ -38,6 +38,13 @@ const serviceAreaDest = (params) => {
 
 const requestedPickupDate = (params) => {
   return `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate]}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+};
+
+const cratingDate = (params) => {
+  return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDate(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
     'DD MMM YYYY',
   )}`;
@@ -324,6 +331,33 @@ const pickupSITPrice = (params) => {
   return calculation(value, label, originSITSchedule, requestedPickupDate(params), peak(params));
 };
 
+const cratingPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin,
+    params,
+  )}`;
+
+  return calculation(value, label, serviceSchedule, cratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
+const cratingSize = (params, mtoParams) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating;
+
+  const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
+
+  const dimensions = mtoParams.dimensions.find((dim) => dim.type === 'CRATE');
+
+  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${convertFromThousandthInchToInch(
+    dimensions.length,
+  )}x${convertFromThousandthInchToInch(dimensions.width)}x${convertFromThousandthInchToInch(dimensions.height)} in`;
+
+  return calculation(value, label, description, formattedDimensions);
+};
+
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
@@ -333,7 +367,7 @@ const totalAmountRequested = (totalAmount) => {
   return calculation(value, label, detail);
 };
 
-const makeCalculations = (itemCode, totalAmount, params) => {
+const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
   let result = [];
 
   switch (itemCode) {
@@ -486,6 +520,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
       result = [
         shuttleBillableWeight(params),
         shuttleDestinationPriceDomestic(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic crating
+    case SERVICE_ITEM_CODES.DCRT:
+      result = [
+        cratingSize(params, mtoParams),
+        cratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];

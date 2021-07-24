@@ -19,6 +19,10 @@ import (
 // swagger:model MTOServiceItem
 type MTOServiceItem struct {
 
+	// s i t postal code
+	// Read Only: true
+	SITPostalCode *string `json:"SITPostalCode,omitempty"`
+
 	// approved at
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`

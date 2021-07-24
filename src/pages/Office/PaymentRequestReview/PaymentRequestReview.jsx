@@ -116,6 +116,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
       mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
+      mtoServiceItems: selectedShipment?.mtoServiceItems,
       amount: item.priceCents ? item.priceCents / 100 : 0,
       createdAt: item.createdAt,
       status: item.status,
