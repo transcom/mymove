@@ -79,7 +79,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	})
 
 	suite.RunWithRollback("all move task orders that are available to prime and using since", func() {
-		now := time.Now()
+		now = time.Now()
 
 		testdatagen.MakeAvailableMove(suite.DB())
 		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
@@ -102,8 +102,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		// Put 1 Move updatedAt in the past
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 			now.Add(-2*time.Second), oldMTO.ID).Exec())
-		since := time.Now()
-		searchParams.Since = &since
+		searchParams.Since = &now
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 		suite.Equal(1, len(mtosWithSince))
