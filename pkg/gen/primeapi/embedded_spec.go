@@ -415,7 +415,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/UpdateMTOShipment"
             }
           },
           {
@@ -1825,7 +1825,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
-          }
+          },
+          "readOnly": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -2526,6 +2527,84 @@ func init() {
         }
       ]
     },
+    "UpdateMTOShipment": {
+      "properties": {
+        "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
+          "type": "boolean"
+        },
+        "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "pointOfContact": {
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
+          "type": "string"
+        },
+        "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "type": "integer",
+          "example": 4500
+        },
+        "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDeliveryAddress": {
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "UpdateMTOShipmentStatus": {
       "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
       "type": "object",
@@ -3174,7 +3253,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/UpdateMTOShipment"
             }
           },
           {
@@ -4728,7 +4807,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
-          }
+          },
+          "readOnly": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -5431,6 +5511,84 @@ func init() {
           }
         }
       ]
+    },
+    "UpdateMTOShipment": {
+      "properties": {
+        "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
+          "type": "boolean"
+        },
+        "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "pointOfContact": {
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
+          "type": "string"
+        },
+        "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "type": "integer",
+          "example": 4500
+        },
+        "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDeliveryAddress": {
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
     },
     "UpdateMTOShipmentStatus": {
       "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
