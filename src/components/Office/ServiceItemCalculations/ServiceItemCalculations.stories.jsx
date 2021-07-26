@@ -159,3 +159,13 @@ export const DDSHUT = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DCRT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticCrating}
+    additionalServiceItemData={testParams.additionalCratingDataDCRT}
+    totalAmountRequested={642}
+    itemCode="DCRT"
+    tableSize={data.tableSize}
+  />
+);

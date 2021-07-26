@@ -3,7 +3,6 @@ const serviceItemCodes = {
   DBHF: 'Domestic haul away boat factor',
   DBTF: 'Domestic tow away boat factor',
   DCRT: 'Domestic crating',
-  DCRTSA: 'Domestic crating - standalone',
   DDASIT: "Domestic destination add'l SIT",
   DDDSIT: 'Domestic destination SIT delivery',
   DDFSIT: 'Domestic destination 1st day SIT',

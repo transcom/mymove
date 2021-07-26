@@ -3602,7 +3602,7 @@
 
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#5344ad893ce5b4e0038b4d8956b281154ce49ae3"
+  resolved "https://github.com/trussworks/react-file-viewer#fe70df7fe43d96a4cdc4a5314ed0496d6a84f495"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
@@ -16324,10 +16324,10 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin-import-csv@^1.0.21:
-  version "1.0.21"
-  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.21.tgz#61ae1bdd8a94df13b68eb1c55be2d8ad3d76b1e4"
-  integrity sha512-qVYjq4yBCzP7PG8MXPu2VgVj0XMFtmCmlmNB+HkuUEsCWGZwZkoWxcaPG5uHJ7BuKZ/6/gnVw3JWu11s2qL3wQ==
+react-admin-import-csv@^1.0.22:
+  version "1.0.22"
+  resolved "https://registry.yarnpkg.com/react-admin-import-csv/-/react-admin-import-csv-1.0.22.tgz#bc0a1bd4558994fcf74ff997305105b41ecc8e45"
+  integrity sha512-lzC5jXTwpR19K2Pvwj/lBmvCiAcrHSDLSpTCiTYQCjakZguyx+pt2bSf5hUDm4DHwd7rDhOM8jdmf+I0AZAN4g==
   dependencies:
     papaparse "5.x"
     ramda "^0.27.0"

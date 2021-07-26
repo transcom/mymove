@@ -11,7 +11,7 @@ import (
 
 	"net/http"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"

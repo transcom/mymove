@@ -6,6 +6,7 @@ import ServiceItemDetails from './ServiceItemDetails';
 const details = {
   description: 'some description',
   pickupPostalCode: '90210',
+  SITPostalCode: '12345',
   reason: 'some reason',
   itemDimensions: { length: 1000, width: 2500, height: 3000 },
   crateDimensions: { length: 2000, width: 3500, height: 4000 },
@@ -25,7 +26,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
     render(<ServiceItemDetails id="1" code={code} details={details} />);
 
     expect(screen.getByText('ZIP:')).toBeInTheDocument();
-    expect(screen.getByText('90210')).toBeInTheDocument();
+    expect(screen.getByText('12345')).toBeInTheDocument();
     expect(screen.getByText('Reason:')).toBeInTheDocument();
     expect(screen.getByText('some reason')).toBeInTheDocument();
   });
@@ -52,9 +53,9 @@ describe('ServiceItemDetails Crating', () => {
     render(<ServiceItemDetails id="1" code="DCRT" details={details} />);
 
     expect(screen.getByText('some description')).toBeInTheDocument();
-    expect(screen.getByText('Item Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
     expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
-    expect(screen.getByText('Crate Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
     expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
   });
 });
@@ -81,10 +82,11 @@ describe('ServiceItemDetails Crating Rejected', () => {
   it('renders the rejection reason field when it is populated with information', () => {
     render(<ServiceItemDetails id="1" code="DCRT" details={detailsRejectedServiceItem} />);
 
+    expect(screen.getByText('Description:')).toBeInTheDocument();
     expect(screen.getByText('some description')).toBeInTheDocument();
-    expect(screen.getByText('Item Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
     expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
-    expect(screen.getByText('Crate Dimensions:')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
     expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
     expect(screen.getByText('some rejection reason')).toBeInTheDocument();
   });

@@ -50,6 +50,8 @@ endif
 
 SCHEMASPY_OUTPUT=./tmp/schemaspy
 
+export DEVSEED_SUBSCENARIO
+
 .PHONY: help
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -284,12 +286,6 @@ bin/report-ecs: cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
-
-bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
-
-bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
 
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
@@ -534,7 +530,7 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 .PHONY: db_dev_fresh
 db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
@@ -544,7 +540,7 @@ db_dev_truncate: ## Truncate dev db
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
 ## Alias for db_dev_bandwidth_up
 ## We started with `db_bandwidth_up`, which some folks are already using, and
