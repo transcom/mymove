@@ -37,6 +37,7 @@ or should we focus solely on error tracking*
 * `+` *Has a self-hosted option*
 * `+` *Was used on a previous truss project, so we have some in house experience*
 * `+` *Specialized tool for error tracking*
+* `-` *It would take time/resources for infra to setup/maintain a self hosted version*
 * `-` *[Monthly fee](https://sentry.io/pricing/)*
 
 ### *Rollbar*
