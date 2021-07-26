@@ -147,21 +147,19 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	return model
 }
 
-// MTOShipmentModel model
-func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipment {
+// MTOShipmentModelFromUpdate model
+func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}
 
 	model := &models.MTOShipment{
-		ID:                         uuid.FromStringOrNil(mtoShipment.ID.String()),
+		ID:                         uuid.FromStringOrNil(mtoShipmentID.String()),
 		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
 		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
-		RequiredDeliveryDate:       handlers.FmtDatePtrToPopPtr(mtoShipment.RequiredDeliveryDate),
-		RequestedPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.RequestedPickupDate),
 		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
-		Diversion:                  bool(mtoShipment.Diversion),
+		Diversion:                  mtoShipment.Diversion,
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
@@ -199,10 +197,6 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.SecondaryDeliveryAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	}
-
-	if mtoShipment.Agents != nil {
-		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
 	return model

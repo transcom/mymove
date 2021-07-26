@@ -1011,6 +1011,10 @@ func (m *MTOShipment) contextValidateMoveTaskOrderID(ctx context.Context, format
 
 func (m *MTOShipment) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
 
+	if err := validate.ReadOnly(ctx, "mtoServiceItems", "body", []MTOServiceItem(m.MtoServiceItems())); err != nil {
+		return err
+	}
+
 	for i := 0; i < len(m.MtoServiceItems()); i++ {
 
 		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
