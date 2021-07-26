@@ -10,9 +10,9 @@ function check_host () {
 
   declare -A host_docs
   host_docs=(
-    ["milmovelocal"]="setup-milmovelocal-client"
-    ["officelocal"]="setup-officelocal-client"
-    ["adminlocal"]="setup-adminlocal-client"
+    ["milmovelocal"]="setup-milmove-local-client"
+    ["officelocal"]="setup-office-local-client"
+    ["adminlocal"]="setup-admin-local-client"
     ["orderslocal"]="setup-orders-gateway"
     ["primelocal"]="setup-prime-api"
   )
