@@ -50,6 +50,8 @@ endif
 
 SCHEMASPY_OUTPUT=./tmp/schemaspy
 
+export DEVSEED_SUBSCENARIO
+
 .PHONY: help
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -66,8 +68,11 @@ help:  ## Print the help documentation
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 .PHONY: ensure_pre_commit
-ensure_pre_commit: .git/hooks/pre-commit ## Ensure pre-commit is installed
+ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit is installed
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
+
+.PHONY: install_pre_commit
+install_pre_commit:  ## Installs pre-commit hooks
 	pre-commit install
 	pre-commit install-hooks
 
@@ -120,7 +125,13 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit deps_shared ## Run all checks and install all dependencies
+
+.PHONY: deps_nix
+deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
+
+.PHONY: deps_shared
+deps_shared: client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -519,7 +530,7 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 .PHONY: db_dev_fresh
 db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
 .PHONY: db_dev_truncate
 db_dev_truncate: ## Truncate dev db
@@ -529,7 +540,7 @@ db_dev_truncate: ## Truncate dev db
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
 ## Alias for db_dev_bandwidth_up
 ## We started with `db_bandwidth_up`, which some folks are already using, and

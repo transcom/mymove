@@ -1,10 +1,11 @@
 import React from 'react';
+import { node } from 'prop-types';
 
-const SystemError = () => (
-  <div className="usa-alert--system-error">
-    Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again. If that doesn&apos;t fix
-    it, contact the Technical Help Desk and give them this code: <strong>[trace ID]</strong>.
-  </div>
-);
+import styles from './SystemError.module.scss';
 
+const SystemError = ({ children }) => <div className={`usa-alert--system-error ${styles.systemError}`}>{children}</div>;
+
+SystemError.propTypes = {
+  children: node.isRequired,
+};
 export default SystemError;

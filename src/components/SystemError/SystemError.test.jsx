@@ -5,7 +5,7 @@ import SystemError from './index';
 
 describe('SystemError component', () => {
   it('renders without crashing', () => {
-    render(<SystemError />);
-    expect(screen.getByText(/contact the Technical Help Desk and give them this code:/)).toBeInTheDocument();
+    render(<SystemError>Contact the Technical Help Desk and give them this code:</SystemError>);
+    expect(screen.getByText(/Contact the Technical Help Desk and give them this code:/)).toBeInTheDocument();
   });
 });
