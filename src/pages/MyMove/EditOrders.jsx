@@ -1,7 +1,7 @@
 import React, { createRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useHistory } from 'react-router-dom';
 
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
@@ -24,7 +24,7 @@ import {
   selectEntitlementsForLoggedInUser,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
-import { OrdersShape, HistoryShape } from 'types/customerShapes';
+import { OrdersShape } from 'types/customerShapes';
 import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'shared/formatters';
@@ -38,13 +38,13 @@ export const EditOrders = ({
   existingUploads,
   moveIsApproved,
   spouseHasProGear,
-  history,
   currentStation,
   setFlashMessage,
   entitlement,
   context,
 }) => {
   const filePondEl = createRef();
+  const history = useHistory();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
@@ -181,7 +181,6 @@ EditOrders.propTypes = {
   setFlashMessage: PropTypes.func.isRequired,
   updateOrders: PropTypes.func.isRequired,
   currentOrders: OrdersShape.isRequired,
-  history: HistoryShape.isRequired,
   entitlement: EntitlementShape.isRequired,
   existingUploads: ExistingUploadsShape,
   schema: PropTypes.shape({}),
@@ -219,7 +218,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  push,
   updateOrders: updateOrdersAction,
   setFlashMessage: setFlashMessageAction,
 };
