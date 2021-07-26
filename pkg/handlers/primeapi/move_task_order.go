@@ -55,10 +55,12 @@ type FetchMTOUpdatesFastHandler struct {
 func (h FetchMTOUpdatesFastHandler) Handle(params movetaskorderops.FetchMTOUpdatesFastParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	since := handlers.FmtDateTimePtrToPop(params.Since)
-	searchParams := services.MoveTaskOrderFetcherParams{
-		Since: &since,
+	var searchParams services.MoveTaskOrderFetcherParams
+	if params.Since != nil {
+		since := handlers.FmtDateTimePtrToPop(params.Since)
+		searchParams.Since = &since
 	}
+
 	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(&searchParams)
 
 	if err != nil {
