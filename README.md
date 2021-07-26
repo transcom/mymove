@@ -105,10 +105,22 @@ As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Ed
 
 ## Login.gov
 
-You'll need accounts for login.gov and the login.gov sandbox.  These will require two-factor authentication, so have your second factor (one of: phone, authentication app, security key, CAC) on hand.
-To create an account at login.gov, use your regular `truss.works` email and follow [the official instructions](https://login.gov/help/creating-an-account/how-to-create-an-account/).
-To create an account in the sandbox, follow the same instructions, but [in the sandbox server](https://idp.int.identitysandbox.gov/sign_up/enter_email).  Do _not_ use your regular email address in the sandbox.
-**Tip**: You can use the plus sign `+` to create a new truss email address.  `name+some_string@truss.works` will be treated as a new address, but will be routed to `name@truss.works`.
+You'll need accounts for login.gov and the login.gov sandbox.  These will
+require two-factor authentication, so have your second factor (one of: phone,
+authentication app, security key, CAC) on hand.  To create an account at
+login.gov, use your regular `truss.works` email and follow [the official
+instructions](https://login.gov/help/creating-an-account/how-to-create-an-account/).
+To create an account in the sandbox, follow the same instructions, but [in the
+sandbox server](https://idp.int.identitysandbox.gov/sign_up/enter_email).  Do
+_not_ use your regular email address in the sandbox.
+
+### Creating alternative users with the same email address
+
+You can use the plus sign `+` to create a new Truss email address.
+`name+some_string@truss.works` will be treated as a new address, but will be
+routed to your `name@truss.works` email automatically. Don't use this for the
+office-side of account creation. It's helpful to use these types of accounts for
+the customer-side accounts.
 
 ## Project Layout
 
@@ -495,6 +507,21 @@ To fix the missing variables issue, you can do one of the following things:
   ```shell
   export DB_DEBUG=0
   ```
+
+##### Troubleshooting direnv & chamber
+
+Make sure you have the latest version of Chamber that supports the `env` command
+option. You may run into the following error if the version of Chamber you have
+installed does not support `env`. The error presents itself because of the
+`chamber` commands that `direnv` runs as part of the `.envrc.*` files shown
+above.
+
+```shell
+>_ cd mymove
+direnv: loading .envrc.chamber
+Error: unknown command "env" for "chamber"
+Run 'chamber --help' for usage.
+```
 
 #### Setup: Dependencies
 
