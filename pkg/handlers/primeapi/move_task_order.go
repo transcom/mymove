@@ -56,10 +56,8 @@ func (h FetchMTOUpdatesFastHandler) Handle(params movetaskorderops.FetchMTOUpdat
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	since := handlers.FmtDateTimePtrToPop(params.Since)
-
 	searchParams := services.MoveTaskOrderFetcherParams{
-		IsAvailableToPrime: true,
-		Since:              &since,
+		Since: &since,
 	}
 	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(&searchParams)
 
