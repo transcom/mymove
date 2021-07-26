@@ -1,7 +1,7 @@
 import React from 'react';
 import { node } from 'prop-types';
 
-import styles from './SystemError.modules.scss';
+import styles from './SystemError.module.scss';
 
 const SystemError = ({ children }) => <div className={`usa-alert--system-error ${styles.systemError}`}>{children}</div>;
 
