@@ -11,4 +11,12 @@ export default {
   },
 };
 
-export const SystemErrorComponent = () => <SystemError />;
+export const SystemErrorComponent = () => (
+  <SystemError>
+    This is a succinct, helpful error message. Also inlcuded is an example of some&nbsp;
+    <a href="#">link text</a>
+    .
+    <br />
+    This is a second line to test the line height.
+  </SystemError>
+);
