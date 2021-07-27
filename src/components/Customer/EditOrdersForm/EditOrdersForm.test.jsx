@@ -152,21 +152,19 @@ describe('EditOrdersForm component', () => {
     });
   });
 
-  it('renders each option for orders type', async () => {
+  it.each([
+    ['PERMANENT_CHANGE_OF_STATION', 'PERMANENT_CHANGE_OF_STATION'],
+    ['RETIREMENT', 'RETIREMENT'],
+    ['SEPARATION', 'SEPARATION'],
+  ])('renders the %s option for the orders type field', async (selectionOption, expectedValue) => {
     render(<EditOrdersForm {...testProps} />);
 
+    const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+    expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+
+    userEvent.selectOptions(ordersTypeDropdown, selectionOption);
     await waitFor(() => {
-      const ordersTypeDropdown = screen.getByLabelText('Orders type');
-      expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
-
-      userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
-      expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
-
-      userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
-      expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
-
-      userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
-      expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+      expect(ordersTypeDropdown).toHaveValue(expectedValue);
     });
   });
 
