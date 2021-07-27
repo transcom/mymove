@@ -9125,6 +9125,11 @@ fecha@^4.2.0:
   resolved "https://registry.yarnpkg.com/fecha/-/fecha-4.2.1.tgz#0a83ad8f86ef62a091e22bb5a039cd03d23eecce"
   integrity sha512-MMMQ0ludy/nBs1/o0zVOiKTpG7qMbonKUzjJgQFEuvq6INZ1OraKPRAWkBq5vlKLOUMpmNYG1JoN3oDPUQ9m3Q==
 
+fetch-blob@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/fetch-blob/-/fetch-blob-2.1.2.tgz#a7805db1361bd44c1ef62bb57fb5fe8ea173ef3c"
+  integrity sha512-YKqtUDwqLyfyMnmbw8XD6Q8j9i/HggKtPEI+pZ1+8bvheBu78biSmNaXWusx1TauGqtUUGx/cBb1mKdq2rLYow==
+
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
@@ -9451,7 +9456,14 @@ fork-ts-checker-webpack-plugin@^6.0.4:
     semver "^7.3.2"
     tapable "^1.0.0"
 
-form-data@^2.3.2, form-data@^2.5.0:
+form-data-encoder@1.0.1, form-data-encoder@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/form-data-encoder/-/form-data-encoder-1.0.1.tgz#4a678a5a06e2cb1bd9f2bf2f644fe06cd6f5c25e"
+  integrity sha512-sCHYvVRBIe2iGx30O8g0H8c5O0j1AdnPPO9IWYLIq3nZqBOa6rO+0mipXk+gqTDj9fSQ1Dm/pItxF5QW+B5faQ==
+  dependencies:
+    nanoid "3.1.23"
+
+form-data@^2.5.0:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.5.1.tgz#f2cbec57b5e59e23716e128fe44d4e5dd23895f4"
   integrity sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==
@@ -9482,6 +9494,15 @@ format@^0.2.0:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/format/-/format-0.2.2.tgz#d6170107e9efdc4ed30c9dc39016df942b5cb58b"
   integrity sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=
+
+formdata-node@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-3.6.2.tgz#5d7d7c4cd7dedf319d5b9cd4609ddcff18287aaf"
+  integrity sha512-G8Hjh1S4Ifsk5e+cTZyteYO9u5ODaif+LsWhzGuGtYQMSlmxN3Ug/NrXpX+ij9kK/EsZq+dM7fQH8fEwhMV3dQ==
+  dependencies:
+    fetch-blob "2.1.2"
+    form-data-encoder "1.0.1"
+    node-domexception "1.0.0"
 
 formik@^2.2.9:
   version "2.2.9"
@@ -11599,13 +11620,6 @@ isobject@^4.0.0:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-4.0.0.tgz#3f1c9155e73b192022a80819bacd0343711697b0"
   integrity sha512-S/2fF5wH8SJA/kmwr6HYhK/RI/OkhD84k8ntalo0iJjZikgq1XFvR5M8NPT1x5F7fBwCG3qHfnzeP/Vh/ZxCUA==
 
-isomorphic-form-data@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/isomorphic-form-data/-/isomorphic-form-data-2.0.0.tgz#9f6adf1c4c61ae3aefd8f110ab60fb9b143d6cec"
-  integrity sha512-TYgVnXWeESVmQSg4GLVbalmQ+B4NPi/H4eWxqALKj63KsUrcu301YDjBqaOw3h+cbak7Na4Xyps3BiptHtxTfg==
-  dependencies:
-    form-data "^2.3.2"
-
 isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
@@ -13697,7 +13711,7 @@ nanoid@2.1.11:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.1.11.tgz#ec24b8a758d591561531b4176a01e3ab4f0f0280"
   integrity sha512-s/snB+WGm6uwi0WjsZdaVcuf3KJXlfGl2LcxgwkEwJF0D/BWzVWAZW/XY4bFaiR7s0Jk3FPvlnepg1H1b1UwlA==
 
-nanoid@^3.1.23:
+nanoid@3.1.23, nanoid@^3.1.23:
   version "3.1.23"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
   integrity sha512-FiB0kzdP0FFVGDKlRLEQ1BgDzU87dy5NnzjeW9YZNt+/c3+q82EQDUwniSAUxp/F0gFNI1ZhKU1FqYsMuqZVnw==
@@ -13803,6 +13817,11 @@ node-dir@^0.1.10:
   integrity sha1-X1Zl2TNRM1yqvvjxxVRRbPXx5OU=
   dependencies:
     minimatch "^3.0.2"
+
+node-domexception@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
+  integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
 
 node-ensure@^0.0.0:
   version "0.0.0"
@@ -18855,10 +18874,10 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.13.6:
-  version "3.13.6"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.13.6.tgz#144a17348d2ad26e56186415ed89b8def8284bfb"
-  integrity sha512-hmE1qMqEw0C16pIiNlQAfUBO5s7tYLRq2/KPXr96V5BLXe5sAGeffBISuMX5l78wFgDMdAmctqBzEUM4eL3msg==
+swagger-client@^3.14.1:
+  version "3.14.1"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.14.1.tgz#021e5bf7ead620ba58c13b43103edb458f63c067"
+  integrity sha512-zYTzVwkUEQidYfUty+EPVZOKxcdpB5m5kvemac+kyFtKyx7xr8s6f470lrfFjGyOjXPoUYkauXZde7L9LKXsWA==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     btoa "^1.2.1"
@@ -18867,7 +18886,8 @@ swagger-client@^3.13.6:
     cross-fetch "^3.1.4"
     deep-extend "~0.6.0"
     fast-json-patch "^3.0.0-1"
-    isomorphic-form-data "~2.0.0"
+    form-data-encoder "^1.0.1"
+    formdata-node "^3.6.2"
     js-yaml "^3.14.0"
     lodash "^4.17.19"
     qs "^6.9.4"
