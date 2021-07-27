@@ -1,11 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-// import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { EditOrders } from './EditOrders';
 
-// import { createBackupContactForServiceMember, patchBackupContact, getServiceMember } from 'services/internalApi';
-// import { customerRoutes } from 'constants/routes';
+// import { getOrdersForServiceMember } from 'services/internalApi';
 
 const mockPush = jest.fn();
 const mockGoBack = jest.fn();
@@ -23,9 +22,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  createBackupContactForServiceMember: jest.fn(),
-  patchBackupContact: jest.fn(),
-  getServiceMember: jest.fn(),
+  getOrdersForServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 describe('EditOrders Page', () => {
@@ -36,10 +33,6 @@ describe('EditOrders Page', () => {
     updateOrders: jest.fn(),
     currentOrders: {
       moves: ['testMove'],
-    },
-    history: {
-      goBack: mockGoBack,
-      push: jest.fn(),
     },
     entitlement: {
       authorizedWeight: 5000,
@@ -70,7 +63,6 @@ describe('EditOrders Page', () => {
     expect(editOrdersHeader).toBeInTheDocument();
   });
 
-  /*
   it('goes back to the previous page when the cancel button is clicked', async () => {
     render(<EditOrders {...testProps} />);
 
@@ -81,8 +73,7 @@ describe('EditOrders Page', () => {
     userEvent.click(cancel);
 
     await waitFor(() => {
-      expect(mockGoBack).toHaveBeenCalledWith(customerRoutes.ORDERS_EDIT_PATH);
+      expect(mockGoBack).toHaveBeenCalled();
     });
   });
-  */
 });
