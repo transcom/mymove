@@ -136,18 +136,20 @@ const testProps = {
 };
 
 describe('EditOrdersForm component', () => {
-  it('renders the form inputs', async () => {
+  it.each([
+    ['Orders type', HTMLSelectElement, true],
+    ['Orders date', HTMLInputElement, true],
+    ['Report-by date', HTMLInputElement, true],
+    ['Yes', HTMLInputElement, false],
+    ['No', HTMLInputElement, false],
+    ['New duty station', HTMLInputElement, false],
+  ])('renders the %s input and checks if the field is required', async (formInput, inputType, required) => {
     render(<EditOrdersForm {...testProps} />);
 
-    expect(await screen.findByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
-    expect(await screen.findByLabelText('Orders type')).toBeRequired();
-    expect(await screen.findByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
-    expect(await screen.findByLabelText('Orders date')).toBeRequired();
-    expect(await screen.findByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
-    expect(await screen.findByLabelText('Report-by date')).toBeRequired();
-    expect(await screen.findByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-    expect(await screen.findByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-    expect(await screen.findByLabelText('New duty station')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+    if (required) {
+      expect(await screen.findByLabelText(formInput)).toBeRequired();
+    }
   });
 
   it.each([
