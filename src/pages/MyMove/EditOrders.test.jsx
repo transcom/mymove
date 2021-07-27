@@ -80,7 +80,7 @@ describe('EditOrders Page', () => {
   it('renders the edit orders form', async () => {
     render(<EditOrders {...testProps} />);
 
-    const h1 = await screen.findByRole('heading', { name: 'Orders', level: 1 });
+    const h1 = screen.getByRole('heading', { name: 'Orders', level: 1 });
     expect(h1).toBeInTheDocument();
 
     const editOrdersHeader = screen.getByRole('heading', { name: 'Edit Orders:', level: 2 });
@@ -90,7 +90,7 @@ describe('EditOrders Page', () => {
   it('goes back to the previous page when the cancel button is clicked', async () => {
     render(<EditOrders {...testProps} />);
 
-    const cancel = await screen.findByText('Cancel');
+    const cancel = screen.getByText('Cancel');
 
     expect(cancel).toBeInTheDocument();
 
