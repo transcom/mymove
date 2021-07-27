@@ -128,7 +128,7 @@ const EditOrdersForm = ({
               <WizardNavigation
                 editMode
                 onCancelClick={onCancel}
-                disableNext={!isValid || isSubmitting}
+                disableNext={!isValid || existingUploads?.length <= 0 || isSubmitting}
                 onNextClick={handleSubmit}
               />
             </div>

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { EditOrders } from './EditOrders';
 
-// import { getOrdersForServiceMember, patchOrders } from 'services/internalApi';
+import { patchOrders } from 'services/internalApi';
 
 const mockPush = jest.fn();
 const mockGoBack = jest.fn();
@@ -33,6 +33,29 @@ describe('EditOrders Page', () => {
     setFlashMessage: jest.fn(),
     updateOrders: jest.fn(),
     currentOrders: {
+      id: 'testOrdersId',
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      issue_date: '2020-11-08',
+      report_by_date: '2020-11-26',
+      has_dependents: false,
+      new_duty_station: {
+        address: {
+          city: 'Des Moines',
+          country: 'US',
+          id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+          postal_code: '50309',
+          state: 'IA',
+          street_address_1: '987 Other Avenue',
+          street_address_2: 'P.O. Box 1234',
+          street_address_3: 'c/o Another Person',
+        },
+        address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+        affiliation: 'AIR_FORCE',
+        created_at: '2020-10-19T17:01:16.114Z',
+        id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+        name: 'Yuma AFB',
+        updated_at: '2020-10-19T17:01:16.114Z',
+      },
       moves: ['testMove'],
     },
     entitlement: {
@@ -78,37 +101,24 @@ describe('EditOrders Page', () => {
     });
   });
 
-  it('shows an error if the API returns an error', async () => {});
+  it('shows an error if the API returns an error', async () => {
+    render(<EditOrders {...testProps} />);
+
+    patchOrders.mockImplementation(() =>
+      // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+      // eslint-disable-next-line prefer-promise-reject-errors
+      Promise.reject({
+        message: 'A server error occurred saving the orders',
+        response: {
+          body: {
+            detail: 'A server error occurred saving the orders',
+          },
+        },
+      }),
+    );
+  });
 
   it('next button patches the orders and goes to the previous page', async () => {
-    const currentOrders = {
-      currentOrders: {
-        id: 'testOrdersId',
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
-        issue_date: '2020-11-08',
-        report_by_date: '2020-11-26',
-        has_dependents: false,
-        new_duty_station: {
-          address: {
-            city: 'Des Moines',
-            country: 'US',
-            id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-            postal_code: '50309',
-            state: 'IA',
-            street_address_1: '987 Other Avenue',
-            street_address_2: 'P.O. Box 1234',
-            street_address_3: 'c/o Another Person',
-          },
-          address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-          affiliation: 'AIR_FORCE',
-          created_at: '2020-10-19T17:01:16.114Z',
-          id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
-          name: 'Yuma AFB',
-          updated_at: '2020-10-19T17:01:16.114Z',
-        },
-      },
-    };
-
-    render(<EditOrders {...testProps} {...currentOrders} />);
+    render(<EditOrders {...testProps} />);
   });
 });
