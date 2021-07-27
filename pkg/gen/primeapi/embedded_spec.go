@@ -1409,38 +1409,39 @@ func init() {
       ],
       "properties": {
         "eTag": {
-          "description": "ETag identifier required to update this object",
+          "description": "A hash unique to this service item that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "id": {
-          "description": "ID of the service item",
+          "description": "The ID of the service item.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
-          "description": "ID of the associated moveTaskOrder",
+          "description": "The ID of the move for this service item.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
-          "description": "ID of the associated mtoShipment",
+          "description": "The ID of the shipment this service is for, if any. Optional.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "description": "Full descriptive name of the service",
+          "description": "The full descriptive name of the service.",
           "type": "string",
           "readOnly": true
         },
         "rejectionReason": {
-          "description": "Reason the service item was rejected by the TOO",
+          "description": "The reason why this service item was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -1698,26 +1699,26 @@ func init() {
           ],
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
             },
             "description": {
-              "description": "Further details about the shuttle service.",
+              "description": "Details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
             },
             "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4200
             },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "DOSHUT",
@@ -1725,7 +1726,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "Explanation of why a shuttle service is required.",
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
@@ -1734,7 +1735,7 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem.",
+      "description": "The status of a service item, indicating where it is in the TOO's approval process.",
       "type": "string",
       "enum": [
         "SUBMITTED",
@@ -1908,7 +1909,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
           "enum": [
             "SUBMITTED",
@@ -2735,10 +2736,11 @@ func init() {
       "name": "mtoShipment"
     },
     {
-      "name": "paymentRequest"
+      "description": "A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a\ncustomer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be\napproved by the TOO before payment can be requested.\n\nThere are three types of service items: accessorial, MTO-level, and standard.\n\n**WIP:** Add an external link to an article that explains the different types of service items in more detail.\n",
+      "name": "mtoServiceItem"
     },
     {
-      "name": "mtoServiceItem"
+      "name": "paymentRequest"
     }
   ],
   "x-tagGroups": [
@@ -2747,8 +2749,8 @@ func init() {
       "tags": [
         "moveTaskOrder",
         "mtoShipment",
-        "paymentRequest",
-        "mtoServiceItem"
+        "mtoServiceItem",
+        "paymentRequest"
       ]
     }
   ]
@@ -4391,38 +4393,39 @@ func init() {
       ],
       "properties": {
         "eTag": {
-          "description": "ETag identifier required to update this object",
+          "description": "A hash unique to this service item that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "id": {
-          "description": "ID of the service item",
+          "description": "The ID of the service item.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
-          "description": "ID of the associated moveTaskOrder",
+          "description": "The ID of the move for this service item.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
-          "description": "ID of the associated mtoShipment",
+          "description": "The ID of the shipment this service is for, if any. Optional.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "description": "Full descriptive name of the service",
+          "description": "The full descriptive name of the service.",
           "type": "string",
           "readOnly": true
         },
         "rejectionReason": {
-          "description": "Reason the service item was rejected by the TOO",
+          "description": "The reason why this service item was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -4680,26 +4683,26 @@ func init() {
           ],
           "properties": {
             "actualWeight": {
-              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4000
             },
             "description": {
-              "description": "Further details about the shuttle service.",
+              "description": "Details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
             },
             "estimatedWeight": {
-              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
               "type": "integer",
               "x-nullable": true,
               "x-omitempty": false,
               "example": 4200
             },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "DOSHUT",
@@ -4707,7 +4710,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "Explanation of why a shuttle service is required.",
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
@@ -4716,7 +4719,7 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem.",
+      "description": "The status of a service item, indicating where it is in the TOO's approval process.",
       "type": "string",
       "enum": [
         "SUBMITTED",
@@ -4890,7 +4893,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
           "enum": [
             "SUBMITTED",
@@ -5723,10 +5726,11 @@ func init() {
       "name": "mtoShipment"
     },
     {
-      "name": "paymentRequest"
+      "description": "A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a\ncustomer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be\napproved by the TOO before payment can be requested.\n\nThere are three types of service items: accessorial, MTO-level, and standard.\n\n**WIP:** Add an external link to an article that explains the different types of service items in more detail.\n",
+      "name": "mtoServiceItem"
     },
     {
-      "name": "mtoServiceItem"
+      "name": "paymentRequest"
     }
   ],
   "x-tagGroups": [
@@ -5735,8 +5739,8 @@ func init() {
       "tags": [
         "moveTaskOrder",
         "mtoShipment",
-        "paymentRequest",
-        "mtoServiceItem"
+        "mtoServiceItem",
+        "paymentRequest"
       ]
     }
   ]

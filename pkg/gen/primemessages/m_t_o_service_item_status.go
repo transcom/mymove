@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemStatus Describes all statuses for a MTOServiceItem.
+// MTOServiceItemStatus The status of a service item, indicating where it is in the TOO's approval process.
 //
 // swagger:model MTOServiceItemStatus
 type MTOServiceItemStatus string

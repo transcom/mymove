@@ -1293,21 +1293,22 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: ID of the service item
+        description: The ID of the service item.
+        readOnly: true
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: ID of the associated moveTaskOrder
+        description: The ID of the move for this service item.
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: ID of the associated mtoShipment
+        description: The ID of the shipment this service is for, if any. Optional.
       reServiceName:
         type: string
         readOnly: true
-        description: Full descriptive name of the service
+        description: The full descriptive name of the service.
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       rejectionReason:
@@ -1315,13 +1316,13 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
-        description: Reason the service item was rejected by the TOO
+        description: The reason why this service item was rejected by the TOO.
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
         readOnly: true
-        description: ETag identifier required to update this object
+        description: A hash unique to this service item that should be used as the "If-Match" header for any updates.
     required:
       - modelType
       - moveTaskOrderID
@@ -1507,28 +1508,32 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: Service codes allowed for this model type.
+            description: >
+              A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`)
+              or destination (`DDSHUT`).
             enum:
               - DOSHUT # Domestic Origin Shuttle Service
               - DDSHUT # Domestic Destination Shuttle Service
           reason:
             type: string
             example: Storage items need to be picked up.
-            description: Explanation of why a shuttle service is required.
+            description: >
+              The contractor's explanation for why a shuttle service is requested.
+              Used by the TOO to decide to approve or reject the service item.
           description:
             type: string
             example: Things to be moved to the place by shuttle.
-            description: Further details about the shuttle service.
+            description: Details about the shuttle service.
           estimatedWeight:
             type: integer
             example: 4200
-            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            description: An estimate of how much weight from a shipment will be included in the shuttling service.
             x-nullable: true
             x-omitempty: false
           actualWeight:
             type: integer
             example: 4000
-            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            description: A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1538,7 +1543,7 @@ definitions:
           - estimatedWeight
           - actualWeight
   MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem.
+    description: The status of a service item, indicating where it is in the TOO's approval process.
     type: string
     readOnly: true
     enum:
@@ -1689,7 +1694,7 @@ definitions:
       status:
         description: >
           The status of a shipment, indicating where it is in the TOO's approval process.
-          Can only be updated by the Prime in special circumstances.
+          Can only be updated by the contractor in special circumstances.
         type: string
         readOnly: true
         enum:

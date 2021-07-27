@@ -24,12 +24,13 @@ import (
 type MTOServiceItem interface {
 	runtime.Validatable
 
-	// ETag identifier required to update this object
+	// A hash unique to this service item that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag() string
 	SetETag(string)
 
-	// ID of the service item
+	// The ID of the service item.
+	// Read Only: true
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -39,23 +40,23 @@ type MTOServiceItem interface {
 	ModelType() MTOServiceItemModelType
 	SetModelType(MTOServiceItemModelType)
 
-	// ID of the associated moveTaskOrder
+	// The ID of the move for this service item.
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID() *strfmt.UUID
 	SetMoveTaskOrderID(*strfmt.UUID)
 
-	// ID of the associated mtoShipment
+	// The ID of the shipment this service is for, if any. Optional.
 	// Format: uuid
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// Full descriptive name of the service
+	// The full descriptive name of the service.
 	// Read Only: true
 	ReServiceName() string
 	SetReServiceName(string)
 
-	// Reason the service item was rejected by the TOO
+	// The reason why this service item was rejected by the TOO.
 	// Read Only: true
 	RejectionReason() *string
 	SetRejectionReason(*string)

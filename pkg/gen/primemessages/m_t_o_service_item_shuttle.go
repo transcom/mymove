@@ -33,24 +33,26 @@ type MTOServiceItemShuttle struct {
 
 	statusField MTOServiceItemStatus
 
-	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+	// A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
 	// Required: true
 	ActualWeight *int64 `json:"actualWeight"`
 
-	// Further details about the shuttle service.
+	// Details about the shuttle service.
 	// Required: true
 	Description *string `json:"description"`
 
-	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+	// An estimate of how much weight from a shipment will be included in the shuttling service.
 	// Required: true
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
-	// Service codes allowed for this model type.
+	// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
+	//
 	// Required: true
 	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// Explanation of why a shuttle service is required.
+	// The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.
+	//
 	// Required: true
 	Reason *string `json:"reason"`
 }
@@ -138,24 +140,26 @@ func (m *MTOServiceItemShuttle) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
 		// Required: true
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// Further details about the shuttle service.
+		// Details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
-		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// An estimate of how much weight from a shipment will be included in the shuttling service.
 		// Required: true
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
-		// Service codes allowed for this model type.
+		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
+		//
 		// Required: true
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why a shuttle service is required.
+		// The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.
+		//
 		// Required: true
 		Reason *string `json:"reason"`
 	}
@@ -231,24 +235,26 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
 		// Required: true
 		ActualWeight *int64 `json:"actualWeight"`
 
-		// Further details about the shuttle service.
+		// Details about the shuttle service.
 		// Required: true
 		Description *string `json:"description"`
 
-		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// An estimate of how much weight from a shipment will be included in the shuttling service.
 		// Required: true
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
-		// Service codes allowed for this model type.
+		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
+		//
 		// Required: true
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why a shuttle service is required.
+		// The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.
+		//
 		// Required: true
 		Reason *string `json:"reason"`
 	}{
