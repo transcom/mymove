@@ -86,6 +86,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   SITDeliveryPrice: 'SIT delivery price',
   TotalAmountRequested: 'Total amount requested',
   UnpackPrice: 'Unpack price',
+  UncratingDate: 'Uncrating date',
+  UncratingPrice: 'Uncrating price (per cu ft)',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -105,6 +107,7 @@ const SERVICE_ITEM_CODES = {
   FSC: 'FSC',
   DDSHUT: 'DDSHUT',
   DCRT: 'DCRT',
+  DUCRT: 'DUCRT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -125,6 +128,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.FSC,
   SERVICE_ITEM_CODES.DDSHUT,
   SERVICE_ITEM_CODES.DCRT,
+  SERVICE_ITEM_CODES.DUCRT,
 ];
 
 export {

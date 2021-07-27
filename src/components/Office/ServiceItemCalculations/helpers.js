@@ -50,6 +50,14 @@ const cratingDate = (params) => {
   )}`;
 };
 
+const unCratingDate = (params) => {
+  // TODO: is RequestedPickupDate correct?
+  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+};
+
 const getPriceRateOrFactor = (params) => {
   return getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params) || '';
 };
@@ -343,6 +351,19 @@ const cratingPrice = (params) => {
   return calculation(value, label, serviceSchedule, cratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
 };
 
+const unCratingPrice = (params) => {
+  // TODO: is CubicFeetBilled correct?
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UncratingPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest,
+    params,
+  )}`;
+
+  return calculation(value, label, serviceSchedule, unCratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
 const cratingSize = (params, mtoParams) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating;
@@ -529,6 +550,15 @@ const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
       result = [
         cratingSize(params, mtoParams),
         cratingPrice(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic uncrating
+    case SERVICE_ITEM_CODES.DUCRT:
+      result = [
+        cratingSize(params, mtoParams),
+        unCratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];
