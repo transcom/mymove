@@ -18,9 +18,9 @@ func (d DimensionWidthLookup) lookup(keyData *ServiceItemParamKeyData) (string, 
 	// look for the first crating dimension.
 	for _, dimension := range d.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-			lengthWidths := int(dimension.Width.ToInches())
+			widthInches := int(dimension.Width.ToInches())
 
-			return strconv.Itoa(lengthWidths), nil
+			return strconv.Itoa(widthInches), nil
 		}
 	}
 
