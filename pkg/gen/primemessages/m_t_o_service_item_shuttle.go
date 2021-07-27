@@ -51,7 +51,7 @@ type MTOServiceItemShuttle struct {
 	// Enum: [DOSHUT DDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.
+	// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
 	//
 	// Required: true
 	Reason *string `json:"reason"`
@@ -158,7 +158,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.
+		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
 		//
 		// Required: true
 		Reason *string `json:"reason"`
@@ -253,7 +253,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Enum: [DOSHUT DDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.
+		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
 		//
 		// Required: true
 		Reason *string `json:"reason"`

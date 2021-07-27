@@ -37,7 +37,7 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	Crate *MTOServiceItemDimension `json:"crate"`
 
-	// description
+	// A description of the item being crated.
 	// Required: true
 	Description *string `json:"description"`
 
@@ -45,12 +45,13 @@ type MTOServiceItemDomesticCrating struct {
 	// Required: true
 	Item *MTOServiceItemDimension `json:"item"`
 
-	// Service codes allowed for this model type.
+	// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 	// Required: true
 	// Enum: [DCRT DCRTSA DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// Explanation of why Prime is picking up crating item.
+	// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+	//
 	Reason *string `json:"reason"`
 }
 
@@ -141,7 +142,7 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Crate *MTOServiceItemDimension `json:"crate"`
 
-		// description
+		// A description of the item being crated.
 		// Required: true
 		Description *string `json:"description"`
 
@@ -149,12 +150,13 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Item *MTOServiceItemDimension `json:"item"`
 
-		// Service codes allowed for this model type.
+		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
 		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why Prime is picking up crating item.
+		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+		//
 		Reason *string `json:"reason"`
 	}
 	buf := bytes.NewBuffer(raw)
@@ -233,7 +235,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Crate *MTOServiceItemDimension `json:"crate"`
 
-		// description
+		// A description of the item being crated.
 		// Required: true
 		Description *string `json:"description"`
 
@@ -241,12 +243,13 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Item *MTOServiceItemDimension `json:"item"`
 
-		// Service codes allowed for this model type.
+		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
 		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why Prime is picking up crating item.
+		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+		//
 		Reason *string `json:"reason"`
 	}{
 

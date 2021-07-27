@@ -1421,7 +1421,7 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: Service codes allowed for this model type.
+            description: A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
             enum:
               - DCRT # Domestic Crating
               - DCRTSA # Domestic Crating - Standalone
@@ -1433,10 +1433,13 @@ definitions:
           description:
             type: string
             example: Decorated horse head to be crated.
+            description: A description of the item being crated.
           reason:
             type: string
             example: Storage items need to be picked up
-            description: Explanation of why Prime is picking up crating item.
+            description: >
+              The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while
+              deciding to approve or reject the service item.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1518,8 +1521,8 @@ definitions:
             type: string
             example: Storage items need to be picked up.
             description: >
-              The contractor's explanation for why a shuttle service is requested.
-              Used by the TOO to decide to approve or reject the service item.
+              The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to
+              approve or reject the service item.
           description:
             type: string
             example: Things to be moved to the place by shuttle.

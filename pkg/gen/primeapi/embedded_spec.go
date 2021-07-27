@@ -1593,6 +1593,7 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "description": {
+              "description": "A description of the item being crated.",
               "type": "string",
               "example": "Decorated horse head to be crated."
             },
@@ -1600,7 +1601,7 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).",
               "type": "string",
               "enum": [
                 "DCRT",
@@ -1609,7 +1610,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "Explanation of why Prime is picking up crating item.",
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false,
@@ -1726,7 +1727,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.\n",
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
@@ -4577,6 +4578,7 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "description": {
+              "description": "A description of the item being crated.",
               "type": "string",
               "example": "Decorated horse head to be crated."
             },
@@ -4584,7 +4586,7 @@ func init() {
               "$ref": "#/definitions/MTOServiceItemDimension"
             },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).",
               "type": "string",
               "enum": [
                 "DCRT",
@@ -4593,7 +4595,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "Explanation of why Prime is picking up crating item.",
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false,
@@ -4710,7 +4712,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO to decide to approve or reject the service item.\n",
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
