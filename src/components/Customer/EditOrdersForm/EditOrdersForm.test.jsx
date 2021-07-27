@@ -137,19 +137,17 @@ const testProps = {
 
 describe('EditOrdersForm component', () => {
   it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<EditOrdersForm {...testProps} />);
+    render(<EditOrdersForm {...testProps} />);
 
-    await waitFor(() => {
-      expect(getByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Orders type')).toBeRequired();
-      expect(getByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Orders date')).toBeRequired();
-      expect(getByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Report-by date')).toBeRequired();
-      expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('New duty station')).toBeInstanceOf(HTMLInputElement);
-    });
+    expect(await screen.findByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
+    expect(await screen.findByLabelText('Orders type')).toBeRequired();
+    expect(await screen.findByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText('Orders date')).toBeRequired();
+    expect(await screen.findByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText('Report-by date')).toBeRequired();
+    expect(await screen.findByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+    expect(await screen.findByLabelText('New duty station')).toBeInstanceOf(HTMLInputElement);
   });
 
   it.each([
@@ -178,7 +176,7 @@ describe('EditOrdersForm component', () => {
 
     // Test Duty Station Search Box interaction
     fireEvent.change(screen.getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(screen.getByLabelText('New duty station'), /Luke/);
+    await selectEvent.select(await screen.findByLabelText('New duty station'), /Luke/);
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_station: 'Luke AFB',
@@ -294,8 +292,8 @@ describe('EditOrdersForm component', () => {
   */
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
-    const { getByRole } = render(<EditOrdersForm {...testProps} />);
-    const cancelButton = getByRole('button', { name: 'Cancel' });
+    render(<EditOrdersForm {...testProps} />);
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
     userEvent.click(cancelButton);
 
@@ -331,22 +329,18 @@ describe('EditOrdersForm component', () => {
     };
 
     it('pre-fills the inputs', async () => {
-      const { getByRole, queryByText, getByLabelText } = render(
-        <EditOrdersForm {...testProps} initialValues={testInitialValues} />,
-      );
+      render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
 
-      await waitFor(() => {
-        expect(getByRole('form')).toHaveFormValues({
-          new_duty_station: 'Yuma AFB',
-        });
-
-        expect(getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
-        expect(getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-        expect(getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
-        expect(getByLabelText('Yes')).not.toBeChecked();
-        expect(getByLabelText('No')).toBeChecked();
-        expect(queryByText('Yuma AFB')).toBeInTheDocument();
+      expect(await screen.findByRole('form')).toHaveFormValues({
+        new_duty_station: 'Yuma AFB',
       });
+
+      expect(await screen.findByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
+      expect(await screen.findByLabelText('Orders date')).toHaveValue('08 Nov 2020');
+      expect(await screen.findByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+      expect(await screen.findByLabelText('Yes')).not.toBeChecked();
+      expect(await screen.findByLabelText('No')).toBeChecked();
+      expect(await screen.findByText('Yuma AFB')).toBeInTheDocument();
     });
   });
 
