@@ -77,6 +77,35 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 
+// GetMoveHandlerFunc returns the details for a particular Move Task Order
+type GetMoveHandlerFunc struct {
+	handlers.HandlerContext
+	moveFetcher services.MoveFetcher
+}
+
+// Handle fetches an MTO from the database using its locator
+func (h GetMoveHandlerFunc) Handle(params movetaskorderops.GetMoveParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	searchParams := services.MoveFetcherParams{
+		IncludeHidden:      false,
+		IsAvailableToPrime: true,
+	}
+	mto, err := h.moveFetcher.FetchMove(params.Locator, &searchParams)
+	if err != nil {
+		logger.Error("primeapi.GetMoveHandler error", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewGetMoveNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+		default:
+			return movetaskorderops.NewGetMoveInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+
+	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
+}
+
 // Handle updates to move task order post-counseling
 func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)

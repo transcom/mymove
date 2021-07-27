@@ -22,7 +22,8 @@ type MoveFetcher interface {
 // MoveFetcherParams is  public struct that's used to pass filter arguments to
 // MoveFetcher queries
 type MoveFetcherParams struct {
-	IncludeHidden bool // indicates if a hidden/disabled move can be returned
+	IncludeHidden      bool // indicates if a hidden/disabled move can be returned
+	IsAvailableToPrime bool // indicates if a move is valiable to the prime
 }
 
 // MoveRouter is the exported interface for routing moves at different stages

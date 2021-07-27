@@ -27,6 +27,10 @@ func (f moveFetcher) FetchMove(locator string, searchParams *services.MoveFetche
 		query.Where("show = TRUE")
 	}
 
+	if searchParams.IsAvailableToPrime {
+		query.Where("available_to_prime_at IS NOT NULL")
+	}
+
 	err := query.First(move)
 	if err != nil {
 		switch err {
