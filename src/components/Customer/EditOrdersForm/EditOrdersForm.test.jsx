@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { screen, render, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 
@@ -153,10 +153,10 @@ describe('EditOrdersForm component', () => {
   });
 
   it('renders each option for orders type', async () => {
-    const { getByLabelText } = render(<EditOrdersForm {...testProps} />);
+    render(<EditOrdersForm {...testProps} />);
 
     await waitFor(() => {
-      const ordersTypeDropdown = getByLabelText('Orders type');
+      const ordersTypeDropdown = screen.getByLabelText('Orders type');
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
       userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
@@ -171,60 +171,60 @@ describe('EditOrdersForm component', () => {
   });
 
   it('validates the new duty station against the current duty station', async () => {
-    const { queryByText, getByRole, getByLabelText } = render(
-      <EditOrdersForm {...testProps} currentStation={{ name: 'Luke AFB' }} />,
-    );
+    render(<EditOrdersForm {...testProps} currentStation={{ name: 'Luke AFB' }} />);
 
-    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-    userEvent.click(getByLabelText('No'));
+    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
+    fireEvent.change(screen.getByLabelText('New duty station'), { target: { value: 'AFB' } });
+    await selectEvent.select(screen.getByLabelText('New duty station'), /Luke/);
     await waitFor(() => {
-      expect(getByRole('form')).toHaveFormValues({
+      expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_station: 'Luke AFB',
       });
     });
 
     await waitFor(() => {
-      expect(getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
+      expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
       expect(
-        queryByText('You entered the same duty station for your origin and destination. Please change one of them.'),
+        screen.queryByText(
+          'You entered the same duty station for your origin and destination. Please change one of them.',
+        ),
       ).toBeInTheDocument();
     });
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText } = render(<EditOrdersForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Save' });
+    render(<EditOrdersForm {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
+      expect(screen.getAllByText('Required').length).toBe(3);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<EditOrdersForm {...testProps} />);
+    render(<EditOrdersForm {...testProps} />);
 
-    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-    userEvent.click(getByLabelText('No'));
+    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
-    expect(getByRole('form')).toHaveFormValues({
+    fireEvent.change(screen.getByLabelText('New duty station'), { target: { value: 'AFB' } });
+    await selectEvent.select(screen.getByLabelText('New duty station'), /Luke/);
+    expect(screen.getByRole('form')).toHaveFormValues({
       new_duty_station: 'Luke AFB',
     });
 
-    const submitBtn = getByRole('button', { name: 'Save' });
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
     userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -303,6 +303,63 @@ describe('EditOrdersForm component', () => {
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('disables the save button', () => {
+    it('when no orders type is selected', async () => {
+      render(<EditOrdersForm {...testProps} />);
+
+      const save = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => {
+        expect(save).toBeInTheDocument();
+      });
+
+      expect(save).toBeDisabled();
+    });
+
+    it('when no orders date is selected', async () => {
+      render(<EditOrdersForm {...testProps} />);
+
+      const save = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => {
+        expect(save).toBeInTheDocument();
+      });
+
+      expect(save).toBeDisabled();
+    });
+
+    it('when no report by date is selected', async () => {
+      render(<EditOrdersForm {...testProps} />);
+
+      const save = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => {
+        expect(save).toBeInTheDocument();
+      });
+
+      expect(save).toBeDisabled();
+    });
+
+    it('when no duty station is selected', async () => {
+      render(<EditOrdersForm {...testProps} />);
+
+      const save = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => {
+        expect(save).toBeInTheDocument();
+      });
+
+      expect(save).toBeDisabled();
+    });
+
+    it('when no orders are uploaded', async () => {
+      render(<EditOrdersForm {...testProps} />);
+
+      const save = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => {
+        expect(save).toBeInTheDocument();
+      });
+
+      expect(save).toBeDisabled();
     });
   });
 
