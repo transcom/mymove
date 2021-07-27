@@ -61,3 +61,26 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.Mov
 
 	return r0, r1
 }
+
+// ListPrimeMoveTaskOrders provides a mock function with given fields: searchParams
+func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	ret := _m.Called(searchParams)
+
+	var r0 models.Moves
+	if rf, ok := ret.Get(0).(func(*services.MoveTaskOrderFetcherParams) models.Moves); ok {
+		r0 = rf(searchParams)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.Moves)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*services.MoveTaskOrderFetcherParams) error); ok {
+		r1 = rf(searchParams)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
