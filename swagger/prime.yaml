@@ -31,15 +31,23 @@ tags:
       The weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If
       the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and
       the contractor should keep this potential cost in mind when planning a move and the shipments within it.
-  - name: paymentRequest
   - name: mtoServiceItem
+    description: |
+      A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a
+      customer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be
+      approved by the TOO before payment can be requested.
+
+      There are three types of service items: accessorial, MTO-level, and standard.
+
+      **WIP:** Add an external link to an article that explains the different types of service items in more detail.
+  - name: paymentRequest
 x-tagGroups:
   - name: Endpoints
     tags:
     - moveTaskOrder
     - mtoShipment
-    - paymentRequest
     - mtoServiceItem
+    - paymentRequest
 paths:
   /move-task-orders:
     get:
