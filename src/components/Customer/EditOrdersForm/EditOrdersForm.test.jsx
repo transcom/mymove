@@ -135,6 +135,41 @@ const testProps = {
   currentStation: {},
 };
 
+const initialValues = {
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  issue_date: '2020-11-08',
+  report_by_date: '2020-11-26',
+  has_dependents: 'No',
+  new_duty_station: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postal_code: '50309',
+      state: 'IA',
+      street_address_1: '987 Other Avenue',
+      street_address_2: 'P.O. Box 1234',
+      street_address_3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
+};
+
+const existingUploads = [
+  {
+    id: '123',
+    created_at: '2020-11-08',
+    bytes: 1,
+    url: 'url',
+    filename: 'Test Upload',
+  },
+];
+
 describe('EditOrdersForm component', () => {
   it.each([
     ['Orders type', HTMLSelectElement, true],
@@ -197,41 +232,6 @@ describe('EditOrdersForm component', () => {
   });
 
   it('shows an error message if the form is invalid', async () => {
-    const initialValues = {
-      orders_type: 'PERMANENT_CHANGE_OF_STATION',
-      issue_date: '2020-11-08',
-      report_by_date: '2020-11-26',
-      has_dependents: 'No',
-      new_duty_station: {
-        address: {
-          city: 'Des Moines',
-          country: 'US',
-          id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-          postal_code: '50309',
-          state: 'IA',
-          street_address_1: '987 Other Avenue',
-          street_address_2: 'P.O. Box 1234',
-          street_address_3: 'c/o Another Person',
-        },
-        address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
-        affiliation: 'AIR_FORCE',
-        created_at: '2020-10-19T17:01:16.114Z',
-        id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
-        name: 'Yuma AFB',
-        updated_at: '2020-10-19T17:01:16.114Z',
-      },
-    };
-
-    const existingUploads = [
-      {
-        id: '123',
-        created_at: '2020-11-08',
-        bytes: 1,
-        url: 'url',
-        filename: 'Test Upload',
-      },
-    ];
-
     render(<EditOrdersForm {...testProps} initialValues={initialValues} existingUploads={existingUploads} />);
     const submitButton = screen.getByRole('button', { name: 'Save' });
 
@@ -251,9 +251,8 @@ describe('EditOrdersForm component', () => {
     expect(required).toBeInTheDocument();
   });
 
-  /*
   it('submits the form when its valid', async () => {
-    render(<EditOrdersForm {...testProps} />);
+    render(<EditOrdersForm {...testProps} existingUploads={existingUploads} />);
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
@@ -268,6 +267,7 @@ describe('EditOrdersForm component', () => {
     });
 
     const submitBtn = screen.getByRole('button', { name: 'Save' });
+    expect(submitBtn).not.toBeDisabled();
     userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -291,7 +291,6 @@ describe('EditOrdersForm component', () => {
       );
     });
   });
-  */
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
     render(<EditOrdersForm {...testProps} />);
