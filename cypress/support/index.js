@@ -17,6 +17,7 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands';
+import '@cypress/code-coverage/support';
 
 // Disable smooth-scrolling on every page load (https://github.com/cypress-io/cypress/issues/3200)
 Cypress.on('window:load', (win) => {

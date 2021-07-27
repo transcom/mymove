@@ -28,6 +28,7 @@ const storeData = async (data, filepath) => {
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
+  require('@cypress/code-coverage/task')(on, config);
 
   on('before:browser:launch', (browser = {}, launchOptions) => {
     prepareAudit(launchOptions);
@@ -43,4 +44,6 @@ module.exports = (on, config) => {
       storeData(report, filepath);
     }),
   });
+
+  return config;
 };

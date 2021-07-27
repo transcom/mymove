@@ -84,15 +84,16 @@
   "private": true,
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build": "react-scripts build",
+    "build": "CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
     "eject": "react-scripts eject",
-    "start": "react-scripts start",
+    "start": "react-scripts -r @cypress/instrument-cra start",
     "test": "react-scripts test --env=jsdom",
     "test:debug": "react-scripts --inspect-brk test --runInBand --env=jsdom",
     "test:coverage": "react-scripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage --runInBand",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean-debug": "make db_dev_e2e_populate; DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
+    "cypress:run": "rm -rf .nyc_output && ./node_modules/.bin/cypress run --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000 --headless --browser chrome",
     "prettier": "prettier --write --loglevel warn 'src/**/*.{js,jsx}'",
     "prettier-ci": "prettier --check 'src/**/*.{js,jsx}'",
     "lint": "eslint --ext .js,.jsx src",
@@ -106,13 +107,25 @@
     "dangerjs:local": "yarn danger local --dangerfile dangerfile.ts",
     "preview-redoc": "openapi preview-docs",
     "zeplin-connect": "zeplin connect",
-    "zeplin-connect-dev-mode": "zeplin connect --dev"
+    "zeplin-connect-dev-mode": "zeplin connect --dev",
+    "test:allcoverage": "yarn test:coverage && yarn cypress:run",
+    "pretest:coverage": "rm -rf .nyc_output",
+    "posttest:coverage": "yarn report:combined && node src/coverageCheck.js",
+    "mkdir:reports": "mkdir -p reports",
+    "precopy:reports": "yarn mkdir:reports",
+    "copy:reports": "cp coverage-cypress/coverage-final.json reports/from-cypress.json && cp coverage/coverage-final.json reports/from-jest.json",
+    "precombine:reports": "yarn copy:reports && mkdir -p .nyc_output",
+    "combine:reports": "npx nyc merge reports && mv coverage.json .nyc_output/out.json",
+    "prereport:combined": "yarn combine:reports",
+    "report:combined": "mkdir -p coverage-all && npx nyc report --reporter lcov --reporter text --reporter json-summary --report-dir coverage-all"
   },
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "~7.14.6",
     "@babel/helper-builder-react-jsx": "^7.14.5",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
+    "@cypress/code-coverage": "^3.9.9",
+    "@cypress/instrument-cra": "^1.4.0",
     "@dump247/storybook-state": "^1.6.1",
     "@redocly/openapi-cli": "^1.0.0-beta.54",
     "@stoplight/spectral": "^5.9.1",
@@ -131,6 +144,7 @@
     "@zeplin/cli": "1.1.12",
     "@zeplin/cli-connect-react-plugin": "1.1.1",
     "@zeplin/cli-connect-storybook-plugin": "^0.5.4",
+    "babel-plugin-istanbul": "^6.0.0",
     "cypress": "^7.7.0",
     "cypress-audit": "^1.0.0",
     "cypress-wait-until": "^1.7.1",
@@ -182,5 +196,8 @@
     "transformIgnorePatterns": [
       "node_modules/(?!(imask)/)/"
     ]
+  },
+  "nyc": {
+    "report-dir": "coverage-cypress"
   }
 }

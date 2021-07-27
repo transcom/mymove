@@ -89,3 +89,7 @@ storybook-static
 .nix-disable
 .npmglobal
 .gopath
+
+coverage-cypress/
+
+.nyc_output/
