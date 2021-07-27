@@ -1,4 +1,4 @@
-FROM alpine:edge
+FROM alpine:3.14.0
 
 # hadolint ignore=DL3017
 RUN apk upgrade --no-cache busybox
