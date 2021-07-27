@@ -15,10 +15,19 @@ repoName=$1
 gitCommit=$2
 
 get_findings() {
+  # Get the findings reported by ECR.
   findings=$(aws ecr describe-image-scan-findings --repository-name "${repoName}" --image-id "imageTag=\"git-${gitCommit}\"")
   echo "${findings}" | jq .
   echo
+
+  # Save the status of the scan.
   status=$(echo "${findings}" | jq -r ".imageScanStatus.status")
+
+  # Extract the findings array. If it is null, set it to an empty array.
+  findingsArray=$(echo "${findings}" | jq .imageScanFindings.findings)
+  if [[ "${findingsArray}" == "null" ]]; then
+    findingsArray='[]'
+  fi
 
   # Exclude certain findings.
   #
@@ -29,8 +38,10 @@ get_findings() {
   # ECR scanning detects this as a vulnerability, but there is no way to fix it, so our builds are
   # blocked. To unblock this, we are excluding it from our scans since this is a non-actionable
   # finding.
-  validFindings=$(echo "${findings}" | jq 'del(.imageScanFindings.findings[] | select(.name == "CVE-2021-36159"))')
-  numberOfValidFindings=$(echo "${validFindings}" | jq -r ".imageScanFindings.findings | length")
+  validFindings=$(echo "${findingsArray}" | jq 'del(.[] | select(.name == "CVE-2021-36159"))')
+
+  # Save the number of valid scan findings.
+  numberOfValidFindings=$(echo "${validFindings}" | jq -r ". | length")
 }
 
 # Get the results of the scan or wait until they are ready
