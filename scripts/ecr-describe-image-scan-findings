@@ -19,7 +19,18 @@ get_findings() {
   echo "${findings}" | jq .
   echo
   status=$(echo "${findings}" | jq -r ".imageScanStatus.status")
-  numberOfFindings=$(echo "${findings}" | jq -r ".imageScanFindings.findings | length")
+
+  # Exclude certain findings.
+  #
+  # ID: CVE-2021-36159
+  # Ticket to remove this exclusion: https://dp3.atlassian.net/browse/MB-TBD
+  # Description:
+  # As of 2021-07-27, no description of this vulnerability is available and no fix is available.
+  # ECR scanning detects this as a vulnerability, but there is no way to fix it, so our builds are
+  # blocked. To unblock this, we are excluding it from our scans since this is a non-actionable
+  # finding.
+  validFindings=$(echo "${findings}" | jq 'del(.imageScanFindings.findings[] | select(.name == "CVE-2021-36159"))')
+  numberOfValidFindings=$(echo "${validFindings}" | jq -r ".imageScanFindings.findings | length")
 }
 
 # Get the results of the scan or wait until they are ready
@@ -34,7 +45,7 @@ if [[ "${status}" != *COMPLETE* ]]; then
   exit 1
 fi
 
-if [[ "${numberOfFindings}" -gt 0 ]]; then
-  echo "Scan found ${numberOfFindings} findings!"
+if [[ "${numberOfValidFindings}" -gt 0 ]]; then
+  echo "Scan found ${numberOfValidFindings} findings!"
   exit 1
 fi
