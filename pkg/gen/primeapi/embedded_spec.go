@@ -1692,9 +1692,7 @@ func init() {
           "required": [
             "reason",
             "reServiceCode",
-            "description",
-            "estimatedWeight",
-            "actualWeight"
+            "description"
           ],
           "properties": {
             "actualWeight": {
@@ -4674,9 +4672,7 @@ func init() {
           "required": [
             "reason",
             "reServiceCode",
-            "description",
-            "estimatedWeight",
-            "actualWeight"
+            "description"
           ],
           "properties": {
             "actualWeight": {
