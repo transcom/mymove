@@ -56,6 +56,8 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveT
 func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
+	// Set locator query
+
 	query := f.db.EagerPreload(
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",

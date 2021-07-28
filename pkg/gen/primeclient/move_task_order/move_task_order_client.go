@@ -29,8 +29,6 @@ type Client struct {
 type ClientService interface {
 	FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error)
 
-	GetMove(params *GetMoveParams) (*GetMoveOK, error)
-
 	GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error)
 
 	UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error)
@@ -80,46 +78,6 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for fetchMTOUpdates: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
-}
-
-/*
-  GetMove gets move
-
-  ### Functionality
-This endpoint gets an individual MoveTaskOrder by the MoveTaskOrder locator.
-
-It will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
-
-*/
-func (a *Client) GetMove(params *GetMoveParams) (*GetMoveOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetMoveParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getMove",
-		Method:             "GET",
-		PathPattern:        "/move/{locator}",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &GetMoveReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetMoveOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for getMove: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
