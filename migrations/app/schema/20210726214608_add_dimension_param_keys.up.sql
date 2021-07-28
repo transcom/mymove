@@ -2,9 +2,9 @@
 INSERT INTO service_item_param_keys
 (id, key,description,type,origin,created_at,updated_at)
 VALUES
-('9df726f8-5ae7-4749-8446-28815ff16271', 'DimensionLength', 'Compounded escalation factor applied to final price', 'INTEGER', 'PRIME', now(), now()),
-('79bdb87e-776b-43fe-a54b-40e519a9a76f', 'DimensionWidth', 'Price, rate, or factor used in calculation', 'INTEGER', 'PRIME', now(), now()),
-('33d99169-b36c-42f8-ad81-99cb54c9a723', 'DimensionHeight', 'True if this is a peak season move', 'INTEGER', 'PRIME', now(), now());
+('9df726f8-5ae7-4749-8446-28815ff16271', 'DimensionLength', 'Dimension length describing the length of a service item', 'INTEGER', 'PRIME', now(), now()),
+('79bdb87e-776b-43fe-a54b-40e519a9a76f', 'DimensionWidth', 'Dimension width describing the width of a service item', 'INTEGER', 'PRIME', now(), now()),
+('33d99169-b36c-42f8-ad81-99cb54c9a723', 'DimensionHeight', 'Dimension height describing the height of a service item', 'INTEGER', 'PRIME', now(), now());
 
 
 ------ Map new service item param keys to corresponding service items ------
