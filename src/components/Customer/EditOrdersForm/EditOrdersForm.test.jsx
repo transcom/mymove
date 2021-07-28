@@ -346,52 +346,64 @@ describe('EditOrdersForm component', () => {
   });
 
   describe('disables the save button', () => {
-    it('when no orders type is selected', async () => {
-      render(<EditOrdersForm {...testProps} />);
+    it.each([
+      ['Orders Type', 'orders_type', ''],
+      ['Orders Date', 'issue_date', ''],
+      ['Report By Date', 'report_by_date', ''],
+      ['Duty Station', 'new_duty_station', {}],
+      ['Uploaded Orders', 'existing_uploads', []],
+    ])('when there is no %s', async (attributeName, valueToReplaceIt) => {
+      const modifiedProps = {
+        onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+        initialValues: {
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          issue_date: '2020-11-08',
+          report_by_date: '2020-11-26',
+          has_dependents: 'No',
+          new_duty_station: {
+            address: {
+              city: 'Des Moines',
+              country: 'US',
+              id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+              postal_code: '50309',
+              state: 'IA',
+              street_address_1: '987 Other Avenue',
+              street_address_2: 'P.O. Box 1234',
+              street_address_3: 'c/o Another Person',
+            },
+            address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+            affiliation: 'AIR_FORCE',
+            created_at: '2020-10-19T17:01:16.114Z',
+            id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+            name: 'Yuma AFB',
+            updated_at: '2020-10-19T17:01:16.114Z',
+          },
+        },
+        onCancel: jest.fn(),
+        onUploadComplete: jest.fn(),
+        createUpload: jest.fn(),
+        onDelete: jest.fn(),
+        existingUploads: [
+          {
+            id: '123',
+            created_at: '2020-11-08',
+            bytes: 1,
+            url: 'url',
+            filename: 'Test Upload',
+          },
+        ],
+        filePond: {},
+        ordersTypeOptions: [
+          { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+          { key: 'RETIREMENT', value: 'Retirement' },
+          { key: 'SEPARATION', value: 'Separation' },
+        ],
+        currentStation: {},
+      };
 
-      const save = screen.getByRole('button', { name: 'Save' });
-      await waitFor(() => {
-        expect(save).toBeInTheDocument();
-      });
+      modifiedProps.attributeName = valueToReplaceIt;
 
-      expect(save).toBeDisabled();
-    });
-
-    it('when no orders date is selected', async () => {
-      render(<EditOrdersForm {...testProps} />);
-
-      const save = screen.getByRole('button', { name: 'Save' });
-      await waitFor(() => {
-        expect(save).toBeInTheDocument();
-      });
-
-      expect(save).toBeDisabled();
-    });
-
-    it('when no report by date is selected', async () => {
-      render(<EditOrdersForm {...testProps} />);
-
-      const save = screen.getByRole('button', { name: 'Save' });
-      await waitFor(() => {
-        expect(save).toBeInTheDocument();
-      });
-
-      expect(save).toBeDisabled();
-    });
-
-    it('when no duty station is selected', async () => {
-      render(<EditOrdersForm {...testProps} />);
-
-      const save = screen.getByRole('button', { name: 'Save' });
-      await waitFor(() => {
-        expect(save).toBeInTheDocument();
-      });
-
-      expect(save).toBeDisabled();
-    });
-
-    it('when no orders are uploaded', async () => {
-      render(<EditOrdersForm {...testProps} />);
+      render(<EditOrdersForm {...modifiedProps} />);
 
       const save = screen.getByRole('button', { name: 'Save' });
       await waitFor(() => {
