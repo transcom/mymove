@@ -81,6 +81,51 @@ func init() {
         }
       }
     },
+    "/move-task-orders/fast": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "fetchMTOUpdatesFast",
+        "operationId": "fetchMTOUpdatesFast",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
+            "schema": {
+              "$ref": "#/definitions/FetchMoveTaskOrders"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -1324,6 +1369,66 @@ func init() {
         "title": {
           "type": "string"
         }
+      }
+    },
+    "FetchMoveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "FetchMoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FetchMoveTaskOrder"
       }
     },
     "MTOAgent": {
@@ -2830,6 +2935,66 @@ func init() {
         }
       }
     },
+    "/move-task-orders/fast": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "fetchMTOUpdatesFast",
+        "operationId": "fetchMTOUpdatesFast",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
+            "schema": {
+              "$ref": "#/definitions/FetchMoveTaskOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
@@ -4304,6 +4469,66 @@ func init() {
         "title": {
           "type": "string"
         }
+      }
+    },
+    "FetchMoveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "FetchMoveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FetchMoveTaskOrder"
       }
     },
     "MTOAgent": {

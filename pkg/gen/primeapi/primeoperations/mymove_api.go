@@ -66,6 +66,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderFetchMTOUpdatesHandler: move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
 		}),
+		MoveTaskOrderFetchMTOUpdatesFastHandler: move_task_order.FetchMTOUpdatesFastHandlerFunc(func(params move_task_order.FetchMTOUpdatesFastParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdatesFast has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
@@ -141,6 +144,8 @@ type MymoveAPI struct {
 	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
 	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
 	MoveTaskOrderFetchMTOUpdatesHandler move_task_order.FetchMTOUpdatesHandler
+	// MoveTaskOrderFetchMTOUpdatesFastHandler sets the operation handler for the fetch m t o updates fast operation
+	MoveTaskOrderFetchMTOUpdatesFastHandler move_task_order.FetchMTOUpdatesFastHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MtoShipmentUpdateMTOAgentHandler sets the operation handler for the update m t o agent operation
@@ -252,6 +257,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveTaskOrderFetchMTOUpdatesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesHandler")
+	}
+	if o.MoveTaskOrderFetchMTOUpdatesFastHandler == nil {
+		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesFastHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -388,6 +396,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewFetchMTOUpdates(o.context, o.MoveTaskOrderFetchMTOUpdatesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/fast"] = move_task_order.NewFetchMTOUpdatesFast(o.context, o.MoveTaskOrderFetchMTOUpdatesFastHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

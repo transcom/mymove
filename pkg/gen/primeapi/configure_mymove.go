@@ -75,6 +75,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderFetchMTOUpdatesFastHandler == nil {
+		api.MoveTaskOrderFetchMTOUpdatesFastHandler = move_task_order.FetchMTOUpdatesFastHandlerFunc(func(params move_task_order.FetchMTOUpdatesFastParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdatesFast has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
