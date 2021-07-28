@@ -29,7 +29,7 @@ func NewGetPaymentRequest(ctx *middleware.Context, handler GetPaymentRequestHand
 	return &GetPaymentRequest{Context: ctx, Handler: handler}
 }
 
-/*GetPaymentRequest swagger:route GET /payment-requests/{paymentRequestID} paymentRequests getPaymentRequest
+/* GetPaymentRequest swagger:route GET /payment-requests/{paymentRequestID} paymentRequests getPaymentRequest
 
 Fetches a payment request by id
 
@@ -44,17 +44,15 @@ type GetPaymentRequest struct {
 func (o *GetPaymentRequest) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetPaymentRequestParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

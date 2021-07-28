@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -29,16 +30,19 @@ type OfficeUserUpdatePayload struct {
 	LastName *string `json:"lastName,omitempty"`
 
 	// Middle Initials
+	// Example: Q.
 	MiddleInitials *string `json:"middleInitials,omitempty"`
 
 	// roles
 	Roles []*OfficeUserRole `json:"roles"`
 
 	// telephone
+	// Example: 212-555-5555
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 
 	// transportation office Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	TransportationOfficeID strfmt.UUID `json:"transportationOfficeId,omitempty"`
 }
@@ -66,7 +70,6 @@ func (m *OfficeUserUpdatePayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUserUpdatePayload) validateRoles(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Roles) { // not required
 		return nil
 	}
@@ -91,12 +94,11 @@ func (m *OfficeUserUpdatePayload) validateRoles(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUserUpdatePayload) validateTelephone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Telephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", *m.Telephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -104,13 +106,44 @@ func (m *OfficeUserUpdatePayload) validateTelephone(formats strfmt.Registry) err
 }
 
 func (m *OfficeUserUpdatePayload) validateTransportationOfficeID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.TransportationOfficeID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("transportationOfficeId", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this office user update payload based on the context it is used
+func (m *OfficeUserUpdatePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateRoles(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *OfficeUserUpdatePayload) contextValidateRoles(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Roles); i++ {
+
+		if m.Roles[i] != nil {
+			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

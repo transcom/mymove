@@ -18,59 +18,73 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewCreateWebhookNotificationParams creates a new CreateWebhookNotificationParams object
-// with the default values initialized.
+// NewCreateWebhookNotificationParams creates a new CreateWebhookNotificationParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreateWebhookNotificationParams() *CreateWebhookNotificationParams {
-	var ()
 	return &CreateWebhookNotificationParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreateWebhookNotificationParamsWithTimeout creates a new CreateWebhookNotificationParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreateWebhookNotificationParamsWithTimeout(timeout time.Duration) *CreateWebhookNotificationParams {
-	var ()
 	return &CreateWebhookNotificationParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreateWebhookNotificationParamsWithContext creates a new CreateWebhookNotificationParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreateWebhookNotificationParamsWithContext(ctx context.Context) *CreateWebhookNotificationParams {
-	var ()
 	return &CreateWebhookNotificationParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreateWebhookNotificationParamsWithHTTPClient creates a new CreateWebhookNotificationParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreateWebhookNotificationParamsWithHTTPClient(client *http.Client) *CreateWebhookNotificationParams {
-	var ()
 	return &CreateWebhookNotificationParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreateWebhookNotificationParams contains all the parameters to send to the API endpoint
-for the create webhook notification operation typically these are written to a http.Request
+/* CreateWebhookNotificationParams contains all the parameters to send to the API endpoint
+   for the create webhook notification operation.
+
+   Typically these are written to a http.Request.
 */
 type CreateWebhookNotificationParams struct {
 
-	/*Body
-	  The notification sent by webhook-client.
+	/* Body.
 
+	   The notification sent by webhook-client.
 	*/
 	Body *supportmessages.WebhookNotification
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create webhook notification params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateWebhookNotificationParams) WithDefaults() *CreateWebhookNotificationParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create webhook notification params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateWebhookNotificationParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create webhook notification params
@@ -124,7 +138,6 @@ func (o *CreateWebhookNotificationParams) WriteToRequest(r runtime.ClientRequest
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

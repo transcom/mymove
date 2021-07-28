@@ -7,6 +7,7 @@ package supportmessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -23,6 +24,7 @@ import (
 // swagger:discriminator MTOServiceItem modelType
 type MTOServiceItem interface {
 	runtime.Validatable
+	runtime.ContextValidatable
 
 	// ETag identifier required to update this object
 	// Read Only: true
@@ -30,6 +32,7 @@ type MTOServiceItem interface {
 	SetETag(string)
 
 	// ID of the service item
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -40,12 +43,14 @@ type MTOServiceItem interface {
 	SetModelType(MTOServiceItemModelType)
 
 	// ID of the associated moveTaskOrder
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID() *strfmt.UUID
 	SetMoveTaskOrderID(*strfmt.UUID)
 
 	// ID of the associated mtoShipment
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
@@ -56,6 +61,7 @@ type MTOServiceItem interface {
 	SetReServiceName(string)
 
 	// Reason the service item was rejected by the TOO
+	// Example: item was too heavy
 	RejectionReason() *string
 	SetRejectionReason(*string)
 
@@ -277,7 +283,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *mTOServiceItem) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID()) { // not required
 		return nil
 	}
@@ -303,7 +308,6 @@ func (m *mTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error 
 }
 
 func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoShipmentID()) { // not required
 		return nil
 	}
@@ -316,12 +320,79 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 }
 
 func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status()) { // not required
 		return nil
 	}
 
 	if err := m.Status().Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item based on the context it is used
+func (m *mTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateModelType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}

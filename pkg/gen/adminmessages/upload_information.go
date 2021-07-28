@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,10 +20,12 @@ import (
 type UploadInformation struct {
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move locator
+	// Example: 12432
 	MoveLocator *string `json:"moveLocator,omitempty"`
 
 	// office user email
@@ -31,6 +35,7 @@ type UploadInformation struct {
 	OfficeUserFirstName *string `json:"officeUserFirstName,omitempty"`
 
 	// office user Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OfficeUserID *strfmt.UUID `json:"officeUserId,omitempty"`
 
@@ -47,6 +52,7 @@ type UploadInformation struct {
 	ServiceMemberFirstName *string `json:"serviceMemberFirstName,omitempty"`
 
 	// service member Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ServiceMemberID *strfmt.UUID `json:"serviceMemberId,omitempty"`
 
@@ -87,7 +93,6 @@ func (m *UploadInformation) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UploadInformation) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -100,7 +105,6 @@ func (m *UploadInformation) validateID(formats strfmt.Registry) error {
 }
 
 func (m *UploadInformation) validateOfficeUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OfficeUserID) { // not required
 		return nil
 	}
@@ -113,7 +117,6 @@ func (m *UploadInformation) validateOfficeUserID(formats strfmt.Registry) error 
 }
 
 func (m *UploadInformation) validateServiceMemberID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
 	}
@@ -126,13 +129,40 @@ func (m *UploadInformation) validateServiceMemberID(formats strfmt.Registry) err
 }
 
 func (m *UploadInformation) validateUpload(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Upload) { // not required
 		return nil
 	}
 
 	if m.Upload != nil {
 		if err := m.Upload.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("upload")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this upload information based on the context it is used
+func (m *UploadInformation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateUpload(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UploadInformation) contextValidateUpload(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Upload != nil {
+		if err := m.Upload.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("upload")
 			}

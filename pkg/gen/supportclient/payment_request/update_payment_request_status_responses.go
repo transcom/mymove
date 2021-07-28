@@ -77,9 +77,8 @@ func (o *UpdatePaymentRequestStatusReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -88,7 +87,7 @@ func NewUpdatePaymentRequestStatusOK() *UpdatePaymentRequestStatusOK {
 	return &UpdatePaymentRequestStatusOK{}
 }
 
-/*UpdatePaymentRequestStatusOK handles this case with default header values.
+/* UpdatePaymentRequestStatusOK describes a response with status code 200, with default header values.
 
 Successfully updated payment request status.
 */
@@ -99,7 +98,6 @@ type UpdatePaymentRequestStatusOK struct {
 func (o *UpdatePaymentRequestStatusOK) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusOK  %+v", 200, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusOK) GetPayload() *supportmessages.PaymentRequest {
 	return o.Payload
 }
@@ -121,7 +119,7 @@ func NewUpdatePaymentRequestStatusBadRequest() *UpdatePaymentRequestStatusBadReq
 	return &UpdatePaymentRequestStatusBadRequest{}
 }
 
-/*UpdatePaymentRequestStatusBadRequest handles this case with default header values.
+/* UpdatePaymentRequestStatusBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -132,7 +130,6 @@ type UpdatePaymentRequestStatusBadRequest struct {
 func (o *UpdatePaymentRequestStatusBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -154,7 +151,7 @@ func NewUpdatePaymentRequestStatusUnauthorized() *UpdatePaymentRequestStatusUnau
 	return &UpdatePaymentRequestStatusUnauthorized{}
 }
 
-/*UpdatePaymentRequestStatusUnauthorized handles this case with default header values.
+/* UpdatePaymentRequestStatusUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -165,7 +162,6 @@ type UpdatePaymentRequestStatusUnauthorized struct {
 func (o *UpdatePaymentRequestStatusUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -187,7 +183,7 @@ func NewUpdatePaymentRequestStatusForbidden() *UpdatePaymentRequestStatusForbidd
 	return &UpdatePaymentRequestStatusForbidden{}
 }
 
-/*UpdatePaymentRequestStatusForbidden handles this case with default header values.
+/* UpdatePaymentRequestStatusForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -198,7 +194,6 @@ type UpdatePaymentRequestStatusForbidden struct {
 func (o *UpdatePaymentRequestStatusForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusForbidden  %+v", 403, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -220,7 +215,7 @@ func NewUpdatePaymentRequestStatusNotFound() *UpdatePaymentRequestStatusNotFound
 	return &UpdatePaymentRequestStatusNotFound{}
 }
 
-/*UpdatePaymentRequestStatusNotFound handles this case with default header values.
+/* UpdatePaymentRequestStatusNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -231,7 +226,6 @@ type UpdatePaymentRequestStatusNotFound struct {
 func (o *UpdatePaymentRequestStatusNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusNotFound  %+v", 404, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -253,7 +247,7 @@ func NewUpdatePaymentRequestStatusConflict() *UpdatePaymentRequestStatusConflict
 	return &UpdatePaymentRequestStatusConflict{}
 }
 
-/*UpdatePaymentRequestStatusConflict handles this case with default header values.
+/* UpdatePaymentRequestStatusConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -264,7 +258,6 @@ type UpdatePaymentRequestStatusConflict struct {
 func (o *UpdatePaymentRequestStatusConflict) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusConflict  %+v", 409, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -286,7 +279,7 @@ func NewUpdatePaymentRequestStatusPreconditionFailed() *UpdatePaymentRequestStat
 	return &UpdatePaymentRequestStatusPreconditionFailed{}
 }
 
-/*UpdatePaymentRequestStatusPreconditionFailed handles this case with default header values.
+/* UpdatePaymentRequestStatusPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -297,7 +290,6 @@ type UpdatePaymentRequestStatusPreconditionFailed struct {
 func (o *UpdatePaymentRequestStatusPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -319,7 +311,7 @@ func NewUpdatePaymentRequestStatusUnprocessableEntity() *UpdatePaymentRequestSta
 	return &UpdatePaymentRequestStatusUnprocessableEntity{}
 }
 
-/*UpdatePaymentRequestStatusUnprocessableEntity handles this case with default header values.
+/* UpdatePaymentRequestStatusUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -330,7 +322,6 @@ type UpdatePaymentRequestStatusUnprocessableEntity struct {
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -352,7 +343,7 @@ func NewUpdatePaymentRequestStatusInternalServerError() *UpdatePaymentRequestSta
 	return &UpdatePaymentRequestStatusInternalServerError{}
 }
 
-/*UpdatePaymentRequestStatusInternalServerError handles this case with default header values.
+/* UpdatePaymentRequestStatusInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -363,7 +354,6 @@ type UpdatePaymentRequestStatusInternalServerError struct {
 func (o *UpdatePaymentRequestStatusInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/{paymentRequestID}/status][%d] updatePaymentRequestStatusInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *UpdatePaymentRequestStatusInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

@@ -16,59 +16,75 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewFetchMTOUpdatesFastParams creates a new FetchMTOUpdatesFastParams object
-// with the default values initialized.
+// NewFetchMTOUpdatesFastParams creates a new FetchMTOUpdatesFastParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewFetchMTOUpdatesFastParams() *FetchMTOUpdatesFastParams {
-	var ()
 	return &FetchMTOUpdatesFastParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewFetchMTOUpdatesFastParamsWithTimeout creates a new FetchMTOUpdatesFastParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewFetchMTOUpdatesFastParamsWithTimeout(timeout time.Duration) *FetchMTOUpdatesFastParams {
-	var ()
 	return &FetchMTOUpdatesFastParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewFetchMTOUpdatesFastParamsWithContext creates a new FetchMTOUpdatesFastParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewFetchMTOUpdatesFastParamsWithContext(ctx context.Context) *FetchMTOUpdatesFastParams {
-	var ()
 	return &FetchMTOUpdatesFastParams{
-
 		Context: ctx,
 	}
 }
 
 // NewFetchMTOUpdatesFastParamsWithHTTPClient creates a new FetchMTOUpdatesFastParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewFetchMTOUpdatesFastParamsWithHTTPClient(client *http.Client) *FetchMTOUpdatesFastParams {
-	var ()
 	return &FetchMTOUpdatesFastParams{
 		HTTPClient: client,
 	}
 }
 
-/*FetchMTOUpdatesFastParams contains all the parameters to send to the API endpoint
-for the fetch m t o updates fast operation typically these are written to a http.Request
+/* FetchMTOUpdatesFastParams contains all the parameters to send to the API endpoint
+   for the fetch m t o updates fast operation.
+
+   Typically these are written to a http.Request.
 */
 type FetchMTOUpdatesFastParams struct {
 
-	/*Since
-	  Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+	/* Since.
 
+	   Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+
+	   Format: date-time
 	*/
 	Since *strfmt.DateTime
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the fetch m t o updates fast params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *FetchMTOUpdatesFastParams) WithDefaults() *FetchMTOUpdatesFastParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the fetch m t o updates fast params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *FetchMTOUpdatesFastParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the fetch m t o updates fast params
@@ -127,16 +143,17 @@ func (o *FetchMTOUpdatesFastParams) WriteToRequest(r runtime.ClientRequest, reg 
 
 		// query param since
 		var qrSince strfmt.DateTime
+
 		if o.Since != nil {
 			qrSince = *o.Since
 		}
 		qSince := qrSince.String()
 		if qSince != "" {
+
 			if err := r.SetQueryParam("since", qSince); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {

@@ -71,9 +71,8 @@ func (o *CreatePaymentRequestReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 	return &CreatePaymentRequestCreated{}
 }
 
-/*CreatePaymentRequestCreated handles this case with default header values.
+/* CreatePaymentRequestCreated describes a response with status code 201, with default header values.
 
 Successfully created a paymentRequest object.
 */
@@ -93,7 +92,6 @@ type CreatePaymentRequestCreated struct {
 func (o *CreatePaymentRequestCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestCreated  %+v", 201, o.Payload)
 }
-
 func (o *CreatePaymentRequestCreated) GetPayload() *primemessages.PaymentRequest {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewCreatePaymentRequestBadRequest() *CreatePaymentRequestBadRequest {
 	return &CreatePaymentRequestBadRequest{}
 }
 
-/*CreatePaymentRequestBadRequest handles this case with default header values.
+/* CreatePaymentRequestBadRequest describes a response with status code 400, with default header values.
 
 Request payload is invalid.
 */
@@ -126,7 +124,6 @@ type CreatePaymentRequestBadRequest struct {
 func (o *CreatePaymentRequestBadRequest) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *CreatePaymentRequestBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewCreatePaymentRequestUnauthorized() *CreatePaymentRequestUnauthorized {
 	return &CreatePaymentRequestUnauthorized{}
 }
 
-/*CreatePaymentRequestUnauthorized handles this case with default header values.
+/* CreatePaymentRequestUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type CreatePaymentRequestUnauthorized struct {
 func (o *CreatePaymentRequestUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *CreatePaymentRequestUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewCreatePaymentRequestForbidden() *CreatePaymentRequestForbidden {
 	return &CreatePaymentRequestForbidden{}
 }
 
-/*CreatePaymentRequestForbidden handles this case with default header values.
+/* CreatePaymentRequestForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type CreatePaymentRequestForbidden struct {
 func (o *CreatePaymentRequestForbidden) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestForbidden  %+v", 403, o.Payload)
 }
-
 func (o *CreatePaymentRequestForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewCreatePaymentRequestNotFound() *CreatePaymentRequestNotFound {
 	return &CreatePaymentRequestNotFound{}
 }
 
-/*CreatePaymentRequestNotFound handles this case with default header values.
+/* CreatePaymentRequestNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type CreatePaymentRequestNotFound struct {
 func (o *CreatePaymentRequestNotFound) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestNotFound  %+v", 404, o.Payload)
 }
-
 func (o *CreatePaymentRequestNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewCreatePaymentRequestConflict() *CreatePaymentRequestConflict {
 	return &CreatePaymentRequestConflict{}
 }
 
-/*CreatePaymentRequestConflict handles this case with default header values.
+/* CreatePaymentRequestConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -258,7 +252,6 @@ type CreatePaymentRequestConflict struct {
 func (o *CreatePaymentRequestConflict) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestConflict  %+v", 409, o.Payload)
 }
-
 func (o *CreatePaymentRequestConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -280,7 +273,7 @@ func NewCreatePaymentRequestUnprocessableEntity() *CreatePaymentRequestUnprocess
 	return &CreatePaymentRequestUnprocessableEntity{}
 }
 
-/*CreatePaymentRequestUnprocessableEntity handles this case with default header values.
+/* CreatePaymentRequestUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -291,7 +284,6 @@ type CreatePaymentRequestUnprocessableEntity struct {
 func (o *CreatePaymentRequestUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *CreatePaymentRequestUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewCreatePaymentRequestInternalServerError() *CreatePaymentRequestInternalS
 	return &CreatePaymentRequestInternalServerError{}
 }
 
-/*CreatePaymentRequestInternalServerError handles this case with default header values.
+/* CreatePaymentRequestInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type CreatePaymentRequestInternalServerError struct {
 func (o *CreatePaymentRequestInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *CreatePaymentRequestInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

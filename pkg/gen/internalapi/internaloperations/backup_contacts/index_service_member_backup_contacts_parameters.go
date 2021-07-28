@@ -15,7 +15,8 @@ import (
 )
 
 // NewIndexServiceMemberBackupContactsParams creates a new IndexServiceMemberBackupContactsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexServiceMemberBackupContactsParams() IndexServiceMemberBackupContactsParams {
 
 	return IndexServiceMemberBackupContactsParams{}
@@ -50,7 +51,6 @@ func (o *IndexServiceMemberBackupContactsParams) BindRequest(r *http.Request, ro
 	if err := o.bindServiceMemberID(rServiceMemberID, rhkServiceMemberID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

@@ -16,7 +16,8 @@ import (
 )
 
 // NewFetchMTOUpdatesFastParams creates a new FetchMTOUpdatesFastParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewFetchMTOUpdatesFastParams() FetchMTOUpdatesFastParams {
 
 	return FetchMTOUpdatesFastParams{}
@@ -52,7 +53,6 @@ func (o *FetchMTOUpdatesFastParams) BindRequest(r *http.Request, route *middlewa
 	if err := o.bindSince(qSince, qhkSince, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -68,6 +68,7 @@ func (o *FetchMTOUpdatesFastParams) bindSince(rawData []string, hasKey bool, for
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}

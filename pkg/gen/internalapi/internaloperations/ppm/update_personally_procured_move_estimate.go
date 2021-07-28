@@ -29,7 +29,7 @@ func NewUpdatePersonallyProcuredMoveEstimate(ctx *middleware.Context, handler Up
 	return &UpdatePersonallyProcuredMoveEstimate{Context: ctx, Handler: handler}
 }
 
-/*UpdatePersonallyProcuredMoveEstimate swagger:route PATCH /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate ppm updatePersonallyProcuredMoveEstimate
+/* UpdatePersonallyProcuredMoveEstimate swagger:route PATCH /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate ppm updatePersonallyProcuredMoveEstimate
 
 Calculates the estimated incentive of a PPM
 
@@ -44,17 +44,15 @@ type UpdatePersonallyProcuredMoveEstimate struct {
 func (o *UpdatePersonallyProcuredMoveEstimate) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdatePersonallyProcuredMoveEstimateParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

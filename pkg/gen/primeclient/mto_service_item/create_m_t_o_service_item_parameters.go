@@ -18,56 +18,70 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// NewCreateMTOServiceItemParams creates a new CreateMTOServiceItemParams object
-// with the default values initialized.
+// NewCreateMTOServiceItemParams creates a new CreateMTOServiceItemParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreateMTOServiceItemParams() *CreateMTOServiceItemParams {
-	var ()
 	return &CreateMTOServiceItemParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreateMTOServiceItemParamsWithTimeout creates a new CreateMTOServiceItemParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreateMTOServiceItemParamsWithTimeout(timeout time.Duration) *CreateMTOServiceItemParams {
-	var ()
 	return &CreateMTOServiceItemParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreateMTOServiceItemParamsWithContext creates a new CreateMTOServiceItemParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreateMTOServiceItemParamsWithContext(ctx context.Context) *CreateMTOServiceItemParams {
-	var ()
 	return &CreateMTOServiceItemParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreateMTOServiceItemParamsWithHTTPClient creates a new CreateMTOServiceItemParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreateMTOServiceItemParamsWithHTTPClient(client *http.Client) *CreateMTOServiceItemParams {
-	var ()
 	return &CreateMTOServiceItemParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreateMTOServiceItemParams contains all the parameters to send to the API endpoint
-for the create m t o service item operation typically these are written to a http.Request
+/* CreateMTOServiceItemParams contains all the parameters to send to the API endpoint
+   for the create m t o service item operation.
+
+   Typically these are written to a http.Request.
 */
 type CreateMTOServiceItemParams struct {
 
-	/*Body*/
+	// Body.
 	Body primemessages.MTOServiceItem
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create m t o service item params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateMTOServiceItemParams) WithDefaults() *CreateMTOServiceItemParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create m t o service item params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateMTOServiceItemParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create m t o service item params
@@ -121,7 +135,6 @@ func (o *CreateMTOServiceItemParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

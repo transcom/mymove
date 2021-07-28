@@ -6,6 +6,8 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -59,12 +61,11 @@ func (m *Unit) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Unit) validateCountry(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Country) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("country", "body", string(*m.Country), `^[A-Z]{2}$`); err != nil {
+	if err := validate.Pattern("country", "body", *m.Country, `^[A-Z]{2}$`); err != nil {
 		return err
 	}
 
@@ -72,15 +73,19 @@ func (m *Unit) validateCountry(formats strfmt.Registry) error {
 }
 
 func (m *Unit) validateUic(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Uic) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("uic", "body", string(*m.Uic), `^[A-Z][A-Z0-9]{5}$`); err != nil {
+	if err := validate.Pattern("uic", "body", *m.Uic, `^[A-Z][A-Z0-9]{5}$`); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this unit based on context it is used
+func (m *Unit) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

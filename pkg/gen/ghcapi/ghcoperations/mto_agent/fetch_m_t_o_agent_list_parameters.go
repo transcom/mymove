@@ -15,7 +15,8 @@ import (
 )
 
 // NewFetchMTOAgentListParams creates a new FetchMTOAgentListParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewFetchMTOAgentListParams() FetchMTOAgentListParams {
 
 	return FetchMTOAgentListParams{}
@@ -60,7 +61,6 @@ func (o *FetchMTOAgentListParams) BindRequest(r *http.Request, route *middleware
 	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

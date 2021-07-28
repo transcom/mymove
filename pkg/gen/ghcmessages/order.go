@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -28,10 +30,12 @@ type Order struct {
 	Customer *Customer `json:"customer,omitempty"`
 
 	// customer ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
 	// date issued
+	// Example: 2020-01-01
 	// Format: date
 	DateIssued strfmt.Date `json:"date_issued,omitempty"`
 
@@ -48,6 +52,7 @@ type Order struct {
 	Entitlement *Entitlements `json:"entitlement,omitempty"`
 
 	// first name
+	// Example: John
 	// Read Only: true
 	FirstName string `json:"first_name,omitempty"`
 
@@ -55,24 +60,30 @@ type Order struct {
 	Grade *Grade `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
+	// Example: false
 	HasDependents bool `json:"has_dependents,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
+	// Example: Doe
 	// Read Only: true
 	LastName string `json:"last_name,omitempty"`
 
 	// move code
+	// Example: H2XFJF
 	MoveCode string `json:"moveCode,omitempty"`
 
 	// move task order ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// order number
+	// Example: 030-00362
 	OrderNumber *string `json:"order_number,omitempty"`
 
 	// order type
@@ -85,23 +96,29 @@ type Order struct {
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
 
 	// report by date
+	// Example: 2020-01-01
 	// Format: date
 	ReportByDate strfmt.Date `json:"report_by_date,omitempty"`
 
 	// SAC
+	// Example: N002214CSW32Y9
 	Sac *string `json:"sac,omitempty"`
 
 	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+	// Example: false
 	SpouseHasProGear bool `json:"spouse_has_pro_gear,omitempty"`
 
 	// TAC
+	// Example: F8J1
 	Tac *string `json:"tac,omitempty"`
 
 	// uploaded amended order ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UploadedAmendedOrderID *strfmt.UUID `json:"uploadedAmendedOrderID,omitempty"`
 
 	// uploaded order id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UploadedOrderID strfmt.UUID `json:"uploaded_order_id,omitempty"`
 }
@@ -185,7 +202,6 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateAgency(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Agency) { // not required
 		return nil
 	}
@@ -201,7 +217,6 @@ func (m *Order) validateAgency(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateAmendedOrdersAcknowledgedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AmendedOrdersAcknowledgedAt) { // not required
 		return nil
 	}
@@ -214,7 +229,6 @@ func (m *Order) validateAmendedOrdersAcknowledgedAt(formats strfmt.Registry) err
 }
 
 func (m *Order) validateCustomer(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Customer) { // not required
 		return nil
 	}
@@ -232,7 +246,6 @@ func (m *Order) validateCustomer(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateCustomerID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CustomerID) { // not required
 		return nil
 	}
@@ -245,7 +258,6 @@ func (m *Order) validateCustomerID(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateDateIssued(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DateIssued) { // not required
 		return nil
 	}
@@ -258,7 +270,6 @@ func (m *Order) validateDateIssued(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateDepartmentIndicator(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
 	}
@@ -276,7 +287,6 @@ func (m *Order) validateDepartmentIndicator(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationDutyStation) { // not required
 		return nil
 	}
@@ -294,7 +304,6 @@ func (m *Order) validateDestinationDutyStation(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateEntitlement(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Entitlement) { // not required
 		return nil
 	}
@@ -312,7 +321,6 @@ func (m *Order) validateEntitlement(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateGrade(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Grade) { // not required
 		return nil
 	}
@@ -330,7 +338,6 @@ func (m *Order) validateGrade(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -343,7 +350,6 @@ func (m *Order) validateID(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
@@ -356,7 +362,6 @@ func (m *Order) validateMoveTaskOrderID(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateOrderType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrderType) { // not required
 		return nil
 	}
@@ -372,7 +377,6 @@ func (m *Order) validateOrderType(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateOrderTypeDetail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrderTypeDetail) { // not required
 		return nil
 	}
@@ -390,7 +394,6 @@ func (m *Order) validateOrderTypeDetail(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateOriginDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginDutyStation) { // not required
 		return nil
 	}
@@ -408,7 +411,6 @@ func (m *Order) validateOriginDutyStation(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateReportByDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ReportByDate) { // not required
 		return nil
 	}
@@ -421,7 +423,6 @@ func (m *Order) validateReportByDate(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateUploadedAmendedOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UploadedAmendedOrderID) { // not required
 		return nil
 	}
@@ -434,13 +435,206 @@ func (m *Order) validateUploadedAmendedOrderID(formats strfmt.Registry) error {
 }
 
 func (m *Order) validateUploadedOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UploadedOrderID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("uploaded_order_id", "body", "uuid", m.UploadedOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this order based on the context it is used
+func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAgency(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCustomer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateFirstName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGrade(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateLastName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrderType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrderTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Order) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agency")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateCustomer(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Customer != nil {
+		if err := m.Customer.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("customer")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateDestinationDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationDutyStation != nil {
+		if err := m.DestinationDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationDutyStation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateEntitlement(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Entitlement != nil {
+		if err := m.Entitlement.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("entitlement")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateFirstName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "first_name", "body", string(m.FirstName)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Grade != nil {
+		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateLastName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "last_name", "body", string(m.LastName)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateOrderType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.OrderType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("order_type")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateOrderTypeDetail(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrderTypeDetail != nil {
+		if err := m.OrderTypeDetail.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order_type_detail")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateOriginDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginDutyStation != nil {
+		if err := m.OriginDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originDutyStation")
+			}
+			return err
+		}
 	}
 
 	return nil

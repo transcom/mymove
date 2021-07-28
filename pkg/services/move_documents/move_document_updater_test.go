@@ -39,8 +39,8 @@ func (suite *MoveDocumentServiceSuite) TestMoveDocumentWeightTicketUpdaterWeight
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		Status:           internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		Status:           internalmessages.NewMoveDocumentStatus(internalmessages.MoveDocumentStatusOK),
+		MoveDocumentType: internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeWEIGHTTICKETSET),
 	}
 
 	weightTicketUpdater := mocks.Updater{}
@@ -68,8 +68,8 @@ func (suite *MoveDocumentServiceSuite) TestMoveStorageExpenseDocumentUpdater() {
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		Status:            internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType:  internalmessages.MoveDocumentTypeEXPENSE,
+		Status:            internalmessages.NewMoveDocumentStatus(internalmessages.MoveDocumentStatusOK),
+		MoveDocumentType:  internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeEXPENSE),
 		MovingExpenseType: internalmessages.MovingExpenseTypeSTORAGE,
 	}
 
@@ -98,8 +98,8 @@ func (suite *MoveDocumentServiceSuite) TestMoveSSWDocumentUpdater() {
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
-		Status:           internalmessages.MoveDocumentStatusOK,
+		MoveDocumentType: internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeSHIPMENTSUMMARY),
+		Status:           internalmessages.NewMoveDocumentStatus(internalmessages.MoveDocumentStatusOK),
 	}
 
 	weightTicketUpdater := mocks.Updater{}
@@ -128,7 +128,7 @@ func (suite *MoveDocumentServiceSuite) TestMoveGenericDocumentUpdater() {
 
 	// default case that should get called if not storage expense, ssw, or weight ticket set
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		MoveDocumentType: internalmessages.MoveDocumentTypeEXPENSE,
+		MoveDocumentType: internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeEXPENSE),
 	}
 
 	weightTicketUpdater := mocks.Updater{}

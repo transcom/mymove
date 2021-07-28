@@ -29,7 +29,7 @@ func NewCreateMTOAgent(ctx *middleware.Context, handler CreateMTOAgentHandler) *
 	return &CreateMTOAgent{Context: ctx, Handler: handler}
 }
 
-/*CreateMTOAgent swagger:route POST /mto-shipments/{mtoShipmentID}/agents mtoShipment createMTOAgent
+/* CreateMTOAgent swagger:route POST /mto-shipments/{mtoShipmentID}/agents mtoShipment createMTOAgent
 
 createMTOAgent
 
@@ -54,17 +54,15 @@ type CreateMTOAgent struct {
 func (o *CreateMTOAgent) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateMTOAgentParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

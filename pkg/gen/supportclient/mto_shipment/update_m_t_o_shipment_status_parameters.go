@@ -18,67 +18,85 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewUpdateMTOShipmentStatusParams creates a new UpdateMTOShipmentStatusParams object
-// with the default values initialized.
+// NewUpdateMTOShipmentStatusParams creates a new UpdateMTOShipmentStatusParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateMTOShipmentStatusParams() *UpdateMTOShipmentStatusParams {
-	var ()
 	return &UpdateMTOShipmentStatusParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateMTOShipmentStatusParamsWithTimeout creates a new UpdateMTOShipmentStatusParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateMTOShipmentStatusParamsWithTimeout(timeout time.Duration) *UpdateMTOShipmentStatusParams {
-	var ()
 	return &UpdateMTOShipmentStatusParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateMTOShipmentStatusParamsWithContext creates a new UpdateMTOShipmentStatusParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateMTOShipmentStatusParamsWithContext(ctx context.Context) *UpdateMTOShipmentStatusParams {
-	var ()
 	return &UpdateMTOShipmentStatusParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateMTOShipmentStatusParamsWithHTTPClient creates a new UpdateMTOShipmentStatusParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateMTOShipmentStatusParamsWithHTTPClient(client *http.Client) *UpdateMTOShipmentStatusParams {
-	var ()
 	return &UpdateMTOShipmentStatusParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateMTOShipmentStatusParams contains all the parameters to send to the API endpoint
-for the update m t o shipment status operation typically these are written to a http.Request
+/* UpdateMTOShipmentStatusParams contains all the parameters to send to the API endpoint
+   for the update m t o shipment status operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateMTOShipmentStatusParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body *supportmessages.UpdateMTOShipmentStatus
-	/*MtoShipmentID
-	  UUID of the shipment being updated.
 
+	// Body.
+	Body *supportmessages.UpdateMTOShipmentStatus
+
+	/* MtoShipmentID.
+
+	   UUID of the shipment being updated.
+
+	   Format: uuid
 	*/
 	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update m t o shipment status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOShipmentStatusParams) WithDefaults() *UpdateMTOShipmentStatusParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update m t o shipment status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOShipmentStatusParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update m t o shipment status params
@@ -159,7 +177,6 @@ func (o *UpdateMTOShipmentStatusParams) WriteToRequest(r runtime.ClientRequest, 
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,14 +20,17 @@ import (
 type MTOServiceItemCustomerContact struct {
 
 	// First available date that Prime can deliver SIT service item.
+	// Example: 2020-12-31
 	// Format: date
 	FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate`.
+	// Example: 0400Z
 	TimeMilitary string `json:"timeMilitary,omitempty"`
 
 	// type
@@ -55,7 +60,6 @@ func (m *MTOServiceItemCustomerContact) Validate(formats strfmt.Registry) error 
 }
 
 func (m *MTOServiceItemCustomerContact) validateFirstAvailableDeliveryDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FirstAvailableDeliveryDate) { // not required
 		return nil
 	}
@@ -68,7 +72,6 @@ func (m *MTOServiceItemCustomerContact) validateFirstAvailableDeliveryDate(forma
 }
 
 func (m *MTOServiceItemCustomerContact) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -81,12 +84,37 @@ func (m *MTOServiceItemCustomerContact) validateID(formats strfmt.Registry) erro
 }
 
 func (m *MTOServiceItemCustomerContact) validateType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Type) { // not required
 		return nil
 	}
 
 	if err := m.Type.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item customer contact based on the context it is used
+func (m *MTOServiceItemCustomerContact) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemCustomerContact) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Type.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("type")
 		}
