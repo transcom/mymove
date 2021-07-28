@@ -15,6 +15,14 @@ describe('Review page', () => {
   const testProps = {
     canMoveNext: true,
     push: jest.fn(),
+    match: {
+      path: '/moves/:moveId/review',
+      url: '/moves/3a8c9f4f-7344-4f18-9ab5-0de3ef57b901/review',
+      isExact: true,
+      params: {
+        moveId: '3a8c9f4f-7344-4f18-9ab5-0de3ef57b901',
+      },
+    },
   };
 
   it('renders the Review Page', async () => {
@@ -56,7 +64,7 @@ describe('Review page', () => {
 
     userEvent.click(submitButton);
 
-    expect(testProps.push).toHaveBeenCalledWith('/moves/:moveId/agreement');
+    expect(testProps.push).toHaveBeenCalledWith(`/moves/${testProps.match.params.moveId}/agreement`);
   });
 
   afterEach(jest.resetAllMocks);
