@@ -35,7 +35,12 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 	suite.T().Run("successfully returns submitted move available to prime", func(t *testing.T) {
 		expectedMove := testdatagen.MakeAvailableMove(suite.DB())
 
-		actualMove, err := moveFetcher.FetchMove(expectedMove.Locator, &defaultSearchParams)
+		searchParams := services.MoveFetcherParams{
+			IncludeHidden:      false,
+			IsAvailableToPrime: true,
+		}
+
+		actualMove, err := moveFetcher.FetchMove(expectedMove.Locator, &searchParams)
 		suite.FatalNoError(err)
 
 		suite.Equal(expectedMove.ID, actualMove.ID)
