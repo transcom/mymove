@@ -23,6 +23,10 @@ func (f moveFetcher) FetchMove(locator string, searchParams *services.MoveFetche
 	move := &models.Move{}
 	query := f.db.Where("locator = $1", locator)
 
+	if searchParams == nil || !searchParams.IncludeHidden {
+		query.Where("show = TRUE")
+	}
+
 	err := query.First(move)
 	if err != nil {
 		switch err {
