@@ -9,12 +9,10 @@ import Content from './Content/Content';
 import Menu from './Menu/Menu';
 
 import { formatDate } from 'shared/dates';
-import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { filenameFromPath } from 'shared/formatters';
 
 /**
  * TODO
- * - implement open in a new window
  * - implement next/previous pages instead of scroll through pages
  * - implement rotate left/right
  * - handle fetch doc errors
@@ -70,9 +68,6 @@ const DocumentViewer = ({ files }) => {
     selectFile(index);
     closeMenu();
   };
-  const openInNewWindow = () => {
-    // TODO - do we need to stream the file or can we just open the URL?
-  };
 
   const selectedFilename = filenameFromPath(selectedFile.filename);
 
@@ -87,11 +82,6 @@ const DocumentViewer = ({ files }) => {
         <p title={selectedFilename} data-testid="documentTitle">
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
-        {/* TODO */}
-        <Button type="button" unstyled onClick={openInNewWindow}>
-          <span>Open in a new window</span>
-          <ExternalLink />
-        </Button>
       </div>
       <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}

@@ -34,7 +34,6 @@ type MTOServiceItemShuttle struct {
 	statusField MTOServiceItemStatus
 
 	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
-	// Required: true
 	ActualWeight *int64 `json:"actualWeight"`
 
 	// Further details about the shuttle service.
@@ -42,7 +41,6 @@ type MTOServiceItemShuttle struct {
 	Description *string `json:"description"`
 
 	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
-	// Required: true
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Service codes allowed for this model type.
@@ -139,7 +137,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
-		// Required: true
 		ActualWeight *int64 `json:"actualWeight"`
 
 		// Further details about the shuttle service.
@@ -147,7 +144,6 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		Description *string `json:"description"`
 
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
-		// Required: true
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
@@ -232,7 +228,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 
 		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
-		// Required: true
 		ActualWeight *int64 `json:"actualWeight"`
 
 		// Further details about the shuttle service.
@@ -240,7 +235,6 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		Description *string `json:"description"`
 
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
-		// Required: true
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service codes allowed for this model type.
@@ -327,15 +321,7 @@ func (m *MTOServiceItemShuttle) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateActualWeight(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDescription(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateEstimatedWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -408,27 +394,9 @@ func (m *MTOServiceItemShuttle) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemShuttle) validateActualWeight(formats strfmt.Registry) error {
-
-	if err := validate.Required("actualWeight", "body", m.ActualWeight); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemShuttle) validateDescription(formats strfmt.Registry) error {
 
 	if err := validate.Required("description", "body", m.Description); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemShuttle) validateEstimatedWeight(formats strfmt.Registry) error {
-
-	if err := validate.Required("estimatedWeight", "body", m.EstimatedWeight); err != nil {
 		return err
 	}
 

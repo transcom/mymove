@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
@@ -26,8 +27,12 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
-		Since:              params.Since,
 	}
+	if params.Since != nil {
+		timeSince := time.Unix(*params.Since, 0)
+		searchParams.Since = &timeSince
+	}
+
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
@@ -38,6 +43,34 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	payload := payloads.MoveTaskOrders(&mtos)
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
+}
+
+// FetchMTOUpdatesFastHandler lists move task orders with the option to filter since a particular date. Optimized ver.
+type FetchMTOUpdatesFastHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderFetcher
+}
+
+// Handle fetches all move task orders with the option to filter since a particular date. Optimized version.
+func (h FetchMTOUpdatesFastHandler) Handle(params movetaskorderops.FetchMTOUpdatesFastParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	var searchParams services.MoveTaskOrderFetcherParams
+	if params.Since != nil {
+		since := handlers.FmtDateTimePtrToPop(params.Since)
+		searchParams.Since = &since
+	}
+
+	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(&searchParams)
+
+	if err != nil {
+		logger.Error("Unexpected error while fetching records:", zap.Error(err))
+		return movetaskorderops.NewFetchMTOUpdatesFastInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+	}
+
+	payload := payloads.FetchMoveTaskOrders(&mtos)
+
+	return movetaskorderops.NewFetchMTOUpdatesFastOK().WithPayload(payload)
 }
 
 // UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
