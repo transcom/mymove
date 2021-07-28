@@ -99,7 +99,7 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "getMoveTaskOrder",
 		Method:             "GET",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}",
+		PathPattern:        "/move-task-orders/{moveID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},

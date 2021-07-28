@@ -17,10 +17,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 	searchParams := services.MoveTaskOrderFetcherParams{
-		IncludeHidden: false,
+		IncludeHidden:   false,
+		MoveTaskOrderID: expectedMTO.ID,
 	}
 
-	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID, &searchParams)
+	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(&searchParams)
 	suite.NoError(err)
 
 	suite.NotZero(expectedMTO.ID, actualMTO.ID)

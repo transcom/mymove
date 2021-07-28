@@ -53,7 +53,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveT
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
 	// Set locator query
@@ -72,7 +72,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"Orders.Entitlement",
 		"Orders.NewDutyStation.Address",
 		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
-	).Where("id = $1", moveTaskOrderID)
+	)
 
 	setMTOQueryFilters(query, searchParams)
 
@@ -80,7 +80,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Move{}, services.NewNotFoundError(moveTaskOrderID, "")
+			return &models.Move{}, services.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
 			return &models.Move{}, err
 		}
@@ -90,6 +90,13 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 }
 
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
+	// Find the move by ID or Locator
+	if searchParams.MoveTaskOrderID != uuid.Nil {
+		query.Where("id = $1", searchParams.MoveTaskOrderID)
+	} else {
+		query.Where("locator = $1", searchParams.Locator)
+	}
+
 	// Always exclude hidden moves by default:
 	if searchParams == nil {
 		query.Where("show = TRUE")

@@ -405,8 +405,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.T().Run("Success with Prime-available move", func(t *testing.T) {
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := movetaskorderops.GetMoveTaskOrderParams{
-			HTTPRequest:     request,
-			MoveTaskOrderID: successMove.ID.String(),
+			HTTPRequest: request,
+			MoveID:      successMove.ID.String(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
@@ -422,8 +422,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	suite.T().Run("Failure 'Not Found' for non-available move", func(t *testing.T) {
 		failureMove := testdatagen.MakeDefaultMove(suite.DB()) // default is not available to Prime
 		params := movetaskorderops.GetMoveTaskOrderParams{
-			HTTPRequest:     request,
-			MoveTaskOrderID: failureMove.ID.String(),
+			HTTPRequest: request,
+			MoveID:      failureMove.ID.String(),
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)

@@ -29,7 +29,7 @@ func NewGetMoveTaskOrder(ctx *middleware.Context, handler GetMoveTaskOrderHandle
 	return &GetMoveTaskOrder{Context: ctx, Handler: handler}
 }
 
-/*GetMoveTaskOrder swagger:route GET /move-task-orders/{moveTaskOrderID} moveTaskOrder getMoveTaskOrder
+/*GetMoveTaskOrder swagger:route GET /move-task-orders/{moveID} moveTaskOrder getMoveTaskOrder
 
 getMoveTaskOrder
 
