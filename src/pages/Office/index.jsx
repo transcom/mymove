@@ -5,6 +5,7 @@ import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
+import styles from './Office.module.scss';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
@@ -93,6 +94,7 @@ export class OfficeApp extends Component {
       userRoles,
       location: { pathname },
       hasRecentError,
+      traceId,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -167,8 +169,10 @@ export class OfficeApp extends Component {
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
                   If that doesn&apos;t fix it, contact the{' '}
-                  <a href="https://move.mil/customer-service#technical-help-desk">Technical Help Desk</a> and give them
-                  this code: [trace ID]
+                  <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
+                    Technical Help Desk
+                  </a>{' '}
+                  and give them this code: <strong>{traceId}</strong>
                 </SystemError>
               )}
               {hasError && <SomethingWentWrong error={error} info={info} />}
@@ -269,6 +273,7 @@ OfficeApp.propTypes = {
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
+  traceId: PropTypes.string.isRequired,
 };
 
 OfficeApp.defaultProps = {
@@ -287,6 +292,7 @@ const mapStateToProps = (state) => {
     userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
     hasRecentError: state.interceptor.hasRecentError,
+    traceId: state.interceptor.traceId,
   };
 };
 
