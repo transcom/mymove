@@ -54,14 +54,14 @@ type GetMoveTaskOrderHandlerFunc struct {
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// Handle fetches an MTO from the database using its UUID
+// Handle fetches an MTO from the database using its UUID or move code
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
 	}
 
-	// Add either ID or Locator to select move
+	// Add either ID or Locator to search params
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveID)
 	if moveTaskOrderID != uuid.Nil {
 		searchParams.MoveTaskOrderID = moveTaskOrderID

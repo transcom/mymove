@@ -402,11 +402,28 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
 	}
 
-	suite.T().Run("Success with Prime-available move", func(t *testing.T) {
+	suite.T().Run("Success with Prime-available move by ID", func(t *testing.T) {
 		successMove := testdatagen.MakeAvailableMove(suite.DB())
 		params := movetaskorderops.GetMoveTaskOrderParams{
 			HTTPRequest: request,
 			MoveID:      successMove.ID.String(),
+		}
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
+
+		moveResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+		movePayload := moveResponse.Payload
+		suite.Equal(movePayload.ID.String(), successMove.ID.String())
+		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+	})
+
+	suite.T().Run("Success with Prime-available move by Locator", func(t *testing.T) {
+		successMove := testdatagen.MakeAvailableMove(suite.DB())
+		params := movetaskorderops.GetMoveTaskOrderParams{
+			HTTPRequest: request,
+			MoveID:      successMove.Locator,
 		}
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
