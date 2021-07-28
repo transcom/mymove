@@ -1,3 +1,10 @@
+@import 'shared/styles/colors';
+
 .systemError {
   font-size: 1rem;
+  background-color: $warning;
+  padding-bottom: 0.8rem;
+  padding-top: 0.8rem;
+  padding-left: 1.6rem;
+  padding-right: 1.6rem;
 }

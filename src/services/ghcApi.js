@@ -1,6 +1,6 @@
 import Swagger from 'swagger-client';
 
-import { makeSwaggerRequest, requestInterceptor } from './swaggerRequest';
+import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
 
 let ghcClient = null;
 
@@ -10,6 +10,7 @@ export async function getGHCClient() {
     ghcClient = await Swagger({
       url: '/ghc/v1/swagger.yaml',
       requestInterceptor,
+      responseInterceptor,
     });
   }
   return ghcClient;
