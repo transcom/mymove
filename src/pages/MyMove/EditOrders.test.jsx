@@ -70,8 +70,17 @@ describe('EditOrders Page', () => {
       storageInTransit: 2,
       totalDependents: 1,
       totalWeight: 5000,
+      sum: 300,
     },
-    existingUploads: [],
+    existingUploads: [
+      {
+        id: '123',
+        created_at: '2020-11-08',
+        bytes: 1,
+        url: 'url',
+        filename: 'Test Upload',
+      },
+    ],
     schema: {},
     spouseHasProGear: false,
     context: { flags: { allOrdersTypes: true } },
@@ -80,17 +89,17 @@ describe('EditOrders Page', () => {
   it('renders the edit orders form', async () => {
     render(<EditOrders {...testProps} />);
 
-    const h1 = screen.getByRole('heading', { name: 'Orders', level: 1 });
+    const h1 = await screen.findByRole('heading', { name: 'Orders', level: 1 });
     expect(h1).toBeInTheDocument();
 
-    const editOrdersHeader = screen.getByRole('heading', { name: 'Edit Orders:', level: 2 });
+    const editOrdersHeader = await screen.findByRole('heading', { name: 'Edit Orders:', level: 2 });
     expect(editOrdersHeader).toBeInTheDocument();
   });
 
   it('goes back to the previous page when the cancel button is clicked', async () => {
     render(<EditOrders {...testProps} />);
 
-    const cancel = screen.getByText('Cancel');
+    const cancel = await screen.findByText('Cancel');
 
     expect(cancel).toBeInTheDocument();
 
@@ -116,9 +125,36 @@ describe('EditOrders Page', () => {
         },
       }),
     );
+
+    const submitButton = await screen.findByRole('button', { name: 'Save' });
+    expect(submitButton).not.toBeDisabled();
+
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchOrders).toHaveBeenCalledTimes(1);
+    });
+
+    expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('next button patches the orders and goes to the previous page', async () => {
     render(<EditOrders {...testProps} />);
+
+    patchOrders.mockImplementation(() => Promise.resolve(testProps.currentOrders));
+
+    const submitButton = await screen.findByRole('button', { name: 'Save' });
+    expect(submitButton).not.toBeDisabled();
+
+    userEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(patchOrders).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockGoBack).toHaveBeenCalledTimes(1);
   });
+
+  afterEach(jest.clearAllMocks);
 });
