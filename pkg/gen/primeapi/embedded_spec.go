@@ -1538,7 +1538,7 @@ func init() {
       ]
     },
     "MTOServiceItemDimension": {
-      "description": "Describes a dimension object for the MTOServiceItem.",
+      "description": "The dimensions for either the item or the crate associated with a crating service item.",
       "type": "object",
       "required": [
         "length",
@@ -1590,7 +1590,12 @@ func init() {
           ],
           "properties": {
             "crate": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "description": {
               "description": "A description of the item being crated.",
@@ -1598,7 +1603,12 @@ func init() {
               "example": "Decorated horse head to be crated."
             },
             "item": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "reServiceCode": {
               "description": "A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).",
@@ -4523,7 +4533,7 @@ func init() {
       ]
     },
     "MTOServiceItemDimension": {
-      "description": "Describes a dimension object for the MTOServiceItem.",
+      "description": "The dimensions for either the item or the crate associated with a crating service item.",
       "type": "object",
       "required": [
         "length",
@@ -4575,7 +4585,12 @@ func init() {
           ],
           "properties": {
             "crate": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "description": {
               "description": "A description of the item being crated.",
@@ -4583,7 +4598,12 @@ func init() {
               "example": "Decorated horse head to be crated."
             },
             "item": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "reServiceCode": {
               "description": "A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).",

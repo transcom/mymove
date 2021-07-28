@@ -1385,7 +1385,7 @@ definitions:
           - reServiceCode
           - sitEntryDate
   MTOServiceItemDimension:
-    description: Describes a dimension object for the MTOServiceItem.
+    description: The dimensions for either the item or the crate associated with a crating service item.
     type: object
     properties:
       id:
@@ -1427,9 +1427,13 @@ definitions:
               - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
-            $ref: '#/definitions/MTOServiceItemDimension'
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
           crate:
-            $ref: '#/definitions/MTOServiceItemDimension'
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
           description:
             type: string
             example: Decorated horse head to be crated.

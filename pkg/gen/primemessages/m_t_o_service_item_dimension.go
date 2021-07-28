@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDimension Describes a dimension object for the MTOServiceItem.
+// MTOServiceItemDimension The dimensions for either the item or the crate associated with a crating service item.
 //
 // swagger:model MTOServiceItemDimension
 type MTOServiceItemDimension struct {

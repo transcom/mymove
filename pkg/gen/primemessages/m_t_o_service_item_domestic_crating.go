@@ -33,17 +33,21 @@ type MTOServiceItemDomesticCrating struct {
 
 	statusField MTOServiceItemStatus
 
-	// crate
+	// The dimensions for the crate the item will be shipped in.
 	// Required: true
-	Crate *MTOServiceItemDimension `json:"crate"`
+	Crate struct {
+		MTOServiceItemDimension
+	} `json:"crate"`
 
 	// A description of the item being crated.
 	// Required: true
 	Description *string `json:"description"`
 
-	// item
+	// The dimensions of the item being crated.
 	// Required: true
-	Item *MTOServiceItemDimension `json:"item"`
+	Item struct {
+		MTOServiceItemDimension
+	} `json:"item"`
 
 	// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 	// Required: true
@@ -138,17 +142,21 @@ func (m *MTOServiceItemDomesticCrating) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// crate
+		// The dimensions for the crate the item will be shipped in.
 		// Required: true
-		Crate *MTOServiceItemDimension `json:"crate"`
+		Crate struct {
+			MTOServiceItemDimension
+		} `json:"crate"`
 
 		// A description of the item being crated.
 		// Required: true
 		Description *string `json:"description"`
 
-		// item
+		// The dimensions of the item being crated.
 		// Required: true
-		Item *MTOServiceItemDimension `json:"item"`
+		Item struct {
+			MTOServiceItemDimension
+		} `json:"item"`
 
 		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
@@ -231,17 +239,21 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// crate
+		// The dimensions for the crate the item will be shipped in.
 		// Required: true
-		Crate *MTOServiceItemDimension `json:"crate"`
+		Crate struct {
+			MTOServiceItemDimension
+		} `json:"crate"`
 
 		// A description of the item being crated.
 		// Required: true
 		Description *string `json:"description"`
 
-		// item
+		// The dimensions of the item being crated.
 		// Required: true
-		Item *MTOServiceItemDimension `json:"item"`
+		Item struct {
+			MTOServiceItemDimension
+		} `json:"item"`
 
 		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
@@ -406,19 +418,6 @@ func (m *MTOServiceItemDomesticCrating) validateStatus(formats strfmt.Registry) 
 
 func (m *MTOServiceItemDomesticCrating) validateCrate(formats strfmt.Registry) error {
 
-	if err := validate.Required("crate", "body", m.Crate); err != nil {
-		return err
-	}
-
-	if m.Crate != nil {
-		if err := m.Crate.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("crate")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -432,19 +431,6 @@ func (m *MTOServiceItemDomesticCrating) validateDescription(formats strfmt.Regis
 }
 
 func (m *MTOServiceItemDomesticCrating) validateItem(formats strfmt.Registry) error {
-
-	if err := validate.Required("item", "body", m.Item); err != nil {
-		return err
-	}
-
-	if m.Item != nil {
-		if err := m.Item.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("item")
-			}
-			return err
-		}
-	}
 
 	return nil
 }
