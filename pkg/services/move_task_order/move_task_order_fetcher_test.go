@@ -113,7 +113,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	})
 
 	suite.RunWithRollback("all move task orders that are available to prime and using since", func() {
-		now := time.Now()
+		now = time.Now()
 
 		testdatagen.MakeAvailableMove(suite.DB())
 		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
@@ -136,10 +136,60 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		// Put 1 Move updatedAt in the past
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 			now.Add(-2*time.Second), oldMTO.ID).Exec())
-		since := now.Unix()
-		searchParams.Since = &since
+		searchParams.Since = &now
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(&searchParams)
 		suite.NoError(err)
 		suite.Equal(1, len(mtosWithSince))
 	})
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
+	// Set up a hidden move so we can check if it's in the output:
+	now := time.Now()
+	show := false
+	hiddenMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+			Show:               &show,
+		},
+	})
+	// Make a default, not Prime-available move:
+	nonPrimeMove := testdatagen.MakeDefaultMove(suite.DB())
+	// Make some Prime moves:
+	primeMove1 := testdatagen.MakeAvailableMove(suite.DB())
+	primeMove2 := testdatagen.MakeAvailableMove(suite.DB())
+	primeMove3 := testdatagen.MakeAvailableMove(suite.DB())
+	testdatagen.MakeMTOShipmentWithMove(suite.DB(), &primeMove3, testdatagen.Assertions{})
+
+	// Move primeMove1 and primeMove3 into the past so we can exclude them:
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=$1 WHERE id IN ($2, $3);",
+		now.Add(-10*time.Second), primeMove1.ID, primeMove3.ID).Exec())
+	suite.Require().NoError(suite.DB().RawQuery("UPDATE orders SET updated_at=$1 WHERE id=$2;",
+		now.Add(-10*time.Second), primeMove1.OrdersID).Exec())
+
+	fetcher := NewMoveTaskOrderFetcher(suite.DB())
+	searchParams := services.MoveTaskOrderFetcherParams{}
+
+	// Run the fetcher without `since` to get all Prime moves:
+	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(&searchParams)
+	suite.NoError(err)
+	suite.Len(primeMoves, 3)
+
+	moveIDs := []uuid.UUID{primeMoves[0].ID, primeMoves[1].ID, primeMoves[2].ID}
+	suite.NotContains(moveIDs, hiddenMove.ID)
+	suite.NotContains(moveIDs, nonPrimeMove.ID)
+	suite.Contains(moveIDs, primeMove1.ID)
+	suite.Contains(moveIDs, primeMove2.ID)
+	suite.Contains(moveIDs, primeMove3.ID)
+
+	// Run the fetcher with `since` to get primeMove2 and primeMove3 (because of the shipment)
+	since := now.Add(-5 * time.Second)
+	searchParams.Since = &since
+	sinceMoves, err := fetcher.ListPrimeMoveTaskOrders(&searchParams)
+	suite.NoError(err)
+	suite.Len(sinceMoves, 2)
+
+	sinceMoveIDs := []uuid.UUID{sinceMoves[0].ID, sinceMoves[1].ID}
+	suite.Contains(sinceMoveIDs, primeMove2.ID)
+	suite.Contains(sinceMoveIDs, primeMove3.ID)
 }

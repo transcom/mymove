@@ -1,6 +1,8 @@
 package supportapi
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -27,8 +29,12 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
-		Since:         params.Since,
 	}
+	if params.Since != nil {
+		timeSince := time.Unix(*params.Since, 0)
+		searchParams.Since = &timeSince
+	}
+
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {

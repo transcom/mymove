@@ -44,6 +44,16 @@ func main() {
 	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
+	fetchMTOsFastCommand := &cobra.Command{
+		Use:          "fetch-mto-updates-fast",
+		Short:        "An optimized fetch for all moves available to Prime",
+		Long:         "Fetches moves that are available to Prime quickly, without all the data from fetch-mto-updates.",
+		RunE:         prime.FetchMTOUpdatesFast,
+		SilenceUsage: true,
+	}
+	prime.InitFetchMTOUpdatesFastFlags(fetchMTOsFastCommand.Flags())
+	root.AddCommand(fetchMTOsFastCommand)
+
 	getMoveTaskOrder := &cobra.Command{
 		Use:   "get-move-task-order",
 		Short: "Get an individual mto",
