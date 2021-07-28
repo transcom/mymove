@@ -15,7 +15,6 @@ func Test_ThousandthInches(t *testing.T) {
 }
 
 func TestToFeet(t *testing.T) {
-	// Test int -> int32
 	thous := ThousandthInches(5 * 12000)
 	expected := float64((5 * thousandthInchPerFoot) / thousandthInchPerFoot)
 	result := thous.ToFeet()
@@ -25,7 +24,6 @@ func TestToFeet(t *testing.T) {
 }
 
 func TestToInches(t *testing.T) {
-	// Test int -> int32
 	thous := ThousandthInches(12 * 1000)
 	expected := float64((12 * thousandthInchPerInch) / thousandthInchPerInch)
 	result := thous.ToInches()
