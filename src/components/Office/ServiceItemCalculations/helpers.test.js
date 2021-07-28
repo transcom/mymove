@@ -430,8 +430,29 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticUncrating', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticUncrating);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DUCRT', 99999, testParams.DomesticUncrating, testParams.additionalCratingDataDCRT);
+    expect(result).toEqual([
+      {
+        details: ['Description: Grand piano', 'Dimensions: 0.05x0.1x0.08 in'],
+        label: 'Crating size (cu ft)',
+        value: '2',
+      },
+      {
+        details: ['Service schedule: 3', 'Uncrating date: 09 Mar 2020', 'Domestic'],
+        label: 'Uncrating price (per cu ft)',
+        value: '1.71',
+      },
+      {
+        details: [],
+        label: 'Price escalation factor',
+        value: '',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
   });
 
   it('returns correct data for DomesticOriginShuttleService', () => {
