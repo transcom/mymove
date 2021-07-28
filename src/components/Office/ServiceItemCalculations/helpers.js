@@ -51,7 +51,6 @@ const cratingDate = (params) => {
 };
 
 const unCratingDate = (params) => {
-  // TODO: is RequestedPickupDate correct?
   return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDate(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
     'DD MMM YYYY',
@@ -352,7 +351,6 @@ const cratingPrice = (params) => {
 };
 
 const unCratingPrice = (params) => {
-  // TODO: is CubicFeetBilled correct?
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.UncratingPrice;
 
