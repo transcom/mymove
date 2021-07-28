@@ -171,35 +171,39 @@ const existingUploads = [
 ];
 
 describe('EditOrdersForm component', () => {
-  it.each([
-    ['Orders type', HTMLSelectElement, true],
-    ['Orders date', HTMLInputElement, true],
-    ['Report-by date', HTMLInputElement, true],
-    ['Yes', HTMLInputElement, false],
-    ['No', HTMLInputElement, false],
-    ['New duty station', HTMLInputElement, false],
-  ])('renders the %s input and checks if the field is required', async (formInput, inputType, required) => {
-    render(<EditOrdersForm {...testProps} />);
+  describe('renders each input and checks if the field is required', () => {
+    it.each([
+      ['Orders type', true, HTMLSelectElement],
+      ['Orders date', true, HTMLInputElement],
+      ['Report-by date', true, HTMLInputElement],
+      ['Yes', false, HTMLInputElement],
+      ['No', false, HTMLInputElement],
+      ['New duty station', false, HTMLInputElement],
+    ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
+      render(<EditOrdersForm {...testProps} />);
 
-    expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
-    if (required) {
-      expect(await screen.findByLabelText(formInput)).toBeRequired();
-    }
+      expect(await screen.findByLabelText(formInput)).toBeInstanceOf(inputType);
+      if (required) {
+        expect(await screen.findByLabelText(formInput)).toBeRequired();
+      }
+    });
   });
 
-  it.each([
-    ['PERMANENT_CHANGE_OF_STATION', 'PERMANENT_CHANGE_OF_STATION'],
-    ['RETIREMENT', 'RETIREMENT'],
-    ['SEPARATION', 'SEPARATION'],
-  ])('renders the %s option for the orders type field', async (selectionOption, expectedValue) => {
-    render(<EditOrdersForm {...testProps} />);
+  describe('renders each option for the orders type dropdown', () => {
+    it.each([
+      ['PERMANENT_CHANGE_OF_STATION', 'PERMANENT_CHANGE_OF_STATION'],
+      ['RETIREMENT', 'RETIREMENT'],
+      ['SEPARATION', 'SEPARATION'],
+    ])('rendering the %s option', async (selectionOption, expectedValue) => {
+      render(<EditOrdersForm {...testProps} />);
 
-    const ordersTypeDropdown = await screen.findByLabelText('Orders type');
-    expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
-    userEvent.selectOptions(ordersTypeDropdown, selectionOption);
-    await waitFor(() => {
-      expect(ordersTypeDropdown).toHaveValue(expectedValue);
+      userEvent.selectOptions(ordersTypeDropdown, selectionOption);
+      await waitFor(() => {
+        expect(ordersTypeDropdown).toHaveValue(expectedValue);
+      });
     });
   });
 
