@@ -72,7 +72,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(searchParams *services.MoveTask
 		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
 	)
 
-	// Find the move by Locator
+	// Find the move by ID or Locator
 	if searchParams.MoveTaskOrderID != uuid.Nil {
 		query.Where("id = $1", searchParams.MoveTaskOrderID)
 	} else {
