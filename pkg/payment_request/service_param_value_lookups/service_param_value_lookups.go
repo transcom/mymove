@@ -376,6 +376,7 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameCubicFeetCrating
 	err = s.setLookup(serviceItemCode, paramKey, CubicFeetCratingLookup{
 		Dimensions: serviceItemDimensions,
 	})
