@@ -14,11 +14,13 @@ describe('interceptorReducer', () => {
       const oldState = {
         hasRecentError: false,
         timestamp: Date.now() - SHORT_RESPONSE_GAP_MS,
+        traceId: '',
       };
-
-      const newState = interceptorReducer(oldState, interceptResponse(true));
+      const traceId = 'some-trace-id';
+      const newState = interceptorReducer(oldState, interceptResponse(true, traceId));
       expect(newState.hasRecentError).toEqual(true);
       expect(newState.timestamp - oldState.timestamp).toBeGreaterThanOrEqual(SHORT_RESPONSE_GAP_MS);
+      expect(newState.traceId).toBe(traceId);
     });
 
     it('maintains hasRecentError value if a recent response was intercepted', () => {
@@ -32,15 +34,17 @@ describe('interceptorReducer', () => {
       expect(newState.timestamp - oldState.timestamp).toBeGreaterThanOrEqual(SHORT_RESPONSE_GAP_MS);
     });
 
-    it('updates hasRecentError value if timestamp is stale', () => {
+    it('updates hasRecentError value if timestamp is stale and clears traceId', () => {
       const oldState = {
         hasRecentError: true,
         timestamp: Date.now() - LONG_RESPONSE_GAP_MS,
+        traceId: 'some-trace-id',
       };
 
       const newState = interceptorReducer(oldState, interceptResponse(false));
       expect(newState.hasRecentError).toEqual(false);
       expect(newState.timestamp - oldState.timestamp).toBeGreaterThanOrEqual(LONG_RESPONSE_GAP_MS);
+      expect(newState.traceId).toBe('');
     });
 
     it('maintains hasRecentError value if action value is false and state timestamp is stale', () => {

@@ -5,6 +5,12 @@ describe('interceptor actions', () => {
     expect(interceptResponse(true)).toEqual({
       type: INTERCEPT_RESPONSE,
       hasError: true,
+      traceId: '',
+    });
+    expect(interceptResponse(true, 'some-id')).toEqual({
+      type: INTERCEPT_RESPONSE,
+      hasError: true,
+      traceId: 'some-id',
     });
   });
 });
