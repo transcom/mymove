@@ -44,7 +44,7 @@ func (p domesticUncratingPricer) PriceUsingParams(params models.PaymentServiceIt
 		return unit.Cents(0), nil, err
 	}
 
-	serviceScheduleDestination, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleOrigin)
+	serviceScheduleDestination, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleDest)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
