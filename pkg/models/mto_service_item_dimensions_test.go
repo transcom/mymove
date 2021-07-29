@@ -45,9 +45,9 @@ func (suite *ModelSuite) TestMTOServiceItemDimension() {
 
 	suite.T().Run("correct volume is calculated by Volume function", func(t *testing.T) {
 		validMTOServiceItemDimension := models.MTOServiceItemDimension{
-			Length: 5,
-			Height: 10,
-			Width:  15,
+			Length: 6000,
+			Height: 10000,
+			Width:  15000,
 		}
 		dimensionsPointer := &validMTOServiceItemDimension
 		suite.Equal(unit.ThousandthInches(750), dimensionsPointer.Volume())

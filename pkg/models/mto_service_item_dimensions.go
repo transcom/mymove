@@ -58,6 +58,7 @@ func (m MTOServiceItemDimension) TableName() string {
 }
 
 // Volume calculates Length x Height x Width
-func (m *MTOServiceItemDimension) Volume() unit.ThousandthInches {
-	return m.Length * m.Width * m.Height
+func (m *MTOServiceItemDimension) Volume() float64 {
+	volume := m.Length * m.Width * m.Height
+	return float64(volume) / float64(12*12*12*1000*1000*1000)
 }
