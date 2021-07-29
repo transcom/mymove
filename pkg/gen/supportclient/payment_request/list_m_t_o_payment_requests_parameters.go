@@ -16,59 +16,75 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListMTOPaymentRequestsParams creates a new ListMTOPaymentRequestsParams object
-// with the default values initialized.
+// NewListMTOPaymentRequestsParams creates a new ListMTOPaymentRequestsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListMTOPaymentRequestsParams() *ListMTOPaymentRequestsParams {
-	var ()
 	return &ListMTOPaymentRequestsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListMTOPaymentRequestsParamsWithTimeout creates a new ListMTOPaymentRequestsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListMTOPaymentRequestsParamsWithTimeout(timeout time.Duration) *ListMTOPaymentRequestsParams {
-	var ()
 	return &ListMTOPaymentRequestsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListMTOPaymentRequestsParamsWithContext creates a new ListMTOPaymentRequestsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListMTOPaymentRequestsParamsWithContext(ctx context.Context) *ListMTOPaymentRequestsParams {
-	var ()
 	return &ListMTOPaymentRequestsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListMTOPaymentRequestsParamsWithHTTPClient creates a new ListMTOPaymentRequestsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListMTOPaymentRequestsParamsWithHTTPClient(client *http.Client) *ListMTOPaymentRequestsParams {
-	var ()
 	return &ListMTOPaymentRequestsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListMTOPaymentRequestsParams contains all the parameters to send to the API endpoint
-for the list m t o payment requests operation typically these are written to a http.Request
+/* ListMTOPaymentRequestsParams contains all the parameters to send to the API endpoint
+   for the list m t o payment requests operation.
+
+   Typically these are written to a http.Request.
 */
 type ListMTOPaymentRequestsParams struct {
 
-	/*MoveTaskOrderID
-	  Only return move task orders updated since this time.
+	/* MoveTaskOrderID.
 
+	   Only return move task orders updated since this time.
+
+	   Format: uuid
 	*/
 	MoveTaskOrderID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list m t o payment requests params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListMTOPaymentRequestsParams) WithDefaults() *ListMTOPaymentRequestsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list m t o payment requests params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListMTOPaymentRequestsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list m t o payment requests params

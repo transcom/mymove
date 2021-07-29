@@ -16,67 +16,83 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewUpdateMTOPostCounselingInformationParams creates a new UpdateMTOPostCounselingInformationParams object
-// with the default values initialized.
+// NewUpdateMTOPostCounselingInformationParams creates a new UpdateMTOPostCounselingInformationParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateMTOPostCounselingInformationParams() *UpdateMTOPostCounselingInformationParams {
-	var ()
 	return &UpdateMTOPostCounselingInformationParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateMTOPostCounselingInformationParamsWithTimeout creates a new UpdateMTOPostCounselingInformationParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateMTOPostCounselingInformationParamsWithTimeout(timeout time.Duration) *UpdateMTOPostCounselingInformationParams {
-	var ()
 	return &UpdateMTOPostCounselingInformationParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateMTOPostCounselingInformationParamsWithContext creates a new UpdateMTOPostCounselingInformationParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateMTOPostCounselingInformationParamsWithContext(ctx context.Context) *UpdateMTOPostCounselingInformationParams {
-	var ()
 	return &UpdateMTOPostCounselingInformationParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateMTOPostCounselingInformationParamsWithHTTPClient creates a new UpdateMTOPostCounselingInformationParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateMTOPostCounselingInformationParamsWithHTTPClient(client *http.Client) *UpdateMTOPostCounselingInformationParams {
-	var ()
 	return &UpdateMTOPostCounselingInformationParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateMTOPostCounselingInformationParams contains all the parameters to send to the API endpoint
-for the update m t o post counseling information operation typically these are written to a http.Request
+/* UpdateMTOPostCounselingInformationParams contains all the parameters to send to the API endpoint
+   for the update m t o post counseling information operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateMTOPostCounselingInformationParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body UpdateMTOPostCounselingInformationBody
-	/*MoveTaskOrderID
-	  ID of move task order to use.
 
+	// Body.
+	Body UpdateMTOPostCounselingInformationBody
+
+	/* MoveTaskOrderID.
+
+	   ID of move task order to use.
 	*/
 	MoveTaskOrderID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update m t o post counseling information params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOPostCounselingInformationParams) WithDefaults() *UpdateMTOPostCounselingInformationParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update m t o post counseling information params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOPostCounselingInformationParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update m t o post counseling information params
@@ -157,7 +173,6 @@ func (o *UpdateMTOPostCounselingInformationParams) WriteToRequest(r runtime.Clie
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

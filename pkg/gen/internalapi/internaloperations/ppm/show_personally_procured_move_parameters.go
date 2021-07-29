@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowPersonallyProcuredMoveParams creates a new ShowPersonallyProcuredMoveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowPersonallyProcuredMoveParams() ShowPersonallyProcuredMoveParams {
 
 	return ShowPersonallyProcuredMoveParams{}
@@ -60,7 +61,6 @@ func (o *ShowPersonallyProcuredMoveParams) BindRequest(r *http.Request, route *m
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

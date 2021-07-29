@@ -59,9 +59,8 @@ func (o *FetchMTOUpdatesFastReader) ReadResponse(response runtime.ClientResponse
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -70,7 +69,7 @@ func NewFetchMTOUpdatesFastOK() *FetchMTOUpdatesFastOK {
 	return &FetchMTOUpdatesFastOK{}
 }
 
-/*FetchMTOUpdatesFastOK handles this case with default header values.
+/* FetchMTOUpdatesFastOK describes a response with status code 200, with default header values.
 
 Successfully retrieved move task orders where `availableToPrimeAt` has been set.
 */
@@ -81,7 +80,6 @@ type FetchMTOUpdatesFastOK struct {
 func (o *FetchMTOUpdatesFastOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/fast][%d] fetchMTOUpdatesFastOK  %+v", 200, o.Payload)
 }
-
 func (o *FetchMTOUpdatesFastOK) GetPayload() primemessages.FetchMoveTaskOrders {
 	return o.Payload
 }
@@ -101,7 +99,7 @@ func NewFetchMTOUpdatesFastBadRequest() *FetchMTOUpdatesFastBadRequest {
 	return &FetchMTOUpdatesFastBadRequest{}
 }
 
-/*FetchMTOUpdatesFastBadRequest handles this case with default header values.
+/* FetchMTOUpdatesFastBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -112,7 +110,6 @@ type FetchMTOUpdatesFastBadRequest struct {
 func (o *FetchMTOUpdatesFastBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/fast][%d] fetchMTOUpdatesFastBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *FetchMTOUpdatesFastBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -134,7 +131,7 @@ func NewFetchMTOUpdatesFastUnauthorized() *FetchMTOUpdatesFastUnauthorized {
 	return &FetchMTOUpdatesFastUnauthorized{}
 }
 
-/*FetchMTOUpdatesFastUnauthorized handles this case with default header values.
+/* FetchMTOUpdatesFastUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -145,7 +142,6 @@ type FetchMTOUpdatesFastUnauthorized struct {
 func (o *FetchMTOUpdatesFastUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/fast][%d] fetchMTOUpdatesFastUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *FetchMTOUpdatesFastUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -167,7 +163,7 @@ func NewFetchMTOUpdatesFastForbidden() *FetchMTOUpdatesFastForbidden {
 	return &FetchMTOUpdatesFastForbidden{}
 }
 
-/*FetchMTOUpdatesFastForbidden handles this case with default header values.
+/* FetchMTOUpdatesFastForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -178,7 +174,6 @@ type FetchMTOUpdatesFastForbidden struct {
 func (o *FetchMTOUpdatesFastForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/fast][%d] fetchMTOUpdatesFastForbidden  %+v", 403, o.Payload)
 }
-
 func (o *FetchMTOUpdatesFastForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -200,7 +195,7 @@ func NewFetchMTOUpdatesFastNotFound() *FetchMTOUpdatesFastNotFound {
 	return &FetchMTOUpdatesFastNotFound{}
 }
 
-/*FetchMTOUpdatesFastNotFound handles this case with default header values.
+/* FetchMTOUpdatesFastNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -211,7 +206,6 @@ type FetchMTOUpdatesFastNotFound struct {
 func (o *FetchMTOUpdatesFastNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/fast][%d] fetchMTOUpdatesFastNotFound  %+v", 404, o.Payload)
 }
-
 func (o *FetchMTOUpdatesFastNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -233,7 +227,7 @@ func NewFetchMTOUpdatesFastInternalServerError() *FetchMTOUpdatesFastInternalSer
 	return &FetchMTOUpdatesFastInternalServerError{}
 }
 
-/*FetchMTOUpdatesFastInternalServerError handles this case with default header values.
+/* FetchMTOUpdatesFastInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -244,7 +238,6 @@ type FetchMTOUpdatesFastInternalServerError struct {
 func (o *FetchMTOUpdatesFastInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/fast][%d] fetchMTOUpdatesFastInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *FetchMTOUpdatesFastInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

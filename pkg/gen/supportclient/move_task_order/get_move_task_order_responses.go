@@ -53,9 +53,8 @@ func (o *GetMoveTaskOrderReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -64,7 +63,7 @@ func NewGetMoveTaskOrderOK() *GetMoveTaskOrderOK {
 	return &GetMoveTaskOrderOK{}
 }
 
-/*GetMoveTaskOrderOK handles this case with default header values.
+/* GetMoveTaskOrderOK describes a response with status code 200, with default header values.
 
 Successfully retrieve an individual move task order.
 */
@@ -75,7 +74,6 @@ type GetMoveTaskOrderOK struct {
 func (o *GetMoveTaskOrderOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
 }
-
 func (o *GetMoveTaskOrderOK) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -97,7 +95,7 @@ func NewGetMoveTaskOrderUnauthorized() *GetMoveTaskOrderUnauthorized {
 	return &GetMoveTaskOrderUnauthorized{}
 }
 
-/*GetMoveTaskOrderUnauthorized handles this case with default header values.
+/* GetMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -108,7 +106,6 @@ type GetMoveTaskOrderUnauthorized struct {
 func (o *GetMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *GetMoveTaskOrderUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -130,7 +127,7 @@ func NewGetMoveTaskOrderForbidden() *GetMoveTaskOrderForbidden {
 	return &GetMoveTaskOrderForbidden{}
 }
 
-/*GetMoveTaskOrderForbidden handles this case with default header values.
+/* GetMoveTaskOrderForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -141,7 +138,6 @@ type GetMoveTaskOrderForbidden struct {
 func (o *GetMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
-
 func (o *GetMoveTaskOrderForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -163,7 +159,7 @@ func NewGetMoveTaskOrderNotFound() *GetMoveTaskOrderNotFound {
 	return &GetMoveTaskOrderNotFound{}
 }
 
-/*GetMoveTaskOrderNotFound handles this case with default header values.
+/* GetMoveTaskOrderNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -174,7 +170,6 @@ type GetMoveTaskOrderNotFound struct {
 func (o *GetMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
-
 func (o *GetMoveTaskOrderNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -196,7 +191,7 @@ func NewGetMoveTaskOrderInternalServerError() *GetMoveTaskOrderInternalServerErr
 	return &GetMoveTaskOrderInternalServerError{}
 }
 
-/*GetMoveTaskOrderInternalServerError handles this case with default header values.
+/* GetMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -207,7 +202,6 @@ type GetMoveTaskOrderInternalServerError struct {
 func (o *GetMoveTaskOrderInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *GetMoveTaskOrderInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

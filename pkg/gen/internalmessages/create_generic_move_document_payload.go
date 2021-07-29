@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -21,16 +22,19 @@ type CreateGenericMoveDocumentPayload struct {
 
 	// move document type
 	// Required: true
-	MoveDocumentType MoveDocumentType `json:"move_document_type"`
+	MoveDocumentType *MoveDocumentType `json:"move_document_type"`
 
 	// Notes
+	// Example: This document is good to go!
 	Notes *string `json:"notes,omitempty"`
 
 	// personally procured move id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id,omitempty"`
 
 	// title
+	// Example: very_useful_document.pdf
 	// Required: true
 	Title *string `json:"title"`
 
@@ -67,18 +71,27 @@ func (m *CreateGenericMoveDocumentPayload) Validate(formats strfmt.Registry) err
 
 func (m *CreateGenericMoveDocumentPayload) validateMoveDocumentType(formats strfmt.Registry) error {
 
-	if err := m.MoveDocumentType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("move_document_type")
-		}
+	if err := validate.Required("move_document_type", "body", m.MoveDocumentType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("move_document_type", "body", m.MoveDocumentType); err != nil {
+		return err
+	}
+
+	if m.MoveDocumentType != nil {
+		if err := m.MoveDocumentType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("move_document_type")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *CreateGenericMoveDocumentPayload) validatePersonallyProcuredMoveID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonallyProcuredMoveID) { // not required
 		return nil
 	}
@@ -111,6 +124,34 @@ func (m *CreateGenericMoveDocumentPayload) validateUploadIds(formats strfmt.Regi
 			return err
 		}
 
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create generic move document payload based on the context it is used
+func (m *CreateGenericMoveDocumentPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateMoveDocumentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateGenericMoveDocumentPayload) contextValidateMoveDocumentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MoveDocumentType != nil {
+		if err := m.MoveDocumentType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("move_document_type")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -7,6 +7,7 @@ package supportmessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"strconv"
@@ -32,6 +33,7 @@ type MoveTaskOrder struct {
 
 	// ID associated with the contractor, in this case Prime
 	//
+	// Example: 5db13bb4-6d29-4bdb-bc81-262f4513ecf6
 	// Required: true
 	// Format: uuid
 	ContractorID *strfmt.UUID `json:"contractorID"`
@@ -50,11 +52,13 @@ type MoveTaskOrder struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// ID of the MoveTaskOrder object.
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Unique 6-character code the customer can use to refer to their move
+	// Example: ABC123
 	// Read Only: true
 	MoveCode string `json:"moveCode,omitempty"`
 
@@ -68,6 +72,7 @@ type MoveTaskOrder struct {
 	Order *Order `json:"order"`
 
 	// ID of the Order object
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
@@ -86,6 +91,7 @@ type MoveTaskOrder struct {
 	// No two MoveTaskOrders may have the same ID.
 	// Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
 	//
+	// Example: 1001-3456
 	// Read Only: true
 	ReferenceID string `json:"referenceId,omitempty"`
 
@@ -372,7 +378,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AvailableToPrimeAt) { // not required
 		return nil
 	}
@@ -398,7 +403,6 @@ func (m *MoveTaskOrder) validateContractorID(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -411,7 +415,6 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -424,7 +427,6 @@ func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoServiceItems()) { // not required
 		return nil
 	}
@@ -444,7 +446,6 @@ func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoShipments) { // not required
 		return nil
 	}
@@ -478,7 +479,6 @@ func (m *MoveTaskOrder) validateOrder(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrderID) { // not required
 		return nil
 	}
@@ -491,7 +491,6 @@ func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentRequests) { // not required
 		return nil
 	}
@@ -536,7 +535,6 @@ func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string)
 }
 
 func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PpmType) { // not required
 		return nil
 	}
@@ -550,7 +548,6 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SelectedMoveType) { // not required
 		return nil
 	}
@@ -568,7 +565,6 @@ func (m *MoveTaskOrder) validateSelectedMoveType(formats strfmt.Registry) error 
 }
 
 func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -584,12 +580,203 @@ func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move task order based on the context it is used
+func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrder(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePaymentRequests(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReferenceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSelectedMoveType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveCode", "body", string(m.MoveCode)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.MtoServiceItems()); i++ {
+
+		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateMtoShipments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MtoShipments.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoShipments")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateOrder(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Order != nil {
+		if err := m.Order.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidatePaymentRequests(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.PaymentRequests.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("paymentRequests")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateReferenceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "referenceId", "body", string(m.ReferenceID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateSelectedMoveType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SelectedMoveType != nil {
+		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("selectedMoveType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

@@ -20,7 +20,11 @@ type GenericUpdater struct {
 
 // Update updates the generic (non-special case) move documents
 func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	if moveDocumentPayload.MoveDocumentType == nil {
+		return nil, nil, errors.New("missing required field: MoveDocumentType")
+	}
+
+	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	updatedMoveDoc, returnVerrs, err := gu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "update: error updating move document status")

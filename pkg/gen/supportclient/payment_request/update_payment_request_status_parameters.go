@@ -18,67 +18,85 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewUpdatePaymentRequestStatusParams creates a new UpdatePaymentRequestStatusParams object
-// with the default values initialized.
+// NewUpdatePaymentRequestStatusParams creates a new UpdatePaymentRequestStatusParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdatePaymentRequestStatusParams() *UpdatePaymentRequestStatusParams {
-	var ()
 	return &UpdatePaymentRequestStatusParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdatePaymentRequestStatusParamsWithTimeout creates a new UpdatePaymentRequestStatusParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdatePaymentRequestStatusParamsWithTimeout(timeout time.Duration) *UpdatePaymentRequestStatusParams {
-	var ()
 	return &UpdatePaymentRequestStatusParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdatePaymentRequestStatusParamsWithContext creates a new UpdatePaymentRequestStatusParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdatePaymentRequestStatusParamsWithContext(ctx context.Context) *UpdatePaymentRequestStatusParams {
-	var ()
 	return &UpdatePaymentRequestStatusParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdatePaymentRequestStatusParamsWithHTTPClient creates a new UpdatePaymentRequestStatusParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdatePaymentRequestStatusParamsWithHTTPClient(client *http.Client) *UpdatePaymentRequestStatusParams {
-	var ()
 	return &UpdatePaymentRequestStatusParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdatePaymentRequestStatusParams contains all the parameters to send to the API endpoint
-for the update payment request status operation typically these are written to a http.Request
+/* UpdatePaymentRequestStatusParams contains all the parameters to send to the API endpoint
+   for the update payment request status operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdatePaymentRequestStatusParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body *supportmessages.UpdatePaymentRequestStatus
-	/*PaymentRequestID
-	  UUID of payment request.
 
+	// Body.
+	Body *supportmessages.UpdatePaymentRequestStatus
+
+	/* PaymentRequestID.
+
+	   UUID of payment request.
+
+	   Format: uuid
 	*/
 	PaymentRequestID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update payment request status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdatePaymentRequestStatusParams) WithDefaults() *UpdatePaymentRequestStatusParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update payment request status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdatePaymentRequestStatusParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update payment request status params
@@ -159,7 +177,6 @@ func (o *UpdatePaymentRequestStatusParams) WriteToRequest(r runtime.ClientReques
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

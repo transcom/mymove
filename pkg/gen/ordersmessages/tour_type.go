@@ -6,6 +6,7 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -21,6 +22,11 @@ import (
 // swagger:model TourType
 type TourType string
 
+func NewTourType(value TourType) *TourType {
+	v := value
+	return &v
+}
+
 const (
 
 	// TourTypeAccompanied captures enum value "accompanied"
@@ -29,8 +35,8 @@ const (
 	// TourTypeUnaccompanied captures enum value "unaccompanied"
 	TourTypeUnaccompanied TourType = "unaccompanied"
 
-	// TourTypeUnaccompaniedDependentsRestricted captures enum value "unaccompanied-dependents-restricted"
-	TourTypeUnaccompaniedDependentsRestricted TourType = "unaccompanied-dependents-restricted"
+	// TourTypeUnaccompaniedDashDependentsDashRestricted captures enum value "unaccompanied-dependents-restricted"
+	TourTypeUnaccompaniedDashDependentsDashRestricted TourType = "unaccompanied-dependents-restricted"
 )
 
 // for schema
@@ -65,5 +71,10 @@ func (m TourType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this tour type based on context it is used
+func (m TourType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

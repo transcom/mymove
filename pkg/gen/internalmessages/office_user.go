@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -22,23 +24,29 @@ type OfficeUser struct {
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// Personal Email Address
+	// Example: john_bob@example.com
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
 
 	// First name
+	// Example: John
 	FirstName *string `json:"first_name,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Last name
+	// Example: Donut
 	LastName *string `json:"last_name,omitempty"`
 
 	// Middle name
+	// Example: L.
 	MiddleName *string `json:"middle_name,omitempty"`
 
 	// Best contact phone
+	// Example: 212-555-5555
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 
@@ -50,6 +58,7 @@ type OfficeUser struct {
 	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
 
 	// user id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UserID strfmt.UUID `json:"user_id,omitempty"`
 }
@@ -93,7 +102,6 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -106,12 +114,11 @@ func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -119,7 +126,6 @@ func (m *OfficeUser) validateEmail(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -132,12 +138,11 @@ func (m *OfficeUser) validateID(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateTelephone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Telephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", *m.Telephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -145,7 +150,6 @@ func (m *OfficeUser) validateTelephone(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.TransportationOffice) { // not required
 		return nil
 	}
@@ -163,7 +167,6 @@ func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error
 }
 
 func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
@@ -176,13 +179,40 @@ func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 func (m *OfficeUser) validateUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("user_id", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this office user based on the context it is used
+func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateTransportationOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *OfficeUser) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TransportationOffice != nil {
+		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("transportation_office")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -42,11 +42,14 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	}
 	model := &models.Order{
 		ID:            uuid.FromStringOrNil(orderPayload.ID.String()),
-		Grade:         swag.String((string)(orderPayload.Rank)),
 		OrdersNumber:  orderPayload.OrderNumber,
 		ServiceMember: *CustomerModel(orderPayload.Customer),
 		Entitlement:   EntitlementModel(orderPayload.Entitlement),
 		TAC:           orderPayload.Tac,
+	}
+
+	if orderPayload.Rank != nil {
+		model.Grade = swag.String((string)(*orderPayload.Rank))
 	}
 
 	customerID := uuid.FromStringOrNil(orderPayload.CustomerID.String())

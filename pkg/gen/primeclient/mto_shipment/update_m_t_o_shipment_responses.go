@@ -71,9 +71,8 @@ func (o *UpdateMTOShipmentReader) ReadResponse(response runtime.ClientResponse, 
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewUpdateMTOShipmentOK() *UpdateMTOShipmentOK {
 	return &UpdateMTOShipmentOK{}
 }
 
-/*UpdateMTOShipmentOK handles this case with default header values.
+/* UpdateMTOShipmentOK describes a response with status code 200, with default header values.
 
 Successfully updated the MTO shipment.
 */
@@ -93,7 +92,6 @@ type UpdateMTOShipmentOK struct {
 func (o *UpdateMTOShipmentOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentOK  %+v", 200, o.Payload)
 }
-
 func (o *UpdateMTOShipmentOK) GetPayload() *primemessages.MTOShipment {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewUpdateMTOShipmentBadRequest() *UpdateMTOShipmentBadRequest {
 	return &UpdateMTOShipmentBadRequest{}
 }
 
-/*UpdateMTOShipmentBadRequest handles this case with default header values.
+/* UpdateMTOShipmentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -126,7 +124,6 @@ type UpdateMTOShipmentBadRequest struct {
 func (o *UpdateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *UpdateMTOShipmentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewUpdateMTOShipmentUnauthorized() *UpdateMTOShipmentUnauthorized {
 	return &UpdateMTOShipmentUnauthorized{}
 }
 
-/*UpdateMTOShipmentUnauthorized handles this case with default header values.
+/* UpdateMTOShipmentUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type UpdateMTOShipmentUnauthorized struct {
 func (o *UpdateMTOShipmentUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *UpdateMTOShipmentUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewUpdateMTOShipmentForbidden() *UpdateMTOShipmentForbidden {
 	return &UpdateMTOShipmentForbidden{}
 }
 
-/*UpdateMTOShipmentForbidden handles this case with default header values.
+/* UpdateMTOShipmentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type UpdateMTOShipmentForbidden struct {
 func (o *UpdateMTOShipmentForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentForbidden  %+v", 403, o.Payload)
 }
-
 func (o *UpdateMTOShipmentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewUpdateMTOShipmentNotFound() *UpdateMTOShipmentNotFound {
 	return &UpdateMTOShipmentNotFound{}
 }
 
-/*UpdateMTOShipmentNotFound handles this case with default header values.
+/* UpdateMTOShipmentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type UpdateMTOShipmentNotFound struct {
 func (o *UpdateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentNotFound  %+v", 404, o.Payload)
 }
-
 func (o *UpdateMTOShipmentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 	return &UpdateMTOShipmentPreconditionFailed{}
 }
 
-/*UpdateMTOShipmentPreconditionFailed handles this case with default header values.
+/* UpdateMTOShipmentPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -258,7 +252,6 @@ type UpdateMTOShipmentPreconditionFailed struct {
 func (o *UpdateMTOShipmentPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *UpdateMTOShipmentPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -280,7 +273,7 @@ func NewUpdateMTOShipmentUnprocessableEntity() *UpdateMTOShipmentUnprocessableEn
 	return &UpdateMTOShipmentUnprocessableEntity{}
 }
 
-/*UpdateMTOShipmentUnprocessableEntity handles this case with default header values.
+/* UpdateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -291,7 +284,6 @@ type UpdateMTOShipmentUnprocessableEntity struct {
 func (o *UpdateMTOShipmentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *UpdateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerE
 	return &UpdateMTOShipmentInternalServerError{}
 }
 
-/*UpdateMTOShipmentInternalServerError handles this case with default header values.
+/* UpdateMTOShipmentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type UpdateMTOShipmentInternalServerError struct {
 func (o *UpdateMTOShipmentInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /mto-shipments/{mtoShipmentID}][%d] updateMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *UpdateMTOShipmentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

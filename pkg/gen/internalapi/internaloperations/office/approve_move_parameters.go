@@ -15,7 +15,8 @@ import (
 )
 
 // NewApproveMoveParams creates a new ApproveMoveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewApproveMoveParams() ApproveMoveParams {
 
 	return ApproveMoveParams{}
@@ -50,7 +51,6 @@ func (o *ApproveMoveParams) BindRequest(r *http.Request, route *middleware.Match
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

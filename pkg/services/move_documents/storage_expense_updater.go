@@ -23,7 +23,10 @@ type StorageExpenseUpdater struct {
 
 // Update updates the storage expense documents
 func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	if moveDocumentPayload.MoveDocumentType == nil {
+		return nil, nil, errors.New("missing required field: MoveDocumentType")
+	}
+	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	updatedMoveDoc, returnVerrs, err := seu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document status")

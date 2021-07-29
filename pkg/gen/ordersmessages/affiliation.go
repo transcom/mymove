@@ -6,6 +6,7 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -18,22 +19,27 @@ import (
 // swagger:model Affiliation
 type Affiliation string
 
+func NewAffiliation(value Affiliation) *Affiliation {
+	v := value
+	return &v
+}
+
 const (
 
-	// AffiliationAirForce captures enum value "air-force"
-	AffiliationAirForce Affiliation = "air-force"
+	// AffiliationAirDashForce captures enum value "air-force"
+	AffiliationAirDashForce Affiliation = "air-force"
 
 	// AffiliationArmy captures enum value "army"
 	AffiliationArmy Affiliation = "army"
 
-	// AffiliationCivilianAgency captures enum value "civilian-agency"
-	AffiliationCivilianAgency Affiliation = "civilian-agency"
+	// AffiliationCivilianDashAgency captures enum value "civilian-agency"
+	AffiliationCivilianDashAgency Affiliation = "civilian-agency"
 
-	// AffiliationCoastGuard captures enum value "coast-guard"
-	AffiliationCoastGuard Affiliation = "coast-guard"
+	// AffiliationCoastDashGuard captures enum value "coast-guard"
+	AffiliationCoastDashGuard Affiliation = "coast-guard"
 
-	// AffiliationMarineCorps captures enum value "marine-corps"
-	AffiliationMarineCorps Affiliation = "marine-corps"
+	// AffiliationMarineDashCorps captures enum value "marine-corps"
+	AffiliationMarineDashCorps Affiliation = "marine-corps"
 
 	// AffiliationNavy captures enum value "navy"
 	AffiliationNavy Affiliation = "navy"
@@ -71,5 +77,10 @@ func (m Affiliation) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this affiliation based on context it is used
+func (m Affiliation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

@@ -29,7 +29,7 @@ func NewUpdateWebhookSubscription(ctx *middleware.Context, handler UpdateWebhook
 	return &UpdateWebhookSubscription{Context: ctx, Handler: handler}
 }
 
-/*UpdateWebhookSubscription swagger:route PATCH /webhook_subscriptions/{webhookSubscriptionId} webhook_subscriptions updateWebhookSubscription
+/* UpdateWebhookSubscription swagger:route PATCH /webhook_subscriptions/{webhookSubscriptionId} webhook_subscriptions updateWebhookSubscription
 
 Update a webhook subscription
 
@@ -42,17 +42,15 @@ type UpdateWebhookSubscription struct {
 func (o *UpdateWebhookSubscription) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdateWebhookSubscriptionParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

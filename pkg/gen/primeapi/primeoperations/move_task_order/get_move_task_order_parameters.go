@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetMoveTaskOrderParams creates a new GetMoveTaskOrderParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetMoveTaskOrderParams() GetMoveTaskOrderParams {
 
 	return GetMoveTaskOrderParams{}
@@ -49,7 +50,6 @@ func (o *GetMoveTaskOrderParams) BindRequest(r *http.Request, route *middleware.
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -65,7 +65,6 @@ func (o *GetMoveTaskOrderParams) bindMoveID(rawData []string, hasKey bool, forma
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveID = raw
 
 	return nil

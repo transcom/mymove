@@ -18,56 +18,70 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// NewCreatePaymentRequestParams creates a new CreatePaymentRequestParams object
-// with the default values initialized.
+// NewCreatePaymentRequestParams creates a new CreatePaymentRequestParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreatePaymentRequestParams() *CreatePaymentRequestParams {
-	var ()
 	return &CreatePaymentRequestParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreatePaymentRequestParamsWithTimeout creates a new CreatePaymentRequestParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreatePaymentRequestParamsWithTimeout(timeout time.Duration) *CreatePaymentRequestParams {
-	var ()
 	return &CreatePaymentRequestParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreatePaymentRequestParamsWithContext creates a new CreatePaymentRequestParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreatePaymentRequestParamsWithContext(ctx context.Context) *CreatePaymentRequestParams {
-	var ()
 	return &CreatePaymentRequestParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreatePaymentRequestParamsWithHTTPClient creates a new CreatePaymentRequestParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreatePaymentRequestParamsWithHTTPClient(client *http.Client) *CreatePaymentRequestParams {
-	var ()
 	return &CreatePaymentRequestParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreatePaymentRequestParams contains all the parameters to send to the API endpoint
-for the create payment request operation typically these are written to a http.Request
+/* CreatePaymentRequestParams contains all the parameters to send to the API endpoint
+   for the create payment request operation.
+
+   Typically these are written to a http.Request.
 */
 type CreatePaymentRequestParams struct {
 
-	/*Body*/
+	// Body.
 	Body *primemessages.CreatePaymentRequest
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create payment request params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreatePaymentRequestParams) WithDefaults() *CreatePaymentRequestParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create payment request params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreatePaymentRequestParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create payment request params
@@ -121,7 +135,6 @@ func (o *CreatePaymentRequestParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

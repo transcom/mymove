@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -27,18 +29,22 @@ type User struct {
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// current admin session Id
+	// Example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
 	// Required: true
 	CurrentAdminSessionID *string `json:"currentAdminSessionId"`
 
 	// current mil session Id
+	// Example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
 	// Required: true
 	CurrentMilSessionID *string `json:"currentMilSessionId"`
 
 	// current office session Id
+	// Example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
 	// Required: true
 	CurrentOfficeSessionID *string `json:"currentOfficeSessionId"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -145,7 +151,6 @@ func (m *User) validateCurrentOfficeSessionID(formats strfmt.Registry) error {
 }
 
 func (m *User) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -163,7 +168,7 @@ func (m *User) validateLoginGovEmail(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.Pattern("loginGovEmail", "body", string(*m.LoginGovEmail), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("loginGovEmail", "body", *m.LoginGovEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -180,6 +185,11 @@ func (m *User) validateUpdatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this user based on context it is used
+func (m *User) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

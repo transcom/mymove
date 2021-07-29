@@ -65,9 +65,8 @@ func (o *ProcessReviewedPaymentRequestsReader) ReadResponse(response runtime.Cli
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -76,7 +75,7 @@ func NewProcessReviewedPaymentRequestsOK() *ProcessReviewedPaymentRequestsOK {
 	return &ProcessReviewedPaymentRequestsOK{}
 }
 
-/*ProcessReviewedPaymentRequestsOK handles this case with default header values.
+/* ProcessReviewedPaymentRequestsOK describes a response with status code 200, with default header values.
 
 Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
 */
@@ -87,7 +86,6 @@ type ProcessReviewedPaymentRequestsOK struct {
 func (o *ProcessReviewedPaymentRequestsOK) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsOK  %+v", 200, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsOK) GetPayload() supportmessages.PaymentRequests {
 	return o.Payload
 }
@@ -107,7 +105,7 @@ func NewProcessReviewedPaymentRequestsBadRequest() *ProcessReviewedPaymentReques
 	return &ProcessReviewedPaymentRequestsBadRequest{}
 }
 
-/*ProcessReviewedPaymentRequestsBadRequest handles this case with default header values.
+/* ProcessReviewedPaymentRequestsBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -118,7 +116,6 @@ type ProcessReviewedPaymentRequestsBadRequest struct {
 func (o *ProcessReviewedPaymentRequestsBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -140,7 +137,7 @@ func NewProcessReviewedPaymentRequestsUnauthorized() *ProcessReviewedPaymentRequ
 	return &ProcessReviewedPaymentRequestsUnauthorized{}
 }
 
-/*ProcessReviewedPaymentRequestsUnauthorized handles this case with default header values.
+/* ProcessReviewedPaymentRequestsUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -151,7 +148,6 @@ type ProcessReviewedPaymentRequestsUnauthorized struct {
 func (o *ProcessReviewedPaymentRequestsUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -173,7 +169,7 @@ func NewProcessReviewedPaymentRequestsForbidden() *ProcessReviewedPaymentRequest
 	return &ProcessReviewedPaymentRequestsForbidden{}
 }
 
-/*ProcessReviewedPaymentRequestsForbidden handles this case with default header values.
+/* ProcessReviewedPaymentRequestsForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -184,7 +180,6 @@ type ProcessReviewedPaymentRequestsForbidden struct {
 func (o *ProcessReviewedPaymentRequestsForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsForbidden  %+v", 403, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -206,7 +201,7 @@ func NewProcessReviewedPaymentRequestsNotFound() *ProcessReviewedPaymentRequests
 	return &ProcessReviewedPaymentRequestsNotFound{}
 }
 
-/*ProcessReviewedPaymentRequestsNotFound handles this case with default header values.
+/* ProcessReviewedPaymentRequestsNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -217,7 +212,6 @@ type ProcessReviewedPaymentRequestsNotFound struct {
 func (o *ProcessReviewedPaymentRequestsNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsNotFound  %+v", 404, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -239,7 +233,7 @@ func NewProcessReviewedPaymentRequestsUnprocessableEntity() *ProcessReviewedPaym
 	return &ProcessReviewedPaymentRequestsUnprocessableEntity{}
 }
 
-/*ProcessReviewedPaymentRequestsUnprocessableEntity handles this case with default header values.
+/* ProcessReviewedPaymentRequestsUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -250,7 +244,6 @@ type ProcessReviewedPaymentRequestsUnprocessableEntity struct {
 func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -272,7 +265,7 @@ func NewProcessReviewedPaymentRequestsInternalServerError() *ProcessReviewedPaym
 	return &ProcessReviewedPaymentRequestsInternalServerError{}
 }
 
-/*ProcessReviewedPaymentRequestsInternalServerError handles this case with default header values.
+/* ProcessReviewedPaymentRequestsInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -283,7 +276,6 @@ type ProcessReviewedPaymentRequestsInternalServerError struct {
 func (o *ProcessReviewedPaymentRequestsInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /payment-requests/process-reviewed][%d] processReviewedPaymentRequestsInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *ProcessReviewedPaymentRequestsInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }
