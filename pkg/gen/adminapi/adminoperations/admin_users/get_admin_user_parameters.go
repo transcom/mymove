@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetAdminUserParams creates a new GetAdminUserParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetAdminUserParams() GetAdminUserParams {
 
 	return GetAdminUserParams{}
@@ -50,7 +51,6 @@ func (o *GetAdminUserParams) BindRequest(r *http.Request, route *middleware.Matc
 	if err := o.bindAdminUserID(rAdminUserID, rhkAdminUserID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

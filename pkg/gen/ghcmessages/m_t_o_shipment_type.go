@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -14,9 +15,15 @@ import (
 )
 
 // MTOShipmentType Shipment Type
+// Example: HHG
 //
 // swagger:model MTOShipmentType
 type MTOShipmentType string
+
+func NewMTOShipmentType(value MTOShipmentType) *MTOShipmentType {
+	v := value
+	return &v
+}
 
 const (
 
@@ -74,5 +81,10 @@ func (m MTOShipmentType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this m t o shipment type based on context it is used
+func (m MTOShipmentType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

@@ -6,6 +6,8 @@ package apimessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,19 +20,23 @@ import (
 type TSP struct {
 
 	// contact email
+	// Example: john_bob@example.com
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	ContactEmail string `json:"contact_email,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// name
+	// Example: Moving Company, Inc.
 	// Max Length: 1024
 	// Min Length: 1
 	Name string `json:"name,omitempty"`
 
 	// The SCAC associated with the TSP
+	// Example: USPS
 	Scac string `json:"scac,omitempty"`
 }
 
@@ -57,12 +63,11 @@ func (m *TSP) Validate(formats strfmt.Registry) error {
 }
 
 func (m *TSP) validateContactEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ContactEmail) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("contact_email", "body", string(m.ContactEmail), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("contact_email", "body", m.ContactEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -70,7 +75,6 @@ func (m *TSP) validateContactEmail(formats strfmt.Registry) error {
 }
 
 func (m *TSP) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -83,19 +87,23 @@ func (m *TSP) validateID(formats strfmt.Registry) error {
 }
 
 func (m *TSP) validateName(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Name) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("name", "body", string(m.Name), 1); err != nil {
+	if err := validate.MinLength("name", "body", m.Name, 1); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("name", "body", string(m.Name), 1024); err != nil {
+	if err := validate.MaxLength("name", "body", m.Name, 1024); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this t s p based on context it is used
+func (m *TSP) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

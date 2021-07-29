@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -36,6 +37,7 @@ type CreateWeightTicketDocumentsPayload struct {
 	FullWeightTicketMissing *bool `json:"full_weight_ticket_missing"`
 
 	// personally procured move id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	PersonallyProcuredMoveID *strfmt.UUID `json:"personally_procured_move_id"`
@@ -57,6 +59,7 @@ type CreateWeightTicketDocumentsPayload struct {
 	VehicleNickname *string `json:"vehicle_nickname,omitempty"`
 
 	// Full Weight Ticket Date
+	// Example: 2018-04-26
 	// Format: date
 	WeightTicketDate *strfmt.Date `json:"weight_ticket_date,omitempty"`
 
@@ -112,12 +115,11 @@ func (m *CreateWeightTicketDocumentsPayload) Validate(formats strfmt.Registry) e
 }
 
 func (m *CreateWeightTicketDocumentsPayload) validateEmptyWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.EmptyWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("empty_weight", "body", int64(*m.EmptyWeight), 0, false); err != nil {
+	if err := validate.MinimumInt("empty_weight", "body", *m.EmptyWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -134,12 +136,11 @@ func (m *CreateWeightTicketDocumentsPayload) validateEmptyWeightTicketMissing(fo
 }
 
 func (m *CreateWeightTicketDocumentsPayload) validateFullWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FullWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("full_weight", "body", int64(*m.FullWeight), 0, false); err != nil {
+	if err := validate.MinimumInt("full_weight", "body", *m.FullWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -178,7 +179,6 @@ func (m *CreateWeightTicketDocumentsPayload) validateTrailerOwnershipMissing(for
 }
 
 func (m *CreateWeightTicketDocumentsPayload) validateUploadIds(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UploadIds) { // not required
 		return nil
 	}
@@ -195,7 +195,6 @@ func (m *CreateWeightTicketDocumentsPayload) validateUploadIds(formats strfmt.Re
 }
 
 func (m *CreateWeightTicketDocumentsPayload) validateWeightTicketDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightTicketDate) { // not required
 		return nil
 	}
@@ -213,8 +212,40 @@ func (m *CreateWeightTicketDocumentsPayload) validateWeightTicketSetType(formats
 		return err
 	}
 
+	if err := validate.Required("weight_ticket_set_type", "body", m.WeightTicketSetType); err != nil {
+		return err
+	}
+
 	if m.WeightTicketSetType != nil {
 		if err := m.WeightTicketSetType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("weight_ticket_set_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create weight ticket documents payload based on the context it is used
+func (m *CreateWeightTicketDocumentsPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateWeightTicketSetType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateWeightTicketDocumentsPayload) contextValidateWeightTicketSetType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.WeightTicketSetType != nil {
+		if err := m.WeightTicketSetType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("weight_ticket_set_type")
 			}

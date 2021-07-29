@@ -32,12 +32,14 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
+	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
+	movingExpenseType := internalmessages.MovingExpenseTypeWEIGHINGFEES
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
 		UploadIds:            uploadIds,
-		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType:     &moveDocumentType,
 		Title:                handlers.FmtString("awesome_document.pdf"),
 		Notes:                handlers.FmtString("Some notes here"),
-		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
+		MovingExpenseType:    &movingExpenseType,
 		PaymentMethod:        handlers.FmtString("GTCC"),
 		RequestedAmountCents: handlers.FmtInt64(2589),
 	}
@@ -75,7 +77,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Check that the status is correct
-	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
+	suite.Equal(*createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.DB())
@@ -97,11 +99,13 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingN
 	sm := move.Orders.ServiceMember
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
+	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
+	movingExpenseType := internalmessages.MovingExpenseTypeWEIGHINGFEES
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
-		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType:     &moveDocumentType,
 		Title:                handlers.FmtString("awesome_document.pdf"),
 		Notes:                handlers.FmtString("Some notes here"),
-		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
+		MovingExpenseType:    &movingExpenseType,
 		PaymentMethod:        handlers.FmtString("GTCC"),
 		ReceiptMissing:       true,
 		RequestedAmountCents: handlers.FmtInt64(2589),
@@ -122,7 +126,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingN
 	createdResponse := response.(*movedocop.CreateMovingExpenseDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
-	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
+	suite.Equal(*createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
 }
 
 func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNotMissingReceipt() {
@@ -130,11 +134,13 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNot
 	sm := move.Orders.ServiceMember
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
+	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
+	movingExpenseType := internalmessages.MovingExpenseTypeWEIGHINGFEES
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
-		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType:     &moveDocumentType,
 		Title:                handlers.FmtString("awesome_document.pdf"),
 		Notes:                handlers.FmtString("Some notes here"),
-		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
+		MovingExpenseType:    &movingExpenseType,
 		PaymentMethod:        handlers.FmtString("GTCC"),
 		ReceiptMissing:       false,
 		RequestedAmountCents: handlers.FmtInt64(2589),
@@ -160,11 +166,13 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerStorageExpense(
 	sm := move.Orders.ServiceMember
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
+	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
+	movingExpenseType := internalmessages.MovingExpenseTypeSTORAGE
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
-		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType:     &moveDocumentType,
 		Title:                handlers.FmtString("awesome_document.pdf"),
 		Notes:                handlers.FmtString("Some notes here"),
-		MovingExpenseType:    internalmessages.MovingExpenseTypeSTORAGE,
+		MovingExpenseType:    &movingExpenseType,
 		PaymentMethod:        handlers.FmtString("GTCC"),
 		ReceiptMissing:       true,
 		RequestedAmountCents: handlers.FmtInt64(200),

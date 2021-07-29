@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -24,6 +25,7 @@ type Upload struct {
 	Bytes *int64 `json:"bytes"`
 
 	// content type
+	// Example: application/pdf
 	// Required: true
 	ContentType *string `json:"contentType"`
 
@@ -33,10 +35,12 @@ type Upload struct {
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// filename
+	// Example: filename.pdf
 	// Required: true
 	Filename *string `json:"filename"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -51,6 +55,7 @@ type Upload struct {
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 
 	// url
+	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uri
 	URL *strfmt.URI `json:"url"`
@@ -184,7 +189,6 @@ func (m *Upload) validateStatusEnum(path, location string, value string) error {
 }
 
 func (m *Upload) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -220,6 +224,11 @@ func (m *Upload) validateURL(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this upload based on context it is used
+func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

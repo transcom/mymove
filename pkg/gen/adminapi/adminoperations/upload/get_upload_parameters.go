@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetUploadParams creates a new GetUploadParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetUploadParams() GetUploadParams {
 
 	return GetUploadParams{}
@@ -50,7 +51,6 @@ func (o *GetUploadParams) BindRequest(r *http.Request, route *middleware.Matched
 	if err := o.bindUploadID(rUploadID, rhkUploadID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

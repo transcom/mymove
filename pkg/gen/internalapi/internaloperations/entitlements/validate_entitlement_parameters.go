@@ -15,7 +15,8 @@ import (
 )
 
 // NewValidateEntitlementParams creates a new ValidateEntitlementParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewValidateEntitlementParams() ValidateEntitlementParams {
 
 	return ValidateEntitlementParams{}
@@ -50,7 +51,6 @@ func (o *ValidateEntitlementParams) BindRequest(r *http.Request, route *middlewa
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

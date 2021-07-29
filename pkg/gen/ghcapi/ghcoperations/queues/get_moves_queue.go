@@ -29,7 +29,7 @@ func NewGetMovesQueue(ctx *middleware.Context, handler GetMovesQueueHandler) *Ge
 	return &GetMovesQueue{Context: ctx, Handler: handler}
 }
 
-/*GetMovesQueue swagger:route GET /queues/moves queues getMovesQueue
+/* GetMovesQueue swagger:route GET /queues/moves queues getMovesQueue
 
 Gets queued list of all customer moves by GBLOC origin
 
@@ -45,17 +45,15 @@ type GetMovesQueue struct {
 func (o *GetMovesQueue) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetMovesQueueParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

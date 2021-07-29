@@ -28,6 +28,12 @@ const (
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
 	ServiceItemParamNameCubicFeetCrating ServiceItemParamName = "CubicFeetCrating"
+	// ServiceItemParamNameDimensionHeight is the param key name DimensionHeight
+	ServiceItemParamNameDimensionHeight ServiceItemParamName = "DimensionHeight"
+	// ServiceItemParamNameDimensionLength is the param key name DimensionLength
+	ServiceItemParamNameDimensionLength ServiceItemParamName = "DimensionLength"
+	// ServiceItemParamNameDimensionWidth is the param key name DimensionWidth
+	ServiceItemParamNameDimensionWidth ServiceItemParamName = "DimensionWidth"
 	// ServiceItemParamNameDistanceZip3 is the param key name DistanceZip3
 	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
 	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5

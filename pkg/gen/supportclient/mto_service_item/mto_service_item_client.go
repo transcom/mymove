@@ -25,9 +25,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams) (*UpdateMTOServiceItemStatusOK, error)
+	UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams, opts ...ClientOption) (*UpdateMTOServiceItemStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -40,13 +43,12 @@ type ClientService interface {
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams) (*UpdateMTOServiceItemStatusOK, error) {
+func (a *Client) UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams, opts ...ClientOption) (*UpdateMTOServiceItemStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOServiceItemStatusParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOServiceItemStatus",
 		Method:             "PATCH",
 		PathPattern:        "/mto-service-items/{mtoServiceItemID}/status",
@@ -57,7 +59,12 @@ func (a *Client) UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusPa
 		Reader:             &UpdateMTOServiceItemStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

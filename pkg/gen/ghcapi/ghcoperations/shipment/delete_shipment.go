@@ -29,7 +29,7 @@ func NewDeleteShipment(ctx *middleware.Context, handler DeleteShipmentHandler) *
 	return &DeleteShipment{Context: ctx, Handler: handler}
 }
 
-/*DeleteShipment swagger:route DELETE /shipments/{shipmentID} shipment deleteShipment
+/* DeleteShipment swagger:route DELETE /shipments/{shipmentID} shipment deleteShipment
 
 Soft deletes a shipment by ID
 
@@ -44,17 +44,15 @@ type DeleteShipment struct {
 func (o *DeleteShipment) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewDeleteShipmentParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

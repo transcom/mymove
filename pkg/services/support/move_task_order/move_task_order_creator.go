@@ -241,7 +241,7 @@ func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 		ID:            uuid.FromStringOrNil(customer.ID.String()),
 		Affiliation:   (*models.ServiceMemberAffiliation)(customer.Agency),
 		Edipi:         customer.DodID,
-		Rank:          (*models.ServiceMemberRank)(&customer.Rank),
+		Rank:          (*models.ServiceMemberRank)(customer.Rank),
 		FirstName:     customer.FirstName,
 		LastName:      customer.LastName,
 		PersonalEmail: customer.Email,
@@ -257,15 +257,25 @@ func OrderModel(orderPayload *supportmessages.Order) *models.Order {
 	if orderPayload == nil {
 		return nil
 	}
+
 	model := &models.Order{
 		ID:           uuid.FromStringOrNil(orderPayload.ID.String()),
-		Grade:        swag.String((string)(orderPayload.Rank)),
 		OrdersNumber: orderPayload.OrderNumber,
 		Entitlement:  EntitlementModel(orderPayload.Entitlement),
-		Status:       (models.OrderStatus)(orderPayload.Status),
 		IssueDate:    (time.Time)(*orderPayload.IssueDate),
-		OrdersType:   (internalmessages.OrdersType)(orderPayload.OrdersType),
 		TAC:          orderPayload.Tac,
+	}
+
+	if orderPayload.Rank != nil {
+		model.Grade = swag.String((string)(*orderPayload.Rank))
+	}
+
+	if orderPayload.Status != nil {
+		model.Status = (models.OrderStatus)(*orderPayload.Status)
+	}
+
+	if orderPayload.OrdersType != nil {
+		model.OrdersType = (internalmessages.OrdersType)(*orderPayload.OrdersType)
 	}
 
 	if orderPayload.CustomerID != nil {

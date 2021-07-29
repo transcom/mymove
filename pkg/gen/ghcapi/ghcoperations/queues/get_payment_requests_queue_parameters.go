@@ -18,7 +18,8 @@ import (
 )
 
 // NewGetPaymentRequestsQueueParams creates a new GetPaymentRequestsQueueParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetPaymentRequestsQueueParams() GetPaymentRequestsQueueParams {
 
 	return GetPaymentRequestsQueueParams{}
@@ -145,7 +146,6 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 	if err := o.bindSubmittedAt(qSubmittedAt, qhkSubmittedAt, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -161,10 +161,10 @@ func (o *GetPaymentRequestsQueueParams) bindBranch(rawData []string, hasKey bool
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Branch = &raw
 
 	return nil
@@ -179,10 +179,10 @@ func (o *GetPaymentRequestsQueueParams) bindDestinationDutyStation(rawData []str
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.DestinationDutyStation = &raw
 
 	return nil
@@ -197,10 +197,10 @@ func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool,
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.DodID = &raw
 
 	return nil
@@ -215,10 +215,10 @@ func (o *GetPaymentRequestsQueueParams) bindLastName(rawData []string, hasKey bo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.LastName = &raw
 
 	return nil
@@ -233,10 +233,10 @@ func (o *GetPaymentRequestsQueueParams) bindLocator(rawData []string, hasKey boo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Locator = &raw
 
 	return nil
@@ -251,10 +251,10 @@ func (o *GetPaymentRequestsQueueParams) bindOrder(rawData []string, hasKey bool,
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Order = &raw
 
 	if err := o.validateOrder(formats); err != nil {
@@ -283,6 +283,7 @@ func (o *GetPaymentRequestsQueueParams) bindPage(rawData []string, hasKey bool, 
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -305,6 +306,7 @@ func (o *GetPaymentRequestsQueueParams) bindPerPage(rawData []string, hasKey boo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -327,10 +329,10 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Sort = &raw
 
 	if err := o.validateSort(formats); err != nil {
@@ -354,7 +356,6 @@ func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) er
 //
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *GetPaymentRequestsQueueParams) bindStatus(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
 	var qvStatus string
 	if len(rawData) > 0 {
 		qvStatus = rawData[len(rawData)-1]
@@ -392,7 +393,6 @@ func (o *GetPaymentRequestsQueueParams) validateStatus(formats strfmt.Registry) 
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -405,6 +405,7 @@ func (o *GetPaymentRequestsQueueParams) bindSubmittedAt(rawData []string, hasKey
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}

@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowServiceMemberOrdersParams creates a new ShowServiceMemberOrdersParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowServiceMemberOrdersParams() ShowServiceMemberOrdersParams {
 
 	return ShowServiceMemberOrdersParams{}
@@ -50,7 +51,6 @@ func (o *ShowServiceMemberOrdersParams) BindRequest(r *http.Request, route *midd
 	if err := o.bindServiceMemberID(rServiceMemberID, rhkServiceMemberID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -72,6 +73,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		originDutyStation = *order.OriginDutyStation
 	}
 
+	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
 		ID:                    handlers.FmtUUID(order.ID),
 		CreatedAt:             handlers.FmtDateTime(order.CreatedAt),
@@ -79,7 +81,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		ServiceMemberID:       handlers.FmtUUID(order.ServiceMemberID),
 		IssueDate:             handlers.FmtDate(order.IssueDate),
 		ReportByDate:          handlers.FmtDate(order.ReportByDate),
-		OrdersType:            order.OrdersType,
+		OrdersType:            &ordersType,
 		OrdersTypeDetail:      order.OrdersTypeDetail,
 		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
 		Grade:                 order.Grade,
@@ -150,11 +152,14 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		deptIndicator = &converted
 	}
 
+	if payload.OrdersType == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
+	}
 	newOrder, verrs, err := serviceMember.CreateOrder(
 		h.DB(),
 		time.Time(*payload.IssueDate),
 		time.Time(*payload.ReportByDate),
-		payload.OrdersType,
+		*payload.OrdersType,
 		*payload.HasDependents,
 		*payload.SpouseHasProGear,
 		newDutyStation,
@@ -241,10 +246,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
+	if payload.OrdersType == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
+	}
+
 	order.OrdersNumber = payload.OrdersNumber
 	order.IssueDate = time.Time(*payload.IssueDate)
 	order.ReportByDate = time.Time(*payload.ReportByDate)
-	order.OrdersType = payload.OrdersType
+	order.OrdersType = *payload.OrdersType
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
 	order.SpouseHasProGear = *payload.SpouseHasProGear

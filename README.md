@@ -1002,7 +1002,7 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 
 #### Migrations
 
-To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/migrate-the-database)
+To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/Database-Migrations)
 
 Running migrations in local development:
 

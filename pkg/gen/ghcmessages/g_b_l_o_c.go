@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model GBLOC
 type GBLOC string
+
+func NewGBLOC(value GBLOC) *GBLOC {
+	v := value
+	return &v
+}
 
 const (
 
@@ -119,5 +125,10 @@ func (m GBLOC) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this g b l o c based on context it is used
+func (m GBLOC) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

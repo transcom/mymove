@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -22,6 +23,7 @@ type RateEnginePostalCodePayload struct {
 	// ZIP
 	//
 	// zip code, international allowed
+	// Example: '90210' or 'N15 3NL'
 	// Required: true
 	PostalCode *string `json:"postal_code"`
 
@@ -31,6 +33,7 @@ type RateEnginePostalCodePayload struct {
 	PostalCodeType *string `json:"postal_code_type"`
 
 	// valid
+	// Example: false
 	// Required: true
 	Valid *bool `json:"valid"`
 }
@@ -115,6 +118,11 @@ func (m *RateEnginePostalCodePayload) validateValid(formats strfmt.Registry) err
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this rate engine postal code payload based on context it is used
+func (m *RateEnginePostalCodePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

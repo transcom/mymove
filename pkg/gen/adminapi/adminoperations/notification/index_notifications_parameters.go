@@ -16,7 +16,8 @@ import (
 )
 
 // NewIndexNotificationsParams creates a new IndexNotificationsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexNotificationsParams() IndexNotificationsParams {
 
 	return IndexNotificationsParams{}
@@ -88,7 +89,6 @@ func (o *IndexNotificationsParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -104,10 +104,10 @@ func (o *IndexNotificationsParams) bindFilter(rawData []string, hasKey bool, for
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Filter = &raw
 
 	return nil
@@ -122,6 +122,7 @@ func (o *IndexNotificationsParams) bindOrder(rawData []string, hasKey bool, form
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -144,6 +145,7 @@ func (o *IndexNotificationsParams) bindPage(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -166,6 +168,7 @@ func (o *IndexNotificationsParams) bindPerPage(rawData []string, hasKey bool, fo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -188,10 +191,10 @@ func (o *IndexNotificationsParams) bindSort(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Sort = &raw
 
 	return nil

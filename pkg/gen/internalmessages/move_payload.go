@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type MovePayload struct {
 
 	// cancel reason
+	// Example: Change of orders
 	CancelReason *string `json:"cancel_reason,omitempty"`
 
 	// created at
@@ -26,11 +29,13 @@ type MovePayload struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// locator
+	// Example: 12432
 	// Required: true
 	Locator *string `json:"locator"`
 
@@ -38,6 +43,7 @@ type MovePayload struct {
 	MtoShipments MTOShipments `json:"mto_shipments,omitempty"`
 
 	// orders id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	OrdersID *strfmt.UUID `json:"orders_id"`
@@ -49,6 +55,7 @@ type MovePayload struct {
 	SelectedMoveType *SelectedMoveType `json:"selected_move_type,omitempty"`
 
 	// service member id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ServiceMemberID strfmt.UUID `json:"service_member_id,omitempty"`
@@ -156,7 +163,6 @@ func (m *MovePayload) validateLocator(formats strfmt.Registry) error {
 }
 
 func (m *MovePayload) validateMtoShipments(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoShipments) { // not required
 		return nil
 	}
@@ -185,7 +191,6 @@ func (m *MovePayload) validateOrdersID(formats strfmt.Registry) error {
 }
 
 func (m *MovePayload) validatePersonallyProcuredMoves(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonallyProcuredMoves) { // not required
 		return nil
 	}
@@ -201,7 +206,6 @@ func (m *MovePayload) validatePersonallyProcuredMoves(formats strfmt.Registry) e
 }
 
 func (m *MovePayload) validateSelectedMoveType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SelectedMoveType) { // not required
 		return nil
 	}
@@ -219,7 +223,6 @@ func (m *MovePayload) validateSelectedMoveType(formats strfmt.Registry) error {
 }
 
 func (m *MovePayload) validateServiceMemberID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
 	}
@@ -232,7 +235,6 @@ func (m *MovePayload) validateServiceMemberID(formats strfmt.Registry) error {
 }
 
 func (m *MovePayload) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -248,7 +250,6 @@ func (m *MovePayload) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *MovePayload) validateSubmittedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
 	}
@@ -267,6 +268,95 @@ func (m *MovePayload) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move payload based on the context it is used
+func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePersonallyProcuredMoves(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSelectedMoveType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateServiceMemberID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MovePayload) contextValidateMtoShipments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MtoShipments.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mto_shipments")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidatePersonallyProcuredMoves(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.PersonallyProcuredMoves.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("personally_procured_moves")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidateSelectedMoveType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SelectedMoveType != nil {
+		if err := m.SelectedMoveType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("selected_move_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidateServiceMemberID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "service_member_id", "body", strfmt.UUID(m.ServiceMemberID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

@@ -25,9 +25,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) (*UpdateMTOShipmentStatusOK, error)
+	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -38,13 +41,12 @@ type ClientService interface {
   Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in `rejectionReason` is required. <br /> <br /> This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) (*UpdateMTOShipmentStatusOK, error) {
+func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams, opts ...ClientOption) (*UpdateMTOShipmentStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOShipmentStatusParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "updateMTOShipmentStatus",
 		Method:             "PATCH",
 		PathPattern:        "/mto-shipments/{mtoShipmentID}/status",
@@ -55,7 +57,12 @@ func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) 
 		Reader:             &UpdateMTOShipmentStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

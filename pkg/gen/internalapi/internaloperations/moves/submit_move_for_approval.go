@@ -29,7 +29,7 @@ func NewSubmitMoveForApproval(ctx *middleware.Context, handler SubmitMoveForAppr
 	return &SubmitMoveForApproval{Context: ctx, Handler: handler}
 }
 
-/*SubmitMoveForApproval swagger:route POST /moves/{moveId}/submit moves submitMoveForApproval
+/* SubmitMoveForApproval swagger:route POST /moves/{moveId}/submit moves submitMoveForApproval
 
 Submits a move for approval
 
@@ -44,17 +44,15 @@ type SubmitMoveForApproval struct {
 func (o *SubmitMoveForApproval) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewSubmitMoveForApprovalParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

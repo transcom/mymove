@@ -29,7 +29,7 @@ func NewValidatePostalCodeWithRateData(ctx *middleware.Context, handler Validate
 	return &ValidatePostalCodeWithRateData{Context: ctx, Handler: handler}
 }
 
-/*ValidatePostalCodeWithRateData swagger:route GET /rate_engine_postal_codes/{postal_code} postal_codes validatePostalCodeWithRateData
+/* ValidatePostalCodeWithRateData swagger:route GET /rate_engine_postal_codes/{postal_code} postal_codes validatePostalCodeWithRateData
 
 Validate if a zipcode is valid for origin or destination location for a move.
 
@@ -44,17 +44,15 @@ type ValidatePostalCodeWithRateData struct {
 func (o *ValidatePostalCodeWithRateData) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewValidatePostalCodeWithRateDataParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }
