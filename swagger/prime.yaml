@@ -125,7 +125,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/{moveTaskOrderID}:
+  /move-task-orders/{moveID}:
     get:
       summary: getMoveTaskOrder
       description: |
@@ -139,9 +139,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - description: UUID of move task order to use.
+        - description: UUID or MoveCode of move task order to use.
           in: path
-          name: moveTaskOrderID
+          name: moveID
           required: true
           type: string
       responses:

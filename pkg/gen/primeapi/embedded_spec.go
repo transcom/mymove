@@ -126,7 +126,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}": {
+    "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
         "produces": [
@@ -140,8 +140,8 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "UUID of move task order to use.",
-            "name": "moveTaskOrderID",
+            "description": "UUID or MoveCode of move task order to use.",
+            "name": "moveID",
             "in": "path",
             "required": true
           }
@@ -3008,7 +3008,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}": {
+    "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
         "produces": [
@@ -3022,8 +3022,8 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "UUID of move task order to use.",
-            "name": "moveTaskOrderID",
+            "description": "UUID or MoveCode of move task order to use.",
+            "name": "moveID",
             "in": "path",
             "required": true
           }

@@ -72,7 +72,7 @@ type GetMoveTaskOrderOK struct {
 }
 
 func (o *GetMoveTaskOrderOK) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderOK  %+v", 200, o.Payload)
 }
 func (o *GetMoveTaskOrderOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
@@ -104,7 +104,7 @@ type GetMoveTaskOrderUnauthorized struct {
 }
 
 func (o *GetMoveTaskOrderUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
 func (o *GetMoveTaskOrderUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
@@ -136,7 +136,7 @@ type GetMoveTaskOrderForbidden struct {
 }
 
 func (o *GetMoveTaskOrderForbidden) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
 func (o *GetMoveTaskOrderForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
@@ -168,7 +168,7 @@ type GetMoveTaskOrderNotFound struct {
 }
 
 func (o *GetMoveTaskOrderNotFound) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
 func (o *GetMoveTaskOrderNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
@@ -200,7 +200,7 @@ type GetMoveTaskOrderInternalServerError struct {
 }
 
 func (o *GetMoveTaskOrderInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[GET /move-task-orders/{moveID}][%d] getMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
 func (o *GetMoveTaskOrderInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload

@@ -1,6 +1,7 @@
 package movetaskorder_test
 
 import (
+	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -18,20 +19,53 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
-	searchParams := services.MoveTaskOrderFetcherParams{
-		IncludeHidden: false,
-	}
 
-	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID, &searchParams)
-	suite.NoError(err)
+	suite.T().Run("Success with Prime-available move by ID", func(t *testing.T) {
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
 
-	suite.NotZero(expectedMTO.ID, actualMTO.ID)
-	suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
-	suite.NotZero(actualMTO.Orders)
-	suite.NotNil(expectedMTO.ReferenceID)
-	suite.NotNil(expectedMTO.Locator)
-	suite.Nil(expectedMTO.AvailableToPrimeAt)
-	suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(&searchParams)
+		suite.NoError(err)
+
+		suite.NotZero(expectedMTO.ID, actualMTO.ID)
+		suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
+		suite.NotZero(actualMTO.Orders)
+		suite.NotNil(expectedMTO.ReferenceID)
+		suite.NotNil(expectedMTO.Locator)
+		suite.Nil(expectedMTO.AvailableToPrimeAt)
+		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+	})
+
+	suite.T().Run("Success with Prime-available move by Locator", func(t *testing.T) {
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden: false,
+			Locator:       expectedMTO.Locator,
+		}
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(&searchParams)
+		suite.NoError(err)
+
+		suite.NotZero(expectedMTO.ID, actualMTO.ID)
+		suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
+		suite.NotZero(actualMTO.Orders)
+		suite.NotNil(expectedMTO.ReferenceID)
+		suite.NotNil(expectedMTO.Locator)
+		suite.Nil(expectedMTO.AvailableToPrimeAt)
+		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
+	})
+
+	suite.T().Run("Failure - Not Found with Bad ID", func(t *testing.T) {
+		badID, _ := uuid.NewV4()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: badID,
+		}
+
+		_, err := mtoFetcher.FetchMoveTaskOrder(&searchParams)
+		suite.Error(err)
+	})
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {

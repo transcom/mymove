@@ -59,11 +59,11 @@ func NewGetMoveTaskOrderParamsWithHTTPClient(client *http.Client) *GetMoveTaskOr
 */
 type GetMoveTaskOrderParams struct {
 
-	/* MoveTaskOrderID.
+	/* MoveID.
 
-	   UUID of move task order to use.
+	   UUID or MoveCode of move task order to use.
 	*/
-	MoveTaskOrderID string
+	MoveID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -118,15 +118,15 @@ func (o *GetMoveTaskOrderParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithMoveTaskOrderID adds the moveTaskOrderID to the get move task order params
-func (o *GetMoveTaskOrderParams) WithMoveTaskOrderID(moveTaskOrderID string) *GetMoveTaskOrderParams {
-	o.SetMoveTaskOrderID(moveTaskOrderID)
+// WithMoveID adds the moveID to the get move task order params
+func (o *GetMoveTaskOrderParams) WithMoveID(moveID string) *GetMoveTaskOrderParams {
+	o.SetMoveID(moveID)
 	return o
 }
 
-// SetMoveTaskOrderID adds the moveTaskOrderId to the get move task order params
-func (o *GetMoveTaskOrderParams) SetMoveTaskOrderID(moveTaskOrderID string) {
-	o.MoveTaskOrderID = moveTaskOrderID
+// SetMoveID adds the moveId to the get move task order params
+func (o *GetMoveTaskOrderParams) SetMoveID(moveID string) {
+	o.MoveID = moveID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -137,8 +137,8 @@ func (o *GetMoveTaskOrderParams) WriteToRequest(r runtime.ClientRequest, reg str
 	}
 	var res []error
 
-	// path param moveTaskOrderID
-	if err := r.SetPathParam("moveTaskOrderID", o.MoveTaskOrderID); err != nil {
+	// path param moveID
+	if err := r.SetPathParam("moveID", o.MoveID); err != nil {
 		return err
 	}
 
