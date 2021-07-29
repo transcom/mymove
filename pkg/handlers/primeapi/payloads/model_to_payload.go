@@ -485,25 +485,26 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
-		payload = &primemessages.MTOServiceItemDomesticCrating{
+		cratingSI := primemessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Item: &primemessages.MTOServiceItemDimension{
-				ID:     strfmt.UUID(item.ID.String()),
-				Type:   primemessages.DimensionType(item.Type),
-				Height: item.Height.Int32Ptr(),
-				Length: item.Length.Int32Ptr(),
-				Width:  item.Width.Int32Ptr(),
-			},
-			Crate: &primemessages.MTOServiceItemDimension{
-				ID:     strfmt.UUID(crate.ID.String()),
-				Type:   primemessages.DimensionType(crate.Type),
-				Height: crate.Height.Int32Ptr(),
-				Length: crate.Length.Int32Ptr(),
-				Width:  crate.Width.Int32Ptr(),
-			},
-			Description: mtoServiceItem.Description,
-			Reason:      mtoServiceItem.Reason,
+			Description:   mtoServiceItem.Description,
+			Reason:        mtoServiceItem.Reason,
 		}
+		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Type:   primemessages.DimensionType(item.Type),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Type:   primemessages.DimensionType(crate.Type),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		payload = &cratingSI
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primemessages.MTOServiceItemShuttle{
 			Description:     mtoServiceItem.Description,

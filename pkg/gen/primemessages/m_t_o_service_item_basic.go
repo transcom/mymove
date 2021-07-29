@@ -360,6 +360,10 @@ func (m *MTOServiceItemBasic) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -385,6 +389,15 @@ func (m *MTOServiceItemBasic) ContextValidate(ctx context.Context, formats strfm
 func (m *MTOServiceItemBasic) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID())); err != nil {
 		return err
 	}
 

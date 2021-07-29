@@ -47,9 +47,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		ReServiceCode: &dcrtCode,
 		Reason:        &reason,
 		Description:   &description,
-		Item:          item,
-		Crate:         crate,
 	}
+	DCRTServiceItem.Item.MTOServiceItemDimension = *item
+	DCRTServiceItem.Crate.MTOServiceItemDimension = *crate
 
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
@@ -97,9 +97,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 			ReServiceCode: &dcrtCode,
 			Reason:        &reason,
 			Description:   &description,
-			Item:          item,
-			Crate:         badCrate,
 		}
+		badDCRTServiceItem.Item.MTOServiceItemDimension = *item
+		badDCRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
 
 		badDCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 		badDCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)

@@ -34,25 +34,30 @@ type MTOServiceItemDomesticCrating struct {
 
 	statusField MTOServiceItemStatus
 
-	// crate
+	// The dimensions for the crate the item will be shipped in.
 	// Required: true
-	Crate *MTOServiceItemDimension `json:"crate"`
+	Crate struct {
+		MTOServiceItemDimension
+	} `json:"crate"`
 
-	// description
+	// A description of the item being crated.
 	// Example: Decorated horse head to be crated.
 	// Required: true
 	Description *string `json:"description"`
 
-	// item
+	// The dimensions of the item being crated.
 	// Required: true
-	Item *MTOServiceItemDimension `json:"item"`
+	Item struct {
+		MTOServiceItemDimension
+	} `json:"item"`
 
-	// Service codes allowed for this model type.
+	// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 	// Required: true
 	// Enum: [DCRT DCRTSA DUCRT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// Explanation of why Prime is picking up crating item.
+	// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+	//
 	// Example: Storage items need to be picked up
 	Reason *string `json:"reason"`
 }
@@ -140,25 +145,30 @@ func (m *MTOServiceItemDomesticCrating) SetStatus(val MTOServiceItemStatus) {
 func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
-		// crate
+		// The dimensions for the crate the item will be shipped in.
 		// Required: true
-		Crate *MTOServiceItemDimension `json:"crate"`
+		Crate struct {
+			MTOServiceItemDimension
+		} `json:"crate"`
 
-		// description
+		// A description of the item being crated.
 		// Example: Decorated horse head to be crated.
 		// Required: true
 		Description *string `json:"description"`
 
-		// item
+		// The dimensions of the item being crated.
 		// Required: true
-		Item *MTOServiceItemDimension `json:"item"`
+		Item struct {
+			MTOServiceItemDimension
+		} `json:"item"`
 
-		// Service codes allowed for this model type.
+		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
 		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why Prime is picking up crating item.
+		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+		//
 		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
 	}
@@ -234,25 +244,30 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 	var err error
 	b1, err = json.Marshal(struct {
 
-		// crate
+		// The dimensions for the crate the item will be shipped in.
 		// Required: true
-		Crate *MTOServiceItemDimension `json:"crate"`
+		Crate struct {
+			MTOServiceItemDimension
+		} `json:"crate"`
 
-		// description
+		// A description of the item being crated.
 		// Example: Decorated horse head to be crated.
 		// Required: true
 		Description *string `json:"description"`
 
-		// item
+		// The dimensions of the item being crated.
 		// Required: true
-		Item *MTOServiceItemDimension `json:"item"`
+		Item struct {
+			MTOServiceItemDimension
+		} `json:"item"`
 
-		// Service codes allowed for this model type.
+		// A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
 		// Required: true
 		// Enum: [DCRT DCRTSA DUCRT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Explanation of why Prime is picking up crating item.
+		// The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.
+		//
 		// Example: Storage items need to be picked up
 		Reason *string `json:"reason"`
 	}{
@@ -410,19 +425,6 @@ func (m *MTOServiceItemDomesticCrating) validateStatus(formats strfmt.Registry) 
 
 func (m *MTOServiceItemDomesticCrating) validateCrate(formats strfmt.Registry) error {
 
-	if err := validate.Required("crate", "body", m.Crate); err != nil {
-		return err
-	}
-
-	if m.Crate != nil {
-		if err := m.Crate.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("crate")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -436,19 +438,6 @@ func (m *MTOServiceItemDomesticCrating) validateDescription(formats strfmt.Regis
 }
 
 func (m *MTOServiceItemDomesticCrating) validateItem(formats strfmt.Registry) error {
-
-	if err := validate.Required("item", "body", m.Item); err != nil {
-		return err
-	}
-
-	if m.Item != nil {
-		if err := m.Item.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("item")
-			}
-			return err
-		}
-	}
 
 	return nil
 }
@@ -495,6 +484,10 @@ func (m *MTOServiceItemDomesticCrating) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -524,6 +517,15 @@ func (m *MTOServiceItemDomesticCrating) ContextValidate(ctx context.Context, for
 func (m *MTOServiceItemDomesticCrating) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDomesticCrating) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID())); err != nil {
 		return err
 	}
 
@@ -574,28 +576,10 @@ func (m *MTOServiceItemDomesticCrating) contextValidateStatus(ctx context.Contex
 
 func (m *MTOServiceItemDomesticCrating) contextValidateCrate(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.Crate != nil {
-		if err := m.Crate.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("crate")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
 func (m *MTOServiceItemDomesticCrating) contextValidateItem(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Item != nil {
-		if err := m.Item.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("item")
-			}
-			return err
-		}
-	}
 
 	return nil
 }

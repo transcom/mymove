@@ -26,13 +26,14 @@ type MTOServiceItem interface {
 	runtime.Validatable
 	runtime.ContextValidatable
 
-	// ETag identifier required to update this object
+	// A hash unique to this service item that should be used as the "If-Match" header for any updates.
 	// Read Only: true
 	ETag() string
 	SetETag(string)
 
-	// ID of the service item
+	// The ID of the service item.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+	// Read Only: true
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -42,25 +43,25 @@ type MTOServiceItem interface {
 	ModelType() MTOServiceItemModelType
 	SetModelType(MTOServiceItemModelType)
 
-	// ID of the associated moveTaskOrder
+	// The ID of the move for this service item.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID() *strfmt.UUID
 	SetMoveTaskOrderID(*strfmt.UUID)
 
-	// ID of the associated mtoShipment
+	// The ID of the shipment this service is for, if any. Optional.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// Full descriptive name of the service
+	// The full descriptive name of the service.
 	// Read Only: true
 	ReServiceName() string
 	SetReServiceName(string)
 
-	// Reason the service item was rejected by the TOO
+	// The reason why this service item was rejected by the TOO.
 	// Example: item was too heavy
 	// Read Only: true
 	RejectionReason() *string
@@ -343,6 +344,10 @@ func (m *mTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateModelType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -368,6 +373,15 @@ func (m *mTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 func (m *mTOServiceItem) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID())); err != nil {
 		return err
 	}
 
