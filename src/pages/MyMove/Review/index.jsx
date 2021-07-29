@@ -4,10 +4,9 @@ import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router';
 
-import { MatchShape } from '../../../types/router';
-
 import styles from './Review.module.scss';
 
+import { MatchShape } from 'types/router';
 import ScrollToTop from 'components/ScrollToTop';
 import { hasShortHaulError } from 'utils/incentives';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
