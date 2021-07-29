@@ -227,12 +227,11 @@ describe('EditOrdersForm component', () => {
 
     await waitFor(() => {
       expect(submitButton).toBeDisabled();
-      expect(
-        screen.queryByText(
-          'You entered the same duty station for your origin and destination. Please change one of them.',
-        ),
-      ).toBeInTheDocument();
     });
+
+    expect(
+      screen.getByText('You entered the same duty station for your origin and destination. Please change one of them.'),
+    ).toBeInTheDocument();
   });
 
   it('shows an error message if the form is invalid', async () => {
