@@ -150,20 +150,31 @@ func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessa
 		MiddleName:          rev.Member.MiddleName,
 		FamilyName:          rev.Member.FamilyName,
 		NameSuffix:          rev.Member.Suffix,
-		Affiliation:         models.ElectronicOrdersAffiliation(rev.Member.Affiliation),
-		Paygrade:            models.Paygrade(rev.Member.Rank),
 		Title:               rev.Member.Title,
-		Status:              models.ElectronicOrdersStatus(rev.Status),
 		DateIssued:          dateIssued,
 		NoCostMove:          rev.NoCostMove,
 		TdyEnRoute:          rev.TdyEnRoute,
 		TourType:            models.TourType(tourType),
-		OrdersType:          models.ElectronicOrdersType(rev.OrdersType),
 		HasDependents:       *rev.HasDependents,
 		ReportNoEarlierThan: (*time.Time)(rev.ReportNoEarlierThan),
 		ReportNoLaterThan:   (*time.Time)(rev.ReportNoLaterThan),
 		Comments:            rev.Comments,
 	}
+
+	// todo should i raise errors for any of these?
+	if rev.Member.Affiliation != nil {
+		newRevision.Affiliation = models.ElectronicOrdersAffiliation(*rev.Member.Affiliation)
+	}
+	if rev.Member.Rank != nil {
+		newRevision.Paygrade = models.Paygrade(*rev.Member.Rank)
+	}
+	if rev.Status != nil {
+		newRevision.Status = models.ElectronicOrdersStatus(*rev.Status)
+	}
+	if rev.OrdersType != nil {
+		newRevision.OrdersType = models.ElectronicOrdersType(*rev.OrdersType)
+	}
+
 	if rev.LosingUnit != nil {
 		newRevision.LosingUIC = rev.LosingUnit.Uic
 		newRevision.LosingUnitName = rev.LosingUnit.Name

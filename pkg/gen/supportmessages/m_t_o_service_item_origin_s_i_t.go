@@ -7,6 +7,7 @@ package supportmessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -39,6 +40,7 @@ type MTOServiceItemOriginSIT struct {
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// Explanation of why Prime is picking up SIT item.
+	// Example: Storage items need to be picked up
 	// Required: true
 	Reason *string `json:"reason"`
 
@@ -52,6 +54,7 @@ type MTOServiceItemOriginSIT struct {
 	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 	// sit postal code
+	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	SitPostalCode *string `json:"sitPostalCode"`
@@ -146,6 +149,7 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
+		// Example: Storage items need to be picked up
 		// Required: true
 		Reason *string `json:"reason"`
 
@@ -159,6 +163,7 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// sit postal code
+		// Example: 90210
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		SitPostalCode *string `json:"sitPostalCode"`
@@ -241,6 +246,7 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
+		// Example: Storage items need to be picked up
 		// Required: true
 		Reason *string `json:"reason"`
 
@@ -254,6 +260,7 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// sit postal code
+		// Example: 90210
 		// Required: true
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		SitPostalCode *string `json:"sitPostalCode"`
@@ -489,7 +496,71 @@ func (m *MTOServiceItemOriginSIT) validateSitPostalCode(formats strfmt.Registry)
 		return err
 	}
 
-	if err := validate.Pattern("sitPostalCode", "body", string(*m.SitPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("sitPostalCode", "body", *m.SitPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item origin s i t based on the context it is used
+func (m *MTOServiceItemOriginSIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemOriginSIT) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

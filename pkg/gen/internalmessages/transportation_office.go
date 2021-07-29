@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -29,21 +30,26 @@ type TransportationOffice struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// gbloc
+	// Example: JENQ
 	// Pattern: ^[A-Z]{4}$
 	Gbloc string `json:"gbloc,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// latitude
+	// Example: 29.382973
 	Latitude float32 `json:"latitude,omitempty"`
 
 	// longitude
+	// Example: -98.62759
 	Longitude float32 `json:"longitude,omitempty"`
 
 	// name
+	// Example: Fort Bragg North Station
 	// Required: true
 	Name *string `json:"name"`
 
@@ -126,12 +132,11 @@ func (m *TransportationOffice) validateCreatedAt(formats strfmt.Registry) error 
 }
 
 func (m *TransportationOffice) validateGbloc(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Gbloc) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("gbloc", "body", string(m.Gbloc), `^[A-Z]{4}$`); err != nil {
+	if err := validate.Pattern("gbloc", "body", m.Gbloc, `^[A-Z]{4}$`); err != nil {
 		return err
 	}
 
@@ -161,14 +166,13 @@ func (m *TransportationOffice) validateName(formats strfmt.Registry) error {
 }
 
 func (m *TransportationOffice) validatePhoneLines(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PhoneLines) { // not required
 		return nil
 	}
 
 	for i := 0; i < len(m.PhoneLines); i++ {
 
-		if err := validate.Pattern("phone_lines"+"."+strconv.Itoa(i), "body", string(m.PhoneLines[i]), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+		if err := validate.Pattern("phone_lines"+"."+strconv.Itoa(i), "body", m.PhoneLines[i], `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 			return err
 		}
 
@@ -185,6 +189,34 @@ func (m *TransportationOffice) validateUpdatedAt(formats strfmt.Registry) error 
 
 	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this transportation office based on the context it is used
+func (m *TransportationOffice) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *TransportationOffice) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Address != nil {
+		if err := m.Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("address")
+			}
+			return err
+		}
 	}
 
 	return nil

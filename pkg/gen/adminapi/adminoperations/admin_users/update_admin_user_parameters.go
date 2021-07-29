@@ -6,6 +6,7 @@ package admin_users
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateAdminUserParams creates a new UpdateAdminUserParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateAdminUserParams() UpdateAdminUserParams {
 
 	return UpdateAdminUserParams{}
@@ -70,6 +72,11 @@ func (o *UpdateAdminUserParams) BindRequest(r *http.Request, route *middleware.M
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.AdminUser = &body
 			}
@@ -77,11 +84,11 @@ func (o *UpdateAdminUserParams) BindRequest(r *http.Request, route *middleware.M
 	} else {
 		res = append(res, errors.Required("adminUser", "body", ""))
 	}
+
 	rAdminUserID, rhkAdminUserID, _ := route.Params.GetOK("adminUserId")
 	if err := o.bindAdminUserID(rAdminUserID, rhkAdminUserID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

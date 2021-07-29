@@ -16,64 +16,79 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewCreateUploadParams creates a new CreateUploadParams object
-// with the default values initialized.
+// NewCreateUploadParams creates a new CreateUploadParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreateUploadParams() *CreateUploadParams {
-	var ()
 	return &CreateUploadParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreateUploadParamsWithTimeout creates a new CreateUploadParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreateUploadParamsWithTimeout(timeout time.Duration) *CreateUploadParams {
-	var ()
 	return &CreateUploadParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreateUploadParamsWithContext creates a new CreateUploadParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreateUploadParamsWithContext(ctx context.Context) *CreateUploadParams {
-	var ()
 	return &CreateUploadParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreateUploadParamsWithHTTPClient creates a new CreateUploadParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreateUploadParamsWithHTTPClient(client *http.Client) *CreateUploadParams {
-	var ()
 	return &CreateUploadParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreateUploadParams contains all the parameters to send to the API endpoint
-for the create upload operation typically these are written to a http.Request
+/* CreateUploadParams contains all the parameters to send to the API endpoint
+   for the create upload operation.
+
+   Typically these are written to a http.Request.
 */
 type CreateUploadParams struct {
 
-	/*File
-	  The file to upload.
+	/* File.
 
+	   The file to upload.
 	*/
 	File runtime.NamedReadCloser
-	/*PaymentRequestID
-	  UUID of payment request to use.
 
+	/* PaymentRequestID.
+
+	   UUID of payment request to use.
 	*/
 	PaymentRequestID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create upload params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateUploadParams) WithDefaults() *CreateUploadParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create upload params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateUploadParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create upload params
@@ -138,7 +153,6 @@ func (o *CreateUploadParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	// form file param file
 	if err := r.SetFileParam("file", o.File); err != nil {
 		return err

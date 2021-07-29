@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type CancelMove struct {
 
 	// cancel reason
+	// Example: Change of orders
 	// Required: true
 	CancelReason *string `json:"cancel_reason"`
 }
@@ -42,6 +45,11 @@ func (m *CancelMove) validateCancelReason(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this cancel move based on context it is used
+func (m *CancelMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

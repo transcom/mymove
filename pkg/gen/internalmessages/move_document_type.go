@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -14,9 +15,15 @@ import (
 )
 
 // MoveDocumentType Document type
+// Example: EXPENSE
 //
 // swagger:model MoveDocumentType
 type MoveDocumentType string
+
+func NewMoveDocumentType(value MoveDocumentType) *MoveDocumentType {
+	v := value
+	return &v
+}
 
 const (
 
@@ -71,5 +78,10 @@ func (m MoveDocumentType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this move document type based on context it is used
+func (m MoveDocumentType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

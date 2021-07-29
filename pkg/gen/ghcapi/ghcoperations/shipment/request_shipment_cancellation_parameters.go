@@ -15,7 +15,8 @@ import (
 )
 
 // NewRequestShipmentCancellationParams creates a new RequestShipmentCancellationParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewRequestShipmentCancellationParams() RequestShipmentCancellationParams {
 
 	return RequestShipmentCancellationParams{}
@@ -59,7 +60,6 @@ func (o *RequestShipmentCancellationParams) BindRequest(r *http.Request, route *
 	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -81,7 +81,6 @@ func (o *RequestShipmentCancellationParams) bindIfMatch(rawData []string, hasKey
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

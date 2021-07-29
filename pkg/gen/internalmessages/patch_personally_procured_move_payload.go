@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,10 +21,12 @@ import (
 type PatchPersonallyProcuredMovePayload struct {
 
 	// When did you actually move?
+	// Example: 2018-04-26
 	// Format: date
 	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
 
 	// ZIP code
+	// Example: 90210
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	AdditionalPickupPostalCode *string `json:"additional_pickup_postal_code,omitempty"`
 
@@ -39,6 +42,7 @@ type PatchPersonallyProcuredMovePayload struct {
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`
 
 	// ZIP code
+	// Example: 90210
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
 
@@ -72,10 +76,12 @@ type PatchPersonallyProcuredMovePayload struct {
 	NetWeight *int64 `json:"net_weight,omitempty"`
 
 	// When do you plan to move?
+	// Example: 2018-04-26
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
 	// ZIP code
+	// Example: 90210
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickup_postal_code,omitempty"`
 
@@ -166,7 +172,6 @@ func (m *PatchPersonallyProcuredMovePayload) Validate(formats strfmt.Registry) e
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateActualMoveDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ActualMoveDate) { // not required
 		return nil
 	}
@@ -179,12 +184,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateActualMoveDate(formats strf
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateAdditionalPickupPostalCode(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AdditionalPickupPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("additional_pickup_postal_code", "body", string(*m.AdditionalPickupPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("additional_pickup_postal_code", "body", *m.AdditionalPickupPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -192,7 +196,6 @@ func (m *PatchPersonallyProcuredMovePayload) validateAdditionalPickupPostalCode(
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateAdvance(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Advance) { // not required
 		return nil
 	}
@@ -210,7 +213,6 @@ func (m *PatchPersonallyProcuredMovePayload) validateAdvance(formats strfmt.Regi
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateAdvanceWorksheet(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AdvanceWorksheet) { // not required
 		return nil
 	}
@@ -228,16 +230,15 @@ func (m *PatchPersonallyProcuredMovePayload) validateAdvanceWorksheet(formats st
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateDaysInStorage(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DaysInStorage) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("days_in_storage", "body", int64(*m.DaysInStorage), 0, false); err != nil {
+	if err := validate.MinimumInt("days_in_storage", "body", *m.DaysInStorage, 0, false); err != nil {
 		return err
 	}
 
-	if err := validate.MaximumInt("days_in_storage", "body", int64(*m.DaysInStorage), 90, false); err != nil {
+	if err := validate.MaximumInt("days_in_storage", "body", *m.DaysInStorage, 90, false); err != nil {
 		return err
 	}
 
@@ -245,12 +246,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateDaysInStorage(formats strfm
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateDestinationPostalCode(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("destination_postal_code", "body", string(*m.DestinationPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("destination_postal_code", "body", *m.DestinationPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -290,7 +290,6 @@ func (m *PatchPersonallyProcuredMovePayload) validateHasProGearEnum(path, locati
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateHasProGear(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.HasProGear) { // not required
 		return nil
 	}
@@ -336,7 +335,6 @@ func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousandEnum(
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousand(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.HasProGearOverThousand) { // not required
 		return nil
 	}
@@ -350,12 +348,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousand(form
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMax(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.IncentiveEstimateMax) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("incentive_estimate_max", "body", int64(*m.IncentiveEstimateMax), 1, false); err != nil {
+	if err := validate.MinimumInt("incentive_estimate_max", "body", *m.IncentiveEstimateMax, 1, false); err != nil {
 		return err
 	}
 
@@ -363,12 +360,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMax(format
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMin(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.IncentiveEstimateMin) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("incentive_estimate_min", "body", int64(*m.IncentiveEstimateMin), 1, false); err != nil {
+	if err := validate.MinimumInt("incentive_estimate_min", "body", *m.IncentiveEstimateMin, 1, false); err != nil {
 		return err
 	}
 
@@ -376,12 +372,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateIncentiveEstimateMin(format
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateNetWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.NetWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("net_weight", "body", int64(*m.NetWeight), 1, false); err != nil {
+	if err := validate.MinimumInt("net_weight", "body", *m.NetWeight, 1, false); err != nil {
 		return err
 	}
 
@@ -389,7 +384,6 @@ func (m *PatchPersonallyProcuredMovePayload) validateNetWeight(formats strfmt.Re
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateOriginalMoveDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginalMoveDate) { // not required
 		return nil
 	}
@@ -402,12 +396,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateOriginalMoveDate(formats st
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validatePickupPostalCode(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("pickup_postal_code", "body", string(*m.PickupPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("pickup_postal_code", "body", *m.PickupPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -415,7 +408,6 @@ func (m *PatchPersonallyProcuredMovePayload) validatePickupPostalCode(formats st
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateSize(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Size) { // not required
 		return nil
 	}
@@ -433,12 +425,11 @@ func (m *PatchPersonallyProcuredMovePayload) validateSize(formats strfmt.Registr
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateTotalSitCost(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.TotalSitCost) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("total_sit_cost", "body", int64(*m.TotalSitCost), 1, false); err != nil {
+	if err := validate.MinimumInt("total_sit_cost", "body", *m.TotalSitCost, 1, false); err != nil {
 		return err
 	}
 
@@ -446,13 +437,76 @@ func (m *PatchPersonallyProcuredMovePayload) validateTotalSitCost(formats strfmt
 }
 
 func (m *PatchPersonallyProcuredMovePayload) validateWeightEstimate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightEstimate) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("weight_estimate", "body", int64(*m.WeightEstimate), 0, false); err != nil {
+	if err := validate.MinimumInt("weight_estimate", "body", *m.WeightEstimate, 0, false); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this patch personally procured move payload based on the context it is used
+func (m *PatchPersonallyProcuredMovePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAdvance(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAdvanceWorksheet(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSize(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) contextValidateAdvance(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Advance != nil {
+		if err := m.Advance.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advance")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) contextValidateAdvanceWorksheet(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.AdvanceWorksheet != nil {
+		if err := m.AdvanceWorksheet.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advance_worksheet")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) contextValidateSize(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Size != nil {
+		if err := m.Size.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("size")
+			}
+			return err
+		}
 	}
 
 	return nil

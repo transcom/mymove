@@ -16,7 +16,8 @@ import (
 )
 
 // NewGetUserParams creates a new GetUserParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetUserParams() GetUserParams {
 
 	return GetUserParams{}
@@ -53,7 +54,6 @@ func (o *GetUserParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 	if err := o.bindToken(qToken, qhkToken, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,10 +72,10 @@ func (o *GetUserParams) bindToken(rawData []string, hasKey bool, formats strfmt.
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("token", "query", raw); err != nil {
 		return err
 	}
-
 	o.Token = raw
 
 	return nil

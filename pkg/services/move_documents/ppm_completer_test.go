@@ -44,8 +44,8 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
 		Notes:            handlers.FmtString("This document is super awesome."),
-		Status:           internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
+		Status:           internalmessages.NewMoveDocumentStatus(internalmessages.MoveDocumentStatusOK),
+		MoveDocumentType: internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeSHIPMENTSUMMARY),
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
@@ -101,8 +101,8 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
 		Notes:            handlers.FmtString("This document is super awesome."),
-		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
-		Status:           internalmessages.MoveDocumentStatusHASISSUE,
+		MoveDocumentType: internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeSHIPMENTSUMMARY),
+		Status:           internalmessages.NewMoveDocumentStatus(internalmessages.MoveDocumentStatusHASISSUE),
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)

@@ -516,7 +516,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{
-			ReServiceCode: primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode: primemessages.NewReServiceCode(primemessages.ReServiceCode(mtoServiceItem.ReService.Code)),
 		}
 	}
 

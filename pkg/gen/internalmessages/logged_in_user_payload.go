@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -20,15 +21,18 @@ import (
 type LoggedInUserPayload struct {
 
 	// email
+	// Example: john_bob@example.com
 	// Read Only: true
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email string `json:"email,omitempty"`
 
 	// first name
+	// Example: John
 	// Read Only: true
 	FirstName string `json:"first_name,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -74,12 +78,11 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *LoggedInUserPayload) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -100,7 +103,6 @@ func (m *LoggedInUserPayload) validateID(formats strfmt.Registry) error {
 }
 
 func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OfficeUser) { // not required
 		return nil
 	}
@@ -118,7 +120,6 @@ func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error 
 }
 
 func (m *LoggedInUserPayload) validateRoles(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Roles) { // not required
 		return nil
 	}
@@ -143,13 +144,106 @@ func (m *LoggedInUserPayload) validateRoles(formats strfmt.Registry) error {
 }
 
 func (m *LoggedInUserPayload) validateServiceMember(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceMember) { // not required
 		return nil
 	}
 
 	if m.ServiceMember != nil {
 		if err := m.ServiceMember.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("service_member")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this logged in user payload based on the context it is used
+func (m *LoggedInUserPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateEmail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateFirstName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOfficeUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRoles(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateServiceMember(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateEmail(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "email", "body", string(m.Email)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateFirstName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "first_name", "body", string(m.FirstName)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateOfficeUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OfficeUser != nil {
+		if err := m.OfficeUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("office_user")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateRoles(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Roles); i++ {
+
+		if m.Roles[i] != nil {
+			if err := m.Roles[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) contextValidateServiceMember(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ServiceMember != nil {
+		if err := m.ServiceMember.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("service_member")
 			}

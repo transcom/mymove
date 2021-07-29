@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -34,13 +35,16 @@ type MTOServiceItemShuttle struct {
 	statusField MTOServiceItemStatus
 
 	// A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
+	// Example: 4000
 	ActualWeight *int64 `json:"actualWeight"`
 
 	// Details about the shuttle service.
+	// Example: Things to be moved to the place by shuttle.
 	// Required: true
 	Description *string `json:"description"`
 
 	// An estimate of how much weight from a shipment will be included in the shuttling service.
+	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
@@ -51,6 +55,7 @@ type MTOServiceItemShuttle struct {
 
 	// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
 	//
+	// Example: Storage items need to be picked up.
 	// Required: true
 	Reason *string `json:"reason"`
 }
@@ -139,13 +144,16 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
+		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
 		// Details about the shuttle service.
+		// Example: Things to be moved to the place by shuttle.
 		// Required: true
 		Description *string `json:"description"`
 
 		// An estimate of how much weight from a shipment will be included in the shuttling service.
+		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
@@ -156,6 +164,7 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 
 		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
 		//
+		// Example: Storage items need to be picked up.
 		// Required: true
 		Reason *string `json:"reason"`
 	}
@@ -232,13 +241,16 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 
 		// A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
+		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
 		// Details about the shuttle service.
+		// Example: Things to be moved to the place by shuttle.
 		// Required: true
 		Description *string `json:"description"`
 
 		// An estimate of how much weight from a shipment will be included in the shuttling service.
+		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
@@ -249,6 +261,7 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 
 		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
 		//
+		// Example: Storage items need to be picked up.
 		// Required: true
 		Reason *string `json:"reason"`
 	}{
@@ -446,6 +459,96 @@ func (m *MTOServiceItemShuttle) validateReServiceCode(formats strfmt.Registry) e
 func (m *MTOServiceItemShuttle) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item shuttle based on the context it is used
+func (m *MTOServiceItemShuttle) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemShuttle) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -23,15 +25,18 @@ type Role struct {
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// role name
+	// Example: Transportation Ordering Officer
 	// Required: true
 	RoleName *string `json:"roleName"`
 
 	// role type
+	// Example: customer
 	// Required: true
 	RoleType *string `json:"roleType"`
 
@@ -125,6 +130,11 @@ func (m *Role) validateUpdatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this role based on context it is used
+func (m *Role) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

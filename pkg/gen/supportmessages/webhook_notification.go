@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -23,6 +25,7 @@ type WebhookNotification struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// Name of event triggered
+	// Example: PaymentRequest.Update
 	EventKey string `json:"eventKey,omitempty"`
 
 	// Time representing when the system firstAttempted to send this notification
@@ -31,11 +34,13 @@ type WebhookNotification struct {
 	FirstAttemptedAt *strfmt.DateTime `json:"firstAttemptedAt,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move task order ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
@@ -43,6 +48,7 @@ type WebhookNotification struct {
 	Object *string `json:"object,omitempty"`
 
 	// object ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ObjectID *strfmt.UUID `json:"objectID,omitempty"`
 
@@ -50,6 +56,7 @@ type WebhookNotification struct {
 	Status WebhookNotificationStatus `json:"status,omitempty"`
 
 	// trace ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	TraceID strfmt.UUID `json:"traceID,omitempty"`
@@ -103,7 +110,6 @@ func (m *WebhookNotification) Validate(formats strfmt.Registry) error {
 }
 
 func (m *WebhookNotification) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -116,7 +122,6 @@ func (m *WebhookNotification) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *WebhookNotification) validateFirstAttemptedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FirstAttemptedAt) { // not required
 		return nil
 	}
@@ -129,7 +134,6 @@ func (m *WebhookNotification) validateFirstAttemptedAt(formats strfmt.Registry) 
 }
 
 func (m *WebhookNotification) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -142,7 +146,6 @@ func (m *WebhookNotification) validateID(formats strfmt.Registry) error {
 }
 
 func (m *WebhookNotification) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
@@ -155,7 +158,6 @@ func (m *WebhookNotification) validateMoveTaskOrderID(formats strfmt.Registry) e
 }
 
 func (m *WebhookNotification) validateObjectID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ObjectID) { // not required
 		return nil
 	}
@@ -168,7 +170,6 @@ func (m *WebhookNotification) validateObjectID(formats strfmt.Registry) error {
 }
 
 func (m *WebhookNotification) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -184,7 +185,6 @@ func (m *WebhookNotification) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *WebhookNotification) validateTraceID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.TraceID) { // not required
 		return nil
 	}
@@ -197,12 +197,102 @@ func (m *WebhookNotification) validateTraceID(formats strfmt.Registry) error {
 }
 
 func (m *WebhookNotification) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this webhook notification based on the context it is used
+func (m *WebhookNotification) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateFirstAttemptedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTraceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *WebhookNotification) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) contextValidateFirstAttemptedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "firstAttemptedAt", "body", m.FirstAttemptedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) contextValidateTraceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "traceID", "body", strfmt.UUID(m.TraceID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookNotification) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

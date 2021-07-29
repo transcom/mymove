@@ -17,7 +17,8 @@ import (
 )
 
 // NewShowPPMEstimateParams creates a new ShowPPMEstimateParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowPPMEstimateParams() ShowPPMEstimateParams {
 
 	return ShowPPMEstimateParams{}
@@ -96,7 +97,6 @@ func (o *ShowPPMEstimateParams) BindRequest(r *http.Request, route *middleware.M
 	if err := o.bindWeightEstimate(qWeightEstimate, qhkWeightEstimate, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -115,6 +115,7 @@ func (o *ShowPPMEstimateParams) bindOrdersID(rawData []string, hasKey bool, form
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("orders_id", "query", raw); err != nil {
 		return err
 	}
@@ -154,10 +155,10 @@ func (o *ShowPPMEstimateParams) bindOriginDutyStationZip(rawData []string, hasKe
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("origin_duty_station_zip", "query", raw); err != nil {
 		return err
 	}
-
 	o.OriginDutyStationZip = raw
 
 	if err := o.validateOriginDutyStationZip(formats); err != nil {
@@ -189,10 +190,10 @@ func (o *ShowPPMEstimateParams) bindOriginZip(rawData []string, hasKey bool, for
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("origin_zip", "query", raw); err != nil {
 		return err
 	}
-
 	o.OriginZip = raw
 
 	if err := o.validateOriginZip(formats); err != nil {
@@ -224,6 +225,7 @@ func (o *ShowPPMEstimateParams) bindOriginalMoveDate(rawData []string, hasKey bo
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("original_move_date", "query", raw); err != nil {
 		return err
 	}
@@ -263,6 +265,7 @@ func (o *ShowPPMEstimateParams) bindWeightEstimate(rawData []string, hasKey bool
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("weight_estimate", "query", raw); err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -23,9 +24,11 @@ type UpdateMTOServiceItemShuttle struct {
 	idField strfmt.UUID
 
 	// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+	// Example: 4000
 	ActualWeight *int64 `json:"actualWeight"`
 
 	// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
 	// Service code allowed for this model type.
@@ -57,9 +60,11 @@ func (m *UpdateMTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service code allowed for this model type.
@@ -114,9 +119,11 @@ func (m UpdateMTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 
 		// Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+		// Example: 4000
 		ActualWeight *int64 `json:"actualWeight"`
 
 		// An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
 		// Service code allowed for this model type.
@@ -209,6 +216,28 @@ func (m *UpdateMTOServiceItemShuttle) validateReServiceCode(formats strfmt.Regis
 
 	// value enum
 	if err := m.validateReServiceCodeEnum("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update m t o service item shuttle based on the context it is used
+func (m *UpdateMTOServiceItemShuttle) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateMTOServiceItemShuttle) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
 		return err
 	}
 

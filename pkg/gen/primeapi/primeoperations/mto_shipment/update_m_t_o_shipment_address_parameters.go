@@ -6,6 +6,7 @@ package mto_shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateMTOShipmentAddressParams creates a new UpdateMTOShipmentAddressParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMTOShipmentAddressParams() UpdateMTOShipmentAddressParams {
 
 	return UpdateMTOShipmentAddressParams{}
@@ -90,6 +92,11 @@ func (o *UpdateMTOShipmentAddressParams) BindRequest(r *http.Request, route *mid
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -97,11 +104,11 @@ func (o *UpdateMTOShipmentAddressParams) BindRequest(r *http.Request, route *mid
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
 	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -123,7 +130,6 @@ func (o *UpdateMTOShipmentAddressParams) bindIfMatch(rawData []string, hasKey bo
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

@@ -22,7 +22,10 @@ type WeightTicketUpdater struct {
 
 // Update updates the weight ticket documents
 func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	if moveDocumentPayload.MoveDocumentType == nil {
+		return nil, nil, errors.New("missing required field: MoveDocumentType")
+	}
+	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	var emptyWeight, fullWeight *unit.Pound
 	updatedMoveDoc, returnVerrs, err := wtu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
