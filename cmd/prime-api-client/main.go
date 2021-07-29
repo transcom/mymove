@@ -314,6 +314,30 @@ func main() {
 	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
+	supportUpdatePaymentServiceItemStatusCommand := &cobra.Command{
+		Use:   "support-update-payment-service-item-status",
+		Short: "Update payment service itemstatus for testing purposes",
+		Long: `
+  This command allows developers to update the status of a payment service item status.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters and headers.
+
+  Endpoint path: '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status:
+
+  The file should contain json as follows:
+    {
+      "paymentRequestID": <uuid string>,
+      "ifMatch": <etag>,
+      "body" : <paymentRequestStatus>
+    }
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         support.UpdatePaymentServiceItemStatus,
+		SilenceUsage: true,
+	}
+	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
+	root.AddCommand(supportUpdatePaymentServiceItemStatusCommand)
+
 	supportGetMoveTaskOrder := &cobra.Command{
 		Use:   "support-get-move-task-order",
 		Short: "Get an individual mto",

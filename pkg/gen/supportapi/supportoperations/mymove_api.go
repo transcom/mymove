@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
@@ -85,6 +86,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestUpdatePaymentRequestStatusHandler: payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
+		}),
+		PaymentServiceItemUpdatePaymentServiceItemStatusHandler: payment_service_item.UpdatePaymentServiceItemStatusHandlerFunc(func(params payment_service_item.UpdatePaymentServiceItemStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_service_item.UpdatePaymentServiceItemStatus has not yet been implemented")
 		}),
 	}
 }
@@ -150,6 +154,8 @@ type MymoveAPI struct {
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
 	// PaymentRequestUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestUpdatePaymentRequestStatusHandler payment_request.UpdatePaymentRequestStatusHandler
+	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
+	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -254,6 +260,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
 		unregistered = append(unregistered, "payment_request.UpdatePaymentRequestStatusHandler")
+	}
+	if o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler == nil {
+		unregistered = append(unregistered, "payment_service_item.UpdatePaymentServiceItemStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -395,6 +404,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_request.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestUpdatePaymentRequestStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status"] = payment_service_item.NewUpdatePaymentServiceItemStatus(o.context, o.PaymentServiceItemUpdatePaymentServiceItemStatusHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
