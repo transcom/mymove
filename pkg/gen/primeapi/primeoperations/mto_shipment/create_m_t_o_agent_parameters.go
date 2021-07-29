@@ -6,6 +6,7 @@ package mto_shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewCreateMTOAgentParams creates a new CreateMTOAgentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewCreateMTOAgentParams() CreateMTOAgentParams {
 
 	return CreateMTOAgentParams{}
@@ -70,6 +72,11 @@ func (o *CreateMTOAgentParams) BindRequest(r *http.Request, route *middleware.Ma
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -77,11 +84,11 @@ func (o *CreateMTOAgentParams) BindRequest(r *http.Request, route *middleware.Ma
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
 	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

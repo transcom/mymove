@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"errors"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -16,6 +17,9 @@ import (
 
 func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpenseDocument models.MovingExpenseDocument) (*internalmessages.MoveDocumentPayload, error) {
 
+	moveDocumentType := internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType)
+	status := internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status)
+
 	documentPayload, err := payloadForDocumentModel(storer, movingExpenseDocument.MoveDocument.Document)
 	if err != nil {
 		return nil, err
@@ -25,8 +29,8 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 		MoveID:               handlers.FmtUUID(movingExpenseDocument.MoveDocument.MoveID),
 		Document:             documentPayload,
 		Title:                &movingExpenseDocument.MoveDocument.Title,
-		MoveDocumentType:     internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
-		Status:               internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
+		MoveDocumentType:     &moveDocumentType,
+		Status:               &status,
 		Notes:                movingExpenseDocument.MoveDocument.Notes,
 		MovingExpenseType:    internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
 		RequestedAmountCents: int64(movingExpenseDocument.RequestedAmountCents),
@@ -101,18 +105,23 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		storageEndDate = (*time.Time)(payload.StorageEndDate)
 	}
 	movingExpenseDocument := models.MovingExpenseDocument{
-		MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
 		RequestedAmountCents: unit.Cents(*payload.RequestedAmountCents),
 		PaymentMethod:        *payload.PaymentMethod,
 		ReceiptMissing:       payload.ReceiptMissing,
 		StorageEndDate:       storageEndDate,
 		StorageStartDate:     storageStartDate,
 	}
+	if payload.MovingExpenseType != nil {
+		movingExpenseDocument.MovingExpenseType = models.MovingExpenseType(*payload.MovingExpenseType)
+	}
+	if payload.MoveDocumentType == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: MoveDocumentType"))
+	}
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 		h.DB(),
 		userUploads,
 		ppmID,
-		models.MoveDocumentType(payload.MoveDocumentType),
+		models.MoveDocumentType(*payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes,
 		movingExpenseDocument,

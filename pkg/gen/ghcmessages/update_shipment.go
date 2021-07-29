@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,9 +23,11 @@ type UpdateShipment struct {
 	Agents MTOAgents `json:"agents,omitempty"`
 
 	// counselor remarks
+	// Example: counselor approved
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 	// customer remarks
+	// Example: handle with care
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
@@ -83,7 +87,6 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UpdateShipment) validateAgents(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Agents) { // not required
 		return nil
 	}
@@ -99,7 +102,6 @@ func (m *UpdateShipment) validateAgents(formats strfmt.Registry) error {
 }
 
 func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
 	}
@@ -108,7 +110,6 @@ func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) err
 }
 
 func (m *UpdateShipment) validatePickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
 	}
@@ -117,7 +118,6 @@ func (m *UpdateShipment) validatePickupAddress(formats strfmt.Registry) error {
 }
 
 func (m *UpdateShipment) validateRequestedDeliveryDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedDeliveryDate) { // not required
 		return nil
 	}
@@ -130,7 +130,6 @@ func (m *UpdateShipment) validateRequestedDeliveryDate(formats strfmt.Registry) 
 }
 
 func (m *UpdateShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedPickupDate) { // not required
 		return nil
 	}
@@ -143,12 +142,71 @@ func (m *UpdateShipment) validateRequestedPickupDate(formats strfmt.Registry) er
 }
 
 func (m *UpdateShipment) validateShipmentType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ShipmentType) { // not required
 		return nil
 	}
 
 	if err := m.ShipmentType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update shipment based on the context it is used
+func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAgents(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
 		}

@@ -29,15 +29,15 @@ func (suite *HandlerSuite) TestPostRevision() {
 		Member: &ordersmessages.Member{
 			GivenName:   "First",
 			FamilyName:  "Last",
-			Affiliation: ordersmessages.AffiliationAirForce,
-			Rank:        ordersmessages.RankW1,
+			Affiliation: ordersmessages.NewAffiliation(ordersmessages.AffiliationAirDashForce),
+			Rank:        ordersmessages.NewRank(ordersmessages.RankWDash1),
 		},
-		Status:        ordersmessages.StatusAuthorized,
+		Status:        ordersmessages.NewStatus(ordersmessages.StatusAuthorized),
 		DateIssued:    handlers.FmtDateTime(time.Now()),
 		NoCostMove:    false,
 		TdyEnRoute:    false,
 		TourType:      ordersmessages.TourTypeAccompanied,
-		OrdersType:    ordersmessages.OrdersTypeSeparation,
+		OrdersType:    ordersmessages.NewOrdersType(ordersmessages.OrdersTypeSeparation),
 		HasDependents: &hasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        handlers.FmtString("FFFS00"),
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 
 	params := ordersoperations.PostRevisionParams{
 		HTTPRequest: req,
-		Issuer:      string(ordersmessages.IssuerAirForce),
+		Issuer:      string(ordersmessages.IssuerAirDashForce),
 		MemberID:    "1234567890",
 		OrdersNum:   "8675309",
 		Revision:    &rev,
@@ -83,11 +83,11 @@ func (suite *HandlerSuite) TestPostRevision() {
 		suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
 		suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 		suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-		suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
+		suite.Equal(string(*rev.Member.Rank), string(storedRev.Paygrade))
 		suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-		suite.Equal(string(rev.Status), string(storedRev.Status))
+		suite.Equal(string(*rev.Status), string(storedRev.Status))
 		suite.Equal(string(rev.TourType), string(storedRev.TourType))
-		suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
+		suite.Equal(string(*rev.OrdersType), string(storedRev.OrdersType))
 		suite.Equal(*rev.HasDependents, storedRev.HasDependents)
 		suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 		suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
@@ -121,11 +121,11 @@ func (suite *HandlerSuite) TestPostRevision() {
 		suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
 		suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 		suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-		suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
+		suite.Equal(string(*rev.Member.Rank), string(storedRev.Paygrade))
 		suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-		suite.Equal(string(rev.Status), string(storedRev.Status))
+		suite.Equal(string(*rev.Status), string(storedRev.Status))
 		suite.Equal(string(rev.TourType), string(storedRev.TourType))
-		suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
+		suite.Equal(string(*rev.OrdersType), string(storedRev.OrdersType))
 		suite.Equal(*rev.HasDependents, storedRev.HasDependents)
 		suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 		suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
@@ -166,7 +166,7 @@ func (suite *HandlerSuite) TestPostRevisionNoApiPerm() {
 
 	params := ordersoperations.PostRevisionParams{
 		HTTPRequest: req,
-		Issuer:      string(ordersmessages.IssuerAirForce),
+		Issuer:      string(ordersmessages.IssuerAirDashForce),
 		MemberID:    "1234567890",
 		OrdersNum:   "8675309",
 	}
@@ -197,15 +197,15 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 		},
 		"MarineCorps": {
 			makeAllPowerfulClientCert(),
-			ordersmessages.IssuerMarineCorps,
+			ordersmessages.IssuerMarineDashCorps,
 		},
 		"CoastGuard": {
 			makeAllPowerfulClientCert(),
-			ordersmessages.IssuerCoastGuard,
+			ordersmessages.IssuerCoastDashGuard,
 		},
 		"AirForce": {
 			makeAllPowerfulClientCert(),
-			ordersmessages.IssuerAirForce,
+			ordersmessages.IssuerAirDashForce,
 		},
 	}
 	testCases["Army"].cert.AllowArmyOrdersWrite = false

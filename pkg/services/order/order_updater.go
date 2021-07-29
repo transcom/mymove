@@ -181,7 +181,9 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 		order.TAC = payload.Tac
 	}
 
-	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
 
 	// if the order has amended order documents and it has not been previously acknowledged record the current timestamp
 	if payload.OrdersAcknowledgement != nil && *payload.OrdersAcknowledgement && existingOrder.UploadedAmendedOrdersID != nil && existingOrder.AmendedOrdersAcknowledgedAt == nil {
@@ -262,7 +264,9 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
 
 	return order
 }

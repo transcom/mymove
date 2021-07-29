@@ -29,7 +29,7 @@ func NewShowAddress(ctx *middleware.Context, handler ShowAddressHandler) *ShowAd
 	return &ShowAddress{Context: ctx, Handler: handler}
 }
 
-/*ShowAddress swagger:route GET /addresses/{addressId} addresses showAddress
+/* ShowAddress swagger:route GET /addresses/{addressId} addresses showAddress
 
 Returns an address
 
@@ -44,17 +44,15 @@ type ShowAddress struct {
 func (o *ShowAddress) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowAddressParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

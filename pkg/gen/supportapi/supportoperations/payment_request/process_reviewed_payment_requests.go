@@ -29,7 +29,7 @@ func NewProcessReviewedPaymentRequests(ctx *middleware.Context, handler ProcessR
 	return &ProcessReviewedPaymentRequests{Context: ctx, Handler: handler}
 }
 
-/*ProcessReviewedPaymentRequests swagger:route PATCH /payment-requests/process-reviewed paymentRequest processReviewedPaymentRequests
+/* ProcessReviewedPaymentRequests swagger:route PATCH /payment-requests/process-reviewed paymentRequest processReviewedPaymentRequests
 
 processReviewedPaymentRequests
 
@@ -48,17 +48,15 @@ type ProcessReviewedPaymentRequests struct {
 func (o *ProcessReviewedPaymentRequests) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewProcessReviewedPaymentRequestsParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

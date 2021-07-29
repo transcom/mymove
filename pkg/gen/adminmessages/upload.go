@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -85,7 +86,6 @@ func (m *Upload) validateContentTypeEnum(path, location string, value string) er
 }
 
 func (m *Upload) validateContentType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ContentType) { // not required
 		return nil
 	}
@@ -99,7 +99,6 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 }
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -108,6 +107,11 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this upload based on context it is used
+func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

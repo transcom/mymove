@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:        uploadIds,
-		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType: internalmessages.NewMoveDocumentType(internalmessages.MoveDocumentTypeOTHER),
 		Title:            handlers.FmtString("awesome_document.pdf"),
 		Notes:            handlers.FmtString("Some notes here"),
 	}

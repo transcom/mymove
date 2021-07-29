@@ -18,67 +18,83 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewUpdateMTOServiceItemStatusParams creates a new UpdateMTOServiceItemStatusParams object
-// with the default values initialized.
+// NewUpdateMTOServiceItemStatusParams creates a new UpdateMTOServiceItemStatusParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateMTOServiceItemStatusParams() *UpdateMTOServiceItemStatusParams {
-	var ()
 	return &UpdateMTOServiceItemStatusParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateMTOServiceItemStatusParamsWithTimeout creates a new UpdateMTOServiceItemStatusParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateMTOServiceItemStatusParamsWithTimeout(timeout time.Duration) *UpdateMTOServiceItemStatusParams {
-	var ()
 	return &UpdateMTOServiceItemStatusParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateMTOServiceItemStatusParamsWithContext creates a new UpdateMTOServiceItemStatusParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateMTOServiceItemStatusParamsWithContext(ctx context.Context) *UpdateMTOServiceItemStatusParams {
-	var ()
 	return &UpdateMTOServiceItemStatusParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateMTOServiceItemStatusParamsWithHTTPClient creates a new UpdateMTOServiceItemStatusParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateMTOServiceItemStatusParamsWithHTTPClient(client *http.Client) *UpdateMTOServiceItemStatusParams {
-	var ()
 	return &UpdateMTOServiceItemStatusParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateMTOServiceItemStatusParams contains all the parameters to send to the API endpoint
-for the update m t o service item status operation typically these are written to a http.Request
+/* UpdateMTOServiceItemStatusParams contains all the parameters to send to the API endpoint
+   for the update m t o service item status operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateMTOServiceItemStatusParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body *supportmessages.UpdateMTOServiceItemStatus
-	/*MtoServiceItemID
-	  UUID of mto service item to use.
 
+	// Body.
+	Body *supportmessages.UpdateMTOServiceItemStatus
+
+	/* MtoServiceItemID.
+
+	   UUID of mto service item to use.
 	*/
 	MtoServiceItemID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update m t o service item status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOServiceItemStatusParams) WithDefaults() *UpdateMTOServiceItemStatusParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update m t o service item status params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOServiceItemStatusParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update m t o service item status params
@@ -159,7 +175,6 @@ func (o *UpdateMTOServiceItemStatusParams) WriteToRequest(r runtime.ClientReques
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

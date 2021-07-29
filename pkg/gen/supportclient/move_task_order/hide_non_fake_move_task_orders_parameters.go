@@ -16,52 +16,66 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewHideNonFakeMoveTaskOrdersParams creates a new HideNonFakeMoveTaskOrdersParams object
-// with the default values initialized.
+// NewHideNonFakeMoveTaskOrdersParams creates a new HideNonFakeMoveTaskOrdersParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewHideNonFakeMoveTaskOrdersParams() *HideNonFakeMoveTaskOrdersParams {
-
 	return &HideNonFakeMoveTaskOrdersParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewHideNonFakeMoveTaskOrdersParamsWithTimeout creates a new HideNonFakeMoveTaskOrdersParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewHideNonFakeMoveTaskOrdersParamsWithTimeout(timeout time.Duration) *HideNonFakeMoveTaskOrdersParams {
-
 	return &HideNonFakeMoveTaskOrdersParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewHideNonFakeMoveTaskOrdersParamsWithContext creates a new HideNonFakeMoveTaskOrdersParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewHideNonFakeMoveTaskOrdersParamsWithContext(ctx context.Context) *HideNonFakeMoveTaskOrdersParams {
-
 	return &HideNonFakeMoveTaskOrdersParams{
-
 		Context: ctx,
 	}
 }
 
 // NewHideNonFakeMoveTaskOrdersParamsWithHTTPClient creates a new HideNonFakeMoveTaskOrdersParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewHideNonFakeMoveTaskOrdersParamsWithHTTPClient(client *http.Client) *HideNonFakeMoveTaskOrdersParams {
-
 	return &HideNonFakeMoveTaskOrdersParams{
 		HTTPClient: client,
 	}
 }
 
-/*HideNonFakeMoveTaskOrdersParams contains all the parameters to send to the API endpoint
-for the hide non fake move task orders operation typically these are written to a http.Request
+/* HideNonFakeMoveTaskOrdersParams contains all the parameters to send to the API endpoint
+   for the hide non fake move task orders operation.
+
+   Typically these are written to a http.Request.
 */
 type HideNonFakeMoveTaskOrdersParams struct {
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the hide non fake move task orders params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *HideNonFakeMoveTaskOrdersParams) WithDefaults() *HideNonFakeMoveTaskOrdersParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the hide non fake move task orders params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *HideNonFakeMoveTaskOrdersParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the hide non fake move task orders params

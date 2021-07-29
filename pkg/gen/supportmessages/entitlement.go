@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,9 +20,11 @@ import (
 type Entitlement struct {
 
 	// authorized weight
+	// Example: 2000
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
 
 	// dependents authorized
+	// Example: true
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// e tag
@@ -28,36 +32,46 @@ type Entitlement struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: 571008b1-b0de-454d-b843-d71be9f02c04
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// non temporary storage
+	// Example: false
 	NonTemporaryStorage *bool `json:"nonTemporaryStorage,omitempty"`
 
 	// organizational clothing and individual equipment
+	// Example: false
 	OrganizationalClothingAndIndividualEquipment bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
 
 	// privately owned vehicle
+	// Example: false
 	PrivatelyOwnedVehicle *bool `json:"privatelyOwnedVehicle,omitempty"`
 
 	// pro gear weight
+	// Example: 2000
 	// Read Only: true
 	ProGearWeight int64 `json:"proGearWeight,omitempty"`
 
 	// pro gear weight spouse
+	// Example: 500
 	// Read Only: true
 	ProGearWeightSpouse int64 `json:"proGearWeightSpouse,omitempty"`
 
 	// required medical equipment weight
+	// Example: 500
 	RequiredMedicalEquipmentWeight int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
 
 	// storage in transit
+	// Example: 90
 	StorageInTransit int64 `json:"storageInTransit,omitempty"`
 
 	// total dependents
+	// Example: 2
 	TotalDependents int64 `json:"totalDependents,omitempty"`
 
 	// total weight
+	// Example: 500
 	TotalWeight int64 `json:"totalWeight,omitempty"`
 }
 
@@ -76,12 +90,60 @@ func (m *Entitlement) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Entitlement) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this entitlement based on the context it is used
+func (m *Entitlement) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateProGearWeight(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateProGearWeightSpouse(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Entitlement) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Entitlement) contextValidateProGearWeight(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "proGearWeight", "body", int64(m.ProGearWeight)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Entitlement) contextValidateProGearWeightSpouse(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "proGearWeightSpouse", "body", int64(m.ProGearWeightSpouse)); err != nil {
 		return err
 	}
 

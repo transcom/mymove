@@ -18,7 +18,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	// Basic Service Item
 	basicServieItem := &primemessages.MTOServiceItemBasic{
-		ReServiceCode: "FSC",
+		ReServiceCode: primemessages.NewReServiceCode("FSC"),
 	}
 
 	basicServieItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))

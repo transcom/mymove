@@ -16,7 +16,8 @@ import (
 )
 
 // NewIndexOrganizationsParams creates a new IndexOrganizationsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexOrganizationsParams() IndexOrganizationsParams {
 
 	return IndexOrganizationsParams{}
@@ -88,7 +89,6 @@ func (o *IndexOrganizationsParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -99,7 +99,6 @@ func (o *IndexOrganizationsParams) BindRequest(r *http.Request, route *middlewar
 //
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *IndexOrganizationsParams) bindFilter(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
 	var qvFilter string
 	if len(rawData) > 0 {
 		qvFilter = rawData[len(rawData)-1]
@@ -132,6 +131,7 @@ func (o *IndexOrganizationsParams) bindOrder(rawData []string, hasKey bool, form
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -154,6 +154,7 @@ func (o *IndexOrganizationsParams) bindPage(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -176,6 +177,7 @@ func (o *IndexOrganizationsParams) bindPerPage(rawData []string, hasKey bool, fo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -198,10 +200,10 @@ func (o *IndexOrganizationsParams) bindSort(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Sort = &raw
 
 	return nil

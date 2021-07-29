@@ -6,6 +6,7 @@ package customer
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateCustomerParams creates a new UpdateCustomerParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateCustomerParams() UpdateCustomerParams {
 
 	return UpdateCustomerParams{}
@@ -79,6 +81,11 @@ func (o *UpdateCustomerParams) BindRequest(r *http.Request, route *middleware.Ma
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -86,11 +93,11 @@ func (o *UpdateCustomerParams) BindRequest(r *http.Request, route *middleware.Ma
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rCustomerID, rhkCustomerID, _ := route.Params.GetOK("customerID")
 	if err := o.bindCustomerID(rCustomerID, rhkCustomerID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -112,7 +119,6 @@ func (o *UpdateCustomerParams) bindIfMatch(rawData []string, hasKey bool, format
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

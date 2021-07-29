@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,6 +23,7 @@ type DutyStation struct {
 	Address *Address `json:"address,omitempty"`
 
 	// address ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	AddressID strfmt.UUID `json:"addressID,omitempty"`
 
@@ -29,10 +32,12 @@ type DutyStation struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// name
+	// Example: Fort Bragg North Station
 	Name string `json:"name,omitempty"`
 }
 
@@ -59,7 +64,6 @@ func (m *DutyStation) Validate(formats strfmt.Registry) error {
 }
 
 func (m *DutyStation) validateAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Address) { // not required
 		return nil
 	}
@@ -77,7 +81,6 @@ func (m *DutyStation) validateAddress(formats strfmt.Registry) error {
 }
 
 func (m *DutyStation) validateAddressID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AddressID) { // not required
 		return nil
 	}
@@ -90,12 +93,52 @@ func (m *DutyStation) validateAddressID(formats strfmt.Registry) error {
 }
 
 func (m *DutyStation) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this duty station based on the context it is used
+func (m *DutyStation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *DutyStation) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Address != nil {
+		if err := m.Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *DutyStation) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 

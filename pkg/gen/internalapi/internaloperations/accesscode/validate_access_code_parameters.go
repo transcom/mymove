@@ -16,7 +16,8 @@ import (
 )
 
 // NewValidateAccessCodeParams creates a new ValidateAccessCodeParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewValidateAccessCodeParams() ValidateAccessCodeParams {
 
 	return ValidateAccessCodeParams{}
@@ -53,7 +54,6 @@ func (o *ValidateAccessCodeParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindCode(qCode, qhkCode, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -69,10 +69,10 @@ func (o *ValidateAccessCodeParams) bindCode(rawData []string, hasKey bool, forma
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Code = &raw
 
 	if err := o.validateCode(formats); err != nil {
@@ -85,7 +85,7 @@ func (o *ValidateAccessCodeParams) bindCode(rawData []string, hasKey bool, forma
 // validateCode carries on validations for parameter Code
 func (o *ValidateAccessCodeParams) validateCode(formats strfmt.Registry) error {
 
-	if err := validate.Pattern("code", "query", (*o.Code), `^(HHG|PPM)-[A-Z0-9]{6}$`); err != nil {
+	if err := validate.Pattern("code", "query", *o.Code, `^(HHG|PPM)-[A-Z0-9]{6}$`); err != nil {
 		return err
 	}
 
