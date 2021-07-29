@@ -81,7 +81,6 @@ describe('EditOrders Page', () => {
         filename: 'Test Upload',
       },
     ],
-    schema: {},
     spouseHasProGear: false,
     context: { flags: { allOrdersTypes: true } },
   };

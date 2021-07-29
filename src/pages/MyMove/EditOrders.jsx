@@ -183,7 +183,6 @@ EditOrders.propTypes = {
   currentOrders: OrdersShape.isRequired,
   entitlement: EntitlementShape.isRequired,
   existingUploads: ExistingUploadsShape,
-  schema: PropTypes.shape({}),
   spouseHasProGear: PropTypes.bool,
   context: PropTypes.shape({
     flags: PropTypes.shape({
@@ -196,7 +195,6 @@ EditOrders.propTypes = {
 EditOrders.defaultProps = {
   existingUploads: [],
   spouseHasProGear: false,
-  schema: {},
   currentStation: {},
 };
 
