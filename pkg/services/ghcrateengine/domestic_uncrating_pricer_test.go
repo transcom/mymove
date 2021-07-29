@@ -61,14 +61,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 	suite.Run("not finding a rate record", func() {
 		_, _, err := pricer.Price("BOGUS", ducrtTestRequestedPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
+		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
 		twoYearsLaterPickupDate := ducrtTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ducrtTestBilledCubicFeet, ducrtTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup contract year")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 
@@ -83,7 +83,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticUncratingServiceItem() mode
 				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+				Key:     models.ServiceItemParamNameServicesScheduleDest,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ducrtTestServiceSchedule),
 			},

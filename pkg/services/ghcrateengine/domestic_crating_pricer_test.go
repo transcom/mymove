@@ -61,14 +61,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	suite.Run("not finding a rate record", func() {
 		_, _, err := pricer.Price("BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
+		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
 		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "Could not lookup contract year")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 
