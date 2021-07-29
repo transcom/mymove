@@ -340,12 +340,12 @@ describe('EditOrdersForm component', () => {
         new_duty_station: 'Yuma AFB',
       });
 
-      expect(await screen.findByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
-      expect(await screen.findByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-      expect(await screen.findByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
-      expect(await screen.findByLabelText('Yes')).not.toBeChecked();
-      expect(await screen.findByLabelText('No')).toBeChecked();
-      expect(await screen.findByText('Yuma AFB')).toBeInTheDocument();
+      expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
+      expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
+      expect(screen.getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+      expect(screen.getByLabelText('Yes')).not.toBeChecked();
+      expect(screen.getByLabelText('No')).toBeChecked();
+      expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
     });
   });
 
