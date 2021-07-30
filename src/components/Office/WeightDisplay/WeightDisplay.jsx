@@ -7,7 +7,7 @@ import { Button } from '@trussworks/react-uswds';
 import styles from 'components/Office/WeightDisplay/WeightDisplay.module.scss';
 import { formatWeight } from 'shared/formatters';
 
-const WeightDisplay = ({ heading, weightValue, onEdit }) => {
+const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
   return (
     <div className={classnames('maxw-tablet', styles.WeightDisplay)}>
       <div className={styles.heading}>
@@ -19,6 +19,7 @@ const WeightDisplay = ({ heading, weightValue, onEdit }) => {
         )}
       </div>
       {weightValue && <div className={styles.value}>{formatWeight(weightValue)}</div>}
+      {children && <div className={styles.details}>{children}</div>}
     </div>
   );
 };
@@ -26,11 +27,13 @@ const WeightDisplay = ({ heading, weightValue, onEdit }) => {
 WeightDisplay.propTypes = {
   heading: PropTypes.string.isRequired,
   weightValue: PropTypes.number,
+  children: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   onEdit: PropTypes.func,
 };
 
 WeightDisplay.defaultProps = {
   weightValue: null,
+  children: null,
   onEdit: null,
 };
 
