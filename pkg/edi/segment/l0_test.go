@@ -72,4 +72,45 @@ func (suite *SegmentSuite) TestValidateL0() {
 		suite.ValidateError(err, "WeightUnitCode", "eq")
 		suite.ValidateErrorLen(err, 2)
 	})
+
+	suite.T().Run("validate failure 5", func(t *testing.T) {
+		l0 := L0{
+			LadingLineItemNumber: 1,
+			Volume:               144.0, // required_with
+			LadingQuantity:       1,     // required_with
+		}
+
+		err := suite.validator.Struct(l0)
+		suite.ValidateError(err, "VolumeUnitQualifier", "required_with")
+		suite.ValidateError(err, "PackagingFormCode", "required_with")
+		suite.ValidateErrorLen(err, 2)
+	})
+
+	suite.T().Run("validate failure 6", func(t *testing.T) {
+		l0 := L0{
+			LadingLineItemNumber: 1,
+			Volume:               144.0,
+			VolumeUnitQualifier:  "X",    // eq
+			LadingQuantity:       -1,     // min
+			PackagingFormCode:    "XXXX", // len
+		}
+
+		err := suite.validator.Struct(l0)
+		suite.ValidateError(err, "VolumeUnitQualifier", "eq")
+		suite.ValidateError(err, "LadingQuantity", "min")
+		suite.ValidateError(err, "PackagingFormCode", "len")
+		suite.ValidateErrorLen(err, 3)
+	})
+
+	suite.T().Run("validate failure 7", func(t *testing.T) {
+		l0 := L0{
+			LadingLineItemNumber: 1,
+			LadingQuantity:       10000000, // max
+			PackagingFormCode:    "CRT",
+		}
+
+		err := suite.validator.Struct(l0)
+		suite.ValidateError(err, "LadingQuantity", "max")
+		suite.ValidateErrorLen(err, 1)
+	})
 }
