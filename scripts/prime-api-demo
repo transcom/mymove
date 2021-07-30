@@ -8,19 +8,21 @@
 #     USAGE AND DEFAULTS
 # =====================================
 set -eu -o pipefail
-# proofs=(./tmp/uploads/proof_of_service.pdf)
+proofs=(./tmp/uploads/proof_of_service.pdf)
 function usage() {
   echo "Usage: prime-api-demo <movecode> [ <hostname> [ <proofs> ... ] ]"
   echo "  movecode   Either moveCode or orderID or orderID can be provided"
   echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
+  echo "  proofs     Paths to proof of service docs. Defaults to (${proofs[0]})"
+  echo "             You can specify as many proofs as you want"
   echo
   echo "EXAMPLES:"
   echo "$0 --help # prints this help"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
   echo "$0 RDY4PY"
-  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
   echo "$0 RDY4PY api.stg.move.mil"
-  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg"
 }
 
 # =====================================
@@ -37,6 +39,21 @@ fi
 primeapiopts=(--insecure)
 mtoID=$1
 readonly environment=${2:-local}
+# check to see if proofs are passed in
+if [ "${#@}" -gt 2 ]; then
+  shift # to remove mtoid from $@
+  shift # to remove environment from $@
+  proofs=("$@")
+fi
+
+for proofOfService in "${proofs[@]}"
+do
+  if [ ! -f "${proofOfService}" ]; then
+    echo "Expected proof of service doc ${proofOfService} is missing."
+    echo "You can either use this default path or supply a path as a parameter"
+    exit 1
+  fi
+done
 
 printf "\nRunning against "
 if [ "$environment" == "local" ]; then
@@ -172,7 +189,7 @@ echo "Shipment ID: ${shipmentID}"
 
 pathToServiceItemPayload=""
 echo -n "Enter path to payload to create a particular service item: "
-read pathToServiceItemPayload -n 1 -r
+read -r pathToServiceItemPayload
 bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename "${pathToServiceItemPayload}" > tmp/create_response_mto_service_item.json
 
 # --------------------
@@ -220,16 +237,12 @@ bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename tmp/
 # -----------------------
 # UPLOAD PROOF OF SERVICE FOR PAYMENT REQUEST
 prID=$(jq .id tmp/create_response_payment_request.json | tr -d '"')
-# bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename "${proof}"
-  # for proofOfService in "${proofs[@]}"
-  # do
-  #   proofBase=$(basename "${proofOfService}")
-  #   bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename "${proofOfService}" > tmp/create_upload_response_"${proofBase}".json
-
-  #   jq . tmp/create_upload_response_"${proofBase}".json
-
-  #   echo
-  # done
+proofOfService="./tmp/uploads/proof_of_service.pdf"
+# for proofOfService in "${proofs[@]}"
+#   do
+#     proofBase=$(basename "${proofOfService}")
+#     bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename "${proofOfService}" > tmp/create_upload_response_"${proofBase}".json
+#   done
 # -----------------------
 # APPROVE PAYMENT SERVICE ITEM
 printf "Now the TIO approves the payment service items. You can find the move with the move code below \n"
