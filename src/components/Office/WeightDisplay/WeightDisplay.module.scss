@@ -1,12 +1,11 @@
 @import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
 @import '../../../shared/styles/colors';
 
 .WeightDisplay {
   @include u-padding(3);
   @include u-bg('white');
   @include u-radius(3px);
-  border: 1px solid #dcdee0;
+  border: 1px solid $border-color;
 
   .heading {
     @include u-font-size('base', 2);
@@ -25,5 +24,13 @@
     color: $link;
     max-width: 15px;
     min-width: 15px;
+  }
+
+  .details span {
+    background-color: $base-lightest;
+  }
+
+  .details {
+    @include u-font-size('base', 3);
   }
 }
