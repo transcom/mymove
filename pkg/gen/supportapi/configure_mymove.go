@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
@@ -102,11 +101,6 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 	if api.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
 		api.PaymentRequestUpdatePaymentRequestStatusHandler = payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
-		})
-	}
-	if api.PaymentServiceItemUpdatePaymentServiceItemStatusHandler == nil {
-		api.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = payment_service_item.UpdatePaymentServiceItemStatusHandlerFunc(func(params payment_service_item.UpdatePaymentServiceItemStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_service_item.UpdatePaymentServiceItemStatus has not yet been implemented")
 		})
 	}
 
