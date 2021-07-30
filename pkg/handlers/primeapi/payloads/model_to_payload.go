@@ -61,40 +61,40 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder
 	return payload
 }
 
-// FetchMoveTaskOrder payload
-func FetchMoveTaskOrder(moveTaskOrder *models.Move) *primemessages.FetchMoveTaskOrder {
-	if moveTaskOrder == nil {
+// ListMove payload
+func ListMove(move *models.Move) *primemessages.ListMove {
+	if move == nil {
 		return nil
 	}
-	payload := &primemessages.FetchMoveTaskOrder{
-		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveCode:           moveTaskOrder.Locator,
-		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		ReferenceID:        *moveTaskOrder.ReferenceID,
-		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+	payload := &primemessages.ListMove{
+		ID:                 strfmt.UUID(move.ID.String()),
+		MoveCode:           move.Locator,
+		CreatedAt:          strfmt.DateTime(move.CreatedAt),
+		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		OrderID:            strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:        *move.ReferenceID,
+		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
+		ETag:               etag.GenerateEtag(move.UpdatedAt),
 	}
 
-	if moveTaskOrder.PPMEstimatedWeight != nil {
-		payload.PpmEstimatedWeight = int64(*moveTaskOrder.PPMEstimatedWeight)
+	if move.PPMEstimatedWeight != nil {
+		payload.PpmEstimatedWeight = int64(*move.PPMEstimatedWeight)
 	}
 
-	if moveTaskOrder.PPMType != nil {
-		payload.PpmType = *moveTaskOrder.PPMType
+	if move.PPMType != nil {
+		payload.PpmType = *move.PPMType
 	}
 
 	return payload
 }
 
-// FetchMoveTaskOrders payload
-func FetchMoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.FetchMoveTaskOrder {
-	payload := make(primemessages.FetchMoveTaskOrders, len(*moveTaskOrders))
+// ListMoves payload
+func ListMoves(moves *models.Moves) []*primemessages.ListMove {
+	payload := make(primemessages.ListMoves, len(*moves))
 
-	for i, m := range *moveTaskOrders {
+	for i, m := range *moves {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = FetchMoveTaskOrder(&copyOfM)
+		payload[i] = ListMove(&copyOfM)
 	}
 	return payload
 }

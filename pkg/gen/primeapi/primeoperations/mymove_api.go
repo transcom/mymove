@@ -66,11 +66,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderFetchMTOUpdatesHandler: move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
 		}),
-		MoveTaskOrderFetchMTOUpdatesFastHandler: move_task_order.FetchMTOUpdatesFastHandlerFunc(func(params move_task_order.FetchMTOUpdatesFastParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdatesFast has not yet been implemented")
-		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
+		}),
+		MoveTaskOrderListMovesHandler: move_task_order.ListMovesHandlerFunc(func(params move_task_order.ListMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.ListMoves has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOAgentHandler: mto_shipment.UpdateMTOAgentHandlerFunc(func(params mto_shipment.UpdateMTOAgentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOAgent has not yet been implemented")
@@ -144,10 +144,10 @@ type MymoveAPI struct {
 	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
 	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
 	MoveTaskOrderFetchMTOUpdatesHandler move_task_order.FetchMTOUpdatesHandler
-	// MoveTaskOrderFetchMTOUpdatesFastHandler sets the operation handler for the fetch m t o updates fast operation
-	MoveTaskOrderFetchMTOUpdatesFastHandler move_task_order.FetchMTOUpdatesFastHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
+	// MoveTaskOrderListMovesHandler sets the operation handler for the list moves operation
+	MoveTaskOrderListMovesHandler move_task_order.ListMovesHandler
 	// MtoShipmentUpdateMTOAgentHandler sets the operation handler for the update m t o agent operation
 	MtoShipmentUpdateMTOAgentHandler mto_shipment.UpdateMTOAgentHandler
 	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
@@ -258,11 +258,11 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveTaskOrderFetchMTOUpdatesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesHandler")
 	}
-	if o.MoveTaskOrderFetchMTOUpdatesFastHandler == nil {
-		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesFastHandler")
-	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
+	}
+	if o.MoveTaskOrderListMovesHandler == nil {
+		unregistered = append(unregistered, "move_task_order.ListMovesHandler")
 	}
 	if o.MtoShipmentUpdateMTOAgentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOAgentHandler")
@@ -399,11 +399,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/fast"] = move_task_order.NewFetchMTOUpdatesFast(o.context, o.MoveTaskOrderFetchMTOUpdatesFastHandler)
+	o.handlers["GET"]["/move-task-orders/{moveID}"] = move_task_order.NewGetMoveTaskOrder(o.context, o.MoveTaskOrderGetMoveTaskOrderHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/{moveID}"] = move_task_order.NewGetMoveTaskOrder(o.context, o.MoveTaskOrderGetMoveTaskOrderHandler)
+	o.handlers["GET"]["/moves"] = move_task_order.NewListMoves(o.context, o.MoveTaskOrderListMovesHandler)
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}

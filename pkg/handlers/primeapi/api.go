@@ -43,7 +43,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB()),
 	}
 
-	primeAPI.MoveTaskOrderFetchMTOUpdatesFastHandler = FetchMTOUpdatesFastHandler{
+	primeAPI.MoveTaskOrderListMovesHandler = ListMovesHandler{
 		ctx,
 		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB()),
 	}

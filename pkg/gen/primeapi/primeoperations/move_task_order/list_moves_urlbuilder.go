@@ -13,8 +13,8 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// FetchMTOUpdatesFastURL generates an URL for the fetch m t o updates fast operation
-type FetchMTOUpdatesFastURL struct {
+// ListMovesURL generates an URL for the list moves operation
+type ListMovesURL struct {
 	Since *strfmt.DateTime
 
 	_basePath string
@@ -25,7 +25,7 @@ type FetchMTOUpdatesFastURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *FetchMTOUpdatesFastURL) WithBasePath(bp string) *FetchMTOUpdatesFastURL {
+func (o *ListMovesURL) WithBasePath(bp string) *ListMovesURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -33,15 +33,15 @@ func (o *FetchMTOUpdatesFastURL) WithBasePath(bp string) *FetchMTOUpdatesFastURL
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *FetchMTOUpdatesFastURL) SetBasePath(bp string) {
+func (o *ListMovesURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *FetchMTOUpdatesFastURL) Build() (*url.URL, error) {
+func (o *ListMovesURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/fast"
+	var _path = "/moves"
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -65,7 +65,7 @@ func (o *FetchMTOUpdatesFastURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *FetchMTOUpdatesFastURL) Must(u *url.URL, err error) *url.URL {
+func (o *ListMovesURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -76,17 +76,17 @@ func (o *FetchMTOUpdatesFastURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *FetchMTOUpdatesFastURL) String() string {
+func (o *ListMovesURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *FetchMTOUpdatesFastURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *ListMovesURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on FetchMTOUpdatesFastURL")
+		return nil, errors.New("scheme is required for a full url on ListMovesURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on FetchMTOUpdatesFastURL")
+		return nil, errors.New("host is required for a full url on ListMovesURL")
 	}
 
 	base, err := o.Build()
@@ -100,6 +100,6 @@ func (o *FetchMTOUpdatesFastURL) BuildFull(scheme, host string) (*url.URL, error
 }
 
 // StringFull returns the string representation of a complete url
-func (o *FetchMTOUpdatesFastURL) StringFull(scheme, host string) string {
+func (o *ListMovesURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

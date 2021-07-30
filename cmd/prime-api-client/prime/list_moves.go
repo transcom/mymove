@@ -18,13 +18,13 @@ import (
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
-// InitFetchMTOUpdatesFastFlags declares which flags are enabled
-func InitFetchMTOUpdatesFastFlags(flag *pflag.FlagSet) {
+// InitListMovesFlags declares which flags are enabled
+func InitListMovesFlags(flag *pflag.FlagSet) {
 	flag.String(utils.SinceFlag, "", "Timestamp for filtering moves. Returns moves updated since this time.")
 	flag.SortFlags = false
 }
 
-func checkFetchMTOUpdatesFastConfig(v *viper.Viper, args []string, logger *log.Logger) error {
+func checkListMovesConfig(v *viper.Viper, args []string, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -33,8 +33,8 @@ func checkFetchMTOUpdatesFastConfig(v *viper.Viper, args []string, logger *log.L
 	return nil
 }
 
-// FetchMTOUpdatesFast creates a gateway and sends the request to the endpoint
-func FetchMTOUpdatesFast(cmd *cobra.Command, args []string) error {
+// ListMoves creates a gateway and sends the request to the endpoint
+func ListMoves(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//Create the logger
@@ -47,13 +47,13 @@ func FetchMTOUpdatesFast(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkFetchMTOUpdatesFastConfig(v, args, logger)
+	err := checkListMovesConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	// Get the since param, if any
-	var params mto.FetchMTOUpdatesFastParams
+	var params mto.ListMovesParams
 	since := v.GetString(utils.SinceFlag)
 	if since != "" {
 		sinceDateTime, sinceErr := strfmt.ParseDateTime(since)
@@ -78,7 +78,7 @@ func FetchMTOUpdatesFast(cmd *cobra.Command, args []string) error {
 	}
 
 	params.SetTimeout(time.Second * 30)
-	resp, err := primeGateway.MoveTaskOrder.FetchMTOUpdatesFast(&params)
+	resp, err := primeGateway.MoveTaskOrder.ListMoves(&params)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
