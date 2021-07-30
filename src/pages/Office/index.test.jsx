@@ -14,6 +14,8 @@ describe('Office App', () => {
     loadInternalSchema: jest.fn(),
     loadPublicSchema: jest.fn(),
     logOut: jest.fn(),
+    hasRecentError: false,
+    traceId: '',
   };
 
   describe('component', () => {
@@ -81,7 +83,7 @@ describe('Office App', () => {
         expect(app.containsMatchingElement(<a href="/">ABCD moves</a>)).toEqual(true);
         expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
       });
-      it('renders the system error component if there is an unexpected error', () => {
+      it('renders the system error component if there is an unexpected error and on the queue page', () => {
         render(
           <MockProviders
             initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
@@ -122,6 +124,11 @@ describe('Office App', () => {
             },
           },
         },
+      },
+      interceptor: {
+        hasRecentError: false,
+        timestamp: 0,
+        traceId: '',
       },
     };
 
