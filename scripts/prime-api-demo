@@ -142,8 +142,8 @@ bin/prime-api-client "${primeapiopts[@]}" support-update-mto-shipment-status --f
 shipmentEtag=$(jq '.eTag' tmp/update_response_mto_shipment_status.json)
 shipmentID=$(jq '.id' tmp/update_response_mto_shipment_status.json)
 
-scheduledPickupDate=$(date -j -f "%a %b %d %T %Z %Y" "date -v+12d" "+%Y-%m-%d")
-actualPickupDate=$(date -j -f "%a %b %d %T %Z %Y" "date -v+12d" "+%Y-%m-%d")
+scheduledPickupDate=$(date -j -f "%a %b %d %T %Z %Y" "$(date -v+12d)" "+%Y-%m-%d")
+actualPickupDate=$(date -j -f "%a %b %d %T %Z %Y" "$(date -v+12d)" "+%Y-%m-%d")
 printf "Update the shipment's weights and dates \n\n"
 
 cat > tmp/update_mto_shipment.json <<- EOM
@@ -169,9 +169,9 @@ printf "Use the shitpment and moveTaskOrder IDs found below to create a payload 
 
 echo "MTO ID: \"${mtoID}\""
 echo "Shipment ID: ${shipmentID}"
+
+pathToServiceItemPayload=""
 echo -n "Enter path to payload to create a particular service item: "
-# read -p "Enter path to payload to create a particular service item: " pathToServiceItemPayload -n 1 -r
-pathToServiceItemPayload="USER INPUT"
 read pathToServiceItemPayload -n 1 -r
 bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename "${pathToServiceItemPayload}" > tmp/create_response_mto_service_item.json
 
