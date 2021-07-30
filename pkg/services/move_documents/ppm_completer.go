@@ -21,7 +21,10 @@ type PPMCompleter struct {
 
 // Update moves ppm status to complete when ssw is uploaded
 func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
-	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	if moveDocumentPayload.MoveDocumentType == nil {
+		return nil, nil, errors.New("missing required field: MoveDocumentType")
+	}
+	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	moveDoc.Title = *moveDocumentPayload.Title
 	moveDoc.Notes = moveDocumentPayload.Notes
 	moveDoc.MoveDocumentType = newType

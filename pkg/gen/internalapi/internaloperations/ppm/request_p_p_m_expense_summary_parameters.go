@@ -15,7 +15,8 @@ import (
 )
 
 // NewRequestPPMExpenseSummaryParams creates a new RequestPPMExpenseSummaryParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewRequestPPMExpenseSummaryParams() RequestPPMExpenseSummaryParams {
 
 	return RequestPPMExpenseSummaryParams{}
@@ -50,7 +51,6 @@ func (o *RequestPPMExpenseSummaryParams) BindRequest(r *http.Request, route *mid
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

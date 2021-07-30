@@ -6,6 +6,7 @@ package ordersoperations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewPostRevisionToOrdersParams creates a new PostRevisionToOrdersParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewPostRevisionToOrdersParams() PostRevisionToOrdersParams {
 
 	return PostRevisionToOrdersParams{}
@@ -70,6 +72,11 @@ func (o *PostRevisionToOrdersParams) BindRequest(r *http.Request, route *middlew
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Revision = &body
 			}
@@ -77,11 +84,11 @@ func (o *PostRevisionToOrdersParams) BindRequest(r *http.Request, route *middlew
 	} else {
 		res = append(res, errors.Required("revision", "body", ""))
 	}
+
 	rUUID, rhkUUID, _ := route.Params.GetOK("uuid")
 	if err := o.bindUUID(rUUID, rhkUUID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

@@ -108,9 +108,12 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 
 	model := &models.MTOShipment{
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
 		Diversion:       bool(mtoShipment.Diversion),
+	}
+
+	if mtoShipment.ShipmentType != nil {
+		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight > 0 {
@@ -319,7 +322,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
-		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
+		if basic.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*basic.ReServiceCode)
+		}
 	}
 
 	return model, nil
@@ -381,7 +386,12 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
 	return validate.Validate(
-		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
+		&models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
 	)
 }
 

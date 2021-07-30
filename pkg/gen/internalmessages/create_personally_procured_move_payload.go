@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,6 +21,7 @@ import (
 type CreatePersonallyProcuredMovePayload struct {
 
 	// ZIP code
+	// Example: 90210
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	AdditionalPickupPostalCode *string `json:"additional_pickup_postal_code,omitempty"`
 
@@ -35,6 +37,7 @@ type CreatePersonallyProcuredMovePayload struct {
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`
 
 	// ZIP code
+	// Example: 90210
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
 
@@ -63,10 +66,12 @@ type CreatePersonallyProcuredMovePayload struct {
 	NetWeight *int64 `json:"net_weight,omitempty"`
 
 	// When do you plan to move?
+	// Example: 2018-04-26
 	// Format: date
 	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
 
 	// ZIP code
+	// Example: 90210
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickup_postal_code,omitempty"`
 
@@ -137,12 +142,11 @@ func (m *CreatePersonallyProcuredMovePayload) Validate(formats strfmt.Registry) 
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateAdditionalPickupPostalCode(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AdditionalPickupPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("additional_pickup_postal_code", "body", string(*m.AdditionalPickupPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("additional_pickup_postal_code", "body", *m.AdditionalPickupPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -150,7 +154,6 @@ func (m *CreatePersonallyProcuredMovePayload) validateAdditionalPickupPostalCode
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateAdvance(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Advance) { // not required
 		return nil
 	}
@@ -168,7 +171,6 @@ func (m *CreatePersonallyProcuredMovePayload) validateAdvance(formats strfmt.Reg
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateAdvanceWorksheet(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AdvanceWorksheet) { // not required
 		return nil
 	}
@@ -186,16 +188,15 @@ func (m *CreatePersonallyProcuredMovePayload) validateAdvanceWorksheet(formats s
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateDaysInStorage(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DaysInStorage) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("days_in_storage", "body", int64(*m.DaysInStorage), 0, false); err != nil {
+	if err := validate.MinimumInt("days_in_storage", "body", *m.DaysInStorage, 0, false); err != nil {
 		return err
 	}
 
-	if err := validate.MaximumInt("days_in_storage", "body", int64(*m.DaysInStorage), 90, false); err != nil {
+	if err := validate.MaximumInt("days_in_storage", "body", *m.DaysInStorage, 90, false); err != nil {
 		return err
 	}
 
@@ -203,12 +204,11 @@ func (m *CreatePersonallyProcuredMovePayload) validateDaysInStorage(formats strf
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateDestinationPostalCode(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("destination_postal_code", "body", string(*m.DestinationPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("destination_postal_code", "body", *m.DestinationPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -248,7 +248,6 @@ func (m *CreatePersonallyProcuredMovePayload) validateHasProGearEnum(path, locat
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateHasProGear(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.HasProGear) { // not required
 		return nil
 	}
@@ -294,7 +293,6 @@ func (m *CreatePersonallyProcuredMovePayload) validateHasProGearOverThousandEnum
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateHasProGearOverThousand(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.HasProGearOverThousand) { // not required
 		return nil
 	}
@@ -308,12 +306,11 @@ func (m *CreatePersonallyProcuredMovePayload) validateHasProGearOverThousand(for
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateNetWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.NetWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("net_weight", "body", int64(*m.NetWeight), 1, false); err != nil {
+	if err := validate.MinimumInt("net_weight", "body", *m.NetWeight, 1, false); err != nil {
 		return err
 	}
 
@@ -321,7 +318,6 @@ func (m *CreatePersonallyProcuredMovePayload) validateNetWeight(formats strfmt.R
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateOriginalMoveDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginalMoveDate) { // not required
 		return nil
 	}
@@ -334,12 +330,11 @@ func (m *CreatePersonallyProcuredMovePayload) validateOriginalMoveDate(formats s
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validatePickupPostalCode(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("pickup_postal_code", "body", string(*m.PickupPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("pickup_postal_code", "body", *m.PickupPostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -347,7 +342,6 @@ func (m *CreatePersonallyProcuredMovePayload) validatePickupPostalCode(formats s
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateSize(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Size) { // not required
 		return nil
 	}
@@ -365,13 +359,76 @@ func (m *CreatePersonallyProcuredMovePayload) validateSize(formats strfmt.Regist
 }
 
 func (m *CreatePersonallyProcuredMovePayload) validateWeightEstimate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.WeightEstimate) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("weight_estimate", "body", int64(*m.WeightEstimate), 0, false); err != nil {
+	if err := validate.MinimumInt("weight_estimate", "body", *m.WeightEstimate, 0, false); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create personally procured move payload based on the context it is used
+func (m *CreatePersonallyProcuredMovePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAdvance(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAdvanceWorksheet(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSize(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreatePersonallyProcuredMovePayload) contextValidateAdvance(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Advance != nil {
+		if err := m.Advance.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advance")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreatePersonallyProcuredMovePayload) contextValidateAdvanceWorksheet(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.AdvanceWorksheet != nil {
+		if err := m.AdvanceWorksheet.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("advance_worksheet")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreatePersonallyProcuredMovePayload) contextValidateSize(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Size != nil {
+		if err := m.Size.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("size")
+			}
+			return err
+		}
 	}
 
 	return nil

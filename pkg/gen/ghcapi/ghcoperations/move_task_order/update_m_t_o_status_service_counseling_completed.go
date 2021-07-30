@@ -29,7 +29,7 @@ func NewUpdateMTOStatusServiceCounselingCompleted(ctx *middleware.Context, handl
 	return &UpdateMTOStatusServiceCounselingCompleted{Context: ctx, Handler: handler}
 }
 
-/*UpdateMTOStatusServiceCounselingCompleted swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed moveTaskOrder updateMTOStatusServiceCounselingCompleted
+/* UpdateMTOStatusServiceCounselingCompleted swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status/service-counseling-completed moveTaskOrder updateMTOStatusServiceCounselingCompleted
 
 Changes move (move task order) status to service counseling completed
 
@@ -44,17 +44,15 @@ type UpdateMTOStatusServiceCounselingCompleted struct {
 func (o *UpdateMTOStatusServiceCounselingCompleted) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdateMTOStatusServiceCounselingCompletedParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

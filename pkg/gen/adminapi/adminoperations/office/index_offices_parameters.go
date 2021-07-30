@@ -16,7 +16,8 @@ import (
 )
 
 // NewIndexOfficesParams creates a new IndexOfficesParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexOfficesParams() IndexOfficesParams {
 
 	return IndexOfficesParams{}
@@ -88,7 +89,6 @@ func (o *IndexOfficesParams) BindRequest(r *http.Request, route *middleware.Matc
 	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -104,10 +104,10 @@ func (o *IndexOfficesParams) bindFilter(rawData []string, hasKey bool, formats s
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Filter = &raw
 
 	return nil
@@ -122,6 +122,7 @@ func (o *IndexOfficesParams) bindOrder(rawData []string, hasKey bool, formats st
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -144,6 +145,7 @@ func (o *IndexOfficesParams) bindPage(rawData []string, hasKey bool, formats str
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -166,6 +168,7 @@ func (o *IndexOfficesParams) bindPerPage(rawData []string, hasKey bool, formats 
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -188,10 +191,10 @@ func (o *IndexOfficesParams) bindSort(rawData []string, hasKey bool, formats str
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Sort = &raw
 
 	return nil

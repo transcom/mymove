@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type TransportationServiceProviderPerformance struct {
 
 	// best value score
+	// Example: 98.01
 	// Required: true
 	BestValueScore *float64 `json:"bestValueScore"`
 
@@ -27,15 +30,18 @@ type TransportationServiceProviderPerformance struct {
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// linehaul rate
+	// Example: 0.26085695149376986
 	// Required: true
 	LinehaulRate *float64 `json:"linehaulRate"`
 
 	// offer count
+	// Example: 1
 	// Required: true
 	OfferCount *int64 `json:"offerCount"`
 
@@ -50,6 +56,7 @@ type TransportationServiceProviderPerformance struct {
 	PerformancePeriodStart *strfmt.DateTime `json:"performancePeriodStart"`
 
 	// quality band
+	// Example: 29
 	QualityBand *int64 `json:"qualityBand,omitempty"`
 
 	// rate cycle end
@@ -63,15 +70,18 @@ type TransportationServiceProviderPerformance struct {
 	RateCycleStart *strfmt.DateTime `json:"rateCycleStart"`
 
 	// sit rate
+	// Example: 0.26085695149376986
 	// Required: true
 	SitRate *float64 `json:"sitRate"`
 
 	// traffic distribution list Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	TrafficDistributionListID *strfmt.UUID `json:"trafficDistributionListId"`
 
 	// transportation service provider Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	TransportationServiceProviderID *strfmt.UUID `json:"transportationServiceProviderId"`
@@ -294,6 +304,11 @@ func (m *TransportationServiceProviderPerformance) validateUpdatedAt(formats str
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this transportation service provider performance based on context it is used
+func (m *TransportationServiceProviderPerformance) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

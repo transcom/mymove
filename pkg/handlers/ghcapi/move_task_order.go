@@ -31,9 +31,10 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
 	searchParams := services.MoveTaskOrderFetcherParams{
-		IncludeHidden: false,
+		IncludeHidden:   false,
+		MoveTaskOrderID: moveTaskOrderID,
 	}
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(&searchParams)
 	if err != nil {
 		logger.Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

@@ -6,6 +6,7 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -18,10 +19,15 @@ import (
 // swagger:model Rank
 type Rank string
 
+func NewRank(value Rank) *Rank {
+	v := value
+	return &v
+}
+
 const (
 
-	// RankAviationCadet captures enum value "aviation-cadet"
-	RankAviationCadet Rank = "aviation-cadet"
+	// RankAviationDashCadet captures enum value "aviation-cadet"
+	RankAviationDashCadet Rank = "aviation-cadet"
 
 	// RankCadet captures enum value "cadet"
 	RankCadet Rank = "cadet"
@@ -29,80 +35,80 @@ const (
 	// RankCivilian captures enum value "civilian"
 	RankCivilian Rank = "civilian"
 
-	// RankE1 captures enum value "e-1"
-	RankE1 Rank = "e-1"
+	// RankEDash1 captures enum value "e-1"
+	RankEDash1 Rank = "e-1"
 
-	// RankE2 captures enum value "e-2"
-	RankE2 Rank = "e-2"
+	// RankEDash2 captures enum value "e-2"
+	RankEDash2 Rank = "e-2"
 
-	// RankE3 captures enum value "e-3"
-	RankE3 Rank = "e-3"
+	// RankEDash3 captures enum value "e-3"
+	RankEDash3 Rank = "e-3"
 
-	// RankE4 captures enum value "e-4"
-	RankE4 Rank = "e-4"
+	// RankEDash4 captures enum value "e-4"
+	RankEDash4 Rank = "e-4"
 
-	// RankE5 captures enum value "e-5"
-	RankE5 Rank = "e-5"
+	// RankEDash5 captures enum value "e-5"
+	RankEDash5 Rank = "e-5"
 
-	// RankE6 captures enum value "e-6"
-	RankE6 Rank = "e-6"
+	// RankEDash6 captures enum value "e-6"
+	RankEDash6 Rank = "e-6"
 
-	// RankE7 captures enum value "e-7"
-	RankE7 Rank = "e-7"
+	// RankEDash7 captures enum value "e-7"
+	RankEDash7 Rank = "e-7"
 
-	// RankE8 captures enum value "e-8"
-	RankE8 Rank = "e-8"
+	// RankEDash8 captures enum value "e-8"
+	RankEDash8 Rank = "e-8"
 
-	// RankE9 captures enum value "e-9"
-	RankE9 Rank = "e-9"
+	// RankEDash9 captures enum value "e-9"
+	RankEDash9 Rank = "e-9"
 
 	// RankMidshipman captures enum value "midshipman"
 	RankMidshipman Rank = "midshipman"
 
-	// RankO1 captures enum value "o-1"
-	RankO1 Rank = "o-1"
+	// RankODash1 captures enum value "o-1"
+	RankODash1 Rank = "o-1"
 
-	// RankO2 captures enum value "o-2"
-	RankO2 Rank = "o-2"
+	// RankODash2 captures enum value "o-2"
+	RankODash2 Rank = "o-2"
 
-	// RankO3 captures enum value "o-3"
-	RankO3 Rank = "o-3"
+	// RankODash3 captures enum value "o-3"
+	RankODash3 Rank = "o-3"
 
-	// RankO4 captures enum value "o-4"
-	RankO4 Rank = "o-4"
+	// RankODash4 captures enum value "o-4"
+	RankODash4 Rank = "o-4"
 
-	// RankO5 captures enum value "o-5"
-	RankO5 Rank = "o-5"
+	// RankODash5 captures enum value "o-5"
+	RankODash5 Rank = "o-5"
 
-	// RankO6 captures enum value "o-6"
-	RankO6 Rank = "o-6"
+	// RankODash6 captures enum value "o-6"
+	RankODash6 Rank = "o-6"
 
-	// RankO7 captures enum value "o-7"
-	RankO7 Rank = "o-7"
+	// RankODash7 captures enum value "o-7"
+	RankODash7 Rank = "o-7"
 
-	// RankO8 captures enum value "o-8"
-	RankO8 Rank = "o-8"
+	// RankODash8 captures enum value "o-8"
+	RankODash8 Rank = "o-8"
 
-	// RankO9 captures enum value "o-9"
-	RankO9 Rank = "o-9"
+	// RankODash9 captures enum value "o-9"
+	RankODash9 Rank = "o-9"
 
-	// RankO10 captures enum value "o-10"
-	RankO10 Rank = "o-10"
+	// RankODash10 captures enum value "o-10"
+	RankODash10 Rank = "o-10"
 
-	// RankW1 captures enum value "w-1"
-	RankW1 Rank = "w-1"
+	// RankWDash1 captures enum value "w-1"
+	RankWDash1 Rank = "w-1"
 
-	// RankW2 captures enum value "w-2"
-	RankW2 Rank = "w-2"
+	// RankWDash2 captures enum value "w-2"
+	RankWDash2 Rank = "w-2"
 
-	// RankW3 captures enum value "w-3"
-	RankW3 Rank = "w-3"
+	// RankWDash3 captures enum value "w-3"
+	RankWDash3 Rank = "w-3"
 
-	// RankW4 captures enum value "w-4"
-	RankW4 Rank = "w-4"
+	// RankWDash4 captures enum value "w-4"
+	RankWDash4 Rank = "w-4"
 
-	// RankW5 captures enum value "w-5"
-	RankW5 Rank = "w-5"
+	// RankWDash5 captures enum value "w-5"
+	RankWDash5 Rank = "w-5"
 )
 
 // for schema
@@ -137,5 +143,10 @@ func (m Rank) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this rank based on context it is used
+func (m Rank) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

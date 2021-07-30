@@ -29,7 +29,7 @@ func NewListMTOShipments(ctx *middleware.Context, handler ListMTOShipmentsHandle
 	return &ListMTOShipments{Context: ctx, Handler: handler}
 }
 
-/*ListMTOShipments swagger:route GET /moves/{moveTaskOrderID}/mto_shipments mtoShipment listMTOShipments
+/* ListMTOShipments swagger:route GET /moves/{moveTaskOrderID}/mto_shipments mtoShipment listMTOShipments
 
 Gets all shipments for a move task order
 
@@ -45,17 +45,15 @@ type ListMTOShipments struct {
 func (o *ListMTOShipments) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewListMTOShipmentsParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

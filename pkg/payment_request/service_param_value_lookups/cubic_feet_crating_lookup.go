@@ -7,10 +7,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-const (
-	thousandthInchesPerFoot = 12000
-)
-
 // CubicFeetCratingLookup does lookup for CubicFeetCrating
 type CubicFeetCratingLookup struct {
 	Dimensions models.MTOServiceItemDimensions
@@ -22,9 +18,9 @@ func (c CubicFeetCratingLookup) lookup(keyData *ServiceItemParamKeyData) (string
 	// look for the first crating dimension.
 	for _, dimension := range c.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-			lengthFeet := float64(dimension.Length) / thousandthInchesPerFoot
-			heightFeet := float64(dimension.Height) / thousandthInchesPerFoot
-			widthFeet := float64(dimension.Width) / thousandthInchesPerFoot
+			lengthFeet := dimension.Length.ToFeet()
+			heightFeet := dimension.Height.ToFeet()
+			widthFeet := dimension.Width.ToFeet()
 
 			volume := lengthFeet * heightFeet * widthFeet
 			return fmt.Sprintf("%.2f", volume), nil

@@ -16,7 +16,8 @@ import (
 )
 
 // NewIndexWebhookSubscriptionsParams creates a new IndexWebhookSubscriptionsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexWebhookSubscriptionsParams() IndexWebhookSubscriptionsParams {
 
 	return IndexWebhookSubscriptionsParams{}
@@ -88,7 +89,6 @@ func (o *IndexWebhookSubscriptionsParams) BindRequest(r *http.Request, route *mi
 	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -104,10 +104,10 @@ func (o *IndexWebhookSubscriptionsParams) bindFilter(rawData []string, hasKey bo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Filter = &raw
 
 	return nil
@@ -122,6 +122,7 @@ func (o *IndexWebhookSubscriptionsParams) bindOrder(rawData []string, hasKey boo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -144,6 +145,7 @@ func (o *IndexWebhookSubscriptionsParams) bindPage(rawData []string, hasKey bool
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -166,6 +168,7 @@ func (o *IndexWebhookSubscriptionsParams) bindPerPage(rawData []string, hasKey b
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -188,10 +191,10 @@ func (o *IndexWebhookSubscriptionsParams) bindSort(rawData []string, hasKey bool
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Sort = &raw
 
 	return nil

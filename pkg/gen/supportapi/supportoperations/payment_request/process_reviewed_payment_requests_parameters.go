@@ -6,18 +6,21 @@ package payment_request
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewProcessReviewedPaymentRequestsParams creates a new ProcessReviewedPaymentRequestsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewProcessReviewedPaymentRequestsParams() ProcessReviewedPaymentRequestsParams {
 
 	return ProcessReviewedPaymentRequestsParams{}
@@ -60,6 +63,11 @@ func (o *ProcessReviewedPaymentRequestsParams) BindRequest(r *http.Request, rout
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
 				res = append(res, err)
 			}
 

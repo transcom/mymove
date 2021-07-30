@@ -18,7 +18,8 @@ import (
 )
 
 // NewDeleteUploadsParams creates a new DeleteUploadsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewDeleteUploadsParams() DeleteUploadsParams {
 
 	return DeleteUploadsParams{}
@@ -55,7 +56,6 @@ func (o *DeleteUploadsParams) BindRequest(r *http.Request, route *middleware.Mat
 	if err := o.bindUploadIds(qUploadIds, qhkUploadIds, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -69,7 +69,6 @@ func (o *DeleteUploadsParams) bindUploadIds(rawData []string, hasKey bool, forma
 	if !hasKey {
 		return errors.Required("uploadIds", "query", rawData)
 	}
-
 	var qvUploadIds string
 	if len(rawData) > 0 {
 		qvUploadIds = rawData[len(rawData)-1]
@@ -77,7 +76,6 @@ func (o *DeleteUploadsParams) bindUploadIds(rawData []string, hasKey bool, forma
 
 	// CollectionFormat:
 	uploadIdsIC := swag.SplitByFormat(qvUploadIds, "")
-
 	if len(uploadIdsIC) == 0 {
 		return errors.Required("uploadIds", "query", uploadIdsIC)
 	}

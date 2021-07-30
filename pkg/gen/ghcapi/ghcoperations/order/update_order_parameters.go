@@ -6,6 +6,7 @@ package order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateOrderParams creates a new UpdateOrderParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateOrderParams() UpdateOrderParams {
 
 	return UpdateOrderParams{}
@@ -79,6 +81,11 @@ func (o *UpdateOrderParams) BindRequest(r *http.Request, route *middleware.Match
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -86,11 +93,11 @@ func (o *UpdateOrderParams) BindRequest(r *http.Request, route *middleware.Match
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rOrderID, rhkOrderID, _ := route.Params.GetOK("orderID")
 	if err := o.bindOrderID(rOrderID, rhkOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -112,7 +119,6 @@ func (o *UpdateOrderParams) bindIfMatch(rawData []string, hasKey bool, formats s
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

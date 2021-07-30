@@ -15,7 +15,8 @@ import (
 )
 
 // NewDeleteMoveDocumentParams creates a new DeleteMoveDocumentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewDeleteMoveDocumentParams() DeleteMoveDocumentParams {
 
 	return DeleteMoveDocumentParams{}
@@ -50,7 +51,6 @@ func (o *DeleteMoveDocumentParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindMoveDocumentID(rMoveDocumentID, rhkMoveDocumentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

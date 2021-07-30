@@ -2,7 +2,6 @@ package movetaskorder
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -53,7 +52,7 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(searchParams *services.MoveT
 }
 
 // FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
 	query := f.db.EagerPreload(
@@ -70,7 +69,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 		"Orders.Entitlement",
 		"Orders.NewDutyStation.Address",
 		"Orders.OriginDutyStation.Address", // this line breaks Eager, but works with EagerPreload
-	).Where("id = $1", moveTaskOrderID)
+	)
+
+	// Find the move by ID or Locator
+	if searchParams.MoveTaskOrderID != uuid.Nil {
+		query.Where("id = $1", searchParams.MoveTaskOrderID)
+	} else {
+		query.Where("locator = $1", searchParams.Locator)
+	}
 
 	setMTOQueryFilters(query, searchParams)
 
@@ -78,13 +84,47 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID, sear
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Move{}, services.NewNotFoundError(moveTaskOrderID, "")
+			return &models.Move{}, services.NewNotFoundError(searchParams.MoveTaskOrderID, "")
 		default:
 			return &models.Move{}, err
 		}
 	}
 
 	return mto, nil
+}
+
+// ListPrimeMoveTaskOrders performs an optimized fetch for moves specifically targetting the Prime API.
+func (f moveTaskOrderFetcher) ListPrimeMoveTaskOrders(searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	var moveTaskOrders models.Moves
+	var err error
+
+	sql := `SELECT moves.*
+            FROM moves INNER JOIN orders ON moves.orders_id = orders.id
+            WHERE moves.available_to_prime_at IS NOT NULL AND moves.show = TRUE`
+
+	if searchParams != nil && searchParams.Since != nil {
+		sql = sql + ` AND (moves.updated_at >= $1 OR orders.updated_at >= $1 OR
+                          (moves.id IN (SELECT mto_shipments.move_id
+                                        FROM mto_shipments WHERE mto_shipments.updated_at >= $1
+                                        UNION
+                                        SELECT mto_service_items.move_id
+			                            FROM mto_service_items
+			                            WHERE mto_service_items.updated_at >= $1
+			                            UNION
+			                            SELECT payment_requests.move_id
+			                            FROM payment_requests
+			                            WHERE payment_requests.updated_at >= $1)));`
+		err = f.db.RawQuery(sql, *searchParams.Since).All(&moveTaskOrders)
+	} else {
+		sql = sql + `;`
+		err = f.db.RawQuery(sql).All(&moveTaskOrders)
+	}
+
+	if err != nil {
+		return models.Moves{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
+	}
+
+	return moveTaskOrders, nil
 }
 
 func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFetcherParams) {
@@ -102,8 +142,7 @@ func setMTOQueryFilters(query *pop.Query, searchParams *services.MoveTaskOrderFe
 		}
 
 		if searchParams.Since != nil {
-			since := time.Unix(*searchParams.Since, 0)
-			query.Where("updated_at > ?", since)
+			query.Where("updated_at > ?", *searchParams.Since)
 		}
 	}
 	// No return since this function uses pointers to modify the referenced query directly

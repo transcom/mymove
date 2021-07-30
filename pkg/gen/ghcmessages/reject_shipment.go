@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type RejectShipment struct {
 
 	// rejection reason
+	// Example: MTO Shipment not good enough
 	// Required: true
 	RejectionReason *string `json:"rejectionReason"`
 }
@@ -42,6 +45,11 @@ func (m *RejectShipment) validateRejectionReason(formats strfmt.Registry) error 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this reject shipment based on context it is used
+func (m *RejectShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

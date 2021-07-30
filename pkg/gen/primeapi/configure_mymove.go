@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 )
 
-//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --exclude-main
+//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --principal interface{} --exclude-main
 
 func configureFlags(api *primeoperations.MymoveAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -33,10 +33,17 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// Example:
 	// api.Logger = log.Printf
 
+	api.UseSwaggerUI()
+	// To continue using redoc as your UI, uncomment the following line
+	// api.UseRedoc()
+
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
 	api.JSONProducer = runtime.JSONProducer()
+
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// payment_request.CreateUploadMaxParseMemory = 32 << 20
 
 	if api.MtoShipmentCreateMTOAgentHandler == nil {
 		api.MtoShipmentCreateMTOAgentHandler = mto_shipment.CreateMTOAgentHandlerFunc(func(params mto_shipment.CreateMTOAgentParams) middleware.Responder {
@@ -66,6 +73,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderFetchMTOUpdatesHandler == nil {
 		api.MoveTaskOrderFetchMTOUpdatesHandler = move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderFetchMTOUpdatesFastHandler == nil {
+		api.MoveTaskOrderFetchMTOUpdatesFastHandler = move_task_order.FetchMTOUpdatesFastHandlerFunc(func(params move_task_order.FetchMTOUpdatesFastParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdatesFast has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -119,18 +131,18 @@ func configureTLS(tlsConfig *tls.Config) {
 // As soon as server is initialized but not run yet, this function will be called.
 // If you need to modify a config, store server instance to stop it individually later, this is the place.
 // This function can be called multiple times, depending on the number of serving schemes.
-// scheme value will be set accordingly: "http", "https" or "unix"
+// scheme value will be set accordingly: "http", "https" or "unix".
 func configureServer(s *http.Server, scheme, addr string) {
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
-// The middleware executes after routing but before authentication, binding and validation
+// The middleware executes after routing but before authentication, binding and validation.
 func setupMiddlewares(handler http.Handler) http.Handler {
 	return handler
 }
 
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
-// So this is a good place to plug in a panic handling middleware, logging and metrics
+// So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return handler
 }

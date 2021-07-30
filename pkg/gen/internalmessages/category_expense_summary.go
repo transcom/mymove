@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -45,7 +47,6 @@ func (m *CategoryExpenseSummary) Validate(formats strfmt.Registry) error {
 }
 
 func (m *CategoryExpenseSummary) validateCategory(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Category) { // not required
 		return nil
 	}
@@ -61,13 +62,56 @@ func (m *CategoryExpenseSummary) validateCategory(formats strfmt.Registry) error
 }
 
 func (m *CategoryExpenseSummary) validatePaymentMethods(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentMethods) { // not required
 		return nil
 	}
 
 	if m.PaymentMethods != nil {
 		if err := m.PaymentMethods.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("payment_methods")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this category expense summary based on the context it is used
+func (m *CategoryExpenseSummary) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCategory(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePaymentMethods(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CategoryExpenseSummary) contextValidateCategory(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Category.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("category")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *CategoryExpenseSummary) contextValidatePaymentMethods(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PaymentMethods != nil {
+		if err := m.PaymentMethods.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("payment_methods")
 			}

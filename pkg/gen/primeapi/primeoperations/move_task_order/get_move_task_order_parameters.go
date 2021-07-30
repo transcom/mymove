@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetMoveTaskOrderParams creates a new GetMoveTaskOrderParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetMoveTaskOrderParams() GetMoveTaskOrderParams {
 
 	return GetMoveTaskOrderParams{}
@@ -29,11 +30,11 @@ type GetMoveTaskOrderParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of move task order to use.
+	/*UUID or MoveCode of move task order to use.
 	  Required: true
 	  In: path
 	*/
-	MoveTaskOrderID string
+	MoveID string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -45,19 +46,18 @@ func (o *GetMoveTaskOrderParams) BindRequest(r *http.Request, route *middleware.
 
 	o.HTTPRequest = r
 
-	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
-	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
+	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveID")
+	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-// bindMoveTaskOrderID binds and validates parameter MoveTaskOrderID from path.
-func (o *GetMoveTaskOrderParams) bindMoveTaskOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindMoveID binds and validates parameter MoveID from path.
+func (o *GetMoveTaskOrderParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -65,8 +65,7 @@ func (o *GetMoveTaskOrderParams) bindMoveTaskOrderID(rawData []string, hasKey bo
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
-	o.MoveTaskOrderID = raw
+	o.MoveID = raw
 
 	return nil
 }
