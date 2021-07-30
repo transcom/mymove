@@ -5,6 +5,8 @@ import selectEvent from 'react-select-event';
 
 import EditOrdersForm from './EditOrdersForm';
 
+import { documentSizeLimitMsg } from 'shared/constants';
+
 jest.mock('scenes/ServiceMembers/api.js', () => ({
   ShowAddress: jest.fn().mockImplementation(() => Promise.resolve()),
   SearchDutyStations: jest.fn().mockImplementation(() =>
@@ -120,12 +122,18 @@ jest.mock('scenes/ServiceMembers/api.js', () => ({
 
 const testProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
-  initialValues: { orders_type: '', issue_date: '', report_by_date: '', has_dependents: '', new_duty_station: {} },
+  initialValues: {
+    orders_type: '',
+    issue_date: '',
+    report_by_date: '',
+    has_dependents: '',
+    new_duty_station: {},
+    uploaded_orders: [],
+  },
   onCancel: jest.fn(),
   onUploadComplete: jest.fn(),
   createUpload: jest.fn(),
   onDelete: jest.fn(),
-  existingUploads: [],
   filePond: {},
   ordersTypeOptions: [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
@@ -158,17 +166,16 @@ const initialValues = {
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
   },
+  uploaded_orders: [
+    {
+      id: '123',
+      created_at: '2020-11-08',
+      bytes: 1,
+      url: 'url',
+      filename: 'Test Upload',
+    },
+  ],
 };
-
-const existingUploads = [
-  {
-    id: '123',
-    created_at: '2020-11-08',
-    bytes: 1,
-    url: 'url',
-    filename: 'Test Upload',
-  },
-];
 
 describe('EditOrdersForm component', () => {
   describe('renders each input and checks if the field is required', () => {
@@ -186,6 +193,12 @@ describe('EditOrdersForm component', () => {
       if (required) {
         expect(await screen.findByLabelText(formInput)).toBeRequired();
       }
+    });
+
+    it('rendering the upload area', async () => {
+      render(<EditOrdersForm {...testProps} />);
+
+      expect(await screen.findByText(documentSizeLimitMsg)).toBeInTheDocument();
     });
   });
 
@@ -208,7 +221,29 @@ describe('EditOrdersForm component', () => {
   });
 
   it('validates the new duty station against the current duty station', async () => {
-    render(<EditOrdersForm {...testProps} currentStation={{ name: 'Luke AFB' }} />);
+    // Not testing the upload interaction, so give uploaded orders to the props.
+    render(
+      <EditOrdersForm
+        {...testProps}
+        currentStation={{ name: 'Luke AFB' }}
+        initialValues={{
+          uploaded_orders: [
+            {
+              id: '123',
+              created_at: '2020-11-08',
+              bytes: 1,
+              url: 'url',
+              filename: 'Test Upload',
+            },
+          ],
+        }}
+      />,
+    );
+
+    const submitButton = screen.getByRole('button', { name: 'Save' });
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
@@ -223,11 +258,8 @@ describe('EditOrdersForm component', () => {
         new_duty_station: 'Luke AFB',
       });
     });
-    const submitButton = screen.getByRole('button', { name: 'Save' });
 
-    await waitFor(() => {
-      expect(submitButton).toBeDisabled();
-    });
+    expect(submitButton).toBeDisabled();
 
     expect(
       screen.getByText('You entered the same duty station for your origin and destination. Please change one of them.'),
@@ -235,7 +267,7 @@ describe('EditOrdersForm component', () => {
   });
 
   it('shows an error message if the form is invalid', async () => {
-    render(<EditOrdersForm {...testProps} initialValues={initialValues} existingUploads={existingUploads} />);
+    render(<EditOrdersForm {...testProps} initialValues={initialValues} />);
     const submitButton = screen.getByRole('button', { name: 'Save' });
 
     await waitFor(() => {
@@ -255,7 +287,23 @@ describe('EditOrdersForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    render(<EditOrdersForm {...testProps} existingUploads={existingUploads} />);
+    // Not testing the upload interaction, so give uploaded orders to the props.
+    render(
+      <EditOrdersForm
+        {...testProps}
+        initialValues={{
+          uploaded_orders: [
+            {
+              id: '123',
+              created_at: '2020-11-08',
+              bytes: 1,
+              url: 'url',
+              filename: 'Test Upload',
+            },
+          ],
+        }}
+      />,
+    );
 
     userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
     userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
@@ -330,6 +378,15 @@ describe('EditOrdersForm component', () => {
         name: 'Yuma AFB',
         updated_at: '2020-10-19T17:01:16.114Z',
       },
+      uploaded_orders: [
+        {
+          id: '123',
+          created_at: '2020-11-08',
+          bytes: 1,
+          url: 'url',
+          filename: 'Test Upload',
+        },
+      ],
     };
 
     it('pre-fills the inputs', async () => {
@@ -346,6 +403,14 @@ describe('EditOrdersForm component', () => {
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
     });
+
+    it('renders the uploads table with an existing upload', async () => {
+      render(<EditOrdersForm {...testProps} initialValues={testInitialValues} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Test Upload')).toBeInTheDocument();
+      });
+    });
   });
 
   describe('disables the save button', () => {
@@ -353,16 +418,16 @@ describe('EditOrdersForm component', () => {
       ['Orders Type', 'orders_type', ''],
       ['Orders Date', 'issue_date', ''],
       ['Report By Date', 'report_by_date', ''],
-      ['Duty Station', 'new_duty_station', {}],
-      ['Uploaded Orders', 'existing_uploads', []],
-    ])('when there is no %s', async (attributeName, valueToReplaceIt) => {
+      ['Duty Station', 'new_duty_station', null],
+      ['Uploaded Orders', 'uploaded_orders', []],
+    ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {
         onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
         initialValues: {
           orders_type: 'PERMANENT_CHANGE_OF_STATION',
           issue_date: '2020-11-08',
           report_by_date: '2020-11-26',
-          has_dependents: 'No',
+          has_dependents: 'no',
           new_duty_station: {
             address: {
               city: 'Des Moines',
@@ -381,20 +446,20 @@ describe('EditOrdersForm component', () => {
             name: 'Yuma AFB',
             updated_at: '2020-10-19T17:01:16.114Z',
           },
+          uploaded_orders: [
+            {
+              id: '123',
+              created_at: '2020-11-08',
+              bytes: 1,
+              url: 'url',
+              filename: 'Test Upload',
+            },
+          ],
         },
         onCancel: jest.fn(),
         onUploadComplete: jest.fn(),
         createUpload: jest.fn(),
         onDelete: jest.fn(),
-        existingUploads: [
-          {
-            id: '123',
-            created_at: '2020-11-08',
-            bytes: 1,
-            url: 'url',
-            filename: 'Test Upload',
-          },
-        ],
         filePond: {},
         ordersTypeOptions: [
           { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
@@ -404,7 +469,7 @@ describe('EditOrdersForm component', () => {
         currentStation: {},
       };
 
-      modifiedProps.attributeName = valueToReplaceIt;
+      modifiedProps.initialValues[attributeName] = valueToReplaceIt;
 
       render(<EditOrdersForm {...modifiedProps} />);
 

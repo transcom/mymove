@@ -53,6 +53,7 @@ export const EditOrders = ({
     report_by_date: currentOrders?.report_by_date || '',
     has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
     new_duty_station: currentOrders?.new_duty_station || null,
+    uploaded_orders: existingUploads || [],
   };
 
   // Only allow PCS unless feature flag is on
@@ -161,7 +162,6 @@ export const EditOrders = ({
                 filePondEl={filePondEl}
                 createUpload={handleUploadFile}
                 onUploadComplete={handleUploadComplete}
-                existingUploads={existingUploads}
                 onDelete={handleDeleteFile}
                 ordersTypeOptions={ordersTypeOptions}
                 currentStation={currentStation}

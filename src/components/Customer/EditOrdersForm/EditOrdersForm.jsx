@@ -13,7 +13,6 @@ import profileImage from 'scenes/Review/images/profile.png';
 import Hint from 'components/Hint/index';
 import { DropdownArrayOf, ExistingUploadsShape } from 'types';
 import { DutyStationShape } from 'types/dutyStation';
-import { UploadsShape } from 'types/customerShapes';
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import formStyles from 'styles/form.module.scss';
@@ -22,7 +21,6 @@ const EditOrdersForm = ({
   createUpload,
   onDelete,
   initialValues,
-  existingUploads,
   onUploadComplete,
   filePondEl,
   onSubmit,
@@ -50,6 +48,17 @@ const EditOrdersForm = ({
       })
       .nullable()
       .required('Required'),
+    uploaded_orders: Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.string(),
+          created_at: Yup.string(),
+          bytes: Yup.string(),
+          url: Yup.string(),
+          filename: Yup.string(),
+        }),
+      )
+      .min(1),
   });
 
   return (
@@ -110,25 +119,23 @@ const EditOrdersForm = ({
               </FormGroup>
               <DutyStationInput name="new_duty_station" label="New duty station" displayAddress={false} />
               <p>Uploads:</p>
-              {existingUploads?.length > 0 && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
-              {initialValues?.uploaded_orders && (
-                <div>
-                  <p>{documentSizeLimitMsg}</p>
-                  <FileUpload
-                    ref={filePondEl}
-                    createUpload={createUpload}
-                    onChange={onUploadComplete}
-                    labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
-                  />
-                </div>
-              )}
+              <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
+              <div>
+                <p>{documentSizeLimitMsg}</p>
+                <FileUpload
+                  ref={filePondEl}
+                  createUpload={createUpload}
+                  onChange={onUploadComplete}
+                  labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+                />
+              </div>
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
               <WizardNavigation
                 editMode
                 onCancelClick={onCancel}
-                disableNext={!isValid || existingUploads?.length <= 0 || isSubmitting}
+                disableNext={!isValid || isSubmitting}
                 onNextClick={handleSubmit}
               />
             </div>
@@ -145,7 +152,6 @@ EditOrdersForm.propTypes = {
   onUploadComplete: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
-  existingUploads: ExistingUploadsShape,
   filePondEl: PropTypes.shape({
     current: PropTypes.shape({}),
   }),
@@ -157,17 +163,13 @@ EditOrdersForm.propTypes = {
     new_duty_station: PropTypes.shape({
       name: PropTypes.string,
     }),
-    uploaded_orders: PropTypes.shape({
-      id: PropTypes.string,
-      uploads: UploadsShape,
-    }),
+    uploaded_orders: ExistingUploadsShape,
   }).isRequired,
   currentStation: DutyStationShape.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 
 EditOrdersForm.defaultProps = {
-  existingUploads: [],
   filePondEl: null,
 };
 
