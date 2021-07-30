@@ -719,9 +719,10 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:       "L",
 			}
 
+			weightFloat := float64(weight)
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				FreightRate:          &weight,
+				FreightRate:          &weightFloat,
 				RateValueQualifier:   "LB",
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
@@ -749,9 +750,10 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
+			weightFloat := float64(weight)
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				FreightRate:          &weight,
+				FreightRate:          &weightFloat,
 				RateValueQualifier:   "LB",
 				Charge:               serviceItem.PriceCents.Int64(),
 			}

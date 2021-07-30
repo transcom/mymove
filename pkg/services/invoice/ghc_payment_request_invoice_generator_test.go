@@ -563,7 +563,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, *l1.FreightRate)
+				suite.Equal(float64(4242), *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -598,7 +598,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, *l1.FreightRate)
+				suite.Equal(float64(4242), *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})

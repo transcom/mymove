@@ -5,7 +5,7 @@ import (
 )
 
 func (suite *SegmentSuite) TestValidateL1() {
-	freightRate := 0
+	freightRate := float64(0)
 	validL1 := L1{
 		LadingLineItemNumber: 1,
 		FreightRate:          &freightRate,
@@ -21,7 +21,7 @@ func (suite *SegmentSuite) TestValidateL1() {
 	suite.T().Run("validate success", func(t *testing.T) {
 		err := suite.validator.Struct(validL1)
 		suite.NoError(err)
-		suite.Equal([]string{"L1", "1", "0", "LB", "10000"}, validL1.StringArray())
+		suite.Equal([]string{"L1", "1", "0.00", "LB", "10000"}, validL1.StringArray())
 	})
 
 	suite.T().Run("validate alt success", func(t *testing.T) {
@@ -31,7 +31,7 @@ func (suite *SegmentSuite) TestValidateL1() {
 	})
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
-		freightRate := -1
+		freightRate := float64(-1)
 		l1 := L1{
 			// LadingLineItemNumber:          // required
 			FreightRate:        &freightRate, // min
