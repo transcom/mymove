@@ -10,8 +10,7 @@ export default {
     weightValue: { defaultValue: 10000 },
     onEdit: { defaultValue: null },
     heading: { defaultValue: 'weight allowance' },
-    tagDetails: { defaultValue: null },
-    textDetails: { defaultValue: null },
+    children: { defaultValue: null },
   },
 };
 
