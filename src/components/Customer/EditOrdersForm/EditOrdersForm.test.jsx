@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, render, waitFor, fireEvent } from '@testing-library/react';
+import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 
@@ -216,7 +216,7 @@ describe('EditOrdersForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(screen.getByLabelText('New duty station'), { target: { value: 'AFB' } });
+    userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
     await selectEvent.select(await screen.findByLabelText('New duty station'), /Luke/);
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -263,8 +263,8 @@ describe('EditOrdersForm component', () => {
     userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(screen.getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(screen.getByLabelText('New duty station'), /Luke/);
+    userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
+    await selectEvent.select(await screen.findByLabelText('New duty station'), /Luke/);
     expect(screen.getByRole('form')).toHaveFormValues({
       new_duty_station: 'Luke AFB',
     });
