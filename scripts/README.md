@@ -134,7 +134,7 @@ application testing
 | `merge-pr`                      | A script to automate the landing of your GitHub pull requests.                                    |
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
-| `prime-api-demo`                | A script to demo the Prime API.                                                                   |
+| `pricing-acceptance`                | A script to handle the acceptance process for pricing work.                                                                   |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
 
