@@ -95,7 +95,7 @@ export class OfficeApp extends Component {
       location: { pathname },
       hasRecentError,
       traceId,
-      match,
+      history,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -164,7 +164,7 @@ export class OfficeApp extends Component {
             {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
-              {hasRecentError && match.path === '/' && (
+              {hasRecentError && history.location.pathname === '/' && (
                 <SystemError>
                   Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
                   <br />
@@ -274,8 +274,10 @@ OfficeApp.propTypes = {
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
-  match: PropTypes.shape({
-    path: PropTypes.string,
+  history: PropTypes.shape({
+    location: PropTypes.shape({
+      pathname: PropTypes.string,
+    }),
   }),
 };
 
@@ -284,8 +286,8 @@ OfficeApp.defaultProps = {
   userIsLoggedIn: false,
   userRoles: [],
   activeRole: null,
-  match: {
-    path: '',
+  history: {
+    location: { pathname: '' },
   },
 };
 

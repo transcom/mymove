@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { queryByTestId, render, screen } from '@testing-library/react';
 
 import ConnectedOffice, { OfficeApp } from './index';
 
@@ -87,7 +87,7 @@ describe('Office App', () => {
         render(
           <MockProviders
             initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
-            initialEntries={['/moves/queue']}
+            initialEntries={['/']}
           >
             <ConnectedOffice />
           </MockProviders>,
@@ -99,6 +99,17 @@ describe('Office App', () => {
         expect(screen.getByTestId('system-error').textContent).toEqual(
           "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
         );
+      });
+      it('does not render system error if it is not on the queue page', () => {
+        render(
+          <MockProviders
+            initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
+            initialEntries={['/sign-in']}
+          >
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+        expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
       });
     });
   });
