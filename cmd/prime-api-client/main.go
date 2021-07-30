@@ -15,15 +15,13 @@ import (
 // initRootFlags initializes flags relating to the prime api
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
-	cli.InitLoggingFlags(flag)
+	cli.InitVerboseFlags(flag)
 
 	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
 	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
-	flag.String(utils.FilenameFlag, "", "The name of the file being passed in")
-	flag.String(utils.IDFlag, "", "The UUID of the object being retrieved or updated")
 }
 
 func main() {
@@ -44,22 +42,6 @@ func main() {
 	prime.InitFetchMTOUpdatesFlags(fetchMTOsCommand.Flags())
 	root.AddCommand(fetchMTOsCommand)
 
-	getMoveTaskOrder := &cobra.Command{
-		Use:   "get-move-task-order",
-		Short: "Get an individual mto",
-		Long: `
-  This command gets a single move by ID.
-  It will only find Prime-available moves.
-  It requires the caller to set a move ID using the --id arg.
-
-  Endpoint path: /move-task-orders/{moveTaskOrderID}
-  Please see API documentation for full details on the endpoint definition.`,
-		RunE:         prime.GetMTO,
-		SilenceUsage: true,
-	}
-	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
-	root.AddCommand(getMoveTaskOrder)
-
 	listMTOsCommand := &cobra.Command{
 		Use:          "support-list-mtos",
 		Short:        "Fetch all MTOs",
@@ -69,25 +51,6 @@ func main() {
 	}
 	support.InitListMTOsFlags(listMTOsCommand.Flags())
 	root.AddCommand(listMTOsCommand)
-
-	createWebhookCommand := &cobra.Command{
-		Use:   "support-create-webhook-notification",
-		Short: "Create a WebhookNotification",
-		Long: `
-  This command creates a WebhookNotification object.
-  Passing in a file is optional, but when passed in a file the --filename param must be used.
-
-  Endpoint path: /webhook-notifications
-  The file should contain json as follows:
-    {
-      "body": <WebhookNotification>
-    }
-  Please see API documentation for full details on the WebhookNotification definition.`,
-		RunE:         support.CreateWebhookNotification,
-		SilenceUsage: true,
-	}
-	support.InitCreateWebhookNotificationFlags(createWebhookCommand.Flags())
-	root.AddCommand(createWebhookCommand)
 
 	createMTOCommand := &cobra.Command{
 		Use:   "support-create-move-task-order",
@@ -149,29 +112,6 @@ func main() {
 	prime.InitUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
-	updateMTOShipmentStatusCommand := &cobra.Command{
-		Use:   "update-mto-shipment-status",
-		Short: "Update MTO shipment status",
-		Long: `
-  This command allows the Prime to update the MTO shipment status.
-  Currently, they are only allowed to update a shipment to the "CANCELED" status.
-  It requires the caller to pass in a file using the --filename arg.
-  The file should contain a body defining the request body.
-
-  Endpoint path: /mto-shipments/{mtoShipmentID}/status
-  The file should contain json as follows:
-    {
-      "mtoShipmentID": <uuid string>,
-      "ifMatch": <etag>,
-      "body": <MtoShipmentRequestStatus>,
-    }
-  Please see API documentation for full details on the endpoint definition.`,
-		RunE:         prime.UpdateMTOShipmentStatus,
-		SilenceUsage: true,
-	}
-	prime.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
-	root.AddCommand(updateMTOShipmentStatusCommand)
-
 	updateMTOShipmentAddressCommand := &cobra.Command{
 		Use:   "update-mto-shipment-address",
 		Short: "Update MTO shipment address",
@@ -217,27 +157,6 @@ func main() {
 	}
 	prime.InitUpdateMTOAgentFlags(updateMTOAgentCommand.Flags())
 	root.AddCommand(updateMTOAgentCommand)
-
-	createMTOAgentCommand := &cobra.Command{
-		Use:   "create-mto-agent",
-		Short: "Create MTO agent",
-		Long: `
-  This command creates an agent associated with an MTO shipment.
-  It requires the caller to pass in a file using the --filename arg.
-  The file should contain path parameters and a body for the payload.
-
-  Endpoint path: /mto-shipments/{mtoShipmentID}/agents
-  The file should contain json as follows:
-  	{
-	  "mtoShipmentID": <uuid string>,
-      "body": <MTOAgent>
-  	}
-  Please see API documentation for full details on the endpoint definition.`,
-		RunE:         prime.CreateMTOAgent,
-		SilenceUsage: true,
-	}
-	prime.InitCreateMTOAgentFlags(createMTOAgentCommand.Flags())
-	root.AddCommand(createMTOAgentCommand)
 
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
@@ -314,67 +233,26 @@ func main() {
 	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
 	root.AddCommand(updatePaymentRequestStatusCommand)
 
-	supportUpdatePaymentServiceItemStatusCommand := &cobra.Command{
-		Use:   "support-update-payment-service-item-status",
-		Short: "Update payment service itemstatus for testing purposes",
+	getMoveTaskOrder := &cobra.Command{
+		Use:   "support-get-move-task-order",
+		Short: "Get an individual mto",
 		Long: `
-  This command allows developers to update the status of a payment service item status.
+  This command gets a single move task order by ID
   This is a support endpoint and is not available in production.
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters and headers.
 
-  Endpoint path: '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status:
-
-  The file should contain json as follows:
-    {
-      "paymentRequestID": <uuid string>,
-      "ifMatch": <etag>,
-      "body" : <paymentRequestStatus>
-    }
-  Please see API documentation for full details on the endpoint definition.`,
-		RunE:         support.UpdatePaymentServiceItemStatus,
-		SilenceUsage: true,
-	}
-	support.InitUpdatePaymentRequestStatusFlags(updatePaymentRequestStatusCommand.Flags())
-	root.AddCommand(supportUpdatePaymentServiceItemStatusCommand)
-
-	supportGetMoveTaskOrder := &cobra.Command{
-		Use:   "support-get-move-task-order",
-		Short: "Get an individual mto",
-		Long: `
-  This command gets a single move by ID.
-  This is a support endpoint and is not available in production. It can retrieve hidden and non-Prime available moves.
-  It requires the caller to set a move ID using the --id arg.
-
   Endpoint path: /move-task-orders/{moveTaskOrderID}
+  The file should contain json as follows:
+  	{
+  	"moveTaskOrderID": <uuid string>,
+  	}
   Please see API documentation for full details on the endpoint definition.`,
 		RunE:         support.GetMTO,
 		SilenceUsage: true,
 	}
-	support.InitGetMTOFlags(supportGetMoveTaskOrder.Flags())
-	root.AddCommand(supportGetMoveTaskOrder)
-
-	updateMTOServiceItem := &cobra.Command{
-		Use:   "update-mto-service-item",
-		Short: "Update service item",
-		Long: `
-  	This command updates an MTO service item. It requires the caller to pass in
-	a file using the --filename arg. The file should contain path parameters,
-	headers and a body for the payload.
-
-	Endpoint path: /mto-service-items/{mtoServiceItemID}
-  	The file should contain json as follows:
- 	  {
-        "mtoServiceItemID": <uuid string>,
-        "ifMatch": <etag>,
-        "body" : <UpdateMTOServiceItem>
-      }
-  	Please see API documentation for full details on the endpoint definition.`,
-		RunE:         prime.UpdateMTOServiceItem,
-		SilenceUsage: false,
-	}
-	prime.InitUpdateMTOServiceItemFlags(updateMTOServiceItem.Flags())
-	root.AddCommand(updateMTOServiceItem)
+	support.InitGetMTOFlags(getMoveTaskOrder.Flags())
+	root.AddCommand(getMoveTaskOrder)
 
 	updateMTOServiceItemStatus := &cobra.Command{
 		Use:   "support-update-mto-service-item-status",
@@ -449,7 +327,7 @@ func main() {
 	prime.InitCreatePaymentRequestUploadFlags(createPaymentRequestUploadCommand.Flags())
 	root.AddCommand(createPaymentRequestUploadCommand)
 
-	supportUpdateMTOShipmentStatusCommand := &cobra.Command{
+	updateMTOShipmentStatusCommand := &cobra.Command{
 		Use:   "support-update-mto-shipment-status",
 		Short: "Update MTO shipment status for prime",
 		Long: `
@@ -469,8 +347,8 @@ func main() {
 		RunE:         support.UpdateMTOShipmentStatus,
 		SilenceUsage: true,
 	}
-	support.InitUpdateMTOShipmentStatusFlags(supportUpdateMTOShipmentStatusCommand.Flags())
-	root.AddCommand(supportUpdateMTOShipmentStatusCommand)
+	support.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
+	root.AddCommand(updateMTOShipmentStatusCommand)
 
 	getPaymentRequestEDI := &cobra.Command{
 		Use:   "support-get-payment-request-edi",
@@ -518,20 +396,6 @@ func main() {
 	}
 	support.InitGetPaymentRequestEDIFlags(processReviewedPaymentRequests.Flags())
 	root.AddCommand(processReviewedPaymentRequests)
-
-	hideNonFakeMoveTaskOrdersCommand := &cobra.Command{
-		Use:   "support-hide-non-fake-mtos",
-		Short: "Hide moves not in the fake data spreadsheet",
-		Long: `This command will trigger finding all of the moves in stg and env environments
-		that do not use fake data from the fake names and addresses spreadsheet.
-		To do this, all of the moves that do not match the data in the fake data spreadsheet
-		will set the moves.show field to false.
-		This will cause the move to not appear in the office applications.`,
-		RunE:         support.HideNonFakeMoveTaskOrders,
-		SilenceUsage: true,
-	}
-	support.InitHideNonFakeMoveTaskOrdersFlags(hideNonFakeMoveTaskOrdersCommand.Flags())
-	root.AddCommand(hideNonFakeMoveTaskOrdersCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",
