@@ -409,7 +409,7 @@ describe('makeCalculations', () => {
       {
         value: '2',
         label: 'Crating size (cu ft)',
-        details: ['Description: Grand piano', 'Dimensions: 0.05x0.1x0.08 in'],
+        details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
       },
       {
         value: '1.71',
@@ -433,7 +433,7 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DUCRT', 99999, testParams.DomesticUncrating, testParams.additionalCratingDataDCRT);
     expect(result).toEqual([
       {
-        details: ['Description: Grand piano', 'Dimensions: 0.05x0.1x0.08 in'],
+        details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
         label: 'Crating size (cu ft)',
         value: '2',
       },
@@ -445,7 +445,7 @@ describe('makeCalculations', () => {
       {
         details: [],
         label: 'Price escalation factor',
-        value: '',
+        value: '1.033',
       },
       {
         details: [''],

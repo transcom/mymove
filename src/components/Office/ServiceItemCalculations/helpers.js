@@ -1,6 +1,6 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { convertFromThousandthInchToInch, formatWeight, formatCents, toDollarString } from 'shared/formatters';
+import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
 import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
@@ -364,15 +364,14 @@ const unCratingPrice = (params) => {
 
 const cratingSize = (params, mtoParams) => {
   const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating, params);
+  const length = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionLength, params);
+  const height = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionHeight, params);
+  const width = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionWidth, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating;
 
   const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
 
-  const dimensions = mtoParams.dimensions.find((dim) => dim.type === 'CRATE');
-
-  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${convertFromThousandthInchToInch(
-    dimensions.length,
-  )}x${convertFromThousandthInchToInch(dimensions.width)}x${convertFromThousandthInchToInch(dimensions.height)} in`;
+  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${length}x${width}x${height} in`;
 
   return calculation(value, label, description, formattedDimensions);
 };
