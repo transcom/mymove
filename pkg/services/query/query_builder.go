@@ -28,10 +28,11 @@ const asc = "asc"
 const desc = "desc"
 
 // Error message constants
-const fetchManyReflectionMessage = "Model should be pointer to slice of structs"
+// fetchManyReflectionMessage means Model should be pointer to slice of structs
+const fetchManyReflectionMessage = "Data error encountered"
 
-// FetchOneReflectionMessage error message for fetching one struct by reflection
-const FetchOneReflectionMessage = "Model should be pointer to struct"
+// FetchOneReflectionMessage means Model should be pointer to struct
+const FetchOneReflectionMessage = "Data error encountered"
 
 // Builder is a wrapper around pop
 // with more flexible query patterns to MilMove
