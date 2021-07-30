@@ -95,6 +95,7 @@ export class OfficeApp extends Component {
       location: { pathname },
       hasRecentError,
       traceId,
+      match,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -164,17 +165,19 @@ export class OfficeApp extends Component {
             {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
-              {hasRecentError && (
-                <SystemError>
-                  Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
-                  <br />
-                  If that doesn&apos;t fix it, contact the{' '}
-                  <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
-                    Technical Help Desk
-                  </a>{' '}
-                  and give them this code: <strong>{traceId}</strong>
-                </SystemError>
-              )}
+              {hasRecentError &&
+                match.path ===
+                  '/'(
+                    <SystemError>
+                      Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
+                      <br />
+                      If that doesn&apos;t fix it, contact the{' '}
+                      <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
+                        Technical Help Desk
+                      </a>{' '}
+                      and give them this code: <strong>{traceId}</strong>
+                    </SystemError>,
+                  )}
               {hasError && <SomethingWentWrong error={error} info={info} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>
@@ -274,6 +277,9 @@ OfficeApp.propTypes = {
   activeRole: PropTypes.string,
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
+  match: PropTypes.shape({
+    path: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 OfficeApp.defaultProps = {
