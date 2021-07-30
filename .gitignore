@@ -93,3 +93,5 @@ storybook-static
 coverage-cypress/
 
 .nyc_output/
+
+reports/
