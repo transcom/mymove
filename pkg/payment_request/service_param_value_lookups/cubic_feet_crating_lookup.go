@@ -1,8 +1,6 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -18,17 +16,7 @@ func (c CubicFeetCratingLookup) lookup(keyData *ServiceItemParamKeyData) (string
 	// look for the first crating dimension.
 	for _, dimension := range c.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-
-			// volume := dimension.Volume() // dimensions.Volume().ToFeet()
-			// return fmt.Sprintf("%.2f", float64(volume)), nil
-
-			lengthFeet := dimension.Length.ToFeet()
-			heightFeet := dimension.Height.ToFeet()
-			widthFeet := dimension.Width.ToFeet()
-
-			volume := lengthFeet * heightFeet * widthFeet
-			return fmt.Sprintf("%.2f", volume), nil
-
+			return dimension.Volume().String(), nil
 		}
 	}
 
