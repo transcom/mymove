@@ -169,7 +169,7 @@ export class CustomerApp extends Component {
                     path={customerRoutes.CONTACT_INFO_EDIT_PATH}
                     component={EditContactInfo}
                   />
-                  <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
                   <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"

@@ -1,45 +1,71 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { reduxForm, Field } from 'redux-form';
+import { Formik, Field } from 'formik';
+import * as Yup from 'yup';
+import { Radio, FormGroup, Label } from '@trussworks/react-uswds';
 
-import SaveCancelButtons from 'scenes/Review/SaveCancelButtons';
-import { withContext } from 'shared/AppContext';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
+import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { documentSizeLimitMsg } from 'shared/constants';
-import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
-import 'scenes/Review/Review.css';
 import profileImage from 'scenes/Review/images/profile.png';
-import { ExistingUploadsShape } from 'types';
-import { OrdersShape } from 'types/customerShapes';
-
-const editOrdersFormName = 'edit_orders';
+import Hint from 'components/Hint/index';
+import { DropdownArrayOf, ExistingUploadsShape } from 'types';
+import { DutyStationShape } from 'types/dutyStation';
+import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import formStyles from 'styles/form.module.scss';
 
 const EditOrdersForm = ({
   createUpload,
   onDelete,
-  schema,
-  handleSubmit,
-  submitting,
-  valid,
   initialValues,
-  existingUploads,
   onUploadComplete,
   filePondEl,
-  context,
+  onSubmit,
+  ordersTypeOptions,
+  currentStation,
+  onCancel,
 }) => {
-  const showAllOrdersTypes = context.flags.allOrdersTypes;
-  const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
+  const validationSchema = Yup.object().shape({
+    orders_type: Yup.mixed()
+      .oneOf(ordersTypeOptions.map((i) => i.key))
+      .required('Required'),
+    issue_date: Yup.date()
+      .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+      .required('Required'),
+    report_by_date: Yup.date()
+      .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
+      .required('Required'),
+    has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
+    new_duty_station: Yup.object()
+      .shape({
+        name: Yup.string().notOneOf(
+          [currentStation?.name],
+          'You entered the same duty station for your origin and destination. Please change one of them.',
+        ),
+      })
+      .nullable()
+      .required('Required'),
+    uploaded_orders: Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.string(),
+          created_at: Yup.string(),
+          bytes: Yup.string(),
+          url: Yup.string(),
+          filename: Yup.string(),
+        }),
+      )
+      .min(1),
+  });
 
   return (
-    <div className="grid-container usa-prose">
-      <div className="grid-row">
-        <div className="grid-col-12">
-          <form onSubmit={handleSubmit}>
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
+      {({ isValid, isSubmitting, handleSubmit }) => {
+        return (
+          <Form className={formStyles.form}>
             <img src={profileImage} alt="" />
             <h1
               style={{
@@ -51,67 +77,100 @@ const EditOrdersForm = ({
             >
               Orders
             </h1>
-            <SectionWrapper>
+            <SectionWrapper className={formStyles.formSection}>
               <h2>Edit Orders:</h2>
-              <SwaggerField
-                fieldName="orders_type"
-                swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}
+              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
+              <DatePickerInput
+                name="issue_date"
+                label="Orders date"
                 required
+                renderInput={(input) => (
+                  <>
+                    {input}
+                    <Hint>
+                      <p>Date your orders were issued.</p>
+                    </Hint>
+                  </>
+                )}
               />
-              <SwaggerField fieldName="issue_date" swagger={schema} required />
-              <SwaggerField fieldName="report_by_date" swagger={schema} required />
-              <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-              <br />
-              <Field name="new_duty_station" component={DutyStationSearchBox} />
-              <p>Uploads:</p>
-              {existingUploads?.length > 0 && <UploadsTable uploads={existingUploads} onDelete={onDelete} />}
-              {initialValues?.uploaded_orders && (
+              <DatePickerInput name="report_by_date" label="Report-by date" required />
+              <FormGroup>
+                <Label>Are dependents included in your orders?</Label>
                 <div>
-                  <p>{documentSizeLimitMsg}</p>
-                  <FileUpload
-                    ref={filePondEl}
-                    createUpload={createUpload}
-                    onChange={onUploadComplete}
-                    labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+                  <Field
+                    as={Radio}
+                    label="Yes"
+                    id="hasDependentsYes"
+                    name="has_dependents"
+                    value="yes"
+                    title="Yes, dependents are included in my orders"
+                    type="radio"
+                  />
+                  <Field
+                    as={Radio}
+                    label="No"
+                    id="hasDependentsNo"
+                    name="has_dependents"
+                    value="no"
+                    title="No, dependents are not included in my orders"
+                    type="radio"
                   />
                 </div>
-              )}
+              </FormGroup>
+              <DutyStationInput name="new_duty_station" label="New duty station" displayAddress={false} />
+              <p>Uploads:</p>
+              <UploadsTable uploads={initialValues.uploaded_orders} onDelete={onDelete} />
+              <div>
+                <p>{documentSizeLimitMsg}</p>
+                <FileUpload
+                  ref={filePondEl}
+                  createUpload={createUpload}
+                  onChange={onUploadComplete}
+                  labelIdle={'Drag & drop or <span class="filepond--label-action">click to upload orders</span>'}
+                />
+              </div>
             </SectionWrapper>
-            <SaveCancelButtons valid={valid} submitting={submitting} />
-          </form>
-        </div>
-      </div>
-    </div>
+
+            <div className={formStyles.formActions}>
+              <WizardNavigation
+                editMode
+                onCancelClick={onCancel}
+                disableNext={!isValid || isSubmitting}
+                onNextClick={handleSubmit}
+              />
+            </div>
+          </Form>
+        );
+      }}
+    </Formik>
   );
 };
 
 EditOrdersForm.propTypes = {
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      allOrdersTypes: PropTypes.bool,
-    }).isRequired,
-  }).isRequired,
+  ordersTypeOptions: DropdownArrayOf.isRequired,
   createUpload: PropTypes.func.isRequired,
   onUploadComplete: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  valid: PropTypes.bool.isRequired,
-  handleSubmit: PropTypes.func.isRequired,
-  existingUploads: ExistingUploadsShape,
-  submitting: PropTypes.bool.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   filePondEl: PropTypes.shape({
     current: PropTypes.shape({}),
   }),
-  schema: PropTypes.shape({}).isRequired,
-  initialValues: OrdersShape.isRequired,
+  initialValues: PropTypes.shape({
+    orders_type: PropTypes.string,
+    issue_date: PropTypes.string,
+    report_by_date: PropTypes.string,
+    has_dependents: PropTypes.string,
+    new_duty_station: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    uploaded_orders: ExistingUploadsShape,
+  }).isRequired,
+  currentStation: DutyStationShape.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 EditOrdersForm.defaultProps = {
-  existingUploads: [],
   filePondEl: null,
 };
 
-export default withContext(
-  reduxForm({
-    form: editOrdersFormName,
-  })(EditOrdersForm),
-);
+export default EditOrdersForm;
