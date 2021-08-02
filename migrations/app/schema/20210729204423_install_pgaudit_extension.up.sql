@@ -24,3 +24,6 @@ BEGIN
   END IF;
 END
 $do$;
+
+-- Reset the role back to the role that is running the migrations.
+RESET ROLE;
