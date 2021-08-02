@@ -2,11 +2,13 @@ package serviceparamvaluelookups
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	//  "github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/unit"
+)
+
+const (
+	minCubicFeetBilled = unit.CubicFeet(4.0)
 )
 
 // CubicFeetBilledLookup does lookup for CubicFeetBilled
@@ -24,11 +26,14 @@ func (c CubicFeetBilledLookup) lookup(keyData *ServiceItemParamKeyData) (string,
 		return "", err
 	}
 
-	_, err = strconv.Atoi(cubicFeet) // convert to new unit CubicFeet //cubicFeetBilled
+	parsedCubicFeetCrating, err := unit.CubicFeetFromString(cubicFeet)
 	if err != nil {
 		return "", fmt.Errorf("could not convert CubicFeetCratingLookup [%s] to integer", cubicFeet)
 	}
 
-	return "", services.NewConflictError(keyData.MTOServiceItemID, "")
+	if parsedCubicFeetCrating < minCubicFeetBilled {
+		return minCubicFeetBilled.String(), nil
+	}
 
+	return cubicFeet, nil
 }

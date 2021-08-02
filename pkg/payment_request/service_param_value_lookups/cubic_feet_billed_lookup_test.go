@@ -15,7 +15,7 @@ func (suite *ServiceParamValueLookupsSuite) TestCubicFeetBilledLookup() {
 		//
 	})
 
-	suite.T().Run("under 4 cubic feet should error", func(t *testing.T) {
+	suite.T().Run("under 4 cubic feet should result in 4", func(t *testing.T) {
 		//
 	})
 }
