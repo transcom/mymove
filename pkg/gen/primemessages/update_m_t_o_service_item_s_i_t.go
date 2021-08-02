@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -247,6 +248,46 @@ func (m *UpdateMTOServiceItemSIT) validateSitDestinationFinalAddress(formats str
 
 	if m.SitDestinationFinalAddress != nil {
 		if err := m.SitDestinationFinalAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update m t o service item s i t based on the context it is used
+func (m *UpdateMTOServiceItemSIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOServiceItemSIT) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitDestinationFinalAddress != nil {
+		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("sitDestinationFinalAddress")
 			}

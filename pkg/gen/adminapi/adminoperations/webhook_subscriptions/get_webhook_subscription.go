@@ -29,7 +29,7 @@ func NewGetWebhookSubscription(ctx *middleware.Context, handler GetWebhookSubscr
 	return &GetWebhookSubscription{Context: ctx, Handler: handler}
 }
 
-/*GetWebhookSubscription swagger:route GET /webhook_subscriptions/{webhookSubscriptionId} webhook_subscriptions getWebhookSubscription
+/* GetWebhookSubscription swagger:route GET /webhook_subscriptions/{webhookSubscriptionId} webhook_subscriptions getWebhookSubscription
 
 Get information about a webhook subscription
 
@@ -44,17 +44,15 @@ type GetWebhookSubscription struct {
 func (o *GetWebhookSubscription) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetWebhookSubscriptionParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

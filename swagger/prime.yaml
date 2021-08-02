@@ -31,15 +31,23 @@ tags:
       The weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If
       the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and
       the contractor should keep this potential cost in mind when planning a move and the shipments within it.
-  - name: paymentRequest
   - name: mtoServiceItem
+    description: |
+      A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a
+      customer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be
+      approved by the TOO before payment can be requested.
+
+      There are three types of service items: accessorial, MTO-level, and standard.
+
+      **WIP:** Add an external link to an article that explains the different types of service items in more detail.
+  - name: paymentRequest
 x-tagGroups:
   - name: Endpoints
     tags:
     - moveTaskOrder
     - mtoShipment
-    - paymentRequest
     - mtoServiceItem
+    - paymentRequest
 paths:
   /move-task-orders:
     get:
@@ -80,7 +88,44 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/{moveTaskOrderID}:
+  /move-task-orders/fast:
+    get:
+      summary: fetchMTOUpdatesFast
+      description: |
+        Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
+        list down to only the moves that have been updated since the provided timestamp. A move will be considered
+        updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment requests,
+        is later than the provided date and time.
+
+        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
+        been set, that move will always appear in this list.
+      operationId: fetchMTOUpdatesFast
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: string
+          format: date-time
+          description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+      responses:
+        '200':
+          description: Successfully retrieved move task orders where `availableToPrimeAt` has been set.
+          schema:
+            $ref: '#/definitions/FetchMoveTaskOrders'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /move-task-orders/{moveID}:
     get:
       summary: getMoveTaskOrder
       description: |
@@ -94,9 +139,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - description: UUID of move task order to use.
+        - description: UUID or MoveCode of move task order to use.
           in: path
-          name: moveTaskOrderID
+          name: moveID
           required: true
           type: string
       responses:
@@ -1155,6 +1200,51 @@ definitions:
       - title
       - detail
     type: object
+  FetchMoveTaskOrder:
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveCode:
+        type: string
+        example: 'HYXFJF'
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      orderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      referenceId:
+        example: 1001-3456
+        type: string
+      availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      ppmType:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      ppmEstimatedWeight:
+        type: integer
+      eTag:
+        type: string
+        readOnly: true
+  FetchMoveTaskOrders:
+    items:
+      $ref: '#/definitions/FetchMoveTaskOrder'
+    type: array
   MoveTaskOrder:
     type: object
     required:
@@ -1285,21 +1375,22 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: ID of the service item
+        description: The ID of the service item.
+        readOnly: true
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: ID of the associated moveTaskOrder
+        description: The ID of the move for this service item.
       mtoShipmentID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: ID of the associated mtoShipment
+        description: The ID of the shipment this service is for, if any. Optional.
       reServiceName:
         type: string
         readOnly: true
-        description: Full descriptive name of the service
+        description: The full descriptive name of the service.
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       rejectionReason:
@@ -1307,13 +1398,13 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
-        description: Reason the service item was rejected by the TOO
+        description: The reason why this service item was rejected by the TOO.
       modelType: # Base type and sub-types of MTOServiceItem
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
         readOnly: true
-        description: ETag identifier required to update this object
+        description: A hash unique to this service item that should be used as the "If-Match" header for any updates.
     required:
       - modelType
       - moveTaskOrderID
@@ -1376,7 +1467,7 @@ definitions:
           - reServiceCode
           - sitEntryDate
   MTOServiceItemDimension:
-    description: Describes a dimension object for the MTOServiceItem.
+    description: The dimensions for either the item or the crate associated with a crating service item.
     type: object
     properties:
       id:
@@ -1412,22 +1503,29 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: Service codes allowed for this model type.
+            description: A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
             enum:
               - DCRT # Domestic Crating
               - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
-            $ref: '#/definitions/MTOServiceItemDimension'
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
           crate:
-            $ref: '#/definitions/MTOServiceItemDimension'
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
           description:
             type: string
             example: Decorated horse head to be crated.
+            description: A description of the item being crated.
           reason:
             type: string
             example: Storage items need to be picked up
-            description: Explanation of why Prime is picking up crating item.
+            description: >
+              The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while
+              deciding to approve or reject the service item.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1499,28 +1597,32 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: Service codes allowed for this model type.
+            description: >
+              A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`)
+              or destination (`DDSHUT`).
             enum:
               - DOSHUT # Domestic Origin Shuttle Service
               - DDSHUT # Domestic Destination Shuttle Service
           reason:
             type: string
             example: Storage items need to be picked up.
-            description: Explanation of why a shuttle service is required.
+            description: >
+              The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to
+              approve or reject the service item.
           description:
             type: string
             example: Things to be moved to the place by shuttle.
-            description: Further details about the shuttle service.
+            description: Details about the shuttle service.
           estimatedWeight:
             type: integer
             example: 4200
-            description: An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT & DOSHUT) service item.
+            description: An estimate of how much weight from a shipment will be included in the shuttling service.
             x-nullable: true
             x-omitempty: false
           actualWeight:
             type: integer
             example: 4000
-            description: Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT & DOSHUT) service items.
+            description: A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1528,7 +1630,7 @@ definitions:
           - reServiceCode
           - description
   MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem.
+    description: The status of a service item, indicating where it is in the TOO's approval process.
     type: string
     readOnly: true
     enum:
@@ -1679,7 +1781,7 @@ definitions:
       status:
         description: >
           The status of a shipment, indicating where it is in the TOO's approval process.
-          Can only be updated by the Prime in special circumstances.
+          Can only be updated by the contractor in special circumstances.
         type: string
         readOnly: true
         enum:

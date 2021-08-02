@@ -16,7 +16,8 @@ import (
 )
 
 // NewShowShipmentSummaryWorksheetParams creates a new ShowShipmentSummaryWorksheetParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowShipmentSummaryWorksheetParams() ShowShipmentSummaryWorksheetParams {
 
 	return ShowShipmentSummaryWorksheetParams{}
@@ -63,7 +64,6 @@ func (o *ShowShipmentSummaryWorksheetParams) BindRequest(r *http.Request, route 
 	if err := o.bindPreparationDate(qPreparationDate, qhkPreparationDate, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -115,6 +115,7 @@ func (o *ShowShipmentSummaryWorksheetParams) bindPreparationDate(rawData []strin
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("preparationDate", "query", raw); err != nil {
 		return err
 	}

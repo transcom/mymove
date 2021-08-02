@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -24,6 +25,11 @@ import (
 //
 // swagger:model UpdateMTOServiceItemModelType
 type UpdateMTOServiceItemModelType string
+
+func NewUpdateMTOServiceItemModelType(value UpdateMTOServiceItemModelType) *UpdateMTOServiceItemModelType {
+	v := value
+	return &v
+}
 
 const (
 
@@ -66,5 +72,10 @@ func (m UpdateMTOServiceItemModelType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this update m t o service item model type based on context it is used
+func (m UpdateMTOServiceItemModelType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

@@ -15,7 +15,8 @@ import (
 )
 
 // NewApproveReimbursementParams creates a new ApproveReimbursementParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewApproveReimbursementParams() ApproveReimbursementParams {
 
 	return ApproveReimbursementParams{}
@@ -50,7 +51,6 @@ func (o *ApproveReimbursementParams) BindRequest(r *http.Request, route *middlew
 	if err := o.bindReimbursementID(rReimbursementID, rhkReimbursementID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

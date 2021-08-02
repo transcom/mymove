@@ -15,7 +15,8 @@ import (
 )
 
 // NewIndexOrdersForMemberParams creates a new IndexOrdersForMemberParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexOrdersForMemberParams() IndexOrdersForMemberParams {
 
 	return IndexOrdersForMemberParams{}
@@ -51,7 +52,6 @@ func (o *IndexOrdersForMemberParams) BindRequest(r *http.Request, route *middlew
 	if err := o.bindEdipi(rEdipi, rhkEdipi, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -67,7 +67,6 @@ func (o *IndexOrdersForMemberParams) bindEdipi(rawData []string, hasKey bool, fo
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.Edipi = raw
 
 	if err := o.validateEdipi(formats); err != nil {

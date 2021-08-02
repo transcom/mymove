@@ -29,7 +29,7 @@ func NewGetMTOServiceItem(ctx *middleware.Context, handler GetMTOServiceItemHand
 	return &GetMTOServiceItem{Context: ctx, Handler: handler}
 }
 
-/*GetMTOServiceItem swagger:route GET /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID} mtoServiceItem getMTOServiceItem
+/* GetMTOServiceItem swagger:route GET /move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID} mtoServiceItem getMTOServiceItem
 
 Gets a line item by ID for a move by ID
 
@@ -44,17 +44,15 @@ type GetMTOServiceItem struct {
 func (o *GetMTOServiceItem) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetMTOServiceItemParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

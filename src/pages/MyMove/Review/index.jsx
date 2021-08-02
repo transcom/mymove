@@ -2,9 +2,11 @@ import React from 'react';
 import { bool, func } from 'prop-types';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
+import { generatePath } from 'react-router';
 
 import styles from './Review.module.scss';
 
+import { MatchShape } from 'types/router';
 import ScrollToTop from 'components/ScrollToTop';
 import { hasShortHaulError } from 'utils/incentives';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
@@ -16,13 +18,16 @@ import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { selectPPMEstimateError } from 'store/onboarding/selectors';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 
-const Review = ({ push, canMoveNext }) => {
+const Review = ({ push, canMoveNext, match }) => {
   const handleCancel = () => {
     push(generalRoutes.HOME_PATH);
   };
 
   const handleNext = () => {
-    push(customerRoutes.MOVE_AGREEMENT_PATH);
+    const nextPath = generatePath(customerRoutes.MOVE_AGREEMENT_PATH, {
+      moveId: match.params.moveId,
+    });
+    push(nextPath);
   };
 
   return (
@@ -59,6 +64,7 @@ const Review = ({ push, canMoveNext }) => {
 Review.propTypes = {
   canMoveNext: bool.isRequired,
   push: func.isRequired,
+  match: MatchShape.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => {

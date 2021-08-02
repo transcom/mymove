@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -37,15 +39,18 @@ type Customer struct {
 	Email *string `json:"email,omitempty"`
 
 	// first name
+	// Example: Vanya
 	// Required: true
 	FirstName *string `json:"firstName"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
+	// Example: Petrovna
 	// Required: true
 	LastName *string `json:"lastName"`
 
@@ -55,9 +60,10 @@ type Customer struct {
 
 	// rank
 	// Required: true
-	Rank Rank `json:"rank"`
+	Rank *Rank `json:"rank"`
 
 	// user ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UserID strfmt.UUID `json:"userID,omitempty"`
 }
@@ -122,7 +128,6 @@ func (m *Customer) validateAgency(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CurrentAddress) { // not required
 		return nil
 	}
@@ -149,12 +154,11 @@ func (m *Customer) validateDodID(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -171,7 +175,6 @@ func (m *Customer) validateFirstName(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -193,12 +196,11 @@ func (m *Customer) validateLastName(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validatePhone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Phone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", *m.Phone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -207,24 +209,105 @@ func (m *Customer) validatePhone(formats strfmt.Registry) error {
 
 func (m *Customer) validateRank(formats strfmt.Registry) error {
 
-	if err := m.Rank.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("rank")
-		}
+	if err := validate.Required("rank", "body", m.Rank); err != nil {
 		return err
+	}
+
+	if err := validate.Required("rank", "body", m.Rank); err != nil {
+		return err
+	}
+
+	if m.Rank != nil {
+		if err := m.Rank.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *Customer) validateUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("userID", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this customer based on the context it is used
+func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCurrentAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRank(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CurrentAddress != nil {
+		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("currentAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Customer) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Customer) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Customer) contextValidateRank(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Rank != nil {
+		if err := m.Rank.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("rank")
+			}
+			return err
+		}
 	}
 
 	return nil

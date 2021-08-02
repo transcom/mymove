@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model MTOServiceItemStatus
 type MTOServiceItemStatus string
+
+func NewMTOServiceItemStatus(value MTOServiceItemStatus) *MTOServiceItemStatus {
+	v := value
+	return &v
+}
 
 const (
 
@@ -62,5 +68,10 @@ func (m MTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this m t o service item status based on context it is used
+func (m MTOServiceItemStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

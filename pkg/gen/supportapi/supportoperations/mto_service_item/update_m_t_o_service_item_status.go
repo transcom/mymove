@@ -29,7 +29,7 @@ func NewUpdateMTOServiceItemStatus(ctx *middleware.Context, handler UpdateMTOSer
 	return &UpdateMTOServiceItemStatus{Context: ctx, Handler: handler}
 }
 
-/*UpdateMTOServiceItemStatus swagger:route PATCH /mto-service-items/{mtoServiceItemID}/status mtoServiceItem updateMTOServiceItemStatus
+/* UpdateMTOServiceItemStatus swagger:route PATCH /mto-service-items/{mtoServiceItemID}/status mtoServiceItem updateMTOServiceItemStatus
 
 updateMTOServiceItemStatus
 
@@ -47,17 +47,15 @@ type UpdateMTOServiceItemStatus struct {
 func (o *UpdateMTOServiceItemStatus) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUpdateMTOServiceItemStatusParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

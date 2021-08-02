@@ -6,6 +6,7 @@ package certification
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewCreateSignedCertificationParams creates a new CreateSignedCertificationParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewCreateSignedCertificationParams() CreateSignedCertificationParams {
 
 	return CreateSignedCertificationParams{}
@@ -70,6 +72,11 @@ func (o *CreateSignedCertificationParams) BindRequest(r *http.Request, route *mi
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.CreateSignedCertificationPayload = &body
 			}
@@ -77,11 +84,11 @@ func (o *CreateSignedCertificationParams) BindRequest(r *http.Request, route *mi
 	} else {
 		res = append(res, errors.Required("createSignedCertificationPayload", "body", ""))
 	}
+
 	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveId")
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

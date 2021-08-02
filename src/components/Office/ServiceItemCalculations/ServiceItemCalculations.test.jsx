@@ -133,7 +133,7 @@ describe('ServiceItemCalculations DLH', () => {
 });
 
 describe('ServiceItemCalculations DCRT', () => {
-  const itemCode = 'DCRT';
+  const itemCode = SERVICE_ITEM_CODES.DCRT;
   const totalAmount = 1000;
   const serviceItemCalculationsLarge = mount(
     <ServiceItemCalculations
@@ -196,7 +196,7 @@ describe('ServiceItemCalculations DCRT', () => {
     {
       value: '2',
       label: 'Crating size (cu ft)',
-      details: ['Description: Grand piano', 'Dimensions: 0.05x0.1x0.08 in'],
+      details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
     },
     {
       value: '1.71',
@@ -215,8 +215,98 @@ describe('ServiceItemCalculations DCRT', () => {
     },
   ];
   testServiceItemCalculation([
-    SERVICE_ITEM_CODES.DCRT,
+    itemCode,
     testParams.DomesticCrating,
+    testParams.additionalCratingDataDCRT,
+    expectedOutput,
+  ]);
+});
+
+describe('ServiceItemCalculations DUCRT', () => {
+  const itemCode = SERVICE_ITEM_CODES.DUCRT;
+  const totalAmount = 1000;
+  const serviceItemCalculationsLarge = mount(
+    <ServiceItemCalculations
+      itemCode={itemCode}
+      totalAmountRequested={totalAmount}
+      serviceItemParams={testParams.DomesticUncrating}
+      additionalServiceItemData={testParams.additionalCratingDataDCRT}
+    />,
+  );
+  const serviceItemCalculationsSmall = mount(
+    <ServiceItemCalculations
+      itemCode={itemCode}
+      totalAmountRequested={totalAmount}
+      serviceItemParams={testParams.DomesticUncrating}
+      additionalServiceItemData={testParams.additionalCratingDataDCRT}
+      tableSize="small"
+    />,
+  );
+
+  it('renders without crashing', () => {
+    expect(serviceItemCalculationsLarge.length).toBe(1);
+  });
+
+  describe('large table', () => {
+    it('renders correct classnames by default', () => {
+      const wrapper = serviceItemCalculationsLarge.find('[data-testid="ServiceItemCalculations"]');
+      expect(wrapper.hasClass('ServiceItemCalculationsSmall')).toBe(false);
+    });
+
+    it('renders icons', () => {
+      const wrapper = serviceItemCalculationsLarge;
+      const timesIcons = wrapper.find('[icon="times"]');
+      const equalsIcons = wrapper.find('[icon="equals"]');
+
+      expect(timesIcons.length).toBe(2);
+      expect(equalsIcons.length).toBe(1);
+    });
+  });
+
+  describe('small table', () => {
+    it('renders correct classnames', () => {
+      expect(
+        serviceItemCalculationsSmall
+          .find('[data-testid="ServiceItemCalculations"]')
+          .hasClass('ServiceItemCalculationsSmall'),
+      ).toBe(true);
+    });
+
+    it('renders no icons', () => {
+      const wrapper = serviceItemCalculationsSmall;
+      const timesIcons = wrapper.find('[icon="times"]');
+      const equalsIcons = wrapper.find('[icon="equals"]');
+
+      expect(timesIcons.length).toBe(0);
+      expect(equalsIcons.length).toBe(0);
+    });
+  });
+
+  const expectedOutput = [
+    {
+      value: '2',
+      label: 'Crating size (cu ft)',
+      details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
+    },
+    {
+      value: '1.71',
+      label: 'Uncrating price (per cu ft)',
+      details: ['Service schedule: 3', 'Uncrating date: 09 Mar 2020', 'Domestic'],
+    },
+    {
+      value: '1.033',
+      label: 'Price escalation factor',
+      details: [],
+    },
+    {
+      value: '$10.00',
+      label: 'Total amount requested',
+      details: [''],
+    },
+  ];
+  testServiceItemCalculation([
+    itemCode,
+    testParams.DomesticUncrating,
     testParams.additionalCratingDataDCRT,
     expectedOutput,
   ]);
