@@ -29,7 +29,7 @@ func NewIndexMoves(ctx *middleware.Context, handler IndexMovesHandler) *IndexMov
 	return &IndexMoves{Context: ctx, Handler: handler}
 }
 
-/*IndexMoves swagger:route GET /moves move indexMoves
+/* IndexMoves swagger:route GET /moves move indexMoves
 
 List moves
 
@@ -44,17 +44,15 @@ type IndexMoves struct {
 func (o *IndexMoves) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewIndexMovesParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

@@ -116,7 +116,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		err := builder.FetchOne(actualUser, []services.QueryFilter{})
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to struct", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 		suite.Zero(actualUser)
 	})
 
@@ -126,7 +126,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		err := builder.FetchOne(&i, []services.QueryFilter{})
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to struct", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 	})
 
 }
@@ -265,7 +265,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		err := builder.FetchMany(actualUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 		suite.Empty(actualUsers)
 	})
 
@@ -275,7 +275,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		err := builder.FetchMany(&actualUser, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 		suite.Empty(actualUser)
 	})
 
@@ -285,7 +285,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		err := builder.FetchMany(&intSlice, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 	})
 }
 
@@ -427,7 +427,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		count, err := builder.Count(models.OfficeUsers{}, []services.QueryFilter{})
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 		suite.Zero(count)
 	})
 
@@ -436,7 +436,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		count, err := builder.Count(&models.OfficeUser{}, []services.QueryFilter{})
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 		suite.Zero(count)
 	})
 
@@ -446,7 +446,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		count, err := builder.Count(&intSlice, []services.QueryFilter{})
 
 		suite.Error(err)
-		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Equal("Data error encountered", err.Error())
 		suite.Zero(count)
 	})
 }

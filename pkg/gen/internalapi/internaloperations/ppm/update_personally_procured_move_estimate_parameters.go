@@ -15,7 +15,8 @@ import (
 )
 
 // NewUpdatePersonallyProcuredMoveEstimateParams creates a new UpdatePersonallyProcuredMoveEstimateParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdatePersonallyProcuredMoveEstimateParams() UpdatePersonallyProcuredMoveEstimateParams {
 
 	return UpdatePersonallyProcuredMoveEstimateParams{}
@@ -60,7 +61,6 @@ func (o *UpdatePersonallyProcuredMoveEstimateParams) BindRequest(r *http.Request
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

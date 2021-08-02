@@ -35,15 +35,15 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 		Member: &ordersmessages.Member{
 			GivenName:   "First",
 			FamilyName:  "Last",
-			Affiliation: ordersmessages.AffiliationAirForce,
-			Rank:        ordersmessages.RankW1,
+			Affiliation: ordersmessages.NewAffiliation(ordersmessages.AffiliationAirDashForce),
+			Rank:        ordersmessages.NewRank(ordersmessages.RankWDash1),
 		},
-		Status:        ordersmessages.StatusAuthorized,
+		Status:        ordersmessages.NewStatus(ordersmessages.StatusAuthorized),
 		DateIssued:    handlers.FmtDateTime(time.Now()),
 		NoCostMove:    false,
 		TdyEnRoute:    false,
 		TourType:      ordersmessages.TourTypeAccompanied,
-		OrdersType:    ordersmessages.OrdersTypeSeparation,
+		OrdersType:    ordersmessages.NewOrdersType(ordersmessages.OrdersTypeSeparation),
 		HasDependents: &hasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        handlers.FmtString("FFFS00"),
@@ -84,11 +84,11 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 		suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
 		suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 		suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-		suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
+		suite.Equal(string(*rev.Member.Rank), string(storedRev.Paygrade))
 		suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-		suite.Equal(string(rev.Status), string(storedRev.Status))
+		suite.Equal(string(*rev.Status), string(storedRev.Status))
 		suite.Equal(string(rev.TourType), string(storedRev.TourType))
-		suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
+		suite.Equal(string(*rev.OrdersType), string(storedRev.OrdersType))
 		suite.Equal(*rev.HasDependents, storedRev.HasDependents)
 		suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 		suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)

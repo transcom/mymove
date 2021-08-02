@@ -16,59 +16,73 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetMoveTaskOrderParams creates a new GetMoveTaskOrderParams object
-// with the default values initialized.
+// NewGetMoveTaskOrderParams creates a new GetMoveTaskOrderParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetMoveTaskOrderParams() *GetMoveTaskOrderParams {
-	var ()
 	return &GetMoveTaskOrderParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetMoveTaskOrderParamsWithTimeout creates a new GetMoveTaskOrderParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetMoveTaskOrderParamsWithTimeout(timeout time.Duration) *GetMoveTaskOrderParams {
-	var ()
 	return &GetMoveTaskOrderParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetMoveTaskOrderParamsWithContext creates a new GetMoveTaskOrderParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetMoveTaskOrderParamsWithContext(ctx context.Context) *GetMoveTaskOrderParams {
-	var ()
 	return &GetMoveTaskOrderParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetMoveTaskOrderParamsWithHTTPClient creates a new GetMoveTaskOrderParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetMoveTaskOrderParamsWithHTTPClient(client *http.Client) *GetMoveTaskOrderParams {
-	var ()
 	return &GetMoveTaskOrderParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetMoveTaskOrderParams contains all the parameters to send to the API endpoint
-for the get move task order operation typically these are written to a http.Request
+/* GetMoveTaskOrderParams contains all the parameters to send to the API endpoint
+   for the get move task order operation.
+
+   Typically these are written to a http.Request.
 */
 type GetMoveTaskOrderParams struct {
 
-	/*MoveTaskOrderID
-	  UUID of move task order to use.
+	/* MoveTaskOrderID.
 
+	   UUID of move task order to use.
 	*/
 	MoveTaskOrderID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get move task order params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetMoveTaskOrderParams) WithDefaults() *GetMoveTaskOrderParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get move task order params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetMoveTaskOrderParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get move task order params

@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -18,6 +19,11 @@ import (
 // swagger:model Issuer
 type Issuer string
 
+func NewIssuer(value Issuer) *Issuer {
+	v := value
+	return &v
+}
+
 const (
 
 	// IssuerArmy captures enum value "army"
@@ -26,14 +32,14 @@ const (
 	// IssuerNavy captures enum value "navy"
 	IssuerNavy Issuer = "navy"
 
-	// IssuerAirForce captures enum value "air-force"
-	IssuerAirForce Issuer = "air-force"
+	// IssuerAirDashForce captures enum value "air-force"
+	IssuerAirDashForce Issuer = "air-force"
 
-	// IssuerMarineCorps captures enum value "marine-corps"
-	IssuerMarineCorps Issuer = "marine-corps"
+	// IssuerMarineDashCorps captures enum value "marine-corps"
+	IssuerMarineDashCorps Issuer = "marine-corps"
 
-	// IssuerCoastGuard captures enum value "coast-guard"
-	IssuerCoastGuard Issuer = "coast-guard"
+	// IssuerCoastDashGuard captures enum value "coast-guard"
+	IssuerCoastDashGuard Issuer = "coast-guard"
 )
 
 // for schema
@@ -68,5 +74,10 @@ func (m Issuer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this issuer based on context it is used
+func (m Issuer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

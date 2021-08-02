@@ -29,7 +29,7 @@ func NewGetCookieURL(ctx *middleware.Context, handler GetCookieURLHandler) *GetC
 	return &GetCookieURL{Context: ctx, Handler: handler}
 }
 
-/*GetCookieURL swagger:route POST /dps_auth/cookie_url dps_auth getCookieUrl
+/* GetCookieURL swagger:route POST /dps_auth/cookie_url dps_auth getCookieUrl
 
 Returns the URL to redirect to that begins DPS auth
 
@@ -44,17 +44,15 @@ type GetCookieURL struct {
 func (o *GetCookieURL) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetCookieURLParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

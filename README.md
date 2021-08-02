@@ -1002,7 +1002,7 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 
 #### Migrations
 
-To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/migrate-the-database)
+To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/Database-Migrations)
 
 Running migrations in local development:
 
@@ -1091,7 +1091,7 @@ To get Goland to play nicely with `nix`, there's a few things you can set up:
 
 * Update `GOROOT` to `/nix/var/nix/profiles/mymove/bin/go`
   * Note that once you add it, Goland will resolve it to the actual path (the one above is a link), so it’ll look
-    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.16.5/bin/go`
+    something like `/nix/store/rv16prybnsmav8w1sqdgr80jcwsja98q-go-1.16.6/bin/go`
 * Update `GOPATH` to point to the `.gopath` dir in the `mymove` repo
   * You may need to create the `.gopath` dir yourself.
 * Update Node and NPM:

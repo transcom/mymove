@@ -104,7 +104,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
@@ -126,7 +126,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
-		suite.EqualValues(payload.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
 		suite.EqualValues(payload.OrdersTypeDetail, updatedOrder.OrdersTypeDetail)
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
@@ -157,7 +157,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
@@ -194,7 +194,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			ReportByDate:        &reportByDate,
 		}
 
@@ -253,7 +253,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			ReportByDate:        &reportByDate,
 		}
 
@@ -271,7 +271,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
 		suite.Equal(time.Time(*body.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*body.ReportByDate), updatedOrder.ReportByDate)
-		suite.EqualValues(body.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(*body.OrdersType, updatedOrder.OrdersType)
 	})
 }
 

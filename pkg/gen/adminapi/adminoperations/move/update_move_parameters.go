@@ -6,6 +6,7 @@ package move
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateMoveParams creates a new UpdateMoveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMoveParams() UpdateMoveParams {
 
 	return UpdateMoveParams{}
@@ -70,6 +72,11 @@ func (o *UpdateMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Move = &body
 			}
@@ -77,11 +84,11 @@ func (o *UpdateMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 	} else {
 		res = append(res, errors.Required("move", "body", ""))
 	}
+
 	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveID")
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

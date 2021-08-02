@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -27,21 +29,24 @@ type CreateUpdateOrders struct {
 	// Orders date
 	//
 	// The date and time that these orders were cut.
+	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	IssueDate *strfmt.Date `json:"issue_date"`
 
 	// new duty station id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	NewDutyStationID *strfmt.UUID `json:"new_duty_station_id"`
 
 	// Orders Number
+	// Example: 030-00362
 	OrdersNumber *string `json:"orders_number,omitempty"`
 
 	// orders type
 	// Required: true
-	OrdersType OrdersType `json:"orders_type"`
+	OrdersType *OrdersType `json:"orders_type"`
 
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"orders_type_detail,omitempty"`
@@ -49,14 +54,17 @@ type CreateUpdateOrders struct {
 	// Report-by date
 	//
 	// Report By Date
+	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"report_by_date"`
 
 	// SAC
+	// Example: N002214CSW32Y9
 	Sac *string `json:"sac,omitempty"`
 
 	// service member id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ServiceMemberID *strfmt.UUID `json:"service_member_id"`
@@ -66,6 +74,7 @@ type CreateUpdateOrders struct {
 	SpouseHasProGear *bool `json:"spouse_has_pro_gear"`
 
 	// TAC
+	// Example: F8J1
 	Tac *string `json:"tac,omitempty"`
 }
 
@@ -116,7 +125,6 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 }
 
 func (m *CreateUpdateOrders) validateDepartmentIndicator(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
 	}
@@ -170,18 +178,27 @@ func (m *CreateUpdateOrders) validateNewDutyStationID(formats strfmt.Registry) e
 
 func (m *CreateUpdateOrders) validateOrdersType(formats strfmt.Registry) error {
 
-	if err := m.OrdersType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("orders_type")
-		}
+	if err := validate.Required("orders_type", "body", m.OrdersType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("orders_type", "body", m.OrdersType); err != nil {
+		return err
+	}
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *CreateUpdateOrders) validateOrdersTypeDetail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrdersTypeDetail) { // not required
 		return nil
 	}
@@ -228,6 +245,70 @@ func (m *CreateUpdateOrders) validateSpouseHasProGear(formats strfmt.Registry) e
 
 	if err := validate.Required("spouse_has_pro_gear", "body", m.SpouseHasProGear); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create update orders based on the context it is used
+func (m *CreateUpdateOrders) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateUpdateOrders) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateUpdateOrders) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateUpdateOrders) contextValidateOrdersTypeDetail(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type_detail")
+			}
+			return err
+		}
 	}
 
 	return nil

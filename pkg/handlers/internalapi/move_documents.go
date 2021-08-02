@@ -23,14 +23,17 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 		return nil, err
 	}
 
+	moveDocumentType := internalmessages.MoveDocumentType(moveDoc.MoveDocumentType)
+	status := internalmessages.MoveDocumentStatus(moveDoc.Status)
+
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(moveDoc.ID),
 		MoveID:                   handlers.FmtUUID(moveDoc.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &moveDoc.Title,
-		MoveDocumentType:         internalmessages.MoveDocumentType(moveDoc.MoveDocumentType),
-		Status:                   internalmessages.MoveDocumentStatus(moveDoc.Status),
+		MoveDocumentType:         &moveDocumentType,
+		Status:                   &status,
 		Notes:                    moveDoc.Notes,
 	}
 
@@ -140,14 +143,17 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		storageEndDate = handlers.FmtDate(*docExtractor.StorageEndDate)
 	}
 
+	moveDocumentType := internalmessages.MoveDocumentType(docExtractor.MoveDocumentType)
+	status := internalmessages.MoveDocumentStatus(docExtractor.Status)
+
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(docExtractor.ID),
 		MoveID:                   handlers.FmtUUID(docExtractor.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
 		Title:                    &docExtractor.Title,
-		MoveDocumentType:         internalmessages.MoveDocumentType(docExtractor.MoveDocumentType),
-		Status:                   internalmessages.MoveDocumentStatus(docExtractor.Status),
+		MoveDocumentType:         &moveDocumentType,
+		Status:                   &status,
 		Notes:                    docExtractor.Notes,
 		MovingExpenseType:        expenseType,
 		RequestedAmountCents:     int64(requestedAmt),

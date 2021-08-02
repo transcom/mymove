@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -25,21 +27,26 @@ type PaymentServiceItem struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// mto service item code
+	// Example: DLH
 	MtoServiceItemCode string `json:"mtoServiceItemCode,omitempty"`
 
 	// mto service item ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MtoServiceItemID strfmt.UUID `json:"mtoServiceItemID,omitempty"`
 
 	// mto service item name
+	// Example: Move management
 	MtoServiceItemName string `json:"mtoServiceItemName,omitempty"`
 
 	// mto shipment ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
@@ -47,6 +54,7 @@ type PaymentServiceItem struct {
 	MtoShipmentType MTOShipmentType `json:"mtoShipmentType,omitempty"`
 
 	// payment request ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	PaymentRequestID strfmt.UUID `json:"paymentRequestID,omitempty"`
 
@@ -57,10 +65,12 @@ type PaymentServiceItem struct {
 	PriceCents *int64 `json:"priceCents,omitempty"`
 
 	// reference ID
+	// Example: 1234-5678-c56a4180
 	// Read Only: true
 	ReferenceID string `json:"referenceID,omitempty"`
 
 	// rejection reason
+	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
@@ -110,7 +120,6 @@ func (m *PaymentServiceItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *PaymentServiceItem) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -123,7 +132,6 @@ func (m *PaymentServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *PaymentServiceItem) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -136,7 +144,6 @@ func (m *PaymentServiceItem) validateID(formats strfmt.Registry) error {
 }
 
 func (m *PaymentServiceItem) validateMtoServiceItemID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoServiceItemID) { // not required
 		return nil
 	}
@@ -149,7 +156,6 @@ func (m *PaymentServiceItem) validateMtoServiceItemID(formats strfmt.Registry) e
 }
 
 func (m *PaymentServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoShipmentID) { // not required
 		return nil
 	}
@@ -162,7 +168,6 @@ func (m *PaymentServiceItem) validateMtoShipmentID(formats strfmt.Registry) erro
 }
 
 func (m *PaymentServiceItem) validateMtoShipmentType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoShipmentType) { // not required
 		return nil
 	}
@@ -178,7 +183,6 @@ func (m *PaymentServiceItem) validateMtoShipmentType(formats strfmt.Registry) er
 }
 
 func (m *PaymentServiceItem) validatePaymentRequestID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentRequestID) { // not required
 		return nil
 	}
@@ -191,7 +195,6 @@ func (m *PaymentServiceItem) validatePaymentRequestID(formats strfmt.Registry) e
 }
 
 func (m *PaymentServiceItem) validatePaymentServiceItemParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentServiceItemParams) { // not required
 		return nil
 	}
@@ -207,12 +210,95 @@ func (m *PaymentServiceItem) validatePaymentServiceItemParams(formats strfmt.Reg
 }
 
 func (m *PaymentServiceItem) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
 	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this payment service item based on the context it is used
+func (m *PaymentServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePaymentServiceItemParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReferenceID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *PaymentServiceItem) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItem) contextValidateMtoShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MtoShipmentType.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoShipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItem) contextValidatePaymentServiceItemParams(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.PaymentServiceItemParams.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("paymentServiceItemParams")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItem) contextValidateReferenceID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "referenceID", "body", string(m.ReferenceID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}

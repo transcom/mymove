@@ -74,6 +74,7 @@ func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtes
 
 	req := httptest.NewRequest("POST", "/mto_shipments", nil)
 	req = suite.AuthenticateRequest(req, subtestData.serviceMember)
+	shipmentType := internalmessages.MTOShipmentTypeHHG
 
 	subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
@@ -119,7 +120,7 @@ func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtes
 			},
 			RequestedPickupDate:   strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate),
 			RequestedDeliveryDate: strfmt.Date(*subtestData.mtoShipment.RequestedDeliveryDate),
-			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
+			ShipmentType:          &shipmentType,
 		},
 	}
 
@@ -187,6 +188,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
+		shipmentType := internalmessages.MTOShipmentTypeHHG
 		unauthorizedParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: unauthorizedReq,
 			Body: &internalmessages.CreateShipment{
@@ -204,7 +206,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				},
 				RequestedPickupDate:   strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate),
 				RequestedDeliveryDate: strfmt.Date(*subtestData.mtoShipment.RequestedDeliveryDate),
-				ShipmentType:          internalmessages.MTOShipmentTypeHHG,
+				ShipmentType:          &shipmentType,
 			},
 		}
 

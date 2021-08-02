@@ -29,7 +29,7 @@ func NewIndexUsers(ctx *middleware.Context, handler IndexUsersHandler) *IndexUse
 	return &IndexUsers{Context: ctx, Handler: handler}
 }
 
-/*IndexUsers swagger:route GET /users users indexUsers
+/* IndexUsers swagger:route GET /users users indexUsers
 
 List users
 
@@ -44,17 +44,15 @@ type IndexUsers struct {
 func (o *IndexUsers) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewIndexUsersParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

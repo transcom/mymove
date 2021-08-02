@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -23,29 +25,34 @@ type ServiceMemberBackupContactPayload struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// Email
+	// Example: john_bob@example.com
 	// Required: true
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// Name
+	// Example: Susan Smith
 	// Required: true
 	Name *string `json:"name"`
 
 	// permission
 	// Required: true
-	Permission BackupContactPermission `json:"permission"`
+	Permission *BackupContactPermission `json:"permission"`
 
 	// service member id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ServiceMemberID strfmt.UUID `json:"service_member_id,omitempty"`
 
 	// Phone
+	// Example: 212-555-5555
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`
 
@@ -116,7 +123,7 @@ func (m *ServiceMemberBackupContactPayload) validateEmail(formats strfmt.Registr
 		return err
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -147,18 +154,27 @@ func (m *ServiceMemberBackupContactPayload) validateName(formats strfmt.Registry
 
 func (m *ServiceMemberBackupContactPayload) validatePermission(formats strfmt.Registry) error {
 
-	if err := m.Permission.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("permission")
-		}
+	if err := validate.Required("permission", "body", m.Permission); err != nil {
 		return err
+	}
+
+	if err := validate.Required("permission", "body", m.Permission); err != nil {
+		return err
+	}
+
+	if m.Permission != nil {
+		if err := m.Permission.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("permission")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *ServiceMemberBackupContactPayload) validateServiceMemberID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
 	}
@@ -171,12 +187,11 @@ func (m *ServiceMemberBackupContactPayload) validateServiceMemberID(formats strf
 }
 
 func (m *ServiceMemberBackupContactPayload) validateTelephone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Telephone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", *m.Telephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 
@@ -190,6 +205,47 @@ func (m *ServiceMemberBackupContactPayload) validateUpdatedAt(formats strfmt.Reg
 	}
 
 	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this service member backup contact payload based on the context it is used
+func (m *ServiceMemberBackupContactPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidatePermission(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateServiceMemberID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ServiceMemberBackupContactPayload) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Permission != nil {
+		if err := m.Permission.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("permission")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ServiceMemberBackupContactPayload) contextValidateServiceMemberID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "service_member_id", "body", strfmt.UUID(m.ServiceMemberID)); err != nil {
 		return err
 	}
 

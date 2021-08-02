@@ -169,3 +169,13 @@ export const DCRT = (data) => (
     tableSize={data.tableSize}
   />
 );
+
+export const DUCRT = (data) => (
+  <ServiceItemCalculations
+    serviceItemParams={testParams.DomesticUncrating}
+    additionalServiceItemData={testParams.additionalCratingDataDCRT}
+    totalAmountRequested={642}
+    itemCode="DUCRT"
+    tableSize={data.tableSize}
+  />
+);

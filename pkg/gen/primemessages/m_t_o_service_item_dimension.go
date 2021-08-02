@@ -6,26 +6,31 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDimension Describes a dimension object for the MTOServiceItem.
+// MTOServiceItemDimension The dimensions for either the item or the crate associated with a crating service item.
 //
 // swagger:model MTOServiceItemDimension
 type MTOServiceItemDimension struct {
 
 	// Height in thousandth inches. 1000 thou = 1 inch.
+	// Example: 1000
 	// Required: true
 	Height *int32 `json:"height"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// Length in thousandth inches. 1000 thou = 1 inch.
+	// Example: 1000
 	// Required: true
 	Length *int32 `json:"length"`
 
@@ -33,6 +38,7 @@ type MTOServiceItemDimension struct {
 	Type DimensionType `json:"type,omitempty"`
 
 	// Width in thousandth inches. 1000 thou = 1 inch.
+	// Example: 1000
 	// Required: true
 	Width *int32 `json:"width"`
 }
@@ -77,7 +83,6 @@ func (m *MTOServiceItemDimension) validateHeight(formats strfmt.Registry) error 
 }
 
 func (m *MTOServiceItemDimension) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -99,7 +104,6 @@ func (m *MTOServiceItemDimension) validateLength(formats strfmt.Registry) error 
 }
 
 func (m *MTOServiceItemDimension) validateType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Type) { // not required
 		return nil
 	}
@@ -117,6 +121,32 @@ func (m *MTOServiceItemDimension) validateType(formats strfmt.Registry) error {
 func (m *MTOServiceItemDimension) validateWidth(formats strfmt.Registry) error {
 
 	if err := validate.Required("width", "body", m.Width); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item dimension based on the context it is used
+func (m *MTOServiceItemDimension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemDimension) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Type.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("type")
+		}
 		return err
 	}
 

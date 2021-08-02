@@ -412,6 +412,33 @@ const PSIPackingDomPrice = {
   type: 'DECIMAL',
   value: '',
 };
+const DimensionLength = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'DimensionLength',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '3',
+};
+const DimensionWidth = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'DimensionWidth',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '10',
+};
+const DimensionHeight = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'DimensionHeight',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '6',
+};
 
 const testParams = {
   DomesticLongHaul: [
@@ -611,14 +638,21 @@ const testParams = {
     ServicesScheduleOrigin,
     ServiceAreaOrigin,
     ZipPickupAddress,
+    DimensionWidth,
+    DimensionHeight,
+    DimensionLength,
   ],
   DomesticUncrating: [
     RequestedPickupDate,
+    EscalationCompounded,
     CubicFeetBilled,
     CubicFeetCrating,
     ServicesScheduleDest,
     ServiceAreaDest,
     ZipDestAddress,
+    DimensionWidth,
+    DimensionHeight,
+    DimensionLength,
   ],
   DomesticOriginShuttleService: [
     RequestedPickupDate,

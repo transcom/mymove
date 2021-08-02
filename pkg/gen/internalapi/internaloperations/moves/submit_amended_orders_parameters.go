@@ -15,7 +15,8 @@ import (
 )
 
 // NewSubmitAmendedOrdersParams creates a new SubmitAmendedOrdersParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewSubmitAmendedOrdersParams() SubmitAmendedOrdersParams {
 
 	return SubmitAmendedOrdersParams{}
@@ -50,7 +51,6 @@ func (o *SubmitAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

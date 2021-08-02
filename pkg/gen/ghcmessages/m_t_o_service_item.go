@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -49,6 +50,7 @@ type MTOServiceItem struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// estimated weight of the shuttle service item provided by the prime
+	// Example: 2500
 	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
 
 	// fee type
@@ -56,16 +58,19 @@ type MTOServiceItem struct {
 	FeeType string `json:"feeType,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// move task order ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 	// mto shipment ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
@@ -85,6 +90,7 @@ type MTOServiceItem struct {
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// re service ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	ReServiceID *strfmt.UUID `json:"reServiceID"`
@@ -206,7 +212,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ApprovedAt) { // not required
 		return nil
 	}
@@ -219,7 +224,6 @@ func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -232,7 +236,6 @@ func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateCustomerContacts(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CustomerContacts) { // not required
 		return nil
 	}
@@ -248,7 +251,6 @@ func (m *MTOServiceItem) validateCustomerContacts(formats strfmt.Registry) error
 }
 
 func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DeletedAt) { // not required
 		return nil
 	}
@@ -270,7 +272,6 @@ func (m *MTOServiceItem) validateDescription(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateDimensions(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Dimensions) { // not required
 		return nil
 	}
@@ -321,7 +322,6 @@ func (m *MTOServiceItem) validateFeeTypeEnum(path, location string, value string
 }
 
 func (m *MTOServiceItem) validateFeeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FeeType) { // not required
 		return nil
 	}
@@ -423,7 +423,6 @@ func (m *MTOServiceItem) validateReason(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RejectedAt) { // not required
 		return nil
 	}
@@ -436,7 +435,6 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -452,7 +450,6 @@ func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateSubmittedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
 	}
@@ -465,12 +462,82 @@ func (m *MTOServiceItem) validateSubmittedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item based on the context it is used
+func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateSITPostalCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCustomerContacts(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDimensions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateSITPostalCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "SITPostalCode", "body", m.SITPostalCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateCustomerContacts(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.CustomerContacts.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("customerContacts")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateDimensions(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Dimensions.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("dimensions")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

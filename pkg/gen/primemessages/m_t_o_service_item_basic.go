@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -35,7 +36,7 @@ type MTOServiceItemBasic struct {
 
 	// re service code
 	// Required: true
-	ReServiceCode ReServiceCode `json:"reServiceCode"`
+	ReServiceCode *ReServiceCode `json:"reServiceCode"`
 }
 
 // ETag gets the e tag of this subtype
@@ -123,7 +124,7 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 
 		// re service code
 		// Required: true
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
+		ReServiceCode *ReServiceCode `json:"reServiceCode"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -195,7 +196,7 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 
 		// re service code
 		// Required: true
-		ReServiceCode ReServiceCode `json:"reServiceCode"`
+		ReServiceCode *ReServiceCode `json:"reServiceCode"`
 	}{
 
 		ReServiceCode: m.ReServiceCode,
@@ -331,11 +332,129 @@ func (m *MTOServiceItemBasic) validateStatus(formats strfmt.Registry) error {
 
 func (m *MTOServiceItemBasic) validateReServiceCode(formats strfmt.Registry) error {
 
-	if err := m.ReServiceCode.Validate(formats); err != nil {
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
+	}
+
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
+	}
+
+	if m.ReServiceCode != nil {
+		if err := m.ReServiceCode.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reServiceCode")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item basic based on the context it is used
+func (m *MTOServiceItemBasic) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
+			return ve.ValidateName("modelType")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemBasic) contextValidateReServiceCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ReServiceCode != nil {
+		if err := m.ReServiceCode.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("reServiceCode")
+			}
+			return err
+		}
 	}
 
 	return nil

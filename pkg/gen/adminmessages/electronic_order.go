@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -23,13 +25,14 @@ type ElectronicOrder struct {
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// issuer
 	// Required: true
-	Issuer Issuer `json:"issuer"`
+	Issuer *Issuer `json:"issuer"`
 
 	// Orders Number
 	// Required: true
@@ -99,11 +102,21 @@ func (m *ElectronicOrder) validateID(formats strfmt.Registry) error {
 
 func (m *ElectronicOrder) validateIssuer(formats strfmt.Registry) error {
 
-	if err := m.Issuer.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("issuer")
-		}
+	if err := validate.Required("issuer", "body", m.Issuer); err != nil {
 		return err
+	}
+
+	if err := validate.Required("issuer", "body", m.Issuer); err != nil {
+		return err
+	}
+
+	if m.Issuer != nil {
+		if err := m.Issuer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("issuer")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -126,6 +139,34 @@ func (m *ElectronicOrder) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this electronic order based on the context it is used
+func (m *ElectronicOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateIssuer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ElectronicOrder) contextValidateIssuer(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Issuer != nil {
+		if err := m.Issuer.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("issuer")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -43,9 +43,9 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
 	}
 	suite.Len(okResponse.Payload, 2)
 	suite.Equal(order.Edipi, okResponse.Payload[0].Edipi)
-	suite.Equal(string(order.Issuer), string(okResponse.Payload[0].Issuer))
+	suite.Equal(string(order.Issuer), string(*okResponse.Payload[0].Issuer))
 	suite.Equal(order.Edipi, okResponse.Payload[1].Edipi)
-	suite.Equal(string(order.Issuer), string(okResponse.Payload[1].Issuer))
+	suite.Equal(string(order.Issuer), string(*okResponse.Payload[1].Issuer))
 	suite.Contains([]string{order.OrdersNumber, order2.OrdersNumber}, okResponse.Payload[0].OrdersNum)
 	suite.Contains([]string{order.OrdersNumber, order2.OrdersNumber}, okResponse.Payload[1].OrdersNum)
 	suite.NotEqual(okResponse.Payload[0].OrdersNum, okResponse.Payload[1].OrdersNum)
