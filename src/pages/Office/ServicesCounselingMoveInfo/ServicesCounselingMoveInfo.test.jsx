@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, queryByTestId } from '@testing-library/react';
 
 import ServicesCounselingMoveInfo from './ServicesCounselingMoveInfo';
 
@@ -205,6 +205,34 @@ describe('Services Counseling Move Info Container', () => {
       );
 
       expect(wrapper.find('CustomerHeader').exists()).toBe(true);
+    });
+    it('should render the system error when there is an error', () => {
+      render(
+        <MockProviders
+          initialState={{ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
+          initialEntries={[`/counseling/moves/${testMoveCode}/details`]}
+        >
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+      expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
+        'href',
+        'https://move.mil/customer-service#technical-help-desk',
+      );
+      expect(screen.getByTestId('system-error').textContent).toEqual(
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+      );
+    });
+    it('should not render system error when there is not an error', () => {
+      render(
+        <MockProviders
+          initialState={{ interceptor: { hasRecentError: false, traceId: '' } }}
+          initialEntries={[`/counseling/moves/${testMoveCode}/details`]}
+        >
+          <ServicesCounselingMoveInfo />
+        </MockProviders>,
+      );
+      expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
   });
   describe('routing', () => {

@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
+import { queryByTestId, render, screen } from '@testing-library/react';
 
 import ConnectedOffice, { OfficeApp } from './index';
 
@@ -13,6 +14,8 @@ describe('Office App', () => {
     loadInternalSchema: jest.fn(),
     loadPublicSchema: jest.fn(),
     logOut: jest.fn(),
+    hasRecentError: false,
+    traceId: '',
   };
 
   describe('component', () => {
@@ -77,9 +80,36 @@ describe('Office App', () => {
             <ConnectedOffice />
           </MockProviders>,
         );
-
         expect(app.containsMatchingElement(<a href="/">ABCD moves</a>)).toEqual(true);
         expect(app.containsMatchingElement(<span>Gorman, Amanda</span>)).toEqual(true);
+      });
+      it('renders the system error component if there is an unexpected error and on the queue page', () => {
+        render(
+          <MockProviders
+            initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
+            initialEntries={['/']}
+          >
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+        expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
+          'href',
+          'https://move.mil/customer-service#technical-help-desk',
+        );
+        expect(screen.getByTestId('system-error').textContent).toEqual(
+          "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+        );
+      });
+      it('does not render system error if it is not on the queue page', () => {
+        render(
+          <MockProviders
+            initialState={{ ...officeUserState, interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
+            initialEntries={['/sign-in']}
+          >
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+        expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
       });
     });
   });
@@ -105,6 +135,11 @@ describe('Office App', () => {
             },
           },
         },
+      },
+      interceptor: {
+        hasRecentError: false,
+        timestamp: 0,
+        traceId: '',
       },
     };
 
