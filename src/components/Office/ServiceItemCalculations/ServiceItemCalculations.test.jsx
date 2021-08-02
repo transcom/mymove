@@ -194,7 +194,7 @@ describe('ServiceItemCalculations DCRT', () => {
 
   const expectedOutput = [
     {
-      value: '2',
+      value: '4.00',
       label: 'Crating size (cu ft)',
       details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
     },
@@ -284,7 +284,7 @@ describe('ServiceItemCalculations DUCRT', () => {
 
   const expectedOutput = [
     {
-      value: '2',
+      value: '4.00',
       label: 'Crating size (cu ft)',
       details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
     },
