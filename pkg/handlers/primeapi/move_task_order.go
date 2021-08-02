@@ -45,14 +45,14 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }
 
-// FetchMTOUpdatesFastHandler lists move task orders with the option to filter since a particular date. Optimized ver.
-type FetchMTOUpdatesFastHandler struct {
+// ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
+type ListMovesHandler struct {
 	handlers.HandlerContext
 	services.MoveTaskOrderFetcher
 }
 
 // Handle fetches all move task orders with the option to filter since a particular date. Optimized version.
-func (h FetchMTOUpdatesFastHandler) Handle(params movetaskorderops.FetchMTOUpdatesFastParams) middleware.Responder {
+func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	var searchParams services.MoveTaskOrderFetcherParams
@@ -64,13 +64,13 @@ func (h FetchMTOUpdatesFastHandler) Handle(params movetaskorderops.FetchMTOUpdat
 	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(&searchParams)
 
 	if err != nil {
-		logger.Error("Unexpected error while fetching records:", zap.Error(err))
-		return movetaskorderops.NewFetchMTOUpdatesFastInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		logger.Error("Unexpected error while fetching moves:", zap.Error(err))
+		return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 	}
 
-	payload := payloads.FetchMoveTaskOrders(&mtos)
+	payload := payloads.ListMoves(&mtos)
 
-	return movetaskorderops.NewFetchMTOUpdatesFastOK().WithPayload(payload)
+	return movetaskorderops.NewListMovesOK().WithPayload(payload)
 }
 
 // UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
