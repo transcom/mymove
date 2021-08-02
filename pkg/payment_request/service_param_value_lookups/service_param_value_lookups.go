@@ -265,11 +265,13 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	// paramKey = models.ServiceItemParamNameCubicFeetBilled
-	// err = s.setLookup(serviceItemCode, paramKey, CubicFeetBilledLookup{})
-	// if err != nil {
-	// 	return nil, err
-	// }
+	paramKey = models.ServiceItemParamNameCubicFeetBilled
+	err = s.setLookup(serviceItemCode, paramKey, CubicFeetBilledLookup{
+		Dimensions: serviceItemDimensions,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	paramKey = models.ServiceItemParamNamePSILinehaulDom
 	err = s.setLookup(serviceItemCode, paramKey, PSILinehaulDomLookup{
