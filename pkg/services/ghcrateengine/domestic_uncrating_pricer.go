@@ -22,7 +22,7 @@ func NewDomesticUncratingPricer(db *pop.Connection) services.DomesticUncratingPr
 }
 
 // Price determines the price for domestic destination first day SIT
-func (p domesticUncratingPricer) Price(contractCode string, requestedPickupDate time.Time, billedCubicFeet float64, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticUncratingPricer) Price(contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticCrating(p.db, models.ReServiceCodeDUCRT, contractCode, requestedPickupDate, billedCubicFeet, serviceSchedule)
 }
 
@@ -33,11 +33,12 @@ func (p domesticUncratingPricer) PriceUsingParams(params models.PaymentServiceIt
 		return unit.Cents(0), nil, err
 	}
 
-	// TODO is this ok numerically?
-	cubicFeetBilled, err := getParamFloat(params, models.ServiceItemParamNameCubicFeetBilled)
+	cubicFeetFloat, err := getParamFloat(params, models.ServiceItemParamNameCubicFeetBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
+
+	cubicFeetBilled := unit.CubicFeet(cubicFeetFloat)
 
 	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
 	if err != nil {

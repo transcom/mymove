@@ -255,11 +255,11 @@ func priceDomesticShuttling(db *pop.Connection, shuttlingCode models.ReServiceCo
 	return totalCost, params, nil
 }
 
-func priceDomesticCrating(db *pop.Connection, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet float64, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticCrating(db *pop.Connection, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
 		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)
 	}
-	// TODO is this float math ok?
+
 	if billedCubicFeet < 4.0 {
 		return 0, nil, fmt.Errorf("crate must be billed for a minimum of 4 cubic feet")
 	}
@@ -268,7 +268,7 @@ func priceDomesticCrating(db *pop.Connection, code models.ReServiceCode, contrac
 		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
-	basePrice := domAccessorialPrice.PerUnitCents.Float64() * billedCubicFeet
+	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
 	contractYear, err := fetchContractYear(db, domAccessorialPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not lookup contract year: %w", err)

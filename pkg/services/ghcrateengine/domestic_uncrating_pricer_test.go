@@ -52,7 +52,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUncratingPricer() {
 	})
 
 	suite.Run("invalid crating volume", func() {
-		badVolume := -50.0
+		badVolume := unit.CubicFeet(-50.0)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, ducrtTestRequestedPickupDate, badVolume, ducrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "crate must be billed for a minimum of 4 cubic feet")

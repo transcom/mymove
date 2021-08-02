@@ -448,7 +448,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	suite.Run("invalid crate size", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, DefaultContractCode, dcrtTestEscalationCompounded)
 
-		badSize := 1.0
+		badSize := unit.CubicFeet(1.0)
 		_, _, err := priceDomesticCrating(suite.DB(), models.ReServiceCodeDCRT, DefaultContractCode, dcrtTestRequestedPickupDate, badSize, dcrtTestServiceSchedule)
 
 		suite.Error(err)

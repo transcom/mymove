@@ -89,14 +89,14 @@ type DomesticDestinationShuttlingPricer interface {
 // DomesticCratingPricer prices the domestic crating service for a GHC Move
 //go:generate mockery --name DomesticCratingPricer --disable-version-string
 type DomesticCratingPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, billedCubicFeet float64, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	Price(contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
 // DomesticUncratingPricer prices the domestic uncrating service for a GHC Move
 //go:generate mockery --name DomesticUncratingPricer --disable-version-string
 type DomesticUncratingPricer interface {
-	Price(contractCode string, requestedPickupDate time.Time, billedCubicFeet float64, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	Price(contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
