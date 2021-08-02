@@ -10,7 +10,7 @@
 set -eu -o pipefail
 proofs=(./tmp/uploads/proof_of_service.pdf)
 function usage() {
-  echo "Usage: prime-api-demo <movecode> [ <hostname> [ <proofs> ... ] ]"
+  echo "Usage: pricing-acceptance <movecode> [ <hostname> [ <proofs> ... ] ]"
   echo "  movecode   Either moveCode or orderID or orderID can be provided"
   echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
   echo "  proofs     Paths to proof of service docs. Defaults to (${proofs[0]})"
@@ -182,7 +182,7 @@ bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/u
 # CREATE SERVICE ITEM
 shipmentID=$(jq '.id' tmp/update_response_mto_shipment.json)
 
-printf "Use the shitpment and moveTaskOrder IDs found below to create a payload for a new service item:\n\n"
+printf "Use the shipment and moveTaskOrder IDs found below to create a payload for a new service item:\n\n"
 
 echo "MTO ID: \"${mtoID}\""
 echo "Shipment ID: ${shipmentID}"
