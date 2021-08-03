@@ -17,10 +17,6 @@ type CubicFeetBilledLookup struct {
 }
 
 func (c CubicFeetBilledLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	// call CubicFeetCratingLookup
-	// convert string to number
-	// do the math
-
 	cubicFeet, err := CubicFeetCratingLookup(c).lookup(keyData)
 	if err != nil {
 		return "", err
