@@ -20,7 +20,7 @@ export const ProfileComplete = () => (
       onEditBtnClick={() => {}}
       step={text('Step', '1')}
     >
-      <p>{(text('Description'), 'Make sure to keep your personal information up to date during your move')}</p>
+      <p>{(text('Description', 'Make sure to keep your personal information up to date during your move')}</p>
     </Step>
   </div>
 );
@@ -36,7 +36,7 @@ export const UploadOrders = () => (
       onEditBtnClick={() => {}}
       step={text('Step', '2')}
     >
-      <p>{(text('Description'), 'Upload photos of each page, or upload a PDF')}</p>
+      <p>{(text('Description', 'Upload photos of each page, or upload a PDF')}</p>
     </Step>
   </div>
 );
@@ -97,7 +97,7 @@ export const ShipmentSelection = () => (
       step={text('Step', '2')}
       actionBtnLabel="Plan your shipments"
     >
-      <p>{(text('Description'), 'Upload photos of each page, or upload a PDF')}</p>
+      <p>{(text('Description', 'Upload photos of each page, or upload a PDF')}</p>
     </Step>
   </div>
 );
@@ -138,7 +138,7 @@ export const ConfirmMove = () => (
     >
       <p>
         {
-          (text('Description'),
+          (text('Description',
           'Review your move details and sign the legal paperwork, then send the info on to your move counselor')
         }
       </p>
@@ -158,7 +158,7 @@ export const MoveSubmitted = () => (
       secondaryBtn
       secondaryBtnStyle={{ boxShadow: 'inset 0 0 0 2px #0050d8' }}
     >
-      <p>{(text('Description'), 'Move submitted 03 Nov 2020')}</p>
+      <p>{(text('Description', 'Move submitted 03 Nov 2020')}</p>
     </Step>
   </div>
 );
