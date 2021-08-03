@@ -97,6 +97,7 @@ type MTOShipment struct {
 	Diversion                        bool              `db:"diversion"`
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
+	Reweigh                          *Reweigh          `has_one:"reweighs"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`
