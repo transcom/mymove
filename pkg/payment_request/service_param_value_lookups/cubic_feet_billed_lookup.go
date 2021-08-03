@@ -22,7 +22,7 @@ func (c CubicFeetBilledLookup) lookup(keyData *ServiceItemParamKeyData) (string,
 	// look for the first crating dimension.
 	for _, dimension := range c.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-			volume := dimension.Volume()
+			volume := dimension.Volume().ToCubicFeet()
 			if volume < minCubicFeetBilled {
 				volume = minCubicFeetBilled
 			}

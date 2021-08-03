@@ -58,7 +58,7 @@ func (m MTOServiceItemDimension) TableName() string {
 }
 
 // Volume calculates Length x Height x Width
-func (m *MTOServiceItemDimension) Volume() unit.CubicFeet {
-	volume := m.Length.ToFeet() * m.Width.ToFeet() * m.Height.ToFeet()
-	return unit.CubicFeet(volume)
+func (m *MTOServiceItemDimension) Volume() unit.CubicThousandthInch {
+	volume := m.Length * m.Width * m.Height
+	return unit.CubicThousandthInch(volume)
 }
