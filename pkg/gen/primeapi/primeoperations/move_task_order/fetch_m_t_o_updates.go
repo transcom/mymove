@@ -33,7 +33,9 @@ func NewFetchMTOUpdates(ctx *middleware.Context, handler FetchMTOUpdatesHandler)
 
 fetchMTOUpdates
 
-_[Deprecated: sunset on August 31, 2021]_ Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
+_[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use `/ListMoves`.
+
+Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
 list down to only the moves that have been updated since the provided timestamp. A move will be considered
 updated if the `updatedAt` timestamp on the move is later than the provided date and time.
 
