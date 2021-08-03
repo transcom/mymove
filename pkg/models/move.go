@@ -99,6 +99,9 @@ type Move struct {
 	MTOShipments                 MTOShipments            `has_many:"mto_shipments" fk_id:"move_id"`
 	ReferenceID                  *string                 `db:"reference_id"`
 	ServiceCounselingCompletedAt *time.Time              `db:"service_counseling_completed_at"`
+	ExcessWeightQualifiedAt      *time.Time              `db:"excess_weight_qualified_at"`
+	ExcessWeightUploadID         *uuid.UUID              `db:"excess_weight_upload_id"`
+	ExcessWeightUpload           *Upload                 `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
 }
 
 // MoveOptions is used when creating new moves based on parameters

@@ -92,12 +92,14 @@ type MTOShipment struct {
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
+	BillableWeight                   *unit.Pound       `db:"billable_weight"`
+	BillableWeightJustification      *string           `db:"billable_weight_justification"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	Diversion                        bool              `db:"diversion"`
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
-	Reweigh                          *Reweigh          `has_one:"reweighs"`
+	Reweigh                          *Reweigh          `has_one:"reweighs" fk_id:"shipment_id"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`
