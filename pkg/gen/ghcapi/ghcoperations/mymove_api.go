@@ -128,6 +128,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ShipmentRequestShipmentDiversionHandler: shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
 		}),
+		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
+		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
 		}),
@@ -248,6 +251,8 @@ type MymoveAPI struct {
 	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
 	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
 	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
+	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
+	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
@@ -420,6 +425,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRequestShipmentDiversionHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentDiversionHandler")
+	}
+	if o.ShipmentRequestShipmentReweighHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
@@ -641,6 +649,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/request-diversion"] = shipment.NewRequestShipmentDiversion(o.context, o.ShipmentRequestShipmentDiversionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

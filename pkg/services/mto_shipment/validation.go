@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -65,6 +66,18 @@ func checkAvailToPrime(db *pop.Connection) validator {
 				return services.NewNotFoundError(newer.ID, "for mtoShipment")
 			}
 			return services.NewQueryError("mtoShipments", err, "Unexpected error")
+		}
+		return nil
+	})
+}
+
+func checkReweighAllowed() validator {
+	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
+			return services.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
+		}
+		if newer.Reweigh.RequestedBy != "" {
+			return services.NewConflictError(newer.ID, "Cannot request a reweigh on a shipment that already has one.")
 		}
 		return nil
 	})

@@ -2183,6 +2183,59 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/request-reweigh": {
+      "post": {
+        "description": "Requests a shipment reweigh",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "reweigh"
+        ],
+        "summary": "Requests a shipment reweigh",
+        "operationId": "requestShipmentReweigh",
+        "responses": {
+          "200": {
+            "description": "Successfully requested a reweigh of the shipment",
+            "schema": {
+              "$ref": "#/definitions/Reweigh"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -4041,6 +4094,55 @@ func init() {
           "example": "MTO Shipment not good enough"
         }
       }
+    },
+    "Reweigh": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/ReweighRequester"
+        },
+        "shipment": {
+          "$ref": "#/definitions/MTOShipment"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "verificationProvidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "verificationReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "The reweigh was not performed due to some justification provided by the Prime"
+        },
+        "weight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        }
+      }
+    },
+    "ReweighRequester": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRIME",
+        "SYSTEM",
+        "TOO"
+      ]
     },
     "ServiceItemParamName": {
       "type": "string",
@@ -7229,6 +7331,77 @@ func init() {
         }
       ]
     },
+    "/shipments/{shipmentID}/request-reweigh": {
+      "post": {
+        "description": "Requests a shipment reweigh",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "shipment",
+          "reweigh"
+        ],
+        "summary": "Requests a shipment reweigh",
+        "operationId": "requestShipmentReweigh",
+        "responses": {
+          "200": {
+            "description": "Successfully requested a reweigh of the shipment",
+            "schema": {
+              "$ref": "#/definitions/Reweigh"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the shipment",
+          "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/tac/valid": {
       "get": {
         "description": "Returns a boolean based on whether a tac value is valid or not",
@@ -9105,6 +9278,55 @@ func init() {
           "example": "MTO Shipment not good enough"
         }
       }
+    },
+    "Reweigh": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedBy": {
+          "$ref": "#/definitions/ReweighRequester"
+        },
+        "shipment": {
+          "$ref": "#/definitions/MTOShipment"
+        },
+        "shipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "verificationProvidedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "verificationReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "The reweigh was not performed due to some justification provided by the Prime"
+        },
+        "weight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        }
+      }
+    },
+    "ReweighRequester": {
+      "type": "string",
+      "enum": [
+        "CUSTOMER",
+        "PRIME",
+        "SYSTEM",
+        "TOO"
+      ]
     },
     "ServiceItemParamName": {
       "type": "string",

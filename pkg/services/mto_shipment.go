@@ -56,6 +56,12 @@ type ShipmentCancellationRequester interface {
 	RequestShipmentCancellation(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
+//ShipmentReweighRequester is the service object interface for approving a shipment diversion
+//go:generate mockery --name ShipmentReweighRequester --disable-version-string
+type ShipmentReweighRequester interface {
+	RequestShipmentReweigh(ctx context.Context, shipmentID uuid.UUID) (*models.Reweigh, error)
+}
+
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery --name MTOShipmentStatusUpdater --disable-version-string
 type MTOShipmentStatusUpdater interface {

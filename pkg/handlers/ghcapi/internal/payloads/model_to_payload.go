@@ -276,8 +276,6 @@ func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
-	strfmt.MarshalFormat = strfmt.RFC3339Micro
-
 	payload := &ghcmessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
@@ -682,4 +680,20 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 	}
 
 	return &queuePaymentRequests
+}
+
+// Reweigh payload
+func Reweigh(reweigh *models.Reweigh) *ghcmessages.Reweigh {
+	payload := &ghcmessages.Reweigh{
+		ID:                     strfmt.UUID(reweigh.ID.String()),
+		RequestedAt:            strfmt.DateTime(reweigh.RequestedAt),
+		RequestedBy:            ghcmessages.ReweighRequester(reweigh.RequestedBy),
+		VerificationReason:     reweigh.VerificationReason,
+		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
+		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+		Shipment:               MTOShipment(&reweigh.Shipment),
+		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
+	}
+
+	return payload
 }
