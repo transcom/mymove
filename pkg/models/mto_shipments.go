@@ -127,6 +127,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	if m.PrimeActualWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
 	}
+	vs = append(vs, &OptionalPoundIsNonNegative{Field: m.BillableWeight, Name: "BillableWeight"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.BillableWeightJustification, Name: "BillableWeightJustification"})
 	if m.Status == MTOShipmentStatusRejected {
 		var rejectionReason string
 		if m.RejectionReason != nil {

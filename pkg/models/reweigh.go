@@ -25,6 +25,13 @@ const (
 	ReweighRequesterTOO ReweighRequester = "TOO"
 )
 
+var requestedByValues = []string{
+	string(ReweighRequesterCustomer),
+	string(ReweighRequesterPrime),
+	string(ReweighRequesterSystem),
+	string(ReweighRequesterTOO),
+}
+
 // Reweigh represents a request for the prime mover to reweigh a shipment or provide verification why they could not
 type Reweigh struct {
 	ID                     uuid.UUID        `db:"id"`
@@ -43,12 +50,7 @@ type Reweigh struct {
 func (r *Reweigh) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.TimeIsPresent{Field: r.RequestedAt, Name: "RequestedAt"},
-		&validators.StringInclusion{Field: string(r.RequestedBy), Name: "RequestedBy", List: []string{
-			string(ReweighRequesterCustomer),
-			string(ReweighRequesterPrime),
-			string(ReweighRequesterSystem),
-			string(ReweighRequesterTOO),
-		}},
+		&validators.StringInclusion{Field: string(r.RequestedBy), Name: "RequestedBy", List: requestedByValues},
 		&validators.UUIDIsPresent{Field: r.ShipmentID, Name: "ShipmentID"},
 		&OptionalTimeIsPresent{Field: r.VerificationProvidedAt, Name: "VerificationProvidedAt"},
 		&StringIsNilOrNotBlank{Field: r.VerificationReason, Name: "VerificationReason"},
