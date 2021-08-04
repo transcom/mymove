@@ -255,6 +255,44 @@ func priceDomesticShuttling(db *pop.Connection, shuttlingCode models.ReServiceCo
 	return totalCost, params, nil
 }
 
+func priceDomesticCrating(db *pop.Connection, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
+		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)
+	}
+
+	if billedCubicFeet < 4.0 {
+		return 0, nil, fmt.Errorf("crate must be billed for a minimum of 4 cubic feet")
+	}
+	domAccessorialPrice, err := fetchAccessorialPrice(db, contractCode, code, serviceSchedule)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
+	}
+
+	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
+	contractYear, err := fetchContractYear(db, domAccessorialPrice.ContractID, requestedPickupDate)
+	if err != nil {
+		return 0, nil, fmt.Errorf("could not lookup contract year: %w", err)
+	}
+	escalatedPrice := basePrice * contractYear.EscalationCompounded
+	totalCost := unit.Cents(math.Round(escalatedPrice))
+
+	params := services.PricingDisplayParams{
+		{
+			Key:   models.ServiceItemParamNamePriceRateOrFactor,
+			Value: FormatCents(domAccessorialPrice.PerUnitCents),
+		},
+		{
+			Key:   models.ServiceItemParamNameContractYearName,
+			Value: contractYear.Name,
+		},
+		{
+			Key:   models.ServiceItemParamNameEscalationCompounded,
+			Value: FormatEscalation(contractYear.EscalationCompounded),
+		},
+	}
+	return totalCost, params, nil
+}
+
 // createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
 // It also returns the newly created PaymentServiceItemParams.
 func createPricerGeneratedParams(db *pop.Connection, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
