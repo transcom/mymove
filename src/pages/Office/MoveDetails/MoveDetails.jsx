@@ -89,7 +89,10 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
   const approvedOrCanceledShipments = mtoShipments?.filter(
-    (shipment) => shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELED,
+    (shipment) =>
+      shipment.status === shipmentStatuses.APPROVED ||
+      shipment.status === shipmentStatuses.CANCELED ||
+      shipment.status === shipmentStatuses.DIVERSION_REQUESTED,
   );
 
   useEffect(() => {
