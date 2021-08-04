@@ -15,19 +15,19 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// NewFetchMTOUpdatesFastParams creates a new FetchMTOUpdatesFastParams object
+// NewListMovesParams creates a new ListMovesParams object
 //
 // There are no default values defined in the spec.
-func NewFetchMTOUpdatesFastParams() FetchMTOUpdatesFastParams {
+func NewListMovesParams() ListMovesParams {
 
-	return FetchMTOUpdatesFastParams{}
+	return ListMovesParams{}
 }
 
-// FetchMTOUpdatesFastParams contains all the bound params for the fetch m t o updates fast operation
+// ListMovesParams contains all the bound params for the list moves operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters fetchMTOUpdatesFast
-type FetchMTOUpdatesFastParams struct {
+// swagger:parameters listMoves
+type ListMovesParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -41,8 +41,8 @@ type FetchMTOUpdatesFastParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewFetchMTOUpdatesFastParams() beforehand.
-func (o *FetchMTOUpdatesFastParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewListMovesParams() beforehand.
+func (o *ListMovesParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -60,7 +60,7 @@ func (o *FetchMTOUpdatesFastParams) BindRequest(r *http.Request, route *middlewa
 }
 
 // bindSince binds and validates parameter Since from query.
-func (o *FetchMTOUpdatesFastParams) bindSince(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *ListMovesParams) bindSince(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -88,7 +88,7 @@ func (o *FetchMTOUpdatesFastParams) bindSince(rawData []string, hasKey bool, for
 }
 
 // validateSince carries on validations for parameter Since
-func (o *FetchMTOUpdatesFastParams) validateSince(formats strfmt.Registry) error {
+func (o *ListMovesParams) validateSince(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("since", "query", "date-time", o.Since.String(), formats); err != nil {
 		return err

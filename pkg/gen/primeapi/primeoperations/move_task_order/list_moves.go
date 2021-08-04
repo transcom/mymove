@@ -11,27 +11,27 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 )
 
-// FetchMTOUpdatesFastHandlerFunc turns a function with the right signature into a fetch m t o updates fast handler
-type FetchMTOUpdatesFastHandlerFunc func(FetchMTOUpdatesFastParams) middleware.Responder
+// ListMovesHandlerFunc turns a function with the right signature into a list moves handler
+type ListMovesHandlerFunc func(ListMovesParams) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn FetchMTOUpdatesFastHandlerFunc) Handle(params FetchMTOUpdatesFastParams) middleware.Responder {
+func (fn ListMovesHandlerFunc) Handle(params ListMovesParams) middleware.Responder {
 	return fn(params)
 }
 
-// FetchMTOUpdatesFastHandler interface for that can handle valid fetch m t o updates fast params
-type FetchMTOUpdatesFastHandler interface {
-	Handle(FetchMTOUpdatesFastParams) middleware.Responder
+// ListMovesHandler interface for that can handle valid list moves params
+type ListMovesHandler interface {
+	Handle(ListMovesParams) middleware.Responder
 }
 
-// NewFetchMTOUpdatesFast creates a new http.Handler for the fetch m t o updates fast operation
-func NewFetchMTOUpdatesFast(ctx *middleware.Context, handler FetchMTOUpdatesFastHandler) *FetchMTOUpdatesFast {
-	return &FetchMTOUpdatesFast{Context: ctx, Handler: handler}
+// NewListMoves creates a new http.Handler for the list moves operation
+func NewListMoves(ctx *middleware.Context, handler ListMovesHandler) *ListMoves {
+	return &ListMoves{Context: ctx, Handler: handler}
 }
 
-/* FetchMTOUpdatesFast swagger:route GET /move-task-orders/fast moveTaskOrder fetchMTOUpdatesFast
+/* ListMoves swagger:route GET /moves moveTaskOrder listMoves
 
-fetchMTOUpdatesFast
+listMoves
 
 Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
 list down to only the moves that have been updated since the provided timestamp. A move will be considered
@@ -43,17 +43,17 @@ been set, that move will always appear in this list.
 
 
 */
-type FetchMTOUpdatesFast struct {
+type ListMoves struct {
 	Context *middleware.Context
-	Handler FetchMTOUpdatesFastHandler
+	Handler ListMovesHandler
 }
 
-func (o *FetchMTOUpdatesFast) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *ListMoves) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewFetchMTOUpdatesFastParams()
+	var Params = NewListMovesParams()
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return

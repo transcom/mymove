@@ -10,30 +10,20 @@ func Test_CubicFeetStringConversion(t *testing.T) {
 
 	expected := "10.00"
 	if result != expected {
-		t.Errorf("wrong string of BaseQuantity: expected %s, got %s", expected, result)
+		t.Errorf("wrong string of CubicFeet: expected %s, got %s", expected, result)
 	}
 }
 
-func Test_CubicFeetFromStringSuccess(t *testing.T) {
-	result, err := CubicFeetFromString("11.5")
-	if err != nil {
-		t.Error(err)
-	}
+func Test_ToCubicFeet(t *testing.T) {
+	// This test case covers an implausibly large size for a crate (100 ft cube) to make sure no numerical issues pop up
+	feet := 100
+	thou := feet * 12 * 1000
+	cubicThou := CubicThousandthInch(thou * thou * thou)
 
-	expected := CubicFeet(11.5)
+	result := cubicThou.ToCubicFeet()
+	expected := CubicFeet(float64(feet * feet * feet))
+
 	if result != expected {
-		t.Errorf("Incorrectly parsed CubicFeet string: expected %f, got %f", expected, result)
-	}
-}
-
-func Test_CubicFeetFromStringFailure(t *testing.T) {
-	result, err := CubicFeetFromString("11.5")
-	if err != nil {
-		t.Error(err)
-	}
-
-	expected := CubicFeet(11.5)
-	if result != expected {
-		t.Errorf("Incorrectly parsed CubicFeet string: expected %f, got %f", expected, result)
+		t.Errorf("wrong cubic thousandth inch to cubic feet conversion: expected %s, got %s", expected, result)
 	}
 }

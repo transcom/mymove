@@ -3,6 +3,8 @@ package models_test
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -48,6 +50,6 @@ func (suite *ModelSuite) TestMTOServiceItemDimension() {
 			Width:  15000,
 		}
 		dimensionsPointer := &validMTOServiceItemDimension
-		suite.InDelta(.52, float64(dimensionsPointer.Volume()), 0.001)
+		suite.Equal(unit.CubicThousandthInch(900000000000), dimensionsPointer.Volume())
 	})
 }

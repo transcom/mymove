@@ -2,22 +2,21 @@ package unit
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // CubicFeet represents cubic feet
 type CubicFeet float64
 
-// CubicFeetFromString parses a CubicFeet value from a string
-func CubicFeetFromString(s string) (CubicFeet, error) {
-	parsed, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return CubicFeet(0), err
-	}
-	return CubicFeet(parsed), nil
-}
+// CubicThousandthInch represents values in cubic thousandths of an inch
+type CubicThousandthInch int
 
 // String converts a CubicFeet value into a string
 func (c CubicFeet) String() string {
 	return fmt.Sprintf("%.2f", c)
+}
+
+// ToCubicFeet converts cubic thousandths of an inch to cubic feet
+func (cti CubicThousandthInch) ToCubicFeet() CubicFeet {
+	cubicThousandthInchPerCubicFoot := thousandthInchPerFoot * thousandthInchPerFoot * thousandthInchPerFoot
+	return CubicFeet(float64(cti) / float64(cubicThousandthInchPerCubicFoot))
 }

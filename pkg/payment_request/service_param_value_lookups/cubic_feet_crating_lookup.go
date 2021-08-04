@@ -16,7 +16,7 @@ func (c CubicFeetCratingLookup) lookup(keyData *ServiceItemParamKeyData) (string
 	// look for the first crating dimension.
 	for _, dimension := range c.Dimensions {
 		if dimension.Type == models.DimensionTypeCrate {
-			return dimension.Volume().String(), nil
+			return dimension.Volume().ToCubicFeet().String(), nil
 		}
 	}
 

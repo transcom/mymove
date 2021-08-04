@@ -15,10 +15,11 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// FetchMoveTaskOrder fetch move task order
+// ListMove An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.
 //
-// swagger:model FetchMoveTaskOrder
-type FetchMoveTaskOrder struct {
+//
+// swagger:model ListMove
+type ListMove struct {
 
 	// available to prime at
 	// Read Only: true
@@ -66,8 +67,8 @@ type FetchMoveTaskOrder struct {
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
-// Validate validates this fetch move task order
-func (m *FetchMoveTaskOrder) Validate(formats strfmt.Registry) error {
+// Validate validates this list move
+func (m *ListMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
@@ -100,7 +101,7 @@ func (m *FetchMoveTaskOrder) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
+func (m *ListMove) validateAvailableToPrimeAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.AvailableToPrimeAt) { // not required
 		return nil
 	}
@@ -112,7 +113,7 @@ func (m *FetchMoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry)
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
+func (m *ListMove) validateCreatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -124,7 +125,7 @@ func (m *FetchMoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) validateID(formats strfmt.Registry) error {
+func (m *ListMove) validateID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -136,7 +137,7 @@ func (m *FetchMoveTaskOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
+func (m *ListMove) validateOrderID(formats strfmt.Registry) error {
 	if swag.IsZero(m.OrderID) { // not required
 		return nil
 	}
@@ -148,7 +149,7 @@ func (m *FetchMoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
-var fetchMoveTaskOrderTypePpmTypePropEnum []interface{}
+var listMoveTypePpmTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -156,28 +157,28 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		fetchMoveTaskOrderTypePpmTypePropEnum = append(fetchMoveTaskOrderTypePpmTypePropEnum, v)
+		listMoveTypePpmTypePropEnum = append(listMoveTypePpmTypePropEnum, v)
 	}
 }
 
 const (
 
-	// FetchMoveTaskOrderPpmTypeFULL captures enum value "FULL"
-	FetchMoveTaskOrderPpmTypeFULL string = "FULL"
+	// ListMovePpmTypeFULL captures enum value "FULL"
+	ListMovePpmTypeFULL string = "FULL"
 
-	// FetchMoveTaskOrderPpmTypePARTIAL captures enum value "PARTIAL"
-	FetchMoveTaskOrderPpmTypePARTIAL string = "PARTIAL"
+	// ListMovePpmTypePARTIAL captures enum value "PARTIAL"
+	ListMovePpmTypePARTIAL string = "PARTIAL"
 )
 
 // prop value enum
-func (m *FetchMoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, fetchMoveTaskOrderTypePpmTypePropEnum, true); err != nil {
+func (m *ListMove) validatePpmTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listMoveTypePpmTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
+func (m *ListMove) validatePpmType(formats strfmt.Registry) error {
 	if swag.IsZero(m.PpmType) { // not required
 		return nil
 	}
@@ -190,7 +191,7 @@ func (m *FetchMoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
+func (m *ListMove) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
@@ -202,8 +203,8 @@ func (m *FetchMoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this fetch move task order based on the context it is used
-func (m *FetchMoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this list move based on the context it is used
+func (m *ListMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateAvailableToPrimeAt(ctx, formats); err != nil {
@@ -232,7 +233,7 @@ func (m *FetchMoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) contextValidateAvailableToPrimeAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *ListMove) contextValidateAvailableToPrimeAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "availableToPrimeAt", "body", m.AvailableToPrimeAt); err != nil {
 		return err
@@ -241,7 +242,7 @@ func (m *FetchMoveTaskOrder) contextValidateAvailableToPrimeAt(ctx context.Conte
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *ListMove) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
@@ -250,7 +251,7 @@ func (m *FetchMoveTaskOrder) contextValidateCreatedAt(ctx context.Context, forma
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+func (m *ListMove) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
@@ -259,7 +260,7 @@ func (m *FetchMoveTaskOrder) contextValidateETag(ctx context.Context, formats st
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
+func (m *ListMove) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "moveCode", "body", string(m.MoveCode)); err != nil {
 		return err
@@ -268,7 +269,7 @@ func (m *FetchMoveTaskOrder) contextValidateMoveCode(ctx context.Context, format
 	return nil
 }
 
-func (m *FetchMoveTaskOrder) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *ListMove) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
@@ -278,7 +279,7 @@ func (m *FetchMoveTaskOrder) contextValidateUpdatedAt(ctx context.Context, forma
 }
 
 // MarshalBinary interface implementation
-func (m *FetchMoveTaskOrder) MarshalBinary() ([]byte, error) {
+func (m *ListMove) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -286,8 +287,8 @@ func (m *FetchMoveTaskOrder) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *FetchMoveTaskOrder) UnmarshalBinary(b []byte) error {
-	var res FetchMoveTaskOrder
+func (m *ListMove) UnmarshalBinary(b []byte) error {
+	var res ListMove
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

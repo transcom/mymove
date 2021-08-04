@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "_[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use ` + "`" + `listMoves` + "`" + `.\n\nGets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -47,6 +47,7 @@ func init() {
         ],
         "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -61,51 +62,6 @@ func init() {
             "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/move-task-orders/fast": {
-      "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "fetchMTOUpdatesFast",
-        "operationId": "fetchMTOUpdatesFast",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "date-time",
-            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
-            "name": "since",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
-            "schema": {
-              "$ref": "#/definitions/FetchMoveTaskOrders"
             }
           },
           "400": {
@@ -257,6 +213,45 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMoves",
+        "operationId": "listMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/ListMoves"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -1371,7 +1366,8 @@ func init() {
         }
       }
     },
-    "FetchMoveTaskOrder": {
+    "ListMove": {
+      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
         "availableToPrimeAt": {
@@ -1425,10 +1421,10 @@ func init() {
         }
       }
     },
-    "FetchMoveTaskOrders": {
+    "ListMoves": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/FetchMoveTaskOrder"
+        "$ref": "#/definitions/ListMove"
       }
     },
     "MTOAgent": {
@@ -2890,7 +2886,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "description": "_[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use ` + "`" + `listMoves` + "`" + `.\n\nGets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -2899,6 +2895,7 @@ func init() {
         ],
         "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -2913,66 +2910,6 @@ func init() {
             "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
-    "/move-task-orders/fast": {
-      "get": {
-        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "fetchMTOUpdatesFast",
-        "operationId": "fetchMTOUpdatesFast",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "date-time",
-            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
-            "name": "since",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set.",
-            "schema": {
-              "$ref": "#/definitions/FetchMoveTaskOrders"
             }
           },
           "400": {
@@ -3169,6 +3106,54 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMoves",
+        "operationId": "listMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/ListMoves"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -4484,7 +4469,8 @@ func init() {
         }
       }
     },
-    "FetchMoveTaskOrder": {
+    "ListMove": {
+      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
         "availableToPrimeAt": {
@@ -4538,10 +4524,10 @@ func init() {
         }
       }
     },
-    "FetchMoveTaskOrders": {
+    "ListMoves": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/FetchMoveTaskOrder"
+        "$ref": "#/definitions/ListMove"
       }
     },
     "MTOAgent": {

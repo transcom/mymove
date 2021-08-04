@@ -1,7 +1,7 @@
 package serviceparamvaluelookups
 
 import (
-	"fmt"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -17,23 +17,18 @@ type CubicFeetBilledLookup struct {
 }
 
 func (c CubicFeetBilledLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	// call CubicFeetCratingLookup
-	// convert string to number
-	// do the math
-
-	cubicFeet, err := CubicFeetCratingLookup(c).lookup(keyData)
-	if err != nil {
-		return "", err
+	// Each service item has an array of dimensions. There is a DB constraint preventing
+	// more than one dimension of each type for a given service item, so we just have to
+	// look for the first crating dimension.
+	for _, dimension := range c.Dimensions {
+		if dimension.Type == models.DimensionTypeCrate {
+			volume := dimension.Volume().ToCubicFeet()
+			if volume < minCubicFeetBilled {
+				volume = minCubicFeetBilled
+			}
+			return volume.String(), nil
+		}
 	}
 
-	parsedCubicFeetCrating, err := unit.CubicFeetFromString(cubicFeet)
-	if err != nil {
-		return "", fmt.Errorf("could not convert CubicFeetCratingLookup [%s] to integer", cubicFeet)
-	}
-
-	if parsedCubicFeetCrating < minCubicFeetBilled {
-		return minCubicFeetBilled.String(), nil
-	}
-
-	return cubicFeet, nil
+	return "", services.NewConflictError(keyData.MTOServiceItemID, "unable to calculate crate volume due to missing crate dimensions")
 }

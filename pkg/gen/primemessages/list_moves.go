@@ -14,13 +14,13 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// FetchMoveTaskOrders fetch move task orders
+// ListMoves list moves
 //
-// swagger:model FetchMoveTaskOrders
-type FetchMoveTaskOrders []*FetchMoveTaskOrder
+// swagger:model ListMoves
+type ListMoves []*ListMove
 
-// Validate validates this fetch move task orders
-func (m FetchMoveTaskOrders) Validate(formats strfmt.Registry) error {
+// Validate validates this list moves
+func (m ListMoves) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
@@ -45,8 +45,8 @@ func (m FetchMoveTaskOrders) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this fetch move task orders based on the context it is used
-func (m FetchMoveTaskOrders) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this list moves based on the context it is used
+func (m ListMoves) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
