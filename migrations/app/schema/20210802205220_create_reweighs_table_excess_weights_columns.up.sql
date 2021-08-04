@@ -1,5 +1,3 @@
-RESET ROLE;
-
 CREATE TYPE reweigh_requester AS enum (
     'CUSTOMER',
     'PRIME',
