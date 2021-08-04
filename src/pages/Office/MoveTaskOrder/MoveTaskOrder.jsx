@@ -29,6 +29,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
+import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 
 function formatShipmentDate(shipmentDateString) {
   if (shipmentDateString == null) {
@@ -285,6 +286,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     );
   }
 
+  const moveWeightTotal = mtoShipments?.reduce((prev, current) => {
+    return prev + current.primeActualWeight;
+  }, 0);
+
+  const estimatedWeightTotal = mtoShipments?.reduce((prev, current) => {
+    return prev + current.primeEstimatedWeight;
+  }, 0);
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -322,6 +331,16 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
+          </div>
+          <div className={styles.weightHeader}>
+            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
+            <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal} />
+            <WeightDisplay
+              heading="Max billable weight"
+              weightValue={order.entitlement.authorizedWeight}
+              onEdit={() => {}}
+            />
+            <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
           {mtoShipments.map((mtoShipment) => {
             if (
