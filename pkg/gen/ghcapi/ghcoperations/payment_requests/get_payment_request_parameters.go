@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetPaymentRequestParams creates a new GetPaymentRequestParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetPaymentRequestParams() GetPaymentRequestParams {
 
 	return GetPaymentRequestParams{}
@@ -50,7 +51,6 @@ func (o *GetPaymentRequestParams) BindRequest(r *http.Request, route *middleware
 	if err := o.bindPaymentRequestID(rPaymentRequestID, rhkPaymentRequestID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

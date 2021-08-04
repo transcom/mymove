@@ -29,7 +29,7 @@ func NewHideNonFakeMoveTaskOrders(ctx *middleware.Context, handler HideNonFakeMo
 	return &HideNonFakeMoveTaskOrders{Context: ctx, Handler: handler}
 }
 
-/*HideNonFakeMoveTaskOrders swagger:route PATCH /move-task-orders/hide moveTaskOrder hideNonFakeMoveTaskOrders
+/* HideNonFakeMoveTaskOrders swagger:route PATCH /move-task-orders/hide moveTaskOrder hideNonFakeMoveTaskOrders
 
 hideNonFakeMoveTaskOrders
 
@@ -47,17 +47,15 @@ type HideNonFakeMoveTaskOrders struct {
 func (o *HideNonFakeMoveTaskOrders) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewHideNonFakeMoveTaskOrdersParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

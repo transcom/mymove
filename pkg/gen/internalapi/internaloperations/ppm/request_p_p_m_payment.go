@@ -29,7 +29,7 @@ func NewRequestPPMPayment(ctx *middleware.Context, handler RequestPPMPaymentHand
 	return &RequestPPMPayment{Context: ctx, Handler: handler}
 }
 
-/*RequestPPMPayment swagger:route POST /personally_procured_move/{personallyProcuredMoveId}/request_payment ppm requestPPMPayment
+/* RequestPPMPayment swagger:route POST /personally_procured_move/{personallyProcuredMoveId}/request_payment ppm requestPPMPayment
 
 Moves the PPM and the move into the PAYMENT_REQUESTED state
 
@@ -44,17 +44,15 @@ type RequestPPMPayment struct {
 func (o *RequestPPMPayment) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewRequestPPMPaymentParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

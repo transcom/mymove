@@ -6,6 +6,7 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -17,7 +18,8 @@ import (
 )
 
 // NewUpdateMTOPostCounselingInformationParams creates a new UpdateMTOPostCounselingInformationParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMTOPostCounselingInformationParams() UpdateMTOPostCounselingInformationParams {
 
 	return UpdateMTOPostCounselingInformationParams{}
@@ -78,6 +80,11 @@ func (o *UpdateMTOPostCounselingInformationParams) BindRequest(r *http.Request, 
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = body
 			}
@@ -85,11 +92,11 @@ func (o *UpdateMTOPostCounselingInformationParams) BindRequest(r *http.Request, 
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -111,7 +118,6 @@ func (o *UpdateMTOPostCounselingInformationParams) bindIfMatch(rawData []string,
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -126,7 +132,6 @@ func (o *UpdateMTOPostCounselingInformationParams) bindMoveTaskOrderID(rawData [
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil

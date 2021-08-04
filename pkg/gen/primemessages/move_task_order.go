@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"strconv"
@@ -38,10 +39,12 @@ type MoveTaskOrder struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move code
+	// Example: HYXFJF
 	// Read Only: true
 	MoveCode string `json:"moveCode,omitempty"`
 
@@ -55,6 +58,7 @@ type MoveTaskOrder struct {
 	Order *Order `json:"order,omitempty"`
 
 	// order ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OrderID strfmt.UUID `json:"orderID,omitempty"`
 
@@ -70,6 +74,7 @@ type MoveTaskOrder struct {
 	PpmType string `json:"ppmType,omitempty"`
 
 	// reference Id
+	// Example: 1001-3456
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
@@ -306,7 +311,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AvailableToPrimeAt) { // not required
 		return nil
 	}
@@ -319,7 +323,6 @@ func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) erro
 }
 
 func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -332,7 +335,6 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -381,7 +383,6 @@ func (m *MoveTaskOrder) validateMtoShipments(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateOrder(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Order) { // not required
 		return nil
 	}
@@ -399,7 +400,6 @@ func (m *MoveTaskOrder) validateOrder(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrderID) { // not required
 		return nil
 	}
@@ -457,7 +457,6 @@ func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string)
 }
 
 func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PpmType) { // not required
 		return nil
 	}
@@ -471,12 +470,156 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 }
 
 func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this move task order based on the context it is used
+func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAvailableToPrimeAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoveCode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrder(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePaymentRequests(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateAvailableToPrimeAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "availableToPrimeAt", "body", m.AvailableToPrimeAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateMoveCode(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "moveCode", "body", string(m.MoveCode)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.MtoServiceItems()); i++ {
+
+		if err := m.mtoServiceItemsField[i].ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateMtoShipments(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MtoShipments.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoShipments")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateOrder(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Order != nil {
+		if err := m.Order.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("order")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidatePaymentRequests(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.PaymentRequests.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("paymentRequests")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

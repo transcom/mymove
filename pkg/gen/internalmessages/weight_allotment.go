@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,18 +20,22 @@ import (
 type WeightAllotment struct {
 
 	// pro gear weight
+	// Example: 2000
 	// Required: true
 	ProGearWeight *int64 `json:"pro_gear_weight"`
 
 	// pro gear weight spouse
+	// Example: 500
 	// Required: true
 	ProGearWeightSpouse *int64 `json:"pro_gear_weight_spouse"`
 
 	// total weight self
+	// Example: 18000
 	// Required: true
 	TotalWeightSelf *int64 `json:"total_weight_self"`
 
 	// total weight self plus dependents
+	// Example: 18000
 	// Required: true
 	TotalWeightSelfPlusDependents *int64 `json:"total_weight_self_plus_dependents"`
 }
@@ -93,6 +99,11 @@ func (m *WeightAllotment) validateTotalWeightSelfPlusDependents(formats strfmt.R
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this weight allotment based on context it is used
+func (m *WeightAllotment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

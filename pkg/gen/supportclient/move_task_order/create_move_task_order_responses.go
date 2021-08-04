@@ -65,9 +65,8 @@ func (o *CreateMoveTaskOrderReader) ReadResponse(response runtime.ClientResponse
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -76,7 +75,7 @@ func NewCreateMoveTaskOrderCreated() *CreateMoveTaskOrderCreated {
 	return &CreateMoveTaskOrderCreated{}
 }
 
-/*CreateMoveTaskOrderCreated handles this case with default header values.
+/* CreateMoveTaskOrderCreated describes a response with status code 201, with default header values.
 
 Successfully created MoveTaskOrder object.
 */
@@ -87,7 +86,6 @@ type CreateMoveTaskOrderCreated struct {
 func (o *CreateMoveTaskOrderCreated) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderCreated  %+v", 201, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderCreated) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -109,7 +107,7 @@ func NewCreateMoveTaskOrderBadRequest() *CreateMoveTaskOrderBadRequest {
 	return &CreateMoveTaskOrderBadRequest{}
 }
 
-/*CreateMoveTaskOrderBadRequest handles this case with default header values.
+/* CreateMoveTaskOrderBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -120,7 +118,6 @@ type CreateMoveTaskOrderBadRequest struct {
 func (o *CreateMoveTaskOrderBadRequest) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -142,7 +139,7 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 	return &CreateMoveTaskOrderUnauthorized{}
 }
 
-/*CreateMoveTaskOrderUnauthorized handles this case with default header values.
+/* CreateMoveTaskOrderUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -153,7 +150,6 @@ type CreateMoveTaskOrderUnauthorized struct {
 func (o *CreateMoveTaskOrderUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -175,7 +171,7 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 	return &CreateMoveTaskOrderForbidden{}
 }
 
-/*CreateMoveTaskOrderForbidden handles this case with default header values.
+/* CreateMoveTaskOrderForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -186,7 +182,6 @@ type CreateMoveTaskOrderForbidden struct {
 func (o *CreateMoveTaskOrderForbidden) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderForbidden  %+v", 403, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -208,7 +203,7 @@ func NewCreateMoveTaskOrderNotFound() *CreateMoveTaskOrderNotFound {
 	return &CreateMoveTaskOrderNotFound{}
 }
 
-/*CreateMoveTaskOrderNotFound handles this case with default header values.
+/* CreateMoveTaskOrderNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -219,7 +214,6 @@ type CreateMoveTaskOrderNotFound struct {
 func (o *CreateMoveTaskOrderNotFound) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderNotFound  %+v", 404, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -241,7 +235,7 @@ func NewCreateMoveTaskOrderUnprocessableEntity() *CreateMoveTaskOrderUnprocessab
 	return &CreateMoveTaskOrderUnprocessableEntity{}
 }
 
-/*CreateMoveTaskOrderUnprocessableEntity handles this case with default header values.
+/* CreateMoveTaskOrderUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -252,7 +246,6 @@ type CreateMoveTaskOrderUnprocessableEntity struct {
 func (o *CreateMoveTaskOrderUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -274,7 +267,7 @@ func NewCreateMoveTaskOrderInternalServerError() *CreateMoveTaskOrderInternalSer
 	return &CreateMoveTaskOrderInternalServerError{}
 }
 
-/*CreateMoveTaskOrderInternalServerError handles this case with default header values.
+/* CreateMoveTaskOrderInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -285,7 +278,6 @@ type CreateMoveTaskOrderInternalServerError struct {
 func (o *CreateMoveTaskOrderInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /move-task-orders][%d] createMoveTaskOrderInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *CreateMoveTaskOrderInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

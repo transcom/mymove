@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -24,15 +25,18 @@ type MoveDatesSummary struct {
 	Delivery []strfmt.Date `json:"delivery"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538:2018-09-25
 	// Required: true
 	ID *string `json:"id"`
 
 	// move date
+	// Example: 2018-09-25
 	// Required: true
 	// Format: date
 	MoveDate *strfmt.Date `json:"move_date"`
 
 	// move id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	MoveID *strfmt.UUID `json:"move_id"`
@@ -213,6 +217,11 @@ func (m *MoveDatesSummary) validateTransit(formats strfmt.Registry) error {
 
 	}
 
+	return nil
+}
+
+// ContextValidate validates this move dates summary based on context it is used
+func (m *MoveDatesSummary) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

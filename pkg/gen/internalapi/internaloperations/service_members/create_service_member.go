@@ -29,7 +29,7 @@ func NewCreateServiceMember(ctx *middleware.Context, handler CreateServiceMember
 	return &CreateServiceMember{Context: ctx, Handler: handler}
 }
 
-/*CreateServiceMember swagger:route POST /service_members service_members createServiceMember
+/* CreateServiceMember swagger:route POST /service_members service_members createServiceMember
 
 Creates service member for a logged-in user
 
@@ -44,17 +44,15 @@ type CreateServiceMember struct {
 func (o *CreateServiceMember) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateServiceMemberParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

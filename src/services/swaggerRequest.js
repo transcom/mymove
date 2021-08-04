@@ -34,7 +34,7 @@ export const requestInterceptor = (req) => {
 export const responseInterceptor = (res) => {
   switch (res.status) {
     case 500: {
-      interceptInjection(interceptResponse(true));
+      interceptInjection(interceptResponse(true, res.headers['x-milmove-trace-id']));
       break;
     }
 

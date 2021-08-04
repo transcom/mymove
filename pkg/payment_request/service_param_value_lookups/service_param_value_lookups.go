@@ -265,6 +265,14 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
+	paramKey = models.ServiceItemParamNameCubicFeetBilled
+	err = s.setLookup(serviceItemCode, paramKey, CubicFeetBilledLookup{
+		Dimensions: serviceItemDimensions,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	paramKey = models.ServiceItemParamNamePSILinehaulDom
 	err = s.setLookup(serviceItemCode, paramKey, PSILinehaulDomLookup{
 		MTOShipment: mtoShipment,
@@ -377,6 +385,31 @@ func ServiceParamLookupInitialize(
 	if err != nil {
 		return nil, err
 	}
+
+	paramKey = models.ServiceItemParamNameDimensionHeight
+	err = s.setLookup(serviceItemCode, paramKey, DimensionHeightLookup{
+		Dimensions: serviceItemDimensions,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameDimensionLength
+	err = s.setLookup(serviceItemCode, paramKey, DimensionLengthLookup{
+		Dimensions: serviceItemDimensions,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameDimensionWidth
+	err = s.setLookup(serviceItemCode, paramKey, DimensionWidthLookup{
+		Dimensions: serviceItemDimensions,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &s, nil
 }
 

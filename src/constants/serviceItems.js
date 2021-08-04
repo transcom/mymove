@@ -10,6 +10,9 @@ const SERVICE_ITEM_PARAM_KEYS = {
   CubicFeetCrating: 'CubicFeetCrating',
   CubicFeetBilled: 'CubicFeetBilled',
   DestinationPrice: 'DestinationPrice',
+  DimensionHeight: 'DimensionHeight',
+  DimensionLength: 'DimensionLength',
+  DimensionWidth: 'DimensionWidth',
   DistanceZip3: 'DistanceZip3',
   DistanceZip5: 'DistanceZip5',
   DistanceZipSITDest: 'DistanceZipSITDest',
@@ -67,8 +70,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   BaselineShorthaulPrice: 'Baseline shorthaul price',
   BillableWeight: 'Billable weight (cwt)',
   CratingDate: 'Crating date',
-  CubicFeetBilled: 'Crating price (per cu ft)',
-  CubicFeetCrating: 'Crating size (cu ft)',
+  CratingPrice: 'Crating price (per cu ft)',
+  CubicFeetBilled: 'Crating size (cu ft)',
   DaysInSIT: 'Days in SIT',
   DeliveryDate: 'Delivery date',
   Description: 'Description',
@@ -86,6 +89,8 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   SITDeliveryPrice: 'SIT delivery price',
   TotalAmountRequested: 'Total amount requested',
   UnpackPrice: 'Unpack price',
+  UncratingDate: 'Uncrating date',
+  UncratingPrice: 'Uncrating price (per cu ft)',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -105,6 +110,7 @@ const SERVICE_ITEM_CODES = {
   FSC: 'FSC',
   DDSHUT: 'DDSHUT',
   DCRT: 'DCRT',
+  DUCRT: 'DUCRT',
 };
 
 // TODO - temporary, will remove once all service item calculations are implemented
@@ -125,6 +131,7 @@ const allowedServiceItemCalculations = [
   SERVICE_ITEM_CODES.FSC,
   SERVICE_ITEM_CODES.DDSHUT,
   SERVICE_ITEM_CODES.DCRT,
+  SERVICE_ITEM_CODES.DUCRT,
 ];
 
 export {

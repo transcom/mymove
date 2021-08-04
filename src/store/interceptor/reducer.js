@@ -5,6 +5,7 @@ const ACTION_RESPONSE_INTERVAL_MS = 3000;
 export const initialState = {
   hasRecentError: false,
   timestamp: 0,
+  traceId: '',
 };
 
 const interceptorReducer = (state = initialState, action) => {
@@ -17,6 +18,7 @@ const interceptorReducer = (state = initialState, action) => {
           ...state,
           hasRecentError: true,
           timestamp,
+          traceId: action.traceId,
         };
       }
 
@@ -25,6 +27,7 @@ const interceptorReducer = (state = initialState, action) => {
           ...state,
           hasRecentError: false,
           timestamp,
+          traceId: '',
         };
       }
 

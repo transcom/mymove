@@ -25,11 +25,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreatePaymentRequest(params *CreatePaymentRequestParams) (*CreatePaymentRequestCreated, error)
+	CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error)
 
-	CreateUpload(params *CreateUploadParams) (*CreateUploadCreated, error)
+	CreateUpload(params *CreateUploadParams, opts ...ClientOption) (*CreateUploadCreated, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -43,13 +46,12 @@ A move task order can have multiple payment requests, and
 a final payment request can be marked using boolean `isFinal`.
 
 */
-func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams) (*CreatePaymentRequestCreated, error) {
+func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams, opts ...ClientOption) (*CreatePaymentRequestCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreatePaymentRequestParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createPaymentRequest",
 		Method:             "POST",
 		PathPattern:        "/payment-requests",
@@ -60,7 +62,12 @@ func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams) (*Crea
 		Reader:             &CreatePaymentRequestReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -85,13 +92,12 @@ The PaymentRequest should already exist.
 PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
 
 */
-func (a *Client) CreateUpload(params *CreateUploadParams) (*CreateUploadCreated, error) {
+func (a *Client) CreateUpload(params *CreateUploadParams, opts ...ClientOption) (*CreateUploadCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateUploadParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createUpload",
 		Method:             "POST",
 		PathPattern:        "/payment-requests/{paymentRequestID}/uploads",
@@ -102,7 +108,12 @@ func (a *Client) CreateUpload(params *CreateUploadParams) (*CreateUploadCreated,
 		Reader:             &CreateUploadReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

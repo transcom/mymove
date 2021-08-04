@@ -86,7 +86,7 @@ func Customer(customer *models.ServiceMember) *supportmessages.Customer {
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
 	}
 	if customer.Rank != nil {
-		payload.Rank = supportmessages.Rank(*customer.Rank)
+		payload.Rank = supportmessages.NewRank(supportmessages.Rank(*customer.Rank))
 	}
 	return &payload
 }
@@ -105,18 +105,17 @@ func Order(order *models.Order) *supportmessages.Order {
 
 	reportByDate := strfmt.Date(order.ReportByDate)
 	issueDate := strfmt.Date(order.IssueDate)
-
 	payload := supportmessages.Order{
 		DestinationDutyStation:   destinationDutyStation,
 		DestinationDutyStationID: handlers.FmtUUID(order.NewDutyStationID),
 		Entitlement:              Entitlement(order.Entitlement),
 		Customer:                 Customer(&order.ServiceMember),
 		OrderNumber:              order.OrdersNumber,
-		OrdersType:               supportmessages.OrdersType(order.OrdersType),
+		OrdersType:               supportmessages.NewOrdersType(supportmessages.OrdersType(order.OrdersType)),
 		ID:                       strfmt.UUID(order.ID.String()),
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(order.UpdatedAt),
-		Status:                   supportmessages.OrdersStatus(order.Status),
+		Status:                   supportmessages.NewOrdersStatus(supportmessages.OrdersStatus(order.Status)),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         handlers.FmtUUID(order.UploadedOrdersID),
 		ReportByDate:             &reportByDate,
@@ -125,7 +124,8 @@ func Order(order *models.Order) *supportmessages.Order {
 	}
 
 	if order.Grade != nil {
-		payload.Rank = (supportmessages.Rank)(*order.Grade)
+		rank := (supportmessages.Rank)(*order.Grade)
+		payload.Rank = &rank
 	}
 	if order.OriginDutyStationID != nil {
 		payload.OriginDutyStationID = handlers.FmtUUID(*order.OriginDutyStationID)
@@ -359,7 +359,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 	default:
 		// otherwise, basic service item
 		payload = &supportmessages.MTOServiceItemBasic{
-			ReServiceCode: supportmessages.ReServiceCode(mtoServiceItem.ReService.Code),
+			ReServiceCode: supportmessages.NewReServiceCode(supportmessages.ReServiceCode(mtoServiceItem.ReService.Code)),
 		}
 	}
 

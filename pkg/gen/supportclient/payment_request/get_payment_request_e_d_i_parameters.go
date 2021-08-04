@@ -16,59 +16,75 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetPaymentRequestEDIParams creates a new GetPaymentRequestEDIParams object
-// with the default values initialized.
+// NewGetPaymentRequestEDIParams creates a new GetPaymentRequestEDIParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetPaymentRequestEDIParams() *GetPaymentRequestEDIParams {
-	var ()
 	return &GetPaymentRequestEDIParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetPaymentRequestEDIParamsWithTimeout creates a new GetPaymentRequestEDIParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetPaymentRequestEDIParamsWithTimeout(timeout time.Duration) *GetPaymentRequestEDIParams {
-	var ()
 	return &GetPaymentRequestEDIParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetPaymentRequestEDIParamsWithContext creates a new GetPaymentRequestEDIParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetPaymentRequestEDIParamsWithContext(ctx context.Context) *GetPaymentRequestEDIParams {
-	var ()
 	return &GetPaymentRequestEDIParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetPaymentRequestEDIParamsWithHTTPClient creates a new GetPaymentRequestEDIParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetPaymentRequestEDIParamsWithHTTPClient(client *http.Client) *GetPaymentRequestEDIParams {
-	var ()
 	return &GetPaymentRequestEDIParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetPaymentRequestEDIParams contains all the parameters to send to the API endpoint
-for the get payment request e d i operation typically these are written to a http.Request
+/* GetPaymentRequestEDIParams contains all the parameters to send to the API endpoint
+   for the get payment request e d i operation.
+
+   Typically these are written to a http.Request.
 */
 type GetPaymentRequestEDIParams struct {
 
-	/*PaymentRequestID
-	  UUID of the payment request for which EDI should be generated.
+	/* PaymentRequestID.
 
+	   UUID of the payment request for which EDI should be generated.
+
+	   Format: uuid
 	*/
 	PaymentRequestID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get payment request e d i params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPaymentRequestEDIParams) WithDefaults() *GetPaymentRequestEDIParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get payment request e d i params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPaymentRequestEDIParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get payment request e d i params

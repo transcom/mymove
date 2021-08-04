@@ -29,7 +29,7 @@ func NewShowOfficeOrders(ctx *middleware.Context, handler ShowOfficeOrdersHandle
 	return &ShowOfficeOrders{Context: ctx, Handler: handler}
 }
 
-/*ShowOfficeOrders swagger:route GET /moves/{moveId}/orders office showOfficeOrders
+/* ShowOfficeOrders swagger:route GET /moves/{moveId}/orders office showOfficeOrders
 
 Returns orders information for a move for office use
 
@@ -44,17 +44,15 @@ type ShowOfficeOrders struct {
 func (o *ShowOfficeOrders) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowOfficeOrdersParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetDocumentParams creates a new GetDocumentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetDocumentParams() GetDocumentParams {
 
 	return GetDocumentParams{}
@@ -50,7 +51,6 @@ func (o *GetDocumentParams) BindRequest(r *http.Request, route *middleware.Match
 	if err := o.bindDocumentID(rDocumentID, rhkDocumentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

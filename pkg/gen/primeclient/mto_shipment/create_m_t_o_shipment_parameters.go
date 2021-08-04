@@ -18,56 +18,70 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// NewCreateMTOShipmentParams creates a new CreateMTOShipmentParams object
-// with the default values initialized.
+// NewCreateMTOShipmentParams creates a new CreateMTOShipmentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreateMTOShipmentParams() *CreateMTOShipmentParams {
-	var ()
 	return &CreateMTOShipmentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreateMTOShipmentParamsWithTimeout creates a new CreateMTOShipmentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreateMTOShipmentParamsWithTimeout(timeout time.Duration) *CreateMTOShipmentParams {
-	var ()
 	return &CreateMTOShipmentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreateMTOShipmentParamsWithContext creates a new CreateMTOShipmentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreateMTOShipmentParamsWithContext(ctx context.Context) *CreateMTOShipmentParams {
-	var ()
 	return &CreateMTOShipmentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreateMTOShipmentParamsWithHTTPClient creates a new CreateMTOShipmentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreateMTOShipmentParamsWithHTTPClient(client *http.Client) *CreateMTOShipmentParams {
-	var ()
 	return &CreateMTOShipmentParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreateMTOShipmentParams contains all the parameters to send to the API endpoint
-for the create m t o shipment operation typically these are written to a http.Request
+/* CreateMTOShipmentParams contains all the parameters to send to the API endpoint
+   for the create m t o shipment operation.
+
+   Typically these are written to a http.Request.
 */
 type CreateMTOShipmentParams struct {
 
-	/*Body*/
+	// Body.
 	Body *primemessages.CreateMTOShipment
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create m t o shipment params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateMTOShipmentParams) WithDefaults() *CreateMTOShipmentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create m t o shipment params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateMTOShipmentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create m t o shipment params
@@ -121,7 +135,6 @@ func (o *CreateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

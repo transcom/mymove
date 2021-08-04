@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -51,10 +53,12 @@ type UpdateMTOShipment struct {
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
+	// Example: 4500
 	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
 
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
+	// Example: 4500
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
@@ -118,7 +122,6 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UpdateMTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ActualPickupDate) { // not required
 		return nil
 	}
@@ -131,7 +134,6 @@ func (m *UpdateMTOShipment) validateActualPickupDate(formats strfmt.Registry) er
 }
 
 func (m *UpdateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
 	}
@@ -140,7 +142,6 @@ func (m *UpdateMTOShipment) validateDestinationAddress(formats strfmt.Registry) 
 }
 
 func (m *UpdateMTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.FirstAvailableDeliveryDate) { // not required
 		return nil
 	}
@@ -153,7 +154,6 @@ func (m *UpdateMTOShipment) validateFirstAvailableDeliveryDate(formats strfmt.Re
 }
 
 func (m *UpdateMTOShipment) validatePickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
 	}
@@ -162,7 +162,6 @@ func (m *UpdateMTOShipment) validatePickupAddress(formats strfmt.Registry) error
 }
 
 func (m *UpdateMTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
 	}
@@ -175,7 +174,6 @@ func (m *UpdateMTOShipment) validateScheduledPickupDate(formats strfmt.Registry)
 }
 
 func (m *UpdateMTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
 	}
@@ -184,7 +182,6 @@ func (m *UpdateMTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Regi
 }
 
 func (m *UpdateMTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryPickupAddress) { // not required
 		return nil
 	}
@@ -193,12 +190,73 @@ func (m *UpdateMTOShipment) validateSecondaryPickupAddress(formats strfmt.Regist
 }
 
 func (m *UpdateMTOShipment) validateShipmentType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ShipmentType) { // not required
 		return nil
 	}
 
 	if err := m.ShipmentType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update m t o shipment based on the context it is used
+func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ShipmentType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
 		}

@@ -421,3 +421,56 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		suite.Contains(err.Error(), "Could not lookup contract year")
 	})
 }
+func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
+	suite.Run("crating golden path", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, DefaultContractCode, dcrtTestEscalationCompounded)
+
+		priceCents, displayParams, err := priceDomesticCrating(suite.DB(), models.ReServiceCodeDCRT, DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+		suite.NoError(err)
+		suite.Equal(dcrtTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: DefaultContractCode},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dcrtTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dcrtTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("invalid service code", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, DefaultContractCode, dcrtTestEscalationCompounded)
+		_, _, err := priceDomesticCrating(suite.DB(), models.ReServiceCodeCS, DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported domestic crating code")
+	})
+
+	suite.Run("invalid crate size", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, DefaultContractCode, dcrtTestEscalationCompounded)
+
+		badSize := unit.CubicFeet(1.0)
+		_, _, err := priceDomesticCrating(suite.DB(), models.ReServiceCodeDCRT, DefaultContractCode, dcrtTestRequestedPickupDate, badSize, dcrtTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "crate must be billed for a minimum of 4 cubic feet")
+	})
+
+	suite.Run("not finding a rate record", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, DefaultContractCode, dcrtTestEscalationCompounded)
+
+		_, _, err := priceDomesticCrating(suite.DB(), models.ReServiceCodeDCRT, "BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
+	})
+
+	suite.Run("not finding a contract year record", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, DefaultContractCode, dcrtTestEscalationCompounded)
+
+		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := priceDomesticCrating(suite.DB(), models.ReServiceCodeDCRT, DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not lookup contract year")
+	})
+}

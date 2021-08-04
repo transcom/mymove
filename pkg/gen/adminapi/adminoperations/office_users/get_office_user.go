@@ -29,7 +29,7 @@ func NewGetOfficeUser(ctx *middleware.Context, handler GetOfficeUserHandler) *Ge
 	return &GetOfficeUser{Context: ctx, Handler: handler}
 }
 
-/*GetOfficeUser swagger:route GET /office_users/{officeUserId} office_users getOfficeUser
+/* GetOfficeUser swagger:route GET /office_users/{officeUserId} office_users getOfficeUser
 
 Get an office user
 
@@ -44,17 +44,15 @@ type GetOfficeUser struct {
 func (o *GetOfficeUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetOfficeUserParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

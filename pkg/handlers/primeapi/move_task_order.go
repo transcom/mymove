@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
@@ -26,8 +27,12 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
-		Since:              params.Since,
 	}
+	if params.Since != nil {
+		timeSince := time.Unix(*params.Since, 0)
+		searchParams.Since = &timeSince
+	}
+
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
@@ -38,6 +43,34 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	payload := payloads.MoveTaskOrders(&mtos)
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
+}
+
+// ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
+type ListMovesHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderFetcher
+}
+
+// Handle fetches all move task orders with the option to filter since a particular date. Optimized version.
+func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	var searchParams services.MoveTaskOrderFetcherParams
+	if params.Since != nil {
+		since := handlers.FmtDateTimePtrToPop(params.Since)
+		searchParams.Since = &since
+	}
+
+	mtos, err := h.MoveTaskOrderFetcher.ListPrimeMoveTaskOrders(&searchParams)
+
+	if err != nil {
+		logger.Error("Unexpected error while fetching moves:", zap.Error(err))
+		return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+	}
+
+	payload := payloads.ListMoves(&mtos)
+
+	return movetaskorderops.NewListMovesOK().WithPayload(payload)
 }
 
 // UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
@@ -54,14 +87,22 @@ type GetMoveTaskOrderHandlerFunc struct {
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// Handle fetches an MTO from the database using its UUID
+// Handle fetches an MTO from the database using its UUID or move code
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IsAvailableToPrime: true,
 	}
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+
+	// Add either ID or Locator to search params
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveID)
+	if moveTaskOrderID != uuid.Nil {
+		searchParams.MoveTaskOrderID = moveTaskOrderID
+	} else {
+		searchParams.Locator = params.MoveID
+	}
+
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(&searchParams)
 	if err != nil {
 		logger.Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

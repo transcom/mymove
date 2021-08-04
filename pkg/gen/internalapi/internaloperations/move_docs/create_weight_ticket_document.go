@@ -29,7 +29,7 @@ func NewCreateWeightTicketDocument(ctx *middleware.Context, handler CreateWeight
 	return &CreateWeightTicketDocument{Context: ctx, Handler: handler}
 }
 
-/*CreateWeightTicketDocument swagger:route POST /moves/{moveId}/weight_ticket move_docs createWeightTicketDocument
+/* CreateWeightTicketDocument swagger:route POST /moves/{moveId}/weight_ticket move_docs createWeightTicketDocument
 
 Creates a weight ticket document
 
@@ -44,17 +44,15 @@ type CreateWeightTicketDocument struct {
 func (o *CreateWeightTicketDocument) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateWeightTicketDocumentParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

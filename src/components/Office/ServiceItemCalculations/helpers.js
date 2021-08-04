@@ -1,6 +1,6 @@
 import { SERVICE_ITEM_CALCULATION_LABELS, SERVICE_ITEM_CODES, SERVICE_ITEM_PARAM_KEYS } from 'constants/serviceItems';
 import { LONGHAUL_MIN_DISTANCE } from 'constants/shipments';
-import { convertFromThousandthInchToInch, formatWeight, formatCents, toDollarString } from 'shared/formatters';
+import { formatWeight, formatCents, toDollarString } from 'shared/formatters';
 import { formatDate } from 'shared/dates';
 import { formatWeightCWTFromLbs, formatDollarFromMillicents } from 'utils/formatters';
 
@@ -45,6 +45,13 @@ const requestedPickupDate = (params) => {
 
 const cratingDate = (params) => {
   return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+};
+
+const unCratingDate = (params) => {
+  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDate(
     getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
     'DD MMM YYYY',
   )}`;
@@ -332,8 +339,8 @@ const pickupSITPrice = (params) => {
 };
 
 const cratingPrice = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CratingPrice;
 
   const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin,
@@ -343,17 +350,28 @@ const cratingPrice = (params) => {
   return calculation(value, label, serviceSchedule, cratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
 };
 
+const unCratingPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UncratingPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest,
+    params,
+  )}`;
+
+  return calculation(value, label, serviceSchedule, unCratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
 const cratingSize = (params, mtoParams) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating;
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
+  const length = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionLength, params);
+  const height = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionHeight, params);
+  const width = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionWidth, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
 
   const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
 
-  const dimensions = mtoParams.dimensions.find((dim) => dim.type === 'CRATE');
-
-  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${convertFromThousandthInchToInch(
-    dimensions.length,
-  )}x${convertFromThousandthInchToInch(dimensions.width)}x${convertFromThousandthInchToInch(dimensions.height)} in`;
+  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${length}x${width}x${height} in`;
 
   return calculation(value, label, description, formattedDimensions);
 };
@@ -529,6 +547,15 @@ const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
       result = [
         cratingSize(params, mtoParams),
         cratingPrice(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic uncrating
+    case SERVICE_ITEM_CODES.DUCRT:
+      result = [
+        cratingSize(params, mtoParams),
+        unCratingPrice(params),
         priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];
