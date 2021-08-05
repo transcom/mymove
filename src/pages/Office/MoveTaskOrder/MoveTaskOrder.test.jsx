@@ -35,6 +35,10 @@ const unapprovedMTOQuery = {
           postal_code: '92310',
         },
       },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
     },
   },
   move: {
@@ -110,6 +114,10 @@ const someShipmentsApprovedMTOQuery = {
           state: 'CA',
           postal_code: '92310',
         },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
       },
     },
   },
@@ -216,6 +224,10 @@ const allApprovedMTOQuery = {
           postal_code: '92310',
         },
       },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
     },
   },
   move: {
@@ -244,6 +256,8 @@ const allApprovedMTOQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
     },
     {
       id: '4',
@@ -265,6 +279,8 @@ const allApprovedMTOQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      primeEstimatedWeight: null,
+      primeActualWeight: null,
     },
     {
       id: '5',
@@ -286,6 +302,8 @@ const allApprovedMTOQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
     },
     {
       id: '6',
@@ -307,6 +325,8 @@ const allApprovedMTOQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 50,
     },
     {
       id: '7',
@@ -328,6 +348,8 @@ const allApprovedMTOQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
     },
   ],
   mtoServiceItems: [
@@ -370,6 +392,10 @@ const approvedMTOWithCancelledShipmentQuery = {
           state: 'CA',
           postal_code: '92310',
         },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
       },
     },
   },
@@ -438,6 +464,71 @@ const errorReturnValue = {
 };
 
 describe('MoveTaskOrder', () => {
+  describe('weight display', () => {
+    it('displays the weight allowance', async () => {
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightAllowance = await screen.getByText(/8,500 lbs/);
+      expect(weightAllowance).toBeInTheDocument();
+    });
+
+    it('displays the max billable weight', async () => {
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const maxBillableWeight = await screen.getByText(/8,000 lbs/);
+      expect(maxBillableWeight).toBeInTheDocument();
+    });
+
+    it('displays the estimated total weight', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const estimatedWeightTotal = await screen.getByText(/400 lbs/);
+      expect(estimatedWeightTotal).toBeInTheDocument();
+    });
+
+    it('displays the move weight total', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const moveWeightTotal = await screen.getByText(/350 lbs/);
+      expect(moveWeightTotal).toBeInTheDocument();
+    });
+  });
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveTaskOrderQueries.mockReturnValue(loadingReturnValue);
