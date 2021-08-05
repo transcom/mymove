@@ -1332,8 +1332,8 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 	}
 	crateDimension := models.MTOServiceItemDimension{
 		Type:   models.DimensionTypeCrate,
-		Length: unit.ThousandthInches(3000),
-		Height: unit.ThousandthInches(6000),
+		Length: unit.ThousandthInches(30000),
+		Height: unit.ThousandthInches(60000),
 		Width:  unit.ThousandthInches(10000),
 	}
 	crating := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
