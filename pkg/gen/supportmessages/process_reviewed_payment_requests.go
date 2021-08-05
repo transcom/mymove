@@ -26,7 +26,6 @@ type ProcessReviewedPaymentRequests struct {
 
 	// payment request ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-	// Read Only: true
 	// Format: uuid
 	PaymentRequestID strfmt.UUID `json:"paymentRequestID,omitempty"`
 
@@ -132,10 +131,6 @@ func (m *ProcessReviewedPaymentRequests) validateStatus(formats strfmt.Registry)
 func (m *ProcessReviewedPaymentRequests) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidatePaymentRequestID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -143,15 +138,6 @@ func (m *ProcessReviewedPaymentRequests) ContextValidate(ctx context.Context, fo
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *ProcessReviewedPaymentRequests) contextValidatePaymentRequestID(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := validate.ReadOnly(ctx, "paymentRequestID", "body", strfmt.UUID(m.PaymentRequestID)); err != nil {
-		return err
-	}
-
 	return nil
 }
 
