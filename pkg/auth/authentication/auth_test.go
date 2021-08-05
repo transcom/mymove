@@ -838,7 +838,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+	suite.Equal(http.StatusForbidden, rr.Code, "Office user not found")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
@@ -955,7 +955,50 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusUnauthorized, rr.Code, "Admin user not found")
+	suite.Equal(http.StatusForbidden, rr.Code, "Admin user not found")
+}
+
+func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
+	// user exists in the DB, but not as an admin user
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/login-gov", AdminTestHost), nil)
+	fakeToken := "some_token"
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	userID := uuid.Must(uuid.NewV4())
+	serviceMemberID := uuid.Must(uuid.NewV4())
+
+	user := models.User{
+		LoginGovUUID:  &loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+		ID:            userID,
+	}
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          user.ID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+		Email:           user.LoginGovEmail,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	userIdentity := models.UserIdentity{
+		ID:              user.ID,
+		Active:          true,
+		ServiceMemberID: &serviceMemberID,
+	}
+
+	callbackPort := 1234
+	sessionManagers := setupSessionManagers()
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+	}
+	rr := httptest.NewRecorder()
+
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "Admin user not found")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
