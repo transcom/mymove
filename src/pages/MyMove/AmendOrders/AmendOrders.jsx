@@ -118,7 +118,7 @@ export const AmendOrders = ({ uploads, updateOrders, serviceMemberId, currentOrd
           <SectionWrapper>
             <h5 className={styles.uploadOrdersHeader}>Upload orders</h5>
             <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
-            {uploads && uploads.length > 0 && (
+            {uploads?.length > 0 && (
               <>
                 <br />
                 <UploadsTable uploads={uploads} onDelete={handleDelete} />
