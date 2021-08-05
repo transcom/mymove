@@ -177,12 +177,13 @@ describe('OrdersInfoForm component', () => {
 
     // Test Duty Station Search Box interaction
     fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
+
     await selectEvent.select(getByLabelText('New duty station'), /Luke/);
-    expect(getByRole('form')).toHaveFormValues({
-      new_duty_station: 'Luke AFB',
-    });
 
     await waitFor(() => {
+      expect(getByRole('form')).toHaveFormValues({
+        new_duty_station: 'Luke AFB',
+      });
       expect(getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
       expect(
         queryByText('You entered the same duty station for your origin and destination. Please change one of them.'),

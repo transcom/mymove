@@ -107,7 +107,7 @@ export class UploadOrders extends Component {
             <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
             <p>{documentSizeLimitMsg}</p>
 
-            {uploads.length > 0 && (
+            {uploads?.length > 0 && (
               <>
                 <br />
                 <UploadsTable uploads={uploads} onDelete={this.handleDeleteFile} />
