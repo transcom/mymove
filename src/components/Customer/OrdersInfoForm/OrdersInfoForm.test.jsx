@@ -177,7 +177,9 @@ describe('OrdersInfoForm component', () => {
 
     // Test Duty Station Search Box interaction
     fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
+    await waitFor(() => {
+      selectEvent.select(getByLabelText('New duty station'), /Luke/);
+    });
     expect(getByRole('form')).toHaveFormValues({
       new_duty_station: 'Luke AFB',
     });
