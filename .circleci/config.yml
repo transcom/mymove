@@ -1676,7 +1676,7 @@ workflows:
           # if testing on experimental or demo, you can enable these tests by using your branch name here
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - integration_tests:
           requires:
@@ -1690,7 +1690,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: july-slice-v1-demo-deploy
 
       - integration_tests_mtls:
           requires:
@@ -1703,7 +1703,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: july-slice-v1-demo-deploy
 
       - client_test:
           requires:
@@ -1711,7 +1711,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: july-slice-v1-demo-deploy
 
       - server_test:
           requires:
@@ -1719,7 +1719,7 @@ workflows:
           # if testing on experimental or demo, you can disable these tests by using your branch name here
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: july-slice-v1-demo-deploy
 
       - build_app:
           requires:
@@ -1763,28 +1763,28 @@ workflows:
             - build_app
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - push_migrations_demo:
           requires:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - push_tasks_demo:
           requires:
             - build_tasks
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - push_webhook_client_demo:
           requires:
             - build_webhook_client
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - deploy_demo_migrations:
           requires:
@@ -1799,28 +1799,28 @@ workflows:
             - push_webhook_client_demo
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - deploy_demo_tasks:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - deploy_demo_app:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - deploy_demo_webhook_client:
           requires:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - push_app_exp:
           requires:
