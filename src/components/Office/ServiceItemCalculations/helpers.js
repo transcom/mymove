@@ -43,6 +43,20 @@ const requestedPickupDate = (params) => {
   )}`;
 };
 
+const cratingDate = (params) => {
+  return `${SERVICE_ITEM_CALCULATION_LABELS.CratingDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+};
+
+const unCratingDate = (params) => {
+  return `${SERVICE_ITEM_CALCULATION_LABELS.UncratingDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+};
+
 const getPriceRateOrFactor = (params) => {
   return getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params) || '';
 };
@@ -55,6 +69,21 @@ const billableWeight = (params) => {
   const weightBilledActualDetail = `${
     SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightBilledActual]
   }: ${formatWeight(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params), 10))}`;
+
+  const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
+  const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
+    weightEstimated ? formatWeight(parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params), 10)) : ''
+  }`;
+  return calculation(value, label, weightBilledActualDetail, weightEstimatedDetail);
+};
+
+const shuttleBillableWeight = (params) => {
+  const value = formatWeightCWTFromLbs(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params));
+  const label = SERVICE_ITEM_CALCULATION_LABELS.BillableWeight;
+
+  const weightBilledActualDetail = `${SERVICE_ITEM_CALCULATION_LABELS.ShuttleWeight}: ${formatWeight(
+    parseInt(getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightBilledActual, params), 10),
+  )}`;
 
   const weightEstimated = getParamValue(SERVICE_ITEM_PARAM_KEYS.WeightEstimated, params);
   const weightEstimatedDetail = `${SERVICE_ITEM_CALCULATION_LABELS[SERVICE_ITEM_PARAM_KEYS.WeightEstimated]}: ${
@@ -143,6 +172,23 @@ const originPrice = (params) => {
   return calculation(value, label, serviceAreaOrigin(params), requestedPickupDate(params), peak(params));
 };
 
+const shuttleOriginPriceDomestic = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.OriginPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin,
+    params,
+  )}`;
+
+  const pickupDate = `${SERVICE_ITEM_CALCULATION_LABELS.PickupDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  return calculation(value, label, serviceSchedule, pickupDate, SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
 // There is no param representing the destination price as available in the re_domestic_service_area_prices table
 // A param to return the service schedule is also not being created
 const destinationPrice = (params) => {
@@ -150,6 +196,23 @@ const destinationPrice = (params) => {
   const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
 
   return calculation(value, label, serviceAreaDest(params), requestedPickupDate(params), peak(params));
+};
+
+const shuttleDestinationPriceDomestic = (params) => {
+  const value = getPriceRateOrFactor(params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.DestinationPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest,
+    params,
+  )}`;
+
+  const deliveryDate = `${SERVICE_ITEM_CALCULATION_LABELS.DeliveryDate}: ${formatDate(
+    getParamValue(SERVICE_ITEM_PARAM_KEYS.RequestedPickupDate, params),
+    'DD MMM YYYY',
+  )}`;
+
+  return calculation(value, label, serviceSchedule, deliveryDate, SERVICE_ITEM_CALCULATION_LABELS.Domestic);
 };
 
 const priceEscalationFactor = (params) => {
@@ -163,6 +226,15 @@ const priceEscalationFactor = (params) => {
   }`;
 
   return calculation(value, label, contractYearName);
+};
+
+const priceEscalationFactorWithoutContractYear = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
+    ? getParamValue(SERVICE_ITEM_PARAM_KEYS.EscalationCompounded, params)
+    : '';
+  const label = SERVICE_ITEM_CALCULATION_LABELS.PriceEscalationFactor;
+
+  return calculation(value, label);
 };
 
 const fuelSurchargePrice = (params) => {
@@ -266,6 +338,44 @@ const pickupSITPrice = (params) => {
   return calculation(value, label, originSITSchedule, requestedPickupDate(params), peak(params));
 };
 
+const cratingPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CratingPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin,
+    params,
+  )}`;
+
+  return calculation(value, label, serviceSchedule, cratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
+const unCratingPrice = (params) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.UncratingPrice;
+
+  const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
+    SERVICE_ITEM_PARAM_KEYS.ServicesScheduleDest,
+    params,
+  )}`;
+
+  return calculation(value, label, serviceSchedule, unCratingDate(params), SERVICE_ITEM_CALCULATION_LABELS.Domestic);
+};
+
+const cratingSize = (params, mtoParams) => {
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
+  const length = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionLength, params);
+  const height = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionHeight, params);
+  const width = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionWidth, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
+
+  const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
+
+  const formattedDimensions = `${SERVICE_ITEM_CALCULATION_LABELS.Dimensions}: ${length}x${width}x${height} in`;
+
+  return calculation(value, label, description, formattedDimensions);
+};
+
 // totalAmountRequested is not a service item param
 const totalAmountRequested = (totalAmount) => {
   const value = toDollarString(formatCents(totalAmount));
@@ -275,7 +385,7 @@ const totalAmountRequested = (totalAmount) => {
   return calculation(value, label, detail);
 };
 
-const makeCalculations = (itemCode, totalAmount, params) => {
+const makeCalculations = (itemCode, totalAmount, params, mtoParams) => {
   let result = [];
 
   switch (itemCode) {
@@ -396,6 +506,15 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         totalAmountRequested(totalAmount),
       ];
       break;
+    // Domestic origin shuttle service
+    case SERVICE_ITEM_CODES.DOSHUT:
+      result = [
+        shuttleBillableWeight(params),
+        shuttleOriginPriceDomestic(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
     case SERVICE_ITEM_CODES.DDASIT:
       result = [
         billableWeight(params),
@@ -411,6 +530,33 @@ const makeCalculations = (itemCode, totalAmount, params) => {
         billableWeight(params),
         unpackPrice(params),
         priceEscalationFactor(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic destination shuttle service
+    case SERVICE_ITEM_CODES.DDSHUT:
+      result = [
+        shuttleBillableWeight(params),
+        shuttleDestinationPriceDomestic(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic crating
+    case SERVICE_ITEM_CODES.DCRT:
+      result = [
+        cratingSize(params, mtoParams),
+        cratingPrice(params),
+        priceEscalationFactorWithoutContractYear(params),
+        totalAmountRequested(totalAmount),
+      ];
+      break;
+    // Domestic uncrating
+    case SERVICE_ITEM_CODES.DUCRT:
+      result = [
+        cratingSize(params, mtoParams),
+        unCratingPrice(params),
+        priceEscalationFactorWithoutContractYear(params),
         totalAmountRequested(totalAmount),
       ];
       break;

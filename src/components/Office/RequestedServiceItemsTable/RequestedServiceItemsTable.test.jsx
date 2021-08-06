@@ -11,14 +11,13 @@ const defaultProps = {
   handleUpdateMTOServiceItemStatus: jest.fn(),
 };
 
-const serviceItemWithImg = {
+const serviceItemWithCrating = {
   id: 'abc123',
   createdAt: '2020-11-20',
   serviceItem: 'Domestic crating',
   code: 'DCRT',
   details: {
     description: 'grandfather clock',
-    imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
     itemDimensions: { length: 7000, width: 2000, height: 3500 },
   },
 };
@@ -31,6 +30,7 @@ const serviceItemWithContact = {
   details: {
     firstCustomerContact: { timeMilitary: '1200Z', firstAvailableDeliveryDate: '2020-09-15' },
     secondCustomerContact: { timeMilitary: '2300Z', firstAvailableDeliveryDate: '2020-09-21' },
+    reason: 'Took a detour',
   },
 };
 
@@ -41,34 +41,39 @@ const serviceItemWithDetails = {
   code: 'DOFSIT',
   details: {
     pickupPostalCode: '20050',
+    SITPostalCode: '12345',
     reason: 'Took a detour',
   },
 };
 
 const testDetails = (wrapper) => {
-  expect(wrapper.find('.detailImage p').text()).toBe('grandfather clock');
-  expect(wrapper.find('.detailType').at(0).text()).toBe('Item Dimensions:');
-  expect(wrapper.find('.detail dd').at(0).text()).toBe('7"x2"x3.5"');
+  const detailTypes = wrapper.find('.detailType');
+  const detailDefinitions = wrapper.find('.detail dd');
 
-  expect(wrapper.find('.detailType').at(1).text()).toBe('First Customer Contact:');
-  expect(wrapper.find('.detail dd').at(1).text().includes('1200Z')).toBe(true);
-  expect(wrapper.find('.detailType').at(2).text()).toBe('First Available Delivery Date:');
-  expect(wrapper.find('.detail dd').at(2).text().includes('15 Sep 2020')).toBe(true);
+  expect(detailTypes.at(0).text()).toBe('Description:');
+  expect(detailDefinitions.at(0).text()).toBe('grandfather clock');
+  expect(detailTypes.at(1).text()).toBe('Item size:');
+  expect(detailDefinitions.at(1).text()).toBe('7"x2"x3.5"');
 
-  expect(wrapper.find('.detailType').at(3).text()).toBe('Second Customer Contact:');
-  expect(wrapper.find('.detail dd').at(3).text().includes('2300Z')).toBe(true);
-  expect(wrapper.find('.detailType').at(4).text()).toBe('Second Available Delivery Date:');
-  expect(wrapper.find('.detail dd').at(4).text().includes('21 Sep 2020')).toBe(true);
+  expect(detailTypes.at(3).text()).toBe('First Customer Contact:');
+  expect(detailDefinitions.at(3).text().includes('1200Z')).toBe(true);
+  expect(detailTypes.at(4).text()).toBe('First Available Delivery Date:');
+  expect(detailDefinitions.at(4).text().includes('15 Sep 2020')).toBe(true);
 
-  expect(wrapper.find('.detailType').at(5).text()).toBe('ZIP:');
-  expect(wrapper.find('.detail dd').at(5).text().includes('20050')).toBe(true);
-  expect(wrapper.find('.detailType').at(6).text()).toBe('Reason:');
-  expect(wrapper.find('.detail dd').at(6).text().includes('Took a detour')).toBe(true);
+  expect(detailTypes.at(5).text()).toBe('Second Customer Contact:');
+  expect(detailDefinitions.at(5).text().includes('2300Z')).toBe(true);
+  expect(detailTypes.at(6).text()).toBe('Second Available Delivery Date:');
+  expect(detailDefinitions.at(6).text().includes('21 Sep 2020')).toBe(true);
+
+  expect(detailTypes.at(8).text()).toBe('ZIP:');
+  expect(detailDefinitions.at(8).text().includes('12345')).toBe(true);
+  expect(detailTypes.at(7).text()).toBe('Reason:');
+  expect(detailDefinitions.at(7).text().includes('Took a detour')).toBe(true);
 };
 
 describe('RequestedServiceItemsTable', () => {
   it('shows the correct number of service items in the table', () => {
-    const serviceItems = [serviceItemWithImg];
+    const serviceItems = [serviceItemWithCrating];
 
     let wrapper = shallow(
       <RequestedServiceItemsTable
@@ -93,7 +98,7 @@ describe('RequestedServiceItemsTable', () => {
   });
 
   it('displays the service item name and submitted date', () => {
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -113,7 +118,7 @@ describe('RequestedServiceItemsTable', () => {
   });
 
   it('shows the service item detail text', () => {
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -126,10 +131,10 @@ describe('RequestedServiceItemsTable', () => {
 
   it('displays the approve and reject status buttons', () => {
     serviceItemWithContact.status = 'SUBMITTED';
-    serviceItemWithImg.status = 'SUBMITTED';
+    serviceItemWithCrating.status = 'SUBMITTED';
     serviceItemWithDetails.status = 'SUBMITTED';
 
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -151,9 +156,9 @@ describe('RequestedServiceItemsTable', () => {
 
   it('shows the service item detail text when approved and shows the reject button', () => {
     serviceItemWithDetails.status = 'APPROVED';
-    serviceItemWithImg.status = 'APPROVED';
+    serviceItemWithCrating.status = 'APPROVED';
     serviceItemWithContact.status = 'APPROVED';
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}
@@ -171,9 +176,9 @@ describe('RequestedServiceItemsTable', () => {
 
   it('shows the service item detail text when rejected and shows the approve text button', () => {
     serviceItemWithDetails.status = 'REJECTED';
-    serviceItemWithImg.status = 'REJECTED';
+    serviceItemWithCrating.status = 'REJECTED';
     serviceItemWithContact.status = 'REJECTED';
-    const serviceItems = [serviceItemWithImg, serviceItemWithContact, serviceItemWithDetails];
+    const serviceItems = [serviceItemWithCrating, serviceItemWithContact, serviceItemWithDetails];
     const wrapper = mount(
       <RequestedServiceItemsTable
         {...defaultProps}

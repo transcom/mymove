@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -44,7 +45,6 @@ func (m *ExpenseSummaryPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ExpenseSummaryPayload) validateCategories(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Categories) { // not required
 		return nil
 	}
@@ -69,13 +69,62 @@ func (m *ExpenseSummaryPayload) validateCategories(formats strfmt.Registry) erro
 }
 
 func (m *ExpenseSummaryPayload) validateGrandTotal(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.GrandTotal) { // not required
 		return nil
 	}
 
 	if m.GrandTotal != nil {
 		if err := m.GrandTotal.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grand_total")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this expense summary payload based on the context it is used
+func (m *ExpenseSummaryPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCategories(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGrandTotal(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ExpenseSummaryPayload) contextValidateCategories(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Categories); i++ {
+
+		if m.Categories[i] != nil {
+			if err := m.Categories[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("categories" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *ExpenseSummaryPayload) contextValidateGrandTotal(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.GrandTotal != nil {
+		if err := m.GrandTotal.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total")
 			}
@@ -131,13 +180,40 @@ func (m *ExpenseSummaryPayloadGrandTotal) Validate(formats strfmt.Registry) erro
 }
 
 func (m *ExpenseSummaryPayloadGrandTotal) validatePaymentMethodTotals(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentMethodTotals) { // not required
 		return nil
 	}
 
 	if m.PaymentMethodTotals != nil {
 		if err := m.PaymentMethodTotals.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grand_total" + "." + "payment_method_totals")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this expense summary payload grand total based on the context it is used
+func (m *ExpenseSummaryPayloadGrandTotal) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidatePaymentMethodTotals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ExpenseSummaryPayloadGrandTotal) contextValidatePaymentMethodTotals(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PaymentMethodTotals != nil {
+		if err := m.PaymentMethodTotals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("grand_total" + "." + "payment_method_totals")
 			}

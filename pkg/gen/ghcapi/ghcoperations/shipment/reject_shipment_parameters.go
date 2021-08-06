@@ -6,6 +6,7 @@ package shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewRejectShipmentParams creates a new RejectShipmentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewRejectShipmentParams() RejectShipmentParams {
 
 	return RejectShipmentParams{}
@@ -79,6 +81,11 @@ func (o *RejectShipmentParams) BindRequest(r *http.Request, route *middleware.Ma
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -86,11 +93,11 @@ func (o *RejectShipmentParams) BindRequest(r *http.Request, route *middleware.Ma
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rShipmentID, rhkShipmentID, _ := route.Params.GetOK("shipmentID")
 	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -112,7 +119,6 @@ func (o *RejectShipmentParams) bindIfMatch(rawData []string, hasKey bool, format
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

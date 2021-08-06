@@ -2,7 +2,7 @@ version: '3'
 
 services:
   database:
-    image: postgres:12.4
+    image: postgres:12.7
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword

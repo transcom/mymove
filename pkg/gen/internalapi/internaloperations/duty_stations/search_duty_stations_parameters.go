@@ -16,7 +16,8 @@ import (
 )
 
 // NewSearchDutyStationsParams creates a new SearchDutyStationsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewSearchDutyStationsParams() SearchDutyStationsParams {
 
 	return SearchDutyStationsParams{}
@@ -53,7 +54,6 @@ func (o *SearchDutyStationsParams) BindRequest(r *http.Request, route *middlewar
 	if err := o.bindSearch(qSearch, qhkSearch, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,10 +72,10 @@ func (o *SearchDutyStationsParams) bindSearch(rawData []string, hasKey bool, for
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("search", "query", raw); err != nil {
 		return err
 	}
-
 	o.Search = raw
 
 	return nil

@@ -29,7 +29,7 @@ func NewRequestShipmentDiversion(ctx *middleware.Context, handler RequestShipmen
 	return &RequestShipmentDiversion{Context: ctx, Handler: handler}
 }
 
-/*RequestShipmentDiversion swagger:route POST /shipments/{shipmentID}/request-diversion shipment requestShipmentDiversion
+/* RequestShipmentDiversion swagger:route POST /shipments/{shipmentID}/request-diversion shipment requestShipmentDiversion
 
 Requests a shipment diversion
 
@@ -44,17 +44,15 @@ type RequestShipmentDiversion struct {
 func (o *RequestShipmentDiversion) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewRequestShipmentDiversionParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

@@ -1,11 +1,13 @@
 import React, { Suspense, lazy } from 'react';
 import { NavLink, Switch, useParams, Redirect, Route, useLocation, matchPath } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
+import SystemError from 'components/SystemError';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
@@ -20,7 +22,7 @@ const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
-
+  const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode } = useParams();
   const { pathname } = useLocation();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
@@ -52,6 +54,15 @@ const TXOMoveInfo = () => {
   return (
     <>
       <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      {hasRecentError && (
+        <SystemError>
+          Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
+          <br />
+          If that doesn&apos;t fix it, contact the{' '}
+          <a href="https://move.mil/customer-service#technical-help-desk">Technical Help Desk</a> and give them this
+          code: <strong>{traceId}</strong>
+        </SystemError>
+      )}
       {!hideNav && (
         <header className="nav-header">
           <div className="grid-container-desktop-lg">
@@ -89,6 +100,7 @@ const TXOMoveInfo = () => {
           </div>
         </header>
       )}
+
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
           <Route path="/moves/:moveCode/details" exact>

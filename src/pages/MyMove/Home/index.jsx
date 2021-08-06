@@ -428,7 +428,7 @@ Home.propTypes = {
     shipmentType: string,
   }).isRequired,
   uploadedOrderDocuments: arrayOf(UploadShape).isRequired,
-  uploadedAmendedOrderDocuments: arrayOf(UploadShape).isRequired,
+  uploadedAmendedOrderDocuments: arrayOf(UploadShape),
   history: HistoryShape.isRequired,
   move: MoveShape.isRequired,
   isProfileComplete: bool.isRequired,
@@ -440,9 +440,10 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
-  orders: null,
+  orders: {},
   serviceMember: null,
   signedCertification: {},
+  uploadedAmendedOrderDocuments: [],
 };
 
 const mapStateToProps = (state) => {

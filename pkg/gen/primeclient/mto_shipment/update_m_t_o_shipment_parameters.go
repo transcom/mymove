@@ -18,67 +18,85 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// NewUpdateMTOShipmentParams creates a new UpdateMTOShipmentParams object
-// with the default values initialized.
+// NewUpdateMTOShipmentParams creates a new UpdateMTOShipmentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateMTOShipmentParams() *UpdateMTOShipmentParams {
-	var ()
 	return &UpdateMTOShipmentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateMTOShipmentParamsWithTimeout creates a new UpdateMTOShipmentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateMTOShipmentParamsWithTimeout(timeout time.Duration) *UpdateMTOShipmentParams {
-	var ()
 	return &UpdateMTOShipmentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateMTOShipmentParamsWithContext creates a new UpdateMTOShipmentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateMTOShipmentParamsWithContext(ctx context.Context) *UpdateMTOShipmentParams {
-	var ()
 	return &UpdateMTOShipmentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateMTOShipmentParamsWithHTTPClient creates a new UpdateMTOShipmentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateMTOShipmentParamsWithHTTPClient(client *http.Client) *UpdateMTOShipmentParams {
-	var ()
 	return &UpdateMTOShipmentParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateMTOShipmentParams contains all the parameters to send to the API endpoint
-for the update m t o shipment operation typically these are written to a http.Request
+/* UpdateMTOShipmentParams contains all the parameters to send to the API endpoint
+   for the update m t o shipment operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateMTOShipmentParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body *primemessages.MTOShipment
-	/*MtoShipmentID
-	  UUID of the shipment being updated.
 
+	// Body.
+	Body *primemessages.UpdateMTOShipment
+
+	/* MtoShipmentID.
+
+	   UUID of the shipment being updated.
+
+	   Format: uuid
 	*/
 	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update m t o shipment params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOShipmentParams) WithDefaults() *UpdateMTOShipmentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update m t o shipment params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOShipmentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update m t o shipment params
@@ -126,13 +144,13 @@ func (o *UpdateMTOShipmentParams) SetIfMatch(ifMatch string) {
 }
 
 // WithBody adds the body to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) WithBody(body *primemessages.MTOShipment) *UpdateMTOShipmentParams {
+func (o *UpdateMTOShipmentParams) WithBody(body *primemessages.UpdateMTOShipment) *UpdateMTOShipmentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) SetBody(body *primemessages.MTOShipment) {
+func (o *UpdateMTOShipmentParams) SetBody(body *primemessages.UpdateMTOShipment) {
 	o.Body = body
 }
 
@@ -159,7 +177,6 @@ func (o *UpdateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

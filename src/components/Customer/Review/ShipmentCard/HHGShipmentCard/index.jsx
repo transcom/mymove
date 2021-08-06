@@ -9,7 +9,7 @@ import DeliveryDisplay from '../DeliveryDisplay';
 
 import { AddressShape } from 'types/address';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 
 const HHGShipmentCard = ({

@@ -58,7 +58,7 @@ DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/h
 ## Deployment Scripts
 
 This series of scripts allows you to quickly deploy the app manually (for example, should CircleCI be down).
-Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`) passed in as a variable.
+Run the scripts in this order with the environment you're deploying to (`demo`, `exp`, `stg`, `prd`) passed in as a variable.
 You will need to specify which account you're using. Do so by pre-pending
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec AWS_ACCOUNT --` to the script command (i.e.
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp`).
@@ -134,7 +134,7 @@ application testing
 | `merge-pr`                      | A script to automate the landing of your GitHub pull requests.                                    |
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
-| `prime-api-demo`                | A script to demo the Prime API.                                                                   |
+| `pricing-acceptance`                | A script to handle the acceptance process for pricing work.                                                                   |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
 

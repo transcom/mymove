@@ -1,8 +1,10 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Switch, useParams, Redirect, Route, useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 import CustomerHeader from 'components/CustomerHeader';
+import SystemError from 'components/SystemError';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useTXOMoveInfoQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -18,7 +20,7 @@ const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo')
 
 const ServicesCounselingMoveInfo = () => {
   const [customerEditAlert, setCustomerEditAlert] = useState(null);
-
+  const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const onCustomerInfoUpdate = (alertType) => {
     if (alertType === 'error') {
       setCustomerEditAlert({
@@ -55,7 +57,15 @@ const ServicesCounselingMoveInfo = () => {
   return (
     <>
       <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
-
+      {hasRecentError && (
+        <SystemError>
+          Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
+          <br />
+          If that doesn&apos;t fix it, contact the{' '}
+          <a href="https://move.mil/customer-service#technical-help-desk">Technical Help Desk</a> and give them this
+          code: <strong>{traceId}</strong>
+        </SystemError>
+      )}
       <Suspense fallback={<LoadingPlaceholder />}>
         <Switch>
           {/* TODO - Routes not finalized, revisit */}

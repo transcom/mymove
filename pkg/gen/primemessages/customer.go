@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type Customer struct {
 
 	// branch
+	// Example: COAST_GUARD
 	Branch string `json:"branch,omitempty"`
 
 	// current address
@@ -31,23 +34,28 @@ type Customer struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// email
+	// Example: fake@example.com
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email string `json:"email,omitempty"`
 
 	// first name
+	// Example: Vanya
 	FirstName string `json:"firstName,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// last name
+	// Example: Petrovna
 	LastName string `json:"lastName,omitempty"`
 
 	// phone
 	Phone string `json:"phone,omitempty"`
 
 	// user ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UserID strfmt.UUID `json:"userID,omitempty"`
 }
@@ -79,7 +87,6 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CurrentAddress) { // not required
 		return nil
 	}
@@ -97,12 +104,11 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -110,7 +116,6 @@ func (m *Customer) validateEmail(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -123,12 +128,52 @@ func (m *Customer) validateID(formats strfmt.Registry) error {
 }
 
 func (m *Customer) validateUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("userID", "body", "uuid", m.UserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this customer based on the context it is used
+func (m *Customer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCurrentAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Customer) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CurrentAddress != nil {
+		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("currentAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Customer) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 

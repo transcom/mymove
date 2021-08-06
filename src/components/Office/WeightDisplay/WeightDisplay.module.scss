@@ -1,0 +1,36 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/colors';
+
+.WeightDisplay {
+  @include u-padding(3);
+  @include u-bg('white');
+  @include u-radius(3px);
+  border: 1px solid $border-color;
+
+  .heading {
+    @include u-font-size('base', 2);
+    @include u-text('uppercase');
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .value {
+    @include u-font-size('base', 11);
+    @include u-text('bold');
+  }
+
+  .editButton {
+    @include u-padding(0);
+    color: $link;
+    max-width: 15px;
+    min-width: 15px;
+  }
+
+  .details span {
+    background-color: $base-lightest;
+  }
+
+  .details {
+    @include u-font-size('base', 3);
+  }
+}

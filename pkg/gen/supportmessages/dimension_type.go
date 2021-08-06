@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model DimensionType
 type DimensionType string
+
+func NewDimensionType(value DimensionType) *DimensionType {
+	v := value
+	return &v
+}
 
 const (
 
@@ -59,5 +65,10 @@ func (m DimensionType) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this dimension type based on context it is used
+func (m DimensionType) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

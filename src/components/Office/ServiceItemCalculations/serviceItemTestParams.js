@@ -144,32 +144,14 @@ const NumberDaysSIT = {
   type: 'INTEGER',
   value: '2',
 };
-const CanStandAlone = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '1df2468b-8fb4-4371-b8ce-3c05d7da2050',
-  key: 'CanStandAlone',
-  origin: 'PRIME',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'STRING',
-  value: '',
-};
 const CubicFeetBilled = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
   id: '1fe986ae-dbff-4fe1-b528-714560f7d2f5',
   key: 'CubicFeetBilled',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INTEGER',
-  value: '',
-};
-const CubicFeetCrating = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '9dcab9f4-aac4-4639-a11c-d85be1560b95',
-  key: 'CubicFeetCrating',
-  origin: 'PRIME',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INTEGER',
-  value: '',
+  type: 'DECIMAL',
+  value: '4.00',
 };
 const DistanceZipSITOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -421,6 +403,33 @@ const PSIPackingDomPrice = {
   type: 'DECIMAL',
   value: '',
 };
+const DimensionLength = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'DimensionLength',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '3',
+};
+const DimensionWidth = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'DimensionWidth',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '10',
+};
+const DimensionHeight = {
+  eTag: 'MjAyMS0wNy0yOVQyMDoxNTowMS4xNDA1MjZa',
+  id: 'f5bb063e-38da-4c86-88ce-a6a328e70b92',
+  key: 'DimensionHeight',
+  origin: 'PRIME',
+  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
+  type: 'INTEGER',
+  value: '6',
+};
 
 const testParams = {
   DomesticLongHaul: [
@@ -611,30 +620,30 @@ const testParams = {
     ZipDestAddress,
   ],
   DomesticCrating: [
+    ContractYearName,
+    EscalationCompounded,
+    PriceRateOrFactor,
     RequestedPickupDate,
-    CanStandAlone,
     CubicFeetBilled,
-    CubicFeetCrating,
+    PriceRateOrFactor,
     ServicesScheduleOrigin,
     ServiceAreaOrigin,
     ZipPickupAddress,
-  ],
-  DomesticCratingStandalone: [
-    RequestedPickupDate,
-    CanStandAlone,
-    CubicFeetBilled,
-    CubicFeetCrating,
-    ServicesScheduleOrigin,
-    ServiceAreaOrigin,
-    ZipPickupAddress,
+    DimensionWidth,
+    DimensionHeight,
+    DimensionLength,
   ],
   DomesticUncrating: [
     RequestedPickupDate,
+    EscalationCompounded,
     CubicFeetBilled,
-    CubicFeetCrating,
+    PriceRateOrFactor,
     ServicesScheduleDest,
     ServiceAreaDest,
     ZipDestAddress,
+    DimensionWidth,
+    DimensionHeight,
+    DimensionLength,
   ],
   DomesticOriginShuttleService: [
     RequestedPickupDate,
@@ -644,15 +653,20 @@ const testParams = {
     ServicesScheduleOrigin,
     ServiceAreaOrigin,
     ZipPickupAddress,
+    PriceRateOrFactor,
+    EscalationCompounded,
   ],
   DomesticDestinationShuttleService: [
     RequestedPickupDate,
-    WeightBilledActual,
-    WeightActual,
-    WeightEstimated,
-    ServicesScheduleDest,
     ServiceAreaDest,
+    WeightActual,
+    WeightBilledActual,
+    WeightEstimated,
     ZipDestAddress,
+    PriceRateOrFactor,
+    EscalationCompounded,
+    ServicesScheduleDest,
+    ContractCode,
   ],
   NonStandardHHG: [
     RequestedPickupDate,
@@ -701,6 +715,18 @@ const testParams = {
     PSIPriceDomDestPrice,
   ],
   DomesticNTSPackingFactor: [PSIPackingDom, PSIPackingDomPrice],
+  additionalCratingDataDCRT: {
+    reServiceCode: 'DCRT',
+    description: 'Grand piano',
+    dimensions: [
+      {
+        type: 'CRATE',
+        width: 100,
+        height: 80,
+        length: 50,
+      },
+    ],
+  },
 };
 
 export default testParams;

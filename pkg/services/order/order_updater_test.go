@@ -104,7 +104,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
@@ -126,7 +126,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
 		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
-		suite.EqualValues(payload.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
 		suite.EqualValues(payload.OrdersTypeDetail, updatedOrder.OrdersTypeDetail)
 		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
 		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
@@ -157,7 +157,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
 			OrdersNumber:        handlers.FmtString("ORDER100"),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
 			ReportByDate:        &reportByDate,
 			Tac:                 handlers.FmtString("E19A"),
@@ -168,6 +168,45 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		// check that we get back a validation error
 		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", order.ID))
+		suite.Nil(updatedOrder)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("Rolls back transaction if Order is missing required fields", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusServiceCounselingCompleted,
+			},
+			Order: orderWithoutDefaults,
+		})
+
+		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+
+		payload := ghcmessages.UpdateOrderPayload{
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			ReportByDate:        &reportByDate,
+		}
+
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(orderWithoutDefaults.ID, payload, eTag)
+
+		suite.Contains(err.Error(), fmt.Sprintf("Invalid input for id: %s.", orderWithoutDefaults.ID))
+		suite.Contains(err.Error(), "DepartmentIndicator cannot be blank.")
+		suite.Contains(err.Error(), "OrdersTypeDetail cannot be blank.")
+		suite.Contains(err.Error(), "TransportationAccountingCode cannot be blank.")
+		suite.Contains(err.Error(), "OrdersNumber cannot be blank.")
 		suite.Nil(updatedOrder)
 		suite.IsType(services.InvalidInputError{}, err)
 	})
@@ -214,7 +253,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 			IssueDate:           &dateIssued,
 			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
 			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
-			OrdersType:          ordersType,
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			ReportByDate:        &reportByDate,
 		}
 
@@ -232,7 +271,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
 		suite.Equal(time.Time(*body.IssueDate), updatedOrder.IssueDate)
 		suite.Equal(time.Time(*body.ReportByDate), updatedOrder.ReportByDate)
-		suite.EqualValues(body.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(*body.OrdersType, updatedOrder.OrdersType)
 	})
 }
 

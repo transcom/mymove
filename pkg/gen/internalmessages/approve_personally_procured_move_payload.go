@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type ApprovePersonallyProcuredMovePayload struct {
 
 	// When was the ppm move approved?
+	// Example: 2019-03-26T13:19:56-04:00
 	// Required: true
 	// Format: date-time
 	ApproveDate *strfmt.DateTime `json:"approve_date"`
@@ -47,6 +50,11 @@ func (m *ApprovePersonallyProcuredMovePayload) validateApproveDate(formats strfm
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this approve personally procured move payload based on context it is used
+func (m *ApprovePersonallyProcuredMovePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

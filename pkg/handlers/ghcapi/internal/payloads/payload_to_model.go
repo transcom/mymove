@@ -166,7 +166,6 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       mtoShipment.CustomerRemarks,
 		CounselorRemarks:      mtoShipment.CounselorRemarks,
-		Status:                models.MTOShipmentStatus(mtoShipment.Status),
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)

@@ -29,7 +29,7 @@ func NewPatchServiceMember(ctx *middleware.Context, handler PatchServiceMemberHa
 	return &PatchServiceMember{Context: ctx, Handler: handler}
 }
 
-/*PatchServiceMember swagger:route PATCH /service_members/{serviceMemberId} service_members patchServiceMember
+/* PatchServiceMember swagger:route PATCH /service_members/{serviceMemberId} service_members patchServiceMember
 
 Patches the service member
 
@@ -44,17 +44,15 @@ type PatchServiceMember struct {
 func (o *PatchServiceMember) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewPatchServiceMemberParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

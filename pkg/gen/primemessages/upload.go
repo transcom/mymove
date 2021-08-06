@@ -6,7 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
+	"context"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -24,6 +24,7 @@ type Upload struct {
 	Bytes *int64 `json:"bytes"`
 
 	// content type
+	// Example: application/pdf
 	// Required: true
 	ContentType *string `json:"contentType"`
 
@@ -33,25 +34,14 @@ type Upload struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// filename
+	// Example: filename.pdf
 	// Required: true
 	Filename *string `json:"filename"`
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
-
-	// status
-	// Enum: [INFECTED CLEAN PROCESSING]
-	Status string `json:"status,omitempty"`
 
 	// updated at
 	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
-
-	// url
-	// Format: uri
-	URL strfmt.URI `json:"url,omitempty"`
 }
 
 // Validate validates this upload
@@ -74,19 +64,7 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateUpdatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateURL(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -115,7 +93,6 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 }
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -136,67 +113,7 @@ func (m *Upload) validateFilename(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Upload) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var uploadTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["INFECTED","CLEAN","PROCESSING"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		uploadTypeStatusPropEnum = append(uploadTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// UploadStatusINFECTED captures enum value "INFECTED"
-	UploadStatusINFECTED string = "INFECTED"
-
-	// UploadStatusCLEAN captures enum value "CLEAN"
-	UploadStatusCLEAN string = "CLEAN"
-
-	// UploadStatusPROCESSING captures enum value "PROCESSING"
-	UploadStatusPROCESSING string = "PROCESSING"
-)
-
-// prop value enum
-func (m *Upload) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, uploadTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Upload) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
@@ -208,13 +125,36 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Upload) validateURL(formats strfmt.Registry) error {
+// ContextValidate validate this upload based on the context it is used
+func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
 
-	if swag.IsZero(m.URL) { // not required
-		return nil
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
 	}
 
-	if err := validate.FormatOf("url", "body", "uri", m.URL.String(), formats); err != nil {
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Upload) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

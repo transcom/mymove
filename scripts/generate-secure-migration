@@ -6,7 +6,8 @@
 
 set -eu -o pipefail
 
-readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly dir
 
 readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
 readonly prod_migrations_temp_dir="${dir}/../tmp"
@@ -34,7 +35,8 @@ readonly migration_name="$1"
 # - remove ".up.fizz" from filename
 # - remove "migrations/" from filename
 # - append ".sql"
-readonly version=$(date +"%Y%m%d%H%M%S")
+version=$(date +"%Y%m%d%H%M%S")
+readonly version
 readonly secure_migration_name="${version}_${migration_name}.up.sql"
 
 readonly local_test_migration_name="${local_secure_migrations_dir}/${secure_migration_name}"
@@ -48,14 +50,14 @@ readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_nam
 cat > "${local_test_migration_name}" << EOM
 -- Local test migration.
 -- This will be run on development environments.
--- It should mirror what you intend to apply on prod/staging/experimental
+-- It should mirror what you intend to apply on demo/exp/stg/prd
 -- DO NOT include any sensitive data.
 EOM
 
 # Create empty file for real secure migration
 cat > "${prod_migration_name}" << EOM
 -- Production Migration!
--- This will be distributed to all deployed environments (e.g. experimental, staging, prod)
+-- This will be distributed to all deployed environments (e.g. demo/exp/stg/prd)
 EOM
 
 #

@@ -6,6 +6,7 @@ package webhook_subscriptions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateWebhookSubscriptionParams creates a new UpdateWebhookSubscriptionParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateWebhookSubscriptionParams() UpdateWebhookSubscriptionParams {
 
 	return UpdateWebhookSubscriptionParams{}
@@ -80,6 +82,11 @@ func (o *UpdateWebhookSubscriptionParams) BindRequest(r *http.Request, route *mi
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.WebhookSubscription = &body
 			}
@@ -87,11 +94,11 @@ func (o *UpdateWebhookSubscriptionParams) BindRequest(r *http.Request, route *mi
 	} else {
 		res = append(res, errors.Required("webhookSubscription", "body", ""))
 	}
+
 	rWebhookSubscriptionID, rhkWebhookSubscriptionID, _ := route.Params.GetOK("webhookSubscriptionId")
 	if err := o.bindWebhookSubscriptionID(rWebhookSubscriptionID, rhkWebhookSubscriptionID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -113,7 +120,6 @@ func (o *UpdateWebhookSubscriptionParams) bindIfMatch(rawData []string, hasKey b
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

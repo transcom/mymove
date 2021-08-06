@@ -1,0 +1,265 @@
+#! /usr/bin/env bash
+
+#
+# script to help with prime demo script
+#
+
+# =====================================
+#     USAGE AND DEFAULTS
+# =====================================
+set -eu -o pipefail
+proofs=(./tmp/uploads/proof_of_service.pdf)
+function usage() {
+  echo "Usage: pricing-acceptance <movecode> [ <hostname> [ <proofs> ... ] ]"
+  echo "  movecode   Either moveCode or orderID or orderID can be provided"
+  echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
+  echo "  proofs     Paths to proof of service docs. Defaults to (${proofs[0]})"
+  echo "             You can specify as many proofs as you want"
+  echo
+  echo "EXAMPLES:"
+  echo "$0 --help # prints this help"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
+  echo "$0 RDY4PY"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
+  echo "$0 RDY4PY api.stg.move.mil"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg"
+}
+
+# =====================================
+#     OPTIONS HANDLING
+# =====================================
+if [ "${#@}" -eq 0 ]; then
+  usage
+  exit 1
+elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+  exit 0
+fi
+
+primeapiopts=(--insecure)
+mtoID=$1
+readonly environment=${2:-local}
+# check to see if proofs are passed in
+if [ "${#@}" -gt 2 ]; then
+  shift # to remove mtoid from $@
+  shift # to remove environment from $@
+  proofs=("$@")
+fi
+
+for proofOfService in "${proofs[@]}"
+do
+  if [ ! -f "${proofOfService}" ]; then
+    echo "Expected proof of service doc ${proofOfService} is missing."
+    echo "You can either use this default path or supply a path as a parameter"
+    exit 1
+  fi
+done
+
+printf "\nRunning against "
+if [ "$environment" == "local" ]; then
+  echo "local server"
+else
+  echo "remote ${environment}"
+  primeapiopts=(--cac --hostname "${environment}" --port 443)
+fi
+
+if bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates-fast > tmp/all_mtos.json; then
+  echo "server is running"
+else
+  echo "server is not running"
+  exit 1
+fi
+
+
+# =====================================
+#     START WORKFLOW
+# =====================================
+# -----------------
+# GET MTO
+printf "\n==========\n\n"
+
+echo "The prime is notified of a new move task order ID: ${mtoID}"
+printf "\nThe prime will now fetch the new MTO.\n\n"
+
+
+printf "\n==========\n\n"
+
+# Find MTO By MTO ID
+if jq -e 'map(select(.id == "'"${mtoID}"'")) | .[0]' tmp/all_mtos.json > tmp/demo_mto.json; then
+  echo "Found by Move ID"
+# Find MTO By orderID
+elif jq -e 'map(select(.orderID == "'"${mtoID}"'")) | .[0]' tmp/all_mtos.json > tmp/demo_mto.json; then
+  # extract the mtoID
+  mtoID=$(jq '.id' tmp/demo_mto.json | tr -d '"')
+  echo "Found by Order ID."
+# Find MTO by moveCode aka locator
+elif jq -e 'map(select(.moveCode == "'"${mtoID}"'")) | .[0]' tmp/all_mtos.json > tmp/demo_mto.json; then
+  # extract the mtoID
+  mtoID=$(jq '.id' tmp/demo_mto.json | tr -d '"')
+  echo "Found by Move Code."
+else
+  echo "ID not found"
+  exit 1
+fi
+
+# -----------------
+# CREATE A NEW SHIPMENT ON A PRE-EXISTING AND APPROVED MOVE
+printf "Create a new shipment for the move \n\n"
+
+cat > tmp/create_mto_shipment.json <<- EOM
+{
+  "body": {
+   "moveTaskOrderID": "${mtoID}",
+    "shipmentType": "HHG",
+    "requestedPickupDate": "2020-06-08",
+    "pickupAddress": {
+      "city": "Beverly Hills",
+      "country": "US",
+      "postalCode": "90210",
+      "state": "CA",
+      "streetAddress1": "17 8th Street",
+      "streetAddress2": "P.O. Box 12345",
+      "streetAddress3": "c/o Some Person"
+    },
+    "destinationAddress": {
+      "city": "Fairfield",
+      "country": "US",
+      "postalCode": "94535",
+      "state": "CA",
+      "streetAddress1": "7 Q st",
+      "streetAddress2": "P.O. Box 9876",
+      "streetAddress3": "c/o Some Person"
+    }
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" create-mto-shipment --filename ./tmp/create_mto_shipment.json > tmp/create_response_mto_shipment.json
+
+# -----------------
+# UPDATE THE SHIPMENT'S STATUS TO APPROVED
+shipmentEtag=$(jq '.eTag' tmp/create_response_mto_shipment.json)
+shipmentID=$(jq '.id' tmp/create_response_mto_shipment.json)
+
+printf "Update the shipment's status to APPROVED \n\n"
+
+cat > tmp/update_mto_shipment_status.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "status": "APPROVED"
+  }
+}
+EOM
+bin/prime-api-client "${primeapiopts[@]}" support-update-mto-shipment-status --filename ./tmp/update_mto_shipment_status.json > tmp/update_response_mto_shipment_status.json
+
+# -----------------
+# UPDATE THE SHIPMENT'S WEIGHTS AND SCHEDULED AND ACTUAL PICKUP DATES
+shipmentEtag=$(jq '.eTag' tmp/update_response_mto_shipment_status.json)
+shipmentID=$(jq '.id' tmp/update_response_mto_shipment_status.json)
+
+scheduledPickupDate=$(date -j -f "%a %b %d %T %Z %Y" "$(date -v+12d)" "+%Y-%m-%d")
+actualPickupDate=$(date -j -f "%a %b %d %T %Z %Y" "$(date -v+12d)" "+%Y-%m-%d")
+printf "Update the shipment's weights and dates \n\n"
+
+cat > tmp/update_mto_shipment.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "scheduledPickupDate": "${scheduledPickupDate}",
+    "actualPickupDate": "${actualPickupDate}",
+    "primeEstimatedWeight": 1000,
+    "primeActualWeight": 3000
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/update_mto_shipment.json > tmp/update_response_mto_shipment.json
+
+# --------------------
+# CREATE SERVICE ITEM
+shipmentID=$(jq '.id' tmp/update_response_mto_shipment.json)
+
+printf "Use the shipment and moveTaskOrder IDs found below to create a payload for a new service item:\n\n"
+
+echo "MTO ID: \"${mtoID}\""
+echo "Shipment ID: ${shipmentID}"
+
+pathToServiceItemPayload=""
+echo -n "Enter path to payload to create a particular service item: "
+read -r pathToServiceItemPayload
+bin/prime-api-client "${primeapiopts[@]}" create-mto-service-item --filename "${pathToServiceItemPayload}" > tmp/create_response_mto_service_item.json
+
+# --------------------
+# APPROVE SERVICE ITEM
+printf "Approve service item \n\n"
+
+serviceItemID=$(jq '.[].id' tmp/create_response_mto_service_item.json)
+serviceItemEtag=$(jq '.[].eTag' tmp/create_response_mto_service_item.json)
+
+cat > tmp/approve_mto_service_item.json <<- EOM
+{
+  "mtoServiceItemID": ${serviceItemID},
+  "ifMatch": ${serviceItemEtag},
+  "body": {
+    "status": "APPROVED"
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" support-update-mto-service-item-status --filename tmp/approve_mto_service_item.json > tmp/approve_response_mto_service_item.json
+
+# -----------------------
+# CREATE PAYMENT REQUEST
+printf "Create a payment request \n\n"
+
+serviceItemEtag=$(jq '.eTag' tmp/approve_response_mto_service_item.json)
+serviceItemID=$(jq '.id' tmp/approve_response_mto_service_item.json)
+
+cat > tmp/create_payment_request.json <<- EOM
+{
+  "body": {
+    "isFinal": false,
+    "moveTaskOrderID": "${mtoID}",
+    "serviceItems": [
+      {
+        "id": ${serviceItemID}
+      }
+    ]
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename tmp/create_payment_request.json > tmp/create_response_payment_request.json
+
+# -----------------------
+# UPLOAD PROOF OF SERVICE FOR PAYMENT REQUEST
+prID=$(jq .id tmp/create_response_payment_request.json | tr -d '"')
+proofOfService="./tmp/uploads/proof_of_service.pdf"
+# for proofOfService in "${proofs[@]}"
+#   do
+#     proofBase=$(basename "${proofOfService}")
+#     bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename "${proofOfService}" > tmp/create_upload_response_"${proofBase}".json
+#   done
+# -----------------------
+# APPROVE PAYMENT SERVICE ITEM
+printf "Now the TIO approves the payment service items. You can find the move with the move code below \n"
+moveCode=$(jq '.moveCode' tmp/demo_mto.json)
+
+echo "Move Code: ${moveCode}"
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+# -----------------------
+# GENERATE EDI
+printf "Generating and EDI \n\n"
+cat > ./tmp/get_payment_request_edi.json <<-EOM
+{
+  "paymentRequestID": "${prID}"
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" support-get-payment-request-edi --filename ./tmp/get_payment_request_edi.json > tmp/edi_response.json
+
+jq -r .edi tmp/edi_response.json

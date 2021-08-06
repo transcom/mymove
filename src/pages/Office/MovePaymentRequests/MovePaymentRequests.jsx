@@ -44,7 +44,7 @@ const MovePaymentRequests = ({
   }, [mtoShipments, setUnapprovedServiceItemCount]);
 
   useEffect(() => {
-    const pendingCount = paymentRequests.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
+    const pendingCount = paymentRequests?.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
@@ -60,6 +60,7 @@ const MovePaymentRequests = ({
         address: formatPaymentRequestAddressString(shipment.pickupAddress, shipment.destinationAddress),
         departureDate: shipment.actualPickupDate,
         modificationType: getShipmentModificationType(shipment),
+        mtoServiceItems: shipment.mtoServiceItems,
       });
     });
   }

@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -65,7 +66,6 @@ func (m *UpdateMTOShipmentStatus) validateStatusEnum(path, location string, valu
 }
 
 func (m *UpdateMTOShipmentStatus) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -75,6 +75,11 @@ func (m *UpdateMTOShipmentStatus) validateStatus(formats strfmt.Registry) error 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this update m t o shipment status based on context it is used
+func (m *UpdateMTOShipmentStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

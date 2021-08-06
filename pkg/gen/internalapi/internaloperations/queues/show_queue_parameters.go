@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowQueueParams creates a new ShowQueueParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowQueueParams() ShowQueueParams {
 
 	return ShowQueueParams{}
@@ -50,7 +51,6 @@ func (o *ShowQueueParams) BindRequest(r *http.Request, route *middleware.Matched
 	if err := o.bindQueueType(rQueueType, rhkQueueType, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -66,7 +66,6 @@ func (o *ShowQueueParams) bindQueueType(rawData []string, hasKey bool, formats s
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.QueueType = raw
 
 	if err := o.validateQueueType(formats); err != nil {

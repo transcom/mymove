@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -30,6 +31,7 @@ type CreateMTOShipment struct {
 	//
 	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
+	// Example: handle with care
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 	// The customer can use the customer remarks field to inform the services counselor and the movers about any
@@ -40,6 +42,7 @@ type CreateMTOShipment struct {
 	//
 	// Customer enters this information during onboarding. Optional field.
 	//
+	// Example: handle with care
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// Where the movers should deliver this shipment.
@@ -49,6 +52,7 @@ type CreateMTOShipment struct {
 	} `json:"destinationAddress"`
 
 	// The ID of the move this new shipment is for.
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
@@ -104,7 +108,6 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 }
 
 func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Agents) { // not required
 		return nil
 	}
@@ -138,7 +141,6 @@ func (m *CreateMTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) err
 }
 
 func (m *CreateMTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoServiceItems) { // not required
 		return nil
 	}
@@ -176,6 +178,72 @@ func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry)
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// ContextValidate validate this create m t o shipment based on the context it is used
+func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAgents(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Agents.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.MtoServiceItems); i++ {
+
+		if m.MtoServiceItems[i] != nil {
+			if err := m.MtoServiceItems[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

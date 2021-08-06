@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 
 	suite.T().Run("test valid ServiceItemParamKey", func(t *testing.T) {
 		validServiceItemParamKey := models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameCanStandAlone,
+			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "Description",
 			Type:        "STRING",
 			Origin:      "PRIME",
@@ -52,7 +52,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 
 	suite.T().Run("test invalid type for ServiceItemParamKey", func(t *testing.T) {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameCanStandAlone,
+			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "Description",
 			Type:        "TIME",
 			Origin:      "PRIME",
@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 
 	suite.T().Run("test invalid origin for ServiceItemParamKey", func(t *testing.T) {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameCanStandAlone,
+			Key:         models.ServiceItemParamNameZipPickupAddress,
 			Description: "Description",
 			Type:        "DATE",
 			Origin:      "OPTIMUS",

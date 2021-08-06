@@ -15,7 +15,8 @@ import (
 )
 
 // NewIndexSignedCertificationParams creates a new IndexSignedCertificationParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexSignedCertificationParams() IndexSignedCertificationParams {
 
 	return IndexSignedCertificationParams{}
@@ -50,7 +51,6 @@ func (o *IndexSignedCertificationParams) BindRequest(r *http.Request, route *mid
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

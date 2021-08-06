@@ -12,6 +12,7 @@ import { Form } from 'components/form';
 import TextField from 'components/form/fields/TextField';
 import { Modal, ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
+import { ServiceItemDetailsShape } from 'types/serviceItems';
 import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
@@ -49,7 +50,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
               {({ handleChange, values, isValid, dirty }) => {
                 return (
                   <Form>
-                    <div className={('table--service-item', 'table--service-item--hasimg')}>
+                    <div className={classNames('table--service-item', 'table--service-item--hasimg')}>
                       <table>
                         <thead className="table--small">
                           <tr>
@@ -103,27 +104,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
 };
 
 RejectServiceItemModal.propTypes = {
-  serviceItem: PropTypes.shape({
-    id: PropTypes.string,
-    mtoShipmentID: PropTypes.string,
-    code: PropTypes.string,
-    status: PropTypes.string,
-    serviceItem: PropTypes.string,
-    createdAt: PropTypes.string,
-    rejectedAt: PropTypes.string,
-    approvedAt: PropTypes.string,
-    details: PropTypes.shape({
-      description: PropTypes.string,
-      pickupPostalCode: PropTypes.string,
-      reason: PropTypes.string,
-      itemDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
-      crateDimensions: PropTypes.shape({ length: PropTypes.number, width: PropTypes.number, height: PropTypes.number }),
-      firstCustomerContact: PropTypes.shape({
-        timeMilitary: PropTypes.string,
-        firstAvailableDeliveryDate: PropTypes.string,
-      }),
-    }),
-  }).isRequired,
+  serviceItem: ServiceItemDetailsShape.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };

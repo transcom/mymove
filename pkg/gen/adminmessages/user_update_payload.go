@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -30,6 +32,11 @@ type UserUpdatePayload struct {
 
 // Validate validates this user update payload
 func (m *UserUpdatePayload) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this user update payload based on context it is used
+func (m *UserUpdatePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

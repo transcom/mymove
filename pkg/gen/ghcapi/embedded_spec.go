@@ -3016,6 +3016,11 @@ func init() {
         "description"
       ],
       "properties": {
+        "SITPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -3040,6 +3045,13 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "estimatedWeight": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
         },
         "feeType": {
           "type": "string",
@@ -4034,7 +4046,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -4346,9 +4357,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -8072,6 +8080,11 @@ func init() {
         "description"
       ],
       "properties": {
+        "SITPostalCode": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "approvedAt": {
           "type": "string",
           "format": "date-time",
@@ -8096,6 +8109,13 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "estimatedWeight": {
+          "description": "estimated weight of the shuttle service item provided by the prime",
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2500
         },
         "feeType": {
           "type": "string",
@@ -9090,7 +9110,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -9405,9 +9424,6 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
-        },
-        "status": {
-          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },

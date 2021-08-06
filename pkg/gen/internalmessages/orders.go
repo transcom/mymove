@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type Orders struct {
 
 	// authorized weight
+	// Example: 7000
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
 
 	// created at
@@ -29,6 +32,7 @@ type Orders struct {
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
 	// grade
+	// Example: O-6
 	Grade *string `json:"grade,omitempty"`
 
 	// Are dependents included in your orders?
@@ -36,6 +40,7 @@ type Orders struct {
 	HasDependents *bool `json:"has_dependents"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -43,6 +48,7 @@ type Orders struct {
 	// Date issued
 	//
 	// The date and time that these orders were cut.
+	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	IssueDate *strfmt.Date `json:"issue_date"`
@@ -55,11 +61,12 @@ type Orders struct {
 	NewDutyStation *DutyStationPayload `json:"new_duty_station"`
 
 	// Orders Number
+	// Example: 030-00362
 	OrdersNumber *string `json:"orders_number,omitempty"`
 
 	// orders type
 	// Required: true
-	OrdersType OrdersType `json:"orders_type"`
+	OrdersType *OrdersType `json:"orders_type"`
 
 	// orders type detail
 	OrdersTypeDetail *OrdersTypeDetail `json:"orders_type_detail,omitempty"`
@@ -70,14 +77,17 @@ type Orders struct {
 	// Report by
 	//
 	// Report By Date
+	// Example: 2018-04-26
 	// Required: true
 	// Format: date
 	ReportByDate *strfmt.Date `json:"report_by_date"`
 
 	// SAC
+	// Example: N002214CSW32Y9
 	Sac *string `json:"sac,omitempty"`
 
 	// service member id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ServiceMemberID *strfmt.UUID `json:"service_member_id"`
@@ -90,6 +100,7 @@ type Orders struct {
 	Status OrdersStatus `json:"status,omitempty"`
 
 	// TAC
+	// Example: F8J1
 	Tac *string `json:"tac,omitempty"`
 
 	// updated at
@@ -101,6 +112,7 @@ type Orders struct {
 	UploadedAmendedOrders *DocumentPayload `json:"uploaded_amended_orders,omitempty"`
 
 	// uploaded amended orders id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	UploadedAmendedOrdersID strfmt.UUID `json:"uploaded_amended_orders_id,omitempty"`
 
@@ -205,7 +217,6 @@ func (m *Orders) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateDepartmentIndicator(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DepartmentIndicator) { // not required
 		return nil
 	}
@@ -258,7 +269,6 @@ func (m *Orders) validateIssueDate(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateMoves(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Moves) { // not required
 		return nil
 	}
@@ -293,18 +303,27 @@ func (m *Orders) validateNewDutyStation(formats strfmt.Registry) error {
 
 func (m *Orders) validateOrdersType(formats strfmt.Registry) error {
 
-	if err := m.OrdersType.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("orders_type")
-		}
+	if err := validate.Required("orders_type", "body", m.OrdersType); err != nil {
 		return err
+	}
+
+	if err := validate.Required("orders_type", "body", m.OrdersType); err != nil {
+		return err
+	}
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (m *Orders) validateOrdersTypeDetail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OrdersTypeDetail) { // not required
 		return nil
 	}
@@ -322,7 +341,6 @@ func (m *Orders) validateOrdersTypeDetail(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateOriginDutyStation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.OriginDutyStation) { // not required
 		return nil
 	}
@@ -375,7 +393,6 @@ func (m *Orders) validateSpouseHasProGear(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -404,7 +421,6 @@ func (m *Orders) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateUploadedAmendedOrders(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UploadedAmendedOrders) { // not required
 		return nil
 	}
@@ -422,7 +438,6 @@ func (m *Orders) validateUploadedAmendedOrders(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateUploadedAmendedOrdersID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UploadedAmendedOrdersID) { // not required
 		return nil
 	}
@@ -442,6 +457,174 @@ func (m *Orders) validateUploadedOrders(formats strfmt.Registry) error {
 
 	if m.UploadedOrders != nil {
 		if err := m.UploadedOrders.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("uploaded_orders")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this orders based on the context it is used
+func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMoves(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOrdersTypeDetail(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginDutyStation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUploadedAmendedOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUploadedOrders(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Orders) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("department_indicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateMoves(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Moves.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("moves")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateNewDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewDutyStation != nil {
+		if err := m.NewDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("new_duty_station")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateOrdersType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersType != nil {
+		if err := m.OrdersType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateOrdersTypeDetail(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OrdersTypeDetail != nil {
+		if err := m.OrdersTypeDetail.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("orders_type_detail")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateOriginDutyStation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginDutyStation != nil {
+		if err := m.OriginDutyStation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("origin_duty_station")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateUploadedAmendedOrders(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.UploadedAmendedOrders != nil {
+		if err := m.UploadedAmendedOrders.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("uploaded_amended_orders")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateUploadedOrders(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.UploadedOrders != nil {
+		if err := m.UploadedOrders.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("uploaded_orders")
 			}

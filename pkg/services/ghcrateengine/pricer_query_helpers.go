@@ -64,6 +64,23 @@ func fetchDomServiceAreaPrice(db *pop.Connection, contractCode string, serviceCo
 	return domServiceAreaPrice, nil
 }
 
+func fetchAccessorialPrice(db *pop.Connection, contractCode string, serviceCode models.ReServiceCode, schedule int) (models.ReDomesticAccessorialPrice, error) {
+	var domAccessorialPrice models.ReDomesticAccessorialPrice
+	err := db.Q().
+		Join("re_services", "service_id = re_services.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_accessorial_prices.contract_id").
+		Where("re_contracts.code = $1", contractCode).
+		Where("re_services.code = $2", serviceCode).
+		Where("services_schedule = $3", schedule).
+		First(&domAccessorialPrice)
+
+	if err != nil {
+		return models.ReDomesticAccessorialPrice{}, err
+	}
+
+	return domAccessorialPrice, nil
+}
+
 func fetchContractYear(db *pop.Connection, contractID uuid.UUID, targetDate time.Time) (models.ReContractYear, error) {
 	var contractYear models.ReContractYear
 	err := db.Where("contract_id = $1", contractID).

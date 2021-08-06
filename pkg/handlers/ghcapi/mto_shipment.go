@@ -74,6 +74,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryAssociation("DestinationAddress"),
 		query.NewQueryAssociation("SecondaryPickupAddress"),
 		query.NewQueryAssociation("SecondaryDeliveryAddress"),
+		query.NewQueryAssociation("MTOServiceItems.Dimensions"),
 	})
 
 	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))

@@ -1,5 +1,10 @@
 package unit
 
+const (
+	thousandthInchPerFoot = 12000
+	thousandthInchPerInch = 1000
+)
+
 // ThousandthInches Inches represents a value in thousandth of an inch Eg. 1.00 inch = 1000 ThousandthInches
 type ThousandthInches int
 
@@ -7,4 +12,18 @@ type ThousandthInches int
 func (t ThousandthInches) Int32Ptr() *int32 {
 	val := int32(t)
 	return &val
+}
+
+// ToFeet returns feet for this value
+func (t ThousandthInches) ToFeet() float64 {
+	feet := float64(t) / thousandthInchPerFoot
+
+	return feet
+}
+
+// ToInches returns inches for this value
+func (t ThousandthInches) ToInches() float64 {
+	inches := float64(t) / thousandthInchPerInch
+
+	return inches
 }

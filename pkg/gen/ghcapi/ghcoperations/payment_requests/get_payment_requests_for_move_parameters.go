@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetPaymentRequestsForMoveParams creates a new GetPaymentRequestsForMoveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetPaymentRequestsForMoveParams() GetPaymentRequestsForMoveParams {
 
 	return GetPaymentRequestsForMoveParams{}
@@ -49,7 +50,6 @@ func (o *GetPaymentRequestsForMoveParams) BindRequest(r *http.Request, route *mi
 	if err := o.bindLocator(rLocator, rhkLocator, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -65,7 +65,6 @@ func (o *GetPaymentRequestsForMoveParams) bindLocator(rawData []string, hasKey b
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.Locator = raw
 
 	return nil

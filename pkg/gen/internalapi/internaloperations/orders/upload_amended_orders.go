@@ -29,7 +29,7 @@ func NewUploadAmendedOrders(ctx *middleware.Context, handler UploadAmendedOrders
 	return &UploadAmendedOrders{Context: ctx, Handler: handler}
 }
 
-/*UploadAmendedOrders swagger:route PATCH /orders/{ordersId}/upload_amended_orders orders uploadAmendedOrders
+/* UploadAmendedOrders swagger:route PATCH /orders/{ordersId}/upload_amended_orders orders uploadAmendedOrders
 
 Patch the amended orders for a given order
 
@@ -44,17 +44,15 @@ type UploadAmendedOrders struct {
 func (o *UploadAmendedOrders) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewUploadAmendedOrdersParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

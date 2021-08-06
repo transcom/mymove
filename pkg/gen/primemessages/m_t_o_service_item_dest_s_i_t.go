@@ -7,6 +7,7 @@ package primemessages
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -59,10 +60,12 @@ type MTOServiceItemDestSIT struct {
 	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+	// Example: 1400Z
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 }
@@ -176,10 +179,12 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 	}
@@ -284,10 +289,12 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1,omitempty"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+		// Example: 1400Z
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2,omitempty"`
 	}{
@@ -575,7 +582,7 @@ func (m *MTOServiceItemDestSIT) validateTimeMilitary1(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.Pattern("timeMilitary1", "body", string(*m.TimeMilitary1), `\d{4}Z`); err != nil {
+	if err := validate.Pattern("timeMilitary1", "body", *m.TimeMilitary1, `\d{4}Z`); err != nil {
 		return err
 	}
 
@@ -588,8 +595,116 @@ func (m *MTOServiceItemDestSIT) validateTimeMilitary2(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.Pattern("timeMilitary2", "body", string(*m.TimeMilitary2), `\d{4}Z`); err != nil {
+	if err := validate.Pattern("timeMilitary2", "body", *m.TimeMilitary2, `\d{4}Z`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o service item dest s i t based on the context it is used
+func (m *MTOServiceItemDestSIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateReServiceName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRejectionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateModelType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ModelType().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("modelType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateReServiceName(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "reServiceName", "body", string(m.ReServiceName())); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateRejectionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "rejectionReason", "body", m.RejectionReason()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status().ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDestSIT) contextValidateSitDestinationFinalAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitDestinationFinalAddress != nil {
+		if err := m.SitDestinationFinalAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitDestinationFinalAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

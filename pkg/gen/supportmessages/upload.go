@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -24,6 +25,7 @@ type Upload struct {
 	Bytes *int64 `json:"bytes"`
 
 	// content type
+	// Example: application/pdf
 	// Required: true
 	ContentType *string `json:"contentType"`
 
@@ -33,12 +35,15 @@ type Upload struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// filename
+	// Example: filename.pdf
 	// Required: true
 	Filename *string `json:"filename"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Required: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	ID *strfmt.UUID `json:"id"`
 
 	// status
 	// Enum: [INFECTED CLEAN PROCESSING]
@@ -50,8 +55,10 @@ type Upload struct {
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 
 	// url
+	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Required: true
 	// Format: uri
-	URL strfmt.URI `json:"url,omitempty"`
+	URL *strfmt.URI `json:"url"`
 }
 
 // Validate validates this upload
@@ -115,7 +122,6 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 }
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -138,8 +144,8 @@ func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
 func (m *Upload) validateID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ID) { // not required
-		return nil
+	if err := validate.Required("id", "body", m.ID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
@@ -182,7 +188,6 @@ func (m *Upload) validateStatusEnum(path, location string, value string) error {
 }
 
 func (m *Upload) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -196,7 +201,6 @@ func (m *Upload) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
@@ -210,11 +214,47 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
 func (m *Upload) validateURL(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.URL) { // not required
-		return nil
+	if err := validate.Required("url", "body", m.URL); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("url", "body", "uri", m.URL.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this upload based on the context it is used
+func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Upload) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 

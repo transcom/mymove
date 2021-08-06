@@ -15,7 +15,8 @@ import (
 )
 
 // NewUpdateMTOStatusServiceCounselingCompletedParams creates a new UpdateMTOStatusServiceCounselingCompletedParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMTOStatusServiceCounselingCompletedParams() UpdateMTOStatusServiceCounselingCompletedParams {
 
 	return UpdateMTOStatusServiceCounselingCompletedParams{}
@@ -59,7 +60,6 @@ func (o *UpdateMTOStatusServiceCounselingCompletedParams) BindRequest(r *http.Re
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -81,7 +81,6 @@ func (o *UpdateMTOStatusServiceCounselingCompletedParams) bindIfMatch(rawData []
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -96,7 +95,6 @@ func (o *UpdateMTOStatusServiceCounselingCompletedParams) bindMoveTaskOrderID(ra
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil

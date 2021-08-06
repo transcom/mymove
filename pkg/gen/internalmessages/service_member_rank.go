@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model ServiceMemberRank
 type ServiceMemberRank string
+
+func NewServiceMemberRank(value ServiceMemberRank) *ServiceMemberRank {
+	v := value
+	return &v
+}
 
 const (
 
@@ -137,5 +143,10 @@ func (m ServiceMemberRank) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this service member rank based on context it is used
+func (m ServiceMemberRank) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

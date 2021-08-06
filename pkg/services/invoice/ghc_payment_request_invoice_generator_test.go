@@ -1,11 +1,3 @@
-//RA Summary: gosec - errcheck - Unchecked return value
-//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
-//RA: Functions with unchecked return values in the file are used set up environment variables
-//RA: Given the functions causing the lint errors are used to set environment variables for testing purposes, it does not present a risk
-//RA Developer Status: Mitigated
-//RA Validator Status: Mitigated
-//RA Modified Severity: N/A
-// nolint:errcheck
 package invoice
 
 import (
@@ -26,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"go.uber.org/zap"
 )
@@ -119,12 +112,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	})
 
+	priceCents := unit.Cents(888)
 	assertions := testdatagen.Assertions{
 		Move:           mto,
 		MTOShipment:    mtoShipment,
 		PaymentRequest: paymentRequest,
 		PaymentServiceItem: models.PaymentServiceItem{
-			Status: models.PaymentServiceItemStatusApproved,
+			Status:     models.PaymentServiceItemStatusApproved,
+			PriceCents: &priceCents,
 		},
 	}
 
@@ -207,6 +202,44 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		basicPaymentServiceItemParams,
 		assertions,
 	)
+	doshut := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+	ddshut := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDDSHUT,
+		basicPaymentServiceItemParams,
+		assertions,
+	)
+
+	additionalParamsForCrating := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "144.5",
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeDecimal,
+			Value:   "23.69",
+		},
+	}
+	cratingParams := append(basicPaymentServiceItemParams, additionalParamsForCrating...)
+	dcrt := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDCRT,
+		cratingParams,
+		assertions,
+	)
+	ducrt := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDUCRT,
+		cratingParams,
+		assertions,
+	)
 
 	distanceZipSITDestParam := testdatagen.CreatePaymentServiceItemParams{
 		Key:     models.ServiceItemParamNameDistanceZipSITDest,
@@ -234,7 +267,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		assertions,
 	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit, ddasit, dofsit, doasit, dddsit, dopsit)
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk, ddfsit, ddasit, dofsit, doasit, doshut, ddshut, dcrt, ducrt, dddsit, dopsit)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -243,7 +276,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	// setup known next value
-	suite.icnSequencer.SetVal(122)
+	icnErr := suite.icnSequencer.SetVal(122)
+	suite.NoError(icnErr)
 
 	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
@@ -300,7 +334,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("se segment has correct value", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(128, result.SE.NumberOfIncludedSegments)
+		suite.Equal(156, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -522,6 +556,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
 				l0 := result.ServiceItems[segmentOffset].L0
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
+				suite.Equal(float64(0), l0.BilledRatedAsQuantity)
+				suite.Equal("", l0.BilledRatedAsQualifier)
+				suite.Equal(float64(0), l0.Weight)
+				suite.Equal("", l0.WeightQualifier)
+				suite.Equal(float64(0), l0.Volume)
+				suite.Equal("", l0.VolumeUnitQualifier)
+				suite.Equal(0, l0.LadingQuantity)
+				suite.Equal("", l0.PackagingFormCode)
+				suite.Equal("", l0.WeightUnitCode)
 			})
 
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
@@ -532,7 +575,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
 			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
-			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT:
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT,
+			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
 				l5 := result.ServiceItems[segmentOffset].L5
 				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
@@ -548,14 +592,48 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.Equal("", l0.BilledRatedAsQualifier)
 				suite.Equal(float64(4242), l0.Weight)
 				suite.Equal("B", l0.WeightQualifier)
+				suite.Equal(float64(0), l0.Volume)
+				suite.Equal("", l0.VolumeUnitQualifier)
+				suite.Equal(0, l0.LadingQuantity)
+				suite.Equal("", l0.PackagingFormCode)
 				suite.Equal("L", l0.WeightUnitCode)
 			})
 
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, *l1.FreightRate)
+				suite.Equal(float64(4242), *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
+				suite.Equal(serviceItemPrice, l1.Charge)
+			})
+		case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
+				l5 := result.ServiceItems[segmentOffset].L5
+				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
+				suite.Equal(string(serviceCode), l5.LadingDescription)
+				suite.Equal("TBD", l5.CommodityCode)
+				suite.Equal("D", l5.CommodityCodeQualifier)
+			})
+
+			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
+				l0 := result.ServiceItems[segmentOffset].L0
+				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
+				suite.Equal(float64(0), l0.BilledRatedAsQuantity)
+				suite.Equal("", l0.BilledRatedAsQualifier)
+				suite.Equal(float64(0), l0.Weight)
+				suite.Equal("", l0.WeightQualifier)
+				suite.Equal(144.5, l0.Volume)
+				suite.Equal("E", l0.VolumeUnitQualifier)
+				suite.Equal(1, l0.LadingQuantity)
+				suite.Equal("CRT", l0.PackagingFormCode)
+				suite.Equal("", l0.WeightUnitCode)
+			})
+
+			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
+				l1 := result.ServiceItems[segmentOffset].L1
+				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
+				suite.Equal(23.69, *l1.FreightRate)
+				suite.Equal("PF", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
 		default:
@@ -584,12 +662,16 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.Equal("DM", l0.BilledRatedAsQualifier)
 				suite.Equal(float64(4242), l0.Weight)
 				suite.Equal("B", l0.WeightQualifier)
+				suite.Equal(float64(0), l0.Volume)
+				suite.Equal("", l0.VolumeUnitQualifier)
+				suite.Equal(0, l0.LadingQuantity)
+				suite.Equal("", l0.PackagingFormCode)
 				suite.Equal("L", l0.WeightUnitCode)
 			})
 			suite.T().Run("adds l1 service item segment", func(t *testing.T) {
 				l1 := result.ServiceItems[segmentOffset].L1
 				suite.Equal(hierarchicalNumberInt, l1.LadingLineItemNumber)
-				suite.Equal(4242, *l1.FreightRate)
+				suite.Equal(float64(4242), *l1.FreightRate)
 				suite.Equal("LB", l1.RateValueQualifier)
 				suite.Equal(serviceItemPrice, l1.Charge)
 			})
@@ -609,7 +691,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 		l3 := result.L3
-		suite.Equal(int64(13320), l3.PriceCents)
+		// Will need to be updated as more service items are supported
+		suite.Equal(int64(16872), l3.PriceCents)
 	})
 }
 
@@ -657,6 +740,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	_, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
 }
+
 func (suite *GHCInvoiceSuite) TestNilValues() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()

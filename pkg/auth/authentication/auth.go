@@ -65,11 +65,11 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
 				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
 
@@ -323,7 +323,6 @@ func NewLogoutHandler(ac Context, db *pop.Connection) LogoutHandler {
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
-
 	if session != nil {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
@@ -349,6 +348,21 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
+			h.logger.Info("session exists but has an empty IDToken")
+
+			if session.UserID != uuid.Nil {
+				err := resetUserCurrentSessionID(session, h.db, h.logger)
+				if err != nil {
+					h.logger.Error("failed to reset user's current_x_session_id")
+				}
+			}
+
+			err := h.sessionManager(session).Destroy(r.Context())
+			if err != nil {
+				h.logger.Error("failed to destroy session")
+			}
+
+			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, redirectURL)
 		}
 	}
@@ -407,6 +421,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 		Secure:   h.UseSecureCookie,
 	}
+
 	http.SetCookie(w, &stateCookie)
 	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
 }
@@ -511,6 +526,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		provider.ClientKey,
 		h.loginGovProvider)
 	if err != nil {
+		h.logger.Error("Reading openIDSession from login.gov", zap.Error(err))
 		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 		return
 	}
@@ -574,7 +590,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
 				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
 				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
@@ -609,8 +625,9 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
 			}
 			err := queryBuilder.FetchOne(&adminUser, filters)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
+
+			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+				h.logger.Error("No admin user found", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
@@ -662,7 +679,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		officeUser, err = models.FetchOfficeUserByEmail(conn, session.Email)
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No Office user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
 			h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
@@ -687,7 +704,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			h.logger.Error("No admin user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		} else if err != nil {
 			h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))

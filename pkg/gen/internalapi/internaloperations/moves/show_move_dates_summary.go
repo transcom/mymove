@@ -29,7 +29,7 @@ func NewShowMoveDatesSummary(ctx *middleware.Context, handler ShowMoveDatesSumma
 	return &ShowMoveDatesSummary{Context: ctx, Handler: handler}
 }
 
-/*ShowMoveDatesSummary swagger:route GET /moves/{moveId}/move_dates_summary moves showMoveDatesSummary
+/* ShowMoveDatesSummary swagger:route GET /moves/{moveId}/move_dates_summary moves showMoveDatesSummary
 
 Returns projected move-related dates for a given move date
 
@@ -44,17 +44,15 @@ type ShowMoveDatesSummary struct {
 func (o *ShowMoveDatesSummary) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowMoveDatesSummaryParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

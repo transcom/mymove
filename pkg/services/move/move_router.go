@@ -48,10 +48,38 @@ func (router moveRouter) Submit(move *models.Move) error {
 		}
 		router.logger.Info("SUCCESS: Move sent to services counseling")
 	} else if move.Orders.UploadedAmendedOrders != nil {
-		err = router.SendToOfficeUser(move)
-		if err != nil {
-			router.logger.Error("failure routing move with amended orders to office user / TOO queue", zap.Error(err))
-			return err
+		router.logger.Info("Move has amended orders")
+		transactionError := router.db.Transaction(func(tx *pop.Connection) error {
+			err = router.SendToOfficeUser(move)
+			if err != nil {
+				router.logger.Error("failure routing move submission with amended orders", zap.Error(err))
+				return err
+			}
+			// Let's get the orders for this move so we can wipe out the acknowledgement if it exists already (from a prior orders amendment process)
+			var ordersForMove models.Order
+			err = tx.Find(&ordersForMove, move.OrdersID)
+			if err != nil {
+				return err
+			}
+			// Here we'll nil out the value (if it's set already) so that on the client-side we'll see view this change
+			// in status as 'new orders' that need acknowledging by the TOO.
+			// We shouldn't need more complicated logic here since we only hit this point from calling Submit().
+			// Other circumstances like new MTOServiceItems will be calling SendToOfficeUser() directly.
+			router.logger.Info("Determining whether there is a preexisting orders acknowledgement")
+			if ordersForMove.AmendedOrdersAcknowledgedAt != nil {
+				router.logger.Info("Move has a preexisting acknowledgement")
+				ordersForMove.AmendedOrdersAcknowledgedAt = nil
+				_, err = tx.ValidateAndSave(&ordersForMove)
+				if err != nil {
+					router.logger.Error("failure resetting orders AmendedOrdersAcknowledgeAt field when routing move submission with amended orders ", zap.Error(err))
+					return err
+				}
+				router.logger.Info("Successfully reset orders acknowledgement")
+			}
+			return nil
+		})
+		if transactionError != nil {
+			return transactionError
 		}
 		router.logger.Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
 	} else {

@@ -18,7 +18,8 @@ import (
 )
 
 // NewCreatePPMAttachmentsParams creates a new CreatePPMAttachmentsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewCreatePPMAttachmentsParams() CreatePPMAttachmentsParams {
 
 	return CreatePPMAttachmentsParams{}
@@ -66,7 +67,6 @@ func (o *CreatePPMAttachmentsParams) BindRequest(r *http.Request, route *middlew
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -80,7 +80,6 @@ func (o *CreatePPMAttachmentsParams) bindDocTypes(rawData []string, hasKey bool,
 	if !hasKey {
 		return errors.Required("docTypes", "query", rawData)
 	}
-
 	var qvDocTypes string
 	if len(rawData) > 0 {
 		qvDocTypes = rawData[len(rawData)-1]
@@ -88,7 +87,6 @@ func (o *CreatePPMAttachmentsParams) bindDocTypes(rawData []string, hasKey bool,
 
 	// CollectionFormat: csv
 	docTypesIC := swag.SplitByFormat(qvDocTypes, "csv")
-
 	if len(docTypesIC) == 0 {
 		return errors.Required("docTypes", "query", docTypesIC)
 	}

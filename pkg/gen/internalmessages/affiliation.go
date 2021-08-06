@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model Affiliation
 type Affiliation string
+
+func NewAffiliation(value Affiliation) *Affiliation {
+	v := value
+	return &v
+}
 
 const (
 
@@ -68,5 +74,10 @@ func (m Affiliation) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this affiliation based on context it is used
+func (m Affiliation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

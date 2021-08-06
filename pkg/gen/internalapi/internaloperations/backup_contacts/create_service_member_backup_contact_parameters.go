@@ -6,6 +6,7 @@ package backup_contacts
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewCreateServiceMemberBackupContactParams creates a new CreateServiceMemberBackupContactParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewCreateServiceMemberBackupContactParams() CreateServiceMemberBackupContactParams {
 
 	return CreateServiceMemberBackupContactParams{}
@@ -70,6 +72,11 @@ func (o *CreateServiceMemberBackupContactParams) BindRequest(r *http.Request, ro
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.CreateBackupContactPayload = &body
 			}
@@ -77,11 +84,11 @@ func (o *CreateServiceMemberBackupContactParams) BindRequest(r *http.Request, ro
 	} else {
 		res = append(res, errors.Required("createBackupContactPayload", "body", ""))
 	}
+
 	rServiceMemberID, rhkServiceMemberID, _ := route.Params.GetOK("serviceMemberId")
 	if err := o.bindServiceMemberID(rServiceMemberID, rhkServiceMemberID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

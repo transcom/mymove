@@ -12,8 +12,8 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-// CreateUserUploadForDocument wrapper/helper function to create a user upload
-func CreateUserUploadForDocument(db *pop.Connection, logger Logger, userID uuid.UUID, storer storage.FileStorer, file io.ReadCloser, filename string, fileSizeLimit ByteSize, docID *uuid.UUID) (*models.UserUpload, string, *validate.Errors, error) {
+// CreateUserUploadForDocumentWrapper wrapper/helper function to create a user upload
+func CreateUserUploadForDocumentWrapper(db *pop.Connection, logger Logger, userID uuid.UUID, storer storage.FileStorer, file io.ReadCloser, filename string, fileSizeLimit ByteSize, docID *uuid.UUID) (*models.UserUpload, string, *validate.Errors, error) {
 	userUploader, err := NewUserUploader(db, logger, storer, fileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))

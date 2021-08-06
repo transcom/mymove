@@ -6,6 +6,7 @@ package ordersmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -26,7 +27,7 @@ type Orders struct {
 
 	// issuer
 	// Required: true
-	Issuer Issuer `json:"issuer"`
+	Issuer *Issuer `json:"issuer"`
 
 	// Orders number. Supposed to be unique, but in practice uniqueness is not guaranteed for all branches of service.
 	// # Army
@@ -45,6 +46,7 @@ type Orders struct {
 	// # Civilian
 	// Corresponds to the Travel Authorization Number. For example, "PS8D000025".
 	//
+	// Example: M7000213CTB28DZ
 	// Required: true
 	OrdersNum string `json:"ordersNum"`
 
@@ -53,6 +55,7 @@ type Orders struct {
 	Revisions []*Revision `json:"revisions"`
 
 	// Universally Unique IDentifier. Generated internally.
+	// Example: 80200fa9-4ee2-49c5-b4fd-88b3ef4bd5eb
 	// Format: uuid
 	UUID strfmt.UUID `json:"uuid,omitempty"`
 }
@@ -89,11 +92,11 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 
 func (m *Orders) validateEdipi(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("edipi", "body", string(m.Edipi)); err != nil {
+	if err := validate.RequiredString("edipi", "body", m.Edipi); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("edipi", "body", string(m.Edipi), `^\d{10}$`); err != nil {
+	if err := validate.Pattern("edipi", "body", m.Edipi, `^\d{10}$`); err != nil {
 		return err
 	}
 
@@ -102,11 +105,21 @@ func (m *Orders) validateEdipi(formats strfmt.Registry) error {
 
 func (m *Orders) validateIssuer(formats strfmt.Registry) error {
 
-	if err := m.Issuer.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("issuer")
-		}
+	if err := validate.Required("issuer", "body", m.Issuer); err != nil {
 		return err
+	}
+
+	if err := validate.Required("issuer", "body", m.Issuer); err != nil {
+		return err
+	}
+
+	if m.Issuer != nil {
+		if err := m.Issuer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("issuer")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -114,7 +127,7 @@ func (m *Orders) validateIssuer(formats strfmt.Registry) error {
 
 func (m *Orders) validateOrdersNum(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("ordersNum", "body", string(m.OrdersNum)); err != nil {
+	if err := validate.RequiredString("ordersNum", "body", m.OrdersNum); err != nil {
 		return err
 	}
 
@@ -147,13 +160,62 @@ func (m *Orders) validateRevisions(formats strfmt.Registry) error {
 }
 
 func (m *Orders) validateUUID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UUID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("uuid", "body", "uuid", m.UUID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this orders based on the context it is used
+func (m *Orders) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateIssuer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateRevisions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Orders) contextValidateIssuer(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Issuer != nil {
+		if err := m.Issuer.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("issuer")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Orders) contextValidateRevisions(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Revisions); i++ {
+
+		if m.Revisions[i] != nil {
+			if err := m.Revisions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("revisions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

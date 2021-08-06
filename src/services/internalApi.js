@@ -1,6 +1,6 @@
 import Swagger from 'swagger-client';
 
-import { makeSwaggerRequest, requestInterceptor } from './swaggerRequest';
+import { makeSwaggerRequest, requestInterceptor, responseInterceptor } from './swaggerRequest';
 
 let internalClient = null;
 
@@ -10,6 +10,7 @@ export async function getInternalClient() {
     internalClient = await Swagger({
       url: '/internal/swagger.yaml',
       requestInterceptor,
+      responseInterceptor,
     });
   }
 

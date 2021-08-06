@@ -77,9 +77,8 @@ func (o *UpdateMTOShipmentAddressReader) ReadResponse(response runtime.ClientRes
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -88,7 +87,7 @@ func NewUpdateMTOShipmentAddressOK() *UpdateMTOShipmentAddressOK {
 	return &UpdateMTOShipmentAddressOK{}
 }
 
-/*UpdateMTOShipmentAddressOK handles this case with default header values.
+/* UpdateMTOShipmentAddressOK describes a response with status code 200, with default header values.
 
 Successfully updated the address.
 */
@@ -99,7 +98,6 @@ type UpdateMTOShipmentAddressOK struct {
 func (o *UpdateMTOShipmentAddressOK) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressOK  %+v", 200, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressOK) GetPayload() *primemessages.Address {
 	return o.Payload
 }
@@ -121,7 +119,7 @@ func NewUpdateMTOShipmentAddressBadRequest() *UpdateMTOShipmentAddressBadRequest
 	return &UpdateMTOShipmentAddressBadRequest{}
 }
 
-/*UpdateMTOShipmentAddressBadRequest handles this case with default header values.
+/* UpdateMTOShipmentAddressBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -132,7 +130,6 @@ type UpdateMTOShipmentAddressBadRequest struct {
 func (o *UpdateMTOShipmentAddressBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -154,7 +151,7 @@ func NewUpdateMTOShipmentAddressUnauthorized() *UpdateMTOShipmentAddressUnauthor
 	return &UpdateMTOShipmentAddressUnauthorized{}
 }
 
-/*UpdateMTOShipmentAddressUnauthorized handles this case with default header values.
+/* UpdateMTOShipmentAddressUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -165,7 +162,6 @@ type UpdateMTOShipmentAddressUnauthorized struct {
 func (o *UpdateMTOShipmentAddressUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -187,7 +183,7 @@ func NewUpdateMTOShipmentAddressForbidden() *UpdateMTOShipmentAddressForbidden {
 	return &UpdateMTOShipmentAddressForbidden{}
 }
 
-/*UpdateMTOShipmentAddressForbidden handles this case with default header values.
+/* UpdateMTOShipmentAddressForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -198,7 +194,6 @@ type UpdateMTOShipmentAddressForbidden struct {
 func (o *UpdateMTOShipmentAddressForbidden) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressForbidden  %+v", 403, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -220,7 +215,7 @@ func NewUpdateMTOShipmentAddressNotFound() *UpdateMTOShipmentAddressNotFound {
 	return &UpdateMTOShipmentAddressNotFound{}
 }
 
-/*UpdateMTOShipmentAddressNotFound handles this case with default header values.
+/* UpdateMTOShipmentAddressNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -231,7 +226,6 @@ type UpdateMTOShipmentAddressNotFound struct {
 func (o *UpdateMTOShipmentAddressNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressNotFound  %+v", 404, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -253,7 +247,7 @@ func NewUpdateMTOShipmentAddressConflict() *UpdateMTOShipmentAddressConflict {
 	return &UpdateMTOShipmentAddressConflict{}
 }
 
-/*UpdateMTOShipmentAddressConflict handles this case with default header values.
+/* UpdateMTOShipmentAddressConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -264,7 +258,6 @@ type UpdateMTOShipmentAddressConflict struct {
 func (o *UpdateMTOShipmentAddressConflict) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressConflict  %+v", 409, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -286,7 +279,7 @@ func NewUpdateMTOShipmentAddressPreconditionFailed() *UpdateMTOShipmentAddressPr
 	return &UpdateMTOShipmentAddressPreconditionFailed{}
 }
 
-/*UpdateMTOShipmentAddressPreconditionFailed handles this case with default header values.
+/* UpdateMTOShipmentAddressPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -297,7 +290,6 @@ type UpdateMTOShipmentAddressPreconditionFailed struct {
 func (o *UpdateMTOShipmentAddressPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -319,7 +311,7 @@ func NewUpdateMTOShipmentAddressUnprocessableEntity() *UpdateMTOShipmentAddressU
 	return &UpdateMTOShipmentAddressUnprocessableEntity{}
 }
 
-/*UpdateMTOShipmentAddressUnprocessableEntity handles this case with default header values.
+/* UpdateMTOShipmentAddressUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -330,7 +322,6 @@ type UpdateMTOShipmentAddressUnprocessableEntity struct {
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -352,7 +343,7 @@ func NewUpdateMTOShipmentAddressInternalServerError() *UpdateMTOShipmentAddressI
 	return &UpdateMTOShipmentAddressInternalServerError{}
 }
 
-/*UpdateMTOShipmentAddressInternalServerError handles this case with default header values.
+/* UpdateMTOShipmentAddressInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -363,7 +354,6 @@ type UpdateMTOShipmentAddressInternalServerError struct {
 func (o *UpdateMTOShipmentAddressInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *UpdateMTOShipmentAddressInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

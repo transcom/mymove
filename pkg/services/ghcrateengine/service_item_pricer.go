@@ -66,6 +66,14 @@ func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services
 		return NewDomesticOriginPricer(p.db), nil
 	case models.ReServiceCodeDDP:
 		return NewDomesticDestinationPricer(p.db), nil
+	case models.ReServiceCodeDDSHUT:
+		return NewDomesticDestinationShuttlingPricer(p.db), nil
+	case models.ReServiceCodeDOSHUT:
+		return NewDomesticOriginShuttlingPricer(p.db), nil
+	case models.ReServiceCodeDCRT:
+		return NewDomesticCratingPricer(p.db), nil
+	case models.ReServiceCodeDUCRT:
+		return NewDomesticUncratingPricer(p.db), nil
 	case models.ReServiceCodeDPK:
 		return NewDomesticPackPricer(p.db), nil
 	case models.ReServiceCodeDUPK:

@@ -19,8 +19,8 @@ import LeftNav from 'components/LeftNav';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
-import ShipmentHeading from 'components/Office/ShipmentHeading';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
@@ -79,13 +79,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       newItem.serviceItem = item.reServiceName;
       newItem.details = {
         pickupPostalCode: item.pickupPostalCode,
+        SITPostalCode: item.SITPostalCode,
         reason: item.reason,
-        imgURL: '',
         description: item.description,
         itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
         crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
         firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
         secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+        estimatedWeight: item.estimatedWeight,
+        rejectionReason: item.rejectionReason,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {

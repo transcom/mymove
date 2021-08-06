@@ -29,7 +29,7 @@ func NewCreateServiceMemberBackupContact(ctx *middleware.Context, handler Create
 	return &CreateServiceMemberBackupContact{Context: ctx, Handler: handler}
 }
 
-/*CreateServiceMemberBackupContact swagger:route POST /service_members/{serviceMemberId}/backup_contacts backup_contacts createServiceMemberBackupContact
+/* CreateServiceMemberBackupContact swagger:route POST /service_members/{serviceMemberId}/backup_contacts backup_contacts createServiceMemberBackupContact
 
 Submits backup contact for a logged-in user
 
@@ -44,17 +44,15 @@ type CreateServiceMemberBackupContact struct {
 func (o *CreateServiceMemberBackupContact) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateServiceMemberBackupContactParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

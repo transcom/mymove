@@ -69,11 +69,14 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 
 	model := &models.MTOShipment{
 		MoveTaskOrderID:       uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       mtoShipment.CustomerRemarks,
 		Status:                models.MTOShipmentStatusDraft,
+	}
+
+	if mtoShipment.ShipmentType != nil {
+		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)

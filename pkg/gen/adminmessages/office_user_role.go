@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -16,14 +18,21 @@ import (
 type OfficeUserRole struct {
 
 	// name
+	// Example: Transportation Ordering Officer
 	Name *string `json:"name,omitempty"`
 
 	// roleType
+	// Example: transportation_ordering_officer
 	RoleType *string `json:"roleType,omitempty"`
 }
 
 // Validate validates this office user role
 func (m *OfficeUserRole) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this office user role based on context it is used
+func (m *OfficeUserRole) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

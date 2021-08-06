@@ -71,9 +71,8 @@ func (o *UpdateMTOAgentReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewUpdateMTOAgentOK() *UpdateMTOAgentOK {
 	return &UpdateMTOAgentOK{}
 }
 
-/*UpdateMTOAgentOK handles this case with default header values.
+/* UpdateMTOAgentOK describes a response with status code 200, with default header values.
 
 Successfully updated the agent.
 */
@@ -93,7 +92,6 @@ type UpdateMTOAgentOK struct {
 func (o *UpdateMTOAgentOK) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentOK  %+v", 200, o.Payload)
 }
-
 func (o *UpdateMTOAgentOK) GetPayload() *primemessages.MTOAgent {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewUpdateMTOAgentBadRequest() *UpdateMTOAgentBadRequest {
 	return &UpdateMTOAgentBadRequest{}
 }
 
-/*UpdateMTOAgentBadRequest handles this case with default header values.
+/* UpdateMTOAgentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -126,7 +124,6 @@ type UpdateMTOAgentBadRequest struct {
 func (o *UpdateMTOAgentBadRequest) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *UpdateMTOAgentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewUpdateMTOAgentUnauthorized() *UpdateMTOAgentUnauthorized {
 	return &UpdateMTOAgentUnauthorized{}
 }
 
-/*UpdateMTOAgentUnauthorized handles this case with default header values.
+/* UpdateMTOAgentUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type UpdateMTOAgentUnauthorized struct {
 func (o *UpdateMTOAgentUnauthorized) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *UpdateMTOAgentUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewUpdateMTOAgentForbidden() *UpdateMTOAgentForbidden {
 	return &UpdateMTOAgentForbidden{}
 }
 
-/*UpdateMTOAgentForbidden handles this case with default header values.
+/* UpdateMTOAgentForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type UpdateMTOAgentForbidden struct {
 func (o *UpdateMTOAgentForbidden) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentForbidden  %+v", 403, o.Payload)
 }
-
 func (o *UpdateMTOAgentForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewUpdateMTOAgentNotFound() *UpdateMTOAgentNotFound {
 	return &UpdateMTOAgentNotFound{}
 }
 
-/*UpdateMTOAgentNotFound handles this case with default header values.
+/* UpdateMTOAgentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type UpdateMTOAgentNotFound struct {
 func (o *UpdateMTOAgentNotFound) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentNotFound  %+v", 404, o.Payload)
 }
-
 func (o *UpdateMTOAgentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewUpdateMTOAgentPreconditionFailed() *UpdateMTOAgentPreconditionFailed {
 	return &UpdateMTOAgentPreconditionFailed{}
 }
 
-/*UpdateMTOAgentPreconditionFailed handles this case with default header values.
+/* UpdateMTOAgentPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -258,7 +252,6 @@ type UpdateMTOAgentPreconditionFailed struct {
 func (o *UpdateMTOAgentPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *UpdateMTOAgentPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -280,7 +273,7 @@ func NewUpdateMTOAgentUnprocessableEntity() *UpdateMTOAgentUnprocessableEntity {
 	return &UpdateMTOAgentUnprocessableEntity{}
 }
 
-/*UpdateMTOAgentUnprocessableEntity handles this case with default header values.
+/* UpdateMTOAgentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -291,7 +284,6 @@ type UpdateMTOAgentUnprocessableEntity struct {
 func (o *UpdateMTOAgentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *UpdateMTOAgentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewUpdateMTOAgentInternalServerError() *UpdateMTOAgentInternalServerError {
 	return &UpdateMTOAgentInternalServerError{}
 }
 
-/*UpdateMTOAgentInternalServerError handles this case with default header values.
+/* UpdateMTOAgentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type UpdateMTOAgentInternalServerError struct {
 func (o *UpdateMTOAgentInternalServerError) Error() string {
 	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *UpdateMTOAgentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

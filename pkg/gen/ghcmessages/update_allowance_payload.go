@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,6 +23,7 @@ type UpdateAllowancePayload struct {
 	Agency Branch `json:"agency,omitempty"`
 
 	// unit is in lbs
+	// Example: 2000
 	// Minimum: 1
 	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
 
@@ -34,16 +37,19 @@ type UpdateAllowancePayload struct {
 	OrganizationalClothingAndIndividualEquipment *bool `json:"organizationalClothingAndIndividualEquipment,omitempty"`
 
 	// unit is in lbs
+	// Example: 2000
 	// Maximum: 2000
 	// Minimum: 0
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`
 
 	// unit is in lbs
+	// Example: 500
 	// Maximum: 500
 	// Minimum: 0
 	ProGearWeightSpouse *int64 `json:"proGearWeightSpouse,omitempty"`
 
 	// unit is in lbs
+	// Example: 2000
 	// Minimum: 0
 	RequiredMedicalEquipmentWeight *int64 `json:"requiredMedicalEquipmentWeight,omitempty"`
 }
@@ -83,7 +89,6 @@ func (m *UpdateAllowancePayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UpdateAllowancePayload) validateAgency(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Agency) { // not required
 		return nil
 	}
@@ -99,12 +104,11 @@ func (m *UpdateAllowancePayload) validateAgency(formats strfmt.Registry) error {
 }
 
 func (m *UpdateAllowancePayload) validateAuthorizedWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.AuthorizedWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("authorizedWeight", "body", int64(*m.AuthorizedWeight), 1, false); err != nil {
+	if err := validate.MinimumInt("authorizedWeight", "body", *m.AuthorizedWeight, 1, false); err != nil {
 		return err
 	}
 
@@ -112,7 +116,6 @@ func (m *UpdateAllowancePayload) validateAuthorizedWeight(formats strfmt.Registr
 }
 
 func (m *UpdateAllowancePayload) validateGrade(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Grade) { // not required
 		return nil
 	}
@@ -130,16 +133,15 @@ func (m *UpdateAllowancePayload) validateGrade(formats strfmt.Registry) error {
 }
 
 func (m *UpdateAllowancePayload) validateProGearWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ProGearWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("proGearWeight", "body", int64(*m.ProGearWeight), 0, false); err != nil {
+	if err := validate.MinimumInt("proGearWeight", "body", *m.ProGearWeight, 0, false); err != nil {
 		return err
 	}
 
-	if err := validate.MaximumInt("proGearWeight", "body", int64(*m.ProGearWeight), 2000, false); err != nil {
+	if err := validate.MaximumInt("proGearWeight", "body", *m.ProGearWeight, 2000, false); err != nil {
 		return err
 	}
 
@@ -147,16 +149,15 @@ func (m *UpdateAllowancePayload) validateProGearWeight(formats strfmt.Registry) 
 }
 
 func (m *UpdateAllowancePayload) validateProGearWeightSpouse(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ProGearWeightSpouse) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("proGearWeightSpouse", "body", int64(*m.ProGearWeightSpouse), 0, false); err != nil {
+	if err := validate.MinimumInt("proGearWeightSpouse", "body", *m.ProGearWeightSpouse, 0, false); err != nil {
 		return err
 	}
 
-	if err := validate.MaximumInt("proGearWeightSpouse", "body", int64(*m.ProGearWeightSpouse), 500, false); err != nil {
+	if err := validate.MaximumInt("proGearWeightSpouse", "body", *m.ProGearWeightSpouse, 500, false); err != nil {
 		return err
 	}
 
@@ -164,13 +165,56 @@ func (m *UpdateAllowancePayload) validateProGearWeightSpouse(formats strfmt.Regi
 }
 
 func (m *UpdateAllowancePayload) validateRequiredMedicalEquipmentWeight(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequiredMedicalEquipmentWeight) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("requiredMedicalEquipmentWeight", "body", int64(*m.RequiredMedicalEquipmentWeight), 0, false); err != nil {
+	if err := validate.MinimumInt("requiredMedicalEquipmentWeight", "body", *m.RequiredMedicalEquipmentWeight, 0, false); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update allowance payload based on the context it is used
+func (m *UpdateAllowancePayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAgency(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateGrade(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateAllowancePayload) contextValidateAgency(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Agency.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("agency")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateAllowancePayload) contextValidateGrade(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Grade != nil {
+		if err := m.Grade.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("grade")
+			}
+			return err
+		}
 	}
 
 	return nil

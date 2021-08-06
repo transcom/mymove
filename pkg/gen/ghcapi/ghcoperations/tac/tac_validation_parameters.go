@@ -16,7 +16,8 @@ import (
 )
 
 // NewTacValidationParams creates a new TacValidationParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewTacValidationParams() TacValidationParams {
 
 	return TacValidationParams{}
@@ -53,7 +54,6 @@ func (o *TacValidationParams) BindRequest(r *http.Request, route *middleware.Mat
 	if err := o.bindTac(qTac, qhkTac, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,10 +72,10 @@ func (o *TacValidationParams) bindTac(rawData []string, hasKey bool, formats str
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("tac", "query", raw); err != nil {
 		return err
 	}
-
 	o.Tac = raw
 
 	return nil

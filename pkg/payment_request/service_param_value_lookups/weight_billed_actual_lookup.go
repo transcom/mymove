@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // WeightBilledActualLookup does lookup on actual weight billed
@@ -13,18 +14,40 @@ type WeightBilledActualLookup struct {
 }
 
 func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	// Make sure there's an estimated weight since that's nullable
-	estimatedWeight := r.MTOShipment.PrimeEstimatedWeight
-	if estimatedWeight == nil {
-		// TODO: Do we need a different error -- is this a "normal" scenario?
-		return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", r.MTOShipment.ID)
-	}
+	var estimatedWeight *unit.Pound
+	var actualWeight *unit.Pound
 
-	// Make sure there's an actual weight since that's nullable
-	actualWeight := r.MTOShipment.PrimeActualWeight
-	if actualWeight == nil {
-		// TODO: Do we need a different error -- is this a "normal" scenario?
-		return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", r.MTOShipment.ID)
+	switch keyData.MTOServiceItem.ReService.Code {
+	case models.ReServiceCodeDOSHUT,
+		models.ReServiceCodeDDSHUT,
+		models.ReServiceCodeIOSHUT,
+		models.ReServiceCodeIDSHUT:
+		estimatedWeight = keyData.MTOServiceItem.EstimatedWeight
+
+		if estimatedWeight == nil {
+			// TODO: Do we need a different error -- is this a "normal" scenario?
+			return "", fmt.Errorf("could not find estimated weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		}
+		actualWeight = keyData.MTOServiceItem.ActualWeight
+
+		if actualWeight == nil {
+			// TODO: Do we need a different error -- is this a "normal" scenario?
+			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
+		}
+	default:
+		// Make sure there's an estimated weight since that's nullable
+		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
+		if estimatedWeight == nil {
+			// TODO: Do we need a different error -- is this a "normal" scenario?
+			return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", r.MTOShipment.ID)
+		}
+
+		// Make sure there's an actual weight since that's nullable
+		actualWeight = r.MTOShipment.PrimeActualWeight
+		if actualWeight == nil {
+			// TODO: Do we need a different error -- is this a "normal" scenario?
+			return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", r.MTOShipment.ID)
+		}
 	}
 
 	var value string

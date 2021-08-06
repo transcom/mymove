@@ -6,6 +6,8 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,19 +20,22 @@ import (
 type ProcessReviewedPaymentRequests struct {
 
 	// delete from syncada
+	// Example: true
 	// Required: true
 	DeleteFromSyncada *bool `json:"deleteFromSyncada"`
 
 	// payment request ID
-	// Read Only: true
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	PaymentRequestID strfmt.UUID `json:"paymentRequestID,omitempty"`
 
 	// read from syncada
+	// Example: true
 	// Required: true
 	ReadFromSyncada *bool `json:"readFromSyncada"`
 
 	// send to syncada
+	// Example: true
 	// Required: true
 	SendToSyncada *bool `json:"sendToSyncada"`
 
@@ -78,7 +83,6 @@ func (m *ProcessReviewedPaymentRequests) validateDeleteFromSyncada(formats strfm
 }
 
 func (m *ProcessReviewedPaymentRequests) validatePaymentRequestID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PaymentRequestID) { // not required
 		return nil
 	}
@@ -109,12 +113,37 @@ func (m *ProcessReviewedPaymentRequests) validateSendToSyncada(formats strfmt.Re
 }
 
 func (m *ProcessReviewedPaymentRequests) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
 	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this process reviewed payment requests based on the context it is used
+func (m *ProcessReviewedPaymentRequests) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProcessReviewedPaymentRequests) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}

@@ -22,6 +22,13 @@ function formatAgentForAPI(agent) {
     const sanitizedKey = `${key}`;
     if (agentCopy[sanitizedKey] === '') {
       delete agentCopy[sanitizedKey];
+    } else if (
+      // These fields are readOnly so we don't want to send them in requests
+      sanitizedKey === 'updatedAt' ||
+      sanitizedKey === 'createdAt' ||
+      sanitizedKey === 'mtoShipmentID'
+    ) {
+      delete agentCopy[sanitizedKey];
     } else if (sanitizedKey === 'phone') {
       const phoneNum = agentCopy[sanitizedKey];
       // will be in format xxx-xxx-xxxx

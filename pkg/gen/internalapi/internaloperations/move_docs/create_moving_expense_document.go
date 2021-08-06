@@ -29,7 +29,7 @@ func NewCreateMovingExpenseDocument(ctx *middleware.Context, handler CreateMovin
 	return &CreateMovingExpenseDocument{Context: ctx, Handler: handler}
 }
 
-/*CreateMovingExpenseDocument swagger:route POST /moves/{moveId}/moving_expense_documents move_docs createMovingExpenseDocument
+/* CreateMovingExpenseDocument swagger:route POST /moves/{moveId}/moving_expense_documents move_docs createMovingExpenseDocument
 
 Creates a moving expense document
 
@@ -44,17 +44,15 @@ type CreateMovingExpenseDocument struct {
 func (o *CreateMovingExpenseDocument) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateMovingExpenseDocumentParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

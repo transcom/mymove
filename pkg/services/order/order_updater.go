@@ -43,7 +43,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(orderID uuid.UUID, payload ghcmessages.U
 
 	orderToUpdate := orderFromTOOPayload(*order, payload)
 
-	return f.updateOrder(orderToUpdate)
+	return f.updateOrder(orderToUpdate, CheckRequiredFields())
 }
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
@@ -181,7 +181,9 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 		order.TAC = payload.Tac
 	}
 
-	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
 
 	// if the order has amended order documents and it has not been previously acknowledged record the current timestamp
 	if payload.OrdersAcknowledgement != nil && *payload.OrdersAcknowledgement && existingOrder.UploadedAmendedOrdersID != nil && existingOrder.AmendedOrdersAcknowledgedAt == nil {
@@ -219,7 +221,7 @@ func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, 
 	var userUpload *models.UserUpload
 	var verrs *validate.Errors
 	var url string
-	userUpload, url, verrs, err = uploader.CreateUserUploadForDocument(
+	userUpload, url, verrs, err = uploader.CreateUserUploadForDocumentWrapper(
 		db,
 		logger,
 		userID,
@@ -262,7 +264,9 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 		order.ReportByDate = time.Time(*payload.ReportByDate)
 	}
 
-	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
+	if payload.OrdersType != nil {
+		order.OrdersType = internalmessages.OrdersType(*payload.OrdersType)
+	}
 
 	return order
 }
@@ -384,7 +388,7 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(doc *models.Document) (*model
 	return doc, nil
 }
 
-func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID, error) {
+func (f *orderUpdater) updateOrder(order models.Order, checks ...Validator) (*models.Order, uuid.UUID, error) {
 	handleError := func(verrs *validate.Errors, err error) error {
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(order.ID, nil, verrs, "")
@@ -399,6 +403,10 @@ func (f *orderUpdater) updateOrder(order models.Order) (*models.Order, uuid.UUID
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 		var verrs *validate.Errors
 		var err error
+
+		if verr := ValidateOrder(&order, checks...); verr != nil {
+			return verr
+		}
 
 		// update service member
 		if order.Grade != nil {

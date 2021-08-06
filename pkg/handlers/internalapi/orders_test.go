@@ -38,13 +38,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		SpouseHasProGear:    handlers.FmtBool(spouseHasProGear),
 		IssueDate:           handlers.FmtDate(issueDate),
 		ReportByDate:        handlers.FmtDate(reportByDate),
-		OrdersType:          ordersType,
+		OrdersType:          internalmessages.NewOrdersType(ordersType),
 		NewDutyStationID:    handlers.FmtUUID(station.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
 		Tac:                 handlers.FmtString("E19A"),
 		Sac:                 handlers.FmtString("SacNumber"),
-		DepartmentIndicator: &deptIndicator,
+		DepartmentIndicator: internalmessages.NewDeptIndicator(deptIndicator),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
 	suite.Assertions.Len(okResponse.Payload.Moves, 1)
-	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	okResponse := response.(*ordersop.ShowOrdersOK)
 
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(order.OrdersType, *okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
 	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
 	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
@@ -156,17 +156,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersCreated{}, response)
 	okResponse := response.(*ordersop.UploadAmendedOrdersCreated)
 	suite.Assertions.NotNil(okResponse.Payload.ID.String()) // UploadPayload
-
-	/*
-		suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-		suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
-		suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
-		suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
-		suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
-		suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
-		suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
-		suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
-	*/
+	suite.Assertions.Equal("test.pdf", *okResponse.Payload.Filename)
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem

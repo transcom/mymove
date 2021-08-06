@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"errors"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
@@ -18,13 +20,15 @@ func payloadForGenericMoveDocumentModel(storer storage.FileStorer, moveDocument 
 		return nil, err
 	}
 
+	moveDocumentType := internalmessages.MoveDocumentType(moveDocument.MoveDocumentType)
+	status := internalmessages.MoveDocumentStatus(moveDocument.Status)
 	genericMoveDocumentPayload := internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(moveDocument.MoveID),
 		Document:         documentPayload,
 		Title:            &moveDocument.Title,
-		MoveDocumentType: internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
-		Status:           internalmessages.MoveDocumentStatus(moveDocument.Status),
+		MoveDocumentType: &moveDocumentType,
+		Status:           &status,
 		Notes:            moveDocument.Notes,
 	}
 
@@ -84,10 +88,13 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		ppmID = &id
 	}
 
+	if payload.MoveDocumentType == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: MoveDocumentType"))
+	}
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.DB(),
 		userUploads,
 		ppmID,
-		models.MoveDocumentType(payload.MoveDocumentType),
+		models.MoveDocumentType(*payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes,
 		*move.SelectedMoveType)

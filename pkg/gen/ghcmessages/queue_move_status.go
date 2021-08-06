@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model QueueMoveStatus
 type QueueMoveStatus string
+
+func NewQueueMoveStatus(value QueueMoveStatus) *QueueMoveStatus {
+	v := value
+	return &v
+}
 
 const (
 
@@ -62,5 +68,10 @@ func (m QueueMoveStatus) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this queue move status based on context it is used
+func (m QueueMoveStatus) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

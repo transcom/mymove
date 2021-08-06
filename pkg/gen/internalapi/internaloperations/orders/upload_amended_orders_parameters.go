@@ -17,8 +17,16 @@ import (
 	"github.com/go-openapi/validate"
 )
 
+// UploadAmendedOrdersMaxParseMemory sets the maximum size in bytes for
+// the multipart form parser for this operation.
+//
+// The default value is 32 MB.
+// The multipart parser stores up to this + 10MB.
+var UploadAmendedOrdersMaxParseMemory int64 = 32 << 20
+
 // NewUploadAmendedOrdersParams creates a new UploadAmendedOrdersParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUploadAmendedOrdersParams() UploadAmendedOrdersParams {
 
 	return UploadAmendedOrdersParams{}
@@ -54,7 +62,7 @@ func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 
 	o.HTTPRequest = r
 
-	if err := r.ParseMultipartForm(32 << 20); err != nil {
+	if err := r.ParseMultipartForm(UploadAmendedOrdersMaxParseMemory); err != nil {
 		if err != http.ErrNotMultipart {
 			return errors.New(400, "%v", err)
 		} else if err := r.ParseForm(); err != nil {
@@ -76,7 +84,6 @@ func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 	if err := o.bindOrdersID(rOrdersID, rhkOrdersID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

@@ -4,9 +4,10 @@ import * as PropTypes from 'prop-types';
 import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types';
 import { ShipmentShape } from 'types/shipment';
-import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
+import ImportantShipmentDates from 'components/Office/ImportantShipmentDates/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 
 const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handleDivertShipment }) => {
   const {
@@ -16,6 +17,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
     destinationAddress,
     primeEstimatedWeight,
     primeActualWeight,
+    counselorRemarks,
+    customerRemarks,
   } = shipment;
   const { originDutyStationAddress, destinationDutyStationAddress } = dutyStationAddresses;
 
@@ -34,6 +37,8 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
         handleDivertShipment={handleDivertShipment}
       />
       <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
+      {counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={counselorRemarks} />}
+      {customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={customerRemarks} />}
     </div>
   );
 };

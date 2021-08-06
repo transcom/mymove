@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetTSPPParams creates a new GetTSPPParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetTSPPParams() GetTSPPParams {
 
 	return GetTSPPParams{}
@@ -50,7 +51,6 @@ func (o *GetTSPPParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 	if err := o.bindTsppID(rTsppID, rhkTsppID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

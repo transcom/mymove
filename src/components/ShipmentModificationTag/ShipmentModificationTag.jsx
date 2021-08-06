@@ -11,7 +11,10 @@ const ShipmentModificationTag = ({ shipmentModificationType }) => (
 );
 
 ShipmentModificationTag.propTypes = {
-  shipmentModificationType: PropTypes.oneOf(Object.keys(shipmentModificationTypes)).isRequired,
+  shipmentModificationType: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.oneOf(Object.keys(shipmentModificationTypes)),
+  ]).isRequired,
 };
 
 export default ShipmentModificationTag;

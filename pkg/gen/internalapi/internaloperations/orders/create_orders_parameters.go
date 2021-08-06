@@ -6,18 +6,21 @@ package orders
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateOrdersParams creates a new CreateOrdersParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewCreateOrdersParams() CreateOrdersParams {
 
 	return CreateOrdersParams{}
@@ -60,6 +63,11 @@ func (o *CreateOrdersParams) BindRequest(r *http.Request, route *middleware.Matc
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
 				res = append(res, err)
 			}
 

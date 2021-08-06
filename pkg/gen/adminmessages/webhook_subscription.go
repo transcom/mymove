@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -32,6 +34,7 @@ type WebhookSubscription struct {
 	EventKey *string `json:"eventKey,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -44,6 +47,7 @@ type WebhookSubscription struct {
 	Status *WebhookSubscriptionStatus `json:"status,omitempty"`
 
 	// Unique identifier for the subscriber
+	// Example: d494f114-05a2-4b39-840c-3d33243b7e29
 	// Format: uuid
 	SubscriberID *strfmt.UUID `json:"subscriberId,omitempty"`
 
@@ -87,7 +91,6 @@ func (m *WebhookSubscription) Validate(formats strfmt.Registry) error {
 }
 
 func (m *WebhookSubscription) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -100,7 +103,6 @@ func (m *WebhookSubscription) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *WebhookSubscription) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -113,12 +115,11 @@ func (m *WebhookSubscription) validateID(formats strfmt.Registry) error {
 }
 
 func (m *WebhookSubscription) validateSeverity(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Severity) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("severity", "body", int64(*m.Severity), 0, false); err != nil {
+	if err := validate.MinimumInt("severity", "body", *m.Severity, 0, false); err != nil {
 		return err
 	}
 
@@ -126,7 +127,6 @@ func (m *WebhookSubscription) validateSeverity(formats strfmt.Registry) error {
 }
 
 func (m *WebhookSubscription) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -144,7 +144,6 @@ func (m *WebhookSubscription) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *WebhookSubscription) validateSubscriberID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SubscriberID) { // not required
 		return nil
 	}
@@ -157,13 +156,66 @@ func (m *WebhookSubscription) validateSubscriberID(formats strfmt.Registry) erro
 }
 
 func (m *WebhookSubscription) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this webhook subscription based on the context it is used
+func (m *WebhookSubscription) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *WebhookSubscription) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookSubscription) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WebhookSubscription) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
+		}
 	}
 
 	return nil

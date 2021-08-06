@@ -6,6 +6,7 @@ package mto_service_item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateMTOServiceItemStatusParams creates a new UpdateMTOServiceItemStatusParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMTOServiceItemStatusParams() UpdateMTOServiceItemStatusParams {
 
 	return UpdateMTOServiceItemStatusParams{}
@@ -80,6 +82,11 @@ func (o *UpdateMTOServiceItemStatusParams) BindRequest(r *http.Request, route *m
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -87,11 +94,11 @@ func (o *UpdateMTOServiceItemStatusParams) BindRequest(r *http.Request, route *m
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMtoServiceItemID, rhkMtoServiceItemID, _ := route.Params.GetOK("mtoServiceItemID")
 	if err := o.bindMtoServiceItemID(rMtoServiceItemID, rhkMtoServiceItemID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -113,7 +120,6 @@ func (o *UpdateMTOServiceItemStatusParams) bindIfMatch(rawData []string, hasKey 
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -128,7 +134,6 @@ func (o *UpdateMTOServiceItemStatusParams) bindMtoServiceItemID(rawData []string
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MtoServiceItemID = raw
 
 	return nil

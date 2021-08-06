@@ -9,6 +9,8 @@ export default {
 const shipment = {
   requestedPickupDate: '2021-06-01',
   scheduledPickupDate: '2021-06-03',
+  customerRemarks: 'Please treat gently.',
+  counselorRemarks: 'This shipment is to be treated with care.',
   pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',

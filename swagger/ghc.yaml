@@ -2560,7 +2560,6 @@ definitions:
     type: string
     enum:
       - ActualPickupDate
-      - CanStandAlone
       - ContractCode
       - ContractYearName
       - CubicFeetBilled
@@ -2751,8 +2750,6 @@ definitions:
   UpdateShipment:
     type: object
     properties:
-      status:
-        $ref: '#/definitions/MTOShipmentStatus'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       requestedPickupDate:
@@ -2933,6 +2930,10 @@ definitions:
         x-nullable: true
       pickupPostalCode:
         type: string
+      SITPostalCode:
+        type: string
+        readOnly: true
+        x-nullable: true
       feeType:
         enum:
           - COUNSELING
@@ -2956,6 +2957,12 @@ definitions:
       total:
         format: cents
         type: integer
+      estimatedWeight:
+        type: integer
+        description: estimated weight of the shuttle service item provided by the prime
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string

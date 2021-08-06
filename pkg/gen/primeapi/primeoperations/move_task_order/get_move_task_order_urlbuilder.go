@@ -14,7 +14,7 @@ import (
 
 // GetMoveTaskOrderURL generates an URL for the get move task order operation
 type GetMoveTaskOrderURL struct {
-	MoveTaskOrderID string
+	MoveID string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -40,13 +40,13 @@ func (o *GetMoveTaskOrderURL) SetBasePath(bp string) {
 func (o *GetMoveTaskOrderURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}"
+	var _path = "/move-task-orders/{moveID}"
 
-	moveTaskOrderID := o.MoveTaskOrderID
-	if moveTaskOrderID != "" {
-		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
+	moveID := o.MoveID
+	if moveID != "" {
+		_path = strings.Replace(_path, "{moveID}", moveID, -1)
 	} else {
-		return nil, errors.New("moveTaskOrderId is required on GetMoveTaskOrderURL")
+		return nil, errors.New("moveId is required on GetMoveTaskOrderURL")
 	}
 
 	_basePath := o._basePath

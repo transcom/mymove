@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, queryByTestId } from '@testing-library/react';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
@@ -42,14 +42,12 @@ const basicUseTXOMoveInfoQueriesValue = {
 };
 
 const loadingReturnValue = {
-  ...basicUseTXOMoveInfoQueriesValue,
   isLoading: true,
   isError: false,
   isSuccess: false,
 };
 
 const errorReturnValue = {
-  ...basicUseTXOMoveInfoQueriesValue,
   isLoading: false,
   isError: true,
   isSuccess: false,
@@ -60,12 +58,8 @@ const updatedOrdersUseTXOMoveInfoQueriesValue = {
   order: { ...basicUseTXOMoveInfoQueriesValue.order, uploadedAmendedOrderID: '123' },
 };
 
-afterEach(() => {
-  jest.clearAllMocks();
-});
-
 describe('TXO Move Info Container', () => {
-  describe('check different component states', () => {
+  describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useTXOMoveInfoQueries.mockReturnValue(loadingReturnValue);
 
@@ -117,6 +111,37 @@ describe('TXO Move Info Container', () => {
       expect(wrapper.find('li.tabItem a').at(1).prop('href')).toEqual(`/moves/${testMoveCode}/mto`);
       expect(wrapper.find('li.tabItem a').at(2).prop('href')).toEqual(`/moves/${testMoveCode}/payment-requests`);
       expect(wrapper.find('li.tabItem a').at(3).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
+    });
+    it('should render the system error when there is an error', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+
+      render(
+        <MockProviders
+          initialState={{ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
+          initialEntries={[`/moves/${testMoveCode}/details`]}
+        >
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+      expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
+        'href',
+        'https://move.mil/customer-service#technical-help-desk',
+      );
+      expect(screen.getByTestId('system-error').textContent).toEqual(
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+      );
+    });
+    it('should not render system error when there is not an error', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+      render(
+        <MockProviders
+          initialState={{ interceptor: { hasRecentError: false, traceId: '' } }}
+          initialEntries={[`/moves/${testMoveCode}/details`]}
+        >
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+      expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
     });
   });
 

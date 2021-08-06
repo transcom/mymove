@@ -13,7 +13,8 @@ import (
 )
 
 // NewIndexTSPsParams creates a new IndexTSPsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewIndexTSPsParams() IndexTSPsParams {
 
 	return IndexTSPsParams{}

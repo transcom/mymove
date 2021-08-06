@@ -6,6 +6,7 @@ package users
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateUserParams creates a new UpdateUserParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateUserParams() UpdateUserParams {
 
 	return UpdateUserParams{}
@@ -70,6 +72,11 @@ func (o *UpdateUserParams) BindRequest(r *http.Request, route *middleware.Matche
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.User = &body
 			}
@@ -77,11 +84,11 @@ func (o *UpdateUserParams) BindRequest(r *http.Request, route *middleware.Matche
 	} else {
 		res = append(res, errors.Required("user", "body", ""))
 	}
+
 	rUserID, rhkUserID, _ := route.Params.GetOK("userId")
 	if err := o.bindUserID(rUserID, rhkUserID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

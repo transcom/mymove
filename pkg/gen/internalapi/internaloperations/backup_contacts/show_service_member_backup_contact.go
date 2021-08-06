@@ -29,7 +29,7 @@ func NewShowServiceMemberBackupContact(ctx *middleware.Context, handler ShowServ
 	return &ShowServiceMemberBackupContact{Context: ctx, Handler: handler}
 }
 
-/*ShowServiceMemberBackupContact swagger:route GET /backup_contacts/{backupContactId} backup_contacts showServiceMemberBackupContact
+/* ShowServiceMemberBackupContact swagger:route GET /backup_contacts/{backupContactId} backup_contacts showServiceMemberBackupContact
 
 Returns the given service member backup contact
 
@@ -44,17 +44,15 @@ type ShowServiceMemberBackupContact struct {
 func (o *ShowServiceMemberBackupContact) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowServiceMemberBackupContactParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

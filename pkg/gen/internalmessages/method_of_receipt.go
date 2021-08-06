@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model MethodOfReceipt
 type MethodOfReceipt string
+
+func NewMethodOfReceipt(value MethodOfReceipt) *MethodOfReceipt {
+	v := value
+	return &v
+}
 
 const (
 
@@ -62,5 +68,10 @@ func (m MethodOfReceipt) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this method of receipt based on context it is used
+func (m MethodOfReceipt) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,15 +21,18 @@ import (
 type Address struct {
 
 	// City
+	// Example: Anytown
 	// Required: true
 	City *string `json:"city"`
 
 	// Country
+	// Example: USA
 	Country *string `json:"country,omitempty"`
 
 	// ZIP
 	//
 	// zip code, international allowed
+	// Example: '90210' or 'N15 3NL'
 	// Required: true
 	PostalCode *string `json:"postalCode"`
 
@@ -38,13 +42,16 @@ type Address struct {
 	State *string `json:"state"`
 
 	// Address line 1
+	// Example: 123 Main Ave
 	// Required: true
 	StreetAddress1 *string `json:"streetAddress1"`
 
 	// Address line 2
+	// Example: Apartment 9000
 	StreetAddress2 *string `json:"streetAddress2,omitempty"`
 
 	// Address line 3
+	// Example: Montmârtre
 	StreetAddress3 *string `json:"streetAddress3,omitempty"`
 }
 
@@ -288,6 +295,11 @@ func (m *Address) validateStreetAddress1(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this address based on context it is used
+func (m *Address) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

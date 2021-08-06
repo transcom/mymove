@@ -15,7 +15,8 @@ import (
 )
 
 // NewApproveShipmentDiversionParams creates a new ApproveShipmentDiversionParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewApproveShipmentDiversionParams() ApproveShipmentDiversionParams {
 
 	return ApproveShipmentDiversionParams{}
@@ -59,7 +60,6 @@ func (o *ApproveShipmentDiversionParams) BindRequest(r *http.Request, route *mid
 	if err := o.bindShipmentID(rShipmentID, rhkShipmentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -81,7 +81,6 @@ func (o *ApproveShipmentDiversionParams) bindIfMatch(rawData []string, hasKey bo
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -33,6 +35,7 @@ type MTOShipment struct {
 	//
 	// Counselors enters this information when creating or editing an MTO Shipment. Optional field.
 	//
+	// Example: handle with care
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 	// created at
@@ -40,6 +43,7 @@ type MTOShipment struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
+	// Example: handle with care
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// deleted at
@@ -50,16 +54,19 @@ type MTOShipment struct {
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// diversion
+	// Example: true
 	Diversion bool `json:"diversion,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move task order ID
+	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
@@ -73,12 +80,15 @@ type MTOShipment struct {
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// prime actual weight
+	// Example: 2000
 	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
 	// prime estimated weight
+	// Example: 2000
 	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// rejection reason
+	// Example: MTO Shipment not good enough
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// requested delivery date
@@ -190,7 +200,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ActualPickupDate) { // not required
 		return nil
 	}
@@ -203,7 +212,6 @@ func (m *MTOShipment) validateActualPickupDate(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ApprovedDate) { // not required
 		return nil
 	}
@@ -216,7 +224,6 @@ func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
@@ -229,7 +236,6 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateDeletedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DeletedAt) { // not required
 		return nil
 	}
@@ -242,7 +248,6 @@ func (m *MTOShipment) validateDeletedAt(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
 	}
@@ -260,7 +265,6 @@ func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error 
 }
 
 func (m *MTOShipment) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -273,7 +277,6 @@ func (m *MTOShipment) validateID(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
@@ -286,7 +289,6 @@ func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateMtoAgents(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoAgents) { // not required
 		return nil
 	}
@@ -302,7 +304,6 @@ func (m *MTOShipment) validateMtoAgents(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MtoServiceItems) { // not required
 		return nil
 	}
@@ -318,7 +319,6 @@ func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PickupAddress) { // not required
 		return nil
 	}
@@ -336,7 +336,6 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateRequestedDeliveryDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedDeliveryDate) { // not required
 		return nil
 	}
@@ -349,7 +348,6 @@ func (m *MTOShipment) validateRequestedDeliveryDate(formats strfmt.Registry) err
 }
 
 func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedPickupDate) { // not required
 		return nil
 	}
@@ -362,7 +360,6 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 }
 
 func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ScheduledPickupDate) { // not required
 		return nil
 	}
@@ -375,7 +372,6 @@ func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error
 }
 
 func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
 	}
@@ -393,7 +389,6 @@ func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) 
 }
 
 func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SecondaryPickupAddress) { // not required
 		return nil
 	}
@@ -411,7 +406,6 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 }
 
 func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -427,12 +421,141 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this m t o shipment based on the context it is used
+func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoAgents(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *MTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateMtoAgents(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MtoAgents.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoAgents")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateMtoServiceItems(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MtoServiceItems.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mtoServiceItems")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.PickupAddress != nil {
+		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Status.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

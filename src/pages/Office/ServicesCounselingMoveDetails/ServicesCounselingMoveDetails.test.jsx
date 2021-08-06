@@ -216,311 +216,349 @@ const mockedComponent = (
   </MockProviders>
 );
 
+const loadingReturnValue = {
+  ...newMoveDetailsQuery,
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  ...newMoveDetailsQuery,
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
 describe('MoveDetails page', () => {
-  it('renders the h1', async () => {
-    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
-    render(mockedComponent);
+      render(mockedComponent);
 
-    expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
+
+      render(mockedComponent);
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
   });
 
-  /* eslint-disable camelcase */
-  it('renders shipments info', async () => {
-    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+  describe('Basic rendering', () => {
+    it('renders the h1', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-    render(mockedComponent);
+      render(mockedComponent);
 
-    expect(await screen.findByRole('heading', { name: 'Shipments', level: 2 })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Move details', level: 1 })).toBeInTheDocument();
+    });
 
-    expect(screen.getAllByRole('heading', { name: 'HHG', level: 3 }).length).toBe(2);
+    /* eslint-disable camelcase */
+    it('renders shipments info', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
-    const moveDateTerms = screen.getAllByText('Requested move date');
+      render(mockedComponent);
 
-    expect(moveDateTerms.length).toBe(2);
+      expect(await screen.findByRole('heading', { name: 'Shipments', level: 2 })).toBeInTheDocument();
 
-    for (let i = 0; i < moveDateTerms.length; i += 1) {
-      expect(moveDateTerms[i].nextElementSibling.textContent).toBe(
-        formatDate(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
-      );
-    }
+      expect(screen.getAllByRole('heading', { name: 'HHG', level: 3 }).length).toBe(2);
 
-    const originAddressTerms = screen.getAllByText('Origin address');
+      const moveDateTerms = screen.getAllByText('Requested move date');
 
-    expect(originAddressTerms.length).toBe(2);
+      expect(moveDateTerms.length).toBe(2);
 
-    for (let i = 0; i < 2; i += 1) {
-      const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
+      for (let i = 0; i < moveDateTerms.length; i += 1) {
+        expect(moveDateTerms[i].nextElementSibling.textContent).toBe(
+          formatDate(newMoveDetailsQuery.mtoShipments[i].requestedPickupDate, 'DD MMM YYYY'),
+        );
+      }
 
-      const addressText = originAddressTerms[i].nextElementSibling.textContent;
+      const originAddressTerms = screen.getAllByText('Origin address');
+
+      expect(originAddressTerms.length).toBe(2);
+
+      for (let i = 0; i < 2; i += 1) {
+        const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
+
+        const addressText = originAddressTerms[i].nextElementSibling.textContent;
+
+        expect(addressText).toContain(street_address_1);
+        expect(addressText).toContain(city);
+        expect(addressText).toContain(state);
+        expect(addressText).toContain(postal_code);
+      }
+
+      const secondAddressTerms = screen.getAllByText('Second pickup address');
+
+      expect(secondAddressTerms.length).toBe(1);
+
+      for (let i = 0; i < 1; i += 1) {
+        const { street_address_1, city, state, postal_code } =
+          newMoveDetailsQuery.mtoShipments[i].secondaryPickupAddress;
+
+        const addressText = secondAddressTerms[0].nextElementSibling.textContent;
+
+        expect(addressText).toContain(street_address_1);
+        expect(addressText).toContain(city);
+        expect(addressText).toContain(state);
+        expect(addressText).toContain(postal_code);
+      }
+
+      const destinationAddressTerms = screen.getAllByText('Destination address');
+
+      expect(destinationAddressTerms.length).toBe(2);
+
+      for (let i = 0; i < destinationAddressTerms.length; i += 1) {
+        const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].destinationAddress;
+
+        const addressText = destinationAddressTerms[i].nextElementSibling.textContent;
+
+        expect(addressText).toContain(street_address_1);
+        expect(addressText).toContain(city);
+        expect(addressText).toContain(state);
+        expect(addressText).toContain(postal_code);
+      }
+
+      const secondDestinationAddressTerms = screen.getAllByText('Second destination address');
+
+      // This is not a required field, and only one of our shipments has it filled out:
+      expect(secondDestinationAddressTerms.length).toBe(1);
+
+      const { street_address_1, city, state, postal_code } =
+        newMoveDetailsQuery.mtoShipments[0].secondaryDeliveryAddress;
+      const addressText = secondDestinationAddressTerms[0].nextElementSibling.textContent;
 
       expect(addressText).toContain(street_address_1);
       expect(addressText).toContain(city);
       expect(addressText).toContain(state);
       expect(addressText).toContain(postal_code);
-    }
 
-    const secondAddressTerms = screen.getAllByText('Second pickup address');
+      const counselorRemarksTerms = screen.getAllByText('Counselor remarks');
 
-    expect(secondAddressTerms.length).toBe(1);
+      expect(counselorRemarksTerms.length).toBe(2);
 
-    for (let i = 0; i < 1; i += 1) {
-      const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].secondaryPickupAddress;
-
-      const addressText = secondAddressTerms[0].nextElementSibling.textContent;
-
-      expect(addressText).toContain(street_address_1);
-      expect(addressText).toContain(city);
-      expect(addressText).toContain(state);
-      expect(addressText).toContain(postal_code);
-    }
-
-    const destinationAddressTerms = screen.getAllByText('Destination address');
-
-    expect(destinationAddressTerms.length).toBe(2);
-
-    for (let i = 0; i < destinationAddressTerms.length; i += 1) {
-      const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[i].destinationAddress;
-
-      const addressText = destinationAddressTerms[i].nextElementSibling.textContent;
-
-      expect(addressText).toContain(street_address_1);
-      expect(addressText).toContain(city);
-      expect(addressText).toContain(state);
-      expect(addressText).toContain(postal_code);
-    }
-
-    const secondDestinationAddressTerms = screen.getAllByText('Second destination address');
-
-    // This is not a required field, and only one of our shipments has it filled out:
-    expect(secondDestinationAddressTerms.length).toBe(1);
-
-    const { street_address_1, city, state, postal_code } = newMoveDetailsQuery.mtoShipments[0].secondaryDeliveryAddress;
-    const addressText = secondDestinationAddressTerms[0].nextElementSibling.textContent;
-
-    expect(addressText).toContain(street_address_1);
-    expect(addressText).toContain(city);
-    expect(addressText).toContain(state);
-    expect(addressText).toContain(postal_code);
-
-    const counselorRemarksTerms = screen.getAllByText('Counselor remarks');
-
-    expect(counselorRemarksTerms.length).toBe(2);
-
-    for (let i = 0; i < counselorRemarksTerms.length; i += 1) {
-      expect(counselorRemarksTerms[i].nextElementSibling.textContent).toBe(
-        newMoveDetailsQuery.mtoShipments[i].counselorRemarks || '—',
-      );
-    }
-  });
-
-  it('renders shipments info even if destination address is missing', async () => {
-    const moveDetailsQuery = {
-      ...newMoveDetailsQuery,
-      mtoShipments: [
-        // Want to create a "new" mtoShipment to be able to delete things without messing up existing tests
-        { ...newMoveDetailsQuery.mtoShipments[0] },
-        newMoveDetailsQuery.mtoShipments[1],
-      ],
-    };
-
-    delete moveDetailsQuery.mtoShipments[0].destinationAddress;
-
-    useMoveDetailsQueries.mockImplementation(() => moveDetailsQuery);
-
-    render(mockedComponent);
-
-    const destinationAddressTerms = screen.getAllByText('Destination address');
-
-    expect(destinationAddressTerms.length).toBe(2);
-
-    expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
-      moveDetailsQuery.order.destinationDutyStation.address.postal_code,
-    );
-
-    const { street_address_1, city, state, postal_code } = moveDetailsQuery.mtoShipments[1].destinationAddress;
-
-    const addressText = destinationAddressTerms[1].nextElementSibling.textContent;
-
-    expect(addressText).toContain(street_address_1);
-    expect(addressText).toContain(city);
-    expect(addressText).toContain(state);
-    expect(addressText).toContain(postal_code);
-  });
-  /* eslint-enable camelcase */
-
-  it('renders customer info', async () => {
-    useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-    render(mockedComponent);
-
-    expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
-  });
-
-  it('renders customer edit alert', () => {
-    renderMockedComponent({ customerEditAlert: { alertType: 'success', message: 'great success!' } });
-    expect(screen.getByText('great success!')).toBeInTheDocument();
-  });
-
-  describe('new move - needs service counseling', () => {
-    it('submit move details button is on page', async () => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-      render(mockedComponent);
-
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
-    });
-
-    it('submit move details button is disabled when there are no shipments', async () => {
-      useMoveDetailsQueries.mockImplementation(() => ({ ...newMoveDetailsQuery, mtoShipments: [] }));
-
-      render(mockedComponent);
-
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
-    });
-
-    it('submit move details button is disabled when all shipments are deleted', async () => {
-      const deletedMtoShipments = mtoShipments.map((shipment) => ({ ...shipment, deletedAt: new Date() }));
-      useMoveDetailsQueries.mockImplementation(() => ({
-        ...newMoveDetailsQuery,
-        mtoShipments: deletedMtoShipments,
-      }));
-
-      render(mockedComponent);
-
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
-    });
-
-    it('submit move details button is not disabled when some shipments are deleted', async () => {
-      const deletedMtoShipments = mtoShipments.map((shipment, index) => {
-        if (index > 0) {
-          return { ...shipment, deletedAt: new Date() };
-        }
-        return shipment;
-      });
-      useMoveDetailsQueries.mockImplementation(() => ({
-        ...newMoveDetailsQuery,
-        mtoShipments: deletedMtoShipments,
-      }));
-
-      render(mockedComponent);
-
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeDisabled();
-    });
-
-    it('renders the Orders Definition List', async () => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-      render(mockedComponent);
-
-      expect(await screen.findByRole('heading', { name: 'Orders', level: 2 })).toBeInTheDocument();
-      expect(screen.getByText('Current duty station')).toBeInTheDocument();
-    });
-
-    it('renders the Allowances Table', async () => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-      render(mockedComponent);
-
-      expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
-      expect(screen.getByText('Branch, rank')).toBeInTheDocument();
-    });
-
-    it('allows the service counselor to use the modal as expected', async () => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-      render(mockedComponent);
-
-      const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
-
-      userEvent.click(submitButton);
-
-      expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 }));
-
-      const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
-
-      userEvent.click(modalSubmitButton);
-
-      expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 }));
-    });
-
-    it.each([
-      ['Add a new shipment', servicesCounselingRoutes.SHIPMENT_ADD_PATH],
-      ['View and edit orders', servicesCounselingRoutes.ORDERS_EDIT_PATH],
-      ['Edit allowances', servicesCounselingRoutes.ALLOWANCES_EDIT_PATH],
-      ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
-    ])('shows the "%s" link as expected: %s', async (linkText, route) => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-      const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
-
-      const link = await screen.findByRole('link', { name: linkText });
-
-      expect(link).toBeInTheDocument();
-
-      userEvent.click(link);
-
-      const path = generatePath(route, {
-        moveCode: mockRequestedMoveCode,
-      });
-
-      await waitFor(() => {
-        expect(history.location.pathname).toEqual(path);
-      });
-    });
-
-    it('shows the edit shipment buttons', async () => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
-
-      render(mockedComponent);
-
-      const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
-
-      expect(shipmentEditButtons.length).toBe(2);
-
-      for (let i = 0; i < shipmentEditButtons.length; i += 1) {
-        expect(shipmentEditButtons[i].getAttribute('data-testid')).toBe(
-          generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
-            moveCode: mockRequestedMoveCode,
-            shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
-          }),
+      for (let i = 0; i < counselorRemarksTerms.length; i += 1) {
+        expect(counselorRemarksTerms[i].nextElementSibling.textContent).toBe(
+          newMoveDetailsQuery.mtoShipments[i].counselorRemarks || '—',
         );
       }
     });
 
-    it('shows the customer and counselor remarks', async () => {
-      useMoveDetailsQueries.mockImplementation(() => newMoveDetailsQuery);
+    it('renders shipments info even if destination address is missing', async () => {
+      const moveDetailsQuery = {
+        ...newMoveDetailsQuery,
+        mtoShipments: [
+          // Want to create a "new" mtoShipment to be able to delete things without messing up existing tests
+          { ...newMoveDetailsQuery.mtoShipments[0] },
+          newMoveDetailsQuery.mtoShipments[1],
+        ],
+      };
+
+      delete moveDetailsQuery.mtoShipments[0].destinationAddress;
+
+      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
 
       render(mockedComponent);
 
-      const customerRemarks1 = await screen.findByText('please treat gently');
-      const customerRemarks2 = await screen.findByText('do not drop!');
+      const destinationAddressTerms = screen.getAllByText('Destination address');
 
-      const counselorRemarks1 = await screen.findByText('all good');
-      const counselorRemarks2 = await screen.findByText('looks good');
+      expect(destinationAddressTerms.length).toBe(2);
 
-      expect(customerRemarks1).toBeInTheDocument();
-      expect(customerRemarks2).toBeInTheDocument();
-      expect(counselorRemarks1).toBeInTheDocument();
-      expect(counselorRemarks2).toBeInTheDocument();
+      expect(destinationAddressTerms[0].nextElementSibling.textContent).toBe(
+        moveDetailsQuery.order.destinationDutyStation.address.postal_code,
+      );
+
+      const { street_address_1, city, state, postal_code } = moveDetailsQuery.mtoShipments[1].destinationAddress;
+
+      const addressText = destinationAddressTerms[1].nextElementSibling.textContent;
+
+      expect(addressText).toContain(street_address_1);
+      expect(addressText).toContain(city);
+      expect(addressText).toContain(state);
+      expect(addressText).toContain(postal_code);
     });
-  });
+    /* eslint-enable camelcase */
 
-  describe('service counseling completed', () => {
-    it('hides submit and view/edit buttons/links', async () => {
-      useMoveDetailsQueries.mockImplementation(() => counselingCompletedMoveDetailsQuery);
+    it('renders customer info', async () => {
+      useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
 
       render(mockedComponent);
 
-      expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: 'Add a new shipment' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+      expect(await screen.findByRole('heading', { name: 'Customer info', level: 2 })).toBeInTheDocument();
+    });
+
+    it('renders customer edit alert', () => {
+      renderMockedComponent({ customerEditAlert: { alertType: 'success', message: 'great success!' } });
+      expect(screen.getByText('great success!')).toBeInTheDocument();
+    });
+
+    describe('new move - needs service counseling', () => {
+      it('submit move details button is on page', async () => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+      });
+
+      it('submit move details button is disabled when there are no shipments', async () => {
+        useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, mtoShipments: [] });
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+      });
+
+      it('submit move details button is disabled when all shipments are deleted', async () => {
+        const deletedMtoShipments = mtoShipments.map((shipment) => ({ ...shipment, deletedAt: new Date() }));
+        useMoveDetailsQueries.mockReturnValue({
+          ...newMoveDetailsQuery,
+          mtoShipments: deletedMtoShipments,
+        });
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeDisabled();
+      });
+
+      it('submit move details button is not disabled when some shipments are deleted', async () => {
+        const deletedMtoShipments = mtoShipments.map((shipment, index) => {
+          if (index > 0) {
+            return { ...shipment, deletedAt: new Date() };
+          }
+          return shipment;
+        });
+        useMoveDetailsQueries.mockReturnValue({
+          ...newMoveDetailsQuery,
+          mtoShipments: deletedMtoShipments,
+        });
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).toBeInTheDocument();
+        expect(await screen.findByRole('button', { name: 'Submit move details' })).not.toBeDisabled();
+      });
+
+      it('renders the Orders Definition List', async () => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('heading', { name: 'Orders', level: 2 })).toBeInTheDocument();
+        expect(screen.getByText('Current duty station')).toBeInTheDocument();
+      });
+
+      it('renders the Allowances Table', async () => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(await screen.findByRole('heading', { name: 'Allowances', level: 2 })).toBeInTheDocument();
+        expect(screen.getByText('Branch, rank')).toBeInTheDocument();
+      });
+
+      it('allows the service counselor to use the modal as expected', async () => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+        userEvent.click(submitButton);
+
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 }));
+
+        const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+        userEvent.click(modalSubmitButton);
+
+        expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 }));
+      });
+
+      it.each([
+        ['Add a new shipment', servicesCounselingRoutes.SHIPMENT_ADD_PATH],
+        ['View and edit orders', servicesCounselingRoutes.ORDERS_EDIT_PATH],
+        ['Edit allowances', servicesCounselingRoutes.ALLOWANCES_EDIT_PATH],
+        ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
+      ])('shows the "%s" link as expected: %s', async (linkText, route) => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        const { history } = renderWithRouter(<ServicesCounselingMoveDetails />, { route: detailsURL });
+
+        const link = await screen.findByRole('link', { name: linkText });
+
+        expect(link).toBeInTheDocument();
+
+        userEvent.click(link);
+
+        const path = generatePath(route, {
+          moveCode: mockRequestedMoveCode,
+        });
+
+        await waitFor(() => {
+          expect(history.location.pathname).toEqual(path);
+        });
+      });
+
+      it('shows the edit shipment buttons', async () => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        const shipmentEditButtons = await screen.findAllByRole('button', { name: 'Edit shipment' });
+
+        expect(shipmentEditButtons.length).toBe(2);
+
+        for (let i = 0; i < shipmentEditButtons.length; i += 1) {
+          expect(shipmentEditButtons[i].getAttribute('data-testid')).toBe(
+            generatePath(servicesCounselingRoutes.SHIPMENT_EDIT_PATH, {
+              moveCode: mockRequestedMoveCode,
+              shipmentId: newMoveDetailsQuery.mtoShipments[i].id,
+            }),
+          );
+        }
+      });
+
+      it('shows the customer and counselor remarks', async () => {
+        useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        const customerRemarks1 = await screen.findByText('please treat gently');
+        const customerRemarks2 = await screen.findByText('do not drop!');
+
+        const counselorRemarks1 = await screen.findByText('all good');
+        const counselorRemarks2 = await screen.findByText('looks good');
+
+        expect(customerRemarks1).toBeInTheDocument();
+        expect(customerRemarks2).toBeInTheDocument();
+        expect(counselorRemarks1).toBeInTheDocument();
+        expect(counselorRemarks2).toBeInTheDocument();
+      });
+    });
+
+    describe('service counseling completed', () => {
+      it('hides submit and view/edit buttons/links', async () => {
+        useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQuery);
+
+        render(mockedComponent);
+
+        expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Add a new shipment' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
+      });
     });
   });
 });

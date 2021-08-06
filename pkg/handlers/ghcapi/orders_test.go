@@ -235,7 +235,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			DepartmentIndicator:   &deptIndicator,
 			IssueDate:             handlers.FmtDatePtr(&issueDate),
 			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
-			OrdersType:            "RETIREMENT",
+			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
@@ -276,7 +276,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
-		suite.Equal(body.OrdersType, ordersPayload.OrderType)
+		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 		suite.Equal(body.OrdersTypeDetail, ordersPayload.OrderTypeDetail)
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			DepartmentIndicator:   &deptIndicator,
 			IssueDate:             handlers.FmtDatePtr(&issueDate),
 			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
-			OrdersType:            "RETIREMENT",
+			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
@@ -368,7 +368,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 			DepartmentIndicator:   &deptIndicator,
 			IssueDate:             handlers.FmtDatePtr(&issueDate),
 			ReportByDate:          handlers.FmtDatePtr(&reportByDate),
-			OrdersType:            "RETIREMENT",
+			OrdersType:            ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 			OrdersTypeDetail:      &ordersTypeDetail,
 			OrdersNumber:          handlers.FmtString("ORDER100"),
 			NewDutyStationID:      handlers.FmtUUID(destinationDutyStation.ID),
@@ -430,7 +430,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 		DepartmentIndicator: &deptIndicator,
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          "RETIREMENT",
+		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 		OrdersTypeDetail:    &ordersTypeDetail,
 		OrdersNumber:        handlers.FmtString("ORDER100"),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
@@ -481,7 +481,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
-		suite.Equal(body.OrdersType, ordersPayload.OrderType)
+		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 		suite.Equal(body.OrdersTypeDetail, ordersPayload.OrderTypeDetail)
 		suite.Equal(body.OrdersNumber, ordersPayload.OrderNumber)
 		suite.Equal(body.DepartmentIndicator, ordersPayload.DepartmentIndicator)
@@ -705,7 +705,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 	subtestData.body = &ghcmessages.CounselingUpdateOrderPayload{
 		IssueDate:           handlers.FmtDatePtr(&issueDate),
 		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
-		OrdersType:          "RETIREMENT",
+		OrdersType:          ghcmessages.NewOrdersType(ghcmessages.OrdersTypeRETIREMENT),
 		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
 		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
 	}
@@ -750,7 +750,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.Equal(body.OriginDutyStationID.String(), ordersPayload.OriginDutyStation.ID.String())
 		suite.Equal(*body.IssueDate, ordersPayload.DateIssued)
 		suite.Equal(*body.ReportByDate, ordersPayload.ReportByDate)
-		suite.Equal(body.OrdersType, ordersPayload.OrderType)
+		suite.Equal(*body.OrdersType, ordersPayload.OrderType)
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {

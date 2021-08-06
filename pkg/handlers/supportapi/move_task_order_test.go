@@ -241,12 +241,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	deptIndicator := supportmessages.DeptIndicatorAIRFORCE
 	selectedMoveType := supportmessages.SelectedMoveTypeHHG
 
+	rank := (supportmessages.Rank)("E_6")
 	mtoPayload := &supportmessages.MoveTaskOrder{
 		PpmType:          "FULL",
 		SelectedMoveType: &selectedMoveType,
 		ContractorID:     handlers.FmtUUID(contractor.ID),
 		Order: &supportmessages.Order{
-			Rank:                     (supportmessages.Rank)("E_6"),
+			Rank:                     &rank,
 			OrderNumber:              swag.String("4554"),
 			DestinationDutyStationID: handlers.FmtUUID(destinationDutyStation.ID),
 			OriginDutyStationID:      handlers.FmtUUID(originDutyStation.ID),
@@ -257,10 +258,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			},
 			IssueDate:           handlers.FmtDatePtr(issueDate),
 			ReportByDate:        handlers.FmtDatePtr(reportByDate),
-			OrdersType:          "PERMANENT_CHANGE_OF_STATION",
+			OrdersType:          supportmessages.NewOrdersType("PERMANENT_CHANGE_OF_STATION"),
 			OrdersTypeDetail:    &ordersTypedetail,
 			UploadedOrdersID:    handlers.FmtUUID(document.ID),
-			Status:              (supportmessages.OrdersStatus)(models.OrderStatusDRAFT),
+			Status:              supportmessages.NewOrdersStatus(supportmessages.OrdersStatusDRAFT),
 			Tac:                 swag.String("E19A"),
 			DepartmentIndicator: &deptIndicator,
 		},
@@ -326,7 +327,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// We have to set the status for the orders to APPROVED and the move to SUBMITTED so that we can try to approve
 		// this move later on. We can't approve a DRAFT move.
 		integrationMTO.Status = supportmessages.MoveStatusSUBMITTED
-		integrationMTO.Order.Status = supportmessages.OrdersStatusAPPROVED
+		integrationMTO.Order.Status = supportmessages.NewOrdersStatus(supportmessages.OrdersStatusAPPROVED)
 
 		// We only provide an existing customerID not the whole object.
 		// We expect the handler to link the correct objects
@@ -432,7 +433,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			LastName:  swag.String("Griffin"),
 			Agency:    swag.String("Marines"),
 			DodID:     swag.String("1209457894"),
-			Rank:      (supportmessages.Rank)("ACADEMY_CADET"),
+			Rank:      supportmessages.NewRank("ACADEMY_CADET"),
 		}
 		mtoPayload.Order.CustomerID = nil
 

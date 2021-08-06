@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookup() {
+func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShipment() {
 	key := models.ServiceItemParamNameWeightActual
 
 	suite.T().Run("actual weight is present on MTO Shipment", func(t *testing.T) {
@@ -31,6 +31,33 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookup() {
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find actual weight for MTOShipmentID [%s]", mtoShipment.ID)
+		suite.Contains(err.Error(), expected)
+		suite.Equal("", valueStr)
+	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShuttling() {
+	key := models.ServiceItemParamNameWeightActual
+
+	suite.T().Run("actual weight is present on MTO Shipment", func(t *testing.T) {
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
+		valueStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		suite.Equal("1234", valueStr)
+	})
+
+	suite.T().Run("nil ActualWeight", func(t *testing.T) {
+		// Set the actual weight to nil
+		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
+		mtoServiceItem.ActualWeight = nil
+		suite.MustSave(&mtoServiceItem)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		valueStr, err := paramLookup.ServiceParamValue(key)
+		suite.Error(err)
+		expected := fmt.Sprintf("could not find actual weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})

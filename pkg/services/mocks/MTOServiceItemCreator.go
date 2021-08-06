@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	pop "github.com/gobuffalo/pop/v5"
+
 	validate "github.com/gobuffalo/validate/v3"
 )
 
@@ -44,4 +46,9 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOSer
 	}
 
 	return r0, r1, r2
+}
+
+// SetConnection provides a mock function with given fields: db
+func (_m *MTOServiceItemCreator) SetConnection(db *pop.Connection) {
+	_m.Called(db)
 }

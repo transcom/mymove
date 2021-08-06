@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -22,6 +24,7 @@ type DutyStationPayload struct {
 	Address *Address `json:"address"`
 
 	// address id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	AddressID *strfmt.UUID `json:"address_id"`
@@ -36,11 +39,13 @@ type DutyStationPayload struct {
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
 	// name
+	// Example: Fort Bragg North Station
 	// Required: true
 	Name *string `json:"name"`
 
@@ -132,6 +137,10 @@ func (m *DutyStationPayload) validateAffiliation(formats strfmt.Registry) error 
 		return err
 	}
 
+	if err := validate.Required("affiliation", "body", m.Affiliation); err != nil {
+		return err
+	}
+
 	if m.Affiliation != nil {
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -180,7 +189,6 @@ func (m *DutyStationPayload) validateName(formats strfmt.Registry) error {
 }
 
 func (m *DutyStationPayload) validateTransportationOffice(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.TransportationOffice) { // not required
 		return nil
 	}
@@ -205,6 +213,70 @@ func (m *DutyStationPayload) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this duty station payload based on the context it is used
+func (m *DutyStationPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTransportationOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *DutyStationPayload) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Address != nil {
+		if err := m.Address.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *DutyStationPayload) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Affiliation != nil {
+		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("affiliation")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *DutyStationPayload) contextValidateTransportationOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TransportationOffice != nil {
+		if err := m.TransportationOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("transportation_office")
+			}
+			return err
+		}
 	}
 
 	return nil

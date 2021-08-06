@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -35,6 +37,7 @@ type SignedCertificationPayload struct {
 	Date *strfmt.DateTime `json:"date"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -114,7 +117,6 @@ func (m *SignedCertificationPayload) validateCertificationText(formats strfmt.Re
 }
 
 func (m *SignedCertificationPayload) validateCertificationType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CertificationType) { // not required
 		return nil
 	}
@@ -184,7 +186,6 @@ func (m *SignedCertificationPayload) validateMoveID(formats strfmt.Registry) err
 }
 
 func (m *SignedCertificationPayload) validatePersonallyProcuredMoveID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonallyProcuredMoveID) { // not required
 		return nil
 	}
@@ -213,6 +214,34 @@ func (m *SignedCertificationPayload) validateUpdatedAt(formats strfmt.Registry) 
 
 	if err := validate.FormatOf("updated_at", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this signed certification payload based on the context it is used
+func (m *SignedCertificationPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCertificationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *SignedCertificationPayload) contextValidateCertificationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CertificationType != nil {
+		if err := m.CertificationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("certification_type")
+			}
+			return err
+		}
 	}
 
 	return nil

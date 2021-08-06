@@ -9,13 +9,14 @@ describe('TOO user', () => {
     cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
     cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedOrders');
     cy.intercept('**/ghc/v1/move/**').as('getMoves');
-    cy.intercept('**/ghc/v1/orders/**').as('getOrders');
+    cy.intercept('GET', '**/ghc/v1/orders/**').as('getOrders');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
     cy.intercept('POST', '**/ghc/v1/shipments/**/approve').as('approveShipment');
     cy.intercept('POST', '**/ghc/v1/shipments/**/request-cancellation').as('requestShipmentCancellation');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
     cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('PATCH', '**/ghc/v1/orders/**/allowances').as('patchAllowances');
 
     // This user has multiple roles, which is the kind of user we use to test in staging.
     // By using this type of user, we can catch bugs like the one fixed in PR 6706.
@@ -175,9 +176,9 @@ describe('TOO user', () => {
     cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
 
     // Toggle between Edit Allowances and Edit Orders page
-    cy.get('[data-testid="view-allowances"]').click();
+    cy.get('[data-testid="view-allowances"]').should('be.visible').click();
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
-    cy.get('[data-testid="view-orders"]').click();
+    cy.get('[data-testid="view-orders"]').should('be.visible').click();
     cy.url().should('include', `/moves/${moveLocator}/orders`);
 
     // Edit orders fields
@@ -274,8 +275,13 @@ describe('TOO user', () => {
       cy.get('button').contains('Save').click();
     });
 
+    cy.wait(['@patchAllowances']);
+
     // Verify edited values are saved
     cy.url().should('include', `/moves/${moveLocator}/details`);
+
+    cy.wait(['@getMoves', '@getOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
     cy.get('[data-testid="progear"]').contains('1,999');
     cy.get('[data-testid="spouseProgear"]').contains('499');
     cy.get('[data-testid="rme"]').contains('999');

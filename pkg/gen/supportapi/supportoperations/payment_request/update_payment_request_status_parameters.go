@@ -6,6 +6,7 @@ package payment_request
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdatePaymentRequestStatusParams creates a new UpdatePaymentRequestStatusParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdatePaymentRequestStatusParams() UpdatePaymentRequestStatusParams {
 
 	return UpdatePaymentRequestStatusParams{}
@@ -80,6 +82,11 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -87,11 +94,11 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rPaymentRequestID, rhkPaymentRequestID, _ := route.Params.GetOK("paymentRequestID")
 	if err := o.bindPaymentRequestID(rPaymentRequestID, rhkPaymentRequestID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -113,7 +120,6 @@ func (o *UpdatePaymentRequestStatusParams) bindIfMatch(rawData []string, hasKey 
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil

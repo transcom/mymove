@@ -29,9 +29,11 @@ func NewFetchMTOUpdates(ctx *middleware.Context, handler FetchMTOUpdatesHandler)
 	return &FetchMTOUpdates{Context: ctx, Handler: handler}
 }
 
-/*FetchMTOUpdates swagger:route GET /move-task-orders moveTaskOrder fetchMTOUpdates
+/* FetchMTOUpdates swagger:route GET /move-task-orders moveTaskOrder fetchMTOUpdates
 
 fetchMTOUpdates
+
+_[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use `listMoves`.
 
 Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
 list down to only the moves that have been updated since the provided timestamp. A move will be considered
@@ -53,17 +55,15 @@ type FetchMTOUpdates struct {
 func (o *FetchMTOUpdates) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewFetchMTOUpdatesParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

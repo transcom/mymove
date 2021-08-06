@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -28,12 +30,15 @@ type UpdateCustomerPayload struct {
 	Email *string `json:"email,omitempty"`
 
 	// first name
+	// Example: John
 	FirstName string `json:"first_name,omitempty"`
 
 	// last name
+	// Example: Doe
 	LastName string `json:"last_name,omitempty"`
 
 	// middle name
+	// Example: David
 	MiddleName *string `json:"middle_name,omitempty"`
 
 	// phone
@@ -41,6 +46,7 @@ type UpdateCustomerPayload struct {
 	Phone *string `json:"phone,omitempty"`
 
 	// suffix
+	// Example: Jr.
 	Suffix *string `json:"suffix,omitempty"`
 }
 
@@ -71,7 +77,6 @@ func (m *UpdateCustomerPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *UpdateCustomerPayload) validateBackupContact(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.BackupContact) { // not required
 		return nil
 	}
@@ -89,7 +94,6 @@ func (m *UpdateCustomerPayload) validateBackupContact(formats strfmt.Registry) e
 }
 
 func (m *UpdateCustomerPayload) validateCurrentAddress(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CurrentAddress) { // not required
 		return nil
 	}
@@ -107,12 +111,11 @@ func (m *UpdateCustomerPayload) validateCurrentAddress(formats strfmt.Registry) 
 }
 
 func (m *UpdateCustomerPayload) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", *m.Email, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -120,13 +123,58 @@ func (m *UpdateCustomerPayload) validateEmail(formats strfmt.Registry) error {
 }
 
 func (m *UpdateCustomerPayload) validatePhone(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Phone) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", *m.Phone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update customer payload based on the context it is used
+func (m *UpdateCustomerPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateBackupContact(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateCurrentAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *UpdateCustomerPayload) contextValidateBackupContact(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BackupContact != nil {
+		if err := m.BackupContact.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backup_contact")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateCustomerPayload) contextValidateCurrentAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CurrentAddress != nil {
+		if err := m.CurrentAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("current_address")
+			}
+			return err
+		}
 	}
 
 	return nil

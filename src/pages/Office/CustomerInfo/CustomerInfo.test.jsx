@@ -45,45 +45,94 @@ const mockCustomer = {
   phone: '123-444-3434',
 };
 
+const mockUpdate = jest.fn();
+
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
 describe('CustomerInfo', () => {
-  it('populates initial field values', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      updateCustomerInfo.mockReturnValue(loadingReturnValue);
+
+      render(
+        <MockProviders initialEntries={[customerInfoEditURL]}>
+          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading isError={false} />{' '}
+        </MockProviders>,
+      );
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      updateCustomerInfo.mockReturnValue(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={[customerInfoEditURL]}>
+          <CustomerInfo customer={mockCustomer} onUpdate={mockUpdate} ordersId="abc123" isLoading={false} isError />{' '}
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
+
+  it('populates initial field values', async () => {
     render(
       <MockProviders initialEntries={[customerInfoEditURL]}>
-        <CustomerInfo customer={mockCustomer} ordersId="abc123" isLoading={false} isError={false} />{' '}
+        <CustomerInfo
+          customer={mockCustomer}
+          onUpdate={mockUpdate}
+          ordersId="abc123"
+          isLoading={false}
+          isError={false}
+        />
       </MockProviders>,
     );
-    expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
-    expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
-    expect(screen.getByLabelText('Last name').value).toEqual(mockCustomer.last_name);
-    expect(screen.getByLabelText(/Suffix/i).value).toEqual(mockCustomer.suffix);
-    // to get around the two inputs labeled "Phone" on the screen
-    expect(screen.getByDisplayValue(mockCustomer.phone).value).toEqual(mockCustomer.phone);
-    expect(screen.getByDisplayValue(mockCustomer.backup_contact.phone).value).toEqual(
-      mockCustomer.backup_contact.phone,
-    );
-    // to get around the two inputs labeled "Email" on the screen
-    expect(screen.getByDisplayValue(mockCustomer.email).value).toEqual(mockCustomer.email);
-    expect(screen.getByDisplayValue(mockCustomer.backup_contact.email).value).toEqual(
-      mockCustomer.backup_contact.email,
-    );
-    expect(screen.getByLabelText('Address 1').value).toEqual(mockCustomer.current_address.street_address_1);
-    expect(screen.getByLabelText('City').value).toEqual(mockCustomer.current_address.city);
-    expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
-    expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postal_code);
-    expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
+    await waitFor(() => {
+      expect(screen.getByLabelText('First name').value).toEqual(mockCustomer.first_name);
+      expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
+      expect(screen.getByLabelText('Last name').value).toEqual(mockCustomer.last_name);
+      expect(screen.getByLabelText(/Suffix/i).value).toEqual(mockCustomer.suffix);
+      // to get around the two inputs labeled "Phone" on the screen
+      expect(screen.getByDisplayValue(mockCustomer.phone).value).toEqual(mockCustomer.phone);
+      expect(screen.getByDisplayValue(mockCustomer.backup_contact.phone).value).toEqual(
+        mockCustomer.backup_contact.phone,
+      );
+      // to get around the two inputs labeled "Email" on the screen
+      expect(screen.getByDisplayValue(mockCustomer.email).value).toEqual(mockCustomer.email);
+      expect(screen.getByDisplayValue(mockCustomer.backup_contact.email).value).toEqual(
+        mockCustomer.backup_contact.email,
+      );
+      expect(screen.getByLabelText('Address 1').value).toEqual(mockCustomer.current_address.street_address_1);
+      expect(screen.getByLabelText('City').value).toEqual(mockCustomer.current_address.city);
+      expect(screen.getByLabelText('State').value).toEqual(mockCustomer.current_address.state);
+      expect(screen.getByLabelText('ZIP').value).toEqual(mockCustomer.current_address.postal_code);
+      expect(screen.getByLabelText('Name').value).toEqual(mockCustomer.backup_contact.name);
+    });
   });
 
   it('calls onUpdate prop with success on successful form submission', async () => {
-    const mockUpdate = jest.fn();
     updateCustomerInfo.mockImplementation(() => Promise.resolve({ customer: { customerId: '123' } }));
     render(
       <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo
           customer={mockCustomer}
+          onUpdate={mockUpdate}
           ordersId="abc123"
           isLoading={false}
           isError={false}
-          onUpdate={mockUpdate}
         />
       </MockProviders>,
     );
@@ -96,7 +145,6 @@ describe('CustomerInfo', () => {
   });
 
   it('calls onUpdate prop with error on unsuccessful form submission', async () => {
-    const mockUpdate = jest.fn();
     updateCustomerInfo.mockImplementation(() => Promise.reject());
     render(
       <MockProviders initialEntries={[customerInfoEditURL]}>

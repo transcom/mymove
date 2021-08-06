@@ -29,7 +29,7 @@ func NewFetchMTOAgentList(ctx *middleware.Context, handler FetchMTOAgentListHand
 	return &FetchMTOAgentList{Context: ctx, Handler: handler}
 }
 
-/*FetchMTOAgentList swagger:route GET /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents mtoAgent fetchMTOAgentList
+/* FetchMTOAgentList swagger:route GET /move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents mtoAgent fetchMTOAgentList
 
 Fetch move task order agents.
 
@@ -44,17 +44,15 @@ type FetchMTOAgentList struct {
 func (o *FetchMTOAgentList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewFetchMTOAgentListParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

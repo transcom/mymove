@@ -17,59 +17,75 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewListMTOsParams creates a new ListMTOsParams object
-// with the default values initialized.
+// NewListMTOsParams creates a new ListMTOsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListMTOsParams() *ListMTOsParams {
-	var ()
 	return &ListMTOsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListMTOsParamsWithTimeout creates a new ListMTOsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListMTOsParamsWithTimeout(timeout time.Duration) *ListMTOsParams {
-	var ()
 	return &ListMTOsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListMTOsParamsWithContext creates a new ListMTOsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListMTOsParamsWithContext(ctx context.Context) *ListMTOsParams {
-	var ()
 	return &ListMTOsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListMTOsParamsWithHTTPClient creates a new ListMTOsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListMTOsParamsWithHTTPClient(client *http.Client) *ListMTOsParams {
-	var ()
 	return &ListMTOsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListMTOsParams contains all the parameters to send to the API endpoint
-for the list m t os operation typically these are written to a http.Request
+/* ListMTOsParams contains all the parameters to send to the API endpoint
+   for the list m t os operation.
+
+   Typically these are written to a http.Request.
 */
 type ListMTOsParams struct {
 
-	/*Since
-	  Only return move task orders updated since this time.
+	/* Since.
 
+	   Only return move task orders updated since this time.
+
+	   Format: timestamp
 	*/
 	Since *int64
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list m t os params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListMTOsParams) WithDefaults() *ListMTOsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list m t os params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListMTOsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list m t os params
@@ -128,16 +144,17 @@ func (o *ListMTOsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 
 		// query param since
 		var qrSince int64
+
 		if o.Since != nil {
 			qrSince = *o.Since
 		}
 		qSince := swag.FormatInt64(qrSince)
 		if qSince != "" {
+
 			if err := r.SetQueryParam("since", qSince); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {

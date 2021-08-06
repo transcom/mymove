@@ -1,5 +1,4 @@
 import React from 'react';
-import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
@@ -21,6 +20,7 @@ const serviceItems = [
     status: 'SUBMITTED',
     details: {
       pickupPostalCode: '60612',
+      SITPostalCode: '22030',
       reason: "here's the reason",
     },
   },
@@ -47,6 +47,7 @@ const serviceItems = [
     status: 'SUBMITTED',
     details: {
       reason: "Here's the reason",
+      estimatedWeight: 4999,
     },
   },
   {
@@ -59,6 +60,7 @@ const serviceItems = [
     status: 'SUBMITTED',
     details: {
       reason: "Here's the reason",
+      estimatedWeight: 4999,
     },
   },
   {
@@ -73,16 +75,22 @@ const serviceItems = [
       description: "Here's the description",
       itemDimensions: { length: 8400, width: 2600, height: 4200 },
       crateDimensions: { length: 110000, width: 36000, height: 54000 },
-      imgURL: isHappoRun() ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
     },
   },
 ];
 
 const approvedServiceItems = serviceItems.map((serviceItem) => {
-  return { ...serviceItem, status: 'APPROVED' };
+  return {
+    ...serviceItem,
+    status: 'APPROVED',
+  };
 });
 const rejectedServiceItems = serviceItems.map((serviceItem) => {
-  return { ...serviceItem, status: 'REJECTED' };
+  return {
+    ...serviceItem,
+    status: 'REJECTED',
+    details: { ...serviceItem.details, rejectionReason: 'Here is a reason for rejection' },
+  };
 });
 
 export const Default = () => (

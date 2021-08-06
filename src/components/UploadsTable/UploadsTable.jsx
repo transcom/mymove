@@ -18,7 +18,7 @@ const UploadsTable = ({ uploads, onDelete }) => {
   };
 
   return (
-    uploads.length > 0 && (
+    uploads?.length > 0 && (
       <SectionWrapper className={styles.uploadsTableContainer}>
         <h6>{uploads.length} Files Uploaded</h6>
         <ul>

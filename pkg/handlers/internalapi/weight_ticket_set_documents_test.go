@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 	var fetchedUpload models.UserUpload
 	suite.DB().Find(&fetchedUpload, uploadUser.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
-	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
+	suite.Equal(*createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
 
 	var fetchedMoveDocument models.MoveDocument
 	err := suite.DB().Q().Where("move_id = ?", ppm.MoveID).First(&fetchedMoveDocument)

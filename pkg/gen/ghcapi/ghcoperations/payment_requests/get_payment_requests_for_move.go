@@ -29,7 +29,7 @@ func NewGetPaymentRequestsForMove(ctx *middleware.Context, handler GetPaymentReq
 	return &GetPaymentRequestsForMove{Context: ctx, Handler: handler}
 }
 
-/*GetPaymentRequestsForMove swagger:route GET /moves/{locator}/payment-requests paymentRequests getPaymentRequestsForMove
+/* GetPaymentRequestsForMove swagger:route GET /moves/{locator}/payment-requests paymentRequests getPaymentRequestsForMove
 
 Fetches payment requests using the move code (locator).
 
@@ -44,17 +44,15 @@ type GetPaymentRequestsForMove struct {
 func (o *GetPaymentRequestsForMove) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetPaymentRequestsForMoveParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

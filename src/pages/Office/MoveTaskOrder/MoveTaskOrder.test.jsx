@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
 import MOVE_STATUSES from 'constants/moves';
@@ -417,16 +418,64 @@ const approvedMTOWithCancelledShipmentQuery = {
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
 
+const moveCode = 'WE31AZ';
+const requiredProps = {
+  match: { params: { moveCode } },
+  history: { push: jest.fn() },
+  setMessage: jest.fn(),
+};
+
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
 describe('MoveTaskOrder', () => {
-  const moveCode = 'WE31AZ';
-  const requiredProps = {
-    match: { params: { moveCode } },
-    history: { push: jest.fn() },
-    setMessage: jest.fn(),
-  };
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(loadingReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
 
   describe('move is not available to prime', () => {
-    useMoveTaskOrderQueries.mockImplementation(() => unapprovedMTOQuery);
+    useMoveTaskOrderQueries.mockReturnValue(unapprovedMTOQuery);
     const wrapper = mount(
       <MockProviders>
         <MoveTaskOrder
@@ -460,7 +509,7 @@ describe('MoveTaskOrder', () => {
   });
 
   describe('approved mto with both submitted and approved shipments', () => {
-    useMoveTaskOrderQueries.mockImplementation(() => someShipmentsApprovedMTOQuery);
+    useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
     const wrapper = mount(
       <MockProviders>
         <MoveTaskOrder
@@ -526,7 +575,7 @@ describe('MoveTaskOrder', () => {
   });
 
   describe('approved mto with approved shipments', () => {
-    useMoveTaskOrderQueries.mockImplementation(() => allApprovedMTOQuery);
+    useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
     const wrapper = mount(
       <MockProviders>
         <MoveTaskOrder
@@ -604,7 +653,7 @@ describe('MoveTaskOrder', () => {
   });
 
   describe('approved mto with cancelled shipment', () => {
-    useMoveTaskOrderQueries.mockImplementation(() => approvedMTOWithCancelledShipmentQuery);
+    useMoveTaskOrderQueries.mockReturnValue(approvedMTOWithCancelledShipmentQuery);
     const wrapper = mount(
       <MockProviders>
         <MoveTaskOrder

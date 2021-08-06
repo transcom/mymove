@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -78,7 +80,6 @@ func (m *CreateSignedCertificationPayload) validateCertificationText(formats str
 }
 
 func (m *CreateSignedCertificationPayload) validateCertificationType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.CertificationType) { // not required
 		return nil
 	}
@@ -109,7 +110,6 @@ func (m *CreateSignedCertificationPayload) validateDate(formats strfmt.Registry)
 }
 
 func (m *CreateSignedCertificationPayload) validatePersonallyProcuredMoveID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.PersonallyProcuredMoveID) { // not required
 		return nil
 	}
@@ -125,6 +125,34 @@ func (m *CreateSignedCertificationPayload) validateSignature(formats strfmt.Regi
 
 	if err := validate.Required("signature", "body", m.Signature); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create signed certification payload based on the context it is used
+func (m *CreateSignedCertificationPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCertificationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *CreateSignedCertificationPayload) contextValidateCertificationType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CertificationType != nil {
+		if err := m.CertificationType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("certification_type")
+			}
+			return err
+		}
 	}
 
 	return nil

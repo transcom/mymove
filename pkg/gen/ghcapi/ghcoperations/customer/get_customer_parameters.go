@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetCustomerParams creates a new GetCustomerParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetCustomerParams() GetCustomerParams {
 
 	return GetCustomerParams{}
@@ -50,7 +51,6 @@ func (o *GetCustomerParams) BindRequest(r *http.Request, route *middleware.Match
 	if err := o.bindCustomerID(rCustomerID, rhkCustomerID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
