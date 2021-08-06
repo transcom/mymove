@@ -307,8 +307,10 @@ pkg/assets/assets.go:
 .PHONY: check_swagger_generate
 check_swagger_generate: .swagger_build.stamp ## Check that the build files haven't been manually edited to prevent overwrites
 .swagger_build.stamp: $(shell find swagger -type f -name *.yaml)
+ifneq ("$(wildcard .swagger_build.stamp)","")
 	@echo "Unexpected changes found in swagger build files. Code may be overwritten."
 	@read -p "Continue with rebuild? [y/N] : " ANS && test "$${ANS}" == "y" || (echo "Exiting rebuild."; false)
+endif
 
 .PHONY: swagger_generate
 swagger_generate: check_swagger_generate ## Bundles the API definition files into a complete specification
