@@ -313,7 +313,7 @@ ifneq ("$(wildcard .swagger_build.stamp)","")
 endif
 
 .PHONY: swagger_generate
-swagger_generate: check_swagger_generate ## Bundles the API definition files into a complete specification
+swagger_generate: check_swagger_generate .client_deps.stamp ## Bundles the API definition files into a complete specification
 	yarn build-redoc
 	touch .swagger_build.stamp
 
