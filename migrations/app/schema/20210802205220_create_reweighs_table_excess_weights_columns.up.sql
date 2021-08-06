@@ -41,11 +41,11 @@ ALTER TABLE moves
 COMMENT ON COLUMN moves.excess_weight_upload_id IS 'An uploaded document by the movers proving that the customer has been counseled about excess weight';
 
 ALTER TABLE mto_shipments
-    ADD COLUMN billable_weight integer;
+    ADD COLUMN billable_weight_cap integer;
 
-COMMENT ON COLUMN mto_shipments.billable_weight IS 'The billable weight cap that the TIO can set per shipment that affects pricing';
+COMMENT ON COLUMN mto_shipments.billable_weight_cap IS 'The billable weight cap that the TIO can set per shipment that affects pricing';
 
 ALTER TABLE mto_shipments
     ADD COLUMN billable_weight_justification text;
 
-COMMENT ON COLUMN mto_shipments.billable_weight_justification IS 'The reasoning for why the TIO has set the billable_weight to the chosen value';
+COMMENT ON COLUMN mto_shipments.billable_weight_justification IS 'The reasoning for why the TIO has set the billable_weight_cap to the chosen value';
