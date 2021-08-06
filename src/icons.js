@@ -44,7 +44,7 @@ import {
   faCaretDown,
   faCopy,
   faEquals,
-  faPencilAlt,
+  faPencilAlt, // mechanical BIC pencil
   faWeightHanging,
   faTruckMoving,
   faCar,
