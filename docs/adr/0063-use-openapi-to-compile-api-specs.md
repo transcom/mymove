@@ -130,4 +130,5 @@ be challenging.
 ### Option 4: Use split definitions and find a way to generate them into shared Go types
 
 - `+` Shared Go types could make things easier for us on the backend
+- `-` Changing types would require us to update a huge number of files in our backend packages
 - `-` Purely hypothetical - I couldn't figure out how to actually do this
