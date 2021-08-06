@@ -1832,7 +1832,7 @@ workflows:
             - deploy_demo_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: july-slice-v1-demo-deploy
 
       - deploy_demo_webhook_client:
           requires:
