@@ -8,6 +8,8 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
+
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -332,7 +334,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
           </div>
-          <div className={styles.weightHeader}>
+          <div className={moveTaskOrderStyles.weightHeader}>
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
             <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal} />
             <WeightDisplay

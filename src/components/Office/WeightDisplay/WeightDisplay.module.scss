@@ -6,7 +6,6 @@
   @include u-bg('white');
   @include u-radius(3px);
   border: 1px solid $border-color;
-  flex: 1 1 0px;
   @include u-margin-right(3);
   &:last-child {
     margin-right: 0px;
