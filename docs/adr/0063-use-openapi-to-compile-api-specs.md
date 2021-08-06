@@ -102,8 +102,32 @@ work.
 
 ### Option 1: Use one YAML file for each API (status quo)
 
+- `+` Same development cycle
+- `+` All the information is in one place
+- `-` Each YAML file is thousands of lines long
+- `-` Difficult to keep our definitions in sync
+- `-` Difficult to apply and maintain standards
+
 ### Option 2: Use split definitions without compiling into a new file
+
+- `+` Same development cycle - no need to update how we generate code and we'll be working in the same folder
+- `+` We can structure our sub-folders however we want to
+- `-` Third-party tools won't be able to use our APIs the same way. Integrations will
+be challenging.
+- `-` No defined structure, so we could implement something non-standard or suboptimal
+- `-` If you're not careful, the Go types it generates can be strangely different
 
 ### Option 3: Use split definitions and compile them into a complete YAML spec
 
+- `+` With a compiled API spec, third-party tools won't have to change how they integrate with us
+- `+` The way `go-swagger` generates code will be the same, so our Go types won't change
+- `+` Well-defined structure for the shared files so it's easy to navigate
+- `+` Makes use of a tool we were already using for documentation purposes
+- `-` New development cycle - different folder, new build process
+- `-` Looks complicated at first and requires more folders and files
+- `-` We'll be relying on a third-party tool to compile our APIs
+
 ### Option 4: Use split definitions and find a way to generate them into shared Go types
+
+- `+` Shared Go types could make things easier for us on the backend
+- `-` Purely hypothetical - I couldn't figure out how to actually do this
