@@ -4,8 +4,6 @@ on:
   pull_request_target:
     branches:
       - master
-      - ds-set-webpack-bundle-diff-increase-minimum-github-action
-  workflow_dispatch:
 
 jobs:
   changes:
