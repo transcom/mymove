@@ -288,13 +288,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     );
   }
 
-  const moveWeightTotal = mtoShipments?.reduce((prev, current) => {
-    return prev + current.primeActualWeight;
-  }, 0);
+  const moveWeightTotal = mtoShipments
+    ?.filter((s) => s.primeActualWeight)
+    .reduce((prev, current) => {
+      return prev + current.primeActualWeight;
+    }, 0);
 
-  const estimatedWeightTotal = mtoShipments?.reduce((prev, current) => {
-    return prev + current.primeEstimatedWeight;
-  }, 0);
+  const estimatedWeightTotal = mtoShipments
+    ?.filter((s) => s.primeEstimatedWeight)
+    .reduce((prev, current) => {
+      return prev + current.primeEstimatedWeight;
+    }, 0);
 
   return (
     <div className={styles.tabContent}>
