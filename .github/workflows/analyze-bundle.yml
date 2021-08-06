@@ -2,7 +2,9 @@ name: F/E bundle diff
 
 on:
   pull_request_target:
-    branches: [master]
+    branches:
+      - master
+      - ds-set-webpack-bundle-diff-increase-minimum-github-action
   workflow_dispatch:
 
 jobs:
