@@ -37,37 +37,60 @@ tags:
       An **mtoShipment**, in particular, is a shipment that belongs to a
       [moveTaskOrder](#tag/moveTaskOrder).
 
-      The weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If
-      the sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and
-      the contractor should keep this potential cost in mind when planning a move and the shipments within it.
+
+      The weights for all of the shipments in a move are combined and compared
+      to the customer's weight allowance.
+
+      If the sum of the shipments is greater, the customer is liable for paying
+      excess weight cost. Both the customer and
+
+      the contractor should keep this potential cost in mind when planning a
+      move and the shipments within it.
   - name: mtoServiceItem
-    description: |
-      A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a
-      customer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be
+    description: >
+      A service item is a service that the contractor can bill for. For example,
+      if the movers pack and/or unpack a
+
+      customer's belongings, those are billable services (packing and
+      unpacking). All **mtoServiceItems** must be
+
       approved by the TOO before payment can be requested.
 
-      There are three types of service items: accessorial, MTO-level, and standard.
 
-      **WIP:** Add an external link to an article that explains the different types of service items in more detail.
+      There are three types of service items: accessorial, MTO-level, and
+      standard.
+
+
+      **WIP:** Add an external link to an article that explains the different
+      types of service items in more detail.
   - name: paymentRequest
 x-tagGroups:
   - name: Endpoints
     tags:
-    - moveTaskOrder
-    - mtoShipment
-    - mtoServiceItem
-    - paymentRequest
+      - moveTaskOrder
+      - mtoShipment
+      - mtoServiceItem
+      - paymentRequest
 paths:
   /moves:
     get:
       summary: listMoves
-      description: |
-        Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
-        list down to only the moves that have been updated since the provided timestamp. A move will be considered
-        updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment requests,
-        is later than the provided date and time.
+      description: >
+        Gets all moves that have been reviewed and approved by the TOO. The
+        `since` parameter can be used to filter this
 
-        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
+        list down to only the moves that have been updated since the provided
+        timestamp. A move will be considered
+
+        updated if the `updatedAt` timestamp on the move or on its orders,
+        shipments, service items, or payment
+
+        requests, is later than the provided date and time.
+
+
+        **WIP**: Include what causes moves to leave this list. Currently, once
+        the `availableToPrimeAt` timestamp has
+
         been set, that move will always appear in this list.
       operationId: listMoves
       tags:
@@ -79,10 +102,14 @@ paths:
           name: since
           type: string
           format: date-time
-          description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+          description: >-
+            Only return moves updated since this time. Formatted like
+            "2021-07-23T18:30:47.116Z"
       responses:
         '200':
-          description: Successfully retrieved moves. A successful fetch might still return zero moves.
+          description: >-
+            Successfully retrieved moves. A successful fetch might still return
+            zero moves.
           schema:
             $ref: '#/definitions/ListMoves'
         '401':
@@ -95,12 +122,20 @@ paths:
     get:
       summary: fetchMTOUpdates
       deprecated: true
-      description: |
-        _[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use `listMoves`.
+      description: >
+        _[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated.
+        Please use `listMoves`.
 
-        Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
-        list down to only the moves that have been updated since the provided timestamp. A move will be considered
-        updated if the `updatedAt` timestamp on the move is later than the provided date and time.
+
+        Gets all moves that have been reviewed and approved by the TOO. The
+        `since` parameter can be used to filter this
+
+        list down to only the moves that have been updated since the provided
+        timestamp. A move will be considered
+
+        updated if the `updatedAt` timestamp on the move is later than the
+        provided date and time.
+
 
         **WIP**: The original goal was to also look at the `updateAt` timestamps
         of the nested objects - such as the
@@ -140,7 +175,7 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /move-task-orders/{moveID}:
+  '/move-task-orders/{moveID}':
     get:
       summary: getMoveTaskOrder
       description: >
@@ -340,13 +375,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdateMTOShipment'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-          description: >
-            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
-            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - $ref: '#/parameters/ifMatch'
       responses:
         '200':
           description: Successfully updated the MTO shipment.
@@ -1317,8 +1346,9 @@ definitions:
     type: object
   ListMove:
     description: >
-      An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
-      fetch a list of moves more efficiently.
+      An abbreviated definition for a move, without all the nested information
+      (shipments, service items, etc). Used to fetch a list of moves more
+      efficiently.
     type: object
     properties:
       id:
@@ -1327,7 +1357,7 @@ definitions:
         type: string
       moveCode:
         type: string
-        example: 'HYXFJF'
+        example: HYXFJF
         readOnly: true
       createdAt:
         format: date-time
@@ -1507,7 +1537,7 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-        description: The ID of the shipment this service is for, if any. Optional.
+        description: 'The ID of the shipment this service is for, if any. Optional.'
       reServiceName:
         type: string
         readOnly: true
@@ -1520,12 +1550,14 @@ definitions:
         x-nullable: true
         readOnly: true
         description: The reason why this service item was rejected by the TOO.
-      modelType: # Base type and sub-types of MTOServiceItem
+      modelType:
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
         readOnly: true
-        description: A hash unique to this service item that should be used as the "If-Match" header for any updates.
+        description: >-
+          A hash unique to this service item that should be used as the
+          "If-Match" header for any updates.
     required:
       - modelType
       - moveTaskOrderID
@@ -1597,7 +1629,9 @@ definitions:
           - reServiceCode
           - sitEntryDate
   MTOServiceItemDimension:
-    description: The dimensions for either the item or the crate associated with a crating service item.
+    description: >-
+      The dimensions for either the item or the crate associated with a crating
+      service item.
     type: object
     properties:
       id:
@@ -1635,7 +1669,9 @@ definitions:
         properties:
           reServiceCode:
             type: string
-            description: A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (DCRT) or uncrating (DUCRT).
             enum:
               - DCRT
               - DCRTSA
@@ -1656,8 +1692,9 @@ definitions:
             type: string
             example: Storage items need to be picked up
             description: >
-              The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while
-              deciding to approve or reject the service item.
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1734,8 +1771,9 @@ definitions:
           reServiceCode:
             type: string
             description: >
-              A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`)
-              or destination (`DDSHUT`).
+              A unique code for the service item. Indicates if shuttling is
+              requested for the shipment origin (`DOSHUT`) or destination
+              (`DDSHUT`).
             enum:
               - DOSHUT
               - DDSHUT
@@ -1743,8 +1781,9 @@ definitions:
             type: string
             example: Storage items need to be picked up.
             description: >
-              The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to
-              approve or reject the service item.
+              The contractor's explanation for why a shuttle service is
+              requested. Used by the TOO while deciding to approve or reject the
+              service item.
           description:
             type: string
             example: Things to be moved to the place by shuttle.
@@ -1752,13 +1791,17 @@ definitions:
           estimatedWeight:
             type: integer
             example: 4200
-            description: An estimate of how much weight from a shipment will be included in the shuttling service.
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              the shuttling service.
             x-nullable: true
             x-omitempty: false
           actualWeight:
             type: integer
             example: 4000
-            description: A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.
+            description: >-
+              A record of the actual weight that was shuttled. Provided by the
+              movers, based on weight tickets.
             x-nullable: true
             x-omitempty: false
         required:
@@ -1766,7 +1809,9 @@ definitions:
           - reServiceCode
           - description
   MTOServiceItemStatus:
-    description: The status of a service item, indicating where it is in the TOO's approval process.
+    description: >-
+      The status of a service item, indicating where it is in the TOO's approval
+      process.
     type: string
     readOnly: true
     enum:
@@ -1944,8 +1989,9 @@ definitions:
         type: boolean
       status:
         description: >
-          The status of a shipment, indicating where it is in the TOO's approval process.
-          Can only be updated by the contractor in special circumstances.
+          The status of a shipment, indicating where it is in the TOO's approval
+          process. Can only be updated by the contractor in special
+          circumstances.
         type: string
         readOnly: true
         enum:
@@ -2427,71 +2473,89 @@ definitions:
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:
-        description: The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.
+        description: >-
+          The date the Prime contractor scheduled to pick up this shipment after
+          consultation with the customer.
         format: date
         type: string
         x-omitempty: false
         x-nullable: true
       actualPickupDate:
-        description: The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.
+        description: >-
+          The date when the Prime contractor actually picked up the shipment.
+          Updated after-the-fact.
         format: date
         type: string
         x-omitempty: false
         x-nullable: true
       firstAvailableDeliveryDate:
         description: >
-          The date the Prime provides to the customer as the first possible delivery date so that they can plan their
-          travel accordingly.
+          The date the Prime provides to the customer as the first possible
+          delivery date so that they can plan their travel accordingly.
         format: date
         type: string
         x-omitempty: false
         x-nullable: true
       primeEstimatedWeight:
         description: >
-          The estimated weight of this shipment, determined by the movers during the pre-move survey.
-          This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made,
-          the Prime contracter will need to contact the TOO to change it.
+          The estimated weight of this shipment, determined by the movers during
+          the pre-move survey. This value **can only be updated once.** If there
+          was an issue with estimating the weight and a mistake was made, the
+          Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
       primeActualWeight:
-        description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
+        description: >-
+          The actual weight of the shipment, provided after the Prime packs,
+          picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
       pickupAddress:
         description: >
-          The address where the movers should pick up this shipment, entered by the customer during onboarding
-          when they enter shipment details.
+          The address where the movers should pick up this shipment, entered by
+          the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
-        description: |
-          Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
+        description: >
+          Where the movers should deliver this shipment. Often provided by the
+          customer when they enter shipment details
+
           during onboarding, if they know their new address already.
 
-          May be blank when entered by the customer, required when entered by the Prime. May not represent the true
+
+          May be blank when entered by the customer, required when entered by
+          the Prime. May not represent the true
+
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        description: A second pickup address for this shipment, if the customer entered one. An optional field.
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        description: A second delivery address for this shipment, if the customer entered one. An optional field.
+        description: >-
+          A second delivery address for this shipment, if the customer entered
+          one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
         description: >
-          This value indicates whether or not this shipment is part of a diversion.
-          If yes, the shipment can be either the starting or ending segment of the diversion.
+          This value indicates whether or not this shipment is part of a
+          diversion. If yes, the shipment can be either the starting or ending
+          segment of the diversion.
         type: boolean
       pointOfContact:
         type: string
         description: >
-          Email or ID of the person who will be contacted in the event of questions or concerns about this update.
-          May be the person performing the update, or someone else working with the Prime contractor.
+          Email or ID of the person who will be contacted in the event of
+          questions or concerns about this update. May be the person performing
+          the update, or someone else working with the Prime contractor.
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a

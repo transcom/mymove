@@ -106,7 +106,6 @@ func (m *ValidationError) ContextValidate(ctx context.Context, formats strfmt.Re
 	if err := m.ClientError.ContextValidate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
-	// validation for a type composition with ValidationErrorAllOf1
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
