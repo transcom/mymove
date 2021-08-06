@@ -1,13 +1,13 @@
 /* eslint-disable camelcase */
 import * as Yup from 'yup';
 
-import { ZIP_CODE_REGEX, requiredAddressSchema } from 'utils/validation';
+import { ZIP_CODE_REGEX, requiredAddressSchema, phoneSchema, emailSchema } from 'utils/validation';
 
 export const AgentSchema = Yup.object().shape({
   firstName: Yup.string(),
   lastName: Yup.string(),
-  phone: Yup.string().matches(/^[2-9]\d{2}\d{3}\d{4}$/, 'Must be valid phone number'),
-  email: Yup.string().email('Must be valid email'),
+  phone: phoneSchema,
+  email: emailSchema,
 });
 
 export const OptionalAddressSchema = Yup.object().shape(

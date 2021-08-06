@@ -29,10 +29,6 @@ function formatAgentForAPI(agent) {
       sanitizedKey === 'mtoShipmentID'
     ) {
       delete agentCopy[sanitizedKey];
-    } else if (sanitizedKey === 'phone') {
-      const phoneNum = agentCopy[sanitizedKey];
-      // will be in format xxx-xxx-xxxx
-      agentCopy[sanitizedKey] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
     }
   });
   return agentCopy;

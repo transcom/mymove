@@ -196,7 +196,7 @@ describe('formatMtoShipmentForAPI', () => {
       firstName: 'mockFirstName',
       lastName: 'mockLastName',
       email: 'mockAgentEmail@example.com',
-      phone: '2225551234',
+      phone: '222-555-1234',
     },
   };
 
@@ -212,7 +212,7 @@ describe('formatMtoShipmentForAPI', () => {
       firstName: 'r0b0tBestFr1end',
       lastName: 'r0b0tBestFr1endLastName',
       email: 'r0b0t-fr1end@example.com',
-      phone: '2225550101',
+      phone: '222-555-0101',
     },
   };
 
