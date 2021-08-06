@@ -271,7 +271,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOShipment'
+            $ref: '#/definitions/UpdateMTOShipment'
         - $ref: 'parameters/ifMatch.yaml'
       responses:
         '200':
@@ -1695,6 +1695,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
         type: array
+        readOnly: true
       pickupAddress:
         description: >
           The address where the movers should pick up this shipment, entered by the customer during onboarding
@@ -1728,7 +1729,7 @@ definitions:
       status:
         description: >
           The status of a shipment, indicating where it is in the TOO's approval process.
-          Can only be updated by the Prime in special circumstances.
+          Can only be updated by the contractor in special circumstances.
         type: string
         readOnly: true
         enum:
