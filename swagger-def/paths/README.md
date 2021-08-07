@@ -1,12 +1,12 @@
 # Paths
 
-_NOTE: This is the auto-generated README from the openapi-cli tool._
+_NOTE: This is the auto-generated README from the `openapi-cli` tool._
 
 Organize your path definitions within this folder.  You will reference your paths from your main entrypoint file.
 
 It may help you to adopt some conventions:
 
-* path separator token (e.g. `@`) or subfolders
+* path separator token (e.g. `@`) or sub-folders
 * path parameter (e.g. `{example}`)
 * file-per-path or file-per-operation
 
@@ -30,7 +30,7 @@ In addition, Redocly recommends placing path parameters within `{}` curly braces
 
 * Quickly see a list of all paths.  Many people think in terms of the "number" of "endpoints" (paths), and not the "number" of "operations" (paths * http methods).
 
-* Only the "file-per-path" option is semantically correct with the OpenAPI Specification 3.0.2.  However, Redocly's openapi-cli will build valid bundles for any of the other options too.
+* Only the "file-per-path" option is semantically correct with the OpenAPI Specification 3.0.2.  However, Redocly's `openapi-cli` will build valid bundles for any of the other options too.
 
 
 #### Drawbacks
@@ -50,13 +50,13 @@ You may name your files with some concatenation for the http method. For example
 
 #### Motivations
 
-* Quickly see all operations without needing to navigate subfolders.
+* Quickly see all operations without needing to navigate sub-folders.
 
 #### Drawbacks
 
-* Adopting an unusual path separator convention, instead of using subfolders.
+* Adopting an unusual path separator convention, instead of using sub-folders.
 
-### Use subfolders to mirror API path structure
+### Use sub-folders to mirror API path structure
 
 Example:
 ```
@@ -65,7 +65,7 @@ GET /customers
 /paths/customers/get.yaml
 ```
 
-In this case, the path id defined within subfolders which mirror the API URL structure.
+In this case, the path id defined within sub-folders which mirror the API URL structure.
 
 Example with path parameter:
 ```
@@ -103,4 +103,4 @@ file: /paths/customers/{id}/timeline/{messageId}/get.yaml
         $ref: ../../../../../components/headers/Rate-Limit-Remaining.yaml
 
 ```
-Notice the `../../../../../` in the ref which requires some attention to formulate correctly.  While openapi-cli has a linter which suggests possible refs when there is a mistake, this is still a net drawback for APIs with deep paths.
+Notice the `../../../../../` in the ref which requires some attention to formulate correctly.  While `openapi-cli` has a linter which suggests possible refs when there is a mistake, this is still a net drawback for APIs with deep paths.
