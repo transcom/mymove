@@ -339,8 +339,8 @@ const pickupSITPrice = (params) => {
 };
 
 const cratingPrice = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CratingPrice;
 
   const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
     SERVICE_ITEM_PARAM_KEYS.ServicesScheduleOrigin,
@@ -351,7 +351,7 @@ const cratingPrice = (params) => {
 };
 
 const unCratingPrice = (params) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.PriceRateOrFactor, params);
   const label = SERVICE_ITEM_CALCULATION_LABELS.UncratingPrice;
 
   const serviceSchedule = `${SERVICE_ITEM_CALCULATION_LABELS.ServiceSchedule}: ${getParamValue(
@@ -363,11 +363,11 @@ const unCratingPrice = (params) => {
 };
 
 const cratingSize = (params, mtoParams) => {
-  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetCrating, params);
+  const value = getParamValue(SERVICE_ITEM_PARAM_KEYS.CubicFeetBilled, params);
   const length = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionLength, params);
   const height = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionHeight, params);
   const width = getParamValue(SERVICE_ITEM_PARAM_KEYS.DimensionWidth, params);
-  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetCrating;
+  const label = SERVICE_ITEM_CALCULATION_LABELS.CubicFeetBilled;
 
   const description = `${SERVICE_ITEM_CALCULATION_LABELS.Description}: ${mtoParams.description}`;
 

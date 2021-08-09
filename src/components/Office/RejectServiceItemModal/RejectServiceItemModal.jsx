@@ -50,7 +50,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
               {({ handleChange, values, isValid, dirty }) => {
                 return (
                   <Form>
-                    <div className={('table--service-item', 'table--service-item--hasimg')}>
+                    <div className={classNames('table--service-item', 'table--service-item--hasimg')}>
                       <table>
                         <thead className="table--small">
                           <tr>

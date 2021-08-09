@@ -655,3 +655,5 @@
 20210720183133_create_rds_pgaudit_role.up.sql
 20210721192603_remove_erin_cac_certs.up.sql
 20210726214608_add_dimension_param_keys.up.sql
+20210729204423_install_pgaudit_extension.up.sql
+20210802205220_create_reweighs_table_excess_weights_columns.up.sql

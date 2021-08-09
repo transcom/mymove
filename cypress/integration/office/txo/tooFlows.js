@@ -176,9 +176,9 @@ describe('TOO user', () => {
     cy.get('[data-testid="edit-orders"]').contains('Edit orders').click();
 
     // Toggle between Edit Allowances and Edit Orders page
-    cy.get('[data-testid="view-allowances"]').click();
+    cy.get('[data-testid="view-allowances"]').should('be.visible').click();
     cy.url().should('include', `/moves/${moveLocator}/allowances`);
-    cy.get('[data-testid="view-orders"]').click();
+    cy.get('[data-testid="view-orders"]').should('be.visible').click();
     cy.url().should('include', `/moves/${moveLocator}/orders`);
 
     // Edit orders fields

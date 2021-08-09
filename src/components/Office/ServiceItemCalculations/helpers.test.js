@@ -407,7 +407,7 @@ describe('makeCalculations', () => {
     const result = makeCalculations('DCRT', 99999, testParams.DomesticCrating, testParams.additionalCratingDataDCRT);
     expect(result).toEqual([
       {
-        value: '2',
+        value: '4.00',
         label: 'Crating size (cu ft)',
         details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
       },
@@ -435,7 +435,7 @@ describe('makeCalculations', () => {
       {
         details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
         label: 'Crating size (cu ft)',
-        value: '2',
+        value: '4.00',
       },
       {
         details: ['Service schedule: 3', 'Uncrating date: 09 Mar 2020', 'Domestic'],

@@ -90,9 +90,8 @@ func ServiceParamLookupInitialize(
 	var sitDestinationFinalAddress models.Address
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
+	// Load data that is only used by a few service items
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeCS, models.ReServiceCodeMS:
-		// Do nothing, these service items don't use the MTOShipment
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		err = db.Load(&mtoServiceItem, "Dimensions")
 		if err != nil {
@@ -108,8 +107,10 @@ func ServiceParamLookupInitialize(
 			}
 			sitDestinationFinalAddress = *mtoServiceItem.SITDestinationFinalAddress
 		}
-		fallthrough
-	default:
+	}
+
+	// Load shipment fields for service items that need them
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeCS && mtoServiceItem.ReService.Code != models.ReServiceCodeMS {
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
@@ -261,6 +262,14 @@ func ServiceParamLookupInitialize(
 
 	paramKey = models.ServiceItemParamNameContractCode
 	err = s.setLookup(serviceItemCode, paramKey, ContractCodeLookup{})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameCubicFeetBilled
+	err = s.setLookup(serviceItemCode, paramKey, CubicFeetBilledLookup{
+		Dimensions: serviceItemDimensions,
+	})
 	if err != nil {
 		return nil, err
 	}

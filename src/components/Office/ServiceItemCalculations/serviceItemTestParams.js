@@ -150,17 +150,8 @@ const CubicFeetBilled = {
   key: 'CubicFeetBilled',
   origin: 'SYSTEM',
   paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INTEGER',
-  value: '1.71',
-};
-const CubicFeetCrating = {
-  eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
-  id: '9dcab9f4-aac4-4639-a11c-d85be1560b95',
-  key: 'CubicFeetCrating',
-  origin: 'PRIME',
-  paymentServiceItemID: '28039a62-387d-479f-b50f-e0041b7e6e22',
-  type: 'INTEGER',
-  value: '2',
+  type: 'DECIMAL',
+  value: '4.00',
 };
 const DistanceZipSITOrigin = {
   eTag: 'MjAyMS0wMy0xOFQwMTozMTo1MS4yNjY4M1o=',
@@ -634,7 +625,7 @@ const testParams = {
     PriceRateOrFactor,
     RequestedPickupDate,
     CubicFeetBilled,
-    CubicFeetCrating,
+    PriceRateOrFactor,
     ServicesScheduleOrigin,
     ServiceAreaOrigin,
     ZipPickupAddress,
@@ -646,7 +637,7 @@ const testParams = {
     RequestedPickupDate,
     EscalationCompounded,
     CubicFeetBilled,
-    CubicFeetCrating,
+    PriceRateOrFactor,
     ServicesScheduleDest,
     ServiceAreaDest,
     ZipDestAddress,
