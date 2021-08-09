@@ -110,6 +110,8 @@ class WeightTicket extends Component {
         </div>
       );
     }
+    // if there is no trailer, don't show text
+    return undefined;
   };
 
   uploaderWithInvalidState = () => {
