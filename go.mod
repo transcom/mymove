@@ -26,7 +26,7 @@ require (
 	github.com/go-openapi/strfmt v0.20.1
 	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.20.2
-	github.com/go-playground/locales v0.13.0
+	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.8.0
 	github.com/gobuffalo/envy v1.9.0
