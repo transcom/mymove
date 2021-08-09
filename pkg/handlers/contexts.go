@@ -7,6 +7,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -23,13 +24,13 @@ import (
 //go:generate mockery --name HandlerContext --disable-version-string
 type HandlerContext interface {
 	DB() *pop.Connection
-	Logger() Logger
-	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
-	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger)
+	Logger() *zap.Logger
+	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger)
+	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger)
 	SessionFromRequest(r *http.Request) *auth.Session
 	SessionFromContext(ctx context.Context) *auth.Session
-	LoggerFromContext(ctx context.Context) Logger
-	LoggerFromRequest(r *http.Request) Logger
+	LoggerFromContext(ctx context.Context) *zap.Logger
+	LoggerFromRequest(r *http.Request) *zap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -72,7 +73,7 @@ type FeatureFlag struct {
 // A single handlerContext is passed to each handler
 type handlerContext struct {
 	db                    *pop.Connection
-	logger                Logger
+	logger                *zap.Logger
 	cookieSecret          string
 	planner               route.Planner
 	ghcPlanner            route.Planner
@@ -91,18 +92,18 @@ type handlerContext struct {
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(db *pop.Connection, logger Logger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return &handlerContext{
 		db:     db,
 		logger: logger,
 	}
 }
 
-func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger) {
+func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {
 	return hctx.SessionAndLoggerFromContext(r.Context())
 }
 
-func (hctx *handlerContext) SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger) {
+func (hctx *handlerContext) SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger) {
 	return auth.SessionFromContext(ctx), hctx.LoggerFromContext(ctx)
 }
 
@@ -114,19 +115,15 @@ func (hctx *handlerContext) SessionFromContext(ctx context.Context) *auth.Sessio
 	return auth.SessionFromContext(ctx)
 }
 
-func (hctx *handlerContext) LoggerFromRequest(r *http.Request) Logger {
+func (hctx *handlerContext) LoggerFromRequest(r *http.Request) *zap.Logger {
 	return hctx.LoggerFromContext(r.Context())
 }
 
-func (hctx *handlerContext) LoggerFromContext(ctx context.Context) Logger {
-	if logger, ok := logging.FromContext(ctx).(Logger); ok {
-		return logger
-	}
-
-	return hctx.logger
+func (hctx *handlerContext) LoggerFromContext(ctx context.Context) *zap.Logger {
+	return logging.FromContext(ctx)
 }
 
-func (hctx *handlerContext) Logger() Logger {
+func (hctx *handlerContext) Logger() *zap.Logger {
 	return hctx.logger
 }
 

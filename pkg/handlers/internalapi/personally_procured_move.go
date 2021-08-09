@@ -308,7 +308,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 	return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload)
 }
 
-func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
+func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger *zap.Logger, moveID uuid.UUID) error {
 	sitCharge, cost, err := h.CalculateEstimates(ppm, moveID, logger)
 	if err != nil {
 		return fmt.Errorf("error getting cost estimates: %w", err)

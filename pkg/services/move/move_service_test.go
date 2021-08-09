@@ -11,7 +11,7 @@ import (
 
 type MoveServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestMoveServiceSuite(t *testing.T) {

@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
@@ -27,7 +26,7 @@ type moveTaskOrderCreator struct {
 }
 
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
-func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.Move, error) {
+func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
 	var moveTaskOrder *models.Move
 	var refID string
 	if payload.Order == nil {
@@ -91,7 +90,7 @@ func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTas
 }
 
 // createOrder creates a basic order - this is a support function do not use in production
-func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayload *supportmessages.Order, logger handlers.Logger) (*models.Order, error) {
+func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayload *supportmessages.Order, logger *zap.Logger) (*models.Order, error) {
 	if orderPayload == nil {
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "Order definition is required to create MoveTaskOrder")
 		return nil, returnErr
@@ -158,7 +157,7 @@ func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayloa
 
 // createUser creates a user but this is a fake login.gov user
 // this is support code only, do not use in a production case
-func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (*models.User, error) {
+func createUser(tx *pop.Connection, userEmail *string, logger *zap.Logger) (*models.User, error) {
 	if userEmail == nil {
 		defaultEmail := "generatedMTOuser@example.com"
 		userEmail = &defaultEmail
@@ -182,7 +181,7 @@ func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (
 }
 
 // createOrGetCustomer creates a customer or gets one if id was provided
-func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payloadCustomerID *strfmt.UUID, customerBody *supportmessages.Customer, logger handlers.Logger) (*models.ServiceMember, error) {
+func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payloadCustomerID *strfmt.UUID, customerBody *supportmessages.Customer, logger *zap.Logger) (*models.ServiceMember, error) {
 	verrs := validate.NewErrors()
 
 	// If customer ID string is provided, we should find this customer

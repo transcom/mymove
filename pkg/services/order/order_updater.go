@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -98,7 +99,7 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(orderID uuid.UUID, payload ghc
 }
 
 // UploadAmendedOrdersAsCustomer add amended order documents to an existing order
-func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger services.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+func (f *orderUpdater) UploadAmendedOrdersAsCustomer(logger *zap.Logger, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
 	orderToUpdate, findErr := f.findOrderWithAmendedOrders(orderID)
 	if findErr != nil {
 		return models.Upload{}, "", nil, findErr
@@ -194,7 +195,7 @@ func orderFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateO
 	return order
 }
 
-func (f *orderUpdater) amendedOrder(db *pop.Connection, logger services.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
+func (f *orderUpdater) amendedOrder(db *pop.Connection, logger *zap.Logger, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
 
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error

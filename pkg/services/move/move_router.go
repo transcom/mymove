@@ -17,11 +17,11 @@ import (
 
 type moveRouter struct {
 	db     *pop.Connection
-	logger Logger
+	logger *zap.Logger
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter(db *pop.Connection, logger Logger) services.MoveRouter {
+func NewMoveRouter(db *pop.Connection, logger *zap.Logger) services.MoveRouter {
 	return &moveRouter{db, logger}
 }
 
@@ -370,6 +370,6 @@ func (router moveRouter) logMove(move *models.Move) {
 	)
 }
 
-func (router *moveRouter) SetLogger(logger services.Logger) {
+func (router *moveRouter) SetLogger(logger *zap.Logger) {
 	router.logger = logger
 }

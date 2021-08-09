@@ -26,13 +26,13 @@ import (
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
 type BaseHandlerTestSuite struct {
 	testingsuite.PopTestSuite
-	logger             Logger
+	logger             *zap.Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName, opts ...testingsuite.PopTestSuiteOption) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
 		PopTestSuite:       testingsuite.NewPopTestSuite(packageName, opts...),
 		logger:             logger,
@@ -41,7 +41,7 @@ func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSen
 }
 
 // TestLogger returns the logger to use in the suite
-func (suite *BaseHandlerTestSuite) TestLogger() Logger {
+func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
 	return suite.logger
 }
 

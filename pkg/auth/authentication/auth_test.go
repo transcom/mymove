@@ -65,7 +65,7 @@ func ApplicationTestServername() auth.ApplicationServername {
 
 type AuthSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func (suite *AuthSuite) SetupTest() {
@@ -87,7 +87,7 @@ func TestAuthSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func fakeLoginGovProvider(logger Logger) LoginGovProvider {
+func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
 	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
 }
 

@@ -12,7 +12,7 @@ import (
 
 type PaperworkServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestPaperworkServiceSuite(t *testing.T) {

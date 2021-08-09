@@ -15,7 +15,7 @@ import (
 
 type ModelSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func (suite *ModelSuite) SetupTest() {

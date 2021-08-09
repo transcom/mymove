@@ -95,7 +95,7 @@ func createHHGNeedsServicesCounselingWithLocator(db *pop.Connection, locator str
 }
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger *zap.Logger) {
 	moveRouter := moverouter.NewMoveRouter(db, logger)
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
 	var allDutyStations []models.DutyStation

@@ -12,7 +12,7 @@ import (
 
 type MTOServiceItemServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func (suite *MTOServiceItemServiceSuite) SetupTest() {

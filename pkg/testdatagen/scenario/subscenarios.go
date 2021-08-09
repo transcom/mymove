@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -112,7 +113,7 @@ func subScenarioHHGServicesCounseling(db *pop.Connection, userUploader *uploader
 	}
 }
 
-func subScenarioTXOQueues(db *pop.Connection, userUploader *uploader.UserUploader, logger Logger) func() {
+func subScenarioTXOQueues(db *pop.Connection, userUploader *uploader.UserUploader, logger *zap.Logger) func() {
 	return func() {
 		createTOO(db)
 		createTIO(db)
@@ -136,7 +137,7 @@ func subScenarioTXOQueues(db *pop.Connection, userUploader *uploader.UserUploade
 }
 
 func subScenarioPaymentRequestCalculations(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
-	moveRouter services.MoveRouter, logger Logger) func() {
+	moveRouter services.MoveRouter, logger *zap.Logger) func() {
 	return func() {
 		createTXO(db)
 		createTXOUSMC(db)

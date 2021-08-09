@@ -23,14 +23,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
-func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
+func IsLoggedInMiddleware(globalLogger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger := logging.FromContext(r.Context())
 		data := map[string]interface{}{
 			"isLoggedIn": false,
 		}
@@ -48,10 +50,11 @@ func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
 }
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 
+			logger := logging.FromContext(r.Context())
 			session := auth.SessionFromRequestContext(r)
 
 			// We must have a logged in session and a user
@@ -79,7 +82,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop.Connection, logger Logger) error {
+func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop.Connection, logger *zap.Logger) error {
 	userID := session.UserID
 
 	user, err := models.GetUser(db, userID)
@@ -104,7 +107,7 @@ func updateUserCurrentSessionID(session *auth.Session, sessionID string, db *pop
 	return err
 }
 
-func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger Logger) error {
+func resetUserCurrentSessionID(session *auth.Session, db *pop.Connection, logger *zap.Logger) error {
 	userID := session.UserID
 	user, err := models.GetUser(db, userID)
 	if err != nil {
@@ -149,7 +152,7 @@ func currentSessionID(session *auth.Session, user *models.User) string {
 	return ""
 }
 
-func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, session *auth.Session, logger Logger, db *pop.Connection) error {
+func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, session *auth.Session, logger *zap.Logger, db *pop.Connection) error {
 	// The session token must be renewed during sign in to prevent
 	// session fixation attacks
 	err := sessionManager.RenewToken(ctx)
@@ -205,7 +208,7 @@ func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, s
 }
 
 // AdminAuthMiddleware is middleware for admin authentication
-func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func AdminAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := auth.SessionFromRequestContext(r)
@@ -223,9 +226,10 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 }
 
 // PrimeAuthorizationMiddleware is the prime authorization middleware
-func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func PrimeAuthorizationMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
 			clientCert := ClientCertFromContext(r.Context())
 			if clientCert == nil {
 				logger.Error("unauthorized user for ghc prime")
@@ -282,7 +286,7 @@ func (context Context) sessionManager(session *auth.Session) *scs.SessionManager
 
 // Context is the common handler type for auth handlers
 type Context struct {
-	logger           Logger
+	logger           *zap.Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 	featureFlags     map[string]bool
@@ -296,7 +300,7 @@ type FeatureFlag struct {
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int, sessionManagers [3]*scs.SessionManager) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
@@ -770,7 +774,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
 	if err != nil {
@@ -817,7 +821,7 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 }
 
 // InitAuth initializes the Login.gov provider
-func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
+func InitAuth(v *viper.Viper, logger *zap.Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
 	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
 	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
 	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)

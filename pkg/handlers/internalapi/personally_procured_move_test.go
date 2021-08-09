@@ -295,7 +295,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
-
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
 		MoveID:      strfmt.UUID(move1.ID.String()),
 		HTTPRequest: req,

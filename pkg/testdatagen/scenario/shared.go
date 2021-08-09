@@ -1101,13 +1101,13 @@ func createPPMUsers(db *pop.Connection, userUploader *uploader.UserUploader) {
 	}
 }
 
-func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, logger Logger, affiliation models.ServiceMemberAffiliation) {
+func createDefaultHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, logger *zap.Logger, affiliation models.ServiceMemberAffiliation) {
 	createHHGMoveWithPaymentRequest(db, userUploader, logger, affiliation, testdatagen.Assertions{})
 }
 
 // Creates a payment request with domestic longhaul and shorthaul shipments with
 // service item pricing params for displaying cost calculations
-func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploader.PrimeUploader, logger Logger, moveRouter services.MoveRouter) {
+func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploader.PrimeUploader, logger *zap.Logger, moveRouter services.MoveRouter) {
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
@@ -1498,7 +1498,7 @@ func createHHGWithPaymentServiceItems(db *pop.Connection, primeUploader *uploade
 	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
 }
 
-func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, logger Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, logger *zap.Logger, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
 	serviceMember := models.ServiceMember{
 		Affiliation: &affiliation,
 	}

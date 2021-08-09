@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -36,7 +37,7 @@ type Event struct {
 	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
 	DBConnection    *pop.Connection         // The pop connection DB
 	HandlerContext  handlers.HandlerContext // The handler context
-	logger          handlers.Logger         // The logger
+	logger          *zap.Logger             // The logger
 }
 
 // OrderUpdateEventKey is a key containing Order.Update

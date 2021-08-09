@@ -11,6 +11,8 @@
 package scenario
 
 import (
+	"go.uber.org/zap"
+
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gobuffalo/pop/v5"
@@ -28,7 +30,7 @@ var DevSeedScenario = devSeedScenario{
 }
 
 // Setup initializes the run setup for the devseed scenario
-func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
+func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger *zap.Logger) {
 
 	moveRouter := moverouter.NewMoveRouter(db, logger)
 
@@ -62,7 +64,7 @@ func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserU
 }
 
 // Run does that data load thing
-func (e *devSeedScenario) Run(logger Logger, namedSubScenario string) {
+func (e *devSeedScenario) Run(logger *zap.Logger, namedSubScenario string) {
 	// sub-scenario name validation runs before this part is reached
 	// run only the specified sub-scenario
 	if subScenarioFunc, ok := e.SubScenarios[namedSubScenario]; ok {
