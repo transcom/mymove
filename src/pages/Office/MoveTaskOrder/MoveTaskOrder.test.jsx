@@ -805,7 +805,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[1]).toHaveTextContent('0 lbs');
+      expect(weightSummaries[1]).toHaveTextContent('—');
     });
 
     it('displays the move weight total with all weights not set', async () => {
@@ -822,7 +822,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[3]).toHaveTextContent('0 lbs');
+      expect(weightSummaries[3]).toHaveTextContent('—');
     });
 
     it('displays the estimated total weight with some weights missing', async () => {
@@ -873,7 +873,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[1]).toHaveTextContent('0 lbs');
+      expect(weightSummaries[1]).toHaveTextContent('—');
     });
 
     it('displays the move weight total with all not sent', async () => {
@@ -890,7 +890,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[3]).toHaveTextContent('0 lbs');
+      expect(weightSummaries[3]).toHaveTextContent('—');
     });
 
     it('displays the estimated total weight with some sent and some not sent', async () => {
