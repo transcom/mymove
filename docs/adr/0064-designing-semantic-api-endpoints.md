@@ -128,6 +128,11 @@ additional API requests to rollback/undo multi-pronged actions.
 ### _Do nothing and document_
 
 - ➕ Less engineering work is needed from Roci engineers.
+- ➕ The Prime API remains flexible and does not assume what the Prime will
+    want.
+- ➕ RESTful APIs are easier to maintain than RPC-style APIs.
+- ➕ Leaving the API as is allows the API to follow standard MilMove patterns.
+    This reduces the amount of onboarding and confusion for new team members.
 - ➖ More work is necessary from Roci content designers.
 - ➖ More documentation is necessary to outline the necessary steps to perform
     logical semantic steps from both Roci engineers and designers.
