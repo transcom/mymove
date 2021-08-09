@@ -278,7 +278,7 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	moveID, err := h.DeleteShipment(shipmentID)
 	if err != nil {
-		logger.Error("Error deleting shipment: ", zap.Error(err))
+		logger.Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
 
 		switch err.(type) {
 		case services.NotFoundError:
@@ -342,7 +342,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 	shipment, err := h.ApproveShipment(shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("ApproveShipment error: ", zap.Error(err))
+		logger.Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -405,7 +405,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 	shipment, err := h.RequestShipmentDiversion(shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("RequestShipment error: ", zap.Error(err))
+		logger.Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -468,7 +468,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 	shipment, err := h.ApproveShipmentDiversion(shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("ApproveShipment error: ", zap.Error(err))
+		logger.Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -511,13 +511,13 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(s
 	}
 }
 
-// RejectShipmentHandler approves a shipment diversion
+// RejectShipmentHandler rejects a shipment
 type RejectShipmentHandler struct {
 	handlers.HandlerContext
 	services.ShipmentRejecter
 }
 
-// Handle approves a shipment rejection
+// Handle rejects a shipment
 func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -532,7 +532,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 	shipment, err := h.RejectShipment(shipmentID, eTag, rejectionReason)
 
 	if err != nil {
-		logger.Error("ApproveShipment error: ", zap.Error(err))
+		logger.Error("ghcapi.RejectShipmentHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -595,7 +595,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 	shipment, err := h.RequestShipmentCancellation(shipmentID, eTag)
 
 	if err != nil {
-		logger.Error("RequestShipment error: ", zap.Error(err))
+		logger.Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
 
 		switch e := err.(type) {
 		case services.NotFoundError:
@@ -635,5 +635,66 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentCancellationHandler could not generate the event", zap.Error(err))
+	}
+}
+
+// RequestShipmentReweighHandler Requests a shipment reweigh
+type RequestShipmentReweighHandler struct {
+	handlers.HandlerContext
+	services.ShipmentReweighRequester
+}
+
+// Handle Requests a shipment reweigh
+func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipmentReweighParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		logger.Error("Only TOO role can Request a shipment reweigh")
+		return shipmentops.NewRequestShipmentReweighForbidden()
+	}
+
+	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
+	reweigh, err := h.RequestShipmentReweigh(params.HTTPRequest.Context(), shipmentID)
+
+	if err != nil {
+		logger.Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))
+
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return shipmentops.NewRequestShipmentReweighNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Validation errors", "RequestShipmentReweigh", h.GetTraceID(), e.ValidationErrors)
+			return shipmentops.NewRequestShipmentReweighUnprocessableEntity().WithPayload(payload)
+		case services.ConflictError:
+			return shipmentops.NewRequestShipmentReweighConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return shipmentops.NewRequestShipmentReweighInternalServerError()
+		}
+	}
+
+	moveID := reweigh.Shipment.MoveTaskOrderID
+	h.triggerRequestShipmentReweighEvent(shipmentID, moveID, params)
+
+	payload := payloads.Reweigh(reweigh)
+	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
+}
+
+func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentReweighParams) {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcRequestShipmentReweighEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.ShipmentRequestReweighEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
+		MtoID:           moveID,                               // ID of the associated Move
+		Request:         params.HTTPRequest,                   // Pass on the http.Request
+		DBConnection:    h.DB(),                               // Pass on the pop.Connection
+		HandlerContext:  h,                                    // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.RequestShipmentReweighHandler could not generate the event", zap.Error(err))
 	}
 }

@@ -1325,6 +1325,165 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
+	suite.Run("Returns 200 when all validations pass", func() {
+		move := testdatagen.MakeAvailableMove(suite.DB())
+		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
+			Move: move,
+		})
+
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		reweighRequester := mtoshipment.NewShipmentReweighRequester(
+			suite.DB(),
+		)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := RequestShipmentReweighHandler{
+			handlerContext,
+			reweighRequester,
+		}
+
+		approveParams := shipmentops.RequestShipmentReweighParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		response := handler.Handle(approveParams)
+		okResponse := response.(*shipmentops.RequestShipmentReweighOK)
+		payload := okResponse.Payload
+		suite.IsType(&shipmentops.RequestShipmentReweighOK{}, response)
+		suite.Equal(strfmt.UUID(shipment.ID.String()), payload.ShipmentID)
+		suite.EqualValues(models.ReweighRequesterTOO, payload.RequestedBy)
+		suite.WithinDuration(time.Now(), (time.Time)(payload.RequestedAt), 2*time.Second)
+		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+	})
+
+	suite.Run("Returns a 403 when the office user is not a TOO", func() {
+		officeUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		uuid := uuid.Must(uuid.NewV4())
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+
+		reweighRequester.AssertNumberOfCalls(suite.T(), "RequestShipmentReweigh", 0)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", uuid.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentReweighHandler{
+			handlerContext,
+			reweighRequester,
+		}
+		approveParams := shipmentops.RequestShipmentReweighParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(uuid),
+		}
+
+		response := handler.Handle(approveParams)
+		suite.IsType(&shipmentops.RequestShipmentReweighForbidden{}, response)
+	})
+
+	suite.Run("Returns 404 when reweighRequester returns NotFoundError", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentReweighHandler{
+			handlerContext,
+			reweighRequester,
+		}
+		params := shipmentops.RequestShipmentReweighParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+		reweighRequester.On("RequestShipmentReweigh", params.HTTPRequest.Context(), shipment.ID).Return(nil, services.NotFoundError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RequestShipmentReweighNotFound{}, response)
+	})
+
+	suite.Run("Returns 409 when reweighRequester returns Conflict Error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentReweighHandler{
+			handlerContext,
+			reweighRequester,
+		}
+		params := shipmentops.RequestShipmentReweighParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		reweighRequester.On("RequestShipmentReweigh", params.HTTPRequest.Context(), shipment.ID).Return(nil, services.ConflictError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RequestShipmentReweighConflict{}, response)
+	})
+
+	suite.Run("Returns 422 when reweighRequester returns validation errors", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentReweighHandler{
+			handlerContext,
+			reweighRequester,
+		}
+		params := shipmentops.RequestShipmentReweighParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+		reweighRequester.On("RequestShipmentReweigh", params.HTTPRequest.Context(), shipment.ID).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RequestShipmentReweighUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Returns 500 when reweighRequester returns unexpected error", func() {
+		shipment := testdatagen.MakeStubbedShipment(suite.DB())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		reweighRequester := &mocks.ShipmentReweighRequester{}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+		handler := RequestShipmentReweighHandler{
+			handlerContext,
+			reweighRequester,
+		}
+		params := shipmentops.RequestShipmentReweighParams{
+			HTTPRequest: req,
+			ShipmentID:  *handlers.FmtUUID(shipment.ID),
+		}
+
+		reweighRequester.On("RequestShipmentReweigh", params.HTTPRequest.Context(), shipment.ID).Return(nil, errors.New("UnexpectedError"))
+
+		response := handler.Handle(params)
+		suite.IsType(&shipmentops.RequestShipmentReweighInternalServerError{}, response)
+	})
+}
+
 type createMTOShipmentSubtestData struct {
 	builder *query.Builder
 	params  mtoshipmentops.CreateMTOShipmentParams

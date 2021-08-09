@@ -12,6 +12,7 @@ import (
 func MakeReweigh(db *pop.Connection, assertions Assertions) models.Reweigh {
 	shipment := assertions.MTOShipment
 	if isZeroUUID(shipment.ID) {
+		assertions.MTOShipment.Status = models.MTOShipmentStatusApproved
 		shipment = MakeMTOShipment(db, assertions)
 	}
 
