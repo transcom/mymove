@@ -79,6 +79,7 @@ type Assertions struct {
 	Reimbursement                            models.Reimbursement
 	ReRateArea                               models.ReRateArea
 	ReService                                models.ReService
+	Reweigh                                  models.Reweigh
 	ReZip3                                   models.ReZip3
 	Role                                     roles.Role
 	SecondaryPickupAddress                   models.Address

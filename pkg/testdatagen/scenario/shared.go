@@ -3551,6 +3551,10 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 	})
 }
 
+func createHHGMoveWithReweigh(db *pop.Connection, userUploader *uploader.UserUploader) {
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
+}
+
 func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.UserUploader) {
 
 	mtoWithTaskOrderServices := testdatagen.MakeMove(db, testdatagen.Assertions{

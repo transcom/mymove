@@ -207,6 +207,7 @@ func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, pr
 		createHHGMoveWith2PaymentRequests(db, userUploader)
 		createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
 		createHHGMoveWithTaskOrderServices(db, userUploader)
+		createHHGMoveWithReweigh(db, userUploader)
 		// This one doesn't have submitted shipments. Can we get rid of it?
 		// createRecentlyUpdatedHHGMove(db, userUploader)
 		createMoveWithHHGAndNTSRPaymentRequest(db, userUploader)

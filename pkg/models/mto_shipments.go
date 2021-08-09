@@ -92,11 +92,14 @@ type MTOShipment struct {
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
+	BillableWeightCap                *unit.Pound       `db:"billable_weight_cap"`
+	BillableWeightJustification      *string           `db:"billable_weight_justification"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	Diversion                        bool              `db:"diversion"`
 	RejectionReason                  *string           `db:"rejection_reason"`
 	Distance                         *unit.Miles       `db:"distance"`
+	Reweigh                          *Reweigh          `has_one:"reweighs" fk_id:"shipment_id"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 	DeletedAt                        *time.Time        `db:"deleted_at"`
@@ -124,6 +127,8 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	if m.PrimeActualWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
 	}
+	vs = append(vs, &OptionalPoundIsNonNegative{Field: m.BillableWeightCap, Name: "BillableWeightCap"})
+	vs = append(vs, &StringIsNilOrNotBlank{Field: m.BillableWeightJustification, Name: "BillableWeightJustification"})
 	if m.Status == MTOShipmentStatusRejected {
 		var rejectionReason string
 		if m.RejectionReason != nil {
