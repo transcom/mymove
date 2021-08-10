@@ -46,7 +46,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     let newActiveSection;
 
     sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#${section}`);
+      const sectionEl = document.getElementById(`${section}`);
       if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
         newActiveSection = section;
       }
