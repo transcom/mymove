@@ -15,7 +15,6 @@ requires multiple steps in order to be performed. These types of actions are
 easily understood by a user of the Prime API, but require low-level coordination
 such as adding or removing records
 
-
 To divert a shipment today, it involves a number of
 steps using different API endpoints.
 
@@ -58,6 +57,43 @@ appropriate address for the shipment. The Prime API would be required to ensure
 that shipments being cancelled no longer have a `{ "diversion": true }` property
 and ensure that the appropriate _destination_ or _pickup_ address is being
 updated.
+
+#### Handling actions for API Users
+
+It's beneficial for all involved, the Prime engineers and Prime users, that an
+API patterns use the same handler and/or service object for arbitrary scenarios.
+
+The Prime API endpoints should be designed to represent the business concepts
+that the consumer of the API is familiar with. The Prime user is not concerned
+with the low-level database interactions that need to be performed for a given
+action. Focusing on the action that a Prime user is trying to achieve also
+allows for less value passing from the Prime user to a given endpoint. By having
+endpoints where users can pass in values is riskier than having the logic
+controlled by the application only. For example, with a generic endpoint for
+updating a shipment's status, it's easier for bugs to appear where the user can
+pass in a status they shouldn't be allowed to, and it requires more guards in
+the application to prevent that.
+
+If there are required side effects that always happen when performing an action,
+I would want the application to handle that for me instead of having to remember
+to do that myself via multiple requests to different endpoints. For example,
+when a shipment is approved, it sometimes requires setting the required delivery
+date and creating shipment-level service items. That should not be the
+responsibility of the API user to know when to perform those side effects.
+
+Using endpoints with verb names that represent the specific action is good API
+practice and should not affect the Prime's ability to perform their duties.
+Using the diversion example at the top of this doc, those steps are all required
+in order to create a diversion.
+
+By handling the steps for a Prime user, we are also capable of validating or
+preventing data to be modified or not match against questionable modifications.
+An example of this is with a diversion shipment. With the current process of
+having to create separate shipments via separate API calls, the Prime user could
+modify the weight or other details of a shipment in their favor. By restricting
+this association and creation of shipments in a semantic action, the Prime
+engineers can use business logic to prevent these erroneous changes from
+happening and report error messages to the Prime user.
 
 ### Additional actions on resources in the future
 
