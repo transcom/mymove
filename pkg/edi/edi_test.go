@@ -4,18 +4,28 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-func TestNewReader(t *testing.T) {
-	reader := NewReader(strings.NewReader(""))
-	if reader.Comma != '*' {
-		t.Errorf("Reader.Comma is %c, but should be ','", reader.Comma)
-	}
+type EDISuite struct {
+	testingsuite.BaseTestSuite
 }
 
-func TestNewWriter(t *testing.T) {
+func TestEDISuite(t *testing.T) {
+	hs := &EDISuite{}
+
+	suite.Run(t, hs)
+}
+
+func (suite *EDISuite) TestNewReader() {
+	reader := NewReader(strings.NewReader(""))
+	suite.Equal('*', reader.Comma, "Reader.Comma is %c, but should be '*'")
+}
+
+func (suite *EDISuite) TestNewWriter() {
 	writer := NewWriter(os.Stdout)
-	if writer.Comma != '*' {
-		t.Errorf("Writer.Comma is %x, but should be '*'", writer.Comma)
-	}
+	suite.Equal('*', writer.Comma, "Writer.Comma is %c, but should be '*'")
 }
