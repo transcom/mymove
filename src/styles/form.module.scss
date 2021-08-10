@@ -91,8 +91,8 @@
     @include u-margin-top(3);
   }
 
-  legend + :global(.usa-form-group .usa-label) {
-    @include u-margin-top('105');
+  legend {
+    margin-bottom: -12px;
   }
 }
 
