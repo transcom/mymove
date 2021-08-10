@@ -15,7 +15,7 @@ import (
 // PaymentRequestServiceSuite is a suite for testing payment requests
 type PaymentRequestServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 	fs     *afero.Afero
 }
 

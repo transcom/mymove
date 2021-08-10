@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
@@ -16,13 +18,13 @@ type AccessCodeClaimer struct {
 	mock.Mock
 }
 
-// ClaimAccessCode provides a mock function with given fields: code, serviceMemberID
-func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
-	ret := _m.Called(code, serviceMemberID)
+// ClaimAccessCode provides a mock function with given fields: appCfg, code, serviceMemberID
+func (_m *AccessCodeClaimer) ClaimAccessCode(appCfg appconfig.AppConfig, code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
+	ret := _m.Called(appCfg, code, serviceMemberID)
 
 	var r0 *models.AccessCode
-	if rf, ok := ret.Get(0).(func(string, uuid.UUID) *models.AccessCode); ok {
-		r0 = rf(code, serviceMemberID)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, string, uuid.UUID) *models.AccessCode); ok {
+		r0 = rf(appCfg, code, serviceMemberID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AccessCode)
@@ -30,8 +32,8 @@ func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.U
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(string, uuid.UUID) *validate.Errors); ok {
-		r1 = rf(code, serviceMemberID)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, string, uuid.UUID) *validate.Errors); ok {
+		r1 = rf(appCfg, code, serviceMemberID)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +41,8 @@ func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.U
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, uuid.UUID) error); ok {
-		r2 = rf(code, serviceMemberID)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, string, uuid.UUID) error); ok {
+		r2 = rf(appCfg, code, serviceMemberID)
 	} else {
 		r2 = ret.Error(2)
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -21,6 +22,7 @@ type UpdateMTOShipmentAddressHandler struct {
 // Handle updates an address on a shipment
 func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOShipmentAddressParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
 	// Get the params and payload
 	payload := params.Body
@@ -33,7 +35,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 	newAddress.ID = addressID
 
 	// Call the service object
-	updatedAddress, err := h.MTOShipmentAddressUpdater.UpdateMTOShipmentAddress(newAddress, mtoShipmentID, eTag, true)
+	updatedAddress, err := h.MTOShipmentAddressUpdater.UpdateMTOShipmentAddress(appCfg, newAddress, mtoShipmentID, eTag, true)
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {

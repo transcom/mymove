@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,13 +23,14 @@ const (
 var dcrtTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
-	suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
-
-	paymentServiceItem := suite.setupDomesticCratingServiceItem()
-	pricer := NewDomesticCratingPricer(suite.DB())
+	pricer := NewDomesticCratingPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+
+		paymentServiceItem := suite.setupDomesticCratingServiceItem()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, displayParams, err := pricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dcrtTestPriceCents, priceCents)
 
@@ -41,32 +43,43 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticCratingPricer() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
 		suite.NoError(err)
 		suite.Equal(dcrtTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := pricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid crating volume", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		badVolume := unit.CubicFeet(3.0)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, badVolume, dcrtTestServiceSchedule)
+		_, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, dcrtTestRequestedPickupDate, badVolume, dcrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "crate must be billed for a minimum of 4 cubic feet")
 	})
 
 	suite.Run("not finding a rate record", func() {
-		_, _, err := pricer.Price("BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := pricer.Price(appCfg, "BOGUS", dcrtTestRequestedPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		twoYearsLaterPickupDate := dcrtTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
+		_, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dcrtTestBilledCubicFeet, dcrtTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})

@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -16,13 +18,13 @@ type WebhookSubscriptionCreator struct {
 	mock.Mock
 }
 
-// CreateWebhookSubscription provides a mock function with given fields: subscription, subscriberIDFilter
-func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(subscription *models.WebhookSubscription, subscriberIDFilter []services.QueryFilter) (*models.WebhookSubscription, *validate.Errors, error) {
-	ret := _m.Called(subscription, subscriberIDFilter)
+// CreateWebhookSubscription provides a mock function with given fields: appCfg, subscription, subscriberIDFilter
+func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(appCfg appconfig.AppConfig, subscription *models.WebhookSubscription, subscriberIDFilter []services.QueryFilter) (*models.WebhookSubscription, *validate.Errors, error) {
+	ret := _m.Called(appCfg, subscription, subscriberIDFilter)
 
 	var r0 *models.WebhookSubscription
-	if rf, ok := ret.Get(0).(func(*models.WebhookSubscription, []services.QueryFilter) *models.WebhookSubscription); ok {
-		r0 = rf(subscription, subscriberIDFilter)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.WebhookSubscription, []services.QueryFilter) *models.WebhookSubscription); ok {
+		r0 = rf(appCfg, subscription, subscriberIDFilter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.WebhookSubscription)
@@ -30,8 +32,8 @@ func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(subscription *mo
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*models.WebhookSubscription, []services.QueryFilter) *validate.Errors); ok {
-		r1 = rf(subscription, subscriberIDFilter)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.WebhookSubscription, []services.QueryFilter) *validate.Errors); ok {
+		r1 = rf(appCfg, subscription, subscriberIDFilter)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +41,8 @@ func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(subscription *mo
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*models.WebhookSubscription, []services.QueryFilter) error); ok {
-		r2 = rf(subscription, subscriberIDFilter)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, *models.WebhookSubscription, []services.QueryFilter) error); ok {
+		r2 = rf(appCfg, subscription, subscriberIDFilter)
 	} else {
 		r2 = ret.Error(2)
 	}

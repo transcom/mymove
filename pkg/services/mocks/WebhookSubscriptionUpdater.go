@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,13 +14,13 @@ type WebhookSubscriptionUpdater struct {
 	mock.Mock
 }
 
-// UpdateWebhookSubscription provides a mock function with given fields: webhooksubscription, severity, eTag
-func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscription *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error) {
-	ret := _m.Called(webhooksubscription, severity, eTag)
+// UpdateWebhookSubscription provides a mock function with given fields: appCfg, webhooksubscription, severity, eTag
+func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(appCfg appconfig.AppConfig, webhooksubscription *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error) {
+	ret := _m.Called(appCfg, webhooksubscription, severity, eTag)
 
 	var r0 *models.WebhookSubscription
-	if rf, ok := ret.Get(0).(func(*models.WebhookSubscription, *int64, *string) *models.WebhookSubscription); ok {
-		r0 = rf(webhooksubscription, severity, eTag)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.WebhookSubscription, *int64, *string) *models.WebhookSubscription); ok {
+		r0 = rf(appCfg, webhooksubscription, severity, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.WebhookSubscription)
@@ -26,8 +28,8 @@ func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(webhooksubscript
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.WebhookSubscription, *int64, *string) error); ok {
-		r1 = rf(webhooksubscription, severity, eTag)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.WebhookSubscription, *int64, *string) error); ok {
+		r1 = rf(appCfg, webhooksubscription, severity, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

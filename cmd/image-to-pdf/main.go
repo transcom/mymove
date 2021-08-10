@@ -7,6 +7,7 @@ import (
 	"github.com/namsral/flag"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -35,11 +36,11 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	storer := storage.NewMemory(storage.NewMemoryParams("", "", logger))
-	userUploader, err := uploader.NewUserUploader(nil, logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	userUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Fatalf("could not instantiate uploader due to %v", err)
 	}
-	generator, err := paperwork.NewGenerator(nil, logger, userUploader.Uploader())
+	generator, err := paperwork.NewGenerator(userUploader.Uploader())
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -48,7 +49,8 @@ func main() {
 		log.Fatal("Must specify at least one input file")
 	}
 
-	path, err := generator.MergeImagesToPDF(inputFiles)
+	appCfg := appconfig.NewAppConfig(nil, logger)
+	path, err := generator.MergeImagesToPDF(appCfg, inputFiles)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

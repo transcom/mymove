@@ -4,9 +4,9 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	models "github.com/transcom/mymove/pkg/models"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
 
-	pop "github.com/gobuffalo/pop/v5"
+	models "github.com/transcom/mymove/pkg/models"
 
 	validate "github.com/gobuffalo/validate/v3"
 )
@@ -16,13 +16,13 @@ type MTOServiceItemCreator struct {
 	mock.Mock
 }
 
-// CreateMTOServiceItem provides a mock function with given fields: serviceItem
-func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
-	ret := _m.Called(serviceItem)
+// CreateMTOServiceItem provides a mock function with given fields: appCfg, serviceItem
+func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCfg appconfig.AppConfig, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
+	ret := _m.Called(appCfg, serviceItem)
 
 	var r0 *models.MTOServiceItems
-	if rf, ok := ret.Get(0).(func(*models.MTOServiceItem) *models.MTOServiceItems); ok {
-		r0 = rf(serviceItem)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOServiceItem) *models.MTOServiceItems); ok {
+		r0 = rf(appCfg, serviceItem)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItems)
@@ -30,8 +30,8 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOSer
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*models.MTOServiceItem) *validate.Errors); ok {
-		r1 = rf(serviceItem)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOServiceItem) *validate.Errors); ok {
+		r1 = rf(appCfg, serviceItem)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,16 +39,11 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOSer
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*models.MTOServiceItem) error); ok {
-		r2 = rf(serviceItem)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, *models.MTOServiceItem) error); ok {
+		r2 = rf(appCfg, serviceItem)
 	} else {
 		r2 = ret.Error(2)
 	}
 
 	return r0, r1, r2
-}
-
-// SetConnection provides a mock function with given fields: db
-func (_m *MTOServiceItemCreator) SetConnection(db *pop.Connection) {
-	_m.Called(db)
 }

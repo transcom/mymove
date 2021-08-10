@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -42,9 +43,10 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		})
 
 	suite.T().Run("lookup GHC diesel fuel price successfully", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.FatalNoError(err)
 		suite.Equal("243799", valueStr)
 	})
@@ -86,12 +88,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 			},
 		})
 
-		paramCache := ServiceParamsCache{}
-		paramCache.Initialize(suite.DB())
+		paramCache := NewServiceParamsCache()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key)
+		valueStr, err := paramLookup.ServiceParamValue(appCfg, serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		suite.Equal("243799", valueStr)
 
@@ -110,9 +112,10 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 }

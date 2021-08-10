@@ -3,31 +3,27 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 type domesticOriginFirstDaySITPricer struct {
-	db *pop.Connection
 }
 
 // NewDomesticOriginFirstDaySITPricer creates a new pricer for domestic origin first day SIT
-func NewDomesticOriginFirstDaySITPricer(db *pop.Connection) services.DomesticOriginFirstDaySITPricer {
-	return &domesticOriginFirstDaySITPricer{
-		db: db,
-	}
+func NewDomesticOriginFirstDaySITPricer() services.DomesticOriginFirstDaySITPricer {
+	return &domesticOriginFirstDaySITPricer{}
 }
 
 // Price determines the price for domestic origin first day SIT
-func (p domesticOriginFirstDaySITPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticFirstDaySIT(p.db, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, weight, serviceArea)
+func (p domesticOriginFirstDaySITPricer) Price(appCfg appconfig.AppConfig, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticFirstDaySIT(appCfg, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, weight, serviceArea)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
-func (p domesticOriginFirstDaySITPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginFirstDaySITPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -48,5 +44,5 @@ func (p domesticOriginFirstDaySITPricer) PriceUsingParams(params models.PaymentS
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(appCfg, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
 }

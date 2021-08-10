@@ -218,7 +218,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -267,7 +267,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -317,7 +317,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
+		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -648,7 +648,7 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		// And: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
-		handler := SubmitAmendedOrdersHandler{context, moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())}
+		handler := SubmitAmendedOrdersHandler{context, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

@@ -19,6 +19,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/storage/mocks"
@@ -36,7 +37,7 @@ import (
 
 type UploaderSuite struct {
 	testingsuite.PopTestSuite
-	logger       uploader.Logger
+	logger       *zap.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero
@@ -110,17 +111,18 @@ func TestUploaderSuite(t *testing.T) {
 }
 
 func (suite *UploaderSuite) TestUploaderExceedsFileSizeLimit() {
-	_, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 251*uploader.MB, models.UploadTypeUSER)
+	_, err := uploader.NewUploader(suite.storer, 251*uploader.MB, models.UploadTypeUSER)
 	suite.Error(err)
 	suite.Equal(uploader.ErrFileSizeLimitExceedsMax, err)
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB, models.UploadTypeUSER)
+	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesPDF)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -128,39 +130,42 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB, models.UploadTypeUSER)
+	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	file, cleanup, err := suite.createFileOfArbitrarySize(uint64(0 * uploader.MB))
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesAny)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB, models.UploadTypeUSER)
+	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	file, cleanup, err := suite.createFileOfArbitrarySize(uint64(1 * uploader.MB))
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesPDF)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.NoError(err)
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }
 
 func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB, models.UploadTypeUSER)
+	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(26 * uploader.MB))
 	suite.NoError(err)
 	defer cleanup()
 
-	_, verrs, err := up.CreateUpload(uploader.File{File: f}, uploader.AllowedTypesAny)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	_, verrs, err := up.CreateUpload(appCfg, uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -168,7 +173,7 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 
 func (suite *UploaderSuite) TestStorerCalledWithTags() {
 	fakeS3 := &mocks.FileStorer{}
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, fakeS3, 25*uploader.MB, models.UploadTypeUSER)
+	up, err := uploader.NewUploader(fakeS3, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(5 * uploader.MB))
 	suite.NoError(err)
@@ -180,8 +185,9 @@ func (suite *UploaderSuite) TestStorerCalledWithTags() {
 		mock.Anything,
 		mock.Anything,
 		&tags).Return(&storage.StoreResult{}, nil)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	// assert tags are passed along to storer
-	_, verrs, err := up.CreateUpload(uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
+	_, verrs, err := up.CreateUpload(appCfg, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -218,21 +224,22 @@ func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
 }
 
 func (suite *UploaderSuite) TestCreateUploadNoDocument() {
-	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB, models.UploadTypeUSER)
+	up, err := uploader.NewUploader(suite.storer, 25*uploader.MB, models.UploadTypeUSER)
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 	fixtureFileInfo, err := file.Stat()
 	suite.NoError(err)
 
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	// Create file and upload
-	upload, verrs, err := up.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")
 	file.Close()
 
 	// Download file and test size
-	download, err := up.Download(upload)
+	download, err := up.Download(appCfg, upload)
 	suite.NoError(err)
 	defer download.Close()
 

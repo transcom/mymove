@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -32,10 +33,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip5Distance)
 		suite.Equal(expected, distanceStr)
@@ -68,10 +70,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip5Distance)
 		suite.Equal(expected, distanceStr)
@@ -104,10 +107,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
 	})
@@ -133,10 +137,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
 	})

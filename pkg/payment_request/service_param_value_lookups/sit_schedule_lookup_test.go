@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -71,17 +72,19 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 	})
 
 	suite.T().Run("lookup SITScheduleOrigin", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(originKey)
+		valueStr, err := paramLookup.ServiceParamValue(appCfg, originKey)
 		suite.FatalNoError(err)
 		suite.Equal(strconv.Itoa(originDomesticServiceArea.SITPDSchedule), valueStr)
 	})
 
 	suite.T().Run("lookup SITScheduleOriginDest", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(destKey)
+		valueStr, err := paramLookup.ServiceParamValue(appCfg, destKey)
 		suite.FatalNoError(err)
 		suite.Equal(strconv.Itoa(destDomesticServiceArea.SITPDSchedule), valueStr)
 	})
@@ -94,9 +97,10 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(originKey)
+		valueStr, err := paramLookup.ServiceParamValue(appCfg, originKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
 		expected := fmt.Sprintf(" with error unable to find domestic service area for 902 under contract code %s", ghcrateengine.DefaultContractCode)
@@ -111,9 +115,10 @@ func (suite *ServiceParamValueLookupsSuite) TestSITSchedule() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(destKey)
+		valueStr, err := paramLookup.ServiceParamValue(appCfg, destKey)
 		suite.Equal("", valueStr)
 		suite.Error(err)
 		expected := fmt.Sprintf(" with error unable to find domestic service area for 945 under contract code %s", ghcrateengine.DefaultContractCode)

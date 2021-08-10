@@ -9,22 +9,23 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type testUserQueryBuilder struct {
-	fakeFetchOne  func(model interface{}) error
-	fakeUpdateOne func(models interface{}, eTag *string) (*validate.Errors, error)
+	fakeFetchOne  func(appCfg appconfig.AppConfig, model interface{}) error
+	fakeUpdateOne func(appCfg appconfig.AppConfig, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (t *testUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
-	m := t.fakeFetchOne(model)
+func (t *testUserQueryBuilder) FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error {
+	m := t.fakeFetchOne(appCfg, model)
 	return m
 }
 
-func (t *testUserQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
+func (t *testUserQueryBuilder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error) {
 	return nil, nil
 }
 
@@ -32,7 +33,7 @@ func (suite *UserServiceSuite) TestFetchUser() {
 	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return nil
 		}
@@ -44,14 +45,15 @@ func (suite *UserServiceSuite) TestFetchUser() {
 		fetcher := NewUserFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		user, err := fetcher.FetchUser(filters)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		user, err := fetcher.FetchUser(appCfg, filters)
 
 		suite.NoError(err)
 		suite.Equal(id, user.ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with zero user", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testUserQueryBuilder{
@@ -59,7 +61,8 @@ func (suite *UserServiceSuite) TestFetchUser() {
 		}
 		fetcher := NewUserFetcher(builder)
 
-		user, err := fetcher.FetchUser([]services.QueryFilter{})
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		user, err := fetcher.FetchUser(appCfg, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

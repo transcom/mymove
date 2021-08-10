@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,13 +14,13 @@ type MTOAgentCreator struct {
 	mock.Mock
 }
 
-// CreateMTOAgentPrime provides a mock function with given fields: mtoAgent
-func (_m *MTOAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	ret := _m.Called(mtoAgent)
+// CreateMTOAgentPrime provides a mock function with given fields: appCfg, mtoAgent
+func (_m *MTOAgentCreator) CreateMTOAgentPrime(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	ret := _m.Called(appCfg, mtoAgent)
 
 	var r0 *models.MTOAgent
-	if rf, ok := ret.Get(0).(func(*models.MTOAgent) *models.MTOAgent); ok {
-		r0 = rf(mtoAgent)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOAgent) *models.MTOAgent); ok {
+		r0 = rf(appCfg, mtoAgent)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOAgent)
@@ -26,8 +28,8 @@ func (_m *MTOAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*mode
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.MTOAgent) error); ok {
-		r1 = rf(mtoAgent)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOAgent) error); ok {
+		r1 = rf(appCfg, mtoAgent)
 	} else {
 		r1 = ret.Error(1)
 	}

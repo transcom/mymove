@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/flect"
@@ -37,19 +38,12 @@ const FetchOneReflectionMessage = "Data error encountered"
 // Builder is a wrapper around pop
 // with more flexible query patterns to MilMove
 type Builder struct {
-	db *pop.Connection
 }
 
 // NewQueryBuilder returns a new query builder implemented with pop
 // constructor is for Dependency Injection frameworks requiring a function instead of struct
-func NewQueryBuilder(db *pop.Connection) *Builder {
-	return &Builder{db}
-}
-
-// SetConnection allows passing in a transaction connection so the builder
-// can use it.
-func (p *Builder) SetConnection(db *pop.Connection) {
-	p.db = db
+func NewQueryBuilder() *Builder {
+	return &Builder{}
 }
 
 // Lookup to check if a specific string is inside the db field tags of the type
@@ -255,7 +249,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 
 // FetchOne fetches a single model record using pop's First method
 // Will return error if model is not pointer to struct
-func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) error {
+func (p *Builder) FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(FetchOneReflectionMessage)
@@ -264,7 +258,7 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 	if t.Kind() != reflect.Struct {
 		return errors.New(FetchOneReflectionMessage)
 	}
-	query := p.db.Q()
+	query := appCfg.DB().Q()
 	query, err := filteredQuery(query, filters, t)
 	if err != nil {
 		return err
@@ -286,7 +280,7 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+func (p *Builder) FetchMany(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -299,7 +293,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 	if t.Kind() != reflect.Struct {
 		return errors.New(fetchManyReflectionMessage)
 	}
-	query := p.db.Q()
+	query := appCfg.DB().Q()
 	query, err := buildQuery(query, filters, pagination, ordering, t)
 	if err != nil {
 		return err
@@ -314,7 +308,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 }
 
 // Count returns a count from a filter
-func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+func (p *Builder) Count(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) (int, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return 0, errors.New(fetchManyReflectionMessage)
@@ -327,7 +321,7 @@ func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int,
 	if t.Kind() != reflect.Struct {
 		return 0, errors.New(fetchManyReflectionMessage)
 	}
-	query := p.db.Q()
+	query := appCfg.DB().Q()
 	query, err := filteredQuery(query, filters, t)
 	if err != nil {
 		return 0, err
@@ -341,13 +335,13 @@ func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int,
 }
 
 // CreateOne creates exactly one model
-func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
+func (p *Builder) CreateOne(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
-	verrs, err := p.db.ValidateAndCreate(model)
+	verrs, err := appCfg.DB().ValidateAndCreate(model)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}
@@ -364,7 +358,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 // UpdateOne updates exactly one model
-func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
+func (p *Builder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
@@ -374,7 +368,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 	var err error
 
 	if eTag != nil {
-		err = p.db.Transaction(func(tx *pop.Connection) error {
+		err = appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
 			t = t.Elem()
 			v := reflect.ValueOf(model).Elem()
 			var id uuid.UUID
@@ -396,7 +390,7 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 
 			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
 			var updatedAt time.Time
-			errExec := tx.RawQuery(sqlString, id.String()).First(&updatedAt)
+			errExec := txnAppCfg.DB().RawQuery(sqlString, id.String()).First(&updatedAt)
 			if errExec != nil {
 				return errExec
 			}
@@ -407,12 +401,12 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 				return StaleIdentifierError{StaleIdentifier: *eTag}
 			}
 
-			verrs, err = tx.ValidateAndUpdate(model)
+			verrs, err = txnAppCfg.DB().ValidateAndUpdate(model)
 
 			return nil
 		})
 	} else {
-		verrs, err = p.db.ValidateAndUpdate(model)
+		verrs, err = appCfg.DB().ValidateAndUpdate(model)
 	}
 
 	if err != nil {
@@ -427,8 +421,8 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 }
 
 // FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
-func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
-	conn := p.db
+func (p *Builder) FetchCategoricalCountsFromOneModel(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+	conn := appCfg.DB()
 	t := reflect.TypeOf(model)
 	categoricalCounts, err := categoricalCountsQueryOneModel(conn, filters, andFilters, t)
 	if err != nil {
@@ -438,7 +432,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 }
 
 // QueryForAssociations builds a query for associations
-func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+func (p *Builder) QueryForAssociations(appCfg appconfig.AppConfig, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(FetchOneReflectionMessage)
@@ -451,7 +445,7 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 	if t.Kind() != reflect.Struct {
 		return errors.New(fetchManyReflectionMessage)
 	}
-	query := p.db.Q()
+	query := appCfg.DB().Q()
 	query, err := buildQuery(query, filters, pagination, ordering, t)
 	if err != nil {
 		return err
@@ -474,11 +468,4 @@ func associatedQuery(query *pop.Query, associations services.QueryAssociations, 
 		return query.EagerPreload(associations.StringGetAssociations()...)
 	}
 	return query.Eager(associations.StringGetAssociations()...)
-}
-
-// Transaction will create a new transaction on the connection. Will rollback if
-// fn returns error, otherwise, will commit.
-// TODO: Will need to revisit the design for this. Use internal txDB state instead?
-func (p *Builder) Transaction(fn func(tx *pop.Connection) error) error {
-	return p.db.Transaction(fn)
 }

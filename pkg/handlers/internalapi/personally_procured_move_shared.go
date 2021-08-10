@@ -1,9 +1,9 @@
 package internalapi
 
 import (
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -11,8 +11,8 @@ import (
 )
 
 // GetDestinationDutyStationPostalCode returns the postal code associated with orders->new_duty_station->address
-func GetDestinationDutyStationPostalCode(db *pop.Connection, ordersID uuid.UUID) (string, error) {
-	queryBuilder := query.NewQueryBuilder(db)
+func GetDestinationDutyStationPostalCode(appCfg appconfig.AppConfig, ordersID uuid.UUID) (string, error) {
+	queryBuilder := query.NewQueryBuilder()
 
 	var orders models.Orders
 	filters := []services.QueryFilter{
@@ -25,7 +25,7 @@ func GetDestinationDutyStationPostalCode(db *pop.Connection, ordersID uuid.UUID)
 	pagination := pagination.NewPagination(&page, &perPage)
 	ordering := query.NewQueryOrder(nil, nil)
 
-	err := queryBuilder.FetchMany(&orders, filters, associations, pagination, ordering)
+	err := queryBuilder.FetchMany(appCfg, &orders, filters, associations, pagination, ordering)
 	if err != nil {
 		return "", err
 	}

@@ -1,6 +1,7 @@
 package accesscode
 
 import (
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -14,8 +15,9 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_ValidAccessCode() {
 		MoveType: selectedMoveType,
 	}
 	suite.MustSave(&accessCode)
-	validateAccessCode := NewAccessCodeValidator(suite.DB())
-	ac, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
+	validateAccessCode := NewAccessCodeValidator()
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	ac, valid, _ := validateAccessCode.ValidateAccessCode(appCfg, code, selectedMoveType)
 
 	suite.True(valid)
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
@@ -32,7 +34,8 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_InvalidAccessCode() 
 		ServiceMemberID: &user.ID,
 	}
 	suite.MustSave(&usedAccessCode)
-	validateAccessCode := NewAccessCodeValidator(suite.DB())
-	_, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
+	validateAccessCode := NewAccessCodeValidator()
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	_, valid, _ := validateAccessCode.ValidateAccessCode(appCfg, code, selectedMoveType)
 	suite.False(valid)
 }

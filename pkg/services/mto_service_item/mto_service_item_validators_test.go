@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/gobuffalo/validate/v3"
@@ -17,7 +18,7 @@ import (
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Set up the data needed for updateMTOServiceItemData obj
-	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+	checker := movetaskorder.NewMoveTaskOrderChecker()
 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	now := time.Now()
 
@@ -32,7 +33,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkLinkedIDs(appCfg)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -50,7 +52,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkLinkedIDs()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkLinkedIDs(appCfg)
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -72,7 +75,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := serviceItemData.checkPrimeAvailability()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkPrimeAvailability(appCfg)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -86,7 +90,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := serviceItemData.checkPrimeAvailability()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkPrimeAvailability(appCfg)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -100,7 +105,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkNonPrimeFields(appCfg)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -119,7 +125,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkNonPrimeFields()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkNonPrimeFields(appCfg)
 
 		suite.NoError(err)
 		suite.True(serviceItemData.verrs.HasAny())
@@ -136,7 +143,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkSITDeparture(appCfg)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -157,7 +165,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldDDDSIT,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkSITDeparture(appCfg)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -171,7 +180,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkSITDeparture()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkSITDeparture(appCfg)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -184,10 +194,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem, // as-is, should succeed
 			oldServiceItem:     oldServiceItem,
-			db:                 suite.DB(),
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkPaymentRequests(appCfg)
 
 		suite.NoError(err)
 		suite.NoVerrs(serviceItemData.verrs)
@@ -204,10 +214,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: errorServiceItem,
 			oldServiceItem:     oldServiceItem,
-			db:                 suite.DB(),
 			verrs:              validate.NewErrors(),
 		}
-		err := serviceItemData.checkPaymentRequests()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := serviceItemData.checkPaymentRequests(appCfg)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -222,8 +232,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs() // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_ = serviceItemData.checkLinkedIDs(appCfg) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkNonPrimeFields(appCfg)
 		err := serviceItemData.getVerrs()
 
 		suite.NoError(err)
@@ -237,8 +248,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		_ = serviceItemData.checkLinkedIDs() // this test should pass regardless of potential errors here
-		_ = serviceItemData.checkNonPrimeFields()
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_ = serviceItemData.checkLinkedIDs(appCfg) // this test should pass regardless of potential errors here
+		_ = serviceItemData.checkNonPrimeFields(appCfg)
 		err := serviceItemData.getVerrs()
 
 		suite.Error(err)

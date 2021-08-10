@@ -12,6 +12,7 @@ package paperwork
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/pkg/errors"
@@ -87,9 +88,10 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
-	moveRouter.Submit(&ppm.Move)
-	moveRouter.Approve(&ppm.Move)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	moveRouter := moverouter.NewMoveRouter()
+	moveRouter.Submit(appCfg, &ppm.Move)
+	moveRouter.Approve(appCfg, &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -16,8 +17,8 @@ type ActualPickupDateLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r ActualPickupDateLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	db := *keyData.db
+func (r ActualPickupDateLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
+	db := appCfg.DB()
 
 	// Get the MTOServiceItem and associated MTOShipment
 	mtoServiceItemID := keyData.MTOServiceItemID

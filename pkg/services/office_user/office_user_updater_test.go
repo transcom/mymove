@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -16,7 +17,7 @@ import (
 )
 
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	updater := NewOfficeUserUpdater(queryBuilder)
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
@@ -35,7 +36,8 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
 		}
 
-		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(officeUser.ID, payload)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(appCfg, officeUser.ID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.Equal(updatedOfficeUser.ID.String(), officeUser.ID.String())
@@ -48,7 +50,8 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	suite.T().Run("If we are provided an office user that doesn't exist, the create should fail", func(t *testing.T) {
 		payload := &adminmessages.OfficeUserUpdatePayload{}
 
-		_, _, err := updater.UpdateOfficeUser(uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := updater.UpdateOfficeUser(appCfg, uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})
@@ -59,7 +62,8 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}
 
-		_, _, err := updater.UpdateOfficeUser(officeUser.ID, payload)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := updater.UpdateOfficeUser(appCfg, officeUser.ID, payload)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})

@@ -11,7 +11,7 @@ import (
 
 type TSPServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestTSPServiceSuite(t *testing.T) {

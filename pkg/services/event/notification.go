@@ -6,9 +6,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -63,8 +63,9 @@ func notificationSave(event *Event, payload *[]byte) error {
 // available to Prime. If there is a query error, it returns an
 // error as well.
 func checkAvailabilityToPrime(event *Event) (bool, error) {
-	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(event.DBConnection)
-	availableToPrime, err := mtoChecker.MTOAvailableToPrime(event.MtoID)
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
+	appCfg := appconfig.NewAppConfig(event.DBConnection, event.logger)
+	availableToPrime, err := mtoChecker.MTOAvailableToPrime(appCfg, event.MtoID)
 	if err != nil {
 		unknownErr := services.NewEventError("Unknown error checking prime availability", err)
 		return false, unknownErr
@@ -78,11 +79,11 @@ func checkAvailabilityToPrime(event *Event) (bool, error) {
 }
 
 // assembleMTOShipmentPayload assembles the MTOShipment Payload and returns the JSON in bytes
-func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+func assembleMTOShipmentPayload(appCfg appconfig.AppConfig, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.MTOShipment{}
 
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Eager("PickupAddress", "DestinationAddress",
+	err := appCfg.DB().Eager("PickupAddress", "DestinationAddress",
 		"SecondaryPickupAddress", "SecondaryDeliveryAddress",
 		"MTOAgents").Find(&model, updatedObjectID.String())
 
@@ -103,10 +104,10 @@ func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) (
 }
 
 // assembleMTOPayload assembles the MoveTaskOrder Payload and returns the JSON in bytes
-func assembleMTOPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+func assembleMTOPayload(appCfg appconfig.AppConfig, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.Move{}
 	// If using eager, important to be specific about which addl associations to load to reduce DB hits
-	err := db.Find(&model, updatedObjectID)
+	err := appCfg.DB().Find(&model, updatedObjectID)
 
 	if err != nil {
 		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveTaskOrder")
@@ -125,10 +126,10 @@ func assembleMTOPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, 
 }
 
 // assembleMTOServiceItemPayload assembles the MTOServiceItem Payload and returns the JSON in bytes
-func assembleMTOServiceItemPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+func assembleMTOServiceItemPayload(appCfg appconfig.AppConfig, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.MTOServiceItem{}
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Eager("ReService", "Dimensions", "CustomerContacts").Find(&model, updatedObjectID)
+	err := appCfg.DB().Eager("ReService", "Dimensions", "CustomerContacts").Find(&model, updatedObjectID)
 
 	if err != nil {
 		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MTOServiceItem")
@@ -148,12 +149,12 @@ func assembleMTOServiceItemPayload(db *pop.Connection, updatedObjectID uuid.UUID
 }
 
 // assemblePaymentRequestPayload assembles the payload and returns the JSON in bytes
-func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+func assemblePaymentRequestPayload(appCfg appconfig.AppConfig, updatedObjectID uuid.UUID) ([]byte, error) {
 	// ASSEMBLE PAYLOAD
 	model := models.PaymentRequest{}
 
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Eager("PaymentServiceItems", "PaymentServiceItems.PaymentServiceItemParams").Find(&model, updatedObjectID.String())
+	err := appCfg.DB().Eager("PaymentServiceItems", "PaymentServiceItems.PaymentServiceItemParams").Find(&model, updatedObjectID.String())
 	if err != nil {
 		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for PaymentRequest")
 		notFoundError.Wrap(err)
@@ -170,17 +171,17 @@ func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID
 }
 
 // assembleOrderPayload assembles the Order Payload and returns the JSON in bytes
-func assembleOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+func assembleOrderPayload(appCfg appconfig.AppConfig, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.Order{}
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Eager(
+	err := appCfg.DB().Eager(
 		"ServiceMember", "Entitlement", "OriginDutyStation", "NewDutyStation.Address").Find(&model, updatedObjectID)
 
 	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 	// cannot eager load the address as "OriginDutyStation.Address" because
 	// OriginDutyStation is a pointer.
 	if model.OriginDutyStation != nil {
-		err = db.Load(model.OriginDutyStation, "Address")
+		err = appCfg.DB().Load(model.OriginDutyStation, "Address")
 	}
 
 	if err != nil {
@@ -206,7 +207,7 @@ func assembleOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte
 // Returns bool indicating whether notification was stored, and error if there was one
 // encountered.
 func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-	db := event.DBConnection
+	appCfg := appconfig.NewAppConfig(event.DBConnection, event.logger)
 
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime
@@ -226,13 +227,13 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 
 	switch modelBeingUpdated.(type) {
 	case models.PaymentRequest:
-		payloadArray, err = assemblePaymentRequestPayload(db, event.UpdatedObjectID)
+		payloadArray, err = assemblePaymentRequestPayload(appCfg, event.UpdatedObjectID)
 	case models.MTOShipment:
-		payloadArray, err = assembleMTOShipmentPayload(db, event.UpdatedObjectID)
+		payloadArray, err = assembleMTOShipmentPayload(appCfg, event.UpdatedObjectID)
 	case models.MTOServiceItem:
-		payloadArray, err = assembleMTOServiceItemPayload(db, event.UpdatedObjectID)
+		payloadArray, err = assembleMTOServiceItemPayload(appCfg, event.UpdatedObjectID)
 	case models.Move:
-		payloadArray, err = assembleMTOPayload(db, event.UpdatedObjectID)
+		payloadArray, err = assembleMTOPayload(appCfg, event.UpdatedObjectID)
 	default:
 		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
@@ -254,7 +255,6 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 // The purpose of this function is to handle order specific events.
 
 func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-	db := event.DBConnection
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime
 	if isSourcePrime(event) {
@@ -276,7 +276,8 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// case models.Order:
 	var payloadArray []byte
 	var err error
-	payloadArray, _ = assembleOrderPayload(db, event.UpdatedObjectID)
+	appCfg := appconfig.NewAppConfig(event.DBConnection, event.logger)
+	payloadArray, _ = assembleOrderPayload(appCfg, event.UpdatedObjectID)
 
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)

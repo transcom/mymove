@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -27,6 +28,7 @@ type ListMTOAgentsHandler struct {
 //Handle handles the handling for listing MTO Agents.
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
 	mtoShipmentID, err := uuid.FromString(params.ShipmentID.String())
 	// Return parsing sadness
@@ -42,7 +44,7 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID.String()),
 	}
 	var mtoAgents models.MTOAgents
-	err = h.FetchRecordList(&mtoAgents, queryFilters, nil, nil, nil)
+	err = h.FetchRecordList(appCfg, &mtoAgents, queryFilters, nil, nil, nil)
 	// return errors
 	if err != nil {
 		if err.Error() == "FETCH_NOT_FOUND" {

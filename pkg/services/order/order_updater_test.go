@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -24,20 +24,21 @@ import (
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(nonexistentUUID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when origin duty station is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -48,14 +49,15 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		}
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when new duty station is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 		nonexistentUUID := uuid.Must(uuid.NewV4())
@@ -66,27 +68,29 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		}
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.UpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
@@ -111,7 +115,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			Sac:                 handlers.FmtString("987654321"),
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, order.ID, payload, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -138,7 +143,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		emptyStrSAC := ""
@@ -164,7 +169,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 			Sac:                 &emptyStrSAC, // this will trigger a validation error on Order model
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, order.ID, payload, eTag)
 
 		// check that we get back a validation error
 		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", order.ID))
@@ -173,7 +179,7 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.T().Run("Rolls back transaction if Order is missing required fields", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -200,7 +206,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(orderWithoutDefaults.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(appCfg, orderWithoutDefaults.ID, payload, eTag)
 
 		suite.Contains(err.Error(), fmt.Sprintf("Invalid input for id: %s.", orderWithoutDefaults.ID))
 		suite.Contains(err.Error(), "DepartmentIndicator cannot be blank.")
@@ -214,33 +221,35 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.CounselingUpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsCounselor(nonexistentUUID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateOrderAsCounselor(appCfg, nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.CounselingUpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsCounselor(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateOrderAsCounselor(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the order when it is found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
@@ -259,7 +268,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		updatedOrder, _, err := orderUpdater.UpdateOrderAsCounselor(order.ID, body, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsCounselor(appCfg, order.ID, body, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -277,33 +287,35 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsTOO(nonexistentUUID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateAllowanceAsTOO(appCfg, nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.UpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateAllowanceAsTOO(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
 		newAuthorizedWeight := int64(10000)
@@ -326,7 +338,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(appCfg, order.ID, payload, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -345,33 +358,35 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(nonexistentUUID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(appCfg, nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
 	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
@@ -392,7 +407,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(appCfg, order.ID, payload, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -413,7 +429,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Updates the allowance when move needs service counseling and order fields are missing", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -440,7 +456,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(orderWithoutDefaults.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(appCfg, orderWithoutDefaults.ID, payload, eTag)
 		suite.NoError(err)
 
 		var orderInDB models.Order
@@ -470,7 +487,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Entire update is aborted when ProGearWeight is over max amount", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
@@ -491,7 +508,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -505,7 +523,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.T().Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
 
 		grade := ghcmessages.GradeO5
@@ -526,7 +544,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(appCfg, order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -543,7 +562,7 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 			DutyStation: models.DutyStation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
@@ -568,14 +587,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
-		logger, zapErr := zap.NewDevelopment()
-		suite.NoError(zapErr)
-
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
 
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
-			logger,
+			appCfg,
 			order.ServiceMember.UserID,
 			order.ID,
 			file.Data,
@@ -608,7 +625,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	})
 
 	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		file := testdatagen.FixtureRuntimeFile("test.pdf")
@@ -619,11 +636,9 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
-		logger, zapErr := zap.NewDevelopment()
-		suite.NoError(zapErr)
-
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
-			logger,
+			appCfg,
 			nonexistentUUID,
 			nonexistentUUID,
 			file.Data,
@@ -637,7 +652,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 	})
 
 	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
-		orderUpdater := NewOrderUpdater(suite.DB())
+		orderUpdater := NewOrderUpdater()
 		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 			DutyStation: models.DutyStation{
 				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
@@ -665,14 +680,12 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
 		fakeS3 := storageTest.NewFakeS3Storage(true)
 
-		logger, zapErr := zap.NewDevelopment()
-		suite.NoError(zapErr)
-
 		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
 		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
 
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
-			logger,
+			appCfg,
 			order.ServiceMember.UserID,
 			order.ID,
 			file.Data,

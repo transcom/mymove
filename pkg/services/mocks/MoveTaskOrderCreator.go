@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	validate "github.com/gobuffalo/validate/v3"
@@ -14,13 +16,13 @@ type MoveTaskOrderCreator struct {
 	mock.Mock
 }
 
-// CreateMoveTaskOrder provides a mock function with given fields: moveTaskOrder
-func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
-	ret := _m.Called(moveTaskOrder)
+// CreateMoveTaskOrder provides a mock function with given fields: appCfg, moveTaskOrder
+func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(appCfg appconfig.AppConfig, moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
+	ret := _m.Called(appCfg, moveTaskOrder)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(*models.Move) *models.Move); ok {
-		r0 = rf(moveTaskOrder)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.Move) *models.Move); ok {
+		r0 = rf(appCfg, moveTaskOrder)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -28,8 +30,8 @@ func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) 
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*models.Move) *validate.Errors); ok {
-		r1 = rf(moveTaskOrder)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.Move) *validate.Errors); ok {
+		r1 = rf(appCfg, moveTaskOrder)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -37,8 +39,8 @@ func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) 
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*models.Move) error); ok {
-		r2 = rf(moveTaskOrder)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, *models.Move) error); ok {
+		r2 = rf(appCfg, moveTaskOrder)
 	} else {
 		r2 = ret.Error(2)
 	}

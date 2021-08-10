@@ -11,7 +11,7 @@ import (
 
 type WebhookSubscriptionServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestWebhookSubscriptionSuite(t *testing.T) {

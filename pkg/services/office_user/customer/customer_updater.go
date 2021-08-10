@@ -1,8 +1,7 @@
 package customer
 
 import (
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -10,18 +9,17 @@ import (
 )
 
 type customerUpdater struct {
-	db *pop.Connection
 	fetchCustomer
 }
 
 // NewCustomerUpdater creates a new struct with the service dependencies
-func NewCustomerUpdater(db *pop.Connection) services.CustomerUpdater {
-	return &customerUpdater{db, fetchCustomer{db}}
+func NewCustomerUpdater() services.CustomerUpdater {
+	return &customerUpdater{fetchCustomer{}}
 }
 
 // UpdateCustomer updates the Customer model
-func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
-	existingCustomer, err := s.fetchCustomer.FetchCustomer(customer.ID)
+func (s *customerUpdater) UpdateCustomer(appCfg appconfig.AppConfig, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
+	existingCustomer, err := s.fetchCustomer.FetchCustomer(appCfg, customer.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(customer.ID, "while looking for customer")
 	}
@@ -31,7 +29,7 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 		return nil, services.NewPreconditionFailedError(customer.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	transactionError := s.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
 		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
 			existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
 			existingCustomer.ResidentialAddress.City = residentialAddress.City
@@ -41,7 +39,7 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 				existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
 			}
 
-			verrs, dbErr := tx.ValidateAndSave(existingCustomer.ResidentialAddress)
+			verrs, dbErr := txnAppCfg.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
 			if verrs != nil && verrs.HasAny() {
 				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
@@ -55,7 +53,7 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 			existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
 			existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
 
-			verrs, dbErr := tx.ValidateAndSave(existingCustomer.BackupContacts)
+			verrs, dbErr := txnAppCfg.DB().ValidateAndSave(existingCustomer.BackupContacts)
 			if verrs != nil && verrs.HasAny() {
 				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
@@ -97,7 +95,7 @@ func (s *customerUpdater) UpdateCustomer(eTag string, customer models.ServiceMem
 		}
 
 		// optimistic locking handled before transaction block
-		verrs, updateErr := tx.ValidateAndUpdate(existingCustomer)
+		verrs, updateErr := txnAppCfg.DB().ValidateAndUpdate(existingCustomer)
 
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(customer.ID, err, verrs, "")

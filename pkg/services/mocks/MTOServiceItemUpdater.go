@@ -4,9 +4,9 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	models "github.com/transcom/mymove/pkg/models"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
 
-	pop "github.com/gobuffalo/pop/v5"
+	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -16,13 +16,13 @@ type MTOServiceItemUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOServiceItem provides a mock function with given fields: db, serviceItem, eTag, validator
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(db, serviceItem, eTag, validator)
+// UpdateMTOServiceItem provides a mock function with given fields: appCfg, serviceItem, eTag, validator
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCfg appconfig.AppConfig, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCfg, serviceItem, eTag, validator)
 
 	var r0 *models.MTOServiceItem
-	if rf, ok := ret.Get(0).(func(*pop.Connection, *models.MTOServiceItem, string, string) *models.MTOServiceItem); ok {
-		r0 = rf(db, serviceItem, eTag, validator)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOServiceItem, string, string) *models.MTOServiceItem); ok {
+		r0 = rf(appCfg, serviceItem, eTag, validator)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
@@ -30,8 +30,8 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, servic
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*pop.Connection, *models.MTOServiceItem, string, string) error); ok {
-		r1 = rf(db, serviceItem, eTag, validator)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOServiceItem, string, string) error); ok {
+		r1 = rf(appCfg, serviceItem, eTag, validator)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -39,13 +39,13 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, servic
 	return r0, r1
 }
 
-// UpdateMTOServiceItemBasic provides a mock function with given fields: db, serviceItem, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(db *pop.Connection, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(db, serviceItem, eTag)
+// UpdateMTOServiceItemBasic provides a mock function with given fields: appCfg, serviceItem, eTag
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(appCfg appconfig.AppConfig, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCfg, serviceItem, eTag)
 
 	var r0 *models.MTOServiceItem
-	if rf, ok := ret.Get(0).(func(*pop.Connection, *models.MTOServiceItem, string) *models.MTOServiceItem); ok {
-		r0 = rf(db, serviceItem, eTag)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOServiceItem, string) *models.MTOServiceItem); ok {
+		r0 = rf(appCfg, serviceItem, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
@@ -53,8 +53,8 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(db *pop.Connection, s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*pop.Connection, *models.MTOServiceItem, string) error); ok {
-		r1 = rf(db, serviceItem, eTag)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOServiceItem, string) error); ok {
+		r1 = rf(appCfg, serviceItem, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -62,13 +62,13 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(db *pop.Connection, s
 	return r0, r1
 }
 
-// UpdateMTOServiceItemPrime provides a mock function with given fields: db, serviceItem, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(db *pop.Connection, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(db, serviceItem, eTag)
+// UpdateMTOServiceItemPrime provides a mock function with given fields: appCfg, serviceItem, eTag
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(appCfg appconfig.AppConfig, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCfg, serviceItem, eTag)
 
 	var r0 *models.MTOServiceItem
-	if rf, ok := ret.Get(0).(func(*pop.Connection, *models.MTOServiceItem, string) *models.MTOServiceItem); ok {
-		r0 = rf(db, serviceItem, eTag)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOServiceItem, string) *models.MTOServiceItem); ok {
+		r0 = rf(appCfg, serviceItem, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
@@ -76,8 +76,8 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(db *pop.Connection, s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*pop.Connection, *models.MTOServiceItem, string) error); ok {
-		r1 = rf(db, serviceItem, eTag)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOServiceItem, string) error); ok {
+		r1 = rf(appCfg, serviceItem, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -85,13 +85,13 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(db *pop.Connection, s
 	return r0, r1
 }
 
-// UpdateMTOServiceItemStatus provides a mock function with given fields: mtoServiceItemID, status, rejectionReason, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(mtoServiceItemID, status, rejectionReason, eTag)
+// UpdateMTOServiceItemStatus provides a mock function with given fields: appCfg, mtoServiceItemID, status, rejectionReason, eTag
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(appCfg appconfig.AppConfig, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCfg, mtoServiceItemID, status, rejectionReason, eTag)
 
 	var r0 *models.MTOServiceItem
-	if rf, ok := ret.Get(0).(func(uuid.UUID, models.MTOServiceItemStatus, *string, string) *models.MTOServiceItem); ok {
-		r0 = rf(mtoServiceItemID, status, rejectionReason, eTag)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, models.MTOServiceItemStatus, *string, string) *models.MTOServiceItem); ok {
+		r0 = rf(appCfg, mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
@@ -99,8 +99,8 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uui
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, models.MTOServiceItemStatus, *string, string) error); ok {
-		r1 = rf(mtoServiceItemID, status, rejectionReason, eTag)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, models.MTOServiceItemStatus, *string, string) error); ok {
+		r1 = rf(appCfg, mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

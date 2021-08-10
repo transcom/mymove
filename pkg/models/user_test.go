@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -226,13 +227,14 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 		Test that user identity is properly fetched after deleting roles
 	*/
 	// then update user roles to soft delete
-	userRoles := userroles.NewUsersRolesCreator(suite.DB())
+	userRoles := userroles.NewUsersRolesCreator()
 	// we'll be soft deleting the services counselor role
 	updateToRoles := []roles.RoleType{
 		roles.RoleTypeTOO,
 		roles.RoleTypeTIO,
 	}
-	_, err = userRoles.UpdateUserRoles(*multiRoleUser.UserID, updateToRoles)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	_, err = userRoles.UpdateUserRoles(appCfg, *multiRoleUser.UserID, updateToRoles)
 	suite.NoError(err)
 
 	// re-fetch user identity and check roles

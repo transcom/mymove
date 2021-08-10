@@ -3,8 +3,10 @@
 package mocks
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
 	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+
+	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -18,13 +20,13 @@ type AdminUserUpdater struct {
 	mock.Mock
 }
 
-// UpdateAdminUser provides a mock function with given fields: id, payload
-func (_m *AdminUserUpdater) UpdateAdminUser(id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error) {
-	ret := _m.Called(id, payload)
+// UpdateAdminUser provides a mock function with given fields: appCfg, id, payload
+func (_m *AdminUserUpdater) UpdateAdminUser(appCfg appconfig.AppConfig, id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error) {
+	ret := _m.Called(appCfg, id, payload)
 
 	var r0 *models.AdminUser
-	if rf, ok := ret.Get(0).(func(uuid.UUID, *adminmessages.AdminUserUpdatePayload) *models.AdminUser); ok {
-		r0 = rf(id, payload)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, *adminmessages.AdminUserUpdatePayload) *models.AdminUser); ok {
+		r0 = rf(appCfg, id, payload)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AdminUser)
@@ -32,8 +34,8 @@ func (_m *AdminUserUpdater) UpdateAdminUser(id uuid.UUID, payload *adminmessages
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(uuid.UUID, *adminmessages.AdminUserUpdatePayload) *validate.Errors); ok {
-		r1 = rf(id, payload)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, *adminmessages.AdminUserUpdatePayload) *validate.Errors); ok {
+		r1 = rf(appCfg, id, payload)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -41,8 +43,8 @@ func (_m *AdminUserUpdater) UpdateAdminUser(id uuid.UUID, payload *adminmessages
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(uuid.UUID, *adminmessages.AdminUserUpdatePayload) error); ok {
-		r2 = rf(id, payload)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, *adminmessages.AdminUserUpdatePayload) error); ok {
+		r2 = rf(appCfg, id, payload)
 	} else {
 		r2 = ret.Error(2)
 	}

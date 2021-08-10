@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -15,7 +16,7 @@ import (
 )
 
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	organization := testdatagen.MakeDefaultOrganization(suite.DB())
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
@@ -37,7 +38,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		fakeFetchOne := func(appConfig appconfig.AppConfig, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -54,8 +56,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		adminUser, verrs, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(builder)
+		adminUser, verrs, err := creator.CreateAdminUser(appCfg, &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
@@ -74,7 +76,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			Role:           models.SystemAdminRole,
 		}
 
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -93,8 +95,9 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		adminUser, verrs, err := creator.CreateAdminUser(&existingUserInfo, filter)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		creator := NewAdminUserCreator(builder)
+		adminUser, verrs, err := creator.CreateAdminUser(appCfg, &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
@@ -103,7 +106,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 
 	// Bad organization ID
 	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
@@ -111,15 +114,16 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		creator := NewAdminUserCreator(builder)
+		_, _, err := creator.CreateAdminUser(appCfg, &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 	})
 
 	// Transaction rollback on createOne validation failure
 	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -128,7 +132,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			}
 			return nil
 		}
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error) {
 			// Fail on the OfficeUser call to CreateOne but let User succeed
 			switch model.(type) {
 			case *models.AdminUser:
@@ -150,15 +154,16 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, verrs, _ := creator.CreateAdminUser(&userInfo, filter)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		creator := NewAdminUserCreator(builder)
+		_, verrs, _ := creator.CreateAdminUser(appCfg, &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
 
 	// Transaction rollback on createOne error failure
 	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}) error {
 			switch model.(type) {
 			case *models.Organization:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
@@ -167,7 +172,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			}
 			return nil
 		}
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error) {
 			// Fail on the second createOne call with OfficeUser
 			switch model.(type) {
 			case *models.AdminUser:
@@ -184,8 +189,9 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		creator := NewAdminUserCreator(builder)
+		_, _, err := creator.CreateAdminUser(appCfg, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

@@ -4,6 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -13,20 +14,20 @@ type OfficeUserGblocFetcher struct {
 	mock.Mock
 }
 
-// FetchGblocForOfficeUser provides a mock function with given fields: id
-func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(id uuid.UUID) (string, error) {
-	ret := _m.Called(id)
+// FetchGblocForOfficeUser provides a mock function with given fields: appCfg, id
+func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(appCfg appconfig.AppConfig, id uuid.UUID) (string, error) {
+	ret := _m.Called(appCfg, id)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(uuid.UUID) string); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) string); ok {
+		r0 = rf(appCfg, id)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
+		r1 = rf(appCfg, id)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -3,6 +3,7 @@ package accesscode
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -18,8 +19,9 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchAccessCode() {
 		ServiceMemberID: serviceMemberID,
 	}
 	suite.MustSave(&accessCode)
-	fetchAccessCode := NewAccessCodeFetcher(suite.DB())
-	ac, _ := fetchAccessCode.FetchAccessCode(*serviceMemberID)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	fetchAccessCode := NewAccessCodeFetcher()
+	ac, _ := fetchAccessCode.FetchAccessCode(appCfg, *serviceMemberID)
 
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE12")
 }
@@ -27,8 +29,9 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchAccessCode() {
 func (suite *AccessCodeServiceSuite) TestFetchAccessCode_FetchNotFound() {
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMemberID := &user.ID
-	fetchAccessCode := NewAccessCodeFetcher(suite.DB())
-	_, err := fetchAccessCode.FetchAccessCode(*serviceMemberID)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	fetchAccessCode := NewAccessCodeFetcher()
+	_, err := fetchAccessCode.FetchAccessCode(appCfg, *serviceMemberID)
 	suite.Error(err)
 	suite.Equal(sql.ErrNoRows, err)
 }

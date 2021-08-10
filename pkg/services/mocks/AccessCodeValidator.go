@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,13 +14,13 @@ type AccessCodeValidator struct {
 	mock.Mock
 }
 
-// ValidateAccessCode provides a mock function with given fields: code, moveType
-func (_m *AccessCodeValidator) ValidateAccessCode(code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
-	ret := _m.Called(code, moveType)
+// ValidateAccessCode provides a mock function with given fields: appCfg, code, moveType
+func (_m *AccessCodeValidator) ValidateAccessCode(appCfg appconfig.AppConfig, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
+	ret := _m.Called(appCfg, code, moveType)
 
 	var r0 *models.AccessCode
-	if rf, ok := ret.Get(0).(func(string, models.SelectedMoveType) *models.AccessCode); ok {
-		r0 = rf(code, moveType)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, string, models.SelectedMoveType) *models.AccessCode); ok {
+		r0 = rf(appCfg, code, moveType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AccessCode)
@@ -26,15 +28,15 @@ func (_m *AccessCodeValidator) ValidateAccessCode(code string, moveType models.S
 	}
 
 	var r1 bool
-	if rf, ok := ret.Get(1).(func(string, models.SelectedMoveType) bool); ok {
-		r1 = rf(code, moveType)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, string, models.SelectedMoveType) bool); ok {
+		r1 = rf(appCfg, code, moveType)
 	} else {
 		r1 = ret.Get(1).(bool)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, models.SelectedMoveType) error); ok {
-		r2 = rf(code, moveType)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, string, models.SelectedMoveType) error); ok {
+		r2 = rf(appCfg, code, moveType)
 	} else {
 		r2 = ret.Error(2)
 	}

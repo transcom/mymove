@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -14,20 +16,20 @@ type WebhookSubscriptionFetcher struct {
 	mock.Mock
 }
 
-// FetchWebhookSubscription provides a mock function with given fields: filters
-func (_m *WebhookSubscriptionFetcher) FetchWebhookSubscription(filters []services.QueryFilter) (models.WebhookSubscription, error) {
-	ret := _m.Called(filters)
+// FetchWebhookSubscription provides a mock function with given fields: appCfg, filters
+func (_m *WebhookSubscriptionFetcher) FetchWebhookSubscription(appCfg appconfig.AppConfig, filters []services.QueryFilter) (models.WebhookSubscription, error) {
+	ret := _m.Called(appCfg, filters)
 
 	var r0 models.WebhookSubscription
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter) models.WebhookSubscription); ok {
-		r0 = rf(filters)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter) models.WebhookSubscription); ok {
+		r0 = rf(appCfg, filters)
 	} else {
 		r0 = ret.Get(0).(models.WebhookSubscription)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter) error); ok {
-		r1 = rf(filters)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter) error); ok {
+		r1 = rf(appCfg, filters)
 	} else {
 		r1 = ret.Error(1)
 	}

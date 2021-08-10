@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
@@ -16,13 +18,13 @@ type InternalMoveTaskOrderCreator struct {
 	mock.Mock
 }
 
-// InternalCreateMoveTaskOrder provides a mock function with given fields: moveTaskOrder, logger
-func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(moveTaskOrder supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
-	ret := _m.Called(moveTaskOrder, logger)
+// InternalCreateMoveTaskOrder provides a mock function with given fields: appCfg, moveTaskOrder, logger
+func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(appCfg appconfig.AppConfig, moveTaskOrder supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
+	ret := _m.Called(appCfg, moveTaskOrder, logger)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(supportmessages.MoveTaskOrder, *zap.Logger) *models.Move); ok {
-		r0 = rf(moveTaskOrder, logger)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, supportmessages.MoveTaskOrder, *zap.Logger) *models.Move); ok {
+		r0 = rf(appCfg, moveTaskOrder, logger)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -30,8 +32,8 @@ func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(moveTaskOrde
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(supportmessages.MoveTaskOrder, *zap.Logger) error); ok {
-		r1 = rf(moveTaskOrder, logger)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, supportmessages.MoveTaskOrder, *zap.Logger) error); ok {
+		r1 = rf(appCfg, moveTaskOrder, logger)
 	} else {
 		r1 = ret.Error(1)
 	}

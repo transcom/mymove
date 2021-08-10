@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -23,6 +24,7 @@ type ShowPPMEstimateHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
 	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
@@ -36,7 +38,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 
 	engine := rateengine.NewRateEngine(h.DB(), logger, move)
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), ordersID)
+	destinationZip, err := GetDestinationDutyStationPostalCode(appCfg, ordersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

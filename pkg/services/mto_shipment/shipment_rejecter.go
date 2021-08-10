@@ -1,10 +1,10 @@
 package mtoshipment
 
 import (
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -12,21 +12,19 @@ import (
 )
 
 type shipmentRejecter struct {
-	db     *pop.Connection
 	router services.ShipmentRouter
 }
 
 // NewShipmentRejecter creates a new struct with the service dependencies
-func NewShipmentRejecter(db *pop.Connection, router services.ShipmentRouter) services.ShipmentRejecter {
+func NewShipmentRejecter(router services.ShipmentRouter) services.ShipmentRejecter {
 	return &shipmentRejecter{
-		db,
 		router,
 	}
 }
 
 // RejectShipment rejects the shipment
-func (f *shipmentRejecter) RejectShipment(shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(shipmentID)
+func (f *shipmentRejecter) RejectShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
+	shipment, err := f.findShipment(appCfg, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,12 +34,12 @@ func (f *shipmentRejecter) RejectShipment(shipmentID uuid.UUID, eTag string, rea
 		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.Reject(shipment, reason)
+	err = f.router.Reject(appCfg, shipment, reason)
 	if err != nil {
 		return nil, err
 	}
 
-	verrs, err := f.db.ValidateAndSave(shipment)
+	verrs, err := appCfg.DB().ValidateAndSave(shipment)
 	if verrs != nil && verrs.HasAny() {
 		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while rejecting the shipment.")
 
@@ -51,9 +49,9 @@ func (f *shipmentRejecter) RejectShipment(shipmentID uuid.UUID, eTag string, rea
 	return shipment, err
 }
 
-func (f *shipmentRejecter) findShipment(shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentRejecter) findShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := f.db.Q().Find(&shipment, shipmentID)
+	err := appCfg.DB().Q().Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")

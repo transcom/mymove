@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexNotificationsHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
@@ -65,6 +65,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 		expectedError := models.ErrFetchNotFound
 		listFetcher := &mocks.ListFetcher{}
 		listFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -72,6 +73,8 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		listFetcher.On("FetchRecordCount",
+			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()

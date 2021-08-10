@@ -1,12 +1,12 @@
 package mtoagent
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -49,32 +49,32 @@ func (suite *MTOAgentServiceSuite) TestValidateMTOAgent() {
 	sh := models.MTOShipment{ID: uuid.Must(uuid.NewV4())}
 
 	// these checks just ensure the parameters are being passed as expected
-	checkNew := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkNew := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		suite.Equal(newAgent.ID, na.ID)
 		return nil
 	})
-	checkOld := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkOld := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		suite.Equal(oldAgent.ID, oa.ID)
 		return nil
 	})
-	checkShip := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkShip := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		suite.Equal(shipment.ID, sh.ID)
 		return nil
 	})
 
-	checkEmpty := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkEmpty := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		return verrs
 	})
-	checkVerr := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkVerr := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		verrs.Add("forceVERR", "forced")
 		return verrs
 	})
-	checkErr := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkErr := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		return fmt.Errorf("forced error, not of type *validate.Errors")
 	})
-	checkSkip := mtoAgentValidatorFunc(func(ctx context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
+	checkSkip := mtoAgentValidatorFunc(func(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error {
 		suite.Fail("should not have been called after a non-verr short-circuit")
 		return nil
 	})
@@ -131,7 +131,8 @@ func (suite *MTOAgentServiceSuite) TestValidateMTOAgent() {
 
 	for name, tc := range testCases {
 		suite.Run(name, func() {
-			tc.verf(validateMTOAgent(context.Background(), na, &oa, &sh, tc.checks...))
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			tc.verf(validateMTOAgent(appCfg, na, &oa, &sh, tc.checks...))
 		})
 	}
 }

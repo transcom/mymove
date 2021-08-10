@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -32,29 +33,26 @@ import (
 )
 
 type testCreateMTOServiceItemQueryBuilder struct {
-	fakeCreateOne   func(model interface{}) (*validate.Errors, error)
-	fakeFetchOne    func(model interface{}, filters []services.QueryFilter) error
-	fakeTransaction func(func(tx *pop.Connection) error) error
-	fakeUpdateOne   func(models interface{}, eTag *string) (*validate.Errors, error)
+	fakeCreateOne   func(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error)
+	fakeFetchOne    func(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error
+	fakeTransaction func(appCfg appconfig.AppConfig, fn func(tx *pop.Connection) error) error
+	fakeUpdateOne   func(appCfg appconfig.AppConfig, models interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (t *testCreateMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
-	return t.fakeCreateOne(model)
+func (t *testCreateMTOServiceItemQueryBuilder) CreateOne(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error) {
+	return t.fakeCreateOne(appCfg, model)
 }
 
-func (t *testCreateMTOServiceItemQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
-	return t.fakeUpdateOne(model, eTag)
+func (t *testCreateMTOServiceItemQueryBuilder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error) {
+	return t.fakeUpdateOne(appCfg, model, eTag)
 }
 
-func (t *testCreateMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
-	return t.fakeFetchOne(model, filters)
+func (t *testCreateMTOServiceItemQueryBuilder) FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error {
+	return t.fakeFetchOne(appCfg, model, filters)
 }
 
-func (t *testCreateMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection) error) error {
-	return t.fakeTransaction(fn)
-}
-
-func (t *testCreateMTOServiceItemQueryBuilder) SetConnection(db *pop.Connection) {
+func (t *testCreateMTOServiceItemQueryBuilder) Transaction(appCfg appconfig.AppConfig, fn func(tx *pop.Connection) error) error {
+	return t.fakeTransaction(appCfg, fn)
 }
 
 func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() models.MTOServiceItem {
@@ -169,12 +167,13 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 // Should return a message stating that service items can't be created if
 // the move is not in approved status.
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove() {
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
 
-	createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemForUnapprovedMove)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemForUnapprovedMove)
 
 	move := serviceItemForUnapprovedMove.MoveTaskOrder
 	suite.DB().Find(&move, move.ID)
@@ -194,13 +193,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	move := serviceItem.MoveTaskOrder
 	shutServiceItem := suite.buildValidDOSHUTServiceItemWithValidMove()
 	shutMove := shutServiceItem.MoveTaskOrder
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	// Happy path: If the service item is created successfully it should be returned
 	suite.T().Run("200 Success - SIT Service Item Creation", func(t *testing.T) {
-		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(&serviceItem)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(appCfg, &serviceItem)
 
 		var foundMove models.Move
 		suite.DB().Find(&foundMove, move.ID)
@@ -217,7 +217,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// Happy path: If the service item is created successfully it should be returned
 	suite.T().Run("200 Success - SHUT Service Item Creation", func(t *testing.T) {
-		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(&shutServiceItem)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItem, verrs, err := creator.CreateMTOServiceItem(appCfg, &shutServiceItem)
 
 		var foundMove models.Move
 		suite.DB().Find(&foundMove, shutMove.ID)
@@ -234,8 +235,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// Status default value: If we try to create an mto service item and haven't set the status, we default to SUBMITTED
 	suite.T().Run("success using default status value", func(t *testing.T) {
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		serviceItemNoStatus := suite.buildValidServiceItemWithNoStatusAndValidMove()
-		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(&serviceItemNoStatus)
+		createdServiceItems, verrs, err := creator.CreateMTOServiceItem(appCfg, &serviceItemNoStatus)
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 		suite.NoError(err)
@@ -250,13 +252,13 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		verrs := validate.NewErrors()
 		verrs.Add("test", expectedError)
 
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error) {
 			return verrs, errors.New(expectedError)
 		}
-		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+		fakeFetchOne := func(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error {
 			return nil
 		}
-		fakeTx := func(fn func(tx *pop.Connection) error) error {
+		fakeTx := func(appCfg appconfig.AppConfig, fn func(tx *pop.Connection) error) error {
 			return fn(&pop.Connection{})
 		}
 
@@ -266,7 +268,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			fakeTransaction: fakeTx,
 		}
 
-		fakeCreateNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
+		fakeCreateNewBuilder := func() createMTOServiceItemQueryBuilder {
 			return builder
 		}
 
@@ -275,7 +277,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			createNewBuilder: fakeCreateNewBuilder,
 		}
 
-		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(&serviceItem)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, verrs, _ := creator.CreateMTOServiceItem(appCfg, &serviceItem)
 		suite.Error(verrs)
 		suite.Nil(createdServiceItems)
 	})
@@ -287,7 +290,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			MoveTaskOrderID: notFoundID,
 		}
 
-		createdServiceItemsNoMTO, _, err := creator.CreateMTOServiceItem(&serviceItemNoMTO)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItemsNoMTO, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemNoMTO)
 		suite.Nil(createdServiceItemsNoMTO)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -305,7 +309,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}
 
-		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(&serviceItemBadCode)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemBadCode)
 		suite.Nil(createdServiceItemsBadCode)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -326,7 +331,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reServiceCS,
 		}
 
-		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(&serviceItemCS)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemCS)
 		suite.NotNil(createdServiceItemsCS)
 		suite.NoError(err)
 
@@ -351,7 +357,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			ReService:       reService,
 		}
 
-		createdServiceItemsBadShip, _, err := creator.CreateMTOServiceItem(&serviceItemBadShip)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItemsBadShip, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemBadShip)
 		suite.Nil(createdServiceItemsBadShip)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -380,7 +387,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemNoWeight)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemNoWeight)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -409,7 +417,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.T().Run("timeMilitary=HH:MMZ", func(t *testing.T) {
 			contact.TimeMilitary = "10:30Z"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
@@ -420,7 +429,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.T().Run("timeMilitary=XXMMZ bad hours", func(t *testing.T) {
 			contact.TimeMilitary = "2645Z"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
@@ -432,7 +442,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.T().Run("timeMilitary=HHXXZ bad minutes", func(t *testing.T) {
 			contact.TimeMilitary = "2167Z"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
@@ -444,7 +455,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.T().Run("timeMilitary=HHXXZ bad minutes", func(t *testing.T) {
 			contact.TimeMilitary = "2167Z"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
@@ -456,7 +468,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.T().Run("timeMilitary=HHMMX bad suffix", func(t *testing.T) {
 			contact.TimeMilitary = "2050M"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 
 			suite.Nil(createdServiceItems)
 			suite.Error(err)
@@ -481,7 +494,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 			contact.TimeMilitary = "1405Z"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
-			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 
 			suite.NotNil(createdServiceItems)
 			suite.NoError(err)
@@ -551,11 +565,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
 
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, verr, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(verr)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -585,11 +600,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			Status:                    models.MTOServiceItemStatusSubmitted,
 		}
 
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -623,11 +639,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	})
 
 	suite.T().Run("Create standalone DOASIT item for shipment if existing DOFSIT", func(t *testing.T) {
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOASIT)
 
 		createdDOASITItem := (*createdServiceItems)[0]
 		originalDate, _ := sitEntryDate.MarshalText()
@@ -643,8 +660,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	})
 
 	suite.T().Run("Failure - 422 Create standalone DOASIT item for shipment does not match existing DOFSIT addresses", func(t *testing.T) {
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 		// Change pickup address
@@ -652,7 +669,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		existingServiceItem := &serviceItemDOASIT
 		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress
 
-		createdServiceItems, verr, err := creator.CreateMTOServiceItem(existingServiceItem)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(appCfg, existingServiceItem)
 		suite.Nil(createdServiceItems)
 		suite.Error(verr)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -669,11 +687,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			SITPostalCode:   &sitPostalCode,
 			Reason:          &reason,
 		}
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -692,11 +711,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			ReService:       reServiceDOPSIT,
 		}
 
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOPSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOPSIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -717,11 +737,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			ReService:       reServiceDOASIT,
 		}
 
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOASIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -741,11 +762,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			ReService:       badReService,
 		}
 
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOASIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -784,11 +806,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			SITPostalCode:   &sitPostalCode,
 			Reason:          &reason,
 		}
-		builder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		creator := NewMTOServiceItemCreator(builder, moveRouter)
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -805,8 +828,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
 	})
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	creator := NewMTOServiceItemCreator(builder, moveRouter)
 
 	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -843,7 +866,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -888,7 +912,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -908,7 +933,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 
@@ -954,7 +980,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -972,7 +999,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDASIT)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
 		suite.Equal(len(*createdServiceItems), 1)
@@ -999,7 +1027,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:          models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDASIT)
 
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
@@ -1020,7 +1049,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			CustomerContacts: contacts,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDDSIT)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(appCfg, &serviceItemDDDSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)

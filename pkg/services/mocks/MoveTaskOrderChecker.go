@@ -4,6 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -13,20 +14,20 @@ type MoveTaskOrderChecker struct {
 	mock.Mock
 }
 
-// MTOAvailableToPrime provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveTaskOrderChecker) MTOAvailableToPrime(moveTaskOrderID uuid.UUID) (bool, error) {
-	ret := _m.Called(moveTaskOrderID)
+// MTOAvailableToPrime provides a mock function with given fields: appCfg, moveTaskOrderID
+func (_m *MoveTaskOrderChecker) MTOAvailableToPrime(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID) (bool, error) {
+	ret := _m.Called(appCfg, moveTaskOrderID)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(uuid.UUID) bool); ok {
-		r0 = rf(moveTaskOrderID)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) bool); ok {
+		r0 = rf(appCfg, moveTaskOrderID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(moveTaskOrderID)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
+		r1 = rf(appCfg, moveTaskOrderID)
 	} else {
 		r1 = ret.Error(1)
 	}

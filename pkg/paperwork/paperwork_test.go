@@ -19,7 +19,7 @@ import (
 
 type PaperworkSuite struct {
 	testingsuite.PopTestSuite
-	logger       Logger
+	logger       *zap.Logger
 	userUploader *uploader.UserUploader
 	filesToClose []afero.File
 }
@@ -71,7 +71,7 @@ func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
 	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
-	newUploader, err := uploader.NewUserUploader(popSuite.DB(), logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	newUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Panic(err)
 	}

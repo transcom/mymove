@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -13,7 +14,7 @@ type WeightBilledActualLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightBilledActualLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
 	var actualWeight *unit.Pound
 

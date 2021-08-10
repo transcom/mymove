@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -14,7 +15,7 @@ import (
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	// Set up the updater
-	mtoAgentUpdater := NewMTOAgentUpdater(suite.DB(), movetaskorder.NewMoveTaskOrderChecker(suite.DB()))
+	mtoAgentUpdater := NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 
@@ -26,7 +27,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		notFoundAgent := newAgent
 		notFoundAgent.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&notFoundAgent, eTag) // base validation
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &notFoundAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -39,7 +41,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		invalidAgent := newAgent
 		invalidAgent.MTOShipmentID = newAgent.ID
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&invalidAgent, eTag) // base validation
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &invalidAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -52,7 +55,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&newAgent, "bloop") // base validation
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &newAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -70,7 +74,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		newAgent.Email = &email
 		newAgent.Phone = nil // should keep the phone number from oldAgent
 
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(&newAgent, eTag) // base validation
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &newAgent, eTag) // base validation
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)

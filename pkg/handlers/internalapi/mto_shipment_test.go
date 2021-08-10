@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -70,7 +71,7 @@ func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtes
 
 	customerRemarks := "I have some grandfather clocks."
 
-	subtestData.builder = query.NewQueryBuilder(db)
+	subtestData.builder = query.NewQueryBuilder()
 
 	req := httptest.NewRequest("POST", "/mto_shipments", nil)
 	req = suite.AuthenticateRequest(req, subtestData.serviceMember)
@@ -128,13 +129,13 @@ func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtes
 }
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := suite.makeCreateSubtestData()
 		params := subtestData.params
 		fetcher := fetch.NewFetcher(subtestData.builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			creator,
@@ -167,7 +168,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("POST failure - 400 - invalid input, missing pickup address", func() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -185,7 +186,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("POST failure - 401- permission denied - not authenticated", func() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
@@ -224,7 +225,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(subtestData.builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 		req := subtestData.params.HTTPRequest
 		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
 		unauthorizedParams := subtestData.params
@@ -244,7 +245,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		subtestData := suite.makeCreateSubtestData()
 
 		fetcher := fetch.NewFetcher(subtestData.builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -263,7 +264,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	suite.Run("POST failure - 400 -- nil body", func() {
 		subtestData := suite.makeCreateSubtestData()
 		fetcher := fetch.NewFetcher(subtestData.builder)
-		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), subtestData.builder, fetcher, moveRouter)
+		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -290,6 +291,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOShipment",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)
@@ -399,13 +401,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights()
 
 	suite.Run("Successful PATCH - Integration Test", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -439,9 +441,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("Successful PATCH - Can update shipment status", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -463,9 +465,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- nil body", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -481,9 +483,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 400 -- invalid requested status update", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -499,9 +501,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 401- permission denied - not authenticated", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -520,10 +522,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 403- permission denied - wrong application / user", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -543,9 +545,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 404 -- not found", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -562,9 +564,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.Run("PATCH failure - 412 -- etag mismatch", func() {
-		builder := query.NewQueryBuilder(suite.DB())
+		builder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(builder)
-		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+		updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -586,7 +588,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// suite.Run("PATCH failure - 422 -- invalid input", func() {
 	// 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	// 	fetcher := fetch.NewFetcher(builder)
-	// 	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+	// 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner)
 	// 	handler := UpdateMTOShipmentHandler{
 	// 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 	// 		updater,
@@ -634,6 +636,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		err := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentCustomer",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -725,7 +728,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	suite.Run("Successful list fetch - 200 - Integration Test", func() {
 		subtestData := suite.makeListSubtestData()
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOShipmentsHandler{
@@ -841,6 +844,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		notfound := errors.New("Not found error")
 
 		mockFetcher.On("FetchRecord",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 		).Return(notfound)
@@ -862,11 +866,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockFetcher.On("FetchRecord",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil)
 
 		mockListFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

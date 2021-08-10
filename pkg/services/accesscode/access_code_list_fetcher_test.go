@@ -3,6 +3,7 @@ package accesscode
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services/pagination"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -36,10 +37,11 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 	var queryFilters []services.QueryFilter
 	var associations []services.QueryAssociation
 	newAssociations := query.NewQueryAssociations(associations)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	acs, err := lf.FetchAccessCodeList(appCfg, queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 2)
@@ -68,10 +70,11 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
 	queryFilters = append(queryFilters, query.NewQueryFilter("move_type", "=", "PPM"))
 	var associations []services.QueryAssociation
 	newAssociations := query.NewQueryAssociations(associations)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	acs, err := lf.FetchAccessCodeList(appCfg, queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)
@@ -98,10 +101,11 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
 	newAssociations := query.NewQueryAssociations(associations)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	acs, err := lf.FetchAccessCodeList(appCfg, queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)

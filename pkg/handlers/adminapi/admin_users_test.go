@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       query.NewQueryFilter,
@@ -72,12 +72,14 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		}
 		adminUserListFetcher := &mocks.AdminUserListFetcher{}
 		adminUserListFetcher.On("FetchAdminUserList",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(models.AdminUsers{adminUser}, nil).Once()
 		adminUserListFetcher.On("FetchAdminUserCount",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 		).Return(1, nil).Once()
 		handler := IndexAdminUsersHandler{
@@ -102,12 +104,14 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		adminUserListFetcher := &mocks.AdminUserListFetcher{}
 		adminUserListFetcher.On("FetchAdminUserList",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		adminUserListFetcher.On("FetchAdminUserCount",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
@@ -149,7 +153,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			AdminUserID: strfmt.UUID(uuidString),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetAdminUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			adminuser.NewAdminUserFetcher(queryBuilder),
@@ -174,6 +178,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 		}
 		adminUserFetcher := &mocks.AdminUserFetcher{}
 		adminUserFetcher.On("FetchAdminUser",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 		).Return(adminUser, nil).Once()
 		handler := GetAdminUserHandler{
@@ -197,6 +202,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 		expectedError := models.ErrFetchNotFound
 		adminUserFetcher := &mocks.AdminUserFetcher{}
 		adminUserFetcher.On("FetchAdminUser",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 		).Return(models.AdminUser{}, expectedError).Once()
 		handler := GetAdminUserHandler{
@@ -245,6 +251,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 		adminUserCreator := &mocks.AdminUserCreator{}
 
 		adminUserCreator.On("CreateAdminUser",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
@@ -262,6 +269,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 		adminUserCreator := &mocks.AdminUserCreator{}
 
 		adminUserCreator.On("CreateAdminUser",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
@@ -299,6 +307,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
 
 		adminUserUpdater.On("UpdateAdminUser",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			params.AdminUser,
 		).Return(&adminUser, nil, nil).Once()
@@ -317,6 +326,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
 
 		adminUserUpdater.On("UpdateAdminUser",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			params.AdminUser,
 		).Return(&adminUser, nil, nil).Once()
@@ -335,6 +345,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	err := validate.NewErrors()
 
 	adminUserUpdater.On("UpdateAdminUser",
+		mock.AnythingOfType("*appconfig.appConfig"),
 		mock.Anything,
 		params.AdminUser,
 	).Return(nil, err, nil).Once()

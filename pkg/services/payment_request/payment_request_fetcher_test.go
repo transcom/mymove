@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
@@ -14,10 +15,11 @@ import (
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 	suite.T().Run("If a payment request is fetched, it should be returned", func(t *testing.T) {
 
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 
 		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -25,7 +27,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 	suite.T().Run("returns payment request with proof of service docs", func(t *testing.T) {
 
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 
 		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
@@ -41,7 +43,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -57,7 +60,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 
 	suite.T().Run("returns payment request without soft deleted proof of service docs", func(t *testing.T) {
 
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 
 		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		posd := testdatagen.MakeProofOfServiceDoc(suite.DB(), testdatagen.Assertions{
@@ -77,7 +80,8 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 			},
 		})
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, pr.ID)
 
 		suite.NoError(err)
 		suite.Equal(pr.ID, paymentRequest.ID)
@@ -89,9 +93,10 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 	})
 
 	suite.T().Run("if there is an error, we get it with zero payment request", func(t *testing.T) {
-		fetcher := NewPaymentRequestFetcher(suite.DB())
+		fetcher := NewPaymentRequestFetcher()
 
-		paymentRequest, err := fetcher.FetchPaymentRequest(uuid.Nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, uuid.Nil)
 
 		suite.Error(err)
 		suite.Equal(err.Error(), models.RecordNotFoundErrorString)

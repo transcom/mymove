@@ -15,7 +15,7 @@ import (
 
 type GHCRateEngineServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {

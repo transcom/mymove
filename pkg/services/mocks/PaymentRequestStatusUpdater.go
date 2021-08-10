@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,13 +14,13 @@ type PaymentRequestStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdatePaymentRequestStatus provides a mock function with given fields: paymentRequest, eTag
-func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
-	ret := _m.Called(paymentRequest, eTag)
+// UpdatePaymentRequestStatus provides a mock function with given fields: appCfg, paymentRequest, eTag
+func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCfg appconfig.AppConfig, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
+	ret := _m.Called(appCfg, paymentRequest, eTag)
 
 	var r0 *models.PaymentRequest
-	if rf, ok := ret.Get(0).(func(*models.PaymentRequest, string) *models.PaymentRequest); ok {
-		r0 = rf(paymentRequest, eTag)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.PaymentRequest, string) *models.PaymentRequest); ok {
+		r0 = rf(appCfg, paymentRequest, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequest)
@@ -26,8 +28,8 @@ func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.PaymentRequest, string) error); ok {
-		r1 = rf(paymentRequest, eTag)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.PaymentRequest, string) error); ok {
+		r1 = rf(appCfg, paymentRequest, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

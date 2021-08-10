@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -14,30 +15,32 @@ import (
 
 func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	suite.T().Run("Returns an error when shipment is not found", func(t *testing.T) {
-		shipmentDeleter := NewShipmentDeleter(suite.DB())
+		shipmentDeleter := NewShipmentDeleter()
 		uuid := uuid.Must(uuid.NewV4())
 
-		_, err := shipmentDeleter.DeleteShipment(uuid)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := shipmentDeleter.DeleteShipment(appCfg, uuid)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func(t *testing.T) {
-		shipmentDeleter := NewShipmentDeleter(suite.DB())
+		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		move := shipment.MoveTaskOrder
 		move.Status = models.MoveStatusServiceCounselingCompleted
 		suite.MustSave(&move)
 
-		_, err := shipmentDeleter.DeleteShipment(shipment.ID)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
 
 		suite.Error(err)
 		suite.IsType(services.ForbiddenError{}, err)
 	})
 
 	suite.T().Run("Soft deletes the shipment when it is found", func(t *testing.T) {
-		shipmentDeleter := NewShipmentDeleter(suite.DB())
+		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 
 		validStatuses := []struct {
@@ -52,7 +55,8 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			move.Status = validStatus.status
 			suite.MustSave(&move)
 
-			moveID, err := shipmentDeleter.DeleteShipment(shipment.ID)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			moveID, err := shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
 			suite.NoError(err)
 			// Verify that the shipment's Move ID is returned because the
 			// handler needs it to generate the TriggerEvent.
@@ -75,14 +79,15 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.T().Run("Returns not found error when the shipment is already deleted", func(t *testing.T) {
-		shipmentDeleter := NewShipmentDeleter(suite.DB())
+		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
-		_, err := shipmentDeleter.DeleteShipment(shipment.ID)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
 
 		suite.NoError(err)
 
 		// Try to delete the shipment a second time
-		_, err = shipmentDeleter.DeleteShipment(shipment.ID)
+		_, err = shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 }

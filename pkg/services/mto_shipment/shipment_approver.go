@@ -1,10 +1,10 @@
 package mtoshipment
 
 import (
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -13,16 +13,14 @@ import (
 )
 
 type shipmentApprover struct {
-	db        *pop.Connection
 	router    services.ShipmentRouter
 	siCreator services.MTOServiceItemCreator
 	planner   route.Planner
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(db *pop.Connection, router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner) services.ShipmentApprover {
 	return &shipmentApprover{
-		db,
 		router,
 		siCreator,
 		planner,
@@ -30,8 +28,8 @@ func NewShipmentApprover(db *pop.Connection, router services.ShipmentRouter, siC
 }
 
 // ApproveShipment Approves the shipment
-func (f *shipmentApprover) ApproveShipment(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(shipmentID)
+func (f *shipmentApprover) ApproveShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+	shipment, err := f.findShipment(appCfg, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,18 +39,19 @@ func (f *shipmentApprover) ApproveShipment(shipmentID uuid.UUID, eTag string) (*
 		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.Approve(shipment)
+	err = f.router.Approve(appCfg, shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	err = f.setRequiredDeliveryDate(shipment)
+	err = f.setRequiredDeliveryDate(appCfg, shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
-		verrs, err := tx.ValidateAndSave(shipment)
+	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+
+		verrs, err := txnAppCfg.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 
@@ -63,7 +62,7 @@ func (f *shipmentApprover) ApproveShipment(shipmentID uuid.UUID, eTag string) (*
 		}
 
 		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(shipment)
+		err = f.createShipmentServiceItems(txnAppCfg, shipment)
 		if err != nil {
 			return err
 		}
@@ -77,9 +76,9 @@ func (f *shipmentApprover) ApproveShipment(shipmentID uuid.UUID, eTag string) (*
 	return shipment, nil
 }
 
-func (f *shipmentApprover) findShipment(shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentApprover) findShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := f.db.Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress").Find(&shipment, shipmentID)
+	err := appCfg.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress").Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
@@ -90,11 +89,11 @@ func (f *shipmentApprover) findShipment(shipmentID uuid.UUID) (*models.MTOShipme
 	return &shipment, nil
 }
 
-func (f *shipmentApprover) setRequiredDeliveryDate(shipment *models.MTOShipment) error {
+func (f *shipmentApprover) setRequiredDeliveryDate(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
 		shipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(f.planner, f.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCfg, f.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
 		if calcErr != nil {
 			return calcErr
 		}
@@ -105,12 +104,12 @@ func (f *shipmentApprover) setRequiredDeliveryDate(shipment *models.MTOShipment)
 	return nil
 }
 
-func (f *shipmentApprover) createShipmentServiceItems(shipment *models.MTOShipment) error {
+func (f *shipmentApprover) createShipmentServiceItems(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
-		_, verrs, err := f.siCreator.CreateMTOServiceItem(&copyOfServiceItem)
+		_, verrs, err := f.siCreator.CreateMTOServiceItem(appCfg, &copyOfServiceItem)
 
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")

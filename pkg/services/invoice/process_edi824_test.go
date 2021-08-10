@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -40,7 +41,7 @@ func TestProcessEDI824Suite(t *testing.T) {
 }
 
 func (suite *ProcessEDI824Suite) TestParsingEDI824() {
-	edi824Processor := NewEDI824Processor(suite.DB(), suite.logger)
+	edi824Processor := NewEDI824Processor()
 
 	suite.T().Run("successfully proccesses a valid EDI824", func(t *testing.T) {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
@@ -63,7 +64,8 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.NoError(err)
 	})
 
@@ -79,7 +81,8 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber)
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
 
@@ -90,7 +93,8 @@ GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
 GE*1*1
 IEA*1*000000995
 `
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI824. EDI Errors could not be saved")
 	})
 
@@ -107,7 +111,8 @@ SE*5*000000001
 GE*1*1
 IEA*1*000000995
 `, paymentRequest.PaymentRequestNumber, *paymentRequest.MoveTaskOrder.ReferenceID)
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 
@@ -132,7 +137,8 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.NotNil(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The BGN02 Reference Identification field: 1126-9404-2 doesn't match the PaymentRequestNumber %s of the associated payment request", paymentRequest.PaymentRequestNumber))
 	})
@@ -151,7 +157,8 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 `
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.Contains(err.Error(), "unable to parse EDI824")
 	})
 
@@ -176,7 +183,8 @@ IEA*1*000000996
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -200,7 +208,8 @@ IEA*1*00000005
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.NotNil(err)
 
 		var updatedPR models.PaymentRequest
@@ -231,7 +240,8 @@ IEA*1*000000997
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.NoError(err)
 
 		var ediErrors models.EdiErrors
@@ -252,7 +262,7 @@ IEA*1*000000997
 }
 
 func (suite *ProcessEDI824Suite) TestValidatingEDI824() {
-	edi824Processor := NewEDI824Processor(suite.DB(), suite.logger)
+	edi824Processor := NewEDI824Processor()
 
 	suite.T().Run("fails when there are validation errors on the EDI", func(t *testing.T) {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
@@ -276,7 +286,8 @@ IEA*1*000000001
 			},
 		})
 
-		err := edi824Processor.ProcessFile("", sample824EDIString)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := edi824Processor.ProcessFile(appCfg, "", sample824EDIString)
 		suite.Error(err, "fail to process 824")
 		errString := err.Error()
 		actualErrors := strings.Split(errString, "\n")

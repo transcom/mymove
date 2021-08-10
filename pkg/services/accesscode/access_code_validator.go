@@ -1,27 +1,25 @@
 package accesscode
 
 import (
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // accessCodeValidator is a service object to validate an access code.
 type accessCodeValidator struct {
-	DB *pop.Connection
 }
 
 // NewAccessCodeValidator creates a new struct with the service dependencies
-func NewAccessCodeValidator(db *pop.Connection) services.AccessCodeValidator {
-	return &accessCodeValidator{db}
+func NewAccessCodeValidator() services.AccessCodeValidator {
+	return &accessCodeValidator{}
 }
 
 // ValidateAccessCode validates an access code based upon the code and move type. A valid access
 // code is assumed to have no `service_member_id`
-func (v accessCodeValidator) ValidateAccessCode(code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
+func (v accessCodeValidator) ValidateAccessCode(appCfg appconfig.AppConfig, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
 	ac := models.AccessCode{}
-	err := v.DB.
+	err := appCfg.DB().
 		Where("code = ?", code).
 		Where("move_type = ?", moveType).
 		First(&ac)

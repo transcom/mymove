@@ -7,8 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -18,18 +17,15 @@ const baseGHCDieselFuelPrice = unit.Millicents(250000)
 
 // FuelSurchargePricer is a service object to price domestic shorthaul
 type fuelSurchargePricer struct {
-	db *pop.Connection
 }
 
 // NewFuelSurchargePricer is the public constructor for a domesticFuelSurchargePricer using Pop
-func NewFuelSurchargePricer(db *pop.Connection) services.FuelSurchargePricer {
-	return &fuelSurchargePricer{
-		db: db,
-	}
+func NewFuelSurchargePricer() services.FuelSurchargePricer {
+	return &fuelSurchargePricer{}
 }
 
 // Price determines the price for a counseling service
-func (p fuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) Price(appCfg appconfig.AppConfig, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -60,14 +56,14 @@ func (p fuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.Mil
 	return totalCost, displayParams, nil
 }
 
-func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p fuelSurchargePricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	actualPickupDate, err := getParamTime(params, models.ServiceItemParamNameActualPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
 	var paymentServiceItem models.PaymentServiceItem
-	err = p.db.Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
+	err = appCfg.DB().Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -90,5 +86,5 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(actualPickupDate, distance, unit.Pound(weightBilledActual), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	return p.Price(appCfg, actualPickupDate, distance, unit.Pound(weightBilledActual), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
 }

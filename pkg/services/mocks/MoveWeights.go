@@ -4,9 +4,9 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	models "github.com/transcom/mymove/pkg/models"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
 
-	pop "github.com/gobuffalo/pop/v5"
+	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
 
@@ -18,13 +18,13 @@ type MoveWeights struct {
 	mock.Mock
 }
 
-// CheckExcessWeight provides a mock function with given fields: db, moveID, updatedShipment
-func (_m *MoveWeights) CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
-	ret := _m.Called(db, moveID, updatedShipment)
+// CheckExcessWeight provides a mock function with given fields: appCfg, moveID, updatedShipment
+func (_m *MoveWeights) CheckExcessWeight(appCfg appconfig.AppConfig, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
+	ret := _m.Called(appCfg, moveID, updatedShipment)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(*pop.Connection, uuid.UUID, models.MTOShipment) *models.Move); ok {
-		r0 = rf(db, moveID, updatedShipment)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, models.MTOShipment) *models.Move); ok {
+		r0 = rf(appCfg, moveID, updatedShipment)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -32,8 +32,8 @@ func (_m *MoveWeights) CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, u
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*pop.Connection, uuid.UUID, models.MTOShipment) *validate.Errors); ok {
-		r1 = rf(db, moveID, updatedShipment)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, models.MTOShipment) *validate.Errors); ok {
+		r1 = rf(appCfg, moveID, updatedShipment)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -41,8 +41,8 @@ func (_m *MoveWeights) CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, u
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*pop.Connection, uuid.UUID, models.MTOShipment) error); ok {
-		r2 = rf(db, moveID, updatedShipment)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, models.MTOShipment) error); ok {
+		r2 = rf(appCfg, moveID, updatedShipment)
 	} else {
 		r2 = ret.Error(2)
 	}

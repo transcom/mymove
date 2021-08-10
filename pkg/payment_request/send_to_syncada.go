@@ -8,11 +8,13 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // SendToSyncada send EDI file to Syncada for processing
-func SendToSyncada(edi string, icn int64, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool, logger Logger) error {
+func SendToSyncada(appCfg appconfig.AppConfig, edi string, icn int64, gexSender services.GexSender, sftpSender services.SyncadaSFTPSender, sendEDIFile bool) error {
+	logger := appCfg.Logger()
 	syncadaFileName := fmt.Sprintf("%s_%d_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"), icn)
 
 	if !sendEDIFile {

@@ -4,27 +4,23 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 type managementServicesPricer struct {
-	db *pop.Connection
 }
 
 // NewManagementServicesPricer creates a new pricer for management services
-func NewManagementServicesPricer(db *pop.Connection) services.ManagementServicesPricer {
-	return &managementServicesPricer{
-		db: db,
-	}
+func NewManagementServicesPricer() services.ManagementServicesPricer {
+	return &managementServicesPricer{}
 }
 
 // Price determines the price for a management service
-func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
-	taskOrderFee, err := fetchTaskOrderFee(p.db, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
+func (p managementServicesPricer) Price(appCfg appconfig.AppConfig, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
+	taskOrderFee, err := fetchTaskOrderFee(appCfg, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
 	}
@@ -39,7 +35,7 @@ func (p managementServicesPricer) Price(contractCode string, mtoAvailableToPrime
 }
 
 // PriceUsingParams determines the price for a management service given PaymentServiceItemParams
-func (p managementServicesPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p managementServicesPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -50,5 +46,5 @@ func (p managementServicesPricer) PriceUsingParams(params models.PaymentServiceI
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, mtoAvailableToPrimeAt)
+	return p.Price(appCfg, contractCode, mtoAvailableToPrimeAt)
 }

@@ -17,7 +17,7 @@ type PaymentRequestHelperSuite struct {
 
 func TestPaymentRequestHelperSuite(t *testing.T) {
 	ts := &PaymentRequestHelperSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(),
 	}
 	suite.Run(t, ts)

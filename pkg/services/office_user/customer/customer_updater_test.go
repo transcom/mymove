@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,17 +16,19 @@ import (
 func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 	expectedCustomer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 
-	customerUpdater := NewCustomerUpdater((suite.DB()))
+	customerUpdater := NewCustomerUpdater()
 
 	suite.T().Run("NewNotFoundError when customer if doesn't exist", func(t *testing.T) {
-		_, err := customerUpdater.UpdateCustomer("", models.ServiceMember{})
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := customerUpdater.UpdateCustomer(appCfg, "", models.ServiceMember{})
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("PreconditionsError when etag is stale", func(t *testing.T) {
 		staleEtag := etag.GenerateEtag(expectedCustomer.UpdatedAt.Add(-1 * time.Minute))
-		_, err := customerUpdater.UpdateCustomer(staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := customerUpdater.UpdateCustomer(appCfg, staleEtag, models.ServiceMember{ID: expectedCustomer.ID})
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})
 
@@ -55,7 +58,8 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 		}
 
 		expectedETag := etag.GenerateEtag(defaultCustomer.UpdatedAt)
-		actualCustomer, err := customerUpdater.UpdateCustomer(expectedETag, updatedCustomer)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		actualCustomer, err := customerUpdater.UpdateCustomer(appCfg, expectedETag, updatedCustomer)
 
 		suite.NoError(err)
 		suite.Equal(updatedCustomer.ID, actualCustomer.ID)

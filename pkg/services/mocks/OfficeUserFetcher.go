@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -14,20 +16,20 @@ type OfficeUserFetcher struct {
 	mock.Mock
 }
 
-// FetchOfficeUser provides a mock function with given fields: filters
-func (_m *OfficeUserFetcher) FetchOfficeUser(filters []services.QueryFilter) (models.OfficeUser, error) {
-	ret := _m.Called(filters)
+// FetchOfficeUser provides a mock function with given fields: appCfg, filters
+func (_m *OfficeUserFetcher) FetchOfficeUser(appCfg appconfig.AppConfig, filters []services.QueryFilter) (models.OfficeUser, error) {
+	ret := _m.Called(appCfg, filters)
 
 	var r0 models.OfficeUser
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter) models.OfficeUser); ok {
-		r0 = rf(filters)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter) models.OfficeUser); ok {
+		r0 = rf(appCfg, filters)
 	} else {
 		r0 = ret.Get(0).(models.OfficeUser)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter) error); ok {
-		r1 = rf(filters)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter) error); ok {
+		r1 = rf(appCfg, filters)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -14,20 +16,20 @@ type AdminUserListFetcher struct {
 	mock.Mock
 }
 
-// FetchAdminUserCount provides a mock function with given fields: filters
-func (_m *AdminUserListFetcher) FetchAdminUserCount(filters []services.QueryFilter) (int, error) {
-	ret := _m.Called(filters)
+// FetchAdminUserCount provides a mock function with given fields: appCfg, filters
+func (_m *AdminUserListFetcher) FetchAdminUserCount(appCfg appconfig.AppConfig, filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(appCfg, filters)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter) int); ok {
-		r0 = rf(filters)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter) int); ok {
+		r0 = rf(appCfg, filters)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter) error); ok {
-		r1 = rf(filters)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter) error); ok {
+		r1 = rf(appCfg, filters)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -35,13 +37,13 @@ func (_m *AdminUserListFetcher) FetchAdminUserCount(filters []services.QueryFilt
 	return r0, r1
 }
 
-// FetchAdminUserList provides a mock function with given fields: filters, associations, pagination, ordering
-func (_m *AdminUserListFetcher) FetchAdminUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AdminUsers, error) {
-	ret := _m.Called(filters, associations, pagination, ordering)
+// FetchAdminUserList provides a mock function with given fields: appCfg, filters, associations, pagination, ordering
+func (_m *AdminUserListFetcher) FetchAdminUserList(appCfg appconfig.AppConfig, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AdminUsers, error) {
+	ret := _m.Called(appCfg, filters, associations, pagination, ordering)
 
 	var r0 models.AdminUsers
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.AdminUsers); ok {
-		r0 = rf(filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.AdminUsers); ok {
+		r0 = rf(appCfg, filters, associations, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.AdminUsers)
@@ -49,8 +51,8 @@ func (_m *AdminUserListFetcher) FetchAdminUserList(filters []services.QueryFilte
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
-		r1 = rf(filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r1 = rf(appCfg, filters, associations, pagination, ordering)
 	} else {
 		r1 = ret.Error(1)
 	}

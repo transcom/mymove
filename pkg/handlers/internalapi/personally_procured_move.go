@@ -10,6 +10,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -97,6 +98,7 @@ type CreatePersonallyProcuredMoveHandler struct {
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
@@ -115,7 +117,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		advance = &a
 	}
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), move.OrdersID)
+	destinationZip, err := GetDestinationDutyStationPostalCode(appCfg, move.OrdersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

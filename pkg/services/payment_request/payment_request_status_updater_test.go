@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -13,7 +14,7 @@ import (
 )
 
 func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := query.NewQueryBuilder()
 
 	suite.T().Run("If we get a payment request pointer with a status it should update and return no error", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
@@ -21,7 +22,8 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.NoError(err)
 	})
 
@@ -47,7 +49,8 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 	})
@@ -74,7 +77,8 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.NoError(err)
 	})
 
@@ -84,7 +88,8 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest, etag.GenerateEtag(time.Now()))
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})

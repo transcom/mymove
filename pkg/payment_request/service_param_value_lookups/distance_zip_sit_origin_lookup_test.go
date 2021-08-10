@@ -7,6 +7,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -82,20 +83,22 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 	)
 
 	suite.T().Run("distance when zip3s are identical", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip5Distance)
 		suite.Equal(expected, distanceStr)
 	})
 
 	suite.T().Run("distance when zip3s are different", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip3Distance)
 		suite.Equal(expected, distanceStr)
@@ -106,10 +109,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 		originAddress.PostalCode = "5678"
 		suite.MustSave(&originAddress)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid origin postal code")
 
@@ -122,10 +126,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 		actualOriginDiffZip3Address.PostalCode = "5678"
 		suite.MustSave(&actualOriginDiffZip3Address)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid SIT origin postal code")
 
@@ -140,10 +145,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITOriginLookup() {
 			mock.Anything,
 		).Return(0, errors.New("error with Zip5TransitDistance"))
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), errorPlanner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, errorPlanner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 }

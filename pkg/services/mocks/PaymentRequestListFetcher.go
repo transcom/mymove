@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -16,13 +18,13 @@ type PaymentRequestListFetcher struct {
 	mock.Mock
 }
 
-// FetchPaymentRequestList provides a mock function with given fields: officeUserID, params
-func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
-	ret := _m.Called(officeUserID, params)
+// FetchPaymentRequestList provides a mock function with given fields: appCfg, officeUserID, params
+func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(appCfg appconfig.AppConfig, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
+	ret := _m.Called(appCfg, officeUserID, params)
 
 	var r0 *models.PaymentRequests
-	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.FetchPaymentRequestListParams) *models.PaymentRequests); ok {
-		r0 = rf(officeUserID, params)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, *services.FetchPaymentRequestListParams) *models.PaymentRequests); ok {
+		r0 = rf(appCfg, officeUserID, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequests)
@@ -30,15 +32,15 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.U
 	}
 
 	var r1 int
-	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.FetchPaymentRequestListParams) int); ok {
-		r1 = rf(officeUserID, params)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, *services.FetchPaymentRequestListParams) int); ok {
+		r1 = rf(appCfg, officeUserID, params)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(uuid.UUID, *services.FetchPaymentRequestListParams) error); ok {
-		r2 = rf(officeUserID, params)
+	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, *services.FetchPaymentRequestListParams) error); ok {
+		r2 = rf(appCfg, officeUserID, params)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -46,13 +48,13 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.U
 	return r0, r1, r2
 }
 
-// FetchPaymentRequestListByMove provides a mock function with given fields: officeUserID, locator
-func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
-	ret := _m.Called(officeUserID, locator)
+// FetchPaymentRequestListByMove provides a mock function with given fields: appCfg, officeUserID, locator
+func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(appCfg appconfig.AppConfig, officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
+	ret := _m.Called(appCfg, officeUserID, locator)
 
 	var r0 *models.PaymentRequests
-	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *models.PaymentRequests); ok {
-		r0 = rf(officeUserID, locator)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, string) *models.PaymentRequests); ok {
+		r0 = rf(appCfg, officeUserID, locator)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequests)
@@ -60,8 +62,8 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
-		r1 = rf(officeUserID, locator)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, string) error); ok {
+		r1 = rf(appCfg, officeUserID, locator)
 	} else {
 		r1 = ret.Error(1)
 	}

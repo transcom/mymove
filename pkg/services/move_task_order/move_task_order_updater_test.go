@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/gofrs/uuid"
@@ -29,11 +30,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		},
 		Order: expectedOrder,
 	})
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	moveRouter := moverouter.NewMoveRouter()
 
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	mtoUpdater := NewMoveTaskOrderUpdater(
-		suite.DB(),
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
@@ -42,7 +42,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 	suite.RunWithRollback("MTO status is updated succesfully", func() {
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
-		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		actualMTO, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(appCfg, expectedMTO.ID, eTag)
 
 		suite.NoError(err)
 		suite.NotZero(actualMTO.ID)
@@ -59,7 +60,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 		})
 		eTag := etag.GenerateEtag(expectedMTO.UpdatedAt)
 
-		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(appCfg, expectedMTO.ID, eTag)
 
 		suite.IsType(services.ConflictError{}, err)
 	})
@@ -72,7 +74,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 			Order: expectedOrder,
 		})
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(expectedMTO.ID, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.UpdateStatusServiceCounselingCompleted(appCfg, expectedMTO.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -85,10 +88,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		Order: expectedOrder,
 	})
 
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	mtoUpdater := NewMoveTaskOrderUpdater(
-		suite.DB(),
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
@@ -102,7 +104,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 	suite.RunWithRollback("MTO post counseling information is updated succesfully", func() {
 		eTag := base64.StdEncoding.EncodeToString([]byte(expectedMTO.UpdatedAt.Format(time.RFC3339Nano)))
 
-		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(expectedMTO.ID, body, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		actualMTO, err := mtoUpdater.UpdatePostCounselingInfo(appCfg, expectedMTO.ID, body, eTag)
 
 		suite.NoError(err)
 
@@ -122,7 +125,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 
 	suite.RunWithRollback("Etag is stale", func() {
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.UpdatePostCounselingInfo(expectedMTO.ID, body, eTag)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.UpdatePostCounselingInfo(appCfg, expectedMTO.ID, body, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -139,10 +143,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	})
 
 	// Set up the necessary updater objects:
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	updater := NewMoveTaskOrderUpdater(
-		suite.DB(),
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 		moveRouter,
@@ -151,7 +154,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move successfully deactivated
 	suite.RunWithRollback("Success - Set show field to false", func() {
 		show = false
-		updatedMove, err := updater.ShowHide(move.ID, &show)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := updater.ShowHide(appCfg, move.ID, &show)
 
 		suite.NotNil(updatedMove)
 		suite.NoError(err)
@@ -162,7 +166,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move successfully activated
 	suite.RunWithRollback("Success - Set show field to true", func() {
 		show = true
-		updatedMove, err := updater.ShowHide(move.ID, &show)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := updater.ShowHide(appCfg, move.ID, &show)
 
 		suite.NotNil(updatedMove)
 		suite.NoError(err)
@@ -173,7 +178,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	// Case: Move UUID not found in DB
 	suite.Run("Fail - Move not found", func() {
 		badMoveID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		updatedMove, err := updater.ShowHide(badMoveID, &show)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := updater.ShowHide(appCfg, badMoveID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -183,7 +189,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 
 	// Case: Show input value is nil, not True or False
 	suite.RunWithRollback("Fail - Nil value in show field", func() {
-		updatedMove, err := updater.ShowHide(move.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := updater.ShowHide(appCfg, move.ID, nil)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -196,11 +203,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	suite.RunWithRollback("Fail - Invalid input found on move", func() {
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything, // our arguments aren't important here because there's no specific way to trigger this error
 			mock.Anything,
 		).Return(nil, services.InvalidInputError{})
 
-		updatedMove, err := mockUpdater.ShowHide(move.ID, &show)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := mockUpdater.ShowHide(appCfg, move.ID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -211,11 +220,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 	suite.RunWithRollback("Fail - Query error", func() {
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
 		mockUpdater.On("ShowHide",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything, // our arguments aren't important here because there's no specific way to trigger this error
 			mock.Anything,
 		).Return(nil, services.QueryError{})
 
-		updatedMove, err := mockUpdater.ShowHide(move.ID, &show)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := mockUpdater.ShowHide(appCfg, move.ID, &show)
 
 		suite.Nil(updatedMove)
 		suite.Error(err)
@@ -226,15 +237,16 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_ShowHide() {
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableToPrime() {
 	suite.Run("Service item creator is not called if move fails to get approved", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 		// Create move in DRAFT status, which should fail to get approved
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, true)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
@@ -245,9 +257,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 	suite.Run("When ETag is stale", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -256,7 +268,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		})
 
 		eTag := etag.GenerateEtag(time.Now())
-		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, true)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)
@@ -266,10 +279,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	suite.Run("Makes move available to Prime and creates Move management and Service counseling service items when both are specified", func() {
 		suite.createMSAndCSReServices()
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, serviceItemCreator, moveRouter)
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(move.UpdatedAt)
@@ -278,7 +291,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		updatedMove, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, true)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		updatedMove, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, true, true)
 
 		suite.NoError(err)
 		suite.NotNil(updatedMove.AvailableToPrimeAt)
@@ -297,10 +311,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	suite.Run("Makes move available to Prime and only creates Move management when it's the only one specified", func() {
 		suite.createMSAndCSReServices()
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, serviceItemCreator, moveRouter)
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(move.UpdatedAt)
@@ -309,7 +323,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, false)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, true, false)
 
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
@@ -325,10 +340,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	suite.Run("Makes move available to Prime and only creates CS service item when it's the only one specified", func() {
 		suite.createMSAndCSReServices()
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, serviceItemCreator, moveRouter)
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(move.UpdatedAt)
@@ -337,7 +352,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, false, true)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, false, true)
 
 		suite.NoError(err)
 		err = suite.DB().Find(&fetchedMove, move.ID)
@@ -351,10 +367,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	})
 
 	suite.Run("Does not create service items if neither CS nor MS are requested", func() {
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
 		move := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 		eTag := etag.GenerateEtag(move.UpdatedAt)
@@ -362,7 +378,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 		suite.Nil(move.AvailableToPrimeAt)
 
-		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, false, false)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, false, false)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.NoError(err)
@@ -373,9 +390,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 
 	suite.Run("Does not make move available to prime if Order is missing required fields", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
-		mtoUpdater := NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, mockserviceItemCreator, moveRouter)
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		mtoUpdater := NewMoveTaskOrderUpdater(queryBuilder, mockserviceItemCreator, moveRouter)
 
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -387,7 +404,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		eTag := etag.GenerateEtag(move.UpdatedAt)
 		fetchedMove := models.Move{}
 
-		_, err := mtoUpdater.MakeAvailableToPrime(move.ID, eTag, true, true)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, eTag, true, true)
 
 		mockserviceItemCreator.AssertNumberOfCalls(suite.T(), "CreateMTOServiceItem", 0)
 		suite.Error(err)

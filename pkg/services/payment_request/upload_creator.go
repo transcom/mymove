@@ -6,9 +6,9 @@ import (
 	"path"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -22,20 +22,18 @@ const (
 )
 
 type paymentRequestUploadCreator struct {
-	db            *pop.Connection
-	logger        Logger
 	fileStorer    storage.FileStorer
 	fileSizeLimit uploader.ByteSize
 }
 
 // NewPaymentRequestUploadCreator returns a new payment request upload creator
-func NewPaymentRequestUploadCreator(db *pop.Connection, logger Logger, fileStorer storage.FileStorer) services.PaymentRequestUploadCreator {
-	return &paymentRequestUploadCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
+func NewPaymentRequestUploadCreator(fileStorer storage.FileStorer) services.PaymentRequestUploadCreator {
+	return &paymentRequestUploadCreator{fileStorer, uploader.MaxFileSizeLimit}
 }
 
-func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestID uuid.UUID, filename string) (string, error) {
+func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCfg appconfig.AppConfig, paymentRequestID uuid.UUID, filename string) (string, error) {
 	var paymentRequest models.PaymentRequest
-	err := p.db.Where("id=$1", paymentRequestID).First(&paymentRequest)
+	err := appCfg.DB().Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
 		return "", services.NewNotFoundError(paymentRequestID, "")
 	}
@@ -47,10 +45,10 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestI
 	return uploadFileName, err
 }
 
-func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string) (*models.Upload, error) {
+func (p *paymentRequestUploadCreator) CreateUpload(appCfg appconfig.AppConfig, file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string) (*models.Upload, error) {
 	var upload *models.Upload
-	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
-		newUploader, err := uploader.NewPrimeUploader(tx, p.logger, p.fileStorer, p.fileSizeLimit)
+	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+		newUploader, err := uploader.NewPrimeUploader(p.fileStorer, p.fileSizeLimit)
 		if err != nil {
 			if err == uploader.ErrFileSizeLimitExceedsMax {
 				return services.NewBadDataError(err.Error())
@@ -58,12 +56,12 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 			return err
 		}
 
-		fileName, err := p.assembleUploadFilePathName(paymentRequestID, uploadFilename)
+		fileName, err := p.assembleUploadFilePathName(txnAppCfg, paymentRequestID, uploadFilename)
 		if err != nil {
 			return err
 		}
 
-		aFile, err := newUploader.PrepareFileForUpload(file, fileName)
+		aFile, err := newUploader.PrepareFileForUpload(txnAppCfg, file, fileName)
 		if err != nil {
 			return err
 		}
@@ -71,7 +69,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		newUploader.SetUploadStorageKey(fileName)
 
 		var paymentRequest models.PaymentRequest
-		err = tx.Find(&paymentRequest, paymentRequestID)
+		err = txnAppCfg.DB().Find(&paymentRequest, paymentRequestID)
 		if err != nil {
 			return services.NewNotFoundError(paymentRequestID, "")
 		}
@@ -80,7 +78,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 			PaymentRequestID: paymentRequestID,
 			PaymentRequest:   paymentRequest,
 		}
-		verrs, err := tx.ValidateAndCreate(&proofOfServiceDoc)
+		verrs, err := txnAppCfg.DB().ValidateAndCreate(&proofOfServiceDoc)
 		if err != nil {
 			return fmt.Errorf("failure creating proof of service doc: %w", err) // server err
 		}
@@ -89,7 +87,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		}
 
 		posID := &proofOfServiceDoc.ID
-		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
+		primeUpload, verrs, err := newUploader.CreatePrimeUploadForDocument(txnAppCfg, posID, contractorID, uploader.File{File: aFile}, uploader.AllowedTypesPaymentRequest)
 		if verrs.HasAny() {
 			return services.NewInvalidCreateInputError(verrs, "validation error with creating payment request")
 		}

@@ -3,6 +3,7 @@ package mtoshipment
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -15,7 +16,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		},
 		Stub: true,
 	})
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 
 	suite.Nil(shipment.ApprovedDate)
 
@@ -32,7 +33,8 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 			// special case for diversion requested
 			shipment.Diversion = true
 
-			err := shipmentRouter.Approve(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Approve(appCfg, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
@@ -54,7 +56,8 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Approve(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Approve(appCfg, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -66,7 +69,8 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 	suite.Run("does not approve a shipment if the move is not Approved or Approvals Requested", func() {
 		submittedShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{Stub: true})
 
-		err := shipmentRouter.Approve(&submittedShipment)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := shipmentRouter.Approve(appCfg, &submittedShipment)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -76,7 +80,7 @@ func (suite *MTOShipmentServiceSuite) TestApprove() {
 
 func (suite *MTOShipmentServiceSuite) TestSubmit() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
 		desc   string
@@ -88,7 +92,8 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.Submit(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Submit(appCfg, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusSubmitted, shipment.Status)
@@ -110,7 +115,8 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Submit(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Submit(appCfg, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -122,7 +128,7 @@ func (suite *MTOShipmentServiceSuite) TestSubmit() {
 
 func (suite *MTOShipmentServiceSuite) TestCancel() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
 		desc   string
@@ -134,7 +140,8 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.Cancel(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Cancel(appCfg, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusCanceled, shipment.Status)
@@ -156,7 +163,8 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Cancel(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Cancel(appCfg, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -168,7 +176,7 @@ func (suite *MTOShipmentServiceSuite) TestCancel() {
 
 func (suite *MTOShipmentServiceSuite) TestReject() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 	rejectionReason := "reason"
 
 	validStatuses := []struct {
@@ -181,7 +189,8 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.Reject(&shipment, &rejectionReason)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Reject(appCfg, &shipment, &rejectionReason)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusRejected, shipment.Status)
@@ -204,7 +213,8 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.Reject(&shipment, &rejectionReason)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.Reject(appCfg, &shipment, &rejectionReason)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -216,7 +226,7 @@ func (suite *MTOShipmentServiceSuite) TestReject() {
 
 func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
 		desc   string
@@ -228,7 +238,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestDiversion(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.RequestDiversion(appCfg, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusDiversionRequested, shipment.Status)
@@ -250,7 +261,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestDiversion(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.RequestDiversion(appCfg, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -262,10 +274,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestDiversion() {
 
 func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 
 	suite.Run("fails when the Diversion field is false", func() {
-		err := shipmentRouter.ApproveDiversion(&shipment)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		err := shipmentRouter.ApproveDiversion(appCfg, &shipment)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -283,7 +296,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 			shipment.Status = validStatus.status
 			shipment.Diversion = true
 
-			err := shipmentRouter.ApproveDiversion(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.ApproveDiversion(appCfg, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusApproved, shipment.Status)
@@ -306,7 +320,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 			shipment.Status = invalidStatus.status
 			shipment.Diversion = true
 
-			err := shipmentRouter.ApproveDiversion(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.ApproveDiversion(appCfg, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)
@@ -318,7 +333,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveDiversion() {
 
 func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 	shipment := testdatagen.MakeStubbedShipment(suite.DB())
-	shipmentRouter := NewShipmentRouter(suite.DB())
+	shipmentRouter := NewShipmentRouter()
 
 	validStatuses := []struct {
 		desc   string
@@ -330,7 +345,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 		suite.Run("from valid status: "+string(validStatus.status), func() {
 			shipment.Status = validStatus.status
 
-			err := shipmentRouter.RequestCancellation(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.RequestCancellation(appCfg, &shipment)
 
 			suite.NoError(err)
 			suite.Equal(models.MTOShipmentStatusCancellationRequested, shipment.Status)
@@ -352,7 +368,8 @@ func (suite *MTOShipmentServiceSuite) TestRequestCancellation() {
 		suite.Run("from invalid status: "+string(invalidStatus.status), func() {
 			shipment.Status = invalidStatus.status
 
-			err := shipmentRouter.RequestCancellation(&shipment)
+			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+			err := shipmentRouter.RequestCancellation(appCfg, &shipment)
 
 			suite.Error(err)
 			suite.IsType(ConflictStatusError{}, err)

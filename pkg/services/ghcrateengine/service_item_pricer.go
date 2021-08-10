@@ -3,8 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -12,18 +11,15 @@ import (
 
 // serviceItemPricer is a service object to price service items
 type serviceItemPricer struct {
-	db *pop.Connection
 }
 
 // NewServiceItemPricer constructs a pricer for service items
-func NewServiceItemPricer(db *pop.Connection) services.ServiceItemPricer {
-	return &serviceItemPricer{
-		db: db,
-	}
+func NewServiceItemPricer() services.ServiceItemPricer {
+	return &serviceItemPricer{}
 }
 
 // PriceServiceItem returns a price for any PaymentServiceItem
-func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
+func (p serviceItemPricer) PriceServiceItem(appCfg appconfig.AppConfig, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
 	pricer, err := p.getPricer(item.MTOServiceItem.ReService.Code)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -31,7 +27,7 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 
 	// pricingParams are rate engine params that were queried from the pricing tables such as
 	// price, rate, escalation etc.
-	priceCents, pricingParams, err := pricer.PriceUsingParams(item.PaymentServiceItemParams)
+	priceCents, pricingParams, err := pricer.PriceUsingParams(appCfg, item.PaymentServiceItemParams)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -42,56 +38,51 @@ func (p serviceItemPricer) PriceServiceItem(item models.PaymentServiceItem) (uni
 	// TODO: this conditional logic should be removed
 	var displayParams models.PaymentServiceItemParams
 	if len(pricingParams) > 0 {
-		displayParams, err = createPricerGeneratedParams(p.db, item.ID, pricingParams)
+		displayParams, err = createPricerGeneratedParams(appCfg, item.ID, pricingParams)
 	}
 	return priceCents, displayParams, err
-}
-
-func (p serviceItemPricer) UsingConnection(db *pop.Connection) services.ServiceItemPricer {
-	p.db = db
-	return p
 }
 
 func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
 	switch serviceCode {
 	case models.ReServiceCodeMS:
-		return NewManagementServicesPricer(p.db), nil
+		return NewManagementServicesPricer(), nil
 	case models.ReServiceCodeCS:
-		return NewCounselingServicesPricer(p.db), nil
+		return NewCounselingServicesPricer(), nil
 	case models.ReServiceCodeDLH:
-		return NewDomesticLinehaulPricer(p.db), nil
+		return NewDomesticLinehaulPricer(), nil
 	case models.ReServiceCodeDSH:
-		return NewDomesticShorthaulPricer(p.db), nil
+		return NewDomesticShorthaulPricer(), nil
 	case models.ReServiceCodeDOP:
-		return NewDomesticOriginPricer(p.db), nil
+		return NewDomesticOriginPricer(), nil
 	case models.ReServiceCodeDDP:
-		return NewDomesticDestinationPricer(p.db), nil
+		return NewDomesticDestinationPricer(), nil
 	case models.ReServiceCodeDDSHUT:
-		return NewDomesticDestinationShuttlingPricer(p.db), nil
+		return NewDomesticDestinationShuttlingPricer(), nil
 	case models.ReServiceCodeDOSHUT:
-		return NewDomesticOriginShuttlingPricer(p.db), nil
+		return NewDomesticOriginShuttlingPricer(), nil
 	case models.ReServiceCodeDCRT:
-		return NewDomesticCratingPricer(p.db), nil
+		return NewDomesticCratingPricer(), nil
 	case models.ReServiceCodeDUCRT:
-		return NewDomesticUncratingPricer(p.db), nil
+		return NewDomesticUncratingPricer(), nil
 	case models.ReServiceCodeDPK:
-		return NewDomesticPackPricer(p.db), nil
+		return NewDomesticPackPricer(), nil
 	case models.ReServiceCodeDUPK:
-		return NewDomesticUnpackPricer(p.db), nil
+		return NewDomesticUnpackPricer(), nil
 	case models.ReServiceCodeFSC:
-		return NewFuelSurchargePricer(p.db), nil
+		return NewFuelSurchargePricer(), nil
 	case models.ReServiceCodeDOFSIT:
-		return NewDomesticOriginFirstDaySITPricer(p.db), nil
+		return NewDomesticOriginFirstDaySITPricer(), nil
 	case models.ReServiceCodeDDFSIT:
-		return NewDomesticDestinationFirstDaySITPricer(p.db), nil
+		return NewDomesticDestinationFirstDaySITPricer(), nil
 	case models.ReServiceCodeDOASIT:
-		return NewDomesticOriginAdditionalDaysSITPricer(p.db), nil
+		return NewDomesticOriginAdditionalDaysSITPricer(), nil
 	case models.ReServiceCodeDDASIT:
-		return NewDomesticDestinationAdditionalDaysSITPricer(p.db), nil
+		return NewDomesticDestinationAdditionalDaysSITPricer(), nil
 	case models.ReServiceCodeDOPSIT:
-		return NewDomesticOriginSITPickupPricer(p.db), nil
+		return NewDomesticOriginSITPickupPricer(), nil
 	case models.ReServiceCodeDDDSIT:
-		return NewDomesticDestinationSITDeliveryPricer(p.db), nil
+		return NewDomesticDestinationSITDeliveryPricer(), nil
 	default:
 		// TODO: We may want a different error type here after all pricers have been implemented
 		return nil, services.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))

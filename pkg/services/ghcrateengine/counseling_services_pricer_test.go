@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,12 +17,14 @@ const (
 var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
-	suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
-	paymentServiceItem := suite.setupCounselingServicesItem()
-	counselingServicesPricer := NewCounselingServicesPricer(suite.DB())
+	counselingServicesPricer := NewCounselingServicesPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
+		paymentServiceItem := suite.setupCounselingServicesItem()
+
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 
@@ -33,18 +36,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		priceCents, _, err := counselingServicesPricer.Price(testdatagen.DefaultContractCode, csAvailableToPrimeAt)
+		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
+
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, _, err := counselingServicesPricer.Price(appCfg, testdatagen.DefaultContractCode, csAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
 
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
-		_, _, err := counselingServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
+
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := counselingServicesPricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("not finding a rate record", func() {
-		_, _, err := counselingServicesPricer.Price("BOGUS", csAvailableToPrimeAt)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := counselingServicesPricer.Price(appCfg, "BOGUS", csAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

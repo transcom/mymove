@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -1069,74 +1070,83 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Origin MTO Service Items with different SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITTwo.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITTwo.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Destination MTO Service Items with different SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITTwo.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITTwo.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Origin MTO Service Items with identical SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITFour.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITFour.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 	})
 
 	suite.T().Run("an MTO Shipment has multiple Destination MTO Service Items with identical SIT Entry Dates", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITFour.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITFour.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 	})
 
 	suite.T().Run("an MTO Shipment already has an Origin MTO Service Item with a different SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO Shipment already has a Destination MTO Service Item with a different SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO Shipment already has an Origin MTO Service Item with an identical SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITSix.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITSix.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 	})
 
 	suite.T().Run("an MTO Shipment already has a Destination MTO Service Item with an identical SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITSix.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITSix.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 	})
 
 	suite.T().Run("an MTO Shipment has Origin MTO Service Items but non with a SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOFSITFive.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 
 		serviceItemDOASITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -1149,18 +1159,19 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			ReService:   reServiceDOASIT,
 		})
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 	})
 
 	suite.T().Run("an MTO Shipment has Destination MTO Service Items but non with a SIT Entry Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDFSITFive.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDFSITFive.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 
 		serviceItemDDASITSeven := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -1173,75 +1184,82 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			ReService:   reServiceDDASIT,
 		})
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITSeven.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITSeven.ID, paymentRequestSeven.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 	})
 
 	suite.T().Run("an MTO Shipment already has an Origin MTO Service Item with a SIT Departure Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITNine.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITNine.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO Shipment already has a Destination MTO Service Item with a SIT Departure Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITNine.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITNine.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO Shipment only has a First Day SIT MTO Service Item", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 
-		paramLookup, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
+		paramLookup, err = ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDFSITSeven.ID, paymentRequestFifteen.ID, moveTaskOrderOne.ID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 	})
 
 	suite.T().Run("an MTO with one MTO Shipment with one DOFSIT payment service item", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOFSITEight.ID, paymentRequestSixteen.ID, moveTaskOrderTwo.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOFSITEight.ID, paymentRequestSixteen.ID, moveTaskOrderTwo.ID, nil)
 		suite.FatalNoError(err)
 
-		value, err := paramLookup.ServiceParamValue(key)
+		value, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.Error(err)
 		suite.Equal("", value)
 	})
 
 	suite.T().Run("an MTO with more than one MTO Shipment", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDOASITEleven.ID, paymentRequestSeventeen.ID, moveTaskOrderThree.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDOASITEleven.ID, paymentRequestSeventeen.ID, moveTaskOrderThree.ID, nil)
 		suite.FatalNoError(err)
 
-		value, err := paramLookup.ServiceParamValue(key)
+		value, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 		suite.Equal("10", value)
 	})
 
 	suite.T().Run("an MTO with an MTO Shipment with no SIT Departure Date", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITTen.ID, paymentRequestEighteen.ID, moveTaskOrderFour.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITTen.ID, paymentRequestEighteen.ID, moveTaskOrderFour.ID, nil)
 		suite.FatalNoError(err)
 
-		value, err := paramLookup.ServiceParamValue(key)
+		value, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 		suite.Equal("29", value)
 	})
 
 	suite.T().Run("an MTO with an MTO Shipment that has more SIT days than the MTO has remaining", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, serviceItemDDASITTwelve.ID, paymentRequestNineteen.ID, moveTaskOrderFive.ID, nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, serviceItemDDASITTwelve.ID, paymentRequestNineteen.ID, moveTaskOrderFive.ID, nil)
 		suite.FatalNoError(err)
 
-		value, err := paramLookup.ServiceParamValue(key)
+		value, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.NoError(err)
 		suite.Equal("27", value)
 	})

@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -26,6 +27,7 @@ type ListMTOsHandler struct {
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
@@ -35,7 +37,7 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 		searchParams.Since = &timeSince
 	}
 
-	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
+	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(appCfg, &searchParams)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
@@ -56,11 +58,12 @@ type MakeMoveTaskOrderAvailableHandlerFunc struct {
 // Handle updates the prime availability of a MoveTaskOrder
 func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.MakeMoveTaskOrderAvailableParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 	eTag := params.IfMatch
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag, false, false)
+	mto, err := h.moveTaskOrderAvailabilityUpdater.MakeAvailableToPrime(appCfg, moveTaskOrderID, eTag, false, false)
 
 	if err != nil {
 		logger.Error("supportapi.MakeMoveTaskOrderAvailableHandlerFunc error", zap.Error(err))
@@ -113,12 +116,13 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle fetches an MTO from the database using its UUID
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   true,
 		MoveTaskOrderID: moveTaskOrderID,
 	}
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(&searchParams)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(appCfg, &searchParams)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
@@ -142,8 +146,9 @@ type CreateMoveTaskOrderHandler struct {
 // Handle updates to move task order post-counseling
 func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
-	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(*params.Body, logger)
+	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(appCfg, *params.Body, logger)
 
 	if err != nil {
 		logger.Error("primeapi.support.CreateMoveTaskOrderHandler error", zap.Error(err))

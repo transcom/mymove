@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -16,7 +17,7 @@ type CubicFeetBilledLookup struct {
 	Dimensions models.MTOServiceItemDimensions
 }
 
-func (c CubicFeetBilledLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (c CubicFeetBilledLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
 	// Each service item has an array of dimensions. There is a DB constraint preventing
 	// more than one dimension of each type for a given service item, so we just have to
 	// look for the first crating dimension.

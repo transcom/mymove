@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -167,6 +168,7 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	appCfg := appconfig.NewAppConfig(dbConnection, logger)
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
 	namedSubScenario := v.GetString(namedSubScenarioFlag)
@@ -216,17 +218,17 @@ func main() {
 		}
 		storer := storage.InitStorage(v, session, logger)
 
-		userUploader, uploaderErr := uploader.NewUserUploader(dbConnection, logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+		userUploader, uploaderErr := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate user uploader", zap.Error(err))
 		}
-		primeUploader, uploaderErr := uploader.NewPrimeUploader(dbConnection, logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+		primeUploader, uploaderErr := uploader.NewPrimeUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
 
 		if namedScenario == tdgs.E2eBasicScenario.Name {
-			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger)
+			tdgs.E2eBasicScenario.Run(appCfg, userUploader, primeUploader)
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
 			// Something is different about our cert config in CI so only running this
 			// for the devseed scenario not e2e_basic for Cypress
@@ -236,7 +238,7 @@ func main() {
 			}
 
 			// Initialize setup
-			tdgs.DevSeedScenario.Setup(dbConnection, userUploader, primeUploader, logger)
+			tdgs.DevSeedScenario.Setup(appCfg, userUploader, primeUploader)
 
 			// Sub-scenarios are generated at run time
 			// Check config

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -18,9 +19,9 @@ type DistanceZip3Lookup struct {
 	DestinationAddress models.Address
 }
 
-func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r DistanceZip3Lookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
-	db := keyData.db
+	db := appCfg.DB()
 
 	// Get the MTOServiceItem and associated MTOShipment and addresses
 	mtoServiceItemID := keyData.MTOServiceItemID

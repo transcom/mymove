@@ -1,30 +1,29 @@
 package mtoshipment
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type validator interface {
-	Validate(c context.Context, newer *models.MTOShipment, older *models.MTOShipment) error
+	Validate(appCfg appconfig.AppConfig, newer *models.MTOShipment, older *models.MTOShipment) error
 }
 
-type validatorFunc func(context.Context, *models.MTOShipment, *models.MTOShipment) error
+type validatorFunc func(appconfig.AppConfig, *models.MTOShipment, *models.MTOShipment) error
 
-func (fn validatorFunc) Validate(c context.Context, newer *models.MTOShipment, older *models.MTOShipment) error {
-	return fn(c, newer, older)
+func (fn validatorFunc) Validate(appCfg appconfig.AppConfig, newer *models.MTOShipment, older *models.MTOShipment) error {
+	return fn(appCfg, newer, older)
 }
 
-func validateShipment(ctx context.Context, newer *models.MTOShipment, older *models.MTOShipment, checks ...validator) (result error) {
+func validateShipment(appCfg appconfig.AppConfig, newer *models.MTOShipment, older *models.MTOShipment, checks ...validator) (result error) {
 	verrs := validate.NewErrors()
 	for _, checker := range checks {
-		if err := checker.Validate(ctx, newer, older); err != nil {
+		if err := checker.Validate(appCfg, newer, older); err != nil {
 			switch e := err.(type) {
 			case *validate.Errors:
 				// accumulate validation errors
@@ -43,7 +42,7 @@ func validateShipment(ctx context.Context, newer *models.MTOShipment, older *mod
 }
 
 func checkStatus() validator {
-	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(appCfg appconfig.AppConfig, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if newer.Status != "" && newer.Status != models.MTOShipmentStatusDraft && newer.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
@@ -52,10 +51,10 @@ func checkStatus() validator {
 	})
 }
 
-func checkAvailToPrime(db *pop.Connection) validator {
-	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
+func checkAvailToPrime() validator {
+	return validatorFunc(func(appCfg appconfig.AppConfig, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		var move models.Move
-		err := db.Q().
+		err := appCfg.DB().Q().
 			Join("mto_shipments", "moves.id = mto_shipments.move_id").
 			Where("available_to_prime_at IS NOT NULL").
 			Where("mto_shipments.id = ?", newer.ID).
@@ -72,7 +71,7 @@ func checkAvailToPrime(db *pop.Connection) validator {
 }
 
 func checkReweighAllowed() validator {
-	return validatorFunc(func(_ context.Context, newer *models.MTOShipment, _ *models.MTOShipment) error {
+	return validatorFunc(func(_ appconfig.AppConfig, newer *models.MTOShipment, _ *models.MTOShipment) error {
 		if newer.Status != models.MTOShipmentStatusApproved && newer.Status != models.MTOShipmentStatusDiversionRequested {
 			return services.NewConflictError(newer.ID, fmt.Sprintf("Can only reweigh a shipment that is Approved or Diversion Requested. The shipment's current status is %s", newer.Status))
 		}

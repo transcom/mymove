@@ -73,8 +73,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMTOServiceItemStatusHandler{context,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
@@ -121,8 +121,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMTOServiceItemStatusHandler{context,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
@@ -169,8 +169,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMTOServiceItemStatusHandler{context,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}

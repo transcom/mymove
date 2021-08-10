@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -208,7 +209,7 @@ func authenticateUser(ctx context.Context, sessionManager *scs.SessionManager, s
 }
 
 // AdminAuthMiddleware is middleware for admin authentication
-func AdminAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
+func AdminAuthMiddleware(globalLogger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := auth.SessionFromRequestContext(r)
@@ -624,11 +625,12 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		} else {
 			// In case they managed to login before the admin_user record was created
 			var adminUser models.AdminUser
-			queryBuilder := query.NewQueryBuilder(h.db)
+			queryBuilder := query.NewQueryBuilder()
 			filters := []services.QueryFilter{
 				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
 			}
-			err := queryBuilder.FetchOne(&adminUser, filters)
+			appCfg := appconfig.NewAppConfig(h.db, h.logger)
+			err := queryBuilder.FetchOne(appCfg, &adminUser, filters)
 
 			if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 				h.logger.Error("No admin user found", zap.String("email", session.Email))
@@ -700,11 +702,12 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	var adminUser models.AdminUser
 	if session.IsAdminApp() {
-		queryBuilder := query.NewQueryBuilder(conn)
+		queryBuilder := query.NewQueryBuilder()
+		appCfg := appconfig.NewAppConfig(h.db, h.logger)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("email", "=", session.Email),
 		}
-		err = queryBuilder.FetchOne(&adminUser, filters)
+		err = queryBuilder.FetchOne(appCfg, &adminUser, filters)
 
 		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			h.logger.Error("No admin user found", zap.String("email", session.Email))

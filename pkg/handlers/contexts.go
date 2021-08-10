@@ -119,8 +119,14 @@ func (hctx *handlerContext) LoggerFromRequest(r *http.Request) *zap.Logger {
 	return hctx.LoggerFromContext(r.Context())
 }
 
+// LoggerFromContext returns the logger from the context. If the
+// context has no logger, the handlerContext logger is returned
 func (hctx *handlerContext) LoggerFromContext(ctx context.Context) *zap.Logger {
-	return logging.FromContext(ctx)
+	logger := logging.FromContextWithoutDefault(ctx)
+	if logger != nil {
+		return logger
+	}
+	return hctx.logger
 }
 
 func (hctx *handlerContext) Logger() *zap.Logger {

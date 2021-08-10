@@ -1,11 +1,11 @@
 package mtoshipment
 
 import (
-	"context"
 	"time"
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -26,8 +26,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
+				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 				err := checkStatus().Validate(
-					context.Background(),
+					appCfg,
 					&models.MTOShipment{Status: status},
 					nil,
 				)
@@ -95,8 +96,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		for name, tc := range testCases {
 			suite.Run(name, func() {
-				checker := checkAvailToPrime(suite.DB())
-				err := checker.Validate(context.Background(), &models.MTOShipment{ID: tc.id}, nil)
+				checker := checkAvailToPrime()
+				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+				err := checker.Validate(appCfg, &models.MTOShipment{ID: tc.id}, nil)
 				tc.verf(err)
 			})
 		}

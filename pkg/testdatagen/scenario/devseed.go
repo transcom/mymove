@@ -13,9 +13,8 @@ package scenario
 import (
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -30,9 +29,10 @@ var DevSeedScenario = devSeedScenario{
 }
 
 // Setup initializes the run setup for the devseed scenario
-func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger *zap.Logger) {
-
-	moveRouter := moverouter.NewMoveRouter(db, logger)
+func (e *devSeedScenario) Setup(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCfg.DB()
+	logger := appCfg.Logger()
+	moveRouter := moverouter.NewMoveRouter()
 
 	// Testdatagen factories will create new random duty stations so let's get the standard ones in the migrations
 	var allDutyStations []models.DutyStation
@@ -49,17 +49,17 @@ func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserU
 
 	// sets the sub-scenarios
 	e.SubScenarios = map[string]func(){
-		"additional_ppm_users":         subScenarioAdditionalPPMUsers(db, userUploader),
-		"diverted_shipments":           subScenarioDivertedShipments(db, userUploader, allDutyStations, originDutyStationsInGBLOC),
-		"hhg_onboarding":               subScenarioHHGOnboarding(db, userUploader),
-		"hhg_services_counseling":      subScenarioHHGServicesCounseling(db, userUploader, allDutyStations, originDutyStationsInGBLOC),
-		"payment_request_calculations": subScenarioPaymentRequestCalculations(db, userUploader, primeUploader, moveRouter, logger),
-		"ppm_and_hhg":                  subScenarioPPMAndHHG(db, userUploader, moveRouter),
-		"ppm_office_queue":             subScenarioPPMOfficeQueue(db, userUploader, moveRouter),
-		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC),
-		"txo_queues":                   subScenarioTXOQueues(db, userUploader, logger),
-		"misc":                         subScenarioMisc(db, userUploader, primeUploader, moveRouter),
-		"reweighs":                     subScenarioReweighs(db, userUploader, primeUploader, moveRouter),
+		"additional_ppm_users":         subScenarioAdditionalPPMUsers(appCfg, userUploader),
+		"diverted_shipments":           subScenarioDivertedShipments(appCfg, userUploader, allDutyStations, originDutyStationsInGBLOC),
+		"hhg_onboarding":               subScenarioHHGOnboarding(appCfg, userUploader),
+		"hhg_services_counseling":      subScenarioHHGServicesCounseling(appCfg, userUploader, allDutyStations, originDutyStationsInGBLOC),
+		"payment_request_calculations": subScenarioPaymentRequestCalculations(appCfg, userUploader, primeUploader, moveRouter),
+		"ppm_and_hhg":                  subScenarioPPMAndHHG(appCfg, userUploader, moveRouter),
+		"ppm_office_queue":             subScenarioPPMOfficeQueue(appCfg, userUploader, moveRouter),
+		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(appCfg, allDutyStations, originDutyStationsInGBLOC),
+		"txo_queues":                   subScenarioTXOQueues(appCfg, userUploader, logger),
+		"misc":                         subScenarioMisc(appCfg, userUploader, primeUploader, moveRouter),
+		"reweighs":                     subScenarioReweighs(appCfg, userUploader, primeUploader, moveRouter),
 	}
 }
 

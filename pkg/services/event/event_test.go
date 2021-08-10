@@ -20,6 +20,7 @@ import (
 
 type EventServiceSuite struct {
 	testingsuite.PopTestSuite
+	logger *zap.Logger
 }
 
 func (suite *EventServiceSuite) SetupTest() {
@@ -29,7 +30,8 @@ func (suite *EventServiceSuite) SetupTest() {
 
 func TestEventServiceSuite(t *testing.T) {
 	ts := &EventServiceSuite{
-		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

@@ -1,26 +1,22 @@
 package mtoagent
 
 import (
-	"context"
-
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // mtoAgentCreator sets up the service object
 type mtoAgentCreator struct {
-	db          *pop.Connection
 	basicChecks []mtoAgentValidator
 	primeChecks []mtoAgentValidator
 }
 
 // NewMTOAgentCreator creates a new struct with the service dependencies
-func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.MoveTaskOrderChecker) services.MTOAgentCreator {
+func NewMTOAgentCreator(mtoAvailabilityChecker services.MoveTaskOrderChecker) services.MTOAgentCreator {
 	return &mtoAgentCreator{
-		db: db,
 		basicChecks: []mtoAgentValidator{
 			checkShipmentID(),
 			checkAgentID(),
@@ -36,25 +32,25 @@ func NewMTOAgentCreator(db *pop.Connection, mtoAvailabilityChecker services.Move
 }
 
 // CreateMTOAgentBasic passes the Prime validator key to CreateMTOAgent
-func (f *mtoAgentCreator) CreateMTOAgentBasic(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.createMTOAgent(mtoAgent, f.basicChecks...)
+func (f *mtoAgentCreator) CreateMTOAgentBasic(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	return f.createMTOAgent(appCfg, mtoAgent, f.basicChecks...)
 }
 
 // CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
-func (f *mtoAgentCreator) CreateMTOAgentPrime(mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.createMTOAgent(mtoAgent, f.primeChecks...)
+func (f *mtoAgentCreator) CreateMTOAgentPrime(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	return f.createMTOAgent(appCfg, mtoAgent, f.primeChecks...)
 }
 
 // CreateMTOAgent creates an MTO Agent
-func (f *mtoAgentCreator) createMTOAgent(mtoAgent *models.MTOAgent, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
+func (f *mtoAgentCreator) createMTOAgent(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-	err := f.db.Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
+	err := appCfg.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	err = validateMTOAgent(context.TODO(), *mtoAgent, nil, mtoShipment, checks...)
+	err = validateMTOAgent(appCfg, *mtoAgent, nil, mtoShipment, checks...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +60,7 @@ func (f *mtoAgentCreator) createMTOAgent(mtoAgent *models.MTOAgent, checks ...mt
 	// why this is necessary
 	mtoAgent = mergeAgent(*mtoAgent, nil)
 
-	verrs, err := f.db.ValidateAndCreate(mtoAgent)
+	verrs, err := appCfg.DB().ValidateAndCreate(mtoAgent)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {

@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -29,7 +30,7 @@ const (
 
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
-	logger       Logger
+	logger       *zap.Logger
 	icnSequencer sequence.Sequencer
 }
 
@@ -59,7 +60,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	mockClock := clock.NewMock()
 	currentTime := mockClock.Now()
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
-	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -280,7 +280,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.NoError(icnErr)
 
 	// Proceed with full EDI Generation tests
-	result, err := generator.Generate(paymentRequest, false)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	result, err := generator.Generate(appCfg, paymentRequest, false)
 	suite.NoError(err)
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
@@ -698,7 +699,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
-	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -737,7 +737,8 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 		assertions,
 	)
 
-	_, err := generator.Generate(paymentRequest, false)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	_, err := generator.Generate(appCfg, paymentRequest, false)
 	suite.NoError(err)
 }
 
@@ -768,7 +769,6 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	}
 
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, mockClock)
-	generator.InitDB(suite.DB())
 	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
@@ -798,6 +798,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	// This won't work because we don't have PaymentServiceItems on the PaymentRequest right now.
 	// nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	panicFunc := func() {
 		//RA Summary: gosec - errcheck - Unchecked return value
 		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -808,7 +809,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
 		// nolint:errcheck
-		generator.Generate(nilPaymentRequest, false)
+		generator.Generate(appCfg, nilPaymentRequest, false)
 	}
 
 	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {
@@ -822,7 +823,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		blank := ""
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
-		_, err := generator.Generate(nilPaymentRequest, false)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := generator.Generate(appCfg, nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
@@ -832,7 +834,8 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	suite.T().Run("nil TAC returns error", func(t *testing.T) {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
-		_, err := generator.Generate(nilPaymentRequest, false)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, err := generator.Generate(appCfg, nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
@@ -871,7 +874,6 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
-	generator.InitDB(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,
@@ -927,7 +929,8 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		assertions,
 	)
 
-	result, err := generator.Generate(paymentRequest, false)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+	result, err := generator.Generate(appCfg, paymentRequest, false)
 	suite.Error(err)
 
 	suite.T().Run("Service items that are not approved should be not added to invoice", func(t *testing.T) {
@@ -950,12 +953,4 @@ func (suite *GHCInvoiceSuite) TestTruncateStrFunc() {
 	suite.Equal("A...", truncateStr("ABCDEFGHI", 4))
 	suite.Equal("ABC...", truncateStr("ABCDEFGHI", 6))
 	suite.Equal("Too short", truncateStr("Too short", 200))
-}
-
-func (suite *GHCInvoiceSuite) TestGeneratorFailedToInitDB() {
-	generator := NewGHCPaymentRequestInvoiceGenerator(suite.icnSequencer, clock.NewMock())
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-
-	_, err := generator.Generate(paymentRequest, false)
-	suite.Error(err, "DB pointer is nil")
 }

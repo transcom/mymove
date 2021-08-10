@@ -1,12 +1,13 @@
 package office
 
 import (
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type officeQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
+	FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error
 }
 
 type officeFetcher struct {
@@ -14,9 +15,9 @@ type officeFetcher struct {
 }
 
 // FetchOffice fetches an office user for the given a slice of filters
-func (o *officeFetcher) FetchOffice(filters []services.QueryFilter) (models.TransportationOffice, error) {
+func (o *officeFetcher) FetchOffice(appCfg appconfig.AppConfig, filters []services.QueryFilter) (models.TransportationOffice, error) {
 	var office models.TransportationOffice
-	error := o.builder.FetchOne(&office, filters)
+	error := o.builder.FetchOne(appCfg, &office, filters)
 	return office, error
 }
 

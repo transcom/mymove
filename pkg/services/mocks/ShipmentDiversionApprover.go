@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
@@ -14,13 +16,13 @@ type ShipmentDiversionApprover struct {
 	mock.Mock
 }
 
-// ApproveShipmentDiversion provides a mock function with given fields: shipmentID, eTag
-func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(shipmentID, eTag)
+// ApproveShipmentDiversion provides a mock function with given fields: appCfg, shipmentID, eTag
+func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCfg, shipmentID, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *models.MTOShipment); ok {
-		r0 = rf(shipmentID, eTag)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, string) *models.MTOShipment); ok {
+		r0 = rf(appCfg, shipmentID, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -28,8 +30,8 @@ func (_m *ShipmentDiversionApprover) ApproveShipmentDiversion(shipmentID uuid.UU
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
-		r1 = rf(shipmentID, eTag)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, string) error); ok {
+		r1 = rf(appCfg, shipmentID, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

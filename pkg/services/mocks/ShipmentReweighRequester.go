@@ -3,9 +3,9 @@
 package mocks
 
 import (
-	context "context"
-
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
@@ -16,13 +16,13 @@ type ShipmentReweighRequester struct {
 	mock.Mock
 }
 
-// RequestShipmentReweigh provides a mock function with given fields: ctx, shipmentID
-func (_m *ShipmentReweighRequester) RequestShipmentReweigh(ctx context.Context, shipmentID uuid.UUID) (*models.Reweigh, error) {
-	ret := _m.Called(ctx, shipmentID)
+// RequestShipmentReweigh provides a mock function with given fields: appCfg, shipmentID
+func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.Reweigh, error) {
+	ret := _m.Called(appCfg, shipmentID)
 
 	var r0 *models.Reweigh
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Reweigh); ok {
-		r0 = rf(ctx, shipmentID)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) *models.Reweigh); ok {
+		r0 = rf(appCfg, shipmentID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Reweigh)
@@ -30,8 +30,8 @@ func (_m *ShipmentReweighRequester) RequestShipmentReweigh(ctx context.Context, 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, shipmentID)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
+		r1 = rf(appCfg, shipmentID)
 	} else {
 		r1 = ret.Error(1)
 	}

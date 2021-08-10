@@ -3,6 +3,7 @@ package internalapi
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -48,8 +49,9 @@ func (suite *HandlerSuite) GetDestinationDutyStationPostalCode() {
 		{lookupID: invalidID, resultZip: "", resultErr: models.ErrFetchNotFound},
 	}
 
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
 	for _, ts := range tests {
-		destinationZip, err := GetDestinationDutyStationPostalCode(suite.DB(), ts.lookupID)
+		destinationZip, err := GetDestinationDutyStationPostalCode(appCfg, ts.lookupID)
 		suite.Equal(ts.resultErr, err, "Wrong resultErr: %s", ts.lookupID)
 		suite.Equal(ts.resultZip, destinationZip, "Wrong moveID: %s", ts.lookupID)
 	}

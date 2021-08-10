@@ -4,24 +4,22 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type shipmentRouter struct {
-	db *pop.Connection
 }
 
 // NewShipmentRouter creates a new shipmentRouter service
-func NewShipmentRouter(db *pop.Connection) services.ShipmentRouter {
-	return &shipmentRouter{db}
+func NewShipmentRouter() services.ShipmentRouter {
+	return &shipmentRouter{}
 }
 
 // Submit is used to submit a shipment at the time the customer submits
 // their move.
-func (router shipmentRouter) Submit(shipment *models.MTOShipment) error {
+func (router shipmentRouter) Submit(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusDraft {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -36,7 +34,7 @@ func (router shipmentRouter) Submit(shipment *models.MTOShipment) error {
 }
 
 // Approve is called when the TOO approves the shipment.
-func (router shipmentRouter) Approve(shipment *models.MTOShipment) error {
+func (router shipmentRouter) Approve(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	// When a shipment is approved, service items automatically get created, but
 	// service items can only be created if a Move's status is either Approved
 	// or Approvals Requested, so check and fail early.
@@ -65,7 +63,7 @@ func (router shipmentRouter) Approve(shipment *models.MTOShipment) error {
 }
 
 // RequestCancellation is called when the TOO has requested that the Prime cancel the shipment.
-func (router shipmentRouter) RequestCancellation(shipment *models.MTOShipment) error {
+func (router shipmentRouter) RequestCancellation(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -80,7 +78,7 @@ func (router shipmentRouter) RequestCancellation(shipment *models.MTOShipment) e
 }
 
 // Cancel cancels the shipment
-func (router shipmentRouter) Cancel(shipment *models.MTOShipment) error {
+func (router shipmentRouter) Cancel(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusCancellationRequested {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -96,7 +94,7 @@ func (router shipmentRouter) Cancel(shipment *models.MTOShipment) error {
 }
 
 // Reject rejects the shipment
-func (router shipmentRouter) Reject(shipment *models.MTOShipment, reason *string) error {
+func (router shipmentRouter) Reject(appCfg appconfig.AppConfig, shipment *models.MTOShipment, reason *string) error {
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -113,7 +111,7 @@ func (router shipmentRouter) Reject(shipment *models.MTOShipment, reason *string
 }
 
 // RequestDiversion is called when the TOO has requested that the Prime divert the shipment.
-func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) error {
+func (router shipmentRouter) RequestDiversion(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	if shipment.Status != models.MTOShipmentStatusApproved {
 		return ConflictStatusError{
 			id:                        shipment.ID,
@@ -128,7 +126,7 @@ func (router shipmentRouter) RequestDiversion(shipment *models.MTOShipment) erro
 }
 
 // ApproveDiversion is called when the TOO is approving a shipment that the Prime has marked as being diverted.
-func (router shipmentRouter) ApproveDiversion(shipment *models.MTOShipment) error {
+func (router shipmentRouter) ApproveDiversion(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
 	if !shipment.Diversion {
 		return services.NewConflictError(
 			shipment.ID,

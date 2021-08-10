@@ -4,6 +4,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -31,10 +32,11 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	move := testdatagen.MakeMove(suite.DB(), assertions)
 	// Given: an office User
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	err := moveRouter.Submit(&move)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
+	err := moveRouter.Submit(appCfg, &move)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -67,10 +69,11 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// Given: an office User
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	err := moveRouter.Submit(&move)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
+	err := moveRouter.Submit(appCfg, &move)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -99,7 +102,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// Given: an non-office User
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
@@ -125,7 +128,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Orders has service member with transportation office and phone nums
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
 	selectedMoveType := models.SelectedMoveTypePPM
 	moveOptions := models.MoveOptions{
@@ -139,7 +142,8 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.NoError(err)
 
 	// Move is submitted
-	err = moveRouter.Submit(move)
+	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
+	err = moveRouter.Submit(appCfg, move)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
@@ -179,13 +183,14 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// And: Returned query to have an canceled status
 	suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 }
+
 func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Given: a set of orders, a move, office user and servicemember user
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	// Given: an non-office User
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
@@ -210,6 +215,7 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	// Then: response is Forbidden
 	suite.Assertions.IsType(&officeop.CancelMoveForbidden{}, response)
 }
+
 func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{

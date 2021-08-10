@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -12,7 +13,7 @@ import (
 )
 
 func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := query.NewQueryBuilder()
 	fetcher := NewWebhookSubscriptionFetcher(builder)
 
 	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
@@ -21,7 +22,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 	suite.T().Run("Get a webhook subscription successfully", func(t *testing.T) {
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscription.ID.String())}
 
-		webhookSubscription, err := fetcher.FetchWebhookSubscription(filters)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		webhookSubscription, err := fetcher.FetchWebhookSubscription(appCfg, filters)
 
 		suite.NoError(err)
 		suite.Equal(webhookSubscriptionID, webhookSubscription.ID)
@@ -33,7 +35,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", fakeID.String())}
 
-		fakeWebhookSubscription, err := fetcher.FetchWebhookSubscription(filters)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		fakeWebhookSubscription, err := fetcher.FetchWebhookSubscription(appCfg, filters)
 
 		suite.Error(err)
 		suite.Equal(models.WebhookSubscription{}, fakeWebhookSubscription)

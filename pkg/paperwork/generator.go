@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
@@ -18,6 +17,7 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -32,11 +32,16 @@ const (
 	PdfFontDir     string  = ""
 )
 
+// GeneratorConfig is an interface for the config needed by generator
+// Can't use services.ServiceConfig because that causes an import loop
+// type GeneratorConfig interface {
+// 	DB() *pop.Connection
+// 	Logger() *zap.Logger
+// }
+
 // Generator encapsulates the prerequisites for PDF generation.
 type Generator struct {
-	db        *pop.Connection
 	fs        *afero.Afero
-	logger    Logger
 	uploader  *uploader.Uploader
 	pdfConfig *pdfcpu.Configuration
 	workDir   string
@@ -91,7 +96,7 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 }
 
 // NewGenerator creates a new Generator.
-func NewGenerator(db *pop.Connection, logger Logger, uploader *uploader.Uploader) (*Generator, error) {
+func NewGenerator(uploader *uploader.Uploader) (*Generator, error) {
 	afs := uploader.Storer.FileSystem()
 
 	pdfConfig := pdfcpu.NewDefaultConfiguration()
@@ -103,9 +108,7 @@ func NewGenerator(db *pop.Connection, logger Logger, uploader *uploader.Uploader
 	}
 
 	return &Generator{
-		db:        db,
 		fs:        afs,
-		logger:    logger,
 		uploader:  uploader,
 		pdfConfig: pdfConfig,
 		workDir:   directory,
@@ -127,18 +130,18 @@ func (g *Generator) newTempFile() (afero.File, error) {
 }
 
 // Cleanup removes filesystem working dir
-func (g *Generator) Cleanup() error {
+func (g *Generator) Cleanup(appCfg appconfig.AppConfig) error {
 	return g.fs.RemoveAll(g.workDir)
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
-func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (afero.File, error) {
-	pdfs, err := g.ConvertUploadsToPDF(uploads)
+func (g *Generator) CreateMergedPDFUpload(appCfg appconfig.AppConfig, uploads models.Uploads) (afero.File, error) {
+	pdfs, err := g.ConvertUploadsToPDF(appCfg, uploads)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while converting uploads")
 	}
 
-	mergedPdf, err := g.MergePDFFiles(pdfs)
+	mergedPdf, err := g.MergePDFFiles(appCfg, pdfs)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while merging PDFs")
 	}
@@ -147,7 +150,7 @@ func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (afero.File, e
 }
 
 // ConvertUploadsToPDF turns a slice of Uploads into a slice of paths to converted PDF files
-func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error) {
+func (g *Generator) ConvertUploadsToPDF(appCfg appconfig.AppConfig, uploads models.Uploads) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
@@ -160,7 +163,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
 				// that have already been encountered before handling this PDF.
-				pdf, err := g.PDFFromImages(images)
+				pdf, err := g.PDFFromImages(appCfg, images)
 				if err != nil {
 					return nil, errors.Wrap(err, "Converting images")
 				}
@@ -169,14 +172,14 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 			}
 		}
 
-		download, err := g.uploader.Download(&copyOfUpload)
+		download, err := g.uploader.Download(appCfg, &copyOfUpload)
 		if err != nil {
 			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
 
 		defer func() {
 			if downloadErr := download.Close(); downloadErr != nil {
-				g.logger.Debug("Failed to close file", zap.Error(downloadErr))
+				appCfg.Logger().Debug("Failed to close file", zap.Error(downloadErr))
 			}
 		}()
 
@@ -202,7 +205,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 
 	// Merge all remaining images in urls into a new PDF
 	if len(images) > 0 {
-		pdf, err := g.PDFFromImages(images)
+		pdf, err := g.PDFFromImages(appCfg, images)
 		if err != nil {
 			return nil, errors.Wrap(err, "Converting remaining images to pdf")
 		}
@@ -230,7 +233,7 @@ var contentTypeToImageType = map[string]string{
 }
 
 // ReduceUnusedSpace reduces unused space
-func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+func ReduceUnusedSpace(appCfg appconfig.AppConfig, file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
 	// Figure out if the image should be rotated by calculating height and width of image.
 	pic, _, decodeErr := image.Decode(file)
 	if decodeErr != nil {
@@ -284,7 +287,7 @@ func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFi
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
+func (g *Generator) PDFFromImages(appCfg appconfig.AppConfig, images []inputFile) (string, error) {
 	// These constants are based on A4 page size, which we currently default to.
 	horizontalMargin := 0.0
 	topMargin := 0.0
@@ -299,7 +302,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		return "", errors.New("No images provided")
 	}
 
-	g.logger.Debug("generating PDF from image files", zap.Any("images", images))
+	appCfg.Logger().Debug("generating PDF from image files", zap.Any("images", images))
 
 	outputFile, err := g.newTempFile()
 	if err != nil {
@@ -308,7 +311,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 
 	defer func() {
 		if closeErr := outputFile.Close(); closeErr != nil {
-			g.logger.Debug("Failed to close file", zap.Error(closeErr))
+			appCfg.Logger().Debug("Failed to close file", zap.Error(closeErr))
 		}
 	}()
 
@@ -322,12 +325,12 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 
 		defer func() {
 			if closeErr := file.Close(); closeErr != nil {
-				g.logger.Debug("Failed to close file", zap.Error(closeErr))
+				appCfg.Logger().Debug("Failed to close file", zap.Error(closeErr))
 			}
 		}()
 
 		if img.ContentType == "image/png" {
-			g.logger.Debug("Converting png to 8-bit")
+			appCfg.Logger().Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
 			newFile, newTemplateFileErr := g.newTempFile()
 			if newTemplateFileErr != nil {
@@ -336,7 +339,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 
 			defer func() {
 				if closeErr := newFile.Close(); closeErr != nil {
-					g.logger.Debug("Failed to close file", zap.Error(closeErr))
+					appCfg.Logger().Debug("Failed to close file", zap.Error(closeErr))
 				}
 			}()
 
@@ -351,7 +354,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			}
 		}
 
-		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(file, g, img.ContentType)
+		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(appCfg, file, g, img.ContentType)
 		if rotateErr != nil {
 			return "", errors.Wrapf(rotateErr, "Rotating image if in landscape orientation")
 		}
@@ -400,7 +403,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
+func (g *Generator) MergePDFFiles(appCfg appconfig.AppConfig, paths []string) (afero.File, error) {
 	var err error
 	mergedFile, err := g.newTempFile()
 	if err != nil {
@@ -433,7 +436,7 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 // The content type of the image is inferred from its extension. If this proves to
 // be insufficient, storage.DetectContentType and contentTypeToImageType above can
 // be used.
-func (g *Generator) MergeImagesToPDF(paths []string) (string, error) {
+func (g *Generator) MergeImagesToPDF(appCfg appconfig.AppConfig, paths []string) (string, error) {
 	// path and type for each image
 	images := make([]inputFile, 0)
 
@@ -445,5 +448,5 @@ func (g *Generator) MergeImagesToPDF(paths []string) (string, error) {
 		})
 	}
 
-	return g.PDFFromImages(images)
+	return g.PDFFromImages(appCfg, images)
 }

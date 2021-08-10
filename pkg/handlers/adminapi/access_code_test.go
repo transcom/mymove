@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		params := accesscodeop.IndexAccessCodesParams{
 			HTTPRequest: req,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexAccessCodesHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
@@ -73,6 +73,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		accessCodeListFetcher.On("FetchAccessCodeList",
+			mock.AnythingOfType("*appconfig.appConfig"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

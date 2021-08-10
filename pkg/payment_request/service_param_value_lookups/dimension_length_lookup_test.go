@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -46,10 +47,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionLengthLookup() {
 		})
 		mtoServiceItem.Dimensions = []models.MTOServiceItemDimension{itemDimension, cratingDimension}
 		suite.MustSave(&mtoServiceItem)
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
-		stringValue, err := paramLookup.ServiceParamValue(key)
+		stringValue, err := paramLookup.ServiceParamValue(appCfg, key)
 		suite.FatalNoError(err)
 
 		suite.Equal("193", stringValue)
@@ -58,10 +60,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDimensionLengthLookup() {
 
 	suite.T().Run("missing dimension should error", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(appCfg, key)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "unable to find length crate dimension")

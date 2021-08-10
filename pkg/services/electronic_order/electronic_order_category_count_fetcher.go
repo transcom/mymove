@@ -1,12 +1,13 @@
 package electronicorder
 
 import (
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type electronicOrderCategoricalCountQueryBuilder interface {
-	FetchCategoricalCountsFromOneModel(model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error)
+	FetchCategoricalCountsFromOneModel(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error)
 }
 
 type electronicOrderCategoricalCountsFetcher struct {
@@ -14,8 +15,8 @@ type electronicOrderCategoricalCountsFetcher struct {
 }
 
 // FetchElectronicOrderList uses the passed query builder to fetch a list of electronic_orders
-func (o *electronicOrderCategoricalCountsFetcher) FetchElectronicOrderCategoricalCounts(filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
-	counts, err := o.builder.FetchCategoricalCountsFromOneModel(models.ElectronicOrder{}, filters, andFilters)
+func (o *electronicOrderCategoricalCountsFetcher) FetchElectronicOrderCategoricalCounts(appCfg appconfig.AppConfig, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+	counts, err := o.builder.FetchCategoricalCountsFromOneModel(appCfg, models.ElectronicOrder{}, filters, andFilters)
 	if err != nil {
 		return nil, err
 	}

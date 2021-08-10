@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -14,8 +15,8 @@ import (
 
 func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 	// Set up NewMTOAgentCreator
-	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
-	mtoAgentCreator := NewMTOAgentCreator(suite.DB(), mtoChecker)
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
+	mtoAgentCreator := NewMTOAgentCreator(mtoChecker)
 
 	// Create new mtoShipment with no agents
 	move := testdatagen.MakeAvailableMove(suite.DB())
@@ -53,7 +54,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Set up:		Use established valid shipment and valid receiving agent
 		// Expected:	New MTOAgent of type RECEIVING_AGENT is successfully created
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(receivingAgent)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, receivingAgent)
 
 		suite.Nil(err)
 		suite.NotNil(createdAgent)
@@ -69,7 +71,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Under test:	CreateMTOAgentPrime
 		// Set up:		Use established valid shipment and valid releasing agent
 		// Expected:	New MTOAgent of type RELEASING_AGENT is successfully created
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(releasingAgent)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, releasingAgent)
 
 		suite.Nil(err)
 		suite.NotNil(createdAgent)
@@ -84,11 +87,12 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Under test:	CreateMTOAgentPrime
 		// Set up:		Use nonexistent mtoShipmentID and valid releasing agent
 		// Expected:	NotFoundError is returned. Agent cannot be created without a valid shipment.
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		notFoundUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
 		releasingAgent.MTOShipmentID = notFoundUUID
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(releasingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, releasingAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
@@ -101,8 +105,9 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Under test:	CreateMTOAgentPrime
 		// Set up:		Use same valid relesing agent and mtoShipmentID.
 		// Expected:	ConflictError is returned. Only one agent of each type is allowed per shipment.
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		releasingAgent.MTOShipmentID = mtoShipment.ID
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(releasingAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, releasingAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
@@ -113,7 +118,8 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Under test:	CreateMTOAgentPrime
 		// Set up:		Use same valid receiving agent and mtoShipmentID.
 		// Expected:	ConflictError is returned. Only one agent of each type is allowed per shipment.
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(receivingAgent)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, receivingAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
@@ -126,12 +132,13 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 		// Expected:	NotFoundError is returned. Shipment must be available to Prime to add an agent.
 
 		// Creates a shipment, which creates a move that is unavailable to Prime
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		unavailableShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
 
 		agent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 		agent.MTOShipmentID = unavailableShipment.ID
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(&agent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, &agent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)
@@ -140,13 +147,14 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 	})
 
 	suite.T().Run("Validation Error", func(t *testing.T) {
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		invalidAgent := &models.MTOAgent{
 			FirstName:     swag.String("Riley"),
 			LastName:      swag.String("Baker"),
 			MTOShipmentID: mtoShipment.ID,
 		}
 
-		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(invalidAgent)
+		createdAgent, err := mtoAgentCreator.CreateMTOAgentPrime(appCfg, invalidAgent)
 
 		suite.Nil(createdAgent)
 		suite.Error(err)

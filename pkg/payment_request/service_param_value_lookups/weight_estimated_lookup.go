@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -12,7 +13,7 @@ type WeightEstimatedLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightEstimatedLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightEstimatedLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
 
 	switch keyData.MTOServiceItem.ReService.Code {

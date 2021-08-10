@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,9 +20,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		paymentServiceItem := suite.setupManagementServicesItem()
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 
@@ -34,26 +36,29 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, _, err := managementServicesPricer.Price(testdatagen.DefaultContractCode, msAvailableToPrimeAt)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, _, err := managementServicesPricer.Price(appCfg, testdatagen.DefaultContractCode, msAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := managementServicesPricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("not finding a rate record", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.Price("BOGUS", msAvailableToPrimeAt)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := managementServicesPricer.Price(appCfg, "BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

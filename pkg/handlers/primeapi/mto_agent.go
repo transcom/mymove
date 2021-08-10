@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -24,6 +25,7 @@ type CreateMTOAgentHandler struct {
 // Handle created an MTO Agent for a shipment
 func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
 	// Get the mtoShipmentID and payload
 	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
@@ -35,7 +37,7 @@ func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams
 
 	// Call the service object
 	// For now, only the Prime endpoint will use this handler
-	createdAgent, err := h.MTOAgentCreator.CreateMTOAgentPrime(mtoAgent)
+	createdAgent, err := h.MTOAgentCreator.CreateMTOAgentPrime(appCfg, mtoAgent)
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {
@@ -82,6 +84,7 @@ type UpdateMTOAgentHandler struct {
 // Handle updates an MTO Agent for a shipment
 func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCfg := appconfig.NewAppConfig(h.DB(), logger)
 
 	// Get the params and payload
 	payload := params.Body
@@ -98,7 +101,7 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 	}
 
 	// Call the service object
-	updatedAgent, err := h.MTOAgentUpdater.UpdateMTOAgentPrime(mtoAgent, eTag)
+	updatedAgent, err := h.MTOAgentUpdater.UpdateMTOAgentPrime(appCfg, mtoAgent, eTag)
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {

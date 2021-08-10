@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -22,26 +22,25 @@ import (
 )
 
 type moveTaskOrderCreator struct {
-	db *pop.Connection
 }
 
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
-func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
+func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCfg appconfig.AppConfig, payload supportmessages.MoveTaskOrder, logger *zap.Logger) (*models.Move, error) {
 	var moveTaskOrder *models.Move
 	var refID string
 	if payload.Order == nil {
 		return nil, services.NewQueryError("MoveTaskOrder", nil, "Order is necessary")
 	}
 
-	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
+	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
 		// Create or get customer
-		customer, err := createOrGetCustomer(tx, customer.NewCustomerFetcher(tx), payload.Order.CustomerID, payload.Order.Customer, logger)
+		customer, err := createOrGetCustomer(txnAppCfg, customer.NewCustomerFetcher(), payload.Order.CustomerID, payload.Order.Customer)
 		if err != nil {
 			return err
 		}
 
 		// Create order and entitlement
-		order, err := createOrder(tx, customer, payload.Order, logger)
+		order, err := createOrder(txnAppCfg, customer, payload.Order)
 		if err != nil {
 			return err
 		}
@@ -49,7 +48,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		// Convert payload to model for moveTaskOrder
 		moveTaskOrder = MoveTaskOrderModel(&payload)
 		// referenceID cannot be set by user so generate it
-		refID, err = models.GenerateReferenceID(tx)
+		refID, err = models.GenerateReferenceID(txnAppCfg.DB())
 		if err != nil {
 			return err
 		}
@@ -65,7 +64,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		moveTaskOrder.Orders = *order
 		moveTaskOrder.OrdersID = order.ID
 
-		verrs, err := tx.ValidateAndCreate(moveTaskOrder)
+		verrs, err := txnAppCfg.DB().ValidateAndCreate(moveTaskOrder)
 
 		if verrs.Count() > 0 {
 			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))
@@ -85,12 +84,12 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 }
 
 // NewInternalMoveTaskOrderCreator creates a new struct with the service dependencies
-func NewInternalMoveTaskOrderCreator(db *pop.Connection) support.InternalMoveTaskOrderCreator {
-	return &moveTaskOrderCreator{db}
+func NewInternalMoveTaskOrderCreator() support.InternalMoveTaskOrderCreator {
+	return &moveTaskOrderCreator{}
 }
 
 // createOrder creates a basic order - this is a support function do not use in production
-func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayload *supportmessages.Order, logger *zap.Logger) (*models.Order, error) {
+func createOrder(appCfg appconfig.AppConfig, customer *models.ServiceMember, orderPayload *supportmessages.Order) (*models.Order, error) {
 	if orderPayload == nil {
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, nil, "Order definition is required to create MoveTaskOrder")
 		return nil, returnErr
@@ -103,9 +102,9 @@ func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayloa
 	// It's required in the payload
 	destinationDutyStation := models.DutyStation{}
 	destinationDutyStationID := uuid.FromStringOrNil(orderPayload.DestinationDutyStationID.String())
-	err := tx.Find(&destinationDutyStation, destinationDutyStationID)
+	err := appCfg.DB().Find(&destinationDutyStation, destinationDutyStationID)
 	if err != nil {
-		logger.Error("supportapi.createOrder error", zap.Error(err))
+		appCfg.Logger().Error("supportapi.createOrder error", zap.Error(err))
 		return nil, services.NewNotFoundError(destinationDutyStationID, ". The destinationDutyStation does not exist.")
 	}
 	order.NewDutyStation = destinationDutyStation
@@ -115,9 +114,9 @@ func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayloa
 	if orderPayload.OriginDutyStationID != nil {
 		originDutyStation = &models.DutyStation{}
 		originDutyStationID := uuid.FromStringOrNil(orderPayload.OriginDutyStationID.String())
-		err = tx.Find(originDutyStation, originDutyStationID)
+		err = appCfg.DB().Find(originDutyStation, originDutyStationID)
 		if err != nil {
-			logger.Error("supportapi.createOrder error", zap.Error(err))
+			appCfg.Logger().Error("supportapi.createOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(originDutyStationID, ". The originDutyStation does not exist.")
 		}
 		order.OriginDutyStation = originDutyStation
@@ -129,9 +128,9 @@ func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayloa
 		uploadedOrders = &models.Document{}
 		uploadedOrdersID := uuid.FromStringOrNil(orderPayload.UploadedOrdersID.String())
 		fmt.Println("\n\nUploaded orders id is ", uploadedOrdersID)
-		err = tx.Find(uploadedOrders, uploadedOrdersID)
+		err = appCfg.DB().Find(uploadedOrders, uploadedOrdersID)
 		if err != nil {
-			logger.Error("supportapi.createOrder error", zap.Error(err))
+			appCfg.Logger().Error("supportapi.createOrder error", zap.Error(err))
 			return nil, services.NewNotFoundError(uploadedOrdersID, ". The uploadedOrders does not exist.")
 		}
 		order.UploadedOrders = *uploadedOrders
@@ -143,12 +142,12 @@ func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayloa
 	order.ServiceMemberID = customer.ID
 
 	// Creates the order and the entitlement at the same time
-	verrs, err := tx.Eager().ValidateAndCreate(order)
+	verrs, err := appCfg.DB().Eager().ValidateAndCreate(order)
 	if verrs.Count() > 0 {
-		logger.Error("supportapi.createOrder error", zap.Error(verrs))
+		appCfg.Logger().Error("supportapi.createOrder error", zap.Error(verrs))
 		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	} else if err != nil {
-		logger.Error("supportapi.createOrder error", zap.Error(err))
+		appCfg.Logger().Error("supportapi.createOrder error", zap.Error(err))
 		e := services.NewQueryError("Order", err, "Unable to create Order.")
 		return nil, e
 	}
@@ -157,7 +156,7 @@ func createOrder(tx *pop.Connection, customer *models.ServiceMember, orderPayloa
 
 // createUser creates a user but this is a fake login.gov user
 // this is support code only, do not use in a production case
-func createUser(tx *pop.Connection, userEmail *string, logger *zap.Logger) (*models.User, error) {
+func createUser(appCfg appconfig.AppConfig, userEmail *string) (*models.User, error) {
 	if userEmail == nil {
 		defaultEmail := "generatedMTOuser@example.com"
 		userEmail = &defaultEmail
@@ -168,12 +167,12 @@ func createUser(tx *pop.Connection, userEmail *string, logger *zap.Logger) (*mod
 		LoginGovEmail: *userEmail,
 		Active:        true,
 	}
-	verrs, err := tx.ValidateAndCreate(&user)
+	verrs, err := appCfg.DB().ValidateAndCreate(&user)
 	if verrs.Count() > 0 {
-		logger.Error("supportapi.createUser error", zap.Error(verrs))
+		appCfg.Logger().Error("supportapi.createUser error", zap.Error(verrs))
 		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	} else if err != nil {
-		logger.Error("supportapi.createUser error", zap.Error(err))
+		appCfg.Logger().Error("supportapi.createUser error", zap.Error(err))
 		e := services.NewQueryError("User", err, "Unable to create User.")
 		return nil, e
 	}
@@ -181,7 +180,7 @@ func createUser(tx *pop.Connection, userEmail *string, logger *zap.Logger) (*mod
 }
 
 // createOrGetCustomer creates a customer or gets one if id was provided
-func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payloadCustomerID *strfmt.UUID, customerBody *supportmessages.Customer, logger *zap.Logger) (*models.ServiceMember, error) {
+func createOrGetCustomer(appCfg appconfig.AppConfig, f services.CustomerFetcher, payloadCustomerID *strfmt.UUID, customerBody *supportmessages.Customer) (*models.ServiceMember, error) {
 	verrs := validate.NewErrors()
 
 	// If customer ID string is provided, we should find this customer
@@ -194,7 +193,7 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payload
 		}
 
 		// Find customer and return
-		customer, err := f.FetchCustomer(customerID)
+		customer, err := f.FetchCustomer(appCfg, customerID)
 		if err != nil {
 			returnErr := services.NewNotFoundError(customerID, "Customer with that ID not found")
 			return nil, returnErr
@@ -208,7 +207,7 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payload
 		returnErr := services.NewInvalidInputError(uuid.Nil, nil, verrs, "If CustomerID is not provided, customer object is required to create Customer")
 		return nil, returnErr
 	}
-	user, err := createUser(tx, customerBody.Email, logger)
+	user, err := createUser(appCfg, customerBody.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -218,12 +217,12 @@ func createOrGetCustomer(tx *pop.Connection, f services.CustomerFetcher, payload
 	customer.UserID = user.ID
 
 	// Create the new customer in the db
-	verrs, err = tx.ValidateAndCreate(customer)
+	verrs, err = appCfg.DB().ValidateAndCreate(customer)
 	if verrs.Count() > 0 {
-		logger.Error("supportapi.createOrGetCustomer error", zap.Error(verrs))
+		appCfg.Logger().Error("supportapi.createOrGetCustomer error", zap.Error(verrs))
 		return nil, services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	} else if err != nil {
-		logger.Error("supportapi.createOrGetCustomer error", zap.Error(err))
+		appCfg.Logger().Error("supportapi.createOrGetCustomer error", zap.Error(err))
 		e := services.NewQueryError("Customer", err, "Unable to create Customer")
 		return nil, e
 	}

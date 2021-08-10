@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appconfig "github.com/transcom/mymove/pkg/appconfig"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	roles "github.com/transcom/mymove/pkg/models/roles"
@@ -16,13 +18,13 @@ type UserRoleAssociator struct {
 	mock.Mock
 }
 
-// UpdateUserRoles provides a mock function with given fields: userID, _a1
-func (_m *UserRoleAssociator) UpdateUserRoles(userID uuid.UUID, _a1 []roles.RoleType) ([]models.UsersRoles, error) {
-	ret := _m.Called(userID, _a1)
+// UpdateUserRoles provides a mock function with given fields: appCfg, userID, _a2
+func (_m *UserRoleAssociator) UpdateUserRoles(appCfg appconfig.AppConfig, userID uuid.UUID, _a2 []roles.RoleType) ([]models.UsersRoles, error) {
+	ret := _m.Called(appCfg, userID, _a2)
 
 	var r0 []models.UsersRoles
-	if rf, ok := ret.Get(0).(func(uuid.UUID, []roles.RoleType) []models.UsersRoles); ok {
-		r0 = rf(userID, _a1)
+	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, []roles.RoleType) []models.UsersRoles); ok {
+		r0 = rf(appCfg, userID, _a2)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.UsersRoles)
@@ -30,8 +32,8 @@ func (_m *UserRoleAssociator) UpdateUserRoles(userID uuid.UUID, _a1 []roles.Role
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, []roles.RoleType) error); ok {
-		r1 = rf(userID, _a1)
+	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, []roles.RoleType) error); ok {
+		r1 = rf(appCfg, userID, _a2)
 	} else {
 		r1 = ret.Error(1)
 	}

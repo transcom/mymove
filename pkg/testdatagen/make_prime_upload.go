@@ -7,7 +7,9 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -43,7 +45,10 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		if assertions.File != nil {
 			file = assertions.File
 		}
-		primeUpload, verrs, err = assertions.PrimeUploader.CreatePrimeUploadForDocument(&posDoc.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
+		// Ugh. Use the global logger. All testdatagen methods should
+		// take a logger
+		appCfg := appconfig.NewAppConfig(db, zap.L())
+		primeUpload, verrs, err = assertions.PrimeUploader.CreatePrimeUploadForDocument(appCfg, &posDoc.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving prime upload %v, %v", verrs, err))
 		}

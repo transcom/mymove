@@ -3,8 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,16 +13,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 	suite.Run("golden path", func() {
 		suite.setupPriceServiceItemData()
 		paymentServiceItem := suite.setupPriceServiceItem()
-		serviceItemPricer := NewServiceItemPricer(suite.DB())
+		serviceItemPricer := NewServiceItemPricer()
 
-		priceCents, _, err := serviceItemPricer.PriceServiceItem(paymentServiceItem)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		priceCents, _, err := serviceItemPricer.PriceServiceItem(appCfg, paymentServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.Run("not implemented pricer", func() {
 		suite.setupPriceServiceItemData()
-		serviceItemPricer := NewServiceItemPricer(suite.DB())
+		serviceItemPricer := NewServiceItemPricer()
 
 		badPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
@@ -31,26 +31,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 			},
 		})
 
-		_, _, err := serviceItemPricer.PriceServiceItem(badPaymentServiceItem)
+		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
+		_, _, err := serviceItemPricer.PriceServiceItem(appCfg, badPaymentServiceItem)
 		suite.Error(err)
 	})
-}
-
-func (suite *GHCRateEngineServiceSuite) TestUsingConnection() {
-	originalDB := suite.DB()
-	serviceItemPricerInterface := NewServiceItemPricer(originalDB)
-
-	err := originalDB.Rollback(func(tx *pop.Connection) {
-		txServiceItemPricerInterface := serviceItemPricerInterface.UsingConnection(tx)
-
-		txServiceItemPricerStruct, _ := txServiceItemPricerInterface.(serviceItemPricer)
-		suite.Same(tx, txServiceItemPricerStruct.db)
-
-		serviceItemPricerStruct, _ := serviceItemPricerInterface.(*serviceItemPricer)
-		suite.Same(originalDB, serviceItemPricerStruct.db)
-	})
-
-	suite.Nil(err)
 }
 
 func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
@@ -81,7 +65,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 
 	for _, testCase := range testCases {
 		suite.Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func() {
-			serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
+			serviceItemPricerInterface := NewServiceItemPricer()
 			serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
 
 			pricer, err := serviceItemPricer.getPricer(testCase.serviceCode)
@@ -91,7 +75,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 	}
 
 	suite.Run("pricer not found", func() {
-		serviceItemPricerInterface := NewServiceItemPricer(suite.DB())
+		serviceItemPricerInterface := NewServiceItemPricer()
 		serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
 
 		_, err := serviceItemPricer.getPricer("BOGUS")
