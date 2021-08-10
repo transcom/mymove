@@ -247,6 +247,88 @@ IEA*1*000000022
 		suite.validateIEA(ieaString, iea)
 	})
 
+	suite.T().Run("successfully parse simple 997 string with carriage returns instead of newlines", func(t *testing.T) {
+		sample997EDIString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:\rGS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010\rST*997*0001\rAK1*SI*100001251\rAK2*858*0001\rAK3*ab*123\rAK4*1*2*3*4*MM*bad data goes here 89\rAK5*A\rAK9*A*1*1*1\rSE*6*0001\rGE*1*220001\rIEA*1*000000022\r"
+		edi997 := EDI{}
+		err := edi997.Parse(sample997EDIString)
+		suite.NoError(err, "Successful parse of 997")
+
+		// Check the ISA segments
+		// ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:
+		isa := edi997.InterchangeControlEnvelope.ISA
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:"
+		suite.validateISA(isaString, isa)
+
+		// Check the GS segments
+		// GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups))
+		gs := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GS
+		gsString := "GS*FA*8004171844*MILMOVE*20210217*152945*220001*X*004010"
+		suite.validateGS(gsString, gs)
+
+		// Check the ST segments
+		// ST*997*0001
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets))
+		st := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].ST
+		stString := "ST*997*0001"
+		suite.validateST(stString, st)
+
+		// Check the AK1 segments
+		// AK1*SI*100001251
+		ak1 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
+		ak1String := "AK1*SI*100001251"
+		suite.validateAK1(ak1String, ak1)
+
+		// Check the AK2 segments
+		// AK2*858*0001
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses))
+		ak2 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK2
+		ak2String := "AK2*858*0001"
+		suite.validateAK2(ak2String, ak2)
+
+		// Check the AK3 segments
+		// AK3*ab*123
+		suite.Equal(1, len(edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments))
+		ak3String := "AK3*ab*123"
+		ak3 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK3
+		suite.validateAK3(ak3String, ak3)
+
+		// Check the AK4 segments
+		// AK4*1*2*3*4*MM*bad data goes here 89
+		ak4 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].dataSegments[0].AK4
+		ak4String := "AK4*1*2*3*4*MM*bad data goes here 89"
+		suite.validateAK4(ak4String, ak4)
+
+		// Check the AK5 segments
+		// AK5*A
+		ak5 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK5
+		ak5String := "AK5*A"
+		suite.validateAK5(ak5String, ak5)
+
+		// Check the AK9 segments
+		ak9String := "AK9*A*1*1*1"
+		ak9 := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK9
+		suite.validateAK9(ak9String, ak9)
+
+		// Checking SE segments
+		// SE*6*0001
+		se := edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].SE
+		seString := "SE*6*0001"
+		suite.validateSE(seString, se)
+
+		// Checking GE segments
+		// GE*1*220001
+		ge := edi997.InterchangeControlEnvelope.FunctionalGroups[0].GE
+		geString := "GE*1*220001"
+		suite.validateGE(geString, ge)
+
+		// Checking the IEA segments
+		// IEA*1*000000022
+		iea := edi997.InterchangeControlEnvelope.IEA
+		ieaString := "IEA*1*000000022"
+		suite.validateIEA(ieaString, iea)
+	})
+
 	suite.T().Run("successfully parse complex 997 with loops", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1530*U*00401*000000022*0*T*:

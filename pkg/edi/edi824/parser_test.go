@@ -620,6 +620,68 @@ IEA*1*000000001
 		suite.validateIEA(ieaString, iea)
 	})
 
+	suite.T().Run("successfully parse sample real 824", func(t *testing.T) {
+		sample824EDIString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|\rGS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010\rST*824*000000001\rBGN*11*1126-9404*20210217\rOTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001\rSE*5*000000001\rGE*1*1\rIEA*1*000000001\r"
+		edi824 := EDI{}
+		err := edi824.Parse(sample824EDIString)
+		suite.NoError(err, "Successful parse of 824")
+
+		// Check the ISA segments
+		// ISA*00*          00          12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T|
+		isa := edi824.InterchangeControlEnvelope.ISA
+		isaString := "ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|"
+		suite.validateISA(isaString, isa)
+
+		// Check the GS segments
+		// GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010
+		suite.Equal(1, len(edi824.InterchangeControlEnvelope.FunctionalGroups))
+		gs := edi824.InterchangeControlEnvelope.FunctionalGroups[0].GS
+		gsString := "GS*AG*8004171844*MILMOVE*20210217*1544*1*X*004010"
+		suite.validateGS(gsString, gs)
+
+		// Check the ST segments
+		// ST*824*000000001
+		suite.Equal(1, len(edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets))
+		st := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].ST
+		stString := "ST*824*000000001"
+		suite.validateST(stString, st)
+
+		// Check the BGN segments
+		// BGN*11*1126-9404*20210217
+		bgn := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].BGN
+		bgnString := "BGN*11*1126-9404*20210217"
+		suite.validateBGN(bgnString, bgn)
+
+		// Check the OTI segments
+		// OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001
+		suite.Equal(1, len(edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs))
+		oti := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0]
+		otiString := "OTI*TR*BM*1126-9404*MILMOVE*8004171844*20210217**100001251*0001"
+		suite.validateOTI(otiString, oti)
+
+		// Check the TED segments
+		// n/a
+		suite.Equal(0, len(edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].TEDs))
+
+		// Checking SE segments
+		// SE*5*000000001
+		se := edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].SE
+		seString := "SE*5*000000001"
+		suite.validateSE(seString, se)
+
+		// Checking GE segments
+		// GE*1*1
+		ge := edi824.InterchangeControlEnvelope.FunctionalGroups[0].GE
+		geString := "GE*1*1"
+		suite.validateGE(geString, ge)
+
+		// Checking the IEA segments
+		// IEA*1*000000001
+		iea := edi824.InterchangeControlEnvelope.IEA
+		ieaString := "IEA*1*000000001"
+		suite.validateIEA(ieaString, iea)
+	})
+
 	suite.T().Run("fail to parse 824 with unknown segment", func(t *testing.T) {
 		sample824EDIString := `
 ISA*00*          *00*          *12*8004171844     *ZZ*MILMOVE        *210217*1544*U*00401*000000001*0*T*|
