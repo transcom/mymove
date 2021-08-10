@@ -62,7 +62,7 @@ const MovePaymentRequests = ({
     let newActiveSection;
 
     sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#${section}`);
+      const sectionEl = document.getElementById(`${section}`);
       if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
         newActiveSection = section;
       }
@@ -112,21 +112,23 @@ const MovePaymentRequests = ({
             );
           })}
         </LeftNav>
-        <GridContainer className={txoStyles.gridContainer} data-testid="too-move-details">
+        <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
-          {paymentRequests.length ? (
-            paymentRequests.map((paymentRequest) => (
-              <PaymentRequestCard
-                paymentRequest={paymentRequest}
-                shipmentsInfo={shipmentsInfo}
-                key={paymentRequest.id}
-              />
-            ))
-          ) : (
-            <div className={txoStyles.emptyMessage}>
-              <p>No payment requests have been submitted for this move yet.</p>
-            </div>
-          )}
+          <div className={txoStyles.section} id="payment-requests">
+            {paymentRequests.length ? (
+              paymentRequests.map((paymentRequest) => (
+                <PaymentRequestCard
+                  paymentRequest={paymentRequest}
+                  shipmentsInfo={shipmentsInfo}
+                  key={paymentRequest.id}
+                />
+              ))
+            ) : (
+              <div className={txoStyles.emptyMessage}>
+                <p>No payment requests have been submitted for this move yet.</p>
+              </div>
+            )}
+          </div>
         </GridContainer>
       </div>
     </div>
