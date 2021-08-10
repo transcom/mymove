@@ -1,6 +1,7 @@
 package edi
 
 import (
+	"bufio"
 	"os"
 	"strings"
 	"testing"
@@ -28,4 +29,46 @@ func (suite *EDISuite) TestNewReader() {
 func (suite *EDISuite) TestNewWriter() {
 	writer := NewWriter(os.Stdout)
 	suite.Equal('*', writer.Comma, "Writer.Comma is %c, but should be '*'")
+}
+
+func (suite *EDISuite) TestNewScanLine() {
+	expected := []string{
+		"line 1",
+		"line 2",
+		"line 3",
+		"line 4",
+	}
+
+	suite.T().Run("successfully read lines broken by newline \\n", func(t *testing.T) {
+		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\n")))
+		scanner.Split(SplitLines)
+		idx := 0
+		for scanner.Scan() {
+			suite.Equal(expected[idx], scanner.Text())
+			idx++
+		}
+		suite.Equal(len(expected), idx, "Processed less lines than expected")
+	})
+
+	suite.T().Run("successfully read lines broken by carriage return and newline \\r\\n", func(t *testing.T) {
+		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\r\n")))
+		scanner.Split(SplitLines)
+		idx := 0
+		for scanner.Scan() {
+			suite.Equal(expected[idx], scanner.Text())
+			idx++
+		}
+		suite.Equal(len(expected), idx, "Processed less lines than expected")
+	})
+
+	suite.T().Run("successfully read lines broken by only carriage return \\r", func(t *testing.T) {
+		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\r")))
+		scanner.Split(SplitLines)
+		idx := 0
+		for scanner.Scan() {
+			suite.Equal(expected[idx], scanner.Text())
+			idx++
+		}
+		suite.Equal(len(expected), idx, "Processed less lines than expected")
+	})
 }
