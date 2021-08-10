@@ -112,15 +112,15 @@ additional API requests to rollback/undo multi-pronged actions.
     resource without exposing details to the Prime user).
 - ➕ Ability for the Prime engineers to perform extra actions without having to
     modify actions if the underlying details of an action change over time.
+- ➕ Logical semantic actions create methods which may have side effects that
+    are not apparent to the user due to obfuscation of the underlying resources
+    that are being modified.
 - ➖ Method handlers for the Prime would need to handle specific edge cases for
     the user in case of a failure during a logical semantic action (e.g.
     ensuring a new shipment ID is not created if the method fails to update a
     shipment ID with a `diversion` property)
-- ➖ Logical semantic actions create methods which may have side effects that
-    are not apparent to the user due to obfuscation of the underlying resources
-    that are being modified.
 - ➖ Logical semantic actions create scenarios that give the Prime method
-    handlers a lot of different edge cases that would otherwise be better
+    handlers a lot of different edge cases that may otherwise be better
     handled by specific steps when modifying shipments.
 
 ## Pros and cons of the alternatives
