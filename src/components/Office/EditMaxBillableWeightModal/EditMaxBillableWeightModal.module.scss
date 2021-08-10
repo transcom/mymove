@@ -15,6 +15,7 @@
 
   dt {
     @include u-display(inline);
+    @include u-margin-right(1);
   }
 
   dd {

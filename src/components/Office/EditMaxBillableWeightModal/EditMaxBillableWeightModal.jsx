@@ -17,12 +17,6 @@ const maxBillableWeightSchema = Yup.object().shape({
 });
 
 const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
-  const handleOnAccept = (helpers, val, masked) => {
-    // eslint-disable-next-line no-underscore-dangle
-    helpers.setValue(masked.masked._blocks[0]._value);
-    helpers.setTouched(true);
-  };
-
   return (
     <div className={styles.EditMaxBillableWeightModal}>
       <Overlay />
@@ -39,7 +33,9 @@ const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBilla
           <Formik
             initialValues={{ maxBillableWeight: `${maxBillableWeight} lbs` }}
             validationSchema={maxBillableWeightSchema}
-            onSubmit={onSubmit}
+            onSubmit={(values) => {
+              onSubmit(Number.parseInt(values.maxBillableWeight, 10));
+            }}
           >
             {({ isValid }) => {
               return (
@@ -54,10 +50,10 @@ const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBilla
                         mask: Number,
                         signed: false,
                         scale: 0,
+                        thousandsSeparator: ',',
                       },
                     }}
                     lazy={false}
-                    onAccept={handleOnAccept}
                   />
                   <ModalActions>
                     <Button type="submit" disabled={!isValid}>
