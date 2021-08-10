@@ -47,7 +47,7 @@ the divergence.
 
 This approach would allow the users of the Prime to focus on semantic actions on
 resources in a one-to-one manner rather than having the user of the Prime to
-have to manage updating resources and associating themselves.
+have to manage updating resources and associating resources themselves.
 
 To remove a diversion of a shipment, an endpoint named `cancelMTOShipment` would
 allow the Prime user to remove a shipment. The Prime method handler would check
