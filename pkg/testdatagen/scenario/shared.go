@@ -4103,6 +4103,16 @@ func createHHGMoveWithAmendedOrders(db *pop.Connection, userUploader *uploader.U
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
+func createHHGMoveWithRiskOfExcess(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	filterFile := &[]string{"2mb.png", "150Kb.png"}
+	serviceMember := makeServiceMember(db)
+	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
+	move := makeMoveForOrders(orders, db, "RISKEX", models.MoveStatusAPPROVALSREQUESTED)
+	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
+	paymentRequestID := uuid.Must(uuid.FromString("50b35add-705a-468b-8bad-056f5d9ef7e1"))
+	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
+}
+
 func createMoveWithDivertedShipments(db *pop.Connection, userUploader *uploader.UserUploader) {
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
