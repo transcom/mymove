@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 
@@ -14,21 +13,13 @@ import (
 )
 
 type EDI997Suite struct {
-	testingsuite.PopTestSuite
-	logger Logger
+	testingsuite.BaseTestSuite
 }
 
 func TestEDI997Suite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	hs := &EDI997Suite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
-	}
+	hs := &EDI997Suite{}
 
 	suite.Run(t, hs)
-	hs.PopTestSuite.TearDown()
 }
 
 func (suite *EDI997Suite) TestParse() {
