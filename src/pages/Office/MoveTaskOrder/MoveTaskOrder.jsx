@@ -7,6 +7,7 @@ import { func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
@@ -57,6 +58,7 @@ function showShipmentFilter(shipment) {
 export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
@@ -270,6 +272,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     setIsCancelModalVisible(true);
   };
 
+  const handleShowWeightModal = () => {
+    setIsWeightModalVisible(true);
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -337,6 +343,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onSubmit={handleUpdateMTOShipmentStatus}
             />
           )}
+          {isWeightModalVisible && (
+            <EditMaxBillableWeightModal
+              defaultWeight={order.entitlement.totalWeight}
+              maxBillableWeight={order.entitlement.authorizedWeight}
+              onSubmit={() => {}}
+              onClose={setIsWeightModalVisible}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
@@ -350,7 +364,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <WeightDisplay
               heading="Max billable weight"
               weightValue={order.entitlement.authorizedWeight}
-              onEdit={() => {}}
+              onEdit={handleShowWeightModal}
             />
             <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
