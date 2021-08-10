@@ -37,10 +37,6 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	default:
 		// Make sure there's an estimated weight since that's nullable
 		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
-		if estimatedWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", r.MTOShipment.ID)
-		}
 
 		// Make sure there's an actual weight since that's nullable
 		actualWeight = r.MTOShipment.PrimeActualWeight
@@ -51,9 +47,13 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	}
 
 	var value string
-	estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
-	if float64(*actualWeight) > estimatedWeightCap {
-		value = fmt.Sprintf("%d", int(estimatedWeightCap))
+	if estimatedWeight != nil {
+		estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
+		if float64(*actualWeight) > estimatedWeightCap {
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
+		} else {
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*actualWeight))
+		}
 	} else {
 		value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*actualWeight))
 	}
