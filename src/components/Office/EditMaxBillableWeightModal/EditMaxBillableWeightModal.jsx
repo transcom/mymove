@@ -13,49 +13,75 @@ import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Mo
 import { formatWeight } from 'shared/formatters';
 
 const maxBillableWeightSchema = Yup.object().shape({
-  maxBillableWeight: Yup.number().required('Required'),
+  maxBillableWeight: Yup.number().min(1, 'Max billable weight must be greater than or equal to 1').required('Required'),
 });
 
-const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => (
-  <div className={styles.EditMaxBillableWeightModal}>
-    <Overlay />
-    <ModalContainer>
-      <Modal>
-        <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
-        <ModalTitle>
-          <h4>Edit max billable weight</h4>
-        </ModalTitle>
-        <dl>
-          <dt>Default: </dt>
-          <dd>{formatWeight(defaultWeight)}</dd>
-        </dl>
-        <Formik initialValues={{ maxBillableWeight }} validationSchema={maxBillableWeightSchema} onSubmit={onSubmit}>
-          {({ isValid }) => {
-            return (
-              <Form>
-                <MaskedTextField name="maxBillableWeight" label="New max billable weight" />
-                <ModalActions>
-                  <Button type="submit" disabled={!isValid}>
-                    Save
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => onClose()}
-                    className={styles.backButton}
-                    data-testid="modalBackButton"
-                    outline
-                  >
-                    Back
-                  </Button>
-                </ModalActions>
-              </Form>
-            );
-          }}
-        </Formik>
-      </Modal>
-    </ModalContainer>
-  </div>
-);
+const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBillableWeight }) => {
+  const handleOnAccept = (helpers, val, masked) => {
+    // eslint-disable-next-line no-underscore-dangle
+    helpers.setValue(masked.masked._blocks[0]._value);
+    helpers.setTouched(true);
+  };
+
+  return (
+    <div className={styles.EditMaxBillableWeightModal}>
+      <Overlay />
+      <ModalContainer>
+        <Modal>
+          <ModalClose className={styles.weightModalClose} handleClick={() => onClose()} />
+          <ModalTitle>
+            <h4>Edit max billable weight</h4>
+          </ModalTitle>
+          <dl>
+            <dt>Default:</dt>
+            <dd>{formatWeight(defaultWeight)}</dd>
+          </dl>
+          <Formik
+            initialValues={{ maxBillableWeight: `${maxBillableWeight} lbs` }}
+            validationSchema={maxBillableWeightSchema}
+            onSubmit={onSubmit}
+          >
+            {({ isValid }) => {
+              return (
+                <Form>
+                  <MaskedTextField
+                    name="maxBillableWeight"
+                    id="maxBillableWeight"
+                    label="New max billable weight"
+                    mask="num lbs"
+                    blocks={{
+                      num: {
+                        mask: Number,
+                        signed: false,
+                        scale: 0,
+                      },
+                    }}
+                    lazy={false}
+                    onAccept={handleOnAccept}
+                  />
+                  <ModalActions>
+                    <Button type="submit" disabled={!isValid}>
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => onClose()}
+                      className={styles.backButton}
+                      data-testid="modalBackButton"
+                      outline
+                    >
+                      Back
+                    </Button>
+                  </ModalActions>
+                </Form>
+              );
+            }}
+          </Formik>
+        </Modal>
+      </ModalContainer>
+    </div>
+  );
+};
 
 EditMaxBillableWeightModal.propTypes = {
   onClose: PropTypes.func.isRequired,

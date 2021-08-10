@@ -19,11 +19,24 @@ const MaskedTextField = ({
   blocks,
   lazy,
   warning,
+  onAccept,
   ...props
 }) => {
   const [field, meta, helpers] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   const { value } = field;
+
+  let handleAccept = (val, masked) => {
+    helpers.setValue(masked.unmaskedValue);
+    helpers.setTouched(true);
+  };
+
+  if (onAccept) {
+    handleAccept = (val, masked) => {
+      onAccept(helpers, val, masked);
+    };
+  }
+
   return (
     <FormGroup className={classnames(!!warning && !hasError && `warning`, formGroupClassName)} error={hasError}>
       <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
@@ -46,10 +59,7 @@ const MaskedTextField = ({
         mask={mask}
         blocks={blocks}
         lazy={lazy}
-        onAccept={(val, masked) => {
-          helpers.setValue(masked.unmaskedValue);
-          helpers.setTouched(true);
-        }}
+        onAccept={handleAccept}
         {...props}
       />
       {/* eslint-enable react/jsx-props-no-spreading */}
@@ -69,6 +79,7 @@ MaskedTextField.propTypes = {
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
   warning: PropTypes.string,
+  onAccept: PropTypes.func,
 };
 
 MaskedTextField.defaultProps = {
@@ -80,6 +91,7 @@ MaskedTextField.defaultProps = {
   blocks: {},
   lazy: true, // make placeholder not visible
   warning: '',
+  onAccept: undefined,
 };
 
 export default MaskedTextField;
