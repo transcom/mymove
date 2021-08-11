@@ -39,10 +39,3 @@ if [[ -z "${MODULE}" ]]; then
   echo "Could not find the opensc-pkcs11 module. You are either missing it or the CAC scripts need to be updated."
   exit 1
 fi
-
-readonly OLD_MODULE=/usr/local/lib/pkcs11/cackey.dylib
-
-if [[ -f "${OLD_MODULE}" ]]; then
-  echo "${OLD_MODULE} must be removed for MacOS versions 10.15 or later"
-  exit 1
-fi
