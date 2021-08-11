@@ -20,8 +20,9 @@ This is also hugely redundant - there are hundreds of lines that are essentially
 
 We have to do a lot of manual type conversions in the backend to turn the Swagger-generated Go types in our general
 model types. These type conversions are also redundant, and they're another place where we can miss changes that add or
-modify fields. However, having shared types between APIs would threaten their ability to function independently. (But
-should this even be a concern when the services they use on the backend are so interconnected anyway?)
+modify fields. One possible negative is that having shared types between APIs would threaten their ability to function
+independently. However, our APIs are extremely interconnected on the backend and use many of the same services, so there
+is a question of how independent they could possibly be regardless.
 
 Lastly, we struggle with maintaining the same standards in each API. Some are more resistant to change, and we don't
 have a good method for incrementally standardizing those APIs.
@@ -89,7 +90,7 @@ acclimate to the development cycle.
 
 However, the benefits are significant. The `openapi` compiler dictates a structure that is organized and fairly
 intuitive, making it easy to create, find, and reference separate definition files. Like option 2, edits to one file can
-apply to all of our APIs. Furthermore, the compiler can handle our files as-are, so we can gradually split our
+apply to all of our APIs. Furthermore, the compiler can handle our files as-is, so we can gradually split our
 definitions as we move forward.
 
 Unlike option 2, this method won't change the outward behavior of our APIs. External tools like Load Testing, and
@@ -114,6 +115,7 @@ work.
 - `+` We can structure our sub-folders however we want to
 - `-` Third-party tools won't be able to use our APIs the same way. Integrations will
 be challenging.
+- `-` Load testing, as it's currently set up, will no longer work
 - `-` No defined structure, so we could implement something non-standard or suboptimal
 - `-` If you're not careful, the Go types it generates can be strangely different
 
