@@ -15,7 +15,6 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import scrollToSection from 'shared/scrollToSection';
 
 const sectionLabels = {
   'payment-requests': 'Payment requests',
@@ -58,13 +57,29 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
+  const handleScroll = () => {
+    const distanceFromTop = window.scrollY;
+    let newActiveSection;
+
+    sections.forEach((section) => {
+      const sectionEl = document.querySelector(`#${section}`);
+      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
+        newActiveSection = section;
+      }
+    });
+
+    if (activeSection !== newActiveSection) {
+      setActiveSection(newActiveSection);
+    }
+  };
+
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', () => scrollToSection(sections, activeSection, setActiveSection));
+    window.addEventListener('scroll', handleScroll);
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', () => scrollToSection(sections, activeSection, setActiveSection));
+      window.removeEventListener('scroll', handleScroll);
     };
   });
 

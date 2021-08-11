@@ -22,7 +22,6 @@ import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import scrollToSection from 'shared/scrollToSection';
 
 const sectionLabels = {
   'requested-shipments': 'Requested shipments',
@@ -42,13 +41,29 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   let sections = ['orders', 'allowances', 'customer-info'];
 
+  const handleScroll = () => {
+    const distanceFromTop = window.scrollY;
+    let newActiveSection;
+
+    sections.forEach((section) => {
+      const sectionEl = document.querySelector(`#${section}`);
+      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
+        newActiveSection = section;
+      }
+    });
+
+    if (activeSection !== newActiveSection) {
+      setActiveSection(newActiveSection);
+    }
+  };
+
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', () => scrollToSection(sections, activeSection, setActiveSection));
+    window.addEventListener('scroll', handleScroll);
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', () => scrollToSection(sections, activeSection, setActiveSection));
+      window.removeEventListener('scroll', handleScroll);
     };
   });
 
