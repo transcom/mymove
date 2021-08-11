@@ -151,6 +151,8 @@ additional API requests to rollback/undo multi-pronged actions.
 - ➕ Logical semantic actions create methods which may have side effects that
     are not apparent to the user due to obfuscation of the underlying resources
     that are being modified.
+- ➕ With semantic endpoints, we can express the requirements of an operation in
+    a more self-documenting manner.
 - ➖ Method handlers for the Prime would need to handle specific edge cases for
     the user in case of a failure during a logical semantic action (e.g.
     ensuring a new shipment ID is not created if the method fails to update a
@@ -169,6 +171,9 @@ additional API requests to rollback/undo multi-pronged actions.
 - ➕ RESTful APIs are easier to maintain than RPC-style APIs.
 - ➕ Leaving the API as is allows the API to follow standard MilMove patterns.
     This reduces the amount of onboarding and confusion for new team members.
+- ➖ RESTful APIs are not as self-documenting as RPC-style APIs. We currently
+    can't express certain operations (e.g. certain fields **must** be set) with
+    a single generic endpoint with Swagger/Open API.
 - ➖ More work is necessary from Roci content designers.
 - ➖ More documentation is necessary to outline the necessary steps to perform
     logical semantic steps from both Roci engineers and designers.
