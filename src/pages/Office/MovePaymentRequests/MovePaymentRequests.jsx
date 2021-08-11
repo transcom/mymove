@@ -29,7 +29,7 @@ const MovePaymentRequests = ({
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
-  const sections = ['payment-requests'];
+  let sections = ['payment-requests'];
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -98,6 +98,10 @@ const MovePaymentRequests = ({
         mtoServiceItems: shipment.mtoServiceItems,
       });
     });
+  }
+
+  if (paymentRequests.length === 0) {
+    sections = [];
   }
 
   return (
