@@ -657,3 +657,4 @@
 20210726214608_add_dimension_param_keys.up.sql
 20210729204423_install_pgaudit_extension.up.sql
 20210802205220_create_reweighs_table_excess_weights_columns.up.sql
+20210809190551_add_index_to_move_fields.up.sql
