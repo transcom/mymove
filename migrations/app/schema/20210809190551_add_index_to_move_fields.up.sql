@@ -1,6 +1,1 @@
-SELECT * FROM
-    moves
-WHERE
-    available_to_prime_at = True
-AND
-      show = True;
+CREATE INDEX available_to_prime_and_show_idx ON moves(show, available_to_prime_at);
