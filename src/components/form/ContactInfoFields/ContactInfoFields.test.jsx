@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
 import { ContactInfoFields } from './ContactInfoFields';
@@ -38,6 +39,20 @@ describe('ContactInfoFields component', () => {
       expect(getByLabelText('Last name')).toHaveValue(initialValues.contact.lastName);
       expect(getByLabelText('Phone')).toHaveValue(initialValues.contact.phone);
       expect(getByLabelText('Email')).toHaveValue(initialValues.contact.email);
+    });
+  });
+
+  describe('with inserted values', () => {
+    it('renders phone numbers formatted with dashes', async () => {
+      render(
+        <Formik initialValues={{}}>
+          <ContactInfoFields legend="Contact Info Form" name="contact" />
+        </Formik>,
+      );
+
+      expect(screen.getByLabelText('Phone')).toBeInTheDocument();
+      userEvent.type(screen.getByLabelText('Phone'), '5555555555');
+      expect(await screen.findByLabelText('Phone')).toHaveValue('555-555-5555');
     });
   });
 });
