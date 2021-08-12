@@ -141,9 +141,7 @@ export class PpmWeight extends Component {
     if (currentEstimate >= 500 && currentEstimate < 1500) {
       return <img className="icon" src={trailerGray} alt="trailer-gray" data-testid="vehicleIcon" />;
     }
-    if (currentEstimate >= 1500) {
-      return <img className="icon" src={truckGray} alt="truck-gray" data-testid="vehicleIcon" />;
-    }
+    return <img className="icon" src={truckGray} alt="truck-gray" data-testid="vehicleIcon" />;
   }
 
   chooseEstimateText(currentEstimate) {
@@ -195,14 +193,13 @@ export class PpmWeight extends Component {
         </p>
       );
     }
-    if (currentEstimate >= 7000) {
-      return (
-        <p data-testid="estimateText">
-          A large house or small palace, many heavy or bulky items. Multiple trips using large vehicles, or hire
-          professional movers.
-        </p>
-      );
-    }
+
+    return (
+      <p data-testid="estimateText">
+        A large house or small palace, many heavy or bulky items. Multiple trips using large vehicles, or hire
+        professional movers.
+      </p>
+    );
   }
 
   chooseIncentiveRangeText(hasEstimateError) {
@@ -255,6 +252,9 @@ export class PpmWeight extends Component {
         </Fragment>
       );
     }
+
+    // if there is no error to show
+    return undefined;
   }
 
   render() {

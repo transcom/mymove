@@ -41,7 +41,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
 export const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
-    return;
+    return undefined;
   }
   return SchemaField.createSchemaField(fieldName, field, nameSpace);
 };
@@ -149,6 +149,7 @@ export const renderSchema = (schema, uiSchema, nameSpace = '') => {
     const fields = schema.properties || {};
     return uiSchema.order.map((i) => renderGroupOrField(i, fields, uiSchema, nameSpace));
   }
+  return undefined;
 };
 
 export const addUiSchemaRequiredFields = (schema, uiSchema) => {

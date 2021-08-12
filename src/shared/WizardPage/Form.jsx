@@ -63,6 +63,7 @@ export class WizardFormPage extends Component {
       return this.props.reduxFormSubmit().then(() => this.beforeTransition(getPreviousPagePath, false));
     }
     this.beforeTransition(getPreviousPagePath, shouldHandleSubmit);
+    return undefined;
   }
 
   submit() {

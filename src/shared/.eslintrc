@@ -2,6 +2,7 @@
   "plugins": ["prettier", "security", "no-only-tests"],
   "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
   "rules": {
+    "consistent-return": "error",
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
     "no-case-declarations": "error",
