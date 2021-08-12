@@ -34,7 +34,7 @@ export class DocumentsUploaded extends Component {
   }
 
   toggleShowDocs = () => {
-    this.setState({ showDocs: !this.state.showDocs });
+    this.setState((prevState) => ({ showDocs: !prevState.showDocs }));
   };
 
   renderHeader = () => {

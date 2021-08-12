@@ -135,15 +135,15 @@ class WeightTicket extends Component {
   };
 
   onAddFile = (uploaderName) => () => {
-    this.setState({
-      uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: false },
-    });
+    this.setState((prevState) => ({
+      uploaderIsIdle: { ...prevState.uploaderIsIdle, [uploaderName]: false },
+    }));
   };
 
   onUploadChange = (uploaderName) => (uploaderIsIdle) => {
-    this.setState({
-      uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
-    });
+    this.setState((prevState) => ({
+      uploaderIsIdle: { ...prevState.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
+    }));
   };
 
   skipHandler = () => {
