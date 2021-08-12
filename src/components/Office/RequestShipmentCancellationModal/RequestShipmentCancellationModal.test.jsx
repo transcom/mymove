@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
 
 let onClose;
 let onSubmit;
