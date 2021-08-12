@@ -1,9 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
 import MOVE_STATUSES from 'constants/moves';
@@ -1238,37 +1236,6 @@ describe('MoveTaskOrder', () => {
 
     it('updates the unapproved service items tag state', () => {
       expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(2);
-    });
-  });
-
-  describe.skip('updating the max billable weight', () => {
-    it('displays the success alert after edit max billable weight is saved', async () => {
-      useMoveTaskOrderQueries.mockReturnValue(approvedMTOWithCancelledShipmentQuery);
-      render(
-        <MockProviders initialEntries={['moves/1000/allowances']}>
-          <MoveTaskOrder
-            {...requiredProps}
-            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          />
-        </MockProviders>,
-      );
-
-      await act(async () => {
-        userEvent.click(screen.getByTestId('weightDisplayEdit'));
-      });
-
-      await act(async () => {
-        userEvent.type(screen.getByDisplayValue('8,000 lbs'), '10000');
-      });
-
-      await act(async () => {
-        userEvent.click(screen.getByRole('button', { name: 'Save' }));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('alert')).toHaveTextContent('The maximum billable weight has been updated.');
-      });
     });
   });
 });
