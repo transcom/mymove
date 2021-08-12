@@ -5,18 +5,17 @@ import { Button } from '@trussworks/react-uswds';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalTitle, ModalClose, ModalActions } from 'components/Modal/Modal';
 
-const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) => (
+const RequestReweighModal = ({ onClose, onSubmit, shipmentInfo }) => (
   <div>
     <Overlay />
     <ModalContainer>
       <Modal>
         <ModalClose handleClick={() => onClose()} />
         <ModalTitle>
-          <h3>Request shipment cancellation</h3>
+          <h3>Request a reweigh</h3>
         </ModalTitle>
         <p>
-          Movers will be notified that this shipment should be canceled. They will confirm or deny this request based on
-          whether or not service items have been charged to the shipment yet.
+          This will notify the movers of the request. They&apos;ll reweigh the shipment if it&apos;s still possible.
         </p>
         <ModalActions>
           <Button
@@ -25,14 +24,14 @@ const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) =
             onClick={() => onClose()}
             data-testid="modalBackButton"
           >
-            Back
+            Cancel
           </Button>
           <Button
-            className="usa-button--destructive"
+            className="usa-button"
             type="submit"
-            onClick={() => onSubmit(shipmentInfo.moveTaskOrderID, shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
+            onClick={() => onSubmit(shipmentInfo.shipmentID, shipmentInfo.ifMatchEtag)}
           >
-            Request Cancellation
+            Submit request
           </Button>
         </ModalActions>
       </Modal>
@@ -40,16 +39,15 @@ const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) =
   </div>
 );
 
-RequestShipmentCancellationModal.propTypes = {
+RequestReweighModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string.isRequired,
     ifMatchEtag: PropTypes.string.isRequired,
-    moveTaskOrderID: PropTypes.string.isRequired,
   }).isRequired,
 };
 
-RequestShipmentCancellationModal.displayName = 'RequestShipmentCancellationModal';
+RequestReweighModal.displayName = 'RequestReweighModal';
 
-export default RequestShipmentCancellationModal;
+export default RequestReweighModal;

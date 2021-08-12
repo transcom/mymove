@@ -9,7 +9,13 @@ import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddre
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 import ShipmentRemarks from 'components/Office/ShipmentRemarks/ShipmentRemarks';
 
-const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handleDivertShipment }) => {
+const ShipmentDetailsMain = ({
+  className,
+  shipment,
+  dutyStationAddresses,
+  handleDivertShipment,
+  handleRequestReweighModal,
+}) => {
   const {
     requestedPickupDate,
     scheduledPickupDate,
@@ -36,7 +42,15 @@ const ShipmentDetailsMain = ({ className, shipment, dutyStationAddresses, handle
         shipmentInfo={{ shipmentID: shipment.id, ifMatchEtag: shipment.eTag, shipmentStatus: shipment.status }}
         handleDivertShipment={handleDivertShipment}
       />
-      <ShipmentWeightDetails estimatedWeight={primeEstimatedWeight} actualWeight={primeActualWeight} />
+      <ShipmentWeightDetails
+        estimatedWeight={primeEstimatedWeight}
+        actualWeight={primeActualWeight}
+        shipmentInfo={{
+          shipmentID: shipment.id,
+          ifMatchEtag: shipment.eTag,
+        }}
+        handleRequestReweighModal={handleRequestReweighModal}
+      />
       {counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={counselorRemarks} />}
       {customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={customerRemarks} />}
     </div>
@@ -51,6 +65,7 @@ ShipmentDetailsMain.propTypes = {
     destinationDutyStationAddress: AddressShape,
   }).isRequired,
   handleDivertShipment: PropTypes.func.isRequired,
+  handleRequestReweighModal: PropTypes.func.isRequired,
 };
 
 ShipmentDetailsMain.defaultProps = {
