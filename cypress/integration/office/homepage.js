@@ -1,4 +1,4 @@
-import { officeBaseURL } from '../../support/constants';
+import { longPageLoadTimeout, officeBaseURL } from '../../support/constants';
 
 describe('Office Home Page', function () {
   before(() => {
@@ -55,6 +55,7 @@ describe('Office authorization', () => {
     cy.signInAsNewServicesCounselorUser();
     cy.waitFor('@getCounselingSortedOrders');
 
+    cy.wait(longPageLoadTimeout);
     cy.contains('Moves');
     cy.contains('Needs counseling');
     cy.url().should('eq', officeBaseURL + '/');
