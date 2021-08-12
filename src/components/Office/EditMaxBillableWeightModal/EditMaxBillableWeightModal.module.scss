@@ -1,5 +1,5 @@
-@import 'shared/styles/colors';
-@import 'shared/styles/_basics';
+@import '../../../shared/styles/colors';
+@import '../../../shared/styles/_basics';
 
 .EditMaxBillableWeightModal {
 
@@ -11,6 +11,7 @@
     @include u-font-size('body', '3xs');
     @include u-font-weight(bold);
     @include u-margin-bottom(1);
+    color: $base-darker;
   }
 
   dt {
@@ -25,6 +26,7 @@
 
   :global .usa-label {
     @include u-margin-top(2);
+    color: $base-darker;
   }
 
   /* there seems to be an issue with the base .usa-button background being set to primary and the .usa-button--outline

@@ -170,6 +170,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       });
       queryCache.invalidateQueries([ORDERS, variables.orderID]);
       setIsWeightModalVisible(false);
+      setMessage(
+        `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
+        'success',
+        'The maximum billable weight has been updated.',
+        '',
+        true,
+      );
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
