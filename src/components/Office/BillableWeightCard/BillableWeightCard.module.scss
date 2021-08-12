@@ -6,6 +6,7 @@
   max-width: 1046px;
   @include u-padding-x(3);
   @include u-padding-y(4);
+
   h1,
   h2,
   h3,
@@ -20,21 +21,9 @@
     margin: 0;
   }
 
-  h5,
-  h4 {
-    color: $base-darkest;
-  }
-
+  h4,
   h5 {
-    font-weight: normal;
-
-    &:first-of-type {
-      @include u-margin-bottom('05');
-    }
-
-    &:last-of-type {
-      @include u-margin-bottom(1);
-    }
+    color: $base-darkest;
   }
 
   h4 {
@@ -47,6 +36,18 @@
 
     &:last-of-type {
       @include u-margin-bottom(2);
+    }
+  }
+
+  h5 {
+    font-weight: normal;
+
+    &:first-of-type {
+      @include u-margin-bottom('05');
+    }
+
+    &:last-of-type {
+      @include u-margin-bottom(1);
     }
   }
 
@@ -74,10 +75,6 @@
   .spaceBetween {
     display: flex;
     justify-content: space-between;
-  }
-
-  .maxBillableSection {
-    max-width: 222px;
   }
 
   .shipmentSection {
