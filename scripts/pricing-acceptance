@@ -15,7 +15,7 @@ function usage() {
   echo "  hostname   Target host of api calls, defaults to 'local' which is primelocal:9443"
   echo "  proofs     Paths to proof of service docs. Defaults to (${proofs[0]})"
   echo "             You can specify as many proofs as you want"
-  echo
+  echo20210812163307_add_contract_code_FSC.up.sql
   echo "EXAMPLES:"
   echo "$0 --help # prints this help"
   echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
