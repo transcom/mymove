@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { act } from 'react-dom/test-utils';
 import { render, screen } from '@testing-library/react';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -1236,6 +1237,42 @@ describe('MoveTaskOrder', () => {
 
     it('updates the unapproved service items tag state', () => {
       expect(setUnapprovedServiceItemCount).toHaveBeenCalledWith(2);
+    });
+  });
+
+  // I had trouble with formik validations when using RTL so falling back to Enzyme for the time being
+  describe('updating the max billable weight', () => {
+    it.skip('displays the success alert after edit max billable weight is saved', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(approvedMTOWithCancelledShipmentQuery);
+      const wrapper = mount(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      // console.log(wrapper.debug());
+      await act(async () => {
+        wrapper.find('button[data-testid="weightDisplayEdit"]').simulate('click');
+      });
+      wrapper.update();
+
+      await act(async () => {
+        wrapper
+          .find('input[name="maxBillableWeight"]')
+          .simulate('change', { target: { name: 'maxBillableWeight', value: '10000' } });
+      });
+      wrapper.update();
+
+      await act(async () => {
+        wrapper.find('button[type="submit"]').simulate('click');
+      });
+      wrapper.update();
+
+      expect(wrapper.find({ 'data-testid': 'alert' }).text()).toBe('The maximum billable weight has been updated.');
     });
   });
 });

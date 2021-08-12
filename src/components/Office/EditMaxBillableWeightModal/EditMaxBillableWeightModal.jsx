@@ -31,7 +31,7 @@ const EditMaxBillableWeightModal = ({ onClose, onSubmit, defaultWeight, maxBilla
             <dd>{formatWeight(defaultWeight)}</dd>
           </dl>
           <Formik
-            initialValues={{ maxBillableWeight: `${maxBillableWeight} lbs` }}
+            initialValues={{ maxBillableWeight: `${maxBillableWeight}` }}
             validationSchema={maxBillableWeightSchema}
             onSubmit={(values) => {
               onSubmit(Number.parseInt(values.maxBillableWeight, 10));
