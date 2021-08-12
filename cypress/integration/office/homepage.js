@@ -56,7 +56,7 @@ describe('Office authorization', () => {
     cy.waitFor('@getCounselingSortedOrders');
 
     cy.contains('Moves');
-    cy.contains('Needs counseling');
+    cy.contains('Needs counseling'); // TODO: Add wait before this if we keep getting flaky failures.
     cy.url().should('eq', officeBaseURL + '/');
   });
 
