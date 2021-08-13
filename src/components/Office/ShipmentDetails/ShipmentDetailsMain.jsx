@@ -48,6 +48,7 @@ const ShipmentDetailsMain = ({
         shipmentInfo={{
           shipmentID: shipment.id,
           ifMatchEtag: shipment.eTag,
+          reweighID: shipment.reweigh.id,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
       />

@@ -11,14 +11,17 @@ import styles from './ShipmentWeightDetails.module.scss';
 import { formatWeight } from 'shared/formatters';
 
 const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
+  // TODO: Using the `00000000-0000-0000-0000-000000000000` ID to hide/show the button is not ideal. There is further work to be done to
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
       <span>Shipment weight</span>
-      <div className={styles.rightAlignButtonWrapper}>
-        <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
-          Request reweigh
-        </Button>
-      </div>
+      {shipmentInfo.reweighID === '00000000-0000-0000-0000-000000000000' && (
+        <div className={styles.rightAlignButtonWrapper}>
+          <Button type="button" onClick={() => handleRequestReweighModal(shipmentInfo)} unstyled>
+            Request reweigh
+          </Button>
+        </div>
+      )}
     </div>
   );
   return (
@@ -42,6 +45,7 @@ ShipmentWeightDetails.propTypes = {
   shipmentInfo: PropTypes.shape({
     shipmentID: PropTypes.string,
     ifMatchEtag: PropTypes.string,
+    reweighID: PropTypes.string,
   }).isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
 };

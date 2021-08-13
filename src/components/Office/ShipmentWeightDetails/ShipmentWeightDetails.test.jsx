@@ -3,10 +3,18 @@ import { render, screen, fireEvent } from '@testing-library/react';
 
 import ShipmentWeightDetails from './ShipmentWeightDetails';
 
-const shipmentInfo = {
+const shipmentInfoReweighRequested = {
   shipmentID: 'shipment1',
   ifMatchEtag: 'etag1',
+  reweighID: 'reweighRequestID',
 };
+
+const shipmentInfoNoReweigh = {
+  shipmentID: 'shipment1',
+  ifMatchEtag: 'etag1',
+  reweighID: '00000000-0000-0000-0000-000000000000',
+};
+
 const handleRequestReweighModal = jest.fn();
 
 describe('ShipmentWeightDetails', () => {
@@ -15,7 +23,7 @@ describe('ShipmentWeightDetails', () => {
       <ShipmentWeightDetails
         estimatedWeight={4500}
         actualWeight={5000}
-        shipmentInfo={shipmentInfo}
+        shipmentInfo={shipmentInfoNoReweigh}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
@@ -25,6 +33,9 @@ describe('ShipmentWeightDetails', () => {
 
     const shipWeight = await screen.findByText('Shipment weight');
     expect(shipWeight).toBeTruthy();
+
+    const reweighButton = await screen.findByText('Request reweigh');
+    expect(reweighButton).toBeTruthy();
   });
 
   it('renders with estimated weight', async () => {
@@ -32,7 +43,7 @@ describe('ShipmentWeightDetails', () => {
       <ShipmentWeightDetails
         estimatedWeight={11000}
         actualWeight={12000}
-        shipmentInfo={shipmentInfo}
+        shipmentInfo={shipmentInfoReweighRequested}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
@@ -46,7 +57,7 @@ describe('ShipmentWeightDetails', () => {
       <ShipmentWeightDetails
         estimatedWeight={11000}
         actualWeight={12000}
-        shipmentInfo={shipmentInfo}
+        shipmentInfo={shipmentInfoReweighRequested}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
@@ -60,12 +71,26 @@ describe('ShipmentWeightDetails', () => {
       <ShipmentWeightDetails
         estimatedWeight={11000}
         actualWeight={12000}
-        shipmentInfo={shipmentInfo}
+        shipmentInfo={shipmentInfoNoReweigh}
         handleRequestReweighModal={handleRequestReweighModal}
       />,
     );
 
     await fireEvent.click(screen.getByText('Request reweigh'));
     expect(handleRequestReweighModal).toHaveBeenCalled();
+  });
+
+  it('renders without the reweigh button if a reweigh has been requested', async () => {
+    render(
+      <ShipmentWeightDetails
+        estimatedWeight={11000}
+        actualWeight={12000}
+        shipmentInfo={shipmentInfoReweighRequested}
+        handleRequestReweighModal={handleRequestReweighModal}
+      />,
+    );
+
+    const reweighButton = await screen.queryByText('Request reweigh');
+    expect(reweighButton).toBeFalsy();
   });
 });
