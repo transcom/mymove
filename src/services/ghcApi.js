@@ -173,21 +173,8 @@ export function updateMTOShipmentStatus({
   );
 }
 
-export function updateMTOShipmentRequestReweigh({
-  shipmentID,
-  operationPath,
-  ifMatchETag,
-  normalize = true,
-  schemaKey = 'mtoShipment',
-}) {
-  return makeGHCRequest(
-    operationPath,
-    {
-      shipmentID,
-      'If-Match': ifMatchETag,
-    },
-    { schemaKey, normalize },
-  );
+export function updateMTOShipmentRequestReweigh({ body, normalize = false, schemaKey = 'mtoShipment' }) {
+  return makeGHCRequest('shipment.requestShipmentReweigh', body, { schemaKey, normalize });
 }
 
 export function createMTOShipment({ body, normalize = true, schemaKey = 'mtoShipment' }) {

@@ -171,7 +171,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
-      // This allows the requestCancellation button to update immediately
+      // This allows the requestReweigh button to update immediately
       queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setIsReweighModalVisible(false);
@@ -206,7 +206,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const handleReweighShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentRequestReweigh({
       shipmentID: mtoShipmentID,
-      operationPath: 'shipment.requestShipmentReweigh',
       ifMatchETag: eTag,
       onSuccessFlashMsg: `Reweigh successfully requested.`,
     });
