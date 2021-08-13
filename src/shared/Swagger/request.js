@@ -35,7 +35,7 @@ function successfulReturnType(routeDefinition, status) {
   const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
-    return;
+    return undefined;
   }
   return toCamelCase(schemaKey);
 }

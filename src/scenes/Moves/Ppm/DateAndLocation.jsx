@@ -65,6 +65,7 @@ const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
     return 'You entered the same zip code for your origin and destination. Please change one of them.';
   }
+  return undefined;
 };
 
 export class DateAndLocation extends Component {
@@ -121,6 +122,7 @@ export class DateAndLocation extends Component {
           .catch((err) => err);
       }
     }
+    return undefined;
   };
 
   render() {

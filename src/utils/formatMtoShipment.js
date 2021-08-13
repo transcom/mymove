@@ -5,14 +5,6 @@ import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 
 function formatAgentForDisplay(agent) {
   const agentCopy = { ...agent };
-  // handle the diff between expected FE and BE phone format
-  Object.keys(agentCopy).forEach((key) => {
-    if (key === 'phone') {
-      const phoneNum = agentCopy[key];
-      // will be in format xxxxxxxxxx
-      agentCopy[key] = phoneNum.split('-').join('');
-    }
-  });
   return agentCopy;
 }
 
@@ -29,10 +21,6 @@ function formatAgentForAPI(agent) {
       sanitizedKey === 'mtoShipmentID'
     ) {
       delete agentCopy[sanitizedKey];
-    } else if (sanitizedKey === 'phone') {
-      const phoneNum = agentCopy[sanitizedKey];
-      // will be in format xxx-xxx-xxxx
-      agentCopy[sanitizedKey] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
     }
   });
   return agentCopy;
