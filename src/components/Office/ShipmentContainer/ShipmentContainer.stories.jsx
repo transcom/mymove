@@ -16,6 +16,12 @@ export default {
   component: ShipmentContainer,
 };
 
+const shipmentInfoNoReweigh = {
+  shipmentID: 'shipment1',
+  ifMatchEtag: 'etag1',
+  reweighID: '00000000-0000-0000-0000-000000000000',
+};
+
 export const HHG = () => (
   <ShipmentContainer shipmentType={text('ShipmentContainer.shipmentType', 'HHG')}>
     <ShipmentHeading
@@ -31,6 +37,7 @@ export const HHG = () => (
           postal_code: '98421',
         }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
+        reweigh: { id: '00000000-0000-0000-0000-000000000000' },
       }}
     />
   </ShipmentContainer>
@@ -52,6 +59,7 @@ export const MTOAccessorial = () => (
           postal_code: '98421',
         }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
+        reweigh: { id: '00000000-0000-0000-0000-000000000000' },
       }}
     />
     <ImportantShipmentDates
@@ -94,6 +102,7 @@ export const MTOAccessorial = () => (
     <ShipmentWeightDetails
       estimatedWeight={number('ShipmentWeight.estimatedWeight', 1000)}
       actualWeight={number('ShipmentWeight.actualWeight', 999.99)}
+      shipmentInfo={shipmentInfoNoReweigh}
     />
 
     <RequestedServiceItemsTable
@@ -126,6 +135,7 @@ export const HHGDiversion = () => (
           postal_code: '98421',
         }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
+        reweigh: { id: '00000000-0000-0000-0000-000000000000' },
       }}
     />
   </ShipmentContainer>
