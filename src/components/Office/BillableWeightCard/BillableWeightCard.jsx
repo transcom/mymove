@@ -5,6 +5,8 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './BillableWeightCard.module.scss';
 
+import { formatWeight } from 'shared/formatters';
+
 export default function BillableWeightCard({
   maxBillableWeight,
   weightRequested,
@@ -20,17 +22,17 @@ export default function BillableWeightCard({
       <div className={styles.spaceBetween}>
         <div>
           <h5>Maximum billable weight</h5>
-          <h4>{maxBillableWeight} lbs</h4>
+          <h4>{formatWeight(maxBillableWeight)}</h4>
           <h6>
-            Weight requested<strong>{weightRequested} lbs</strong>
+            Weight requested<strong>{formatWeight(weightRequested)}</strong>
           </h6>
           <h6>
-            Weight allowance<strong>{weightAllowance} lbs</strong>
+            Weight allowance<strong>{formatWeight(weightAllowance)}</strong>
           </h6>
         </div>
         <div className={styles.shipmentSection}>
           <h5>Total billable weight</h5>
-          <h4>{totalBillableWeight} lbs</h4>
+          <h4>{formatWeight(totalBillableWeight)}</h4>
           <div className={styles.shipmentPlaceholder}>shipment list placeholder</div>
         </div>
       </div>
