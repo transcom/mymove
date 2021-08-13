@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 describe('EditMaxBillableWeightModal', () => {
-  it('renders the component', () => {
+  it('renders the component', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -21,17 +21,17 @@ describe('EditMaxBillableWeightModal', () => {
         maxBillableWeight={8000}
       />,
     );
-    expect(screen.getByRole('heading', { level: 4, name: 'Edit max billable weight' }));
-    expect(screen.getByText('Default:').parentElement).toBeInstanceOf(HTMLDListElement);
-    expect(screen.getByText('7,500 lbs').parentElement).toBeInstanceOf(HTMLDListElement);
-    expect(screen.getByLabelText('New max billable weight'));
-    expect(screen.getByDisplayValue('8,000 lbs'));
-    expect(screen.getByRole('button', { name: 'Save' }));
-    expect(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+    expect(await screen.getByRole('heading', { level: 4, name: 'Edit max billable weight' })).toBeInTheDocument();
+    expect(await screen.getByText('Default:').parentElement).toBeInstanceOf(HTMLDListElement);
+    expect(await screen.getByText('7,500 lbs').parentElement).toBeInstanceOf(HTMLDListElement);
+    expect(await screen.getByLabelText('New max billable weight')).toBeInTheDocument();
+    expect(await screen.getByDisplayValue('8,000 lbs')).toBeInTheDocument();
+    expect(await screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(await screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+    expect(await screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
-  it('closes the modal when close icon is clicked', () => {
+  it('closes the modal when close icon is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -41,14 +41,16 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText('Close'));
+    await act(async () => {
+      fireEvent.click(await screen.getByLabelText('Close'));
     });
 
-    expect(onClose.mock.calls.length).toBe(1);
+    await waitFor(() => {
+      expect(onClose.mock.calls.length).toBe(1);
+    });
   });
 
-  it('closes the modal when the cancel button is clicked', () => {
+  it('closes the modal when the cancel button is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -58,14 +60,16 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    act(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    await act(async () => {
+      fireEvent.click(await screen.getByRole('button', { name: 'Back' }));
     });
 
-    expect(onClose.mock.calls.length).toBe(1);
+    await waitFor(() => {
+      expect(onClose.mock.calls.length).toBe(1);
+    });
   });
 
-  it('calls the submit function when submit button is clicked', () => {
+  it('calls the submit function when submit button is clicked', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -75,16 +79,16 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    act(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await act(async () => {
+      fireEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(onSubmit).toHaveBeenCalled();
     });
   });
 
-  it('displays required validation error when max billable weight is empty', () => {
+  it('displays required validation error when max billable weight is empty', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -94,14 +98,17 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    fireEvent.change(screen.getByDisplayValue('8,000 lbs'), { target: { value: '' } });
+    await act(async () => {
+      fireEvent.change(await screen.getByDisplayValue('8,000 lbs'), { target: { value: '' } });
+    });
+
     waitFor(() => {
       expect(screen.getByRole('alert', { name: 'Required' }));
       expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
     });
   });
 
-  it('displays minimum validation error when max billable weight value is less than 1', () => {
+  it('displays minimum validation error when max billable weight value is less than 1', async () => {
     render(
       <EditMaxBillableWeightModal
         onSubmit={onSubmit}
@@ -111,7 +118,10 @@ describe('EditMaxBillableWeightModal', () => {
       />,
     );
 
-    fireEvent.change(screen.getByDisplayValue('8,000 lbs'), { target: { value: '0' } });
+    await act(async () => {
+      fireEvent.change(await screen.getByDisplayValue('8,000 lbs'), { target: { value: '0' } });
+    });
+
     waitFor(() => {
       expect(screen.getByRole('alert', { name: 'Max billable weight must be greater than or equal to 1' }));
       expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
