@@ -303,12 +303,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('input[name="empty_weight"]').type('1000');
 
-  cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'sample-orders.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'sample-orders.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();

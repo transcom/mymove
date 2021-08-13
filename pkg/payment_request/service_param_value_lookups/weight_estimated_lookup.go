@@ -29,8 +29,7 @@ func (r WeightEstimatedLookup) lookup(keyData *ServiceItemParamKeyData) (string,
 		// Make sure there's an estimated weight since that's nullable
 		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 		if estimatedWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", r.MTOShipment.ID)
+			return "", nil
 		}
 	}
 

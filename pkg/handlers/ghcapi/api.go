@@ -190,6 +190,13 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 		),
 	}
 
+	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
+		ctx,
+		mtoshipment.NewShipmentReweighRequester(
+			ctx.DB(),
+		),
+	}
+
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
 		ctx,
 		fetch.NewFetcher(queryBuilder),

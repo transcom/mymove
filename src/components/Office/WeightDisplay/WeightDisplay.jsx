@@ -18,7 +18,9 @@ const WeightDisplay = ({ heading, weightValue, onEdit, children }) => {
           </Button>
         )}
       </div>
-      {Number.isFinite(weightValue) && <div className={styles.value}>{formatWeight(weightValue)}</div>}
+      <div data-testid="weight-display" className={styles.value}>
+        {Number.isFinite(weightValue) ? formatWeight(weightValue) : '—'}
+      </div>
       {children && <div className={styles.details}>{children}</div>}
     </div>
   );

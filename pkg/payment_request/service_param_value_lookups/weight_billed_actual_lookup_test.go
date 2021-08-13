@@ -133,10 +133,8 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		expected := fmt.Sprintf("could not find estimated weight for MTOShipmentID [%s]", mtoShipment.ID)
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
+		suite.NoError(err)
+		suite.Equal("500", valueStr)
 	})
 }
 

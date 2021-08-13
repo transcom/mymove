@@ -50,6 +50,7 @@ export class DutyStationSearchBox extends Component {
         });
     } else {
       callback([]);
+      return undefined;
     }
   }
 
@@ -60,6 +61,7 @@ export class DutyStationSearchBox extends Component {
       return callback(null);
     }
     this.debouncedLoadOptions(inputValue, callback);
+    return undefined;
   }
 
   localOnChange(value) {
