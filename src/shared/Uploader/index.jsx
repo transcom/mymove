@@ -135,15 +135,20 @@ export class Uploader extends Component {
     DeleteUpload(uploadId, isPublic)
       .then((item) => {
         load(item);
-        this.setState((prevState) => {
+        const removeFile = (prevState) => {
           const newFiles = reject(prevState.files, (upload) => upload.id === uploadId);
-          if (onChange) {
-            onChange(newFiles, this.isIdle());
-          }
           return {
             files: newFiles,
           };
-        });
+        };
+
+        if (onChange) {
+          this.setState(removeFile, () => {
+            onChange(this.state.files, this.isIdle());
+          });
+        } else {
+          this.setState(removeFile);
+        }
       })
       .catch(error);
   };
