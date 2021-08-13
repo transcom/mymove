@@ -433,6 +433,12 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
 	}
 
+	// Estimated weight is optional for shipment, do not try to save to the database if the
+	// the value is an empty string
+	if value == "" && serviceParam.ServiceItemParamKey.Key == models.ServiceItemParamNameWeightEstimated {
+		return &models.PaymentServiceItemParam{}, nil
+	}
+
 	paymentServiceItemParam := models.PaymentServiceItemParam{
 		// ID and PaymentServiceItemID to be filled in when payment request is created
 		PaymentServiceItemID:  paymentServiceItem.ID,

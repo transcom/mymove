@@ -135,6 +135,7 @@ class EditDateAndLocation extends Component {
           return err;
         });
     }
+    return undefined;
   };
 
   getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {

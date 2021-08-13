@@ -73,7 +73,7 @@ export function formatPayload(payload, def) {
 
 export const convertDollarsToCents = (dollars) => {
   if (!dollars && dollars !== 0) {
-    return;
+    return undefined;
   }
 
   return Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
@@ -81,7 +81,7 @@ export const convertDollarsToCents = (dollars) => {
 
 export function renderStatusIcon(status) {
   if (!status) {
-    return;
+    return undefined;
   }
   if (status === 'AWAITING_REVIEW' || status === 'DRAFT' || status === 'SUBMITTED') {
     return <FontAwesomeIcon className="icon approval-waiting" icon="clock" />;
@@ -95,6 +95,7 @@ export function renderStatusIcon(status) {
   if (status === 'HAS_ISSUE') {
     return <FontAwesomeIcon className="icon approval-problem" icon="exclamation-circle" />;
   }
+  return undefined;
 }
 
 export function snakeCaseToCapitals(str) {

@@ -11,22 +11,26 @@ const maxLength = memoize((maxLength) => (value) => {
   if (value && value.length > maxLength) {
     return `Cannot exceed ${maxLength} characters.`;
   }
+  return undefined;
 });
 const minLength = memoize((minLength) => (value) => {
   if (value && value.length < minLength) {
     return `Must be at least ${minLength} characters long.`;
   }
+  return undefined;
 });
 
 const maximum = memoize((maximum) => (value) => {
   if (value && value > maximum) {
     return `Must be ${maximum} or less`;
   }
+  return undefined;
 });
 const minimum = memoize((minimum) => (value) => {
   if (value && value < minimum) {
     return `Must be ${minimum} or more`;
   }
+  return undefined;
 });
 
 const isNumber = (value) => {
@@ -35,6 +39,7 @@ const isNumber = (value) => {
       return 'Must be a number';
     }
   }
+  return undefined;
 };
 
 const isInteger = (value) => {
@@ -43,6 +48,7 @@ const isInteger = (value) => {
       return 'Must be an integer';
     }
   }
+  return undefined;
 };
 
 const isDate = (value) => {
@@ -52,6 +58,7 @@ const isDate = (value) => {
       return 'Must be a valid date';
     }
   }
+  return undefined;
 };
 
 const patternMatches = memoize((pattern, message) => {
@@ -62,6 +69,7 @@ const patternMatches = memoize((pattern, message) => {
         return message;
       }
     }
+    return undefined;
   };
 });
 
@@ -70,6 +78,7 @@ const minDateValidation = memoize((minDate = null, message) => {
     if (minDate && moment(value).isBefore(moment(minDate))) {
       return message;
     }
+    return undefined;
   };
 });
 
@@ -78,6 +87,7 @@ const maxDateValidation = memoize((maxDate = null, message) => {
     if (maxDate && moment(value).isAfter(moment(maxDate))) {
       return message;
     }
+    return undefined;
   };
 });
 
