@@ -12,7 +12,6 @@ const shipmentInfoReweighRequested = {
 const shipmentInfoNoReweigh = {
   shipmentID: 'shipment1',
   ifMatchEtag: 'etag1',
-  reweighID: '00000000-0000-0000-0000-000000000000',
 };
 
 const handleRequestReweighModal = jest.fn();

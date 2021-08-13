@@ -685,7 +685,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 
 // Reweigh payload
 func Reweigh(reweigh *models.Reweigh) *ghcmessages.Reweigh {
-	if reweigh == nil {
+	if reweigh == nil || reweigh.ID == uuid.Nil {
 		return nil
 	}
 	payload := &ghcmessages.Reweigh{
