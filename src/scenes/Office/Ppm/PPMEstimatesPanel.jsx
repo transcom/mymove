@@ -16,6 +16,7 @@ const validateWeight = (value, formValues, props, fieldName) => {
   if (value && props.entitlement && value > props.entitlement.sum) {
     return `Cannot be more than full entitlement weight (${props.entitlement.sum} lbs)`;
   }
+  return undefined;
 };
 
 const EstimatesDisplay = (props) => {

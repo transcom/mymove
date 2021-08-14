@@ -40,7 +40,7 @@ export class PPMStatusTimeline extends React.Component {
     // if there's no approve date, then the PPM hasn't been approved yet
     // and the in progress date should not be shown
     if (!approveDate) {
-      return;
+      return undefined;
     }
     // if there's an actual move date that is known and passed, show it
     // else show original move date if it has passed
@@ -50,6 +50,7 @@ export class PPMStatusTimeline extends React.Component {
     if (moment(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
       return originalMoveDate;
     }
+    return undefined;
   }
 
   isCompleted(statusCode) {
@@ -75,6 +76,7 @@ export class PPMStatusTimeline extends React.Component {
       default:
         console.log('Unknown status');
     }
+    return undefined;
   }
 
   getStatuses() {

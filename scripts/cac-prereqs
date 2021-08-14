@@ -8,18 +8,28 @@ set -eu -o pipefail
 # Note: This script has no output other than Exit 0 on success  so it can be used in other scripts.
 #
 
-PKCS11=/usr/local/bin/pkcs11-tool
-PKCS15=/usr/local/bin/pkcs15-tool
+INSTALL_MSG=
+PKCS11=
+PKCS15=
+if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
+  INSTALL_MSG="./nix/update.sh"
+  PKCS11=/nix/var/nix/profiles/mymove/bin/pkcs11-tool
+  PKCS15=/nix/var/nix/profiles/mymove/bin/pkcs15-tool
+else
+  INSTALL_MSG="brew install --cask opensc"
+  PKCS11=/usr/local/bin/pkcs11-tool
+  PKCS15=/usr/local/bin/pkcs15-tool
+fi
 
 if [[ ! -x "${PKCS11}" ]]; then
   echo "${PKCS11} has not been installed"
-  echo "Please install with 'brew install --cask opensc'"
+  echo "Please install with '${INSTALL_MSG}'"
   exit 1
 fi
 
 if [[ ! -x "${PKCS15}" ]]; then
   echo "${PKCS15} has not been installed"
-  echo "Please install with 'brew install --cask opensc'"
+  echo "Please install with '${INSTALL_MSG}'"
   exit 1
 fi
 
@@ -31,18 +41,13 @@ if [[ -f /usr/local/lib/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/opensc-pkcs11.so
 elif [[ -f /usr/local/lib/pkcs11/opensc-pkcs11.so ]]; then
   MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+elif [ ! -r .nix-disable ] && [[ -f /nix/var/nix/profiles/mymove/lib/opensc-pkcs11.so ]]; then
+  MODULE=/nix/var/nix/profiles/mymove/lib/opensc-pkcs11.so
 fi
 
 readonly MODULE
 
 if [[ -z "${MODULE}" ]]; then
   echo "Could not find the opensc-pkcs11 module. You are either missing it or the CAC scripts need to be updated."
-  exit 1
-fi
-
-readonly OLD_MODULE=/usr/local/lib/pkcs11/cackey.dylib
-
-if [[ -f "${OLD_MODULE}" ]]; then
-  echo "${OLD_MODULE} must be removed for MacOS versions 10.15 or later"
   exit 1
 fi

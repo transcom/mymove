@@ -1,21 +1,74 @@
 package edi
 
 import (
+	"bufio"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-func TestNewReader(t *testing.T) {
-	reader := NewReader(strings.NewReader(""))
-	if reader.Comma != '*' {
-		t.Errorf("Reader.Comma is %c, but should be ','", reader.Comma)
-	}
+type EDISuite struct {
+	testingsuite.BaseTestSuite
 }
 
-func TestNewWriter(t *testing.T) {
+func TestEDISuite(t *testing.T) {
+	hs := &EDISuite{}
+
+	suite.Run(t, hs)
+}
+
+func (suite *EDISuite) TestNewReader() {
+	reader := NewReader(strings.NewReader(""))
+	suite.Equal('*', reader.Comma, "Reader.Comma is %c, but should be '*'")
+}
+
+func (suite *EDISuite) TestNewWriter() {
 	writer := NewWriter(os.Stdout)
-	if writer.Comma != '*' {
-		t.Errorf("Writer.Comma is %x, but should be '*'", writer.Comma)
+	suite.Equal('*', writer.Comma, "Writer.Comma is %c, but should be '*'")
+}
+
+func (suite *EDISuite) TestNewScanLine() {
+	expected := []string{
+		"line 1",
+		"line 2",
+		"line 3",
+		"line 4",
 	}
+
+	suite.T().Run("successfully read lines broken by newline \\n", func(t *testing.T) {
+		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\n")))
+		scanner.Split(SplitLines)
+		idx := 0
+		for scanner.Scan() {
+			suite.Equal(expected[idx], scanner.Text())
+			idx++
+		}
+		suite.Equal(len(expected), idx, "Processed less lines than expected")
+	})
+
+	suite.T().Run("successfully read lines broken by carriage return and newline \\r\\n", func(t *testing.T) {
+		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\r\n")))
+		scanner.Split(SplitLines)
+		idx := 0
+		for scanner.Scan() {
+			suite.Equal(expected[idx], scanner.Text())
+			idx++
+		}
+		suite.Equal(len(expected), idx, "Processed less lines than expected")
+	})
+
+	suite.T().Run("successfully read lines broken by only carriage return \\r", func(t *testing.T) {
+		scanner := bufio.NewScanner(strings.NewReader(strings.Join(expected, "\r")))
+		scanner.Split(SplitLines)
+		idx := 0
+		for scanner.Scan() {
+			suite.Equal(expected[idx], scanner.Text())
+			idx++
+		}
+		suite.Equal(len(expected), idx, "Processed less lines than expected")
+	})
 }

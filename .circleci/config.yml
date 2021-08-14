@@ -1446,6 +1446,18 @@ jobs:
           health_check_hosts: my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us
           ecr_env: demo
 
+  # `deploy_demo_app_client_tls` updates the mutual-TLS service in the demo environment
+  deploy_demo_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'demo'
+    steps:
+      - aws_vars_demo
+      - deploy_app_client_tls_steps:
+          compare_host: '' # leave blank since we want demo to be able to roll back
+          health_check_hosts: api.demo.dp3.us
+          ecr_env: demo
+
   # `deploy_demo_webhook_client` deploys the webhook client to demo
   deploy_demo_webhook_client:
     executor: mymove_small
@@ -1809,6 +1821,13 @@ workflows:
               only: placeholder_branch_name
 
       - deploy_demo_app:
+          requires:
+            - deploy_demo_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
+
+      - deploy_demo_app_client_tls:
           requires:
             - deploy_demo_migrations
           filters:

@@ -41,6 +41,7 @@ const requiredPropsCheck = (props, propName, componentName) => {
   if (!props.heading || !props.message) {
     return new Error(`A heading or message is required by '${componentName}' component.`);
   }
+  return undefined;
 };
 
 AlertWithConfirmation.propTypes = {

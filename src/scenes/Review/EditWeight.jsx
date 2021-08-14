@@ -57,6 +57,7 @@ const validateWeight = (value, formValues, props, fieldName) => {
   if (value && props.entitlement && value > props.entitlement.sum) {
     return 'Cannot be more than your full entitlement';
   }
+  return undefined;
 };
 
 let EditWeightForm = (props) => {
@@ -291,6 +292,8 @@ class EditWeight extends Component {
         </div>
       );
     }
+    // don't show any text if there is no error
+    return undefined;
   }
 
   render() {
