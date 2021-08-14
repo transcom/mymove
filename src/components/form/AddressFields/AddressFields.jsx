@@ -64,7 +64,7 @@ export const AddressFields = ({ legend, className, name, render, validators }) =
   const addressFieldsUUID = useRef(uuidv4());
 
   return (
-    <Fieldset legend={legend} className={className}>
+    <Fieldset legend={legend} className={`margin-top-neg-1 ${className}`}>
       {render(
         <>
           <TextField
