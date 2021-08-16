@@ -27,7 +27,12 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
-import { patchMTOServiceItemStatus, updateAllowance, updateMTOShipmentRequestReweigh, updateMTOShipmentStatus } from 'services/ghcApi';
+import {
+  patchMTOServiceItemStatus,
+  updateAllowance,
+  updateMTOShipmentRequestReweigh,
+  updateMTOShipmentStatus,
+} from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -191,7 +196,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       console.log(errorMsg);
     },
   });
-      
+
   const [mutateOrders] = useMutation(updateAllowance, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
@@ -209,7 +214,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         '',
         true,
       );
-
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
