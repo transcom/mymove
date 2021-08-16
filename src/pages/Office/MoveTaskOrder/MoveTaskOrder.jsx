@@ -162,17 +162,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const [mutateMTOShipmentRequestReweigh] = useMutation(updateMTOShipmentRequestReweigh, {
     onSuccess: (data, variables) => {
-      const dataMtoShipments = Object.keys(data.mtoShipments);
-
-      const updatedMTOShipment = dataMtoShipments.filter((obj) => {
-        return obj.shipmentID === variables.shipmentID;
-      });
       // Update mtoShipments with our updated status and set query data to match
-      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
-      queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.id)] = data;
+      queryCache.setQueryData([MTO_SHIPMENTS, data.shipment.moveTaskOrderID, false], mtoShipments);
+
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestReweigh button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, data.shipment.moveTaskOrderID]);
 
       setIsReweighModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes

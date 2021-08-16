@@ -176,7 +176,7 @@ export function updateMTOShipmentStatus({
 export function updateMTOShipmentRequestReweigh({
   shipmentID,
   ifMatchETag,
-  normalize = true,
+  normalize = false,
   schemaKey = 'mtoShipment',
 }) {
   const operationPath = 'shipment.requestShipmentReweigh';
