@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Fieldset } from '@trussworks/react-uswds';
 
 import TextField from 'components/form/fields/TextField';
+import MaskedTextField from 'components/form/fields/MaskedTextField';
 
 export const ContactInfoFields = ({ legend, className, name, render }) => {
   const contactInfoFieldsUUID = uuidv4();
@@ -15,13 +16,16 @@ export const ContactInfoFields = ({ legend, className, name, render }) => {
           <TextField label="First name" id={`firstName_${contactInfoFieldsUUID}`} name={`${name}.firstName`} />
           <TextField label="Last name" id={`lastName_${contactInfoFieldsUUID}`} name={`${name}.lastName`} />
 
-          <TextField
+          <MaskedTextField
             label="Phone"
             id={`phone_${contactInfoFieldsUUID}`}
             name={`${name}.phone`}
             type="tel"
-            maxLength="10"
+            minimum="12"
+            mask="000{-}000{-}0000"
+            required
           />
+
           <TextField label="Email" id={`email_${contactInfoFieldsUUID}`} name={`${name}.email`} />
         </>,
       )}

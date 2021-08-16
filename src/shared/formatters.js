@@ -86,7 +86,7 @@ export function convertFromThousandthInchToInch(thousandthInch) {
 // Format a dimensions object length, width and height to inches
 export function formatToDimensionsInches(dimensions) {
   if (!dimensions) {
-    return;
+    return undefined;
   }
 
   dimensions.length = convertFromThousandthInchToInch(dimensions.length);
@@ -105,6 +105,7 @@ export function formatDimensionsToThousandthInches(dimensions) {
   dimensions.length = formatToThousandthInches(dimensions.length);
   dimensions.width = formatToThousandthInches(dimensions.width);
   dimensions.height = formatToThousandthInches(dimensions.height);
+  return;
 }
 
 // Format user-entered dimension into base dimension, e.g. 15.25 -> 15250
@@ -127,6 +128,7 @@ export function formatDateSM(date) {
   if (date) {
     return moment(date).format('MM/DD/YYYY');
   }
+  return undefined;
 }
 
 // Format a date into the format required for submission as a date property in
@@ -143,6 +145,7 @@ export function parseSwaggerDate(dateString) {
   if (dateString) {
     return moment(dateString, 'YYYY-MM-DD').toDate();
   }
+  return undefined;
 }
 
 // Format a weight with lbs following, e.g. 4000 becomes 4,000 lbs
@@ -170,6 +173,7 @@ const formatDateForDateRange = (date, formatType) => {
   if (date) {
     return moment(date).format(format);
   }
+  return undefined;
 };
 
 export const displayDateRange = (dates, formatType = 'long') => {
@@ -191,6 +195,7 @@ export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale
   if (date) {
     return moment(date, inputFormat, locale, isStrict).format(outputFormat);
   }
+  return undefined;
 }
 
 export function formatDateFromIso(date, outputFormat) {
@@ -201,12 +206,14 @@ export function formatDate4DigitYear(date) {
   if (date) {
     return moment(date).format('DD-MMM-YYYY');
   }
+  return undefined;
 }
 
 export function formatTime(date) {
   if (date) {
     return moment(date).format('HH:mm');
   }
+  return undefined;
 }
 
 // Format a date and include its time, e.g. 03-Jan-2018 21:23
@@ -214,6 +221,7 @@ export function formatDateTime(date) {
   if (date) {
     return moment(date).format('DD-MMM-YY HH:mm');
   }
+  return undefined;
 }
 
 // Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET

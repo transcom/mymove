@@ -46,7 +46,7 @@ describe('The document viewer', function () {
       cy.get('input[name="notes"]').type('burn after reading');
       cy.get('button.submit').should('be.disabled');
 
-      cy.upload_file('.filepond--root', 'top-secret.png');
+      cy.upload_file('.filepond--root', 'sample-orders.png');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
     });
     it('can upload a weight ticket set', () => {
@@ -58,7 +58,7 @@ describe('The document viewer', function () {
       cy.get('input[name="notes"]').type('burn after reading');
       cy.get('button.submit').should('be.disabled');
 
-      cy.upload_file('.filepond--root', 'top-secret.png');
+      cy.upload_file('.filepond--root', 'sample-orders.png');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
     });
 
@@ -113,7 +113,7 @@ describe('The document viewer', function () {
 
       cy.get('button.submit').should('be.disabled');
 
-      cy.upload_file('.filepond--root', 'top-secret.png');
+      cy.upload_file('.filepond--root', 'sample-orders.png');
       cy.get('button.submit', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
     });
     it('can select and update newly-uploaded expense document', () => {

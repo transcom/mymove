@@ -19,6 +19,7 @@ class PPMPaymentRequestActionBtns extends Component {
     }
 
     this.setState({ displayConfirmation: true });
+    return undefined;
   };
 
   cancelConfirmationHandler = () => {
