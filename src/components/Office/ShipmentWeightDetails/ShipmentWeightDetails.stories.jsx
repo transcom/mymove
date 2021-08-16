@@ -13,6 +13,23 @@ export default {
   ],
 };
 
-export const WithNoDetails = () => <ShipmentWeightDetails />;
+const shipmentInfoReweighRequested = {
+  shipmentID: 'shipment1',
+  ifMatchEtag: 'etag1',
+  reweighID: 'reweighRequestID',
+};
 
-export const WithDetails = () => <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} />;
+const shipmentInfoNoReweigh = {
+  shipmentID: 'shipment1',
+  ifMatchEtag: 'etag1',
+};
+
+export const WithNoDetails = () => <ShipmentWeightDetails shipmentInfo={shipmentInfoNoReweigh} />;
+
+export const WithDetailsNoReweighRequested = () => (
+  <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} shipmentInfo={shipmentInfoNoReweigh} />
+);
+
+export const WithDetailsReweighRequested = () => (
+  <ShipmentWeightDetails estimatedWeight={1000} actualWeight={1000} shipmentInfo={shipmentInfoReweighRequested} />
+);

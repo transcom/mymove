@@ -66,6 +66,9 @@ const unapprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -87,6 +90,9 @@ const unapprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: undefined,
@@ -147,6 +153,9 @@ const someShipmentsApprovedMTOQuery = {
       },
       status: shipmentStatuses.APPROVED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -168,6 +177,9 @@ const someShipmentsApprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -258,6 +270,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -281,6 +296,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -304,6 +322,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '6',
@@ -327,6 +348,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 50,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '7',
@@ -350,6 +374,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -399,6 +426,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -422,6 +452,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -445,6 +478,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -475,6 +511,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -498,6 +537,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 25,
       primeActualWeight: 25,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -521,6 +563,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -549,6 +594,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -570,6 +618,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -591,6 +642,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -621,6 +675,9 @@ const someWeightNotReturned = {
       eTag: '1234',
       primeActualWeight: 100,
       primeEstimatedWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -642,6 +699,9 @@ const someWeightNotReturned = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -665,6 +725,9 @@ const someWeightNotReturned = {
       eTag: '1234',
       primeActualWeight: 1,
       primeEstimatedWeight: 1,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -798,6 +861,9 @@ const approvedMTOWithCancelledShipmentQuery = {
       },
       status: 'CANCELED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [

@@ -2777,6 +2777,10 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+      reweigh:
+        x-nullable: true
+        x-omitempty: true
+        $ref: '#/definitions/Reweigh'
       mtoAgents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:
@@ -3285,7 +3289,7 @@ definitions:
         format: date-time
         type: string
       verificationReason:
-        example: "The reweigh was not performed due to some justification provided by the Prime"
+        example: 'The reweigh was not performed due to some justification provided by the Prime'
         type: string
         x-nullable: true
       weight:

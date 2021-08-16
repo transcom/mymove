@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestReweighModal from 'components/Office/RequestReweighModal/RequestReweighModal';
 
 let onClose;
 let onSubmit;
@@ -10,7 +10,7 @@ beforeEach(() => {
   onSubmit = jest.fn();
 });
 
-describe('RequestShipmentCancellationModal', () => {
+describe('RequestReweighModal', () => {
   const shipmentInfo = {
     shipmentID: '123456',
     moveTaskOrderID: '98765',
@@ -18,10 +18,8 @@ describe('RequestShipmentCancellationModal', () => {
   };
 
   it('renders the component', () => {
-    const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
-    );
-    expect(wrapper.find('RequestShipmentCancellationModal').exists()).toBe(true);
+    const wrapper = mount(<RequestReweighModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />);
+    expect(wrapper.find('RequestReweighModal').exists()).toBe(true);
     expect(wrapper.find('ModalTitle').exists()).toBe(true);
     expect(wrapper.find('ModalActions').exists()).toBe(true);
     expect(wrapper.find('ModalClose').exists()).toBe(true);
@@ -30,9 +28,7 @@ describe('RequestShipmentCancellationModal', () => {
   });
 
   it('closes the modal when close icon is clicked', () => {
-    const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
-    );
+    const wrapper = mount(<RequestReweighModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />);
 
     wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
 
@@ -40,9 +36,7 @@ describe('RequestShipmentCancellationModal', () => {
   });
 
   it('closes the modal when the cancel button is clicked', () => {
-    const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
-    );
+    const wrapper = mount(<RequestReweighModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />);
 
     wrapper.find('button[data-testid="modalBackButton"]').simulate('click');
 
@@ -50,9 +44,7 @@ describe('RequestShipmentCancellationModal', () => {
   });
 
   it('calls the submit function when submit button is clicked', async () => {
-    const wrapper = mount(
-      <RequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
-    );
+    const wrapper = mount(<RequestReweighModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />);
 
     wrapper.find('button[type="submit"]').simulate('click');
 
