@@ -1,10 +1,10 @@
 You are receiving this notification because you are listed as a System Administrator of the MilMove app. A MilMove user account has been {{.Action}}.
 
 Activity details:
-* Modified user ID: {{.ModifiedUserId}}
-* Responsible user ID: {{.ResponsibleUserId}}
+* Modified user ID: {{.ModifiedUserID}}
+* Responsible user ID: {{.ResponsibleUserID}}
 * Action: Account {{.Action}}
-* Action trace ID: {{.TraceId}}
+* Action trace ID: {{.TraceID}}
 * Timestamp: {{.Timestamp}}
 
 Please visit the AWS Console ([instructions](https://dp3.atlassian.net/wiki/spaces/MT/pages/1250066433/0029+AWS+Organization+Authentication)) or the [MilMove Admin Interface]({{.AdminLink}}) to see more details about the above activity.
