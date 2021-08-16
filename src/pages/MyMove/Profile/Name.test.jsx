@@ -3,7 +3,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedName, { Name } from './Name';
@@ -129,7 +129,7 @@ describe('requireCustomerState Name', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -147,17 +147,18 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
   });
 
-  it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -178,16 +179,18 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).not.toHaveBeenCalled();
   });
-  it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', () => {
+
+  it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -216,17 +219,18 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -266,13 +270,14 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).toHaveBeenCalledWith(push('/'));
   });
 });
