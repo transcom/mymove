@@ -170,7 +170,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [mutateMTOShipmentRequestReweigh] = useMutation(updateMTOShipmentRequestReweigh, {
     onSuccess: (data, variables) => {
       // Update mtoShipments with our updated status and set query data to match
-      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.id)] = data;
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
       queryCache.setQueryData([MTO_SHIPMENTS, data.shipment.moveTaskOrderID, false], mtoShipments);
 
       // InvalidateQuery tells other components using this data that they need to re-fetch
