@@ -11,6 +11,7 @@ import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillab
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -399,7 +400,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           </div>
           <div className={moveTaskOrderStyles.weightHeader}>
             <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
-            <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal} />
+            <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+            </WeightDisplay>
             <WeightDisplay
               heading="Max billable weight"
               weightValue={order.entitlement.authorizedWeight}

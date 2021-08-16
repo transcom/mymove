@@ -227,5 +227,6 @@ func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, pr
 		// Creates a move that has multiple orders uploaded
 		createHHGMoveWithMultipleOrdersFiles(db, userUploader, primeUploader)
 		createHHGMoveWithAmendedOrders(db, userUploader, primeUploader)
+		createHHGMoveWithRiskOfExcess(db, userUploader, primeUploader)
 	}
 }
