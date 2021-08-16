@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -28,20 +27,17 @@ describe('Name page', () => {
   };
 
   it('renders the NameForm', async () => {
-    await waitFor(() => {
-      const wrapper = mount(<Name {...testProps} />);
-      expect(wrapper.find('NameForm').exists()).toBe(true);
-    });
+    render(<Name {...testProps} />);
+
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
   });
 
   it('back button goes to the DoD Info step', async () => {
-    const { queryByText } = render(<Name {...testProps} />);
+    render(<Name {...testProps} />);
 
-    const backButton = queryByText('Back');
+    const backButton = await screen.findByRole('button', { name: 'Back' });
 
-    await waitFor(() => {
-      expect(backButton).toBeInTheDocument();
-    });
+    expect(backButton).toBeInTheDocument();
 
     userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
@@ -59,9 +55,10 @@ describe('Name page', () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = queryByText('Next');
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -96,9 +93,10 @@ describe('Name page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = queryByText('Next');
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -106,7 +104,7 @@ describe('Name page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.push).not.toHaveBeenCalled();
   });
