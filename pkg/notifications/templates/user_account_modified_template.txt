@@ -4,7 +4,7 @@ Activity details:
 * Modified user ID: {{.ModifiedUserID}}
 * Responsible user ID: {{.ResponsibleUserID}}
 * Action: Account {{.Action}}
-* Action trace ID: {{.TraceID}}
+* Action source: {{.ActionSource}}
 * Timestamp: {{.Timestamp}}
 
-Please visit the AWS Console ([instructions](https://dp3.atlassian.net/wiki/spaces/MT/pages/1250066433/0029+AWS+Organization+Authentication)) or the [MilMove Admin Interface]({{.AdminLink}}) to see more details about the above activity.
+Please visit the AWS Console ([instructions](https://dp3.atlassian.net/wiki/spaces/MT/pages/1250066433/0029+AWS+Organization+Authentication)) or the [MilMove Admin Interface](https://admin.move.mil) to see more details about the above activity.
