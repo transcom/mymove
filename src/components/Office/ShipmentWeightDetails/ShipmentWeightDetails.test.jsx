@@ -14,6 +14,13 @@ const shipmentInfoNoReweigh = {
   ifMatchEtag: 'etag1',
 };
 
+const shipmentInfoReweigh = {
+  shipmentID: 'shipment1',
+  ifMatchEtag: 'etag1',
+  reweighID: 'reweighRequestID',
+  reweighWeight: 1000,
+};
+
 const handleRequestReweighModal = jest.fn();
 
 describe('ShipmentWeightDetails', () => {
@@ -90,6 +97,28 @@ describe('ShipmentWeightDetails', () => {
     );
 
     const reweighButton = await screen.queryByText('Request reweigh');
+    const reweighRequestedLabel = await screen.queryByText('reweigh requested');
+    const reweighedLabel = await screen.queryByText('reweighed');
+
     expect(reweighButton).toBeFalsy();
+    expect(reweighRequestedLabel).toBeTruthy();
+    expect(reweighedLabel).toBeFalsy();
+  });
+
+  it('only renders the reweighed label if a shipment has been reweighed', async () => {
+    render(
+      <ShipmentWeightDetails
+        estimatedWeight={11000}
+        actualWeight={12000}
+        shipmentInfo={shipmentInfoReweigh}
+        handleRequestReweighModal={handleRequestReweighModal}
+      />,
+    );
+
+    const reweighRequestedLabel = await screen.queryByText('reweigh requested');
+    const reweighedLabel = await screen.queryByText('reweighed');
+
+    expect(reweighRequestedLabel).toBeFalsy();
+    expect(reweighedLabel).toBeTruthy();
   });
 });
