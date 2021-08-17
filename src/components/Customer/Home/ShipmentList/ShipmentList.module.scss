@@ -27,6 +27,11 @@
   &:last-child {
     margin-bottom: 0px;
   }
+
+  &.shipment-display {
+    cursor: default;
+    justify-content: start;
+  }
 }
 
 .edit {
@@ -35,6 +40,20 @@
 
 .noEdit {
   width: 20px;
+}
+
+.warning {
+  color: $warning;
+}
+
+.warningText {
+  color: $base;
+  font-size: 13px;
+  margin-left: 5px;
+}
+
+.shipmentWeight {
+  width: 200px;
 }
 
 .shipment-code {

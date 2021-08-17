@@ -8,7 +8,16 @@ import styles from './ShipmentList.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
-const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, showNumber }) => {
+export const ShipmentListItem = ({
+  shipment,
+  onShipmentClick,
+  shipmentNumber,
+  canEdit,
+  showNumber,
+  showShipmentWeight,
+  isOverweight,
+  isMissingWeight,
+}) => {
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
@@ -19,7 +28,9 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
   return (
     <button
       type="button"
-      className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
+      className={`${styles['shipment-list-item-container']} ${shipmentClassName} ${
+        showShipmentWeight && styles['shipment-display']
+      }`}
       data-testid="shipment-list-item-container"
       onClick={() => {
         if (!canEdit) return;
@@ -32,7 +43,22 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
-      <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>{' '}
+      {!showShipmentWeight && (
+        <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
+      )}{' '}
+      {showShipmentWeight && <div className={styles.shipmentWeight}>{shipment.primeActualWeight} lbs</div>}
+      {isOverweight && (
+        <div>
+          <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
+          <span className={styles.warningText}> Over weight</span>
+        </div>
+      )}
+      {isMissingWeight && (
+        <div>
+          <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
+          <span className={styles.warningText}> Missing weight</span>
+        </div>
+      )}
       {canEdit ? <FontAwesomeIcon icon="pen" className={styles.edit} /> : <div className={styles.noEdit} />}
     </button>
   );
@@ -44,13 +70,19 @@ ShipmentListItem.propTypes = {
   shipmentNumber: number.isRequired,
   canEdit: bool.isRequired,
   showNumber: bool,
+  showShipmentWeight: bool,
+  isOverweight: bool,
+  isMissingWeight: bool,
 };
 
 ShipmentListItem.defaultProps = {
   showNumber: true,
+  showShipmentWeight: false,
+  isOverweight: false,
+  isMissingWeight: false,
 };
 
-const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted }) => {
+const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
@@ -72,12 +104,16 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted }) => {
           shipmentNumbersByType[shipmentType] = 1;
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
-        const canEdit = moveSubmitted ? shipmentType === 'PPM' : true;
+        let canEdit = moveSubmitted ? shipmentType === 'PPM' : true;
+        if (showShipmentWeight) {
+          canEdit = false;
+        }
         return (
           <ShipmentListItem
             key={shipment.id}
             shipmentNumber={shipmentNumber}
             showNumber={shipmentCountByType[shipmentType] > 1}
+            showShipmentWeight={showShipmentWeight}
             canEdit={canEdit}
             onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
             shipment={shipment}
@@ -92,6 +128,11 @@ ShipmentList.propTypes = {
   shipments: arrayOf(shape({ id: string.isRequired, shipmentType: string.isRequired })).isRequired,
   onShipmentClick: func.isRequired,
   moveSubmitted: bool.isRequired,
+  showShipmentWeight: bool,
+};
+
+ShipmentList.defaultProps = {
+  showShipmentWeight: false,
 };
 
 export default ShipmentList;
