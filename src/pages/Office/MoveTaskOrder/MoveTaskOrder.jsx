@@ -72,9 +72,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
+  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount, setMessage } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
@@ -320,6 +321,27 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     setSections(shipmentSections);
   }, [mtoShipments]);
 
+  useEffect(() => {
+    let estimatedWeightCalc = null;
+    let excessWeightCount = null;
+
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight)
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
+    }
+
+    setEstimatedWeightTotal(estimatedWeightCalc);
+
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
+      excessWeightCount = 1;
+
+      setExcessWeightRiskCount(excessWeightCount);
+    }
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal]);
+
   const handleScroll = () => {
     const distanceFromTop = window.scrollY;
     let newActiveSection;
@@ -390,15 +412,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       ?.filter((s) => s.primeActualWeight)
       .reduce((prev, current) => {
         return prev + current.primeActualWeight;
-      }, 0);
-  }
-
-  let estimatedWeightTotal = null;
-  if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
-    estimatedWeightTotal = mtoShipments
-      ?.filter((s) => s.primeEstimatedWeight)
-      .reduce((prev, current) => {
-        return prev + current.primeEstimatedWeight;
       }, 0);
   }
 
@@ -558,6 +571,7 @@ MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
 };
 

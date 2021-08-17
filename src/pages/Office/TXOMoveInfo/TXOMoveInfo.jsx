@@ -22,6 +22,7 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
+  const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode } = useParams();
@@ -54,6 +55,14 @@ const TXOMoveInfo = () => {
   }
   if (order.uploadedAmendedOrderID && !order.amendedOrdersAcknowledgedAt) {
     moveDetailsTagCount += 1;
+  }
+
+  let moveTaskOrderTagCount = 0;
+  if (unapprovedServiceItemCount > 0) {
+    moveTaskOrderTagCount += unapprovedServiceItemCount;
+  }
+  if (excessWeightRiskCount > 0) {
+    moveTaskOrderTagCount += 1;
   }
 
   return (
@@ -91,7 +100,7 @@ const TXOMoveInfo = () => {
                   role="tab"
                 >
                   <span className="tab-title">Move task order</span>
-                  {unapprovedServiceItemCount > 0 && <Tag>{unapprovedServiceItemCount}</Tag>}
+                  {moveTaskOrderTagCount > 0 && <Tag>{moveTaskOrderTagCount}</Tag>}
                 </NavLink>,
                 <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/payment-requests`} role="tab">
                   <span className="tab-title">Payment requests</span>
@@ -123,6 +132,7 @@ const TXOMoveInfo = () => {
             <MoveTaskOrder
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+              setExcessWeightRiskCount={setExcessWeightRiskCount}
             />
           </Route>
 

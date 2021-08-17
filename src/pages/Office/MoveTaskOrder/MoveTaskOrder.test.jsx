@@ -882,6 +882,7 @@ const approvedMTOWithCancelledShipmentQuery = {
 
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
+const setExcessWeightRiskCount = jest.fn();
 
 const moveCode = 'WE31AZ';
 const requiredProps = {
@@ -911,6 +912,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -926,6 +928,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -943,6 +946,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -960,6 +964,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -977,6 +982,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -994,6 +1000,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1011,6 +1018,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1028,6 +1036,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1045,6 +1054,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1062,6 +1072,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1079,6 +1090,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1096,6 +1108,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1113,6 +1126,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1131,6 +1145,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1148,6 +1163,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1165,6 +1181,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1199,6 +1216,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1265,6 +1283,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1343,6 +1362,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
