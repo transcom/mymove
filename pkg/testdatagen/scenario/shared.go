@@ -3552,7 +3552,20 @@ func createTXOServicesUSMCCounselor(db *pop.Connection) {
 }
 
 func createHHGMoveWithReweigh(db *pop.Connection, userUploader *uploader.UserUploader) {
-	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
+	move := testdatagen.MakeAvailableMove(db)
+	move.Locator = "REWAYD"
+	mustSave(db, &move)
+	reweighedWeight := unit.Pound(1000)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		UserUploader: userUploader,
+		MTOShipment: models.MTOShipment{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+		},
+		Reweigh: models.Reweigh{
+			Weight: &reweighedWeight,
+		},
+	})
 }
 
 func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.UserUploader) {

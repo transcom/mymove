@@ -18,4 +18,11 @@
   .shipmentWeight {
     display: flex;
   }
+
+  :global(.usa-tag) {
+    @include u-font-size('body', 3xs);
+    @include u-margin-left(1);
+    @include u-margin-right(0);
+    background-color: $info-light;
+  }
 }
