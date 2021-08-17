@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
@@ -31,11 +32,12 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
+const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
   const [activeSection, setActiveSection] = useState('');
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
@@ -88,6 +90,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
+
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
@@ -113,6 +116,27 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     });
     setUnapprovedServiceItemCount(serviceItemCount);
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
+
+  useEffect(() => {
+    let estimatedWeightCalc = null;
+    let excessWeightCount = null;
+
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight)
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
+    }
+
+    setEstimatedWeightTotal(estimatedWeightCalc);
+
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
+      excessWeightCount = 1;
+
+      setExcessWeightRiskCount(excessWeightCount);
+    }
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -272,6 +296,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setExcessWeightRiskCount: func.isRequired,
 };
 
 export default MoveDetails;
