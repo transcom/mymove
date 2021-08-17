@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/notifications"
-
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -1154,7 +1152,6 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
 
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
@@ -1347,6 +1344,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+		handlerContext.SetNotificationSender(suite.TestNotificationSender())
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,
