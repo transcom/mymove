@@ -124,6 +124,7 @@ function checkValidServiceWorker(swUrl) {
       // RA Modified Severity: CAT III
       // eslint-disable-next-line no-console
       console.log('No internet connection found. App is running in offline mode.');
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'No internet connection found. App is running in offline mode.');
     });
 }
 

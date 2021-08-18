@@ -7,6 +7,9 @@ import * as schema from 'shared/Entities/schema';
 import { interceptInjection } from 'store/interceptor/injectionMiddleware';
 import { interceptResponse } from 'store/interceptor/actions';
 
+import { MILMOVE_LOG_LEVEL } from 'shared/constants';
+import { milmoveLog } from 'shared/milmoveLog';
+
 // setting up the same config from Swagger/api.js
 export const requestInterceptor = (req) => {
   if (!req.loadSpec) {
@@ -26,6 +29,7 @@ export const requestInterceptor = (req) => {
       // RA Modified Severity: CAT III
       // eslint-disable-next-line no-console
       console.warn('Unable to retrieve CSRF Token from cookie');
+      milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
     }
   }
   return req;
@@ -95,6 +99,7 @@ function successfulReturnType(routeDefinition, status) {
     // RA Modified Severity: CAT III
     // eslint-disable-next-line no-console
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
+    milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return null;
   }
 
@@ -133,6 +138,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
     // RA Modified Severity: CAT III
     // eslint-disable-next-line no-console
     console.error(`Operation ${operationPath} failed: ${e}`);
+    milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${e}`);
     // TODO - log error?
     return Promise.reject(e);
   }
@@ -168,6 +174,10 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
           console.warn(
             `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
           );
+          milmoveLog(
+            MILMOVE_LOG_LEVEL.WARN,
+            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
+          );
           schemaKey = newSchemaKey;
         }
 
@@ -190,6 +200,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       // RA Modified Severity: CAT III
       // eslint-disable-next-line no-console
       console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
       // TODO - log error?
       return Promise.reject(response);
     });
