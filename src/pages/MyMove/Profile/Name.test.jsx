@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
 import * as reactRedux from 'react-redux';
 import { push } from 'connected-react-router';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ConnectedName, { Name } from './Name';
@@ -28,20 +27,17 @@ describe('Name page', () => {
   };
 
   it('renders the NameForm', async () => {
-    await waitFor(() => {
-      const wrapper = mount(<Name {...testProps} />);
-      expect(wrapper.find('NameForm').exists()).toBe(true);
-    });
+    render(<Name {...testProps} />);
+
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
   });
 
   it('back button goes to the DoD Info step', async () => {
-    const { queryByText } = render(<Name {...testProps} />);
+    render(<Name {...testProps} />);
 
-    const backButton = queryByText('Back');
+    const backButton = await screen.findByRole('button', { name: 'Back' });
 
-    await waitFor(() => {
-      expect(backButton).toBeInTheDocument();
-    });
+    expect(backButton).toBeInTheDocument();
 
     userEvent.click(backButton);
     expect(testProps.push).toHaveBeenCalledWith('/service-member/dod-info');
@@ -59,9 +55,10 @@ describe('Name page', () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
 
     // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = queryByText('Next');
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -96,9 +93,10 @@ describe('Name page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
+    render(<Name {...testProps} serviceMember={testServiceMemberValues} />);
 
-    const submitButton = queryByText('Next');
+    const submitButton = await screen.findByRole('button', { name: 'Next' });
+
     expect(submitButton).toBeInTheDocument();
     userEvent.click(submitButton);
 
@@ -106,7 +104,7 @@ describe('Name page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(testProps.push).not.toHaveBeenCalled();
   });
@@ -129,7 +127,7 @@ describe('requireCustomerState Name', () => {
     push: jest.fn(),
   };
 
-  it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', () => {
+  it('dispatches a redirect if the current state is earlier than the "DOD INFO COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -147,17 +145,18 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).toHaveBeenCalledWith(push('/service-member/conus-oconus'));
   });
 
-  it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', () => {
+  it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', async () => {
     const mockState = {
       entities: {
         user: {
@@ -178,16 +177,18 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).not.toHaveBeenCalled();
   });
-  it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', () => {
+
+  it('does not redirect if the current state is after the "DOD INFO COMPLETE" state and profile is not complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -216,17 +217,18 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 
-  it('does redirect if the profile is complete', () => {
+  it('does redirect if the profile is complete', async () => {
     const mockState = {
       entities: {
         user: {
@@ -266,13 +268,14 @@ describe('requireCustomerState Name', () => {
       },
     };
 
-    const wrapper = mount(
+    render(
       <MockProviders initialState={mockState}>
         <ConnectedName {...props} />
       </MockProviders>,
     );
 
-    expect(wrapper.exists()).toBe(true);
+    expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
+
     expect(mockDispatch).toHaveBeenCalledWith(push('/'));
   });
 });

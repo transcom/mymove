@@ -66,6 +66,9 @@ const unapprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -87,6 +90,9 @@ const unapprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: undefined,
@@ -147,6 +153,9 @@ const someShipmentsApprovedMTOQuery = {
       },
       status: shipmentStatuses.APPROVED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -168,6 +177,9 @@ const someShipmentsApprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -258,6 +270,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -281,6 +296,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -304,6 +322,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '6',
@@ -327,6 +348,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 50,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '7',
@@ -350,6 +374,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -399,6 +426,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -422,6 +452,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -445,6 +478,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -475,6 +511,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -498,6 +537,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 25,
       primeActualWeight: 25,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -521,11 +563,14 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
 
-// no weight is not returned in payload at all
+// weight is not returned in payload at all
 const noWeightQuery = {
   ...allApprovedMTOQuery,
   mtoShipments: [
@@ -549,6 +594,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -570,6 +618,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -591,6 +642,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -621,6 +675,9 @@ const someWeightNotReturned = {
       eTag: '1234',
       primeActualWeight: 100,
       primeEstimatedWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -642,6 +699,9 @@ const someWeightNotReturned = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -665,6 +725,86 @@ const someWeightNotReturned = {
       eTag: '1234',
       primeActualWeight: 1,
       primeEstimatedWeight: 1,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+    },
+  ],
+};
+
+const riskOfExcessWeightQuery = {
+  ...allApprovedMTOQuery,
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 100,
+        totalWeight: 100,
+      },
+    },
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 50,
+      primeActualWeight: 50,
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 40,
+      primeActualWeight: 40,
     },
   ],
 };
@@ -721,6 +861,9 @@ const approvedMTOWithCancelledShipmentQuery = {
       },
       status: 'CANCELED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -925,6 +1068,23 @@ describe('MoveTaskOrder', () => {
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
       expect(weightSummaries[3]).toHaveTextContent('101');
+    });
+
+    it('displays risk of excess tag', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          />
+        </MockProviders>,
+      );
+
+      const riskOfExcessTag = await screen.getByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeInTheDocument();
     });
 
     it('displays the estimated total weight', async () => {

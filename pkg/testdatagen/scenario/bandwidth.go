@@ -165,6 +165,34 @@ func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string,
 	return move
 }
 
+func makeRiskOfExcessShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
+	estimatedWeight := unit.Pound(7200)
+	actualWeight := unit.Pound(7400)
+	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               shipmentStatus,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			MTOShipment:   MTOShipment,
+			MTOShipmentID: MTOShipment.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	return MTOShipment
+}
+
 func makeShipmentForMove(move models.Move, shipmentStatus models.MTOShipmentStatus, db *pop.Connection) models.MTOShipment {
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)

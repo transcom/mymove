@@ -15,6 +15,7 @@ const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
 const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
+const ReviewBillableWeight = lazy(() => import('pages/Office/ReviewBillableWeight/ReviewBillableWeight'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
@@ -37,6 +38,10 @@ const TXOMoveInfo = () => {
     }) ||
     matchPath(pathname, {
       path: '/moves/:moveCode/allowances',
+      exact: true,
+    }) ||
+    matchPath(pathname, {
+      path: '/moves/:moveCode/billable-weight',
       exact: true,
     });
 
@@ -131,6 +136,10 @@ const TXOMoveInfo = () => {
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
               setPendingPaymentRequestCount={setPendingPaymentRequestCount}
             />
+          </Route>
+
+          <Route path="/moves/:moveCode/billable-weight" exact>
+            <ReviewBillableWeight />
           </Route>
 
           <Route path="/moves/:moveCode/history" exact>

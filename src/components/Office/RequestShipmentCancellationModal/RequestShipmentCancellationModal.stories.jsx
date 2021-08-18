@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { RequestShipmentCancellationModal } from './RequestShipmentCancellationModal';
+import RequestShipmentCancellationModal from './RequestShipmentCancellationModal';
 
 export default {
   title: 'Office Components/RequestShipmentCancellationModal',

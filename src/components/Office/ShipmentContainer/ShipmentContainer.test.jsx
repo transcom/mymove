@@ -16,6 +16,7 @@ const headingInfo = {
   destinationState: 'WA',
   destinationPostalCode: '98421',
   scheduledPickupDate: '27 Mar 2020',
+  reweigh: { id: '00000000-0000-0000-0000-000000000000' },
 };
 
 describe('Shipment Container', () => {

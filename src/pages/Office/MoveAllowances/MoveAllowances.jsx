@@ -59,7 +59,7 @@ const MoveAllowances = () => {
           [`${variables.orderID}`]: updatedOrder,
         },
       });
-      queryCache.invalidateQueries(ORDERS);
+      queryCache.invalidateQueries([ORDERS, variables.orderID]);
       handleClose();
     },
     onError: (error) => {

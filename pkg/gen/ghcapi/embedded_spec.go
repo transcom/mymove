@@ -3349,6 +3349,11 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "reweigh": {
+          "x-nullable": true,
+          "x-omitempty": true,
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -8532,6 +8537,11 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "reweigh": {
+          "x-nullable": true,
+          "x-omitempty": true,
+          "$ref": "#/definitions/Reweigh"
         },
         "scheduledPickupDate": {
           "type": "string",

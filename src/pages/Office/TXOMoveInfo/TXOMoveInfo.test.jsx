@@ -258,6 +258,18 @@ describe('TXO Move Info Container', () => {
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/payment-requests');
     });
 
+    it('should handle the Billable Weight route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/billable-weight`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('Route');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/billable-weight');
+    });
+
     it('should handle the Move History route', () => {
       const wrapper = mount(
         <MockProviders initialEntries={[`/moves/${testMoveCode}/history`]}>
