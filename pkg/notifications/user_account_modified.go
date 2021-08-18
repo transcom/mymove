@@ -2,11 +2,15 @@ package notifications
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	html "html/template"
 	"net/url"
 	text "text/template"
 	"time"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/logging"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -24,12 +28,11 @@ var (
 // UserAccountModified has notification content for alerting admins when a user account has been modified
 type UserAccountModified struct {
 	logger            Logger
+	sysAdminEmail     string //todo env variable to get this? can get from context?
 	host              string
-	sysAdminEmail     string
 	action            string
 	modifiedUserID    uuid.UUID
 	responsibleUserID uuid.UUID
-	traceID           uuid.UUID
 	modifiedAt        time.Time
 	htmlTemplate      *html.Template
 	textTemplate      *text.Template
@@ -37,80 +40,68 @@ type UserAccountModified struct {
 
 // NewUserAccountCreated returns a new UserAccountModified notification for account creation
 func NewUserAccountCreated(
-	logger Logger,
-	host string,
+	ctx context.Context,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
-	responsibleUserID uuid.UUID,
-	traceID uuid.UUID,
 	modifiedAt time.Time,
 ) *UserAccountModified {
-	return newUserAccountModified(
-		logger, host, sysAdminEmail, "created", modifiedUserID, responsibleUserID, traceID, modifiedAt)
+	return newUserAccountModified(ctx, sysAdminEmail, "created", modifiedUserID, modifiedAt)
 }
 
 // NewUserAccountActivated returns a new UserAccountModified notification for account activation
 func NewUserAccountActivated(
-	logger Logger,
-	host string,
+	ctx context.Context,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
-	responsibleUserID uuid.UUID,
-	traceID uuid.UUID,
 	modifiedAt time.Time,
 ) *UserAccountModified {
-	return newUserAccountModified(
-		logger, host, sysAdminEmail, "activated", modifiedUserID, responsibleUserID, traceID, modifiedAt)
+	return newUserAccountModified(ctx, sysAdminEmail, "activated", modifiedUserID, modifiedAt)
 }
 
 // NewUserAccountDeactivated returns a new UserAccountModified notification for account deactivation
 func NewUserAccountDeactivated(
-	logger Logger,
-	host string,
+	ctx context.Context,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
-	responsibleUserID uuid.UUID,
-	traceID uuid.UUID,
 	modifiedAt time.Time,
 ) *UserAccountModified {
-	return newUserAccountModified(
-		logger, host, sysAdminEmail, "deactivated", modifiedUserID, responsibleUserID, traceID, modifiedAt)
+	return newUserAccountModified(ctx, sysAdminEmail, "deactivated", modifiedUserID, modifiedAt)
 }
 
 // NewUserAccountRemoved returns a new UserAccountModified notification for account removal
 func NewUserAccountRemoved(
-	logger Logger,
-	host string,
+	ctx context.Context,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
-	responsibleUserID uuid.UUID,
-	traceID uuid.UUID,
 	modifiedAt time.Time,
 ) *UserAccountModified {
-	return newUserAccountModified(
-		logger, host, sysAdminEmail, "removed", modifiedUserID, responsibleUserID, traceID, modifiedAt)
+	return newUserAccountModified(ctx, sysAdminEmail, "removed", modifiedUserID, modifiedAt)
 }
 
 // newUserAccountModified returns a new UserAccountModified notification
 func newUserAccountModified(
-	logger Logger,
-	host string,
+	ctx context.Context,
 	sysAdminEmail string,
 	action string,
 	modifiedUserID uuid.UUID,
-	responsibleUserID uuid.UUID,
-	traceID uuid.UUID,
 	modifiedAt time.Time,
 ) *UserAccountModified {
+	logger, ok := logging.FromContext(ctx).(Logger)
+	if !ok {
+		return nil //todo return error
+	}
+
+	session := auth.SessionFromContext(ctx)
+	responsibleUserID := session.UserID
+	host := session.Hostname
 
 	return &UserAccountModified{
 		logger:            logger,
-		host:              host,
 		sysAdminEmail:     sysAdminEmail,
+		host:              host,
 		action:            action,
 		modifiedUserID:    modifiedUserID,
 		responsibleUserID: responsibleUserID,
-		traceID:           traceID,
 		modifiedAt:        modifiedAt,
 		htmlTemplate:      userAccountModifiedHTMLTemplate,
 		textTemplate:      userAccountModifiedTextTemplate,
@@ -120,28 +111,26 @@ func newUserAccountModified(
 // userAccountModifiedEmailData has content for email template
 type userAccountModifiedEmailData struct {
 	Action            string // created, activated, deactivated, or removed
+	ActionSource      string // the host URL of the action, where it took place
 	ModifiedUserID    string
 	ResponsibleUserID string
-	TraceID           string
 	Timestamp         string
-	AdminLink         string
 }
 
 func (m UserAccountModified) emails() ([]emailContent, error) {
 	var emails []emailContent
 
-	adminURL := url.URL{
+	actionSource := url.URL{
 		Scheme: "https",
 		Host:   m.host,
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(userAccountModifiedEmailData{
 		Action:            m.action,
+		ActionSource:      actionSource.String(),
 		ModifiedUserID:    m.modifiedUserID.String(),
 		ResponsibleUserID: m.responsibleUserID.String(),
-		TraceID:           m.traceID.String(),
 		Timestamp:         m.modifiedAt.String(),
-		AdminLink:         adminURL.String(),
 	})
 
 	if err != nil {
@@ -158,7 +147,6 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 	m.logger.Info("generated user activity alert email to system admin",
 		zap.String("responsibleUserID", m.responsibleUserID.String()),
 		zap.String("modifiedUserID", m.modifiedUserID.String()),
-		zap.String("traceID", m.traceID.String()),
 	)
 
 	return append(emails, adminEmail), nil
