@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer, Tag } from '@trussworks/react-uswds';
+import { GridContainer, Tag, Button, Alert } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
@@ -67,6 +68,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
+  const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
@@ -337,10 +340,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
       excessWeightCount = 1;
-
       setExcessWeightRiskCount(excessWeightCount);
+      setIsWeightAlertVisible(excessWeightCount);
     }
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal]);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
 
   const handleScroll = () => {
     const distanceFromTop = window.scrollY;
@@ -388,6 +391,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     setIsWeightModalVisible(true);
   };
 
+  const handleHideWeightAlert = () => {
+    setIsWeightAlertVisible(false);
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -415,6 +422,22 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       }, 0);
   }
 
+  const excessWeightAlertMessage = (
+    <span>
+      This move is at risk for excess weight.{' '}
+      <span className={styles.rightAlignButtonWrapper}>
+        <Button type="button" onClick={handleShowWeightModal} unstyled>
+          Review billable weight
+        </Button>
+      </span>
+    </span>
+  );
+  const excessWeightAlertControl = (
+    <Button type="button" onClick={handleHideWeightAlert} unstyled>
+      <FontAwesomeIcon icon="times" />
+    </Button>
+  );
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -432,6 +455,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           })}
         </LeftNav>
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+          {isWeightAlertVisible && (
+            <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
+              {excessWeightAlertMessage}
+            </Alert>
+          )}
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
