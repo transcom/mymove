@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -211,4 +212,14 @@ func MakeMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions A
 func MakeSubmittedMTOShipmentWithMove(db *pop.Connection, move *models.Move, assertions Assertions) models.MTOShipment {
 	assertions.MTOShipment.Status = models.MTOShipmentStatusSubmitted
 	return MakeMTOShipmentWithMove(db, move, assertions)
+}
+
+// MakeStubbedShipment makes a stubbed shipment
+func MakeStubbedShipment(db *pop.Connection) models.MTOShipment {
+	return MakeMTOShipmentMinimal(db, Assertions{
+		MTOShipment: models.MTOShipment{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
 }

@@ -133,11 +133,12 @@ export function formatMtoShipmentForDisplay({
  * formatMtoShipmentForAPI converts mtoShipment data from the template format to the format API calls expect
  * @param {*} param - unnamed object representing various mtoShipment data parts
  */
-export function formatMtoShipmentForAPI({ moveId, shipmentType, pickup, delivery, customerRemarks }) {
+export function formatMtoShipmentForAPI({ moveId, shipmentType, pickup, delivery, customerRemarks, counselorRemarks }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
     shipmentType,
     customerRemarks,
+    counselorRemarks,
     agents: [],
   };
 

@@ -136,17 +136,14 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	now := time.Now()
 	existingPaymentRequest.Status = models.PaymentRequestStatus(params.Body.Status)
 
-	// Let's map the incoming status to our enumeration type
-	switch existingPaymentRequest.Status {
-	case models.PaymentRequestStatusReviewed, models.PaymentRequestStatusReviewedAllRejected:
-		existingPaymentRequest.ReviewedAt = &now
-	case models.PaymentRequestStatusSentToGex:
-		existingPaymentRequest.SentToGexAt = &now
-	case models.PaymentRequestStatusReceivedByGex:
-		existingPaymentRequest.ReceivedByGexAt = &now
-	case models.PaymentRequestStatusPaid:
-		existingPaymentRequest.PaidAt = &now
+	if existingPaymentRequest.Status != models.PaymentRequestStatusReviewed && existingPaymentRequest.Status != models.PaymentRequestStatusReviewedAllRejected {
+		payload := payloadForValidationError("Unable to complete request",
+			fmt.Sprintf("Incoming payment request status should be REVIEWED or REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED instead it was: %s", existingPaymentRequest.Status.String()),
+			h.GetTraceID(), validate.NewErrors())
+		return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 	}
+
+	existingPaymentRequest.ReviewedAt = &now
 
 	// If we got a rejection reason let's use it
 	if params.Body.RejectionReason != nil {

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
@@ -11,7 +11,7 @@ const defaultProps = {
   isCreatePage: true,
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  match: { isExact: false, path: '', url: '', params: { moveId: '' } },
+  match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipementId: 'shipment123' } },
   history: {
     goBack: jest.fn(),
     push: jest.fn(),
@@ -32,14 +32,14 @@ const defaultProps = {
     street_address_2: '',
   },
   serviceMember: {
-    weight_allotment: {
-      total_weight_self: 5000,
+    weightAllotment: {
+      totalWeightSelf: 5000,
     },
   },
 };
 
 const mockMtoShipment = {
-  id: 'mock id',
+  id: 'shipment123',
   moveTaskOrderId: 'mock move id',
   customerRemarks: 'mock customer remarks',
   counselorRemarks: 'mock counselor remarks',
@@ -253,6 +253,117 @@ describe('ServicesCounselingShipmentForm component', () => {
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('filling the form', () => {
+    it('shows an error if the updateMTOShipment returns an error', async () => {
+      const mockUpdateMTOShipment = jest.fn(() =>
+        // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
+        // eslint-disable-next-line prefer-promise-reject-errors
+        Promise.reject({
+          message: 'A server error occurred editing the shipment details',
+          response: {
+            body: {
+              detail: 'A server error occurred editing the shipment details',
+            },
+          },
+        }),
+      );
+
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+          updateMTOShipment={mockUpdateMTOShipment}
+          isCreatePage={false}
+        />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalled();
+      });
+
+      expect(await screen.findByText('A server error occurred editing the shipment details')).toBeInTheDocument();
+      expect(defaultProps.history.push).not.toHaveBeenCalled();
+    });
+
+    it('saves the update to the counselor and customer remarks when the save button is clicked', async () => {
+      const newCounselorRemarks = 'Counselor remarks';
+      const newCustomerRemarks = 'Customer remarks';
+
+      const expectedPayload = {
+        body: {
+          customerRemarks: newCustomerRemarks,
+          counselorRemarks: newCounselorRemarks,
+          destinationAddress: {
+            street_address_1: '441 SW Rio de la Plata Drive',
+            city: 'Tacoma',
+            state: 'WA',
+            postal_code: '98421',
+            street_address_2: '',
+          },
+          pickupAddress: {
+            street_address_1: '812 S 129th St',
+            city: 'San Antonio',
+            state: 'TX',
+            postal_code: '78234',
+            street_address_2: '',
+          },
+          requestedDeliveryDate: '2020-03-30',
+          requestedPickupDate: '2020-03-01',
+          shipmentType: 'HHG',
+        },
+        shipmentID: 'shipment123',
+        normalize: false,
+      };
+
+      const patchResponse = {
+        ...expectedPayload,
+        created_at: '2021-02-08T16:48:04.117Z',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      };
+
+      const mockUpdateMTOShipment = jest.fn(() => Promise.resolve(patchResponse));
+
+      render(
+        <ServicesCounselingShipmentForm
+          {...defaultProps}
+          selectedMoveType={SHIPMENT_OPTIONS.HHG}
+          mtoShipment={mockMtoShipment}
+          updateMTOShipment={mockUpdateMTOShipment}
+          isCreatePage={false}
+        />,
+      );
+
+      const customerRemarks = await screen.findByLabelText('Customer remarks');
+
+      userEvent.clear(customerRemarks);
+
+      userEvent.type(customerRemarks, newCustomerRemarks);
+
+      const counselorRemarks = await screen.findByLabelText('Counselor remarks');
+
+      userEvent.clear(counselorRemarks);
+
+      userEvent.type(counselorRemarks, newCounselorRemarks);
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+
+      userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledWith(expectedPayload);
+      });
     });
   });
 });

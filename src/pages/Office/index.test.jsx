@@ -406,6 +406,21 @@ describe('Office App', () => {
         },
       };
 
+      it('handles a ServicesCounselorEditShipmentDetails URL', () => {
+        const app = mount(
+          <MockProviders
+            initialState={loggedInServicesCounselorState}
+            initialEntries={['/counseling/moves/AU67C6/a05d0a28-3bd4-4180-88ba-0a0e7f22b14e/edit']}
+          >
+            <ConnectedOffice />
+          </MockProviders>,
+        );
+
+        const renderedRoute = app.find('PrivateRoute');
+        expect(renderedRoute).toHaveLength(1);
+        expect(renderedRoute.prop('path')).toEqual('/counseling/moves/:moveCode/:shipmentId/edit');
+      });
+
       it('handles the ServicesCounselingMoveInfo URL', () => {
         const app = mount(
           <MockProviders initialState={loggedInServicesCounselorState} initialEntries={['/counseling/moves/AU67C6']}>

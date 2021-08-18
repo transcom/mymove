@@ -13,6 +13,12 @@ type MTOShipmentUpdater interface {
 	MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error)
 }
 
+//ShipmentDeleter is the service object interface for DeleteShipment
+//go:generate mockery --name ShipmentDeleter
+type ShipmentDeleter interface {
+	DeleteShipment(shipmentID uuid.UUID) (uuid.UUID, error)
+}
+
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
