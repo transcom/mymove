@@ -186,7 +186,8 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		h.NewQueryFilter("id", "=", transportationOfficeID),
 	}
 
-	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
+	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(
+		params.HTTPRequest.Context(), &officeUser, transportationIDFilter)
 	if verrs != nil {
 		validationError := &adminmessages.ValidationError{
 			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,

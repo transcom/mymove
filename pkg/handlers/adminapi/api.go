@@ -63,7 +63,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	userRolesCreator := usersroles.NewUsersRolesCreator(ctx.DB())
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		ctx,
-		officeuser.NewOfficeUserCreator(ctx.DB(), queryBuilder),
+		officeuser.NewOfficeUserCreator(ctx.DB(), queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
 	}

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -30,7 +32,7 @@ type OfficeUserGblocFetcher interface {
 // OfficeUserCreator is the exported interface for creating an office user
 //go:generate mockery --name OfficeUserCreator --disable-version-string
 type OfficeUserCreator interface {
-	CreateOfficeUser(user *models.OfficeUser, transportationIDFilter []QueryFilter) (*models.OfficeUser, *validate.Errors, error)
+	CreateOfficeUser(ctx context.Context, user *models.OfficeUser, transportationIDFilter []QueryFilter) (*models.OfficeUser, *validate.Errors, error)
 }
 
 // OfficeUserUpdater is the exported interface for creating an office user

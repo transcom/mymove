@@ -1,9 +1,14 @@
 package officeuser
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -35,6 +40,12 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		TransportationOffice:   transportationOffice,
 	}
 
+	//
+	sender := notifications.NewStubNotificationSender("adminlocal", suite.logger)
+	ctx := context.Background()
+	ctx = logging.NewContext(ctx, suite.logger)
+	ctx = auth.SetSessionInContext(ctx, &auth.Session{})
+
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
@@ -58,8 +69,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		officeUser, verrs, err := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(suite.DB(), builder, sender)
+		officeUser, verrs, err := creator.CreateOfficeUser(ctx, &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
@@ -97,8 +108,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		officeUser, verrs, err := creator.CreateOfficeUser(&existingUserInfo, filter)
+		creator := NewOfficeUserCreator(suite.DB(), builder, sender)
+		officeUser, verrs, err := creator.CreateOfficeUser(ctx, &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
@@ -115,8 +126,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(suite.DB(), builder, sender)
+		_, _, err := creator.CreateOfficeUser(ctx, &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 
@@ -160,8 +171,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		_, verrs, _ := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(suite.DB(), builder, sender)
+		_, verrs, _ := creator.CreateOfficeUser(ctx, &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
@@ -198,8 +209,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(suite.DB(), builder, sender)
+		_, _, err := creator.CreateOfficeUser(ctx, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

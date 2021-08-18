@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +18,13 @@ type OfficeUserCreator struct {
 	mock.Mock
 }
 
-// CreateOfficeUser provides a mock function with given fields: user, transportationIDFilter
-func (_m *OfficeUserCreator) CreateOfficeUser(user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
-	ret := _m.Called(user, transportationIDFilter)
+// CreateOfficeUser provides a mock function with given fields: ctx, user, transportationIDFilter
+func (_m *OfficeUserCreator) CreateOfficeUser(ctx context.Context, user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
+	ret := _m.Called(ctx, user, transportationIDFilter)
 
 	var r0 *models.OfficeUser
-	if rf, ok := ret.Get(0).(func(*models.OfficeUser, []services.QueryFilter) *models.OfficeUser); ok {
-		r0 = rf(user, transportationIDFilter)
+	if rf, ok := ret.Get(0).(func(context.Context, *models.OfficeUser, []services.QueryFilter) *models.OfficeUser); ok {
+		r0 = rf(ctx, user, transportationIDFilter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.OfficeUser)
@@ -30,8 +32,8 @@ func (_m *OfficeUserCreator) CreateOfficeUser(user *models.OfficeUser, transport
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*models.OfficeUser, []services.QueryFilter) *validate.Errors); ok {
-		r1 = rf(user, transportationIDFilter)
+	if rf, ok := ret.Get(1).(func(context.Context, *models.OfficeUser, []services.QueryFilter) *validate.Errors); ok {
+		r1 = rf(ctx, user, transportationIDFilter)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +41,8 @@ func (_m *OfficeUserCreator) CreateOfficeUser(user *models.OfficeUser, transport
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*models.OfficeUser, []services.QueryFilter) error); ok {
-		r2 = rf(user, transportationIDFilter)
+	if rf, ok := ret.Get(2).(func(context.Context, *models.OfficeUser, []services.QueryFilter) error); ok {
+		r2 = rf(ctx, user, transportationIDFilter)
 	} else {
 		r2 = ret.Error(2)
 	}

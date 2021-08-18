@@ -1,7 +1,10 @@
 package officeuser
 
 import (
+	"context"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -13,12 +16,17 @@ import (
 )
 
 type officeUserCreator struct {
-	db      *pop.Connection
-	builder officeUserQueryBuilder
+	db                 *pop.Connection
+	builder            officeUserQueryBuilder
+	notificationSender notifications.NotificationSender
 }
 
 // CreateOfficeUser creates office users
-func (o *officeUserCreator) CreateOfficeUser(officeUser *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserCreator) CreateOfficeUser(
+	ctx context.Context,
+	officeUser *models.OfficeUser,
+	transportationIDFilter []services.QueryFilter,
+) (*models.OfficeUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have a transportation office that matches the provided id
 	var transportationOffice models.TransportationOffice
 	fetchErr := o.builder.FetchOne(&transportationOffice, transportationIDFilter)
@@ -41,6 +49,7 @@ func (o *officeUserCreator) CreateOfficeUser(officeUser *models.OfficeUser, tran
 
 	var verrs *validate.Errors
 	var err error
+	var sendUserActivityEmail bool
 	// We don't want to be left with a user record and no office user so setup a transaction to rollback
 	txErr := o.db.Transaction(func(connection *pop.Connection) error {
 		if user.ID == uuid.Nil {
@@ -48,6 +57,7 @@ func (o *officeUserCreator) CreateOfficeUser(officeUser *models.OfficeUser, tran
 			if verrs != nil || err != nil {
 				return err
 			}
+			sendUserActivityEmail = true
 		}
 
 		officeUser.UserID = &user.ID
@@ -65,10 +75,25 @@ func (o *officeUserCreator) CreateOfficeUser(officeUser *models.OfficeUser, tran
 		return nil, verrs, txErr
 	}
 
+	if sendUserActivityEmail {
+		userCreatedEmail, err := notifications.NewUserAccountCreated(ctx, "sandy@truss.works", user.ID, user.UpdatedAt)
+		if err != nil {
+			return nil, nil, err
+		}
+		err = o.notificationSender.SendNotification(userCreatedEmail)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	return officeUser, nil, nil
 }
 
 // NewOfficeUserCreator returns a new office user creator
-func NewOfficeUserCreator(db *pop.Connection, builder officeUserQueryBuilder) services.OfficeUserCreator {
-	return &officeUserCreator{db, builder}
+func NewOfficeUserCreator(
+	db *pop.Connection,
+	builder officeUserQueryBuilder,
+	notificationSender notifications.NotificationSender,
+) services.OfficeUserCreator {
+	return &officeUserCreator{db, builder, notificationSender}
 }
