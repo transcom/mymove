@@ -14,6 +14,8 @@ import AllowancesDetailForm from '../../../components/Office/AllowancesDetailFor
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
+import { MILMOVE_LOG_LEVEL } from 'shared/constants';
+import { milmoveLog } from 'shared/milmoveLog';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { counselingUpdateAllowance } from 'services/ghcApi';
 import { dropdownInputOptions } from 'shared/formatters';
@@ -65,7 +67,7 @@ const ServicesCounselingMoveAllowances = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg)
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
 

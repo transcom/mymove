@@ -36,7 +36,10 @@ function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
-    milmoveLog(MILMOVE_LOG_LEVEL.ERROR,`No response found for operation ${routeDefinition.operationId} with status ${status}`);
+    milmoveLog(
+      MILMOVE_LOG_LEVEL.ERROR,
+      `No response found for operation ${routeDefinition.operationId} with status ${status}`,
+    );
     return undefined;
   }
   return toCamelCase(schemaKey);
@@ -75,7 +78,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     try {
       request = operation(params);
     } catch (error) {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR,`Operation ${operationPath} failed: ${error}`);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${error}`);
       const updatedRequestLog = Object.assign({}, requestLog, {
         ok: false,
         end: new Date(),

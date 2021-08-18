@@ -28,7 +28,7 @@ export class ApproveRejectModal extends Component {
 
   handleRejectionClick = () => {
     if (!this.state.rejectionReason) {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'Rejection reason empty. Please fill out rejection reason.')
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'Rejection reason empty. Please fill out rejection reason.');
     } else {
       this.props.rejectBtnOnClick(this.state.rejectionReason);
     }

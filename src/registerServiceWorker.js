@@ -41,7 +41,7 @@ function registerValidSW(swUrl) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-                            // RA Summary: eslint: no-console - System Information Leak: External
+              // RA Summary: eslint: no-console - System Information Leak: External
               // RA: The linter flags any console.
               // RA: This console in this file serves to indicate the status of the serviceWorker to a user.
               // RA: Given that the value displayed is a simple string with no interpolation
@@ -57,9 +57,9 @@ function registerValidSW(swUrl) {
               // available; please refresh." message in your web app.
               // eslint-disable-next-line no-console
               console.log('New content is available; please refresh.');
-              milmoveLog(MILMOVE_LOG_LEVEL.LOG,'New content is available; please refresh.');
+              milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'New content is available; please refresh.');
             } else {
-                            // RA Summary: eslint: no-console - System Information Leak: External
+              // RA Summary: eslint: no-console - System Information Leak: External
               // RA: The linter flags any console.
               // RA: This console in this file serves to indicate the status of the serviceWorker to a user.
               // RA: Given that the value displayed is a simple string with no interpolation
@@ -74,7 +74,7 @@ function registerValidSW(swUrl) {
               // "Content is cached for offline use." message.
               // eslint-disable-next-line no-console
               console.log('Content is cached for offline use.');
-              milmoveLog(MILMOVE_LOG_LEVEL.LOG,'Content is cached for offline use.');
+              milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'Content is cached for offline use.');
             }
           }
         };

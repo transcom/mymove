@@ -82,7 +82,7 @@ export default class ConfirmWithReasonButton extends Component {
         </button>
       );
     } else {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, this.state.displayState)
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, this.state.displayState);
       // TODO I think we can do better here
       return undefined;
     }

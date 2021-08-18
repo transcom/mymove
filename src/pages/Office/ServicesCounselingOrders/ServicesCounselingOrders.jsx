@@ -9,6 +9,8 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
+import { milmoveLog } from '../../../shared/milmoveLog';
+import { MILMOVE_LOG_LEVEL } from '../../../shared/constants';
 
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
@@ -19,8 +21,6 @@ import { counselingUpdateOrder } from 'services/ghcApi';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import {milmoveLog} from "../../../shared/milmoveLog";
-import {MILMOVE_LOG_LEVEL} from "../../../shared/constants";
 
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 

@@ -42,7 +42,7 @@ const httpClient = (url, options = {}) => {
   }
   const token = Cookies.get('masked_gorilla_csrf');
   if (!token) {
-    milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie')
+    milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
   }
   options.headers.set('X-CSRF-TOKEN', token);
   // send cookies in the request

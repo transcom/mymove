@@ -93,7 +93,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
         }
       }
     } else {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR,`The schema should have fields for all present values. Missing ${key}`);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `The schema should have fields for all present values. Missing ${key}`);
     }
   });
 

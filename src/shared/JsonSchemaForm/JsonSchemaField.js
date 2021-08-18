@@ -5,9 +5,9 @@ import validator from './validator';
 import { Field } from 'redux-form';
 import SingleDatePicker from './SingleDatePicker';
 import { isNil } from 'lodash';
-export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 import { MILMOVE_LOG_LEVEL } from 'shared/constants';
 import { milmoveLog } from 'shared/milmoveLog';
+export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
 
@@ -207,7 +207,11 @@ const renderInputField = ({
   }
 
   if (componentNameOverride && customComponent) {
-    milmoveLog(MILMOVE_LOG_LEVEL.ERROR,'You should not have specified a componentNameOverride as well as a customComponent. For: ', title);
+    milmoveLog(
+      MILMOVE_LOG_LEVEL.ERROR,
+      'You should not have specified a componentNameOverride as well as a customComponent. For: ',
+      title,
+    );
   }
 
   const displayError = touched && error;
