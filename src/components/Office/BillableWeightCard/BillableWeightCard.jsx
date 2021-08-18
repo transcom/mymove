@@ -1,7 +1,9 @@
 import React from 'react';
-import { string } from 'prop-types';
+import { string, arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
+
+import ShipmentList from '../../ShipmentList';
 
 import styles from './BillableWeightCard.module.scss';
 
@@ -12,6 +14,8 @@ export default function BillableWeightCard({
   weightRequested,
   weightAllowance,
   totalBillableWeight,
+  shipments,
+  entitlements,
 }) {
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
@@ -33,7 +37,9 @@ export default function BillableWeightCard({
         <div className={styles.shipmentSection}>
           <h5>Total billable weight</h5>
           <h4>{formatWeight(totalBillableWeight)}</h4>
-          <div className={styles.shipmentPlaceholder}>shipment list placeholder</div>
+          <div className={styles.shipmentList}>
+            <ShipmentList shipments={shipments} entitlements={entitlements} showShipmentWeight />
+          </div>
         </div>
       </div>
     </div>
@@ -45,4 +51,12 @@ BillableWeightCard.propTypes = {
   weightRequested: string.isRequired,
   weightAllowance: string.isRequired,
   totalBillableWeight: string.isRequired,
+  shipments: arrayOf(
+    shape({
+      id: string.isRequired,
+      shipmentType: string.isRequired,
+      reweigh: shape({ id: string.isRequired, weight: string }),
+    }),
+  ).isRequired,
+  entitlements: arrayOf(shape({ id: string.isRequired, authorizedWeight: string.isRequired })).isRequired,
 };

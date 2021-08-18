@@ -36,7 +36,7 @@ export const ShipmentListWithWeights = () => (
       shipments={[
         { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG, billableWeightCap: '5,600' },
         { id: '0002', shipmentType: SHIPMENT_OPTIONS.HHG, billableWeightCap: '3,200', reweigh: { id: '1234' } },
-        { id: '0003', shipmentType: SHIPMENT_OPTIONS.HHG, billableWeightCap: '3,200' },
+        { id: '0003', shipmentType: SHIPMENT_OPTIONS.HHG, billableWeightCap: '3,400' },
       ]}
       entitlements={[
         { id: '1234', shipmentId: '0001', authorizedWeight: '4,600' },
@@ -49,5 +49,5 @@ export const ShipmentListWithWeights = () => (
 );
 
 export default {
-  title: 'Customer Components / ShipmentList',
+  title: 'Components / ShipmentList',
 };
