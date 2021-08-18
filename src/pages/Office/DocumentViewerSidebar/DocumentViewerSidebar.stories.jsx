@@ -8,7 +8,7 @@ export default {
   component: DocumentViewerSidebar,
 };
 
-export const Card = () => (
+export const Sidebar = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
     <DocumentViewerSidebar
       title="Review weights"
@@ -16,7 +16,7 @@ export const Card = () => (
       description="Shipment 1 of 2"
       onClose={() => {}}
     >
-      <DocumentViewerSidebar.Content>Hi</DocumentViewerSidebar.Content>
+      <DocumentViewerSidebar.Content />
       <DocumentViewerSidebar.Footer>
         <Button>Review billable weight</Button>
       </DocumentViewerSidebar.Footer>

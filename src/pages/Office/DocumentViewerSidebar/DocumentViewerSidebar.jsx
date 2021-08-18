@@ -36,7 +36,7 @@ DocumentViewerSidebar.defaultProps = {
   description: '',
 };
 
-DocumentViewerSidebar.Content = function Footer({ children }) {
+DocumentViewerSidebar.Content = function Content({ children }) {
   return <main>{children}</main>;
 };
 
