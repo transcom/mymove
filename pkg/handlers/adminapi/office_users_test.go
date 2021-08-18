@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/logging"
+
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/strfmt"
@@ -188,6 +190,9 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	req := httptest.NewRequest("POST", "/office_users", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
+	// Adding a logger to the request context for the notification email the OfficeUserCreator generates
+	ctx := logging.NewContext(req.Context(), suite.TestLogger())
+	req = req.WithContext(ctx)
 
 	tooRoleName := "Transportation Ordering Officer"
 	tooRoleType := string(roles.RoleTypeTOO)
