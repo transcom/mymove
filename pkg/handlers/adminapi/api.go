@@ -144,7 +144,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
 		ctx,
-		adminuser.NewAdminUserCreator(ctx.DB(), queryBuilder),
+		adminuser.NewAdminUserCreator(ctx.DB(), queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 

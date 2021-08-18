@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -24,7 +26,7 @@ type AdminUserFetcher interface {
 // AdminUserCreator is the exported interface for creating an admin user
 //go:generate mockery --name AdminUserCreator --disable-version-string
 type AdminUserCreator interface {
-	CreateAdminUser(user *models.AdminUser, organizationIDFilter []QueryFilter) (*models.AdminUser, *validate.Errors, error)
+	CreateAdminUser(ctx context.Context, user *models.AdminUser, organizationIDFilter []QueryFilter) (*models.AdminUser, *validate.Errors, error)
 }
 
 // AdminUserUpdater is the exported interface for creating an admin user

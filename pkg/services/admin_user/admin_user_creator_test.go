@@ -1,9 +1,14 @@
 package adminuser
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -35,6 +40,12 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		Role:           models.SystemAdminRole,
 	}
 
+	//todo
+	sender := notifications.NewStubNotificationSender("adminlocal", suite.logger)
+	ctx := context.Background()
+	ctx = logging.NewContext(ctx, suite.logger)
+	ctx = auth.SetSessionInContext(ctx, &auth.Session{})
+
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
@@ -54,8 +65,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		adminUser, verrs, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(suite.DB(), builder, sender)
+		adminUser, verrs, err := creator.CreateAdminUser(ctx, &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
@@ -93,8 +104,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		adminUser, verrs, err := creator.CreateAdminUser(&existingUserInfo, filter)
+		creator := NewAdminUserCreator(suite.DB(), builder, sender)
+		adminUser, verrs, err := creator.CreateAdminUser(ctx, &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(adminUser.User)
@@ -111,8 +122,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(suite.DB(), builder, sender)
+		_, _, err := creator.CreateAdminUser(ctx, &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 	})
@@ -150,8 +161,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, verrs, _ := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(suite.DB(), builder, sender)
+		_, verrs, _ := creator.CreateAdminUser(ctx, &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
@@ -184,8 +195,8 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		creator := NewAdminUserCreator(suite.DB(), builder, sender)
+		_, _, err := creator.CreateAdminUser(ctx, &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

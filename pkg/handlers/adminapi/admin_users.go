@@ -126,7 +126,8 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		h.NewQueryFilter("id", "=", organizationID),
 	}
 
-	createdAdminUser, verrs, err := h.AdminUserCreator.CreateAdminUser(&adminUser, organizationIDFilter)
+	createdAdminUser, verrs, err := h.AdminUserCreator.CreateAdminUser(
+		params.HTTPRequest.Context(), &adminUser, organizationIDFilter)
 	if err != nil || verrs != nil {
 		logger.Error("Error saving user", zap.Error(verrs))
 		return adminuserop.NewCreateAdminUserInternalServerError()

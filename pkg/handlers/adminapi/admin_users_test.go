@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/logging"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -231,6 +233,9 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	req := httptest.NewRequest("POST", "/admin_users", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
+	// Adding a logger to the request context for the notification email the AdminUserCreator generates
+	ctx := logging.NewContext(req.Context(), suite.TestLogger())
+	req = req.WithContext(ctx)
 
 	params := adminuserop.CreateAdminUserParams{
 		HTTPRequest: req,

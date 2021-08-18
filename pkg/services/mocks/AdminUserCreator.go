@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +18,13 @@ type AdminUserCreator struct {
 	mock.Mock
 }
 
-// CreateAdminUser provides a mock function with given fields: user, organizationIDFilter
-func (_m *AdminUserCreator) CreateAdminUser(user *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
-	ret := _m.Called(user, organizationIDFilter)
+// CreateAdminUser provides a mock function with given fields: ctx, user, organizationIDFilter
+func (_m *AdminUserCreator) CreateAdminUser(ctx context.Context, user *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
+	ret := _m.Called(ctx, user, organizationIDFilter)
 
 	var r0 *models.AdminUser
-	if rf, ok := ret.Get(0).(func(*models.AdminUser, []services.QueryFilter) *models.AdminUser); ok {
-		r0 = rf(user, organizationIDFilter)
+	if rf, ok := ret.Get(0).(func(context.Context, *models.AdminUser, []services.QueryFilter) *models.AdminUser); ok {
+		r0 = rf(ctx, user, organizationIDFilter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AdminUser)
@@ -30,8 +32,8 @@ func (_m *AdminUserCreator) CreateAdminUser(user *models.AdminUser, organization
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*models.AdminUser, []services.QueryFilter) *validate.Errors); ok {
-		r1 = rf(user, organizationIDFilter)
+	if rf, ok := ret.Get(1).(func(context.Context, *models.AdminUser, []services.QueryFilter) *validate.Errors); ok {
+		r1 = rf(ctx, user, organizationIDFilter)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +41,8 @@ func (_m *AdminUserCreator) CreateAdminUser(user *models.AdminUser, organization
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*models.AdminUser, []services.QueryFilter) error); ok {
-		r2 = rf(user, organizationIDFilter)
+	if rf, ok := ret.Get(2).(func(context.Context, *models.AdminUser, []services.QueryFilter) error); ok {
+		r2 = rf(ctx, user, organizationIDFilter)
 	} else {
 		r2 = ret.Error(2)
 	}

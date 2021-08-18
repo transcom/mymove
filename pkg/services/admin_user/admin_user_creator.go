@@ -1,7 +1,10 @@
 package adminuser
 
 import (
+	"context"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -13,12 +16,17 @@ import (
 )
 
 type adminUserCreator struct {
-	db      *pop.Connection
-	builder adminUserQueryBuilder
+	db                 *pop.Connection
+	builder            adminUserQueryBuilder
+	notificationSender notifications.NotificationSender
 }
 
 // CreateAdminUser creates admin user
-func (o *adminUserCreator) CreateAdminUser(admin *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
+func (o *adminUserCreator) CreateAdminUser(
+	ctx context.Context,
+	admin *models.AdminUser,
+	organizationIDFilter []services.QueryFilter,
+) (*models.AdminUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have an organization that matches the provided id
 	var organization models.Organization
 	fetchErr := o.builder.FetchOne(&organization, organizationIDFilter)
@@ -69,6 +77,10 @@ func (o *adminUserCreator) CreateAdminUser(admin *models.AdminUser, organization
 }
 
 // NewAdminUserCreator returns a new admin user creator builder
-func NewAdminUserCreator(db *pop.Connection, builder adminUserQueryBuilder) services.AdminUserCreator {
-	return &adminUserCreator{db, builder}
+func NewAdminUserCreator(
+	db *pop.Connection,
+	builder adminUserQueryBuilder,
+	notificationSender notifications.NotificationSender,
+) services.AdminUserCreator {
+	return &adminUserCreator{db, builder, notificationSender}
 }
