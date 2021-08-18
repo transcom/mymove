@@ -49,6 +49,7 @@ func (o *adminUserCreator) CreateAdminUser(
 
 	var verrs *validate.Errors
 	var err error
+	var sendUserActivityEmail bool
 	// We don't want to be left with a user record and no admin user so setup a transaction to rollback
 	txErr := o.db.Transaction(func(connection *pop.Connection) error {
 		if user.ID == uuid.Nil {
@@ -56,6 +57,7 @@ func (o *adminUserCreator) CreateAdminUser(
 			if verrs != nil || err != nil {
 				return err
 			}
+			sendUserActivityEmail = true
 		}
 
 		admin.UserID = &user.ID
@@ -71,6 +73,17 @@ func (o *adminUserCreator) CreateAdminUser(
 
 	if verrs != nil || txErr != nil {
 		return nil, verrs, txErr
+	}
+
+	if sendUserActivityEmail {
+		userCreatedEmail, err := notifications.NewUserAccountCreated(ctx, "sandy@truss.works", user.ID, user.UpdatedAt)
+		if err != nil {
+			return nil, nil, err
+		}
+		err = o.notificationSender.SendNotification(userCreatedEmail)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	return admin, nil, nil
