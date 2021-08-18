@@ -123,3 +123,12 @@ export const documentSizeLimitMsg = 'Please keep each file under 25MB.';
 
 // new window dimensions in relation to current window
 export const defaultRelativeWindowSize = 2 / 3;
+
+// log levels to use with milmoveLog.js
+export const MILMOVE_LOG_LEVEL = {
+  ERROR: 'ERROR',
+  WARN: 'WARN',
+  INFO: 'INFO',
+  DEBUG: 'DEBUG',
+  LOG: 'LOG',
+};

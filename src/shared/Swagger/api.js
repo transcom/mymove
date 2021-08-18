@@ -1,6 +1,8 @@
 import Swagger from 'swagger-client';
 import * as Cookies from 'js-cookie';
 import { getInternalClient } from 'services/internalApi';
+import { MILMOVE_LOG_LEVEL } from 'shared/constants';
+import { milmoveLog } from 'shared/milmoveLog';
 
 let publicClient = null;
 let ghcClient = null;
@@ -11,7 +13,7 @@ export const requestInterceptor = (req) => {
     if (token) {
       req.headers['X-CSRF-Token'] = token;
     } else {
-      console.warn('Unable to retrieve CSRF Token from cookie');
+      milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
     }
   }
   return req;

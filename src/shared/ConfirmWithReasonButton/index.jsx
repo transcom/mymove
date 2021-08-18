@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Alert from 'shared/Alert'; // eslint-disable-line
+import { MILMOVE_LOG_LEVEL } from 'shared/constants';
+import { milmoveLog } from 'shared/milmoveLog';
 
 export default class ConfirmWithReasonButton extends Component {
   state = { displayState: 'BUTTON', cancelReason: '' };
@@ -80,7 +82,7 @@ export default class ConfirmWithReasonButton extends Component {
         </button>
       );
     } else {
-      console.error('Unknown State: ', this.state.displayState);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, this.state.displayState)
       // TODO I think we can do better here
       return undefined;
     }

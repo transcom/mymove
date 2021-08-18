@@ -1,3 +1,6 @@
+import { MILMOVE_LOG_LEVEL } from 'shared/constants';
+import { milmoveLog } from 'shared/milmoveLog';
+
 // In production, we register a service worker to serve assets from local cache.
 
 // This lets the app load faster on subsequent visits in production, and gives
@@ -38,7 +41,7 @@ function registerValidSW(swUrl) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              // RA Summary: eslint: no-console - System Information Leak: External
+                            // RA Summary: eslint: no-console - System Information Leak: External
               // RA: The linter flags any console.
               // RA: This console in this file serves to indicate the status of the serviceWorker to a user.
               // RA: Given that the value displayed is a simple string with no interpolation
@@ -54,8 +57,9 @@ function registerValidSW(swUrl) {
               // available; please refresh." message in your web app.
               // eslint-disable-next-line no-console
               console.log('New content is available; please refresh.');
+              milmoveLog(MILMOVE_LOG_LEVEL.LOG,'New content is available; please refresh.');
             } else {
-              // RA Summary: eslint: no-console - System Information Leak: External
+                            // RA Summary: eslint: no-console - System Information Leak: External
               // RA: The linter flags any console.
               // RA: This console in this file serves to indicate the status of the serviceWorker to a user.
               // RA: Given that the value displayed is a simple string with no interpolation
@@ -70,6 +74,7 @@ function registerValidSW(swUrl) {
               // "Content is cached for offline use." message.
               // eslint-disable-next-line no-console
               console.log('Content is cached for offline use.');
+              milmoveLog(MILMOVE_LOG_LEVEL.LOG,'Content is cached for offline use.');
             }
           }
         };
@@ -85,7 +90,7 @@ function registerValidSW(swUrl) {
       // RA Validator Status: Known Issue
       // RA Modified Severity: CAT II
       // eslint-disable-next-line no-console
-      console.error('Error during service worker registration:', error);
+      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'Error during service worker registration:', error);
     });
 }
 
