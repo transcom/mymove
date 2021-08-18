@@ -12,6 +12,8 @@ package user
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers/adminapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -25,7 +27,10 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 	builder := query.NewQueryBuilder(suite.DB())
 	officeUserUpdater := officeUser.NewOfficeUserUpdater(builder)
 	adminUserUpdater := adminUser.NewAdminUserUpdater(builder)
-	updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater)
+
+	//todo
+	sender := notifications.NewStubNotificationSender("adminlocal", suite.logger)
+	updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, sender)
 
 	active := true
 	inactive := false

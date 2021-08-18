@@ -15,6 +15,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/strfmt"
@@ -225,14 +228,16 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 	sessionManagers := setupSessionManagers()
 	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handlerContext.SetSessionManagers(sessionManagers)
+
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
+	sender := notifications.NewStubNotificationSender("adminlocal", suite.TestLogger())
 
 	handler := UpdateUserHandler{
 		handlerContext,
 		userservice.NewUserSessionRevocation(queryBuilder),
-		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+		userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, sender),
 		newQueryFilter,
 	}
 
@@ -263,6 +268,9 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		ctx := logging.NewContext(req.Context(), suite.TestLogger())
+		req = req.WithContext(ctx)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
@@ -464,7 +472,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		handler := UpdateUserHandler{
 			handlerContext,
 			userRevocation,
-			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+			userservice.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, sender),
 			newQueryFilter,
 		}
 

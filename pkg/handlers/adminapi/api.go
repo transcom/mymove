@@ -132,7 +132,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	adminAPI.UsersUpdateUserHandler = UpdateUserHandler{
 		ctx,
 		user.NewUserSessionRevocation(queryBuilder),
-		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater),
+		user.NewUserUpdater(queryBuilder, officeUpdater, adminUpdater, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 

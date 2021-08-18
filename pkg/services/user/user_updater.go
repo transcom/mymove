@@ -5,6 +5,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -12,17 +14,24 @@ import (
 )
 
 type userUpdater struct {
-	builder           userQueryBuilder
-	officeUserUpdater services.OfficeUserUpdater
-	adminUserUpdater  services.AdminUserUpdater
+	builder            userQueryBuilder
+	officeUserUpdater  services.OfficeUserUpdater
+	adminUserUpdater   services.AdminUserUpdater
+	notificationSender notifications.NotificationSender
 }
 
 // NewUserUpdater returns a new admin user creator builder
-func NewUserUpdater(builder userQueryBuilder, officeUserUpdater services.OfficeUserUpdater, adminUserUpdater services.AdminUserUpdater) services.UserUpdater {
+func NewUserUpdater(
+	builder userQueryBuilder,
+	officeUserUpdater services.OfficeUserUpdater,
+	adminUserUpdater services.AdminUserUpdater,
+	notificationSender notifications.NotificationSender,
+) services.UserUpdater {
 	return &userUpdater{
 		builder,
 		officeUserUpdater,
 		adminUserUpdater,
+		notificationSender,
 	}
 }
 
@@ -93,5 +102,4 @@ func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User,
 	}
 
 	return &foundUser, nil, nil
-
 }
