@@ -3,10 +3,9 @@ import { string, arrayOf, shape } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
-import ShipmentList from '../../ShipmentList';
-
 import styles from './BillableWeightCard.module.scss';
 
+import ShipmentList from 'components/ShipmentList';
 import { formatWeight } from 'shared/formatters';
 
 export default function BillableWeightCard({

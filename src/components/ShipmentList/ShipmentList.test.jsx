@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import ShipmentList from '.';
 
@@ -70,15 +70,15 @@ describe('BillableWeightCard', () => {
       showShipmentWeight: true,
     };
 
-    const { getByText } = render(<ShipmentList {...defaultProps} />);
+    render(<ShipmentList {...defaultProps} />);
 
     // flags
-    expect(getByText('Over weight')).toBeInTheDocument();
-    expect(getByText('Missing weight')).toBeInTheDocument();
+    expect(screen.getByText('Over weight')).toBeInTheDocument();
+    expect(screen.getByText('Missing weight')).toBeInTheDocument();
 
     // weights
-    expect(getByText(`${shipments[0].billableWeightCap} lbs`)).toBeInTheDocument();
-    expect(getByText(`${shipments[1].billableWeightCap} lbs`)).toBeInTheDocument();
-    expect(getByText(`${shipments[2].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${shipments[0].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${shipments[1].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${shipments[2].billableWeightCap} lbs`)).toBeInTheDocument();
   });
 });

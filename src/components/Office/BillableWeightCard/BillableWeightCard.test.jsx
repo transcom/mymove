@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import BillableWeightCard from './BillableWeightCard';
 
@@ -25,27 +25,27 @@ describe('BillableWeightCard', () => {
       shipments,
     };
 
-    const { getByText } = render(<BillableWeightCard {...defaultProps} />);
+    render(<BillableWeightCard {...defaultProps} />);
 
     // labels
-    expect(getByText('Maximum billable weight')).toBeInTheDocument();
-    expect(getByText('Weight requested')).toBeInTheDocument();
-    expect(getByText('Weight allowance')).toBeInTheDocument();
-    expect(getByText('Total billable weight')).toBeInTheDocument();
+    expect(screen.getByText('Maximum billable weight')).toBeInTheDocument();
+    expect(screen.getByText('Weight requested')).toBeInTheDocument();
+    expect(screen.getByText('Weight allowance')).toBeInTheDocument();
+    expect(screen.getByText('Total billable weight')).toBeInTheDocument();
 
     // weights
-    expect(getByText(`${defaultProps.maxBillableWeight} lbs`)).toBeInTheDocument();
-    expect(getByText(`${defaultProps.totalBillableWeight} lbs`)).toBeInTheDocument();
-    expect(getByText(`${defaultProps.weightRequested} lbs`)).toBeInTheDocument();
-    expect(getByText(`${defaultProps.weightAllowance} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${defaultProps.maxBillableWeight} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${defaultProps.totalBillableWeight} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${defaultProps.weightRequested} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${defaultProps.weightAllowance} lbs`)).toBeInTheDocument();
 
     // flags
-    expect(getByText('Over weight')).toBeInTheDocument();
-    expect(getByText('Missing weight')).toBeInTheDocument();
+    expect(screen.getByText('Over weight')).toBeInTheDocument();
+    expect(screen.getByText('Missing weight')).toBeInTheDocument();
 
     // shipment weights
-    expect(getByText(`${shipments[0].billableWeightCap} lbs`)).toBeInTheDocument();
-    expect(getByText(`${shipments[1].billableWeightCap} lbs`)).toBeInTheDocument();
-    expect(getByText(`${shipments[2].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${shipments[0].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${shipments[1].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(`${shipments[2].billableWeightCap} lbs`)).toBeInTheDocument();
   });
 });
