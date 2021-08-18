@@ -46,7 +46,7 @@ export const ShipmentListItem = ({
       {!showShipmentWeight && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
-      {showShipmentWeight && <div className={styles.shipmentWeight}>{shipment.primeActualWeight} lbs</div>}
+      {showShipmentWeight && <div className={styles.shipmentWeight}>{shipment.billableWeightCap} lbs</div>}
       {isOverweight && (
         <div>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
@@ -82,7 +82,7 @@ ShipmentListItem.defaultProps = {
   isMissingWeight: false,
 };
 
-const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
+const ShipmentList = ({ shipments, entitlements, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
@@ -105,8 +105,18 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
         let canEdit = moveSubmitted ? shipmentType === 'PPM' : true;
+        let entitlement;
+        let isOverweight;
+        let isMissingWeight;
         if (showShipmentWeight) {
           canEdit = false;
+          entitlement = entitlements.find((entitlment) => entitlment.shipmentId === shipment.id);
+          if (entitlement.authorizedWeight < shipment.billableWeightCap) {
+            isOverweight = true;
+          }
+          if (shipment.reweigh?.id && !shipment.reweigh?.weight) {
+            isMissingWeight = true;
+          }
         }
         return (
           <ShipmentListItem
@@ -115,6 +125,8 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
             showNumber={shipmentCountByType[shipmentType] > 1}
             showShipmentWeight={showShipmentWeight}
             canEdit={canEdit}
+            isOverweight={isOverweight}
+            isMissingWeight={isMissingWeight}
             onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
             shipment={shipment}
           />
@@ -125,7 +137,14 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
 };
 
 ShipmentList.propTypes = {
-  shipments: arrayOf(shape({ id: string.isRequired, shipmentType: string.isRequired })).isRequired,
+  shipments: arrayOf(
+    shape({
+      id: string.isRequired,
+      shipmentType: string.isRequired,
+      reweigh: shape({ id: string.isRequired, weight: string }),
+    }),
+  ).isRequired,
+  entitlements: arrayOf(shape({ id: string.isRequired, authorizedWeight: string.isRequired })),
   onShipmentClick: func.isRequired,
   moveSubmitted: bool.isRequired,
   showShipmentWeight: bool,
@@ -133,6 +152,7 @@ ShipmentList.propTypes = {
 
 ShipmentList.defaultProps = {
   showShipmentWeight: false,
+  entitlements: [],
 };
 
 export default ShipmentList;
