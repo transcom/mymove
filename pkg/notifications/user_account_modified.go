@@ -9,6 +9,8 @@ import (
 	text "text/template"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/logging"
 
@@ -44,7 +46,7 @@ func NewUserAccountCreated(
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
-) *UserAccountModified {
+) (*UserAccountModified, error) {
 	return newUserAccountModified(ctx, sysAdminEmail, "created", modifiedUserID, modifiedAt)
 }
 
@@ -54,7 +56,7 @@ func NewUserAccountActivated(
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
-) *UserAccountModified {
+) (*UserAccountModified, error) {
 	return newUserAccountModified(ctx, sysAdminEmail, "activated", modifiedUserID, modifiedAt)
 }
 
@@ -64,7 +66,7 @@ func NewUserAccountDeactivated(
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
-) *UserAccountModified {
+) (*UserAccountModified, error) {
 	return newUserAccountModified(ctx, sysAdminEmail, "deactivated", modifiedUserID, modifiedAt)
 }
 
@@ -74,7 +76,7 @@ func NewUserAccountRemoved(
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
-) *UserAccountModified {
+) (*UserAccountModified, error) {
 	return newUserAccountModified(ctx, sysAdminEmail, "removed", modifiedUserID, modifiedAt)
 }
 
@@ -85,13 +87,16 @@ func newUserAccountModified(
 	action string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
-) *UserAccountModified {
+) (*UserAccountModified, error) {
 	logger, ok := logging.FromContext(ctx).(Logger)
 	if !ok {
-		return nil //todo return error
+		return nil, services.NewContextError("Unable to find Logger in Context")
 	}
 
 	session := auth.SessionFromContext(ctx)
+	if session == nil {
+		return nil, services.NewContextError("Unable to find Session in Context")
+	}
 	responsibleUserID := session.UserID
 	host := session.Hostname
 
@@ -105,7 +110,7 @@ func newUserAccountModified(
 		modifiedAt:        modifiedAt,
 		htmlTemplate:      userAccountModifiedHTMLTemplate,
 		textTemplate:      userAccountModifiedTextTemplate,
-	}
+	}, nil
 }
 
 // userAccountModifiedEmailData has content for email template
