@@ -29,7 +29,6 @@ export const ShipmentListWithWeights = () => (
       shipments={[{ id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG, billableWeightCap: '4,600' }]}
       entitlements={[{ id: '1234', shipmentId: '0001', authorizedWeight: '4,600' }]}
       showShipmentWeight
-      onShipmentClick={() => {}}
     />
     <br />
     <h3>Multiple shipments</h3>
@@ -45,7 +44,6 @@ export const ShipmentListWithWeights = () => (
         { id: '12347', shipmentId: '0003', authorizedWeight: '4,600' },
       ]}
       showShipmentWeight
-      onShipmentClick={() => {}}
     />
   </div>
 );

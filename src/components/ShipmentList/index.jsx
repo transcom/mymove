@@ -66,7 +66,7 @@ export const ShipmentListItem = ({
 
 ShipmentListItem.propTypes = {
   shipment: shape({ id: string.isRequired, shipmentType: string.isRequired }).isRequired,
-  onShipmentClick: func.isRequired,
+  onShipmentClick: func,
   shipmentNumber: number.isRequired,
   canEdit: bool.isRequired,
   showNumber: bool,
@@ -80,6 +80,7 @@ ShipmentListItem.defaultProps = {
   showShipmentWeight: false,
   isOverweight: false,
   isMissingWeight: false,
+  onShipmentClick: null,
 };
 
 const ShipmentList = ({ shipments, entitlements, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
@@ -145,7 +146,7 @@ ShipmentList.propTypes = {
     }),
   ).isRequired,
   entitlements: arrayOf(shape({ id: string.isRequired, authorizedWeight: string.isRequired })),
-  onShipmentClick: func.isRequired,
+  onShipmentClick: func,
   moveSubmitted: bool.isRequired,
   showShipmentWeight: bool,
 };
@@ -153,6 +154,7 @@ ShipmentList.propTypes = {
 ShipmentList.defaultProps = {
   showShipmentWeight: false,
   entitlements: [],
+  onShipmentClick: null,
 };
 
 export default ShipmentList;
