@@ -7,6 +7,23 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ContextError is returned when there was an issue with the context passed into a function
+// (Often an environment error)
+type ContextError struct {
+	message string
+}
+
+func (e ContextError) Error() string {
+	return fmt.Sprintf("ContextError: %s", e.message)
+}
+
+// NewContextError creates an error for a problem with the context
+func NewContextError(message string) ContextError {
+	return ContextError{
+		message: message,
+	}
+}
+
 // PreconditionFailedError is the precondition failed error
 type PreconditionFailedError struct {
 	id uuid.UUID
