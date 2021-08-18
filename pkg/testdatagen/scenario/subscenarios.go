@@ -194,6 +194,16 @@ func subScenarioDivertedShipments(db *pop.Connection, userUploader *uploader.Use
 	}
 }
 
+func subScenarioReweighs(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createHHGMoveWithReweigh(db, userUploader)
+		createHHGMoveWithBillableWeights(db, userUploader, primeUploader)
+		createReweighWithMultipleShipments(db, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentMissingReweigh(db, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentMaxBillableWeightExceeded(db, userUploader, primeUploader, moveRouter)
+	}
+}
+
 func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter) func() {
 	return func() {
@@ -207,7 +217,7 @@ func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, pr
 		createHHGMoveWith2PaymentRequests(db, userUploader)
 		createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
 		createHHGMoveWithTaskOrderServices(db, userUploader)
-		createHHGMoveWithReweigh(db, userUploader)
+
 		// This one doesn't have submitted shipments. Can we get rid of it?
 		// createRecentlyUpdatedHHGMove(db, userUploader)
 		createMoveWithHHGAndNTSRPaymentRequest(db, userUploader)
