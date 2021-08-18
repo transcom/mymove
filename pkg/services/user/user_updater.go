@@ -1,6 +1,8 @@
 package user
 
 import (
+	"context"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -36,7 +38,7 @@ func NewUserUpdater(
 }
 
 // UpdateUser updates any user
-func (o *userUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
+func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
 	var logger Logger

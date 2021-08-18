@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -18,7 +20,7 @@ type UserFetcher interface {
 // UserUpdater is the service object interface for UpdateUser
 //go:generate mockery --name UserUpdater --disable-version-string
 type UserUpdater interface {
-	UpdateUser(id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error)
 }
 
 // UserSessionRevocation is the exported interface for revoking a user session

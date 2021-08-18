@@ -135,7 +135,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 		return userop.NewUpdateUserUnprocessableEntity()
 	}
 
-	_, verrs, err := h.UpdateUser(userID, user)
+	_, verrs, err := h.UpdateUser(params.HTTPRequest.Context(), userID, user)
 	if verrs != nil || err != nil {
 		logger.Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
 	}
