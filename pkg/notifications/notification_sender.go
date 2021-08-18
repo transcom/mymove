@@ -16,7 +16,8 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-type notification interface {
+// Notification is an interface for creating emails
+type Notification interface {
 	emails() ([]emailContent, error)
 }
 
@@ -30,8 +31,9 @@ type emailContent struct {
 }
 
 // NotificationSender is an interface for sending notifications
+//go:generate mockery --name NotificationSender --disable-version-string
 type NotificationSender interface {
-	SendNotification(notification notification) error
+	SendNotification(notification Notification) error
 }
 
 // NotificationSendingContext provides context to a notification sender
@@ -51,7 +53,7 @@ func NewNotificationSender(svc sesiface.SESAPI, domain string, logger Logger) No
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationSendingContext) SendNotification(notification notification) error {
+func (n NotificationSendingContext) SendNotification(notification Notification) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err
