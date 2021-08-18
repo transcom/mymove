@@ -6,7 +6,6 @@ import * as Cookies from 'js-cookie';
 import * as schema from 'shared/Entities/schema';
 import { interceptInjection } from 'store/interceptor/injectionMiddleware';
 import { interceptResponse } from 'store/interceptor/actions';
-
 import { MILMOVE_LOG_LEVEL } from 'shared/constants';
 import { milmoveLog } from 'shared/milmoveLog';
 
@@ -99,7 +98,10 @@ function successfulReturnType(routeDefinition, status) {
     // RA Modified Severity: CAT III
     // eslint-disable-next-line no-console
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
-    milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `No response found for operation ${routeDefinition.operationId} with status ${status}`);
+    milmoveLog(
+      MILMOVE_LOG_LEVEL.ERROR,
+      `No response found for operation ${routeDefinition.operationId} with status ${status}`,
+    );
     return null;
   }
 
