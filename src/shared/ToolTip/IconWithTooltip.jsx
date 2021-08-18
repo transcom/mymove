@@ -9,7 +9,7 @@ class IconWithTooltip extends Component {
   };
 
   toggleTooltip = () => {
-    this.setState({ showTooltip: !this.state.showTooltip });
+    this.setState((prevState) => ({ showTooltip: !prevState.showTooltip }));
   };
 
   render() {
