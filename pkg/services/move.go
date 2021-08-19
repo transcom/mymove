@@ -40,6 +40,7 @@ type MoveRouter interface {
 }
 
 // MoveWeights is the exported interface for flagging a move with an excess weight risk
+//go:generate mockery --name MoveWeights --disable-version-string
 type MoveWeights interface {
 	CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
 }

@@ -32,6 +32,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -1040,5 +1041,106 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 		suite.Error(err)
 		suite.IsType(err, services.NotFoundError{})
 		suite.Contains(err.Error(), badUUID.String())
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExcessWeight() {
+	builder := query.NewQueryBuilder(suite.DB())
+	fetcher := fetch.NewFetcher(builder)
+	planner := &mocks.Planner{}
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.logger)
+	moveWeights := moveservices.NewMoveWeights()
+	updater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+
+	suite.T().Run("Updating the shipment estimated weight will flag excess weight on the move and transitions move status", func(t *testing.T) {
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+				Status:             models.MoveStatusAPPROVED,
+			},
+		})
+		estimatedWeight := unit.Pound(7200)
+		// there is a validator check about updating the status
+		primeShipment.Status = ""
+		primeShipment.PrimeEstimatedWeight = &estimatedWeight
+
+		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+		suite.Equal(models.MoveStatusAPPROVED, primeShipment.MoveTaskOrder.Status)
+
+		_, err := updater.UpdateMTOShipmentPrime(context.Background(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		suite.NoError(err)
+
+		err = suite.DB().Reload(&primeShipment.MoveTaskOrder)
+		suite.NoError(err)
+
+		suite.NotNil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, primeShipment.MoveTaskOrder.Status)
+	})
+
+	suite.T().Run("Skips calling check excess weight if estimated weight was not provided in request", func(t *testing.T) {
+		moveWeights := &mockservices.MoveWeights{}
+		mockedUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        &now,
+				ScheduledPickupDate: &pickupDate,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+		// there is a validator check about updating the status
+		primeShipment.Status = ""
+		actualWeight := unit.Pound(7200)
+		primeShipment.PrimeActualWeight = &actualWeight
+
+		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(context.Background(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		suite.NoError(err)
+
+		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
+	})
+
+	suite.T().Run("Skips calling check excess weight if the updated estimated weight matches the db value", func(t *testing.T) {
+		moveWeights := &mockservices.MoveWeights{}
+		mockedUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
+
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		estimatedWeight := unit.Pound(7200)
+		primeShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApproved,
+				ApprovedDate:         &now,
+				ScheduledPickupDate:  &pickupDate,
+				PrimeEstimatedWeight: &estimatedWeight,
+			},
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+		// there is a validator check about updating the status
+		primeShipment.Status = ""
+		primeShipment.PrimeEstimatedWeight = &estimatedWeight
+
+		suite.Nil(primeShipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+
+		_, err := mockedUpdater.UpdateMTOShipmentPrime(context.Background(), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt))
+		suite.NoError(err)
+
+		moveWeights.AssertNotCalled(t, "CheckExcessWeight")
 	})
 }

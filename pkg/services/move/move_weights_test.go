@@ -211,4 +211,28 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		suite.NoError(err)
 		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
 	})
+
+	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove.Orders.Grade = nil
+
+		err := suite.DB().Save(&approvedMove.Orders)
+		suite.NoError(err)
+
+		_, verrs, err := moveWeights.CheckExcessWeight(suite.DB(), approvedMove.ID, models.MTOShipment{})
+		suite.Nil(verrs)
+		suite.EqualError(err, "could not determine excess weight entitlement without grade")
+	})
+
+	suite.Run("returns error if dependents authorized is unset to lookup weight allowance", func() {
+		approvedMove := testdatagen.MakeAvailableMove(suite.DB())
+		approvedMove.Orders.Entitlement.DependentsAuthorized = nil
+
+		err := suite.DB().Save(approvedMove.Orders.Entitlement)
+		suite.NoError(err)
+
+		_, verrs, err := moveWeights.CheckExcessWeight(suite.DB(), approvedMove.ID, models.MTOShipment{})
+		suite.Nil(verrs)
+		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
+	})
 }
