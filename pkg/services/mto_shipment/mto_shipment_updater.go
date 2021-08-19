@@ -392,6 +392,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 			}
 		}
 
+		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
+		// excess weight risk depending on the weight allowance and other shipment estimated weights
 		if newShipment.PrimeEstimatedWeight != nil {
 			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
 				move, verrs, err := f.moveWeights.CheckExcessWeight(tx, dbShipment.MoveTaskOrderID, *newShipment)
@@ -401,11 +403,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				if err != nil {
 					return err
 				}
+
 				existingMoveStatus := move.Status
 				err = f.moveRouter.SendToOfficeUser(move)
 				if err != nil {
 					return err
 				}
+
 				if existingMoveStatus != move.Status {
 					err = tx.Update(move)
 					if err != nil {

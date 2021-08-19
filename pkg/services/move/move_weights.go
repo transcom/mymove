@@ -24,6 +24,19 @@ func NewMoveWeights() services.MoveWeights {
 	return &moveWeights{}
 }
 
+func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, error) {
+	var existingMove models.Move
+	err := db.Find(&existingMove, move.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if move.UpdatedAt != existingMove.UpdatedAt {
+		return nil, services.NewPreconditionFailedError(move.ID, errors.New("attempted to update move with stale data"))
+	}
+	return db.ValidateAndSave(move)
+}
+
 func (w moveWeights) CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
 	var move models.Move
 	err := db.EagerPreload("MTOShipments", "Orders.Entitlement").Find(&move, moveID)
@@ -44,9 +57,12 @@ func (w moveWeights) CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, upd
 		return nil, nil, err
 	}
 
-	// the shipment being updated/created has not yet been saved in the database so use the weight in the incoming
-	// payload that will be saved after
-	estimatedWeightTotal := updatedShipment.PrimeEstimatedWeight.Int()
+	// the shipment being updated/created potentially has not yet been saved in the database so use the weight in the
+	// incoming payload that will be saved after
+	estimatedWeightTotal := 0
+	if updatedShipment.Status == models.MTOShipmentStatusApproved {
+		estimatedWeightTotal = updatedShipment.PrimeEstimatedWeight.Int()
+	}
 	for _, shipment := range move.MTOShipments {
 		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 		// and cancellations factoring into the estimated weight total.
@@ -63,16 +79,15 @@ func (w moveWeights) CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, upd
 		excessWeightQualifiedAt := time.Now()
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 
-		var existingMove models.Move
-		err = db.Find(&existingMove, moveID)
-		if err != nil {
-			return nil, nil, err
+		verrs, err := validateAndSave(db, &move)
+		if (verrs != nil && verrs.HasAny()) || err != nil {
+			return nil, verrs, err
 		}
+	} else if move.ExcessWeightQualifiedAt != nil {
+		// the move had previously qualified for excess weight but does not any longer so reset the value
+		move.ExcessWeightQualifiedAt = nil
 
-		if move.UpdatedAt != existingMove.UpdatedAt {
-			return nil, nil, services.NewPreconditionFailedError(moveID, errors.New("attempted to update move with stale data"))
-		}
-		verrs, err := db.ValidateAndSave(&move)
+		verrs, err := validateAndSave(db, &move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
 			return nil, verrs, err
 		}
