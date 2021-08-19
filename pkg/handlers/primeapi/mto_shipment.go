@@ -246,9 +246,6 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
 	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
 	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
-	fmt.Println("validatePrimeEstimatedWeightRecordedDate")
-	fmt.Println(approvedDaysFromScheduled)
-	fmt.Println(daysFromScheduled)
 	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
 		return nil
 	}
