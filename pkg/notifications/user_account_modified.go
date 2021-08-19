@@ -130,11 +130,16 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 		Host:   m.host,
 	}
 
+	responsibleUserID := m.responsibleUserID
+	if responsibleUserID == uuid.Nil {
+		responsibleUserID = m.modifiedUserID
+	}
+
 	htmlBody, textBody, err := m.renderTemplates(userAccountModifiedEmailData{
 		Action:            m.action,
 		ActionSource:      actionSource.String(),
 		ModifiedUserID:    m.modifiedUserID.String(),
-		ResponsibleUserID: m.responsibleUserID.String(),
+		ResponsibleUserID: responsibleUserID.String(),
 		Timestamp:         m.modifiedAt.String(),
 	})
 
@@ -150,7 +155,7 @@ func (m UserAccountModified) emails() ([]emailContent, error) {
 	}
 
 	m.logger.Info("generated user activity alert email to system admin",
-		zap.String("responsibleUserID", m.responsibleUserID.String()),
+		zap.String("responsibleUserID", responsibleUserID.String()),
 		zap.String("modifiedUserID", m.modifiedUserID.String()),
 	)
 
