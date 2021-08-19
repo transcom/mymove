@@ -37,6 +37,10 @@ type Move struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
+	// Format: date-time
+	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excess_weight_qualified_at,omitempty"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
@@ -91,6 +95,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightQualifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -175,6 +183,18 @@ func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessWeightQualifiedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excess_weight_qualified_at", "body", "date-time", m.ExcessWeightQualifiedAt.String(), formats); err != nil {
 		return err
 	}
 
