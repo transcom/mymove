@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
 import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
+import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -29,7 +30,9 @@ const MovePaymentRequests = ({
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
-  let sections = ['payment-requests'];
+  let sections = useMemo(() => {
+    return ['payment-requests'];
+  }, []);
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -57,31 +60,15 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
-
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#${section}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
-    }
-  };
-
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
     };
-  });
+  }, [sections, activeSection]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

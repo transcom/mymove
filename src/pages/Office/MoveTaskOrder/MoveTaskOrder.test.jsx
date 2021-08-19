@@ -919,6 +919,12 @@ describe('MoveTaskOrder', () => {
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
       expect(weightSummaries[0]).toHaveTextContent('8,500 lbs');
+
+      const riskOfExcessAlert = await screen.queryByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeFalsy();
+
+      const riskOfExcessTag = await screen.queryByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeFalsy();
     });
 
     it('displays the max billable weight', async () => {
@@ -1099,6 +1105,26 @@ describe('MoveTaskOrder', () => {
       expect(riskOfExcessTag).toBeInTheDocument();
     });
 
+    it('displays risk of excess alert', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      expect(setExcessWeightRiskCount).toHaveBeenCalledWith(1);
+
+      const riskOfExcessAlert = await screen.getByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeInTheDocument();
+    });
+
     it('displays the estimated total weight', async () => {
       useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
 
@@ -1135,6 +1161,7 @@ describe('MoveTaskOrder', () => {
       expect(moveWeightTotal).toBeInTheDocument();
     });
   });
+
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveTaskOrderQueries.mockReturnValue(loadingReturnValue);
@@ -1232,7 +1259,7 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.length).toBe(1);
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1299,20 +1326,20 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
 
       expect(navLinks.at(1).contains('NTS shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
-      expect(navLinks.at(1).prop('href')).toBe('#shipment-4');
+      expect(navLinks.at(1).prop('href')).toBe('#s-4');
 
       expect(navLinks.at(2).contains('NTS-R shipment')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#shipment-5');
+      expect(navLinks.at(2).prop('href')).toBe('#s-5');
 
       expect(navLinks.at(3).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#shipment-6');
+      expect(navLinks.at(3).prop('href')).toBe('#s-6');
 
       expect(navLinks.at(4).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#shipment-7');
+      expect(navLinks.at(4).prop('href')).toBe('#s-7');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1378,7 +1405,7 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {

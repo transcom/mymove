@@ -13,6 +13,7 @@ import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillab
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -212,6 +213,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       });
       queryCache.invalidateQueries([ORDERS, variables.orderID]);
       setIsWeightModalVisible(false);
+
       setMessage(
         `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
         'success',
@@ -326,7 +328,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   useEffect(() => {
     let estimatedWeightCalc = null;
-    let excessWeightCount = null;
+    let excessBillableWeightCount = null;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
@@ -338,38 +340,23 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     setEstimatedWeightTotal(estimatedWeightCalc);
 
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
-      excessWeightCount = 1;
-      setExcessWeightRiskCount(excessWeightCount);
-      setIsWeightAlertVisible(excessWeightCount);
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.authorizedWeight)) {
+      excessBillableWeightCount = 1;
+      setExcessWeightRiskCount(excessBillableWeightCount);
     }
+
+    setIsWeightAlertVisible(excessBillableWeightCount);
   }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
-
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
-
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#shipment-${section.id}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section.id;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
-    }
-  };
 
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
     };
-  });
+  }, [sections, activeSection]);
 
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
@@ -445,7 +432,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           {sections.map((s) => {
             const classes = classnames({ active: s.id === activeSection });
             return (
-              <a key={`sidenav_${s.id}`} href={`#shipment-${s.id}`} className={classes}>
+              <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
                 {s.label}{' '}
                 {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
                   <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
@@ -535,7 +522,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
             return (
               <ShipmentContainer
-                id={`shipment-${mtoShipment.id}`}
+                id={`s-${mtoShipment.id}`}
                 key={mtoShipment.id}
                 shipmentType={mtoShipment.shipmentType}
                 className={styles.shipmentCard}

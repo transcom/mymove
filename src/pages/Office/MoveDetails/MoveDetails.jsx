@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,6 +10,7 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import handleScroll from 'utils/handleScroll';
 import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
@@ -41,33 +42,19 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
-  let sections = ['orders', 'allowances', 'customer-info'];
-
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
-
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#${section}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
-    }
-  };
+  let sections = useMemo(() => {
+    return ['orders', 'allowances', 'customer-info'];
+  }, []);
 
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
     };
-  });
+  }, [sections, activeSection]);
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
@@ -131,7 +118,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
     setEstimatedWeightTotal(estimatedWeightCalc);
 
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.authorizedWeight)) {
       excessWeightCount = 1;
 
       setExcessWeightRiskCount(excessWeightCount);
