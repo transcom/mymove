@@ -127,10 +127,10 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "chamber-2.9.0";
+      name = "chamber-2.10.2";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "08c66abd89d9be404c4decd360746095a4bad0a5";
     }) {}).chamber
 
     (import (builtins.fetchGit {
