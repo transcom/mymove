@@ -18,7 +18,12 @@ function check_shell () {
   fi
 }
 
-check_shell /usr/local/bin/bash
+# if nix is in use
+if [ ! -r .nix-disable ] && [ -f ~/.nix-profile/bin/nix-env ]; then
+  check_shell "${NIX_PROFILE}/bin/bash"
+else
+  check_shell /usr/local/bin/bash
+fi
 
 # Knocks off everything after the last decimal
 SHORT_VERSION=${BASH_VERSION%.*}
