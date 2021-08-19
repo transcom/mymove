@@ -6,8 +6,7 @@ import * as Cookies from 'js-cookie';
 import * as schema from 'shared/Entities/schema';
 import { interceptInjection } from 'store/interceptor/injectionMiddleware';
 import { interceptResponse } from 'store/interceptor/actions';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // setting up the same config from Swagger/api.js
 export const requestInterceptor = (req) => {
@@ -16,18 +15,6 @@ export const requestInterceptor = (req) => {
     if (token) {
       req.headers['X-CSRF-Token'] = token;
     } else {
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console serves to indicate the status of the swaggerRequest to a user for debugging purposes.
-      // RA: Given that this is a simple string with no interpolation
-      // RA: nor variable names, SQL strings, system path information, or source or program code,
-      // RA: this is not a finding.
-      // RA Developer Status: Mitigated
-      // RA Validator Status: Mitigated
-      // RA Validator: jneuner@mitre.org
-      // RA Modified Severity: CAT III
-      // eslint-disable-next-line no-console
-      console.warn('Unable to retrieve CSRF Token from cookie');
       milmoveLog(MILMOVE_LOG_LEVEL.WARN, 'Unable to retrieve CSRF Token from cookie');
     }
   }
@@ -86,18 +73,6 @@ function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {
-    // RA Summary: eslint: no-console - System Information Leak: External
-    // RA: The linter flags any use of console.
-    // RA: This console serves to indicate the status of the swaggerRequest to a user for debugging purposes.
-    // RA: This console contains an operationId identifying the path in the normalizr schema and the status.
-    // RA: Given that this console error does not contain variable names, SQL strings, system path information, or source or program code,
-    // RA: this is not a finding.
-    // RA Developer Status: Mitigated
-    // RA Validator Status: Mitigated
-    // RA Validator: jneuner@mitre.org
-    // RA Modified Severity: CAT III
-    // eslint-disable-next-line no-console
-    console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     milmoveLog(
       MILMOVE_LOG_LEVEL.ERROR,
       `No response found for operation ${routeDefinition.operationId} with status ${status}`,
@@ -128,18 +103,6 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
   try {
     request = operation(params);
   } catch (e) {
-    // RA Summary: eslint: no-console - System Information Leak: External
-    // RA: The linter flags any use of console.
-    // RA: This console serves to indicate the status of the swaggerRequest to a user for debugging purposes.
-    // RA: This console contains an operationId identifying the path in the normalizr schema and the status.
-    // RA: Given that this console error does not contain variable names, SQL strings, system path information, or source or program code,
-    // RA: this is not a finding.
-    // RA Developer Status: Mitigated
-    // RA Validator Status: Mitigated
-    // RA Validator: jneuner@mitre.org
-    // RA Modified Severity: CAT III
-    // eslint-disable-next-line no-console
-    console.error(`Operation ${operationPath} failed: ${e}`);
     milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${e}`);
     // TODO - log error?
     return Promise.reject(e);
@@ -163,19 +126,6 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
 
         if (schemaKey.indexOf('Payload') !== -1) {
           const newSchemaKey = schemaKey.replace('Payload', '');
-          // RA Summary: eslint: no-console - System Information Leak: External
-          // RA: The linter flags any use of console.
-          // RA: This console serves as a warning to developers about outdated schema naming.
-          // RA: Given that this console.warn does not contain variable names, SQL strings, system path information, or source or program code,
-          // RA: this is not a finding.
-          // RA Developer Status: Mitigated
-          // RA Validator Status: Mitigated
-          // RA Validator: jneuner@mitre.org
-          // RA Modified Severity: CAT III
-          // eslint-disable-next-line no-console
-          console.warn(
-            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
-          );
           milmoveLog(
             MILMOVE_LOG_LEVEL.WARN,
             `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
@@ -190,18 +140,6 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       return response.body;
     })
     .catch((response) => {
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console serves to indicate the status of the swaggerRequest to a user for debugging purposes.
-      // RA: This console contains an operationId identifying the path in the normalizr schema and the status.
-      // RA: Given that this console error does not contain variable names, SQL strings, system path information, or source or program code,
-      // RA: this is not a finding.
-      // RA Developer Status: Mitigated
-      // RA Validator Status: Mitigated
-      // RA Validator: jneuner@mitre.org
-      // RA Modified Severity: CAT III
-      // eslint-disable-next-line no-console
-      console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
       milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
       // TODO - log error?
       return Promise.reject(response);

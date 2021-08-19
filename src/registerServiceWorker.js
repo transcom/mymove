@@ -1,5 +1,4 @@
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // In production, we register a service worker to serve assets from local cache.
 
@@ -41,39 +40,8 @@ function registerValidSW(swUrl) {
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
-              // RA Summary: eslint: no-console - System Information Leak: External
-              // RA: The linter flags any console.
-              // RA: This console in this file serves to indicate the status of the serviceWorker to a user.
-              // RA: Given that the value displayed is a simple string with no interpolation
-              // RA: nor variable names, SQL strings, system path information, or source or program code,
-              // RA: this is not a finding.
-              // RA Developer Status: Mitigated
-              // RA Validator Status: Mitigated
-              // RA Validator: jneuner@mitre.org
-              // RA Modified Severity: CAT III
-              // At this point, the old content will have been purged and
-              // the fresh content will have been added to the cache.
-              // It's the perfect time to display a "New content is
-              // available; please refresh." message in your web app.
-              // eslint-disable-next-line no-console
-              console.log('New content is available; please refresh.');
               milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'New content is available; please refresh.');
             } else {
-              // RA Summary: eslint: no-console - System Information Leak: External
-              // RA: The linter flags any console.
-              // RA: This console in this file serves to indicate the status of the serviceWorker to a user.
-              // RA: Given that the value displayed is a simple string with no interpolation
-              // RA: nor variable names, SQL strings, system path information, or source or program code,
-              // RA: this is not a finding.
-              // RA Developer Status: Mitigated
-              // RA Validator Status: Mitigated
-              // RA Validator: jneuner@mitre.org
-              // RA Modified Severity: CAT III
-              // At this point, everything has been precached.
-              // It's the perfect time to display a
-              // "Content is cached for offline use." message.
-              // eslint-disable-next-line no-console
-              console.log('Content is cached for offline use.');
               milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'Content is cached for offline use.');
             }
           }
@@ -81,15 +49,6 @@ function registerValidSW(swUrl) {
       };
     })
     .catch((error) => {
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message when registering a valid service worker fails.
-      // RA: TODO: The possible values of this error need to be investigated further to determine mitigation actions.
-      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5595
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // RA Modified Severity: CAT II
-      // eslint-disable-next-line no-console
       milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'Error during service worker registration:', error);
     });
 }
@@ -112,18 +71,6 @@ function checkValidServiceWorker(swUrl) {
       }
     })
     .catch(() => {
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any console.
-      // RA: This console in this file serves to indicate the status of internet connection to a user.
-      // RA: Given that the value displayed is a simple string with no interpolation
-      // RA: nor variable names, SQL strings, system path information, or source or program code,
-      // RA: this is not a finding.
-      // RA Developer Status: Mitigated
-      // RA Validator Status: Mitigated
-      // RA Validator: jneuner@mitre.org
-      // RA Modified Severity: CAT III
-      // eslint-disable-next-line no-console
-      console.log('No internet connection found. App is running in offline mode.');
       milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'No internet connection found. App is running in offline mode.');
     });
 }

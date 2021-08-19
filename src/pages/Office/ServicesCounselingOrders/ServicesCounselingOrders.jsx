@@ -9,9 +9,8 @@ import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
-import { milmoveLog } from '../../../shared/milmoveLog';
-import { MILMOVE_LOG_LEVEL } from '../../../shared/constants';
 
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';

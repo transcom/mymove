@@ -1,8 +1,7 @@
 import Swagger from 'swagger-client';
 import * as Cookies from 'js-cookie';
 import { getInternalClient } from 'services/internalApi';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 let publicClient = null;
 let ghcClient = null;

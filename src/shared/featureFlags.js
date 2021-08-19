@@ -1,7 +1,6 @@
 import queryString from 'query-string';
 import { forEach } from 'lodash';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // Simple feature toggling for client-side code.
 //

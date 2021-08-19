@@ -1,5 +1,4 @@
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const timer =
   typeof performance !== 'undefined' && performance !== null && typeof performance.now === 'function'

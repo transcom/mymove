@@ -4,6 +4,7 @@
   "rules": {
     "consistent-return": "error",
     "prettier/prettier": "error",
+    "no-console": "warn",
     "no-only-tests/no-only-tests": "error",
     "no-case-declarations": "error",
     "no-debugger": "warn",

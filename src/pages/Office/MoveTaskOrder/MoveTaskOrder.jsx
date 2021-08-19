@@ -11,6 +11,7 @@ import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillab
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
@@ -34,8 +35,7 @@ import {
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';

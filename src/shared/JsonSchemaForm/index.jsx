@@ -5,8 +5,7 @@ import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 import { isEmpty, uniq } from 'lodash';
 import { reduxForm, Field } from 'redux-form';
 import 'shared/JsonSchemaForm/index.css';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:

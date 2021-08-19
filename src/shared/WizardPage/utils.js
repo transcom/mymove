@@ -1,5 +1,4 @@
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export function getNextPagePath(pageList, currentPage) {
   const index = pageList.indexOf(currentPage);

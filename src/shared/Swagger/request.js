@@ -1,7 +1,6 @@
 import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // Given a schema path (e.g. shipments.getShipment), return the
 // route's definition from the Swagger spec

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Alert from 'shared/Alert'; // eslint-disable-line
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export default class ConfirmWithReasonButton extends Component {
   state = { displayState: 'BUTTON', cancelReason: '' };

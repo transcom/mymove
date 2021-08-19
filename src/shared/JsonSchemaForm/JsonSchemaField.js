@@ -5,8 +5,7 @@ import validator from './validator';
 import { Field } from 'redux-form';
 import SingleDatePicker from './SingleDatePicker';
 import { isNil } from 'lodash';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----

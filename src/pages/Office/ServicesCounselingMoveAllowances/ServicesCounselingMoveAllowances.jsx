@@ -11,11 +11,10 @@ import * as Yup from 'yup';
 import documentWrapperStyles from '../ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper.module.scss';
 import AllowancesDetailForm from '../../../components/Office/AllowancesDetailForm/AllowancesDetailForm';
 
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_RANK_OPTIONS } from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { counselingUpdateAllowance } from 'services/ghcApi';
 import { dropdownInputOptions } from 'shared/formatters';

@@ -1,5 +1,4 @@
-import { MILMOVE_LOG_LEVEL } from 'shared/constants';
-import { milmoveLog } from 'shared/milmoveLog';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import restProvider from './shared/rest_provider';
 import { Admin, AppBar, fetchUtils, Layout, Resource } from 'react-admin';
 import { createBrowserHistory } from 'history';
