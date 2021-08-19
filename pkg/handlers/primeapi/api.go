@@ -35,6 +35,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder(ctx.DB())
 	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
+	moveWeights := move.NewMoveWeights()
 
 	primeAPI.ServeError = handlers.ServeCustomError
 
@@ -66,7 +67,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter),
+		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
 	}
 
 	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
@@ -118,7 +119,7 @@ func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter),
+		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter, moveWeights),
 		mtoshipment.NewMTOShipmentStatusUpdater(ctx.DB(), queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter), ctx.Planner()),
 	}

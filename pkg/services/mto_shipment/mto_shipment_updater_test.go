@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/transcom/mymove/pkg/auth"
 
@@ -47,8 +47,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(500, nil)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
-	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.logger)
+	moveWeights := moveservices.NewMoveWeights()
+	mtoShipmentUpdater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
 
 	requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 	scheduledPickupDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -670,7 +671,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime0LbsUpper)
 
 	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.logger)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
 	planner.On("TransitDistance",
@@ -1006,8 +1007,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
-	updater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.logger)
+	moveWeights := moveservices.NewMoveWeights()
+	updater := NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
 
 	suite.T().Run("Shipment exists and is available to Prime - success", func(t *testing.T) {
 		isAvailable, err := updater.MTOShipmentsMTOAvailableToPrime(primeShipment.ID)

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -35,4 +37,9 @@ type MoveRouter interface {
 	SendToOfficeUser(move *models.Move) error
 	Submit(move *models.Move) error
 	SetLogger(logger Logger)
+}
+
+// MoveWeights is the exported interface for flagging a move with an excess weight risk
+type MoveWeights interface {
+	CheckExcessWeight(db *pop.Connection, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
 }

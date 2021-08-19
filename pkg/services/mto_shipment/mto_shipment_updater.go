@@ -35,18 +35,20 @@ type mtoShipmentUpdater struct {
 	db      *pop.Connection
 	builder UpdateMTOShipmentQueryBuilder
 	services.Fetcher
-	planner    route.Planner
-	moveRouter services.MoveRouter
+	planner     route.Planner
+	moveRouter  services.MoveRouter
+	moveWeights services.MoveWeights
 }
 
 // NewMTOShipmentUpdater creates a new struct with the service dependencies
-func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter) services.MTOShipmentUpdater {
+func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBuilder, fetcher services.Fetcher, planner route.Planner, moveRouter services.MoveRouter, moveWeights services.MoveWeights) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{
 		db,
 		builder,
 		fetch.NewFetcher(builder),
 		planner,
 		moveRouter,
+		moveWeights,
 	}
 }
 
@@ -390,6 +392,29 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 			}
 		}
 
+		if newShipment.PrimeEstimatedWeight != nil {
+			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
+				move, verrs, err := f.moveWeights.CheckExcessWeight(tx, dbShipment.MoveTaskOrderID, *newShipment)
+				if verrs != nil && verrs.HasAny() {
+					return errors.New(verrs.Error())
+				}
+				if err != nil {
+					return err
+				}
+				existingMoveStatus := move.Status
+				err = f.moveRouter.SendToOfficeUser(move)
+				if err != nil {
+					return err
+				}
+				if existingMoveStatus != move.Status {
+					err = tx.Update(move)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+
 		// A diverted shipment gets set to the SUBMITTED status automatically:
 		if !dbShipment.Diversion && newShipment.Diversion {
 			newShipment.Status = models.MTOShipmentStatusSubmitted
@@ -401,14 +426,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				return err
 			}
 
+			existingMoveStatus := move.Status
 			err = f.moveRouter.SendToOfficeUser(&move)
 			if err != nil {
 				return err
 			}
 
-			err = tx.Update(&move)
-			if err != nil {
-				return err
+			// only update if the move status has actually changed
+			if existingMoveStatus != move.Status {
+				err = tx.Update(&move)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
