@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ShipmentList.module.scss';
 
+import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
@@ -46,17 +47,11 @@ export const ShipmentListItem = ({
       {!showShipmentWeight && (
         <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>
       )}{' '}
-      {showShipmentWeight && <div className={styles.shipmentWeight}>{shipment.billableWeightCap} lbs</div>}
-      {isOverweight && (
+      {showShipmentWeight && <div className={styles.shipmentWeight}>{formatWeight(shipment.billableWeightCap)}</div>}
+      {(isOverweight || isMissingWeight) && (
         <div>
           <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
-          <span className={styles.warningText}> Over weight</span>
-        </div>
-      )}
-      {isMissingWeight && (
-        <div>
-          <FontAwesomeIcon icon="exclamation-triangle" className={styles.warning} />
-          <span className={styles.warningText}> Missing weight</span>
+          <span className={styles.warningText}>{isOverweight ? 'Over weight' : 'Missing weight'}</span>
         </div>
       )}
       {canEdit ? <FontAwesomeIcon icon="pen" className={styles.edit} /> : <div className={styles.noEdit} />}
