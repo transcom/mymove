@@ -3564,7 +3564,7 @@ func createHHGMoveWithBillableWeights(db *pop.Connection, userUploader *uploader
 	shipment := makeShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("6cd95b06-fef3-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
-	testdatagen.MakeReweighForTIO(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
 func createReweighWithMultipleShipments(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
@@ -3662,7 +3662,7 @@ func createReweighWithMultipleShipments(db *pop.Connection, userUploader *upload
 	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("78a475d6-ffb8-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
-	testdatagen.MakeReweighForTIO(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
 func createReweighWithShipmentMissingReweigh(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
@@ -3734,7 +3734,7 @@ func createReweighWithShipmentMissingReweigh(db *pop.Connection, userUploader *u
 	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("4a1b0048-ffe7-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
-	testdatagen.MakeReweighForTIO(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, 0)
+	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment)
 }
 
 func createReweighWithShipmentMaxBillableWeightExceeded(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
@@ -3806,7 +3806,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(db *pop.Connection, user
 	filterFile := &[]string{"150Kb.png"}
 	paymentRequestID := uuid.Must(uuid.FromString("096496b0-ffea-11eb-9a03-0242ac130003"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
-	testdatagen.MakeReweighForTIO(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
+	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
 }
 
 func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *uploader.UserUploader) {
