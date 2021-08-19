@@ -3568,9 +3568,6 @@ func createHHGMoveWithBillableWeights(db *pop.Connection, userUploader *uploader
 }
 
 func createReweighWithMultipleShipments(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	/*
-	 * A service member with orders and a submitted move with a ppm and hhg
-	 */
 	email := "multShipments@hhg.hhg"
 	uuidStr := "db5d94fe-ffb9-11eb-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3666,9 +3663,6 @@ func createReweighWithMultipleShipments(db *pop.Connection, userUploader *upload
 }
 
 func createReweighWithShipmentMissingReweigh(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	/*
-	 * A service member with orders and a submitted move with a ppm and hhg
-	 */
 	email := "missingShipmentReweighWeight@hhg.hhg"
 	uuidStr := "39b0a762-ffe7-11eb-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3738,9 +3732,6 @@ func createReweighWithShipmentMissingReweigh(db *pop.Connection, userUploader *u
 }
 
 func createReweighWithShipmentMaxBillableWeightExceeded(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	/*
-	 * A service member with orders and a submitted move with a ppm and hhg
-	 */
 	email := "shipmentMaxBillableWeightExceeded@hhg.hhg"
 	uuidStr := "f938fc7c-ffe9-11eb-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
