@@ -49,7 +49,7 @@ func (o *officeUserCreator) CreateOfficeUser(
 
 	var verrs *validate.Errors
 	var err error
-	var sendUserActivityEmail bool
+	var userActivityEmail notifications.Notification
 	// We don't want to be left with a user record and no office user so setup a transaction to rollback
 	txErr := o.db.Transaction(func(connection *pop.Connection) error {
 		if user.ID == uuid.Nil {
@@ -57,7 +57,12 @@ func (o *officeUserCreator) CreateOfficeUser(
 			if verrs != nil || err != nil {
 				return err
 			}
-			sendUserActivityEmail = true
+
+			email, emailErr := notifications.NewUserAccountCreated(ctx, "sandy@truss.works", user.ID, user.UpdatedAt)
+			if emailErr != nil {
+				return emailErr
+			}
+			userActivityEmail = notifications.Notification(email)
 		}
 
 		officeUser.UserID = &user.ID
@@ -75,12 +80,8 @@ func (o *officeUserCreator) CreateOfficeUser(
 		return nil, verrs, txErr
 	}
 
-	if sendUserActivityEmail {
-		userCreatedEmail, err := notifications.NewUserAccountCreated(ctx, "sandy@truss.works", user.ID, user.UpdatedAt)
-		if err != nil {
-			return nil, nil, err
-		}
-		err = o.notificationSender.SendNotification(userCreatedEmail)
+	if userActivityEmail != nil {
+		err = o.notificationSender.SendNotification(userActivityEmail)
 		if err != nil {
 			return nil, nil, err
 		}
