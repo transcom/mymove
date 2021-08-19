@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -28,7 +27,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 	paymentServiceItem := suite.setupDomesticOriginFirstDaySITServiceItem()
 	pricer := NewDomesticOriginFirstDaySITPricer(suite.DB())
 
-	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success using PaymentServiceItemParams", func() {
 		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
@@ -42,31 +41,31 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginFirstDaySITPricer() {
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
-	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+	suite.Run("success without PaymentServiceItemParams", func() {
 		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.NoError(err)
 		suite.Equal(dofsitTestPriceCents, priceCents)
 	})
 
-	suite.T().Run("PriceUsingParams but sending empty params", func(t *testing.T) {
+	suite.Run("PriceUsingParams but sending empty params", func() {
 		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
-	suite.T().Run("invalid weight", func(t *testing.T) {
+	suite.Run("invalid weight", func() {
 		badWeight := unit.Pound(250)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, dofsitTestRequestedPickupDate, badWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
-	suite.T().Run("not finding a rate record", func(t *testing.T) {
+	suite.Run("not finding a rate record", func() {
 		_, _, err := pricer.Price("BOGUS", dofsitTestRequestedPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin first day SIT rate")
 	})
 
-	suite.T().Run("not finding a contract year record", func(t *testing.T) {
+	suite.Run("not finding a contract year record", func() {
 		twoYearsLaterPickupDate := dofsitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dofsitTestWeight, dofsitTestServiceArea)
 		suite.Error(err)

@@ -29,7 +29,7 @@ func NewListMTOPaymentRequests(ctx *middleware.Context, handler ListMTOPaymentRe
 	return &ListMTOPaymentRequests{Context: ctx, Handler: handler}
 }
 
-/*ListMTOPaymentRequests swagger:route GET /move-task-orders/{moveTaskOrderID}/payment-requests paymentRequest listMTOPaymentRequests
+/* ListMTOPaymentRequests swagger:route GET /move-task-orders/{moveTaskOrderID}/payment-requests paymentRequest listMTOPaymentRequests
 
 listMTOPaymentRequests
 
@@ -49,17 +49,15 @@ type ListMTOPaymentRequests struct {
 func (o *ListMTOPaymentRequests) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewListMTOPaymentRequestsParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

@@ -5,6 +5,7 @@ import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 
+import styles from './Office.module.scss';
 import '../../../node_modules/uswds/dist/css/uswds.css';
 import 'scenes/Office/office.scss';
 
@@ -22,6 +23,7 @@ import PrivateRoute from 'containers/PrivateRoute';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import FOUOHeader from 'components/FOUOHeader';
 import BypassBlock from 'components/BypassBlock';
+import SystemError from 'components/SystemError';
 import OfficeLoggedInHeader from 'containers/Headers/OfficeLoggedInHeader';
 import LoggedOutHeader from 'containers/Headers/LoggedOutHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
@@ -52,7 +54,9 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingEditShipmentDetails = lazy(() =>
   import('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails'),
 );
-
+const ServicesCounselingAddShipment = lazy(() =>
+  import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
+);
 export class OfficeApp extends Component {
   constructor(props) {
     super(props);
@@ -89,6 +93,9 @@ export class OfficeApp extends Component {
       userIsLoggedIn,
       userRoles,
       location: { pathname },
+      hasRecentError,
+      traceId,
+      history,
     } = this.props;
     const selectedRole = userIsLoggedIn && activeRole;
 
@@ -147,7 +154,6 @@ export class OfficeApp extends Component {
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
     });
-
     return (
       <>
         <div id="app-root">
@@ -158,7 +164,17 @@ export class OfficeApp extends Component {
             {!hideHeaderPPM && <>{userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader />}</>}
             <main id="main" role="main" className="site__content site-office__content">
               <ConnectedLogoutOnInactivity />
-
+              {hasRecentError && history.location.pathname === '/' && (
+                <SystemError>
+                  Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
+                  <br />
+                  If that doesn&apos;t fix it, contact the{' '}
+                  <a className={styles.link} href="https://move.mil/customer-service#technical-help-desk">
+                    Technical Help Desk
+                  </a>{' '}
+                  and give them this code: <strong>{traceId}</strong>
+                </SystemError>
+              )}
               {hasError && <SomethingWentWrong error={error} info={info} />}
 
               <Suspense fallback={<LoadingPlaceholder />}>
@@ -185,21 +201,29 @@ export class OfficeApp extends Component {
 
                     {/* SERVICES_COUNSELOR */}
                     <PrivateRoute
+                      key="servicesCounselingAddShipment"
+                      exact
+                      path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
+                      component={ServicesCounselingAddShipment}
+                      requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
+                    />
+
+                    <PrivateRoute
                       key="servicesCounselingEditShipmentDetailsRoute"
                       exact
-                      path={servicesCounselingRoutes.EDIT_SHIPMENT_INFO_PATH}
+                      path={servicesCounselingRoutes.SHIPMENT_EDIT_PATH}
                       component={ServicesCounselingEditShipmentDetails}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
-                      path="/counseling/queue"
+                      path={servicesCounselingRoutes.QUEUE_VIEW_PATH}
                       exact
                       component={ServicesCounselingQueue}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
                     <PrivateRoute
                       key="servicesCounselingMoveInfoRoute"
-                      path="/counseling/moves/:moveCode"
+                      path={servicesCounselingRoutes.BASE_MOVE_PATH}
                       component={ServicesCounselingMoveInfo}
                       requiredRoles={[roleTypes.SERVICES_COUNSELOR]}
                     />
@@ -248,6 +272,13 @@ OfficeApp.propTypes = {
   userIsLoggedIn: PropTypes.bool,
   userRoles: UserRolesShape,
   activeRole: PropTypes.string,
+  hasRecentError: PropTypes.bool.isRequired,
+  traceId: PropTypes.string.isRequired,
+  history: PropTypes.shape({
+    location: PropTypes.shape({
+      pathname: PropTypes.string,
+    }),
+  }),
 };
 
 OfficeApp.defaultProps = {
@@ -255,6 +286,9 @@ OfficeApp.defaultProps = {
   userIsLoggedIn: false,
   userRoles: [],
   activeRole: null,
+  history: {
+    location: { pathname: '' },
+  },
 };
 
 const mapStateToProps = (state) => {
@@ -265,6 +299,8 @@ const mapStateToProps = (state) => {
     userIsLoggedIn: selectIsLoggedIn(state),
     userRoles: user?.roles || [],
     activeRole: state.auth.activeRole,
+    hasRecentError: state.interceptor.hasRecentError,
+    traceId: state.interceptor.traceId,
   };
 };
 

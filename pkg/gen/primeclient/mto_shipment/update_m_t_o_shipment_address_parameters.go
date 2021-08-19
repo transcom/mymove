@@ -18,72 +18,93 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// NewUpdateMTOShipmentAddressParams creates a new UpdateMTOShipmentAddressParams object
-// with the default values initialized.
+// NewUpdateMTOShipmentAddressParams creates a new UpdateMTOShipmentAddressParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateMTOShipmentAddressParams() *UpdateMTOShipmentAddressParams {
-	var ()
 	return &UpdateMTOShipmentAddressParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateMTOShipmentAddressParamsWithTimeout creates a new UpdateMTOShipmentAddressParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateMTOShipmentAddressParamsWithTimeout(timeout time.Duration) *UpdateMTOShipmentAddressParams {
-	var ()
 	return &UpdateMTOShipmentAddressParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateMTOShipmentAddressParamsWithContext creates a new UpdateMTOShipmentAddressParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateMTOShipmentAddressParamsWithContext(ctx context.Context) *UpdateMTOShipmentAddressParams {
-	var ()
 	return &UpdateMTOShipmentAddressParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateMTOShipmentAddressParamsWithHTTPClient creates a new UpdateMTOShipmentAddressParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateMTOShipmentAddressParamsWithHTTPClient(client *http.Client) *UpdateMTOShipmentAddressParams {
-	var ()
 	return &UpdateMTOShipmentAddressParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateMTOShipmentAddressParams contains all the parameters to send to the API endpoint
-for the update m t o shipment address operation typically these are written to a http.Request
+/* UpdateMTOShipmentAddressParams contains all the parameters to send to the API endpoint
+   for the update m t o shipment address operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateMTOShipmentAddressParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*AddressID
-	  UUID of the address being updated
 
+	/* AddressID.
+
+	   UUID of the address being updated
+
+	   Format: uuid
 	*/
 	AddressID strfmt.UUID
-	/*Body*/
-	Body *primemessages.Address
-	/*MtoShipmentID
-	  UUID of the shipment associated with the address
 
+	// Body.
+	Body *primemessages.Address
+
+	/* MtoShipmentID.
+
+	   UUID of the shipment associated with the address
+
+	   Format: uuid
 	*/
 	MtoShipmentID strfmt.UUID
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update m t o shipment address params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOShipmentAddressParams) WithDefaults() *UpdateMTOShipmentAddressParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update m t o shipment address params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOShipmentAddressParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update m t o shipment address params
@@ -180,7 +201,6 @@ func (o *UpdateMTOShipmentAddressParams) WriteToRequest(r runtime.ClientRequest,
 	if err := r.SetPathParam("addressID", o.AddressID.String()); err != nil {
 		return err
 	}
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

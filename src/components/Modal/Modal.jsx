@@ -3,10 +3,12 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Modal as USWDSModal, connectModal as connectUSWDSModal, Button } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Modal.module.scss';
+
+import { Modal as MigratedModal, connectModal as connectMigratedModal } from 'components/MigratedModal/MigratedModal';
 
 const Modal = ({ className, ...props }) => {
   const classes = classnames(styles.Modal, className);
@@ -30,7 +32,7 @@ const Modal = ({ className, ...props }) => {
     return () => {};
   });
 
-  return <USWDSModal className={classes} {...props} />;
+  return <MigratedModal className={classes} {...props} />;
 };
 
 Modal.displayName = 'MilMoveModal';
@@ -86,17 +88,17 @@ export const connectModal = (Component) => {
   }
 
   const ConnectedModal = (props) => {
-    // connectUSWDSModal handles isOpen prop & renders with container & overlay
-    const ConnectedUSWDSModal = connectUSWDSModal(Component);
+    // connectMigratedModal handles isOpen prop & renders with container & overlay
+    const ConnectedMigratedModal = connectMigratedModal(Component);
 
     // Render into portal element if it exists
     const MODAL_ROOT_ID = 'modal-root';
     const modalContainer = document.getElementById(MODAL_ROOT_ID);
     if (modalContainer) {
-      return ReactDOM.createPortal(<ConnectedUSWDSModal {...props} />, modalContainer);
+      return ReactDOM.createPortal(<ConnectedMigratedModal {...props} />, modalContainer);
     }
 
-    return <ConnectedUSWDSModal {...props} />;
+    return <ConnectedMigratedModal {...props} />;
   };
 
   ConnectedModal.displayName = `Connected${getDisplayName(Component)}`;

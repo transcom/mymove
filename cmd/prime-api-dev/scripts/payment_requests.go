@@ -571,7 +571,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 	}
 
 	menuTitle("UPDATE SHIPMENT")
-	shipment := primemessages.MTOShipment{}
+	shipment := primemessages.UpdateMTOShipment{}
 
 	// print out update field options for selection
 	for i, field := range fields {
@@ -597,19 +597,6 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, menuType, erro
 				log.Fatal("Cannot get date input", err)
 			}
 			shipment.ActualPickupDate = &strFmtDate
-			fieldValue := updateInfo{
-				value:    strFmtDate.String(),
-				isString: true,
-			}
-			shipmentUpdates[selectedField.json] = fieldValue
-		case requestedPickupDate:
-			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
-			var strFmtDate strfmt.Date
-			strFmtDate, err = getStrFmtDateInput()
-			if err != nil {
-				log.Fatal("Cannot get date input", err)
-			}
-			shipment.RequestedPickupDate = &strFmtDate
 			fieldValue := updateInfo{
 				value:    strFmtDate.String(),
 				isString: true,

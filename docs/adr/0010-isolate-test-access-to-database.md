@@ -1,5 +1,7 @@
 # Isolate Test Access to Database
 
+**NOTE:** This ADR has been superseded by [ADR0062 Run Tests in Transactions](./0062-run-tests-in-transactions.md).
+
 **User Story:** [155076695](https://www.pivotaltracker.com/story/show/155076695)
 
 Our tests currently execute against a single database and do not clean up after themselves. As each tests runs, any mutations made to the database persist. This lack of isolation between tests can lead to test reliability issues.

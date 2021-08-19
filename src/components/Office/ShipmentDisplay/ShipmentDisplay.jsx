@@ -1,16 +1,17 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { Checkbox } from '@trussworks/react-uswds';
+import { Checkbox, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 
 import { EditButton } from 'components/form/IconButtons';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatDate } from 'shared/dates';
 import { AddressShape } from 'types/address';
-import { formatAddress } from 'utils/shipmentDisplay';
+import { shipmentStatuses } from 'constants/shipments';
+import { ShipmentStatusesOneOf } from 'types/shipment';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted, showIcon, editURL }) => {
   const containerClasses = classnames(styles.container, { [styles.noIcon]: !showIcon });
@@ -32,30 +33,18 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           )}
 
           {showIcon && !isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
-          <h3>
-            <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
-          </h3>
+          <div className={styles.headingTagWrapper}>
+            <h3>
+              <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+            </h3>
+            {displayInfo.isDiversion && <Tag>diversion</Tag>}
+            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
+            {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
+          </div>
 
           <FontAwesomeIcon icon="chevron-down" />
         </div>
-        <dl>
-          <div className={styles.row}>
-            <dt>Requested move date</dt>
-            <dd>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</dd>
-          </div>
-          <div className={styles.row}>
-            <dt>Current address</dt>
-            <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
-          </div>
-          <div className={styles.row}>
-            <dt className={styles.label}>Destination address</dt>
-            <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
-          </div>
-          <div className={styles.row}>
-            <dt className={styles.label}>Counselor remarks</dt>
-            <dd data-testid="counselorRemarks">{displayInfo.counselorRemarks || '—'}</dd>
-          </div>
-        </dl>
+        <ShipmentInfoList className={styles.shipmentDisplayInfo} shipment={displayInfo} />
         {editURL && (
           <EditButton
             onClick={() => {
@@ -85,9 +74,13 @@ ShipmentDisplay.propTypes = {
   ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
-    requestedMoveDate: PropTypes.string.isRequired,
-    currentAddress: AddressShape.isRequired,
+    isDiversion: PropTypes.bool,
+    shipmentStatus: ShipmentStatusesOneOf,
+    requestedPickupDate: PropTypes.string.isRequired,
+    pickupAddress: AddressShape.isRequired,
+    secondaryPickupAddress: AddressShape,
     destinationAddress: AddressShape,
+    secondaryDeliveryAddress: AddressShape,
     counselorRemarks: PropTypes.string,
   }).isRequired,
   showIcon: PropTypes.bool,

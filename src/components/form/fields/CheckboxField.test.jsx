@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { Formik } from 'formik';
 
-import CheckboxField from './CheckboxField';
+import { CheckboxField } from './CheckboxField';
 
 describe('CheckboxField component', () => {
   it('renders the elements that make up a field', () => {

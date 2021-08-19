@@ -5,190 +5,415 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
+	"github.com/go-openapi/strfmt"
+	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/handlers"
+
+	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *OrderServiceSuite) TestOrderUpdater() {
-	orderUpdater := NewOrderUpdater(suite.DB())
+func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
 
-	suite.T().Run("Orders fields are updated without entitlement", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		payload := ghcmessages.UpdateOrderPayload{}
+		eTag := ""
 
+		_, _, err := orderUpdater.UpdateOrderAsTOO(nonexistentUUID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Returns an error when origin duty station is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
 		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
-		issueDate := time.Now().Add(-48 * time.Hour)
-		reportByDate := time.Now().Add(72 * time.Hour)
-		ordersTypeDetail := internalmessages.OrdersTypeDetailINSTRUCTION20WEEKS
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: &newDutyStation.ID,
-			NewDutyStationID:    newDutyStation.ID,
-			IssueDate:           issueDate,
-			ReportByDate:        reportByDate,
-			DepartmentIndicator: swag.String("COAST_GUARD"),
-			OrdersType:          internalmessages.OrdersTypeSEPARATION,
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		payload := ghcmessages.UpdateOrderPayload{
+			NewDutyStationID:    handlers.FmtUUID(newDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(nonexistentUUID),
+		}
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		_, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Returns an error when new duty station is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+		originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		payload := ghcmessages.UpdateOrderPayload{
+			NewDutyStationID:    handlers.FmtUUID(nonexistentUUID),
+			OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		}
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		_, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+
+		payload := ghcmessages.UpdateOrderPayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("Updates the order when all fields are valid", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
 			OrdersTypeDetail:    &ordersTypeDetail,
-			Grade:               swag.String(string(models.ServiceMemberRankO10)),
-			OrdersNumber:        swag.String("1122334455"),
-			TAC:                 swag.String("8843"),
-			SAC:                 swag.String("7766"),
-		}
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-
-		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
-
-		suite.NoError(err)
-		suite.Equal(updatedOrder.ID, actualOrder.ID)
-		suite.Equal(updatedOrder.NewDutyStationID, actualOrder.NewDutyStation.ID)
-		suite.Equal(updatedOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
-		suite.Equal(updatedOrder.IssueDate, actualOrder.IssueDate)
-		suite.Equal(updatedOrder.ReportByDate, actualOrder.ReportByDate)
-		suite.Equal(updatedOrder.OrdersType, actualOrder.OrdersType)
-		suite.Equal(updatedOrder.OrdersTypeDetail, actualOrder.OrdersTypeDetail)
-		suite.Equal(updatedOrder.OrdersNumber, actualOrder.OrdersNumber)
-		suite.Equal(updatedOrder.DepartmentIndicator, actualOrder.DepartmentIndicator)
-		suite.Equal(updatedOrder.TAC, actualOrder.TAC)
-		suite.Equal(updatedOrder.SAC, actualOrder.SAC)
-		suite.Equal(updatedOrder.Grade, actualOrder.Grade)
-	})
-
-	suite.T().Run("Service member affiliation updated if order affiliation updated", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		serviceMember := defaultOrder.ServiceMember
-
-		newAffiliation := models.AffiliationNAVY
-
-		suite.NotEqual(serviceMember.Affiliation, newAffiliation)
-
-		var serviceMemberPatch models.ServiceMember
-
-		serviceMemberPatch.Affiliation = &newAffiliation
-
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
-			ServiceMember:       serviceMemberPatch,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString("E19A"),
+			Sac:                 handlers.FmtString("987654321"),
 		}
 
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		_, err := orderUpdater.UpdateOrder(updatedOrder)
-
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
 		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
 
 		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
-
-		suite.EqualValues(newAffiliation, *fetchedSM.Affiliation)
-	})
-
-	suite.T().Run("Service member rank updated if order grade updated", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		serviceMember := defaultOrder.ServiceMember
-
-		newRank := models.ServiceMemberRankE2
-
-		suite.NotEqual(serviceMember.Rank, newRank)
-
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
-			Grade:               (*string)(&newRank),
-		}
-
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-
-		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
+		_ = suite.DB().EagerPreload("DutyStation").Find(&fetchedSM, order.ServiceMember.ID)
 
 		suite.NoError(err)
-		suite.Equal(newRank, models.ServiceMemberRank(*actualOrder.Grade))
-
-		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
-
-		suite.EqualValues(newRank, *fetchedSM.Rank)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
+		suite.Equal(payload.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(time.Time(*payload.IssueDate), updatedOrder.IssueDate)
+		suite.Equal(time.Time(*payload.ReportByDate), updatedOrder.ReportByDate)
+		suite.EqualValues(*payload.OrdersType, updatedOrder.OrdersType)
+		suite.EqualValues(payload.OrdersTypeDetail, updatedOrder.OrdersTypeDetail)
+		suite.Equal(payload.OrdersNumber, updatedOrder.OrdersNumber)
+		suite.EqualValues(payload.DepartmentIndicator, updatedOrder.DepartmentIndicator)
+		suite.Equal(payload.Tac, updatedOrder.TAC)
+		suite.Equal(payload.Sac, updatedOrder.SAC)
+		suite.EqualValues(&updatedOriginDutyStation.ID, fetchedSM.DutyStationID)
+		suite.EqualValues(updatedOriginDutyStation.ID, fetchedSM.DutyStation.ID)
+		suite.EqualValues(updatedOriginDutyStation.Name, fetchedSM.DutyStation.Name)
 	})
 
-	suite.T().Run("Service member current duty station updated if order origin duty station updated", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		serviceMember := defaultOrder.ServiceMember
+	suite.T().Run("Rolls back transaction if Order is invalid", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
 
-		newDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		emptyStrSAC := ""
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		deptIndicator := ghcmessages.DeptIndicatorCOASTGUARD
+		ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
+		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		suite.NotEqual(defaultOrder.OriginDutyStationID, newDutyStation.ID)
-
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: &newDutyStation.ID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
+		payload := ghcmessages.UpdateOrderPayload{
+			DepartmentIndicator: &deptIndicator,
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			OrdersTypeDetail:    &ordersTypeDetail,
+			ReportByDate:        &reportByDate,
+			Tac:                 handlers.FmtString("E19A"),
+			Sac:                 &emptyStrSAC, // this will trigger a validation error on Order model
 		}
 
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(order.ID, payload, eTag)
 
-		suite.NoError(err)
-		suite.Equal(updatedOrder.ID, actualOrder.ID)
-		suite.Equal(updatedOrder.OriginDutyStationID.String(), actualOrder.OriginDutyStation.ID.String())
-
-		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().EagerPreload("DutyStation").Find(&fetchedSM, serviceMember.ID)
-
-		suite.EqualValues(&newDutyStation.ID, fetchedSM.DutyStationID)
-		suite.EqualValues(newDutyStation.ID, fetchedSM.DutyStation.ID)
-		suite.EqualValues(newDutyStation.Name, fetchedSM.DutyStation.Name)
+		// check that we get back a validation error
+		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", order.ID))
+		suite.Nil(updatedOrder)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 
-	suite.T().Run("Entitlement is updated", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
-			Entitlement: &models.Entitlement{
-				DBAuthorizedWeight:                           swag.Int(20000),
-				DependentsAuthorized:                         swag.Bool(true),
-				ProGearWeight:                                1234,
-				ProGearWeightSpouse:                          321,
-				RequiredMedicalEquipmentWeight:               2000,
-				OrganizationalClothingAndIndividualEquipment: true,
+	suite.T().Run("Rolls back transaction if Order is missing required fields", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				Status: models.MoveStatusServiceCounselingCompleted,
 			},
+			Order: orderWithoutDefaults,
+		})
+
+		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+
+		payload := ghcmessages.UpdateOrderPayload{
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			ReportByDate:        &reportByDate,
 		}
 
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
+		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.NoError(err)
-		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
-		suite.Equal(swag.Bool(true), actualOrder.Entitlement.DependentsAuthorized)
-		suite.Equal(1234, actualOrder.Entitlement.ProGearWeight)
-		suite.Equal(321, actualOrder.Entitlement.ProGearWeightSpouse)
-		suite.Equal(2000, actualOrder.Entitlement.RequiredMedicalEquipmentWeight)
-		suite.Equal(true, actualOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsTOO(orderWithoutDefaults.ID, payload, eTag)
+
+		suite.Contains(err.Error(), fmt.Sprintf("Invalid input for id: %s.", orderWithoutDefaults.ID))
+		suite.Contains(err.Error(), "DepartmentIndicator cannot be blank.")
+		suite.Contains(err.Error(), "OrdersTypeDetail cannot be blank.")
+		suite.Contains(err.Error(), "TransportationAccountingCode cannot be blank.")
+		suite.Contains(err.Error(), "OrdersNumber cannot be blank.")
+		suite.Nil(updatedOrder)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+}
+
+func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		payload := ghcmessages.CounselingUpdateOrderPayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateOrderAsCounselor(nonexistentUUID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
 	})
 
-	suite.T().Run("Entitlement is updated with move status Needs Service Counseling and missing submission fields", func(t *testing.T) {
+	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+
+		payload := ghcmessages.CounselingUpdateOrderPayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateOrderAsCounselor(order.ID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("Updates the order when it is found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
+
+		dateIssued := strfmt.Date(time.Now().Add(-48 * time.Hour))
+		updatedDestinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		updatedOriginDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+		ordersType := ghcmessages.OrdersTypeSEPARATION
+		reportByDate := strfmt.Date(time.Now().Add(72 * time.Hour))
+
+		body := ghcmessages.CounselingUpdateOrderPayload{
+			IssueDate:           &dateIssued,
+			NewDutyStationID:    handlers.FmtUUID(updatedDestinationDutyStation.ID),
+			OriginDutyStationID: handlers.FmtUUID(updatedOriginDutyStation.ID),
+			OrdersType:          ghcmessages.NewOrdersType(ordersType),
+			ReportByDate:        &reportByDate,
+		}
+
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		updatedOrder, _, err := orderUpdater.UpdateOrderAsCounselor(order.ID, body, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(body.NewDutyStationID.String(), updatedOrder.NewDutyStation.ID.String())
+		suite.Equal(body.OriginDutyStationID.String(), updatedOrder.OriginDutyStation.ID.String())
+		suite.Equal(time.Time(*body.IssueDate), updatedOrder.IssueDate)
+		suite.Equal(time.Time(*body.ReportByDate), updatedOrder.ReportByDate)
+		suite.EqualValues(*body.OrdersType, updatedOrder.OrdersType)
+	})
+}
+
+func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		payload := ghcmessages.UpdateAllowancePayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateAllowanceAsTOO(nonexistentUUID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+
+		payload := ghcmessages.UpdateAllowancePayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateAllowanceAsTOO(order.ID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeServiceCounselingCompletedMove(suite.DB(), testdatagen.Assertions{}).Orders
+
+		newAuthorizedWeight := int64(10000)
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.BranchAIRFORCE
+		ocie := false
+		proGearWeight := swag.Int64(100)
+		proGearWeightSpouse := swag.Int64(10)
+		rmeWeight := swag.Int64(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			Agency:               affiliation,
+			AuthorizedWeight:     &newAuthorizedWeight,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(*payload.AuthorizedWeight, int64(*updatedOrder.Entitlement.DBAuthorizedWeight))
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+	})
+}
+
+func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(nonexistentUUID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Returns an error when the etag does not match", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeDefaultMove(suite.DB()).Orders
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{}
+		eTag := ""
+
+		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
+
+		suite.Error(err)
+		suite.IsType(services.PreconditionFailedError{}, err)
+	})
+
+	suite.T().Run("Updates the allowance when all fields are valid", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.BranchAIRFORCE
+		ocie := false
+		proGearWeight := swag.Int64(100)
+		proGearWeightSpouse := swag.Int64(10)
+		rmeWeight := swag.Int64(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			Agency:               affiliation,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		fetchedSM := models.ServiceMember{}
+		_ = suite.DB().Find(&fetchedSM, order.ServiceMember.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.EqualValues(*payload.Grade, *fetchedSM.Rank)
+		suite.EqualValues(payload.Agency, *fetchedSM.Affiliation)
+	})
+
+	suite.T().Run("Updates the allowance when move needs service counseling and order fields are missing", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
 		orderWithoutDefaults := testdatagen.MakeOrderWithoutDefaults(suite.DB(), testdatagen.Assertions{})
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Move: models.Move{
@@ -196,130 +421,277 @@ func (suite *OrderServiceSuite) TestOrderUpdater() {
 			},
 			Order: orderWithoutDefaults,
 		})
-		newOrder := models.Order{
-			ID:                  orderWithoutDefaults.ID,
-			OriginDutyStationID: orderWithoutDefaults.OriginDutyStationID,
-			NewDutyStationID:    orderWithoutDefaults.NewDutyStationID,
-			IssueDate:           orderWithoutDefaults.IssueDate,
-			ReportByDate:        orderWithoutDefaults.ReportByDate,
-			OrdersType:          orderWithoutDefaults.OrdersType,
-			Entitlement: &models.Entitlement{
-				DBAuthorizedWeight:                           swag.Int(20000),
-				DependentsAuthorized:                         swag.Bool(true),
-				ProGearWeight:                                1234,
-				ProGearWeightSpouse:                          321,
-				RequiredMedicalEquipmentWeight:               2000,
-				OrganizationalClothingAndIndividualEquipment: true,
-			},
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.BranchAIRFORCE
+		ocie := false
+		proGearWeight := swag.Int64(100)
+		proGearWeightSpouse := swag.Int64(10)
+		rmeWeight := swag.Int64(10000)
+		eTag := etag.GenerateEtag(orderWithoutDefaults.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			Agency:               affiliation,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder := move.Orders
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(orderWithoutDefaults.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, orderWithoutDefaults.ID)
+
+		fetchedSM := models.ServiceMember{}
+		_ = suite.DB().Find(&fetchedSM, orderWithoutDefaults.ServiceMember.ID)
 
 		suite.NoError(err)
-		suite.Equal(swag.Int(20000), actualOrder.Entitlement.DBAuthorizedWeight)
-		suite.Equal(swag.Bool(true), actualOrder.Entitlement.DependentsAuthorized)
-		suite.Equal(1234, actualOrder.Entitlement.ProGearWeight)
-		suite.Equal(321, actualOrder.Entitlement.ProGearWeightSpouse)
-		suite.Equal(2000, actualOrder.Entitlement.RequiredMedicalEquipmentWeight)
-		suite.Equal(true, actualOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(orderWithoutDefaults.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.EqualValues(*payload.Grade, *fetchedSM.Rank)
+		suite.EqualValues(payload.Agency, *fetchedSM.Affiliation)
 
 		// make sure that there are missing submission fields and move is in correct status
 		fetchedMove := models.Move{}
 		_ = suite.DB().Find(&fetchedMove, move.ID)
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, fetchedMove.Status)
-		suite.Nil(actualOrder.TAC)
-		suite.Nil(actualOrder.SAC)
-		suite.Nil(actualOrder.DepartmentIndicator)
-		suite.Nil(actualOrder.OrdersTypeDetail)
+		suite.Nil(updatedOrder.TAC)
+		suite.Nil(updatedOrder.SAC)
+		suite.Nil(updatedOrder.DepartmentIndicator)
+		suite.Nil(updatedOrder.OrdersTypeDetail)
 	})
 
-	suite.T().Run("Entitlement is not updated: error with ProGearWeight is over max amount", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
-			Entitlement: &models.Entitlement{
-				ProGearWeight: 2001,
-			},
+	suite.T().Run("Entire update is aborted when ProGearWeight is over max amount", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.BranchAIRFORCE
+		ocie := false
+		proGearWeight := swag.Int64(2001)
+		proGearWeightSpouse := swag.Int64(10)
+		rmeWeight := swag.Int64(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			Agency:               affiliation,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		_, err := orderUpdater.UpdateOrder(updatedOrder)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
+
+		var orderInDB models.Order
+		err = suite.DB().EagerPreload("Entitlement").Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.NotEqual(payload.ProGearWeight, orderInDB.Entitlement.ProGearWeight)
+		suite.Nil(updatedOrder)
 	})
 
-	suite.T().Run("Entitlement is not updated: error with ProGearWeightSpouse is over max amount", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
-			Entitlement: &models.Entitlement{
-				ProGearWeightSpouse: 501,
-			},
+	suite.T().Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		order := testdatagen.MakeNeedsServiceCounselingMove(suite.DB()).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.BranchAIRFORCE
+		ocie := false
+		proGearWeight := swag.Int64(100)
+		proGearWeightSpouse := swag.Int64(501)
+		rmeWeight := swag.Int64(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			Agency:               affiliation,
+			DependentsAuthorized: swag.Bool(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
 		}
 
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		_, err := orderUpdater.UpdateOrder(updatedOrder)
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(order.ID, payload, eTag)
 
 		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+
+		var orderInDB models.Order
+		err = suite.DB().EagerPreload("Entitlement").Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.NotEqual(payload.ProGearWeightSpouse, orderInDB.Entitlement.ProGearWeightSpouse)
+		suite.Nil(updatedOrder)
 	})
+}
 
-	suite.T().Run("Transaction rolled back after Order model validation error", func(t *testing.T) {
-		defaultOrder := testdatagen.MakeDefaultMove(suite.DB()).Orders
-		serviceMember := defaultOrder.ServiceMember
+func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 
-		// update service member to compare after a failed transaction
-		updateAffiliation := models.AffiliationCOASTGUARD
-		serviceMember.Affiliation = &updateAffiliation
-
-		emptyStrSAC := ""
-		newOrder := models.Order{
-			ID:                  defaultOrder.ID,
-			OriginDutyStationID: defaultOrder.OriginDutyStationID,
-			NewDutyStationID:    defaultOrder.NewDutyStationID,
-			IssueDate:           defaultOrder.IssueDate,
-			ReportByDate:        defaultOrder.ReportByDate,
-			OrdersType:          defaultOrder.OrdersType,
-			Entitlement: &models.Entitlement{ // try to update entitlement and see that it's not updated after failed transaction
-				DBAuthorizedWeight:   swag.Int(20000),
-				DependentsAuthorized: swag.Bool(false),
+	suite.T().Run("Creates and saves new amendedOrder doc when the order.UploadedAmendedOrders is nil", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
 			},
-			ServiceMember: serviceMember, // this is to make sure we're updating other models so we can check after a failed transaction
-			SAC:           &emptyStrSAC,  // this will trigger validation error on Order model
+		})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation: &dutyStation,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
+		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
+
+		upload, url, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			order.ServiceMember.UserID,
+			order.ID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+
+		expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+		if upload.Checksum != expectedChecksum {
+			t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}
 
-		updatedOrder := defaultOrder
-		testdatagen.MergeModels(&updatedOrder, &newOrder)
-		actualOrder, err := orderUpdater.UpdateOrder(updatedOrder)
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
 
-		// check that we get back a validation error
-		suite.EqualError(err, fmt.Sprintf("Invalid input for id: %s. SAC can not be blank.", defaultOrder.ID))
-		suite.Nil(actualOrder)
+		suite.NoError(err)
+		suite.Equal(orderInDB.ID.String(), order.ID.String())
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
 
-		// make sure that service member is not updated as well
-		// we expect the affiliation to not have been updated, which is expected to be ARMY
-		fetchedSM := models.ServiceMember{}
-		_ = suite.DB().Find(&fetchedSM, serviceMember.ID)
-		suite.EqualValues(models.AffiliationARMY, *fetchedSM.Affiliation)
+		findUpload := models.Upload{}
+		err = suite.DB().Find(&findUpload, upload.ID)
+		if err != nil {
+			t.Fatalf("Couldn't find expected upload.")
+		}
+		suite.Equal(upload.ID.String(), findUpload.ID.String(), "found upload in db")
+		suite.NotEmpty(url, "URL is populated")
+	})
 
-		// check that entitlement is not updated as well
-		fetchedEntitlement := models.Entitlement{}
-		_ = suite.DB().Find(&fetchedEntitlement, defaultOrder.Entitlement.ID)
-		suite.NotEqual(20000, *fetchedEntitlement.DBAuthorizedWeight)
-		suite.EqualValues(true, *fetchedEntitlement.DependentsAuthorized)
+	suite.T().Run("Returns an error when order is not found", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		nonexistentUUID := uuid.Must(uuid.NewV4())
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			nonexistentUUID,
+			nonexistentUUID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3)
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Contains(err.Error(), "not found while looking for order")
+		suite.NoVerrs(verrs)
+	})
+
+	suite.T().Run("Saves userUpload payload to order.UploadedAmendedOrders if the document already exists", func(t *testing.T) {
+		orderUpdater := NewOrderUpdater(suite.DB())
+		dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+			},
+		})
+		var moves models.Moves
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+
+		document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStation:       &dutyStation,
+				UploadedAmendedOrders:   &document,
+				UploadedAmendedOrdersID: &document.ID,
+			},
+			Move: mto,
+		})
+		order.Moves = append(moves, mto)
+
+		file := testdatagen.FixtureRuntimeFile("test.pdf")
+		defer func() {
+			fileCloseErr := file.Close()
+			suite.NoError(fileCloseErr)
+		}()
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+
+		logger, zapErr := zap.NewDevelopment()
+		suite.NoError(zapErr)
+
+		suite.NotEqual(uuid.Nil, order.ServiceMemberID, "ServiceMember has ID that is not 0/empty")
+		suite.NotEqual(uuid.Nil, order.ServiceMember.UserID, "ServiceMember.UserID has ID that is not 0/empty")
+
+		_, _, verrs, err := orderUpdater.UploadAmendedOrdersAsCustomer(
+			logger,
+			order.ServiceMember.UserID,
+			order.ID,
+			file.Data,
+			file.Header.Filename,
+			fakeS3)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().
+			EagerPreload("UploadedAmendedOrders").
+			Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.NotNil(orderInDB.ID)
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
+		suite.Equal(document.ID, *orderInDB.UploadedAmendedOrdersID)
+		suite.NotNil(order.UploadedAmendedOrders)
+		suite.NotNil(orderInDB.UploadedAmendedOrders)
 	})
 }

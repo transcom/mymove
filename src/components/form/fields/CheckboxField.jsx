@@ -13,7 +13,7 @@ import { Checkbox } from '@trussworks/react-uswds';
  * ReactUSWDS components directly.
  */
 
-const CheckboxField = ({ name, id, label, ...inputProps }) => {
+export const CheckboxField = ({ name, id, label, ...inputProps }) => {
   const [fieldProps] = useField({ name, type: 'checkbox' });
 
   /* eslint-disable-next-line react/jsx-props-no-spreading */

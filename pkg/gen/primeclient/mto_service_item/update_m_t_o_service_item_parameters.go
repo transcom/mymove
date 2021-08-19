@@ -18,67 +18,83 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-// NewUpdateMTOServiceItemParams creates a new UpdateMTOServiceItemParams object
-// with the default values initialized.
+// NewUpdateMTOServiceItemParams creates a new UpdateMTOServiceItemParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateMTOServiceItemParams() *UpdateMTOServiceItemParams {
-	var ()
 	return &UpdateMTOServiceItemParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateMTOServiceItemParamsWithTimeout creates a new UpdateMTOServiceItemParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateMTOServiceItemParamsWithTimeout(timeout time.Duration) *UpdateMTOServiceItemParams {
-	var ()
 	return &UpdateMTOServiceItemParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateMTOServiceItemParamsWithContext creates a new UpdateMTOServiceItemParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateMTOServiceItemParamsWithContext(ctx context.Context) *UpdateMTOServiceItemParams {
-	var ()
 	return &UpdateMTOServiceItemParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateMTOServiceItemParamsWithHTTPClient creates a new UpdateMTOServiceItemParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateMTOServiceItemParamsWithHTTPClient(client *http.Client) *UpdateMTOServiceItemParams {
-	var ()
 	return &UpdateMTOServiceItemParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateMTOServiceItemParams contains all the parameters to send to the API endpoint
-for the update m t o service item operation typically these are written to a http.Request
+/* UpdateMTOServiceItemParams contains all the parameters to send to the API endpoint
+   for the update m t o service item operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateMTOServiceItemParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*Body*/
-	Body primemessages.UpdateMTOServiceItem
-	/*MtoServiceItemID
-	  UUID of service item to update.
 
+	// Body.
+	Body primemessages.UpdateMTOServiceItem
+
+	/* MtoServiceItemID.
+
+	   UUID of service item to update.
 	*/
 	MtoServiceItemID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update m t o service item params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOServiceItemParams) WithDefaults() *UpdateMTOServiceItemParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update m t o service item params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateMTOServiceItemParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update m t o service item params
@@ -159,7 +175,6 @@ func (o *UpdateMTOServiceItemParams) WriteToRequest(r runtime.ClientRequest, reg
 	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
 		return err
 	}
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

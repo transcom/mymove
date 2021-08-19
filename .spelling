@@ -647,6 +647,15 @@ unconfigured
 Zipkin
 knowns
 callsites
+NIPRNet
+go-txdb
+ADR0010
+0010
+6650
+quo
+3
+33
+36
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md

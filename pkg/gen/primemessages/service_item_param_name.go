@@ -6,6 +6,7 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -18,13 +19,15 @@ import (
 // swagger:model ServiceItemParamName
 type ServiceItemParamName string
 
+func NewServiceItemParamName(value ServiceItemParamName) *ServiceItemParamName {
+	v := value
+	return &v
+}
+
 const (
 
 	// ServiceItemParamNameActualPickupDate captures enum value "ActualPickupDate"
 	ServiceItemParamNameActualPickupDate ServiceItemParamName = "ActualPickupDate"
-
-	// ServiceItemParamNameCanStandAlone captures enum value "CanStandAlone"
-	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 
 	// ServiceItemParamNameContractCode captures enum value "ContractCode"
 	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
@@ -206,7 +209,7 @@ var serviceItemParamNameEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamName
-	if err := json.Unmarshal([]byte(`["ActualPickupDate","CanStandAlone","ContractCode","ContractYearName","CubicFeetBilled","CubicFeetCrating","DistanceZip3","DistanceZip5","DistanceZipSITDest","DistanceZipSITOrigin","EIAFuelPrice","EscalationCompounded","FSCMultiplier","FSCPriceDifferenceInCents","FSCWeightBasedDistanceMultiplier","IsPeak","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PriceRateOrFactor","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PackingDom","PSI_PackingDomPrice","PSI_PackingHHGIntl","PSI_PackingHHGIntlPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITScheduleDest","SITScheduleOrigin","WeightActual","WeightBilledActual","WeightEstimated","ZipDestAddress","ZipPickupAddress","ZipSITDestHHGFinalAddress","ZipSITOriginHHGActualAddress","ZipSITOriginHHGOriginalAddress"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ActualPickupDate","ContractCode","ContractYearName","CubicFeetBilled","CubicFeetCrating","DistanceZip3","DistanceZip5","DistanceZipSITDest","DistanceZipSITOrigin","EIAFuelPrice","EscalationCompounded","FSCMultiplier","FSCPriceDifferenceInCents","FSCWeightBasedDistanceMultiplier","IsPeak","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PriceRateOrFactor","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PackingDom","PSI_PackingDomPrice","PSI_PackingHHGIntl","PSI_PackingHHGIntlPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITScheduleDest","SITScheduleOrigin","WeightActual","WeightBilledActual","WeightEstimated","ZipDestAddress","ZipPickupAddress","ZipSITDestHHGFinalAddress","ZipSITOriginHHGActualAddress","ZipSITOriginHHGOriginalAddress"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -233,5 +236,10 @@ func (m ServiceItemParamName) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this service item param name based on context it is used
+func (m ServiceItemParamName) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

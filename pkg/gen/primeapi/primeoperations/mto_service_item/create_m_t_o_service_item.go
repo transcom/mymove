@@ -29,7 +29,7 @@ func NewCreateMTOServiceItem(ctx *middleware.Context, handler CreateMTOServiceIt
 	return &CreateMTOServiceItem{Context: ctx, Handler: handler}
 }
 
-/*CreateMTOServiceItem swagger:route POST /mto-service-items mtoServiceItem createMTOServiceItem
+/* CreateMTOServiceItem swagger:route POST /mto-service-items mtoServiceItem createMTOServiceItem
 
 createMTOServiceItem
 
@@ -111,17 +111,15 @@ type CreateMTOServiceItem struct {
 func (o *CreateMTOServiceItem) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateMTOServiceItemParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

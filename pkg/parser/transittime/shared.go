@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v3"
 )
 
 /*************************************************************************/
@@ -16,12 +16,31 @@ import (
 
 // A way to get a cell value from a sheet
 // return empty string if not found
-func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) string {
-	if sheet != nil {
-		return sheet.Cell(row, col).String()
+func getValueFromSheet(sheet *xlsx.Sheet, row int, col int) (string, error) {
+	if sheet == nil {
+		return "", fmt.Errorf("sheet is nil")
 	}
 
-	return ""
+	if row < 0 || row >= sheet.MaxRow || col < 0 || col >= sheet.MaxCol {
+		return "", fmt.Errorf("cell coordinates are out of bounds")
+	}
+
+	cell, err := sheet.Cell(row, col)
+	if err != nil {
+		return "", err
+	}
+
+	return cell.String(), nil
+}
+
+// A version of getValueFromSheet that panics if it can't read the cell's value
+func mustGetValueFromSheet(sheet *xlsx.Sheet, row, col int) string {
+	cellString, err := getValueFromSheet(sheet, row, col)
+	if err != nil {
+		panic(fmt.Sprintf("getValueFromSheet: sheet=\"%s\", row=%d, col=%d: %s", sheet.Name, row, col, err.Error()))
+	}
+
+	return cellString
 }
 
 // A way to parse domestic header bounds.

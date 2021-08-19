@@ -172,8 +172,8 @@ const serviceCounselingCompletedMoves = {
 
 describe('ServicesCounselingQueue', () => {
   describe('no moves in service counseling statuses', () => {
-    useUserQueries.mockImplementation(() => serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockImplementation(() => emptyServiceCounselingMoves);
+    useUserQueries.mockReturnValue(serviceCounselorUser);
+    useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
       <MockProviders initialEntries={['counseling/queue']}>
         <ServicesCounselingQueue />
@@ -194,8 +194,8 @@ describe('ServicesCounselingQueue', () => {
   });
 
   describe('non-USMC Service Counselor', () => {
-    useUserQueries.mockImplementation(() => serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockImplementation(() => needsCounselingMoves);
+    useUserQueries.mockReturnValue(serviceCounselorUser);
+    useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     const wrapper = mount(
       <MockProviders initialEntries={['counseling/queue']}>
         <ServicesCounselingQueue />
@@ -268,8 +268,8 @@ describe('ServicesCounselingQueue', () => {
   });
 
   describe('USMC Service Counselor', () => {
-    useUserQueries.mockImplementation(() => marineCorpsUser);
-    useServicesCounselingQueueQueries.mockImplementation(() => marineCorpsNeedsCounselingMoves);
+    useUserQueries.mockReturnValue(marineCorpsUser);
+    useServicesCounselingQueueQueries.mockReturnValue(marineCorpsNeedsCounselingMoves);
     const wrapper = mount(
       <MockProviders initialEntries={['counseling/queue']}>
         <ServicesCounselingQueue />
@@ -336,8 +336,8 @@ describe('ServicesCounselingQueue', () => {
   });
 
   describe('service counseling completed moves', () => {
-    useUserQueries.mockImplementation(() => serviceCounselorUser);
-    useServicesCounselingQueueQueries.mockImplementation(() => serviceCounselingCompletedMoves);
+    useUserQueries.mockReturnValue(serviceCounselorUser);
+    useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
     const wrapper = mount(
       <MockProviders initialEntries={['counseling/queue']}>
         <ServicesCounselingQueue />

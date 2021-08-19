@@ -1,25 +1,20 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
 import { action } from '@storybook/addon-actions';
 
 import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { history, store } from 'shared/store';
 
 const defaultProps = {
-  pageList: ['page1', 'anotherPage/:foo/:bar'],
-  pageKey: 'page1',
   match: {
     isExact: false,
-    path: 'moves/:moveId/shipments/:mtoShipmentId/edit?shipmentNumber=2',
+    path: '/counseling/moves/:moveId/shipments/:mtoShipmentId/',
     url: '',
-    params: { moveId: 'move123' },
+    params: { moveCode: 'move123' },
   },
-  history: { push: () => {}, goBack: () => {} },
-  showLoggedInUser: () => {},
+  moveTaskOrderID: 'task123',
+  history: { push: () => {} },
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -41,7 +36,7 @@ const defaultProps = {
     },
   },
   isCreatePage: true,
-  updateMTOShipment: action('update MTO shipment'),
+  submitHandler: action('submit MTO Shipment for create or update'),
 };
 
 const mockMtoShipment = {
@@ -83,25 +78,21 @@ const mockMtoShipment = {
 
 export default {
   title: 'Office Components / Forms / ServicesCounselingShipmentForm',
+  component: ServicesCounselingShipmentForm,
+  decorators: [(Story) => <Story />],
 };
 
-function renderStory(props) {
-  return (
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <ServicesCounselingShipmentForm {...defaultProps} {...props} />
-      </ConnectedRouter>
-    </Provider>
-  );
-}
-
 // create shipment stories (form should not prefill customer data)
-export const HHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+export const HHGShipment = () => (
+  <ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />
+);
 
 // edit shipment stories (form should prefill)
-export const EditHHGShipment = () =>
-  renderStory({
-    selectedMoveType: SHIPMENT_OPTIONS.HHG,
-    isCreatePage: false,
-    mtoShipment: mockMtoShipment,
-  });
+export const EditHHGShipment = () => (
+  <ServicesCounselingShipmentForm
+    {...defaultProps}
+    selectedMoveType={SHIPMENT_OPTIONS.HHG}
+    isCreatePage={false}
+    mtoShipment={mockMtoShipment}
+  />
+);

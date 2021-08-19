@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
 	if !ok {
 		return
 	}
-	suite.Equal(string(order.Issuer), string(okResponse.Payload.Issuer))
+	suite.Equal(string(order.Issuer), string(*okResponse.Payload.Issuer))
 	suite.Equal(order.OrdersNumber, okResponse.Payload.OrdersNum)
 }
 

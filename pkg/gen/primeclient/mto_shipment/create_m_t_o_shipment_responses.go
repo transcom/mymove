@@ -53,9 +53,8 @@ func (o *CreateMTOShipmentReader) ReadResponse(response runtime.ClientResponse, 
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -64,7 +63,7 @@ func NewCreateMTOShipmentOK() *CreateMTOShipmentOK {
 	return &CreateMTOShipmentOK{}
 }
 
-/*CreateMTOShipmentOK handles this case with default header values.
+/* CreateMTOShipmentOK describes a response with status code 200, with default header values.
 
 Successfully created a MTO shipment.
 */
@@ -75,7 +74,6 @@ type CreateMTOShipmentOK struct {
 func (o *CreateMTOShipmentOK) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentOK  %+v", 200, o.Payload)
 }
-
 func (o *CreateMTOShipmentOK) GetPayload() *primemessages.MTOShipment {
 	return o.Payload
 }
@@ -97,7 +95,7 @@ func NewCreateMTOShipmentBadRequest() *CreateMTOShipmentBadRequest {
 	return &CreateMTOShipmentBadRequest{}
 }
 
-/*CreateMTOShipmentBadRequest handles this case with default header values.
+/* CreateMTOShipmentBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -108,7 +106,6 @@ type CreateMTOShipmentBadRequest struct {
 func (o *CreateMTOShipmentBadRequest) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *CreateMTOShipmentBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -130,7 +127,7 @@ func NewCreateMTOShipmentNotFound() *CreateMTOShipmentNotFound {
 	return &CreateMTOShipmentNotFound{}
 }
 
-/*CreateMTOShipmentNotFound handles this case with default header values.
+/* CreateMTOShipmentNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -141,7 +138,6 @@ type CreateMTOShipmentNotFound struct {
 func (o *CreateMTOShipmentNotFound) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentNotFound  %+v", 404, o.Payload)
 }
-
 func (o *CreateMTOShipmentNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -163,7 +159,7 @@ func NewCreateMTOShipmentUnprocessableEntity() *CreateMTOShipmentUnprocessableEn
 	return &CreateMTOShipmentUnprocessableEntity{}
 }
 
-/*CreateMTOShipmentUnprocessableEntity handles this case with default header values.
+/* CreateMTOShipmentUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -174,7 +170,6 @@ type CreateMTOShipmentUnprocessableEntity struct {
 func (o *CreateMTOShipmentUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *CreateMTOShipmentUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -196,7 +191,7 @@ func NewCreateMTOShipmentInternalServerError() *CreateMTOShipmentInternalServerE
 	return &CreateMTOShipmentInternalServerError{}
 }
 
-/*CreateMTOShipmentInternalServerError handles this case with default header values.
+/* CreateMTOShipmentInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -207,7 +202,6 @@ type CreateMTOShipmentInternalServerError struct {
 func (o *CreateMTOShipmentInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /mto-shipments][%d] createMTOShipmentInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *CreateMTOShipmentInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

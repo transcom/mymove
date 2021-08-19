@@ -43,7 +43,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader, err := uploader.NewUserUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
+	loader, err := uploader.NewUserUploader(h.DB(), logger, h.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 	if err != nil {
 		logger.Error("could not instantiate uploader", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()

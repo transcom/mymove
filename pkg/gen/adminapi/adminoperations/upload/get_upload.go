@@ -29,7 +29,7 @@ func NewGetUpload(ctx *middleware.Context, handler GetUploadHandler) *GetUpload 
 	return &GetUpload{Context: ctx, Handler: handler}
 }
 
-/*GetUpload swagger:route GET /uploads/{uploadId} upload getUpload
+/* GetUpload swagger:route GET /uploads/{uploadId} upload getUpload
 
 Get information about an upload
 
@@ -44,17 +44,15 @@ type GetUpload struct {
 func (o *GetUpload) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetUploadParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

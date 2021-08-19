@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { Summary } from './index';
 
@@ -154,10 +155,27 @@ describe('Summary page', () => {
 
   describe('if the user can add another shipment', () => {
     it('displays the Add Another Shipment section', () => {
-      const { queryByRole } = render(<Summary {...testProps} />);
+      render(<Summary {...testProps} />);
 
-      expect(queryByRole('heading', { name: 'Add another shipment' })).toBeInTheDocument();
-      expect(queryByRole('button', { name: 'Add another shipment' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Add another shipment' })).toHaveAttribute(
+        'href',
+        '/moves/123/shipment-type',
+      );
+    });
+
+    it('displays a button that opens a modal', () => {
+      render(<Summary {...testProps} />);
+
+      expect(
+        screen.queryByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
+      ).not.toBeInTheDocument();
+
+      expect(screen.getByTitle('Help with adding shipments')).toBeInTheDocument();
+      userEvent.click(screen.getByTitle('Help with adding shipments'));
+
+      expect(
+        screen.getByRole('heading', { level: 3, name: 'Reasons you might need another shipment' }),
+      ).toBeInTheDocument();
     });
   });
 

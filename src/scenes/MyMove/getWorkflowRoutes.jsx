@@ -74,36 +74,47 @@ const pages = {
   [customerRoutes.CONUS_OCONUS_PATH]: {
     isInFlow: inGhcFlow,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage
-          handleSubmit={no_op}
-          pageList={pages}
-          pageKey={key}
-          match={match}
-          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
-        >
-          <ConusOrNot conusStatus={props.conusStatus} />
-        </WizardPage>
-      );
-    },
+    render:
+      (key, pages, description, props) =>
+      ({ match }) => {
+        return (
+          <WizardPage
+            handleSubmit={no_op}
+            pageList={pages}
+            pageKey={key}
+            match={match}
+            canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
+          >
+            <ConusOrNot conusStatus={props.conusStatus} />
+          </WizardPage>
+        );
+      },
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
-    render: () => ({ history }) => <DodInfo push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <DodInfo push={history.push} />,
   },
   [customerRoutes.NAME_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.first_name, sm.last_name]),
-    render: () => ({ history }) => <SMName push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <SMName push={history.push} />,
   },
   [customerRoutes.CONTACT_INFO_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) =>
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
-    render: () => ({ history }) => <ContactInfo push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <ContactInfo push={history.push} />,
   },
   [customerRoutes.CURRENT_DUTY_STATION_PATH]: {
     isInFlow: myFirstRodeo,
@@ -111,25 +122,37 @@ const pages = {
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
     isComplete: ({ sm }) => sm.is_profile_complete || get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
-    render: () => ({ history }) => <DutyStation push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <DutyStation push={history.push} />,
     description: 'current duty station',
   },
   [customerRoutes.CURRENT_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.residential_address),
-    render: () => ({ history }) => <ResidentialAddress push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <ResidentialAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_ADDRESS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || Boolean(sm.backup_mailing_address),
-    render: () => ({ history }) => <BackupMailingAddress push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <BackupMailingAddress push={history.push} />,
   },
   [customerRoutes.BACKUP_CONTACTS_PATH]: {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm, orders, move, ppm, backupContacts }) => {
       return sm.is_profile_complete || backupContacts.length > 0;
     },
-    render: () => ({ history }) => <BackupContact push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <BackupContact push={history.push} />,
     description: 'Backup contacts',
   },
   [generalRoutes.HOME_PATH]: {
@@ -137,14 +160,19 @@ const pages = {
       return myFirstRodeo(props) && inGhcFlow(props);
     },
     isComplete: never,
-    render: (key, pages) => ({ history }) => {
-      return <Home history={history} />;
-    },
+    render:
+      (key, pages) =>
+      ({ history }) => {
+        return <Home history={history} />;
+      },
   },
   '/profile-review': {
     isInFlow: notMyFirstRodeo,
     isComplete: always,
-    render: (key, pages) => ({ match }) => <ProfileReview pages={pages} pageKey={key} match={match} />,
+    render:
+      (key, pages) =>
+      ({ match }) =>
+        <ProfileReview pages={pages} pageKey={key} match={match} />,
   },
   [customerRoutes.ORDERS_INFO_PATH]: {
     isInFlow: always,
@@ -155,19 +183,28 @@ const pages = {
         orders.report_by_date,
         get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
       ]),
-    render: (key, pages) => ({ history }) => <Orders push={history.push} />,
+    render:
+      (key, pages) =>
+      ({ history }) =>
+        <Orders push={history.push} />,
   },
   [customerRoutes.ORDERS_UPLOAD_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, uploads }) =>
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
-    render: (key, pages, description, props) => ({ history }) => <UploadOrders push={history.push} />,
+    render:
+      (key, pages, description, props) =>
+      ({ history }) =>
+        <UploadOrders push={history.push} />,
     description: 'Upload your orders',
   },
   [customerRoutes.SHIPMENT_SELECT_TYPE_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: () => ({ history }) => <SelectShipmentType push={history.push} />,
+    render:
+      () =>
+      ({ history }) =>
+        <SelectShipmentType push={history.push} />,
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: (state) => {
@@ -176,18 +213,26 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
-    render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={pages} pageKey={key} match={match} />,
+    render:
+      (key, pages) =>
+      ({ match }) =>
+        <PpmDateAndLocations pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/ppm-incentive': {
     isInFlow: hasPPM,
     isComplete: ({ sm, orders, move, ppm }) =>
       get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
-    render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
+    render:
+      (key, pages) =>
+      ({ match }) =>
+        <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
   [customerRoutes.MOVE_REVIEW_PATH]: {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
-    render: () => ({ history }) => <Review push={history.push} />,
+    render: () => (props) => {
+      return <Review {...props} push={props.history.push} />;
+    },
   },
   [customerRoutes.MOVE_AGREEMENT_PATH]: {
     isInFlow: always,

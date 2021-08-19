@@ -67,17 +67,19 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
-		ID:                 strfmt.UUID(mtoShipment.ID.String()),
-		Agents:             *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:    strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:       internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:    mtoShipment.CustomerRemarks,
-		PickupAddress:      Address(mtoShipment.PickupAddress),
-		DestinationAddress: Address(mtoShipment.DestinationAddress),
-		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
-		Status:             internalmessages.MTOShipmentStatus(mtoShipment.Status),
-		ETag:               etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:          mtoShipment.CustomerRemarks,
+		PickupAddress:            Address(mtoShipment.PickupAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		DestinationAddress:       Address(mtoShipment.DestinationAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
+		Status:                   internalmessages.MTOShipmentStatus(mtoShipment.Status),
+		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {

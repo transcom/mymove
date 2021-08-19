@@ -16,7 +16,8 @@ import (
 )
 
 // NewShowMoveDatesSummaryParams creates a new ShowMoveDatesSummaryParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowMoveDatesSummaryParams() ShowMoveDatesSummaryParams {
 
 	return ShowMoveDatesSummaryParams{}
@@ -63,7 +64,6 @@ func (o *ShowMoveDatesSummaryParams) BindRequest(r *http.Request, route *middlew
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -82,6 +82,7 @@ func (o *ShowMoveDatesSummaryParams) bindMoveDate(rawData []string, hasKey bool,
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("moveDate", "query", raw); err != nil {
 		return err
 	}

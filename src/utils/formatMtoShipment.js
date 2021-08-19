@@ -5,14 +5,6 @@ import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 
 function formatAgentForDisplay(agent) {
   const agentCopy = { ...agent };
-  // handle the diff between expected FE and BE phone format
-  Object.keys(agentCopy).forEach((key) => {
-    if (key === 'phone') {
-      const phoneNum = agentCopy[key];
-      // will be in format xxxxxxxxxx
-      agentCopy[key] = phoneNum.split('-').join('');
-    }
-  });
   return agentCopy;
 }
 
@@ -22,10 +14,13 @@ function formatAgentForAPI(agent) {
     const sanitizedKey = `${key}`;
     if (agentCopy[sanitizedKey] === '') {
       delete agentCopy[sanitizedKey];
-    } else if (sanitizedKey === 'phone') {
-      const phoneNum = agentCopy[sanitizedKey];
-      // will be in format xxx-xxx-xxxx
-      agentCopy[sanitizedKey] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
+    } else if (
+      // These fields are readOnly so we don't want to send them in requests
+      sanitizedKey === 'updatedAt' ||
+      sanitizedKey === 'createdAt' ||
+      sanitizedKey === 'mtoShipmentID'
+    ) {
+      delete agentCopy[sanitizedKey];
     }
   });
   return agentCopy;
@@ -72,6 +67,8 @@ export function formatMtoShipmentForDisplay({
   customerRemarks,
   counselorRemarks,
   moveTaskOrderID,
+  secondaryPickupAddress,
+  secondaryDeliveryAddress,
 }) {
   const displayValues = {
     shipmentType,
@@ -88,7 +85,15 @@ export function formatMtoShipmentForDisplay({
       address: { ...emptyAddressShape },
       agent: { ...emptyAgentShape },
     },
+    secondaryPickup: {
+      address: { ...emptyAddressShape },
+    },
+    secondaryDelivery: {
+      address: { ...emptyAddressShape },
+    },
     hasDeliveryAddress: 'no',
+    hasSecondaryPickup: 'no',
+    hasSecondaryDelivery: 'no',
   };
 
   if (agents) {
@@ -117,9 +122,19 @@ export function formatMtoShipmentForDisplay({
     displayValues.pickup.requestedDate = parseSwaggerDate(requestedPickupDate);
   }
 
+  if (secondaryPickupAddress) {
+    displayValues.secondaryPickup.address = { ...emptyAddressShape, ...secondaryPickupAddress };
+    displayValues.hasSecondaryPickup = 'yes';
+  }
+
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
     displayValues.hasDeliveryAddress = 'yes';
+  }
+
+  if (secondaryDeliveryAddress) {
+    displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
+    displayValues.hasSecondaryDelivery = 'yes';
   }
 
   if (requestedDeliveryDate) {
@@ -133,7 +148,16 @@ export function formatMtoShipmentForDisplay({
  * formatMtoShipmentForAPI converts mtoShipment data from the template format to the format API calls expect
  * @param {*} param - unnamed object representing various mtoShipment data parts
  */
-export function formatMtoShipmentForAPI({ moveId, shipmentType, pickup, delivery, customerRemarks, counselorRemarks }) {
+export function formatMtoShipmentForAPI({
+  moveId,
+  shipmentType,
+  pickup,
+  delivery,
+  customerRemarks,
+  counselorRemarks,
+  secondaryPickup,
+  secondaryDelivery,
+}) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
     shipmentType,
@@ -167,6 +191,14 @@ export function formatMtoShipmentForAPI({ moveId, shipmentType, pickup, delivery
         formattedMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
+  }
+
+  if (secondaryPickup?.address) {
+    formattedMtoShipment.secondaryPickupAddress = formatAddressForAPI(secondaryPickup.address);
+  }
+
+  if (secondaryDelivery?.address) {
+    formattedMtoShipment.secondaryDeliveryAddress = formatAddressForAPI(secondaryDelivery.address);
   }
 
   if (!formattedMtoShipment.agents?.length) {

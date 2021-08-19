@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 	var fetchedUpload models.UserUpload
 	suite.DB().Find(&fetchedUpload, uploadUser.ID)
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
-	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
+	suite.Equal(*createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
 
 	var fetchedMoveDocument models.MoveDocument
 	err := suite.DB().Q().Where("move_id = ?", ppm.MoveID).First(&fetchedMoveDocument)
@@ -112,18 +112,20 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreate() {
 	}
 
 	for _, t := range tests {
-		newWeightTicketSetDocParams := createWeightTicketSetDocument(suite, t.weightTicketSetType)
+		suite.Run(t.weightTicketSetType, func() {
+			newWeightTicketSetDocParams := createWeightTicketSetDocument(suite, t.weightTicketSetType)
 
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-		fakeS3 := storageTest.NewFakeS3Storage(true)
-		context.SetFileStorer(fakeS3)
-		handler := CreateWeightTicketSetDocumentHandler{context}
-		response := handler.Handle(newWeightTicketSetDocParams)
-		suite.IsNotErrResponse(response)
-		createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
-		createdPayload := createdResponse.Payload
-		suite.NotNil(createdPayload.ID)
-		suite.Equal(*createdPayload.Title, t.resultTitle)
+			context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+			fakeS3 := storageTest.NewFakeS3Storage(true)
+			context.SetFileStorer(fakeS3)
+			handler := CreateWeightTicketSetDocumentHandler{context}
+			response := handler.Handle(newWeightTicketSetDocParams)
+			suite.IsNotErrResponse(response)
+			createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
+			createdPayload := createdResponse.Payload
+			suite.NotNil(createdPayload.ID)
+			suite.Equal(*createdPayload.Title, t.resultTitle)
+		})
 	}
 }
 

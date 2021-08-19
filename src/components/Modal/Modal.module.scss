@@ -1,7 +1,7 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
 
-.Modal {
+div.Modal {
   @include u-bg('white');
   @include u-padding-y(3);
   @include u-padding-x(4);

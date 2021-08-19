@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowServiceMemberBackupContactParams creates a new ShowServiceMemberBackupContactParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowServiceMemberBackupContactParams() ShowServiceMemberBackupContactParams {
 
 	return ShowServiceMemberBackupContactParams{}
@@ -50,7 +51,6 @@ func (o *ShowServiceMemberBackupContactParams) BindRequest(r *http.Request, rout
 	if err := o.bindBackupContactID(rBackupContactID, rhkBackupContactID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

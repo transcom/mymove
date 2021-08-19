@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set. This prevents viewing any move task orders that have not been made available to the Prime.\n",
+        "description": "_[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use ` + "`" + `listMoves` + "`" + `.\n\nGets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -47,6 +47,7 @@ func init() {
         ],
         "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -81,7 +82,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}": {
+    "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
         "produces": [
@@ -95,8 +96,8 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "UUID of move task order to use.",
-            "name": "moveTaskOrderID",
+            "description": "UUID or MoveCode of move task order to use.",
+            "name": "moveID",
             "in": "path",
             "required": true
           }
@@ -212,6 +213,45 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMoves",
+        "operationId": "listMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/ListMoves"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -344,7 +384,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -389,7 +429,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "patch": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -415,7 +455,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/UpdateMTOShipment"
             }
           },
           {
@@ -1326,6 +1366,67 @@ func init() {
         }
       }
     },
+    "ListMove": {
+      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
+      "type": "object",
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "ListMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ListMove"
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -1409,38 +1510,39 @@ func init() {
       ],
       "properties": {
         "eTag": {
-          "description": "ETag identifier required to update this object",
+          "description": "A hash unique to this service item that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "id": {
-          "description": "ID of the service item",
+          "description": "The ID of the service item.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
-          "description": "ID of the associated moveTaskOrder",
+          "description": "The ID of the move for this service item.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
-          "description": "ID of the associated mtoShipment",
+          "description": "The ID of the shipment this service is for, if any. Optional.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "description": "Full descriptive name of the service",
+          "description": "The full descriptive name of the service.",
           "type": "string",
           "readOnly": true
         },
         "rejectionReason": {
-          "description": "Reason the service item was rejected by the TOO",
+          "description": "The reason why this service item was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -1537,7 +1639,7 @@ func init() {
       ]
     },
     "MTOServiceItemDimension": {
-      "description": "Describes a dimension object for the MTOServiceItem.",
+      "description": "The dimensions for either the item or the crate associated with a crating service item.",
       "type": "object",
       "required": [
         "length",
@@ -1589,23 +1691,41 @@ func init() {
           ],
           "properties": {
             "crate": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "description": {
+              "description": "A description of the item being crated.",
               "type": "string",
               "example": "Decorated horse head to be crated."
             },
             "item": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).",
               "type": "string",
               "enum": [
                 "DCRT",
                 "DCRTSA",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -1688,13 +1808,27 @@ func init() {
             "description"
           ],
           "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
             "description": {
-              "description": "Further details about the shuttle service.",
+              "description": "Details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
             },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "DOSHUT",
@@ -1702,7 +1836,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "Explanation of why a shuttle service is required.",
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
@@ -1711,7 +1845,7 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem.",
+      "description": "The status of a service item, indicating where it is in the TOO's approval process.",
       "type": "string",
       "enum": [
         "SUBMITTED",
@@ -1739,6 +1873,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -1795,7 +1936,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
-          }
+          },
+          "readOnly": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -1877,7 +2019,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
           "enum": [
             "SUBMITTED",
@@ -2326,7 +2468,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -2426,14 +2567,15 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
-        "UpdateMTOServiceItemSIT"
+        "UpdateMTOServiceItemSIT",
+        "UpdateMTOServiceItemShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -2460,6 +2602,119 @@ func init() {
           }
         }
       ]
+    },
+    "UpdateMTOServiceItemShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDSHUT",
+                "DOSHUT"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "UpdateMTOShipment": {
+      "properties": {
+        "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
+          "type": "boolean"
+        },
+        "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "pointOfContact": {
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
+          "type": "string"
+        },
+        "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "type": "integer",
+          "example": 4500
+        },
+        "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDeliveryAddress": {
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
     },
     "UpdateMTOShipmentStatus": {
       "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
@@ -2583,16 +2838,19 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
-      "name": "paymentRequest"
+      "description": "A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a\ncustomer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be\napproved by the TOO before payment can be requested.\n\nThere are three types of service items: accessorial, MTO-level, and standard.\n\n**WIP:** Add an external link to an article that explains the different types of service items in more detail.\n",
+      "name": "mtoServiceItem"
     },
     {
-      "name": "mtoServiceItem"
+      "name": "paymentRequest"
     }
   ],
   "x-tagGroups": [
@@ -2601,8 +2859,8 @@ func init() {
       "tags": [
         "moveTaskOrder",
         "mtoShipment",
-        "paymentRequest",
-        "mtoServiceItem"
+        "mtoServiceItem",
+        "paymentRequest"
       ]
     }
   ]
@@ -2628,7 +2886,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders where ` + "`" + `availableToPrimeAt` + "`" + ` has been set. This prevents viewing any move task orders that have not been made available to the Prime.\n",
+        "description": "_[Deprecated: sunset on August 31, 2021]_ This endpoint is deprecated. Please use ` + "`" + `listMoves` + "`" + `.\n\nGets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move is later than the provided date and time.\n\n**WIP**: The original goal was to also look at the ` + "`" + `updateAt` + "`" + ` timestamps of the nested objects - such as the\nshipments, service items, etc. This has not been implemented.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
         "produces": [
           "application/json"
         ],
@@ -2637,6 +2895,7 @@ func init() {
         ],
         "summary": "fetchMTOUpdates",
         "operationId": "fetchMTOUpdates",
+        "deprecated": true,
         "parameters": [
           {
             "type": "integer",
@@ -2686,7 +2945,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}": {
+    "/move-task-orders/{moveID}": {
       "get": {
         "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
         "produces": [
@@ -2700,8 +2959,8 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "description": "UUID of move task order to use.",
-            "name": "moveTaskOrderID",
+            "description": "UUID or MoveCode of move task order to use.",
+            "name": "moveID",
             "in": "path",
             "required": true
           }
@@ -2847,6 +3106,54 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves": {
+      "get": {
+        "description": "Gets all moves that have been reviewed and approved by the TOO. The ` + "`" + `since` + "`" + ` parameter can be used to filter this\nlist down to only the moves that have been updated since the provided timestamp. A move will be considered\nupdated if the ` + "`" + `updatedAt` + "`" + ` timestamp on the move or on its orders, shipments, service items, or payment requests,\nis later than the provided date and time.\n\n**WIP**: Include what causes moves to leave this list. Currently, once the ` + "`" + `availableToPrimeAt` + "`" + ` timestamp has\nbeen set, that move will always appear in this list.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "listMoves",
+        "operationId": "listMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Only return moves updated since this time. Formatted like \"2021-07-23T18:30:47.116Z\"",
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "schema": {
+              "$ref": "#/definitions/ListMoves"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/mto-service-items": {
       "post": {
@@ -3024,7 +3331,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -3081,7 +3388,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "patch": {
-        "description": "Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:\n\n* ` + "`" + `scheduledPickupDate` + "`" + `\n* ` + "`" + `actualPickupDate` + "`" + `\n* ` + "`" + `firstAvailableDeliveryDate` + "`" + `\n* ` + "`" + `destinationAddress` + "`" + `\n* ` + "`" + `pickupAddress` + "`" + `\n* ` + "`" + `secondaryDeliveryAddress` + "`" + `\n* ` + "`" + `secondaryPickupAddress` + "`" + `\n* ` + "`" + `primeEstimatedWeight` + "`" + `\n* ` + "`" + `primeActualWeight` + "`" + `\n* ` + "`" + `shipmentType` + "`" + `\n* ` + "`" + `agents` + "`" + ` - all subfields except ` + "`" + `mtoShipmentID` + "`" + `, ` + "`" + `createdAt` + "`" + `, ` + "`" + `updatedAt` + "`" + `. You cannot add new agents to a shipment.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://github.com/transcom/mymove/wiki/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -3107,7 +3414,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/UpdateMTOShipment"
             }
           },
           {
@@ -4162,6 +4469,67 @@ func init() {
         }
       }
     },
+    "ListMove": {
+      "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
+      "type": "object",
+      "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveCode": {
+          "type": "string",
+          "readOnly": true,
+          "example": "HYXFJF"
+        },
+        "orderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ppmEstimatedWeight": {
+          "type": "integer"
+        },
+        "ppmType": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "ListMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ListMove"
+      }
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -4245,38 +4613,39 @@ func init() {
       ],
       "properties": {
         "eTag": {
-          "description": "ETag identifier required to update this object",
+          "description": "A hash unique to this service item that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
           "readOnly": true
         },
         "id": {
-          "description": "ID of the service item",
+          "description": "The ID of the service item.",
           "type": "string",
           "format": "uuid",
+          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
         "moveTaskOrderID": {
-          "description": "ID of the associated moveTaskOrder",
+          "description": "The ID of the move for this service item.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "mtoShipmentID": {
-          "description": "ID of the associated mtoShipment",
+          "description": "The ID of the shipment this service is for, if any. Optional.",
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "reServiceName": {
-          "description": "Full descriptive name of the service",
+          "description": "The full descriptive name of the service.",
           "type": "string",
           "readOnly": true
         },
         "rejectionReason": {
-          "description": "Reason the service item was rejected by the TOO",
+          "description": "The reason why this service item was rejected by the TOO.",
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
@@ -4373,7 +4742,7 @@ func init() {
       ]
     },
     "MTOServiceItemDimension": {
-      "description": "Describes a dimension object for the MTOServiceItem.",
+      "description": "The dimensions for either the item or the crate associated with a crating service item.",
       "type": "object",
       "required": [
         "length",
@@ -4425,23 +4794,41 @@ func init() {
           ],
           "properties": {
             "crate": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "description": {
+              "description": "A description of the item being crated.",
               "type": "string",
               "example": "Decorated horse head to be crated."
             },
             "item": {
-              "$ref": "#/definitions/MTOServiceItemDimension"
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
             },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).",
               "type": "string",
               "enum": [
                 "DCRT",
                 "DCRTSA",
                 "DUCRT"
               ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
             }
           }
         }
@@ -4524,13 +4911,27 @@ func init() {
             "description"
           ],
           "properties": {
+            "actualWeight": {
+              "description": "A record of the actual weight that was shuttled. Provided by the movers, based on weight tickets.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
             "description": {
-              "description": "Further details about the shuttle service.",
+              "description": "Details about the shuttle service.",
               "type": "string",
               "example": "Things to be moved to the place by shuttle."
             },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in the shuttling service.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
             "reServiceCode": {
-              "description": "Service codes allowed for this model type.",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "DOSHUT",
@@ -4538,7 +4939,7 @@ func init() {
               ]
             },
             "reason": {
-              "description": "Explanation of why a shuttle service is required.",
+              "description": "The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.\n",
               "type": "string",
               "example": "Storage items need to be picked up."
             }
@@ -4547,7 +4948,7 @@ func init() {
       ]
     },
     "MTOServiceItemStatus": {
-      "description": "Describes all statuses for a MTOServiceItem.",
+      "description": "The status of a service item, indicating where it is in the TOO's approval process.",
       "type": "string",
       "enum": [
         "SUBMITTED",
@@ -4575,6 +4976,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "counselorRemarks": {
+          "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
         },
         "createdAt": {
           "type": "string",
@@ -4631,7 +5039,8 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
-          }
+          },
+          "readOnly": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -4713,7 +5122,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the Prime in special circumstances.\n",
+          "description": "The status of a shipment, indicating where it is in the TOO's approval process. Can only be updated by the contractor in special circumstances.\n",
           "type": "string",
           "enum": [
             "SUBMITTED",
@@ -5152,7 +5561,6 @@ func init() {
       "type": "string",
       "enum": [
         "ActualPickupDate",
-        "CanStandAlone",
         "ContractCode",
         "ContractYearName",
         "CubicFeetBilled",
@@ -5265,14 +5673,15 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
-        "UpdateMTOServiceItemSIT"
+        "UpdateMTOServiceItemSIT",
+        "UpdateMTOServiceItemShuttle"
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -5299,6 +5708,119 @@ func init() {
           }
         }
       ]
+    },
+    "UpdateMTOServiceItemShuttle": {
+      "description": "Subtype used to provide the estimated weight and actual weight for shuttle. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "actualWeight": {
+              "description": "Provided by the movers, based on weight tickets. Relevant for shuttling (DDSHUT \u0026 DOSHUT) service items.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4000
+            },
+            "estimatedWeight": {
+              "description": "An estimate of how much weight from a shipment will be included in a shuttling (DDSHUT \u0026 DOSHUT) service item.",
+              "type": "integer",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": 4200
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDSHUT",
+                "DOSHUT"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "UpdateMTOShipment": {
+      "properties": {
+        "actualPickupDate": {
+          "description": "The date when the Prime contractor actually picked up the shipment. Updated after-the-fact.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "destinationAddress": {
+          "description": "Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details\nduring onboarding, if they know their new address already.\n\nMay be blank when entered by the customer, required when entered by the Prime. May not represent the true\nfinal destination due to the shipment being diverted or placed in SIT.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "diversion": {
+          "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
+          "type": "boolean"
+        },
+        "firstAvailableDeliveryDate": {
+          "description": "The date the Prime provides to the customer as the first possible delivery date so that they can plan their travel accordingly.\n",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "pickupAddress": {
+          "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "pointOfContact": {
+          "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
+          "type": "string"
+        },
+        "primeActualWeight": {
+          "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
+          "type": "integer",
+          "example": 4500
+        },
+        "scheduledPickupDate": {
+          "description": "The date the Prime contractor scheduled to pick up this shipment after consultation with the customer.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "secondaryDeliveryAddress": {
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
     },
     "UpdateMTOShipmentStatus": {
       "description": "Contains the statuses available to the Prime when updating the state of a shipment.",
@@ -5425,16 +5947,19 @@ func init() {
   },
   "tags": [
     {
+      "description": "The **moveTaskOrder** represents a military move that has been sent to a contractor. It contains all the information about shipments, including service items, estimated weights, actual weights, requested and scheduled move dates, etc.\n",
       "name": "moveTaskOrder"
     },
     {
+      "description": "A shipment is some (or all) of a customer's belongings picked up in one location and delivered to another\nlocation. All of the items in a shipment are weighed and transported as a discrete unit. One move may include\nmultiple shipments. An **mtoShipment**, in particular, is a shipment that belongs to a\n[moveTaskOrder](#tag/moveTaskOrder).\n\nThe weights for all of the shipments in a move are combined and compared to the customer's weight allowance. If\nthe sum of the shipments is greater, the customer is liable for paying excess weight cost. Both the customer and\nthe contractor should keep this potential cost in mind when planning a move and the shipments within it.\n",
       "name": "mtoShipment"
     },
     {
-      "name": "paymentRequest"
+      "description": "A service item is a service that the contractor can bill for. For example, if the movers pack and/or unpack a\ncustomer's belongings, those are billable services (packing and unpacking). All **mtoServiceItems** must be\napproved by the TOO before payment can be requested.\n\nThere are three types of service items: accessorial, MTO-level, and standard.\n\n**WIP:** Add an external link to an article that explains the different types of service items in more detail.\n",
+      "name": "mtoServiceItem"
     },
     {
-      "name": "mtoServiceItem"
+      "name": "paymentRequest"
     }
   ],
   "x-tagGroups": [
@@ -5443,8 +5968,8 @@ func init() {
       "tags": [
         "moveTaskOrder",
         "mtoShipment",
-        "paymentRequest",
-        "mtoServiceItem"
+        "mtoServiceItem",
+        "paymentRequest"
       ]
     }
   ]

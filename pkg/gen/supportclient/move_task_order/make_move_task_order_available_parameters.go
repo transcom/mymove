@@ -16,65 +16,80 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewMakeMoveTaskOrderAvailableParams creates a new MakeMoveTaskOrderAvailableParams object
-// with the default values initialized.
+// NewMakeMoveTaskOrderAvailableParams creates a new MakeMoveTaskOrderAvailableParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewMakeMoveTaskOrderAvailableParams() *MakeMoveTaskOrderAvailableParams {
-	var ()
 	return &MakeMoveTaskOrderAvailableParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewMakeMoveTaskOrderAvailableParamsWithTimeout creates a new MakeMoveTaskOrderAvailableParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewMakeMoveTaskOrderAvailableParamsWithTimeout(timeout time.Duration) *MakeMoveTaskOrderAvailableParams {
-	var ()
 	return &MakeMoveTaskOrderAvailableParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewMakeMoveTaskOrderAvailableParamsWithContext creates a new MakeMoveTaskOrderAvailableParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewMakeMoveTaskOrderAvailableParamsWithContext(ctx context.Context) *MakeMoveTaskOrderAvailableParams {
-	var ()
 	return &MakeMoveTaskOrderAvailableParams{
-
 		Context: ctx,
 	}
 }
 
 // NewMakeMoveTaskOrderAvailableParamsWithHTTPClient creates a new MakeMoveTaskOrderAvailableParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewMakeMoveTaskOrderAvailableParamsWithHTTPClient(client *http.Client) *MakeMoveTaskOrderAvailableParams {
-	var ()
 	return &MakeMoveTaskOrderAvailableParams{
 		HTTPClient: client,
 	}
 }
 
-/*MakeMoveTaskOrderAvailableParams contains all the parameters to send to the API endpoint
-for the make move task order available operation typically these are written to a http.Request
+/* MakeMoveTaskOrderAvailableParams contains all the parameters to send to the API endpoint
+   for the make move task order available operation.
+
+   Typically these are written to a http.Request.
 */
 type MakeMoveTaskOrderAvailableParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+	/* IfMatch.
 
+	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
 
 	*/
 	IfMatch string
-	/*MoveTaskOrderID
-	  UUID of move task order.
 
+	/* MoveTaskOrderID.
+
+	   UUID of move task order.
 	*/
 	MoveTaskOrderID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the make move task order available params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *MakeMoveTaskOrderAvailableParams) WithDefaults() *MakeMoveTaskOrderAvailableParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the make move task order available params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *MakeMoveTaskOrderAvailableParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the make move task order available params

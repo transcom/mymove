@@ -1,7 +1,6 @@
 package movetaskorder_test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -18,13 +17,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
 	mtoChecker := NewMoveTaskOrderChecker(suite.DB())
 
-	suite.T().Run("MTO is available and visible - success", func(t *testing.T) {
+	suite.RunWithRollback("MTO is available and visible - success", func() {
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(availableMTO.ID)
 		suite.Equal(availableToPrime, true)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("MTO is available but hidden - failure", func(t *testing.T) {
+	suite.RunWithRollback("MTO is available but hidden - failure", func() {
 		now := time.Now()
 		hide := false
 		availableHiddenMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
@@ -41,13 +40,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 		suite.Equal(availableToPrime, false)
 	})
 
-	suite.T().Run("MTO is not available - no failure, but returns false", func(t *testing.T) {
+	suite.RunWithRollback("MTO is not available - no failure, but returns false", func() {
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(notAvailableMTO.ID)
 		suite.Equal(availableToPrime, false)
 		suite.NoError(err)
 	})
 
-	suite.T().Run("MTO ID is not valid - failure", func(t *testing.T) {
+	suite.RunWithRollback("MTO ID is not valid - failure", func() {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		availableToPrime, err := mtoChecker.MTOAvailableToPrime(badUUID)
 		suite.Error(err)

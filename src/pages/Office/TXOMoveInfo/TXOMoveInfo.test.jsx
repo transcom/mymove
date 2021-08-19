@@ -1,9 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen, queryByTestId } from '@testing-library/react';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
 import { MockProviders } from 'testUtils';
+import { useTXOMoveInfoQueries } from 'hooks/queries';
 
 const testMoveCode = '1A5PM3';
 
@@ -14,56 +16,179 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('hooks/queries', () => ({
   ...jest.requireActual('hooks/queries'),
-  useTXOMoveInfoQueries: () => {
-    return {
-      customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-      order: {
-        id: '4321',
-        customerID: '2468',
-        uploaded_order_id: '2',
-        departmentIndicator: 'Navy',
-        grade: 'E-6',
-        originDutyStation: {
-          name: 'JBSA Lackland',
-        },
-        destinationDutyStation: {
-          name: 'JB Lewis-McChord',
-        },
-        report_by_date: '2018-08-01',
-      },
-      isLoading: false,
-      isError: false,
-      isSuccess: true,
-    };
-  },
+  useTXOMoveInfoQueries: jest.fn(),
 }));
 
+const basicUseTXOMoveInfoQueriesValue = {
+  customerData: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+  order: {
+    id: '4321',
+    customerID: '2468',
+    uploaded_order_id: '2',
+    departmentIndicator: 'Navy',
+    grade: 'E-6',
+    originDutyStation: {
+      name: 'JBSA Lackland',
+    },
+    destinationDutyStation: {
+      name: 'JB Lewis-McChord',
+    },
+    report_by_date: '2018-08-01',
+  },
+
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
+const updatedOrdersUseTXOMoveInfoQueriesValue = {
+  ...basicUseTXOMoveInfoQueriesValue,
+  order: { ...basicUseTXOMoveInfoQueriesValue.order, uploadedAmendedOrderID: '123' },
+};
+
 describe('TXO Move Info Container', () => {
-  it('should render the move tab container', () => {
-    const wrapper = mount(
-      <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-        <TXOMoveInfo />
-      </MockProviders>,
-    );
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useTXOMoveInfoQueries.mockReturnValue(loadingReturnValue);
 
-    expect(wrapper.find('CustomerHeader').exists()).toBe(true);
-    expect(wrapper.find('header.nav-header').exists()).toBe(true);
-    expect(wrapper.find('nav.tabNav').exists()).toBe(true);
-    expect(wrapper.find('li.tabItem').length).toEqual(4);
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
 
-    expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move details');
-    expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
-    expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
-    expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
-    expect(wrapper.find('span.tab-title').at(3).text()).toContain('History');
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
 
-    expect(wrapper.find('li.tabItem a').at(0).prop('href')).toEqual(`/moves/${testMoveCode}/details`);
-    expect(wrapper.find('li.tabItem a').at(1).prop('href')).toEqual(`/moves/${testMoveCode}/mto`);
-    expect(wrapper.find('li.tabItem a').at(2).prop('href')).toEqual(`/moves/${testMoveCode}/payment-requests`);
-    expect(wrapper.find('li.tabItem a').at(3).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useTXOMoveInfoQueries.mockReturnValue(errorReturnValue);
+
+      render(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
+
+  describe('Basic rendering', () => {
+    it('should render the move tab container', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find('CustomerHeader').exists()).toBe(true);
+      expect(wrapper.find('header.nav-header').exists()).toBe(true);
+      expect(wrapper.find('nav.tabNav').exists()).toBe(true);
+      expect(wrapper.find('li.tabItem').length).toEqual(4);
+
+      expect(wrapper.find('span.tab-title').at(0).text()).toContain('Move details');
+      expect(wrapper.find('span.tab-title + span').at(0).exists()).toBe(false);
+      expect(wrapper.find('span.tab-title').at(1).text()).toContain('Move task order');
+      expect(wrapper.find('span.tab-title').at(2).text()).toContain('Payment requests');
+      expect(wrapper.find('span.tab-title').at(3).text()).toContain('History');
+
+      expect(wrapper.find('li.tabItem a').at(0).prop('href')).toEqual(`/moves/${testMoveCode}/details`);
+      expect(wrapper.find('li.tabItem a').at(1).prop('href')).toEqual(`/moves/${testMoveCode}/mto`);
+      expect(wrapper.find('li.tabItem a').at(2).prop('href')).toEqual(`/moves/${testMoveCode}/payment-requests`);
+      expect(wrapper.find('li.tabItem a').at(3).prop('href')).toEqual(`/moves/${testMoveCode}/history`);
+    });
+    it('should render the system error when there is an error', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+
+      render(
+        <MockProviders
+          initialState={{ interceptor: { hasRecentError: true, traceId: 'some-trace-id' } }}
+          initialEntries={[`/moves/${testMoveCode}/details`]}
+        >
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+      expect(screen.getByText('Technical Help Desk').closest('a')).toHaveAttribute(
+        'href',
+        'https://move.mil/customer-service#technical-help-desk',
+      );
+      expect(screen.getByTestId('system-error').textContent).toEqual(
+        "Something isn't working, but we're not sure what. Wait a minute and try again.If that doesn't fix it, contact the Technical Help Desk and give them this code: some-trace-id",
+      );
+    });
+    it('should not render system error when there is not an error', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+      render(
+        <MockProviders
+          initialState={{ interceptor: { hasRecentError: false, traceId: '' } }}
+          initialEntries={[`/moves/${testMoveCode}/details`]}
+        >
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+      expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Tag rendering', () => {
+    it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(updatedOrdersUseTXOMoveInfoQueriesValue);
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('1');
+    });
+
+    it('should render the move details tab container with a tag that shows the count of items that need attention when there are unapproved shipments', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
+      const setUnapprovedShipmentCount = jest.fn();
+      jest.spyOn(React, 'useState').mockReturnValueOnce([2, setUnapprovedShipmentCount]);
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('2');
+    });
+
+    it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended and there are unapproved shipments', () => {
+      useTXOMoveInfoQueries.mockReturnValueOnce(updatedOrdersUseTXOMoveInfoQueriesValue);
+      const setUnapprovedShipmentCount = jest.fn();
+      jest.spyOn(React, 'useState').mockReturnValueOnce([2, setUnapprovedShipmentCount]);
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('3');
+    });
   });
 
   describe('routing', () => {
+    beforeAll(() => {
+      useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
+    });
+
     it('should handle the Move Details route', () => {
       const wrapper = mount(
         <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
@@ -131,6 +256,18 @@ describe('TXO Move Info Container', () => {
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/payment-requests');
+    });
+
+    it('should handle the Billable Weight route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/billable-weight`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('Route');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/billable-weight');
     });
 
     it('should handle the Move History route', () => {

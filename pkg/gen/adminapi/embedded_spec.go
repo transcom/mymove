@@ -1211,6 +1211,9 @@ func init() {
           "403": {
             "description": "Not authorized to update this user"
           },
+          "404": {
+            "description": "Not found"
+          },
           "422": {
             "description": "Validation error",
             "schema": {
@@ -2525,12 +2528,10 @@ func init() {
     },
     "UserUpdatePayload": {
       "type": "object",
-      "required": [
-        "active"
-      ],
       "properties": {
         "active": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "revokeAdminSession": {
           "type": "boolean",
@@ -3837,6 +3838,9 @@ func init() {
           },
           "403": {
             "description": "Not authorized to update this user"
+          },
+          "404": {
+            "description": "Not found"
           },
           "422": {
             "description": "Validation error",
@@ -5153,12 +5157,10 @@ func init() {
     },
     "UserUpdatePayload": {
       "type": "object",
-      "required": [
-        "active"
-      ],
       "properties": {
         "active": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "revokeAdminSession": {
           "type": "boolean",

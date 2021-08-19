@@ -6,6 +6,8 @@ package dpsmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,31 +23,39 @@ type AuthenticationUserPayload struct {
 	Affiliation *Affiliation `json:"affiliation,omitempty"`
 
 	// email
+	// Example: john_bob@example.com
 	// Pattern: ^[a-zA-Z0-9.!#$%&'*+/=?^_{|}~-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email string `json:"email,omitempty"`
 
 	// first name
+	// Example: John
 	FirstName string `json:"first_name,omitempty"`
 
 	// last name
+	// Example: Donut
 	LastName string `json:"last_name,omitempty"`
 
 	// login gov id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	LoginGovID strfmt.UUID `json:"login_gov_id,omitempty"`
 
 	// middle name
+	// Example: L.
 	MiddleName *string `json:"middle_name,omitempty"`
 
 	// social security number
+	// Example: 666555555
 	// Pattern: ^\d{9}$
 	// Format: ssn
 	SocialSecurityNumber strfmt.SSN `json:"social_security_number,omitempty"`
 
 	// suffix
+	// Example: Jr.
 	Suffix *string `json:"suffix,omitempty"`
 
 	// telephone
+	// Example: 212-555-5555
 	Telephone *string `json:"telephone,omitempty"`
 }
 
@@ -76,7 +86,6 @@ func (m *AuthenticationUserPayload) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AuthenticationUserPayload) validateAffiliation(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Affiliation) { // not required
 		return nil
 	}
@@ -94,12 +103,11 @@ func (m *AuthenticationUserPayload) validateAffiliation(formats strfmt.Registry)
 }
 
 func (m *AuthenticationUserPayload) validateEmail(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Email) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(m.Email), `^[a-zA-Z0-9.!#$%&'*+/=?^_{|}~-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", m.Email, `^[a-zA-Z0-9.!#$%&'*+/=?^_{|}~-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -107,7 +115,6 @@ func (m *AuthenticationUserPayload) validateEmail(formats strfmt.Registry) error
 }
 
 func (m *AuthenticationUserPayload) validateLoginGovID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.LoginGovID) { // not required
 		return nil
 	}
@@ -120,17 +127,44 @@ func (m *AuthenticationUserPayload) validateLoginGovID(formats strfmt.Registry) 
 }
 
 func (m *AuthenticationUserPayload) validateSocialSecurityNumber(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.SocialSecurityNumber) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("social_security_number", "body", string(m.SocialSecurityNumber), `^\d{9}$`); err != nil {
+	if err := validate.Pattern("social_security_number", "body", m.SocialSecurityNumber.String(), `^\d{9}$`); err != nil {
 		return err
 	}
 
 	if err := validate.FormatOf("social_security_number", "body", "ssn", m.SocialSecurityNumber.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this authentication user payload based on the context it is used
+func (m *AuthenticationUserPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateAffiliation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *AuthenticationUserPayload) contextValidateAffiliation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Affiliation != nil {
+		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("affiliation")
+			}
+			return err
+		}
 	}
 
 	return nil

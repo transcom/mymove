@@ -1,7 +1,6 @@
 package adminapi
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -67,11 +66,22 @@ type IndexOfficeUsersHandler struct {
 	services.NewPagination
 }
 
+var officeUserFilterConverters = map[string]func(string) []services.QueryFilter{
+	"search": func(content string) []services.QueryFilter {
+		nameSearch := fmt.Sprintf("%s%%", content)
+		return []services.QueryFilter{
+			query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", content)),
+			query.NewQueryFilter("first_name", "ILIKE", nameSearch),
+			query.NewQueryFilter("last_name", "ILIKE", nameSearch),
+		}
+	},
+}
+
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := h.generateQueryFilters(params.Filter, logger)
+	queryFilters := generateQueryFilters(logger, params.Filter, officeUserFilterConverters)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
@@ -243,6 +253,14 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		}
 	}
 
+	// Log if the account was enabled or disabled (POAM requirement)
+	if payload.Active != nil {
+		_, err = audit.CaptureAccountStatus(updatedOfficeUser, *payload.Active, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Error capturing account status audit record in UpdateOfficeUserHandler", zap.Error(err))
+		}
+	}
+
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Error capturing audit record", zap.Error(err))
@@ -261,31 +279,4 @@ func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleTy
 		}
 	}
 	return rt
-}
-
-// generateQueryFilters is helper to convert filter params from a json string
-// of the form `{"search": "example1@example.com"}` to an array of services.QueryFilter
-func (h IndexOfficeUsersHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
-	type Filter struct {
-		Search string `json:"search"`
-	}
-	f := Filter{}
-	var queryFilters []services.QueryFilter
-	if filters == nil {
-		return queryFilters
-	}
-	b := []byte(*filters)
-	err := json.Unmarshal(b, &f)
-	if err != nil {
-		fs := fmt.Sprintf("%v", filters)
-		logger.Warn("unable to decode param", zap.Error(err),
-			zap.String("filters", fs))
-	}
-	if f.Search != "" {
-		nameSearch := fmt.Sprintf("%s%%", f.Search)
-		queryFilters = append(queryFilters, query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", f.Search)))
-		queryFilters = append(queryFilters, query.NewQueryFilter("first_name", "ILIKE", nameSearch))
-		queryFilters = append(queryFilters, query.NewQueryFilter("last_name", "ILIKE", nameSearch))
-	}
-	return queryFilters
 }

@@ -1,23 +1,56 @@
 package internalapi
 
 import (
+	"errors"
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/uploader"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upload models.Upload, url string) (*internalmessages.UploadPayload, error) {
+	uploadPayload := &internalmessages.UploadPayload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
+}
+
 func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
-	documentPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
+	orderPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
 		return nil, err
+	}
+
+	var amendedOrderPayload *internalmessages.DocumentPayload
+	if order.UploadedAmendedOrders != nil {
+		amendedOrderPayload, err = payloadForDocumentModel(storer, *order.UploadedAmendedOrders)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var moves internalmessages.IndexMovesPayload
@@ -40,28 +73,30 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		originDutyStation = *order.OriginDutyStation
 	}
 
+	ordersType := order.OrdersType
 	payload := &internalmessages.Orders{
-		ID:                  handlers.FmtUUID(order.ID),
-		CreatedAt:           handlers.FmtDateTime(order.CreatedAt),
-		UpdatedAt:           handlers.FmtDateTime(order.UpdatedAt),
-		ServiceMemberID:     handlers.FmtUUID(order.ServiceMemberID),
-		IssueDate:           handlers.FmtDate(order.IssueDate),
-		ReportByDate:        handlers.FmtDate(order.ReportByDate),
-		OrdersType:          order.OrdersType,
-		OrdersTypeDetail:    order.OrdersTypeDetail,
-		OriginDutyStation:   payloadForDutyStationModel(originDutyStation),
-		Grade:               order.Grade,
-		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
-		HasDependents:       handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
-		UploadedOrders:      documentPayload,
-		OrdersNumber:        order.OrdersNumber,
-		Moves:               moves,
-		Tac:                 order.TAC,
-		Sac:                 order.SAC,
-		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
-		Status:              internalmessages.OrdersStatus(order.Status),
-		AuthorizedWeight:    dBAuthorizedWeight,
+		ID:                    handlers.FmtUUID(order.ID),
+		CreatedAt:             handlers.FmtDateTime(order.CreatedAt),
+		UpdatedAt:             handlers.FmtDateTime(order.UpdatedAt),
+		ServiceMemberID:       handlers.FmtUUID(order.ServiceMemberID),
+		IssueDate:             handlers.FmtDate(order.IssueDate),
+		ReportByDate:          handlers.FmtDate(order.ReportByDate),
+		OrdersType:            &ordersType,
+		OrdersTypeDetail:      order.OrdersTypeDetail,
+		OriginDutyStation:     payloadForDutyStationModel(originDutyStation),
+		Grade:                 order.Grade,
+		NewDutyStation:        payloadForDutyStationModel(order.NewDutyStation),
+		HasDependents:         handlers.FmtBool(order.HasDependents),
+		SpouseHasProGear:      handlers.FmtBool(order.SpouseHasProGear),
+		UploadedOrders:        orderPayload,
+		UploadedAmendedOrders: amendedOrderPayload,
+		OrdersNumber:          order.OrdersNumber,
+		Moves:                 moves,
+		Tac:                   order.TAC,
+		Sac:                   order.SAC,
+		DepartmentIndicator:   (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
+		Status:                internalmessages.OrdersStatus(order.Status),
+		AuthorizedWeight:      dBAuthorizedWeight,
 	}
 
 	return payload, nil
@@ -117,11 +152,14 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		deptIndicator = &converted
 	}
 
+	if payload.OrdersType == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
+	}
 	newOrder, verrs, err := serviceMember.CreateOrder(
 		h.DB(),
 		time.Time(*payload.IssueDate),
 		time.Time(*payload.ReportByDate),
-		payload.OrdersType,
+		*payload.OrdersType,
 		*payload.HasDependents,
 		*payload.SpouseHasProGear,
 		newDutyStation,
@@ -208,10 +246,14 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
+	if payload.OrdersType == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: OrdersType"))
+	}
+
 	order.OrdersNumber = payload.OrdersNumber
 	order.IssueDate = time.Time(*payload.IssueDate)
 	order.ReportByDate = time.Time(*payload.ReportByDate)
-	order.OrdersType = payload.OrdersType
+	order.OrdersType = *payload.OrdersType
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
 	order.SpouseHasProGear = *payload.SpouseHasProGear
@@ -234,4 +276,58 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
+}
+
+// UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
+type UploadAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.OrderUpdater
+}
+
+// Handle updates an order to attach amended orders from a request payload
+func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
+	ctx := params.HTTPRequest.Context()
+	session, logger := h.SessionAndLoggerFromContext(ctx)
+
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return handlers.ResponseForError(logger, nil)
+	}
+
+	logger.Info(
+		"File uploader and size",
+		zap.String("userID", session.UserID.String()),
+		zap.String("serviceMemberID", session.ServiceMemberID.String()),
+		zap.String("officeUserID", session.OfficeUserID.String()),
+		zap.String("AdminUserID", session.AdminUserID.String()),
+		zap.Int64("size", file.Header.Size),
+	)
+
+	orderID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(h.Logger(), session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+
+	if verrs.HasAny() || err != nil {
+		switch err.(type) {
+		case uploader.ErrTooLarge:
+			return ordersop.NewUploadAmendedOrdersRequestEntityTooLarge()
+		case uploader.ErrFile:
+			return ordersop.NewUploadAmendedOrdersInternalServerError()
+		case uploader.ErrFailedToInitUploader:
+			return ordersop.NewUploadAmendedOrdersInternalServerError()
+		case services.NotFoundError:
+			return ordersop.NewUploadAmendedOrdersNotFound()
+		default:
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
+	}
+
+	uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return ordersop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload)
 }

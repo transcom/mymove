@@ -32,7 +32,7 @@ func Recovery(logger Logger) func(inner http.Handler) http.Handler {
 						fields = append(fields, zap.Error(err))
 					} else {
 						fields = append(fields, zap.Any("object", obj))
-						fields = append(fields, zap.String("stacktrace", fmt.Sprintf("%s", debug.Stack())))
+						fields = append(fields, zap.String("stacktrace", string(debug.Stack())))
 					}
 					logger.Error("http request panic", fields...)
 

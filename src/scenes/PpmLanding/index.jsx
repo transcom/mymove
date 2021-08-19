@@ -46,16 +46,8 @@ export class PpmLanding extends Component {
   };
 
   getNextIncompletePage = (excludeHomePage) => {
-    const {
-      selectedMoveType,
-      lastMoveIsCanceled,
-      serviceMember,
-      orders,
-      move,
-      ppm,
-      backupContacts,
-      context,
-    } = this.props;
+    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts, context } =
+      this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,

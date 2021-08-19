@@ -7,7 +7,7 @@ import (
 )
 
 // InternalMoveTaskOrderCreator is the service object interface for InternalCreateMoveTaskOrder
-//go:generate mockery --name InternalMoveTaskOrderCreator
+//go:generate mockery --name InternalMoveTaskOrderCreator --disable-version-string
 type InternalMoveTaskOrderCreator interface {
 	InternalCreateMoveTaskOrder(moveTaskOrder supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.Move, error)
 }

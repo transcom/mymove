@@ -56,3 +56,9 @@ func (m *MTOServiceItemDimension) Validate(tx *pop.Connection) (*validate.Errors
 func (m MTOServiceItemDimension) TableName() string {
 	return "mto_service_item_dimensions"
 }
+
+// Volume calculates Length x Height x Width
+func (m *MTOServiceItemDimension) Volume() unit.CubicThousandthInch {
+	volume := m.Length * m.Width * m.Height
+	return unit.CubicThousandthInch(volume)
+}

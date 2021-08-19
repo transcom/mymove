@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
@@ -80,18 +81,9 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	handler := IndexMovesHandler{
-		HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		NewQueryFilter:  query.NewQueryFilter,
-		MoveListFetcher: move.NewMoveListFetcher(queryBuilder),
-		NewPagination:   pagination.NewPagination,
-	}
-
 	suite.T().Run("test filters present", func(t *testing.T) {
-
 		s := `{"locator":"TEST123"}`
-		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		qfs := generateQueryFilters(suite.TestLogger(), &s, locatorFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("locator", "=", "TEST123"),
 		}
@@ -104,9 +96,15 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 
 	// Create handler and request:
 	builder := query.NewQueryBuilder(suite.DB())
+	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
 	handler := UpdateMoveHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), builder, mtoserviceitem.NewMTOServiceItemCreator(builder)),
+		movetaskorder.NewMoveTaskOrderUpdater(
+			suite.DB(),
+			builder,
+			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
+			moveRouter,
+		),
 	}
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())

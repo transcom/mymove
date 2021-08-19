@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/go-openapi/errors"
@@ -24,6 +25,7 @@ type AvailableMoveDates struct {
 	Available []strfmt.Date `json:"available"`
 
 	// start date
+	// Example: 2018-09-25
 	// Required: true
 	// Format: date
 	StartDate *strfmt.Date `json:"start_date"`
@@ -74,6 +76,11 @@ func (m *AvailableMoveDates) validateStartDate(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this available move dates based on context it is used
+func (m *AvailableMoveDates) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

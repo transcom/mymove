@@ -7,7 +7,6 @@ import {
   getMTOServiceItems,
   getOrder,
   getMove,
-  getMoveTaskOrderList,
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
@@ -24,7 +23,6 @@ import {
   MOVES,
   ORDERS,
   MOVE_PAYMENT_REQUESTS,
-  MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
@@ -121,6 +119,7 @@ export const useEditShipmentQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, mtoShipmentQuery]);
 
   return {
+    move,
     order,
     mtoShipments,
     isLoading,
@@ -138,15 +137,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
     enabled: !!orderId,
   });
 
-  // get move task orders
-  const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
-    [MOVE_TASK_ORDERS, orderId],
-    getMoveTaskOrderList,
-    { enabled: !!orderId },
-  );
-
-  const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
-  const mtoID = moveTaskOrder?.id;
+  const mtoID = move?.id;
 
   // get MTO shipments
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID, false], getMTOShipments, {
@@ -163,14 +154,13 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
-    moveTaskOrderQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
   ]);
 
   return {
     orders,
-    moveTaskOrders,
+    move,
     mtoShipments,
     mtoServiceItems,
     isLoading,
@@ -193,6 +183,7 @@ export const useOrdersDocumentQueries = (moveCode) => {
   const order = orders && orders[`${orderId}`];
   // eslint-disable-next-line camelcase
   const documentId = order?.uploaded_order_id;
+  const amendedOrderDocumentId = order?.uploadedAmendedOrderID;
 
   // Get a document
   // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
@@ -209,13 +200,28 @@ export const useOrdersDocumentQueries = (moveCode) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, ordersDocumentsQuery]);
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], getDocument, {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    moveQuery,
+    orderQuery,
+    ordersDocumentsQuery,
+    amendedOrdersDocumentsQuery,
+  ]);
 
   return {
     move,
     orders,
     documents,
+    amendedDocuments,
     upload,
+    amendedUpload,
     isLoading,
     isError,
     isSuccess,

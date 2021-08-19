@@ -58,7 +58,7 @@ DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/h
 ## Deployment Scripts
 
 This series of scripts allows you to quickly deploy the app manually (for example, should CircleCI be down).
-Run the scripts in this order with the environment you're deploying to (`exp`, `stg`, `prd`) passed in as a variable.
+Run the scripts in this order with the environment you're deploying to (`demo`, `exp`, `stg`, `prd`) passed in as a variable.
 You will need to specify which account you're using. Do so by pre-pending
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec AWS_ACCOUNT --` to the script command (i.e.
 `DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp`).
@@ -68,15 +68,19 @@ For example, to run in the `exp` environment, you'd run:
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-migrations exp
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app exp
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls exp
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-niprnet stg
+DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-client-tls-niprnet stg
 DISABLE_AWS_VAULT_WRAPPER=1 aws-vault exec transcom-gov-milmove-exp -- scripts/deploy-app-tasks exp
 ```
 
-| Script Name             | Description                                                             |
-| ----------------------- | ----------------------------------------------------------------------- |
-| `deploy-app-migrations` | Deploy the app migrations                                               |
-| `deploy-app`            | Deploy the app                                                          |
-| `deploy-app-client-tls` | Deploy the app client-tls                                               |
-| `deploy-app-tasks`      | Deploy the app tasks                                                    |
+| Script Name                     | Description                                                             |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `deploy-app-migrations`         | Deploy the app migrations                                               |
+| `deploy-app`                    | Deploy the app                                                          |
+| `deploy-app-client-tls`         | Deploy the app client-tls                                               |
+| `deploy-app-client-tls-niprnet` | Deploy the app client-tls for NIPRNet                                   |
+| `deploy-app-niprnet`            | Deploy the app for NIPRNet                                              |
+| `deploy-app-tasks`              | Deploy the app tasks                                                    |
 
 ## Pre-commit Scripts
 
@@ -130,7 +134,7 @@ application testing
 | `merge-pr`                      | A script to automate the landing of your GitHub pull requests.                                    |
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
-| `prime-api-demo`                | A script to demo the Prime API.                                                                   |
+| `pricing-acceptance`                | A script to handle the acceptance process for pricing work.                                                                   |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
 
@@ -174,6 +178,7 @@ These scripts are primarily used for working with the database
 | ---------------------------- | -------------------------------------------------------------------------------------- |
 | `db-backup`                  | Backup the contents of the development database for later restore.                     |
 | `db-cleanup`                 | Remove the database backup.                                                            |
+| `db-truncate`                | Truncates the configured database. Used in testing.                                    |
 | `db-restore`                 | Restore the contents of the development database from an earlier backup.               |
 | `psql-dev`                   | Convenience script to drop into development postgres DB                                |
 | `psql-deployed-migrations`   | Convenience script to drop into deployed migrations postgres DB                        |

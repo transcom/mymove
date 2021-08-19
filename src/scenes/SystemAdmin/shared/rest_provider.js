@@ -34,6 +34,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
    * @param {Object} params The data request params, depending on the type
    * @returns {Object} { url, options } The HTTP request parameters
    */
+  const CREATE_MANY = 'createMany';
   const convertDataRequestToHTTP = (type, resource, params) => {
     let url = '';
     const options = {};
@@ -91,7 +92,7 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         url = `${apiUrl}/${resource}?${stringify(query)}`;
         break;
       }
-      case UPDATE:
+      case UPDATE: {
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'PATCH';
         options.headers.set('If-Match', params.data?.eTag); // for optimistic locking / concurrency control
@@ -99,11 +100,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         if (paramsDiff.roles) {
           paramsDiff.roles = params.data.roles;
         }
-        if (params.data.active != null) {
-          paramsDiff.active = params.data.active;
-        }
         options.body = JSON.stringify(paramsDiff);
         break;
+      }
       case CREATE:
         url = `${apiUrl}/${resource}`;
         options.method = 'POST';
@@ -169,6 +168,19 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
    * @returns {Promise} the Promise for a data response
    */
   return (type, resource, params) => {
+    // we don't have an endpoint to create many objects at once, so we call create n times
+    if (type === CREATE_MANY) {
+      return Promise.all(
+        params.data.map((item) =>
+          httpClient(`${apiUrl}/${resource}`, {
+            method: 'POST',
+            body: JSON.stringify(item),
+          }),
+        ),
+      ).then((responses) => ({
+        data: responses.map((response) => response.json),
+      }));
+    }
     // simple-rest doesn't handle filters on UPDATE route, so we fallback to calling UPDATE n times instead
     if (type === UPDATE_MANY) {
       return Promise.all(

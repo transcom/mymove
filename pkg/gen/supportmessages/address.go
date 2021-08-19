@@ -6,6 +6,7 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,10 +21,12 @@ import (
 type Address struct {
 
 	// City
+	// Example: Anytown
 	// Required: true
 	City *string `json:"city"`
 
 	// Country
+	// Example: USA
 	Country *string `json:"country,omitempty"`
 
 	// e tag
@@ -31,10 +34,12 @@ type Address struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// ZIP
+	// Example: 90210
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PostalCode *string `json:"postalCode"`
@@ -45,13 +50,16 @@ type Address struct {
 	State *string `json:"state"`
 
 	// Street address 1
+	// Example: 123 Main Ave
 	// Required: true
 	StreetAddress1 *string `json:"streetAddress1"`
 
 	// Street address 2
+	// Example: Apartment 9000
 	StreetAddress2 *string `json:"streetAddress2,omitempty"`
 
 	// Address Line 3
+	// Example: Montmârtre
 	StreetAddress3 *string `json:"streetAddress3,omitempty"`
 }
 
@@ -95,7 +103,6 @@ func (m *Address) validateCity(formats strfmt.Registry) error {
 }
 
 func (m *Address) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -113,7 +120,7 @@ func (m *Address) validatePostalCode(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.Pattern("postalCode", "body", string(*m.PostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("postalCode", "body", *m.PostalCode, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -313,6 +320,29 @@ func (m *Address) validateState(formats strfmt.Registry) error {
 func (m *Address) validateStreetAddress1(formats strfmt.Registry) error {
 
 	if err := validate.Required("streetAddress1", "body", m.StreetAddress1); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this address based on the context it is used
+func (m *Address) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Address) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 

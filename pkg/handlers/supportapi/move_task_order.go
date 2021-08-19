@@ -1,6 +1,8 @@
 package supportapi
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -27,8 +29,12 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
-		Since:         params.Since,
 	}
+	if params.Since != nil {
+		timeSince := time.Unix(*params.Since, 0)
+		searchParams.Since = &timeSince
+	}
+
 	mtos, err := h.MoveTaskOrderFetcher.ListAllMoveTaskOrders(&searchParams)
 
 	if err != nil {
@@ -107,11 +113,12 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle fetches an MTO from the database using its UUID
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	searchParams := services.MoveTaskOrderFetcherParams{
-		IncludeHidden: true,
-	}
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID, &searchParams)
+	searchParams := services.MoveTaskOrderFetcherParams{
+		IncludeHidden:   true,
+		MoveTaskOrderID: moveTaskOrderID,
+	}
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(&searchParams)
 	if err != nil {
 		logger.Error("primeapi.support.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

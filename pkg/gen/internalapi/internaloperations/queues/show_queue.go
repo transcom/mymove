@@ -29,7 +29,7 @@ func NewShowQueue(ctx *middleware.Context, handler ShowQueueHandler) *ShowQueue 
 	return &ShowQueue{Context: ctx, Handler: handler}
 }
 
-/*ShowQueue swagger:route GET /queues/{queueType} queues showQueue
+/* ShowQueue swagger:route GET /queues/{queueType} queues showQueue
 
 Show all moves in a queue
 
@@ -44,17 +44,15 @@ type ShowQueue struct {
 func (o *ShowQueue) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowQueueParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

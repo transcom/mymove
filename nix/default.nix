@@ -23,11 +23,11 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "nodejs-12.16.3";
+      name = "nodejs-14.17.1";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "528d35bec0cb976a06cc0e8487c6e5136400b16b";
-    }) {}).nodejs-12_x
+      rev = "75916fb375eb571dceebef84263a6cb942372769";
+    }) {}).nodejs-14_x
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
@@ -39,26 +39,26 @@ in buildEnv {
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "go-1.16.4";
+      name = "go-1.16.6";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "438b60f3f72725aceecf0e1a3eab0b02d56101c6";
+      rev = "0e06fbbfa08f6ffc1ad3496ee18f90e76565bbc9";
     }) {}).go
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "postgresql-12.4";
+      name = "postgresql-12.7";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "db2de55cbe4258f223ca7af0ace34fce9046d731";
+      rev = "860b56be91fb874d48e23a950815969a7b832fbc";
     }) {}).postgresql_12
 
     (import (builtins.fetchGit {
       # Descriptive name to make the store path easier to identify
-      name = "pre-commit-2.7.1";
+      name = "pre-commit-2.13.0";
       url = "https://github.com/NixOS/nixpkgs/";
       ref = "refs/heads/nixpkgs-unstable";
-      rev = "559cf76fa3642106d9f23c9e845baf4d354be682";
+      rev = "f62847d5655a6954fc946e5d9c81424171cc281e";
     }) {}).pre-commit
 
     (import (builtins.fetchGit {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import RejectServiceItemModal from './RejectServiceItemModal';
 
@@ -20,7 +19,6 @@ const serviceItem = {
     description: 'Trombone',
     itemDimensions: { length: 1000, width: 2500, height: 3000 },
     crateDimensions: { length: 1000, width: 2500, height: 3000 },
-    imgURL: isHappoRun() ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
   },
 };
 

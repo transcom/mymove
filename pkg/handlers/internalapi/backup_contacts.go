@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"errors"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
@@ -11,6 +13,7 @@ import (
 )
 
 func payloadForBackupContactModel(contact models.BackupContact) internalmessages.ServiceMemberBackupContactPayload {
+	permission := internalmessages.NewBackupContactPermission(internalmessages.BackupContactPermission(contact.Permission))
 	contactPayload := internalmessages.ServiceMemberBackupContactPayload{
 		ID:              handlers.FmtUUID(contact.ID),
 		ServiceMemberID: *handlers.FmtUUID(contact.ServiceMemberID),
@@ -19,7 +22,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		Name:            &contact.Name,
 		Email:           &contact.Email,
 		Telephone:       contact.Phone,
-		Permission:      internalmessages.BackupContactPermission(contact.Permission),
+		Permission:      permission,
 	}
 	return contactPayload
 }
@@ -42,11 +45,15 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		return handlers.ResponseForError(logger, err)
 	}
 
+	if params.CreateBackupContactPayload.Permission == nil {
+		return handlers.ResponseForError(logger, errors.New("missing required field: Permission"))
+	}
+
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.DB(),
 		*params.CreateBackupContactPayload.Name,
 		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
-		models.BackupContactPermission(params.CreateBackupContactPayload.Permission))
+		models.BackupContactPermission(*params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -118,7 +125,9 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
 	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
-	contact.Permission = models.BackupContactPermission(params.UpdateServiceMemberBackupContactPayload.Permission)
+	if params.UpdateServiceMemberBackupContactPayload.Permission != nil {
+		contact.Permission = models.BackupContactPermission(*params.UpdateServiceMemberBackupContactPayload.Permission)
+	}
 
 	if verrs, err := h.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)

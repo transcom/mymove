@@ -3,7 +3,7 @@ import testParams from './serviceItemTestParams';
 
 describe('makeCalculations', () => {
   it('returns correct data for DomesticLongHaul', () => {
-    const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul);
+    const result = makeCalculations('DLH', 99999, testParams.DomesticLongHaul, testParams.additionalCratingDataDCRT);
     expect(result).toEqual([
       {
         value: '85 cwt',
@@ -64,7 +64,7 @@ describe('makeCalculations', () => {
     ]);
   });
 
-  it('returns correct data for DomesticOrignPrice', () => {
+  it('returns correct data for DomesticOriginPrice', () => {
     const resultDOP = makeCalculations('DOP', 99998, testParams.DomesticOriginPrice);
     expect(resultDOP).toEqual([
       {
@@ -404,28 +404,107 @@ describe('makeCalculations', () => {
   });
 
   it('returns correct data for DomesticCrating', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticCrating);
-    expect(result).toEqual([]);
-  });
-
-  it('returns correct data for DomesticCratingStandalone', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticCratingStandalone);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DCRT', 99999, testParams.DomesticCrating, testParams.additionalCratingDataDCRT);
+    expect(result).toEqual([
+      {
+        value: '4.00',
+        label: 'Crating size (cu ft)',
+        details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
+      },
+      {
+        value: '1.71',
+        label: 'Crating price (per cu ft)',
+        details: ['Service schedule: 3', 'Crating date: 09 Mar 2020', 'Domestic'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for DomesticUncrating', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticUncrating);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DUCRT', 99999, testParams.DomesticUncrating, testParams.additionalCratingDataDCRT);
+    expect(result).toEqual([
+      {
+        details: ['Description: Grand piano', 'Dimensions: 3x10x6 in'],
+        label: 'Crating size (cu ft)',
+        value: '4.00',
+      },
+      {
+        details: ['Service schedule: 3', 'Uncrating date: 09 Mar 2020', 'Domestic'],
+        label: 'Uncrating price (per cu ft)',
+        value: '1.71',
+      },
+      {
+        details: [],
+        label: 'Price escalation factor',
+        value: '1.033',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
   });
 
   it('returns correct data for DomesticOriginShuttleService', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticOriginShuttleService);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DOSHUT', 99999, testParams.DomesticOriginShuttleService);
+    expect(result).toEqual([
+      {
+        details: ['Shuttle weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+        label: 'Billable weight (cwt)',
+        value: '85 cwt',
+      },
+      {
+        details: ['Service schedule: 3', 'Pickup date: 09 Mar 2020', 'Domestic'],
+        label: 'Origin price',
+        value: '1.71',
+      },
+      {
+        details: [],
+        label: 'Price escalation factor',
+        value: '1.033',
+      },
+      {
+        details: [''],
+        label: 'Total amount requested',
+        value: '$999.99',
+      },
+    ]);
   });
 
   it('returns correct data for DomesticDestinationShuttleService', () => {
-    const result = makeCalculations('?', 99999, testParams.DomesticDestinationShuttleService);
-    expect(result).toEqual([]);
+    const result = makeCalculations('DDSHUT', 99999, testParams.DomesticDestinationShuttleService);
+    expect(result).toEqual([
+      {
+        value: '85 cwt',
+        label: 'Billable weight (cwt)',
+        details: ['Shuttle weight: 8,500 lbs', 'Estimated: 8,000 lbs'],
+      },
+      {
+        value: '1.71',
+        label: 'Destination price',
+        details: ['Service schedule: 3', 'Delivery date: 09 Mar 2020', 'Domestic'],
+      },
+      {
+        value: '1.033',
+        label: 'Price escalation factor',
+        details: [],
+      },
+      {
+        value: '$999.99',
+        label: 'Total amount requested',
+        details: [''],
+      },
+    ]);
   });
 
   it('returns correct data for NonStandardHHG', () => {

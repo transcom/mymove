@@ -11,7 +11,7 @@ import (
 
 // SoapCaller provides an interface for the Call method of the gosoap Client so it can be mocked.
 // NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
-//go:generate mockery --name SoapCaller --outpkg ghcmocks --output ./ghcmocks
+//go:generate mockery --name SoapCaller --outpkg ghcmocks --output ./ghcmocks --disable-version-string
 type SoapCaller interface {
 	Call(m string, p gosoap.SoapParams) (res *gosoap.Response, err error)
 }

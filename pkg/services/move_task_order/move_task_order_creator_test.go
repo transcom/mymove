@@ -1,8 +1,6 @@
 package movetaskorder_test
 
 import (
-	"testing"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -42,8 +40,5 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 	suite.NoError(err)
 	suite.Empty(verrs)
 
-	suite.T().Run("move task order is created", func(t *testing.T) {
-		// testing mto
-		suite.NotZero(actualMTO.ID)
-	})
+	suite.NotZero(actualMTO.ID, "move task order is created")
 }

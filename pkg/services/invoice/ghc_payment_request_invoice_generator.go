@@ -3,6 +3,7 @@ package invoice
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/benbjohnson/clock"
@@ -214,6 +215,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("error while looking for payment service items on payment request: %s", err))
 	}
 
+	// Add C3 segment here
+	err = g.createC3Segment(&edi858.Header)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+
 	if len(paymentServiceItems) == 0 {
 		return ediinvoice.Invoice858C{}, services.NewConflictError(paymentRequest.ID, "this payment request has no approved PaymentServiceItems")
 	}
@@ -299,6 +306,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 		ReferenceIdentification:          string(*branch),
 	}
 
+	return nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createC3Segment(header *ediinvoice.InvoiceHeader) error {
+	header.Currency = edisegment.C3{
+		CurrencyCodeC301: "USD",
+	}
 	return nil
 }
 
@@ -454,10 +468,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	}
 
 	if len(destPhoneLines) > 0 {
+		digits, digitsErr := g.getPhoneNumberDigitsOnly(destPhoneLines[0])
+		if digitsErr != nil {
+			return services.NewInvalidInputError(destinationDutyStation.ID, digitsErr, nil, "unable to get destination duty station phone number")
+		}
 		destinationPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
 			CommunicationNumberQualifier: "TE",
-			CommunicationNumber:          destPhoneLines[0],
+			CommunicationNumber:          digits,
 		}
 		header.DestinationPhone = &destinationPhone
 	}
@@ -522,10 +540,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	}
 
 	if len(originPhoneLines) > 0 {
+		digits, digitsErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
+		if digitsErr != nil {
+			return services.NewInvalidInputError(originDutyStation.ID, digitsErr, nil, "unable to get origin duty station phone number")
+		}
 		originPhone := edisegment.PER{
 			ContactFunctionCode:          "CN",
 			CommunicationNumberQualifier: "TE",
-			CommunicationNumber:          originPhoneLines[0],
+			CommunicationNumber:          digits,
 		}
 		header.OriginPhone = &originPhone
 	}
@@ -573,6 +595,15 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
+func (g ghcPaymentRequestInvoiceGenerator) getPhoneNumberDigitsOnly(phoneString string) (string, error) {
+	reg, err := regexp.Compile("[^0-9]+")
+	if err != nil {
+		return "", err
+	}
+	digitsOnly := reg.ReplaceAllString(phoneString, "")
+	return digitsOnly, nil
+}
+
 func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (int, error) {
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
@@ -584,6 +615,29 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.Pa
 	}
 
 	return weightInt, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) getServiceItemDimensionRateParams(serviceItem models.PaymentServiceItem) (float64, float64, error) {
+	cubicFeet, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameCubicFeetBilled)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	cubicFeetFloat, err := strconv.ParseFloat(cubicFeet.Value, 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Could not parse cubic feet as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+
+	rate, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNamePriceRateOrFactor)
+	if err != nil {
+		return 0, 0, err
+	}
+	rateFloat, err := strconv.ParseFloat(rate.Value, 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Could not parse rate as a float for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+
+	return cubicFeetFloat, rateFloat, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (int, float64, error) {
@@ -632,7 +686,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Build and put together the segments
 		newSegment.HL = edisegment.HL{
 			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
-			HierarchicalLevelCode: "I",
+			HierarchicalLevelCode: "9",
 		}
 
 		newSegment.N9 = edisegment.N9{
@@ -666,7 +720,8 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP,
 			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
-			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT:
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT,
+			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT:
 			var err error
 			weight, err := g.getWeightParams(serviceItem)
 			if err != nil {
@@ -687,10 +742,41 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:       "L",
 			}
 
+			weightFloat := float64(weight)
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				FreightRate:          &weight,
+				FreightRate:          &weightFloat,
 				RateValueQualifier:   "LB",
+				Charge:               serviceItem.PriceCents.Int64(),
+			}
+
+		// following service items have service item dimensions and rate but no distance
+		case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
+			var err error
+			dimensions, rate, err := g.getServiceItemDimensionRateParams(serviceItem)
+			if err != nil {
+				return segments, l3, err
+			}
+
+			newSegment.L5 = edisegment.L5{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				LadingDescription:      string(serviceCode),
+				CommodityCode:          "TBD",
+				CommodityCodeQualifier: "D",
+			}
+
+			newSegment.L0 = edisegment.L0{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Volume:               dimensions,
+				VolumeUnitQualifier:  "E",
+				LadingQuantity:       1,
+				PackagingFormCode:    "CRT",
+			}
+
+			newSegment.L1 = edisegment.L1{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				FreightRate:          &rate,
+				RateValueQualifier:   "PF", // Per Cubic Foot
 				Charge:               serviceItem.PriceCents.Int64(),
 			}
 
@@ -717,9 +803,10 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
+			weightFloat := float64(weight)
 			newSegment.L1 = edisegment.L1{
 				LadingLineItemNumber: hierarchicalIDNumber,
-				FreightRate:          &weight,
+				FreightRate:          &weightFloat,
 				RateValueQualifier:   "LB",
 				Charge:               serviceItem.PriceCents.Int64(),
 			}

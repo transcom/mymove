@@ -118,15 +118,71 @@ func MakeAvailableMove(db *pop.Connection) models.Move {
 	return move
 }
 
-// MakeApprovalsRequestedMove makes a Move with status 'Approvals Requested'
-func MakeApprovalsRequestedMove(db *pop.Connection) models.Move {
-	now := time.Now()
+// MakeStubbedMoveWithStatus makes a stubbed Move that can be set to any status
+// by passing it into the function
+func MakeStubbedMoveWithStatus(db *pop.Connection, status models.MoveStatus) models.Move {
+	stubbedServiceMember := MakeStubbedServiceMember(db)
+	stubbedEntitlement := MakeEntitlement(db, Assertions{
+		Entitlement: models.Entitlement{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
+	stubbedDutyStation := MakeDutyStation(db, Assertions{
+		DutyStation: models.DutyStation{
+			ID: uuid.Must(uuid.NewV4()),
+		},
+		Stub: true,
+	})
+
+	stubbedOrder := MakeOrder(db, Assertions{
+		Stub: true,
+		Order: models.Order{
+			ServiceMember:    stubbedServiceMember,
+			ServiceMemberID:  stubbedServiceMember.ID,
+			UploadedOrdersID: uuid.Must(uuid.NewV4()),
+		},
+		Entitlement:       stubbedEntitlement,
+		OriginDutyStation: stubbedDutyStation,
+	})
+
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
-			AvailableToPrimeAt: &now,
-			Status:             models.MoveStatusAPPROVALSREQUESTED,
+			ID:     uuid.Must(uuid.NewV4()),
+			Status: status,
+		},
+		Order: stubbedOrder,
+		Stub:  true,
+	})
+	return move
+}
+
+// MakeApprovalsRequestedMove makes a Move with status 'Approvals Requested'
+func MakeApprovalsRequestedMove(db *pop.Connection, assertions Assertions) models.Move {
+	now := time.Now()
+	assertions.Move.AvailableToPrimeAt = &now
+	assertions.Move.Status = models.MoveStatusAPPROVALSREQUESTED
+
+	move := MakeMove(db, assertions)
+	return move
+}
+
+// MakeNeedsServiceCounselingMove makes a Move with status 'Needs Service Counseling'
+func MakeNeedsServiceCounselingMove(db *pop.Connection) models.Move {
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusNeedsServiceCounseling,
 		},
 	})
+	return move
+}
+
+// MakeServiceCounselingCompletedMove makes a Move with status 'Service Counseling Completed'
+func MakeServiceCounselingCompletedMove(db *pop.Connection, assertions Assertions) models.Move {
+	now := time.Now()
+	assertions.Move.ServiceCounselingCompletedAt = &now
+	assertions.Move.Status = models.MoveStatusServiceCounselingCompleted
+	move := MakeMove(db, assertions)
 	return move
 }
 

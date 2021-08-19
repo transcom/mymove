@@ -29,8 +29,33 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightEstimatedLookup() {
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
+		suite.NoError(err)
+		suite.Equal("", valueStr)
+	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestWeightEstimatedLookupForShuttling() {
+	key := models.ServiceItemParamNameWeightEstimated
+
+	suite.T().Run("estimated weight is present on MTO Shipment", func(t *testing.T) {
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
+		valueStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		suite.Equal("1234", valueStr)
+	})
+
+	suite.T().Run("nil EstimatedWeight", func(t *testing.T) {
+		// Set the estimated weight to nil
+		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
+		mtoServiceItem.EstimatedWeight = nil
+		suite.MustSave(&mtoServiceItem)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+
+		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		expected := fmt.Sprintf("could not find estimated weight for MTOShipmentID [%s]", mtoShipment.ID)
+		expected := fmt.Sprintf("could not find estimated weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})

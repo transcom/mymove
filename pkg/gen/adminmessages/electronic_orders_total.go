@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -40,15 +42,19 @@ func (m *ElectronicOrdersTotal) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ElectronicOrdersTotal) validateCount(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Count) { // not required
 		return nil
 	}
 
-	if err := validate.MinimumInt("count", "body", int64(*m.Count), 0, false); err != nil {
+	if err := validate.MinimumInt("count", "body", *m.Count, 0, false); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this electronic orders total based on context it is used
+func (m *ElectronicOrdersTotal) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

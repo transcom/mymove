@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowAddressParams creates a new ShowAddressParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowAddressParams() ShowAddressParams {
 
 	return ShowAddressParams{}
@@ -50,7 +51,6 @@ func (o *ShowAddressParams) BindRequest(r *http.Request, route *middleware.Match
 	if err := o.bindAddressID(rAddressID, rhkAddressID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

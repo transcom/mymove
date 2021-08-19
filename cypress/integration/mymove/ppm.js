@@ -11,7 +11,7 @@ describe('the PPM flow', function () {
 
   it('can submit a PPM move', () => {
     // profile2@complete.draft
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
+    const userId = '4635b5a7-0f57-4557-8ba4-bbbb760c300a';
     cy.apiSignInAsPpmUser(userId);
     SMSubmitsMove();
   });
@@ -25,14 +25,14 @@ describe('the PPM flow', function () {
 
   it('doesn’t allow a user to enter the same origin and destination zip', () => {
     // profile@co.mple.te
-    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    const userId = '324dec0a-850c-41c8-976b-068e27121b84';
     cy.apiSignInAsPpmUser(userId);
     SMInputsSamePostalCodes();
   });
 
   it('doesn’t allow SM to progress if don’t have rate data for zips"', () => {
     // profile@co.mple.te
-    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    const userId = 'f154929c-5f07-41f5-b90c-d90b83d5773d';
     cy.apiSignInAsPpmUser(userId);
     SMInputsInvalidPostalCodes();
   });
@@ -63,7 +63,7 @@ describe('the PPM flow', function () {
 
 function SMSubmitsMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -303,12 +303,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('input[name="empty_weight"]').type('1000');
 
-  cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'sample-orders.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'sample-orders.png');
   // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();

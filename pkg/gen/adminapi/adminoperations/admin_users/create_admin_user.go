@@ -29,7 +29,7 @@ func NewCreateAdminUser(ctx *middleware.Context, handler CreateAdminUserHandler)
 	return &CreateAdminUser{Context: ctx, Handler: handler}
 }
 
-/*CreateAdminUser swagger:route POST /admin_users admin_users createAdminUser
+/* CreateAdminUser swagger:route POST /admin_users admin_users createAdminUser
 
 create an admin user
 
@@ -44,17 +44,15 @@ type CreateAdminUser struct {
 func (o *CreateAdminUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewCreateAdminUserParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

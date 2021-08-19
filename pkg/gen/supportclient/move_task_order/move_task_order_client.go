@@ -25,17 +25,20 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*CreateMoveTaskOrderCreated, error)
+	CreateMoveTaskOrder(params *CreateMoveTaskOrderParams, opts ...ClientOption) (*CreateMoveTaskOrderCreated, error)
 
-	GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error)
+	GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error)
 
-	HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersParams) (*HideNonFakeMoveTaskOrdersOK, error)
+	HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersParams, opts ...ClientOption) (*HideNonFakeMoveTaskOrdersOK, error)
 
-	ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error)
+	ListMTOs(params *ListMTOsParams, opts ...ClientOption) (*ListMTOsOK, error)
 
-	MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error)
+	MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams, opts ...ClientOption) (*MakeMoveTaskOrderAvailableOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -58,13 +61,12 @@ origin duty station ID, and an uploaded orders ID to be passed into the request.
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*CreateMoveTaskOrderCreated, error) {
+func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams, opts ...ClientOption) (*CreateMoveTaskOrderCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateMoveTaskOrderParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "createMoveTaskOrder",
 		Method:             "POST",
 		PathPattern:        "/move-task-orders",
@@ -75,7 +77,12 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 		Reader:             &CreateMoveTaskOrderReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -100,13 +107,12 @@ It will provide nested information about the Customer and any associated MTOShip
 This is a support endpoint and is not available in production.
 
 */
-func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
+func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams, opts ...ClientOption) (*GetMoveTaskOrderOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetMoveTaskOrderParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "getMoveTaskOrder",
 		Method:             "GET",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}",
@@ -117,7 +123,12 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 		Reader:             &GetMoveTaskOrderReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -139,13 +150,12 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersParams) (*HideNonFakeMoveTaskOrdersOK, error) {
+func (a *Client) HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersParams, opts ...ClientOption) (*HideNonFakeMoveTaskOrdersOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewHideNonFakeMoveTaskOrdersParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "hideNonFakeMoveTaskOrders",
 		Method:             "PATCH",
 		PathPattern:        "/move-task-orders/hide",
@@ -156,7 +166,12 @@ func (a *Client) HideNonFakeMoveTaskOrders(params *HideNonFakeMoveTaskOrdersPara
 		Reader:             &HideNonFakeMoveTaskOrdersReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -179,13 +194,12 @@ This endpoint lists all MoveTaskOrders regardless of whether or not they have be
 It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
 
 */
-func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
+func (a *Client) ListMTOs(params *ListMTOsParams, opts ...ClientOption) (*ListMTOsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListMTOsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "listMTOs",
 		Method:             "GET",
 		PathPattern:        "/move-task-orders",
@@ -196,7 +210,12 @@ func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
 		Reader:             &ListMTOsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -218,13 +237,12 @@ func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
 This is a support endpoint and will not be available in production.
 
 */
-func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error) {
+func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams, opts ...ClientOption) (*MakeMoveTaskOrderAvailableOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewMakeMoveTaskOrderAvailableParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "makeMoveTaskOrderAvailable",
 		Method:             "PATCH",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}/available-to-prime",
@@ -235,7 +253,12 @@ func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailablePa
 		Reader:             &MakeMoveTaskOrderAvailableReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

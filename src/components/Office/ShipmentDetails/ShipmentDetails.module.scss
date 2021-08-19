@@ -1,0 +1,27 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+
+.ShipmentDetails {
+  @include u-display(flex);
+  align-items: flex-start; // prevents the child table rows from stretching to match service item height
+}
+
+.ShipmentDetailsMain {
+  @include u-margin-right(4);
+
+  :global .table--data-point-group {
+    @include u-margin-bottom(3);
+  }
+
+  .ShipmentRemarks:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.ShipmentDetailsSidebar {
+  flex-grow: 1;
+
+  > section {
+    @include u-margin-bottom(1.5);
+  }
+}

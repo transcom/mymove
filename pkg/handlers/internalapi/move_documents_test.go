@@ -39,10 +39,11 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
+	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:                uploadIds,
 		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
-		MoveDocumentType:         internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType:         &moveDocumentType,
 		Title:                    handlers.FmtString("awesome_document.pdf"),
 		Notes:                    handlers.FmtString("Some notes here"),
 	}
@@ -297,13 +298,15 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
+	status := internalmessages.MoveDocumentStatusOK
+	moveDocumentType := internalmessages.MoveDocumentTypeSHIPMENTSUMMARY
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString(moveDocument.Title),
 		Notes:            moveDocument.Notes,
-		Status:           internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
+		Status:           &status,
+		MoveDocumentType: &moveDocumentType,
 	}
 
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{

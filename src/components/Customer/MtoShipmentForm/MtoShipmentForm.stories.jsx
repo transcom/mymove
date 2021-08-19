@@ -29,6 +29,7 @@ const defaultProps = {
     state: 'GA',
     postal_code: '31905',
     street_address_1: '123 Main',
+    street_address_2: '',
   },
   useCurrentResidence: false,
   mtoShipment: {
@@ -116,3 +117,29 @@ export const EditNTSShipment = () =>
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
   });
+
+export const EditHHGShipmentWithSecondaryAddresses = () => {
+  const extendedShipment = {
+    ...mockMtoShipment,
+    secondaryPickupAddress: {
+      street_address_1: '142 E Barrel Hoop Circle',
+      street_address_2: '#4A',
+      city: 'Corpus Christi',
+      state: 'TX',
+      postal_code: '78412',
+    },
+    secondaryDeliveryAddress: {
+      street_address_1: '3373 NW Martin Luther King Jr Blvd',
+      street_address_2: '',
+      city: mockMtoShipment.destinationAddress.city,
+      state: mockMtoShipment.destinationAddress.state,
+      postal_code: mockMtoShipment.destinationAddress.postal_code,
+    },
+  };
+
+  return renderStory({
+    selectedMoveType: SHIPMENT_OPTIONS.HHG,
+    isCreatePage: false,
+    mtoShipment: extendedShipment,
+  });
+};

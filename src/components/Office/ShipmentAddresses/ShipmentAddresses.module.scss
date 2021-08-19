@@ -1,3 +1,11 @@
 .mtoShipmentAddresses td {
   vertical-align: top;
 }
+
+.rightAlignButtonWrapper {
+  display: flex;
+  justify-content: flex-end;
+  button {
+    padding-right: 0px;
+  }
+}

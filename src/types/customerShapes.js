@@ -57,6 +57,10 @@ export const OrdersShape = shape({
     id: string,
     uploads: UploadsShape,
   }),
+  uploaded_amended_orders: shape({
+    id: string,
+    uploads: UploadsShape,
+  }),
 });
 
 export const DocumentShape = shape({});
@@ -90,6 +94,8 @@ export const MtoShipmentShape = shape({
   pickupAddress: AddressShape,
   requestedDeliveryDate: string,
   destinationAddress: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
+  secondaryPickupAddress: AddressShape,
 });
 
 export const HhgShipmentShape = MtoShipmentShape;

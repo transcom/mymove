@@ -15,7 +15,8 @@ import (
 )
 
 // NewListMTOPaymentRequestsParams creates a new ListMTOPaymentRequestsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewListMTOPaymentRequestsParams() ListMTOPaymentRequestsParams {
 
 	return ListMTOPaymentRequestsParams{}
@@ -50,7 +51,6 @@ func (o *ListMTOPaymentRequestsParams) BindRequest(r *http.Request, route *middl
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

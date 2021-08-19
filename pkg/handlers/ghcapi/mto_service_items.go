@@ -28,10 +28,15 @@ func payloadForClientError(title string, detail string, instance uuid.UUID) *ghc
 }
 
 func payloadForValidationError(title string, detail string, instance uuid.UUID, validationErrors *validate.Errors) *ghcmessages.ValidationError {
-	return &ghcmessages.ValidationError{
-		InvalidFields: handlers.NewValidationErrorsResponse(validationErrors).Errors,
-		ClientError:   *payloadForClientError(title, detail, instance),
+	payload := &ghcmessages.ValidationError{
+		ClientError: *payloadForClientError(title, detail, instance),
 	}
+
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+	}
+
+	return payload
 }
 
 // UpdateMTOServiceItemStatusHandler struct that describes updating service item status

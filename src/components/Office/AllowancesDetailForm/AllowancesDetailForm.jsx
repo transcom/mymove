@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import styles from './AllowancesDetailForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField';
-import CheckboxField from 'components/form/fields/CheckboxField';
-import { DropdownInput } from 'components/form/fields';
+import { DropdownInput, CheckboxField } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
 import { EntitlementShape } from 'types/order';
 import { formatWeight, formatDaysInTransit } from 'shared/formatters';

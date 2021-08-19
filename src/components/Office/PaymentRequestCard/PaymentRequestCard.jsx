@@ -51,12 +51,14 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
 
   if (paymentRequest.serviceItems) {
     paymentRequest.serviceItems.forEach((item) => {
-      requestedAmount += item.priceCents;
+      if (item.priceCents != null) {
+        requestedAmount += item.priceCents;
 
-      if (item.status === 'APPROVED') {
-        approvedAmount += item.priceCents;
-      } else if (item.status === 'DENIED') {
-        rejectedAmount += item.priceCents;
+        if (item.status === 'APPROVED') {
+          approvedAmount += item.priceCents;
+        } else if (item.status === 'DENIED') {
+          rejectedAmount += item.priceCents;
+        }
       }
     });
 
@@ -166,7 +168,7 @@ const PaymentRequestCard = ({ paymentRequest, shipmentsInfo, history }) => {
 
             // The service items are grouped by shipment so we only need to check the first value
             const serviceItemShipmentID = serviceItems[0]?.mtoShipmentID;
-            if (serviceItemShipmentID) {
+            if (serviceItemShipmentID && shipmentsInfo) {
               selectedShipment = shipmentsInfo.find((shipment) => shipment.mtoShipmentID === serviceItemShipmentID);
             }
 
@@ -196,7 +198,11 @@ PaymentRequestCard.propTypes = {
       departureDate: PropTypes.string,
       shipmentModificationType: PropTypes.string,
     }),
-  ).isRequired,
+  ),
+};
+
+PaymentRequestCard.defaultProps = {
+  shipmentsInfo: [],
 };
 
 export default withRouter(PaymentRequestCard);

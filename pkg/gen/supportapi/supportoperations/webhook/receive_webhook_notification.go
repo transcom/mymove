@@ -29,7 +29,7 @@ func NewReceiveWebhookNotification(ctx *middleware.Context, handler ReceiveWebho
 	return &ReceiveWebhookNotification{Context: ctx, Handler: handler}
 }
 
-/*ReceiveWebhookNotification swagger:route POST /webhook-notify webhook receiveWebhookNotification
+/* ReceiveWebhookNotification swagger:route POST /webhook-notify webhook receiveWebhookNotification
 
 Test endpoint for receiving messages from our own webhook-client
 
@@ -45,17 +45,15 @@ type ReceiveWebhookNotification struct {
 func (o *ReceiveWebhookNotification) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewReceiveWebhookNotificationParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

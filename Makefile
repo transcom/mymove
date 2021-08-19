@@ -7,7 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.4
+DB_DOCKER_CONTAINER_IMAGE = postgres:12.7
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -53,6 +53,8 @@ SCHEMASPY_OUTPUT=./tmp/schemaspy
 HNY_API_KEY ?= notassigned
 HNY_DATASET ?= devexplore
 
+export DEVSEED_SUBSCENARIO
+
 .PHONY: help
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -69,8 +71,11 @@ help:  ## Print the help documentation
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 .PHONY: ensure_pre_commit
-ensure_pre_commit: .git/hooks/pre-commit ## Ensure pre-commit is installed
+ensure_pre_commit: .git/hooks/pre-commit install_pre_commit ## Ensure pre-commit is installed
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
+
+.PHONY: install_pre_commit
+install_pre_commit:  ## Installs pre-commit hooks
 	pre-commit install
 	pre-commit install-hooks
 
@@ -123,7 +128,13 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit deps_shared ## Run all checks and install all dependencies
+
+.PHONY: deps_nix
+deps_nix: install_pre_commit deps_shared ## Nix equivalent (kind of) of `deps` target.
+
+.PHONY: deps_shared
+deps_shared: client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## install dependencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -135,6 +146,10 @@ diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on enviro
 check_log_dir: ## Make sure we have a log directory
 	mkdir -p log
 
+.PHONY: check_app
+check_app: ## Make sure you're running the correct APP
+	@echo "Ensure that you're running the correct APPLICATION..."
+	./scripts/ensure-application app
 #
 # ----- END CHECK TARGETS -----
 #
@@ -275,12 +290,6 @@ bin/report-ecs: cmd/report-ecs
 bin/send-to-gex: pkg/gen/ cmd/send-to-gex
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
-
-bin/fetch-from-syncada-via-sftp: pkg/gen/ cmd/fetch-from-syncada-via-sftp
-	go build -ldflags "$(LDFLAGS)" -o bin/fetch-from-syncada-via-sftp ./cmd/fetch-from-syncada-via-sftp
-
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
@@ -400,8 +409,11 @@ endif
 mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
+.PHONY: server_test_setup
+server_test_setup: db_test_reset db_test_migrate redis_reset db_test_truncate
+
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate redis_reset server_test_standalone ## Run server unit tests
+server_test: server_test_setup server_test_standalone ## Run server unit tests
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
@@ -519,20 +531,19 @@ db_dev_psql: ## Open PostgreSQL shell for Dev DB
 	scripts/psql-dev
 
 .PHONY: db_dev_fresh
-db_dev_fresh: db_dev_reset db_dev_migrate
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
+db_dev_fresh: check_app db_dev_reset db_dev_migrate ## Recreate dev db from scratch and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
+
+.PHONY: db_dev_truncate
+db_dev_truncate: ## Truncate dev db
+	@echo "Truncate the ${DB_NAME_DEV} database..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
 
 .PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+db_dev_e2e_populate: check_app db_dev_migrate db_dev_truncate ## Migrate dev db and populate with devseed data
 	@echo "Populate the ${DB_NAME_DEV} database..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development" --named-sub-scenario="${DEVSEED_SUBSCENARIO}"
 
 ## Alias for db_dev_bandwidth_up
 ## We started with `db_bandwidth_up`, which some folks are already using, and
@@ -542,11 +553,7 @@ db_dev_e2e_populate: db_dev_migrate ## Populate Dev DB with generated e2e (end-t
 db_bandwidth_up: db_dev_bandwidth_up
 
 .PHONY: db_dev_bandwidth_up
-db_dev_bandwidth_up: bin/generate-test-data	 ## Truncate Dev DB and Generate data for bandwidth tests
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_DEV} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_DEV)/$(DB_NAME_DEV)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions;'
+db_dev_bandwidth_up: check_app bin/generate-test-data db_dev_truncate ## Truncate Dev DB and Generate data for bandwidth tests
 	@echo "Populate the ${DB_NAME_DEV} database..."
 	DB_PORT=$(DB_PORT_DEV) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="bandwidth" --db-env="development"
 #
@@ -657,6 +664,16 @@ db_test_run: db_test_start db_test_create ## Run Test DB
 .PHONY: db_test_reset
 db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
 
+.PHONY: db_test_truncate
+db_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database..."
+	DB_PORT=$(DB_PORT_TEST) DB_NAME=$(DB_NAME_TEST) ./scripts/db-truncate
+
+.PHONY: db_e2e_test_truncate
+db_e2e_test_truncate:
+	@echo "Truncating ${DB_NAME_TEST} database for e2e tests..."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE; TRUNCATE webhook_subscriptions CASCADE; TRUNCATE traffic_distribution_lists CASCADE'
+
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
@@ -726,11 +743,7 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
-db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
-	@echo "Ensure that you're running the correct APPLICATION..."
-	./scripts/ensure-application app
-	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE; TRUNCATE uploads CASCADE;'
+db_e2e_up: check_app bin/generate-test-data db_e2e_test_truncate ## Truncate Test DB and Generate e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
@@ -740,6 +753,18 @@ rerun_e2e_tests_with_new_data: db_e2e_up
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+
+.PHONY: db_dev_e2e_backup
+db_dev_e2e_backup: ## Backup Dev DB as 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-backup e2e_dev
+
+.PHONY: db_dev_e2e_restore
+db_dev_e2e_restore: ## Restore Dev DB from 'e2e_dev'
+	DB_NAME=$(DB_NAME_DEV) DB_PORT=$(DB_PORT_DEV) ./scripts/db-restore e2e_dev
+
+.PHONY: db_dev_e2e_cleanup
+db_dev_e2e_cleanup: ## Clean up Dev DB backup `e2e_dev`
+	./scripts/db-cleanup e2e_dev
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -928,6 +953,18 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 	aws-vault exec transcom-gov-milmove-exp \
 	bin/milmove migrate
 
+.PHONY: run_demo_migrations
+run_demo_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud demo migrations against Deployed Migrations DB
+	@echo "Migrating the demo-migrations database with demo migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-demo-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-demo \
+	bin/milmove migrate
 #
 # ----- END PROD_MIGRATION TARGETS -----
 #
@@ -1044,7 +1081,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker pull milmove/circleci-docker:milmove-app-4d97b75de90930baa2ef395cd7ef6b0a0666427a
+	docker pull milmove/circleci-docker:milmove-app-680f0d69e2ae7606232685efbce29cbce7327083
 	docker run -it --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app bash
 
 .PHONY: prune_images

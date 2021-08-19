@@ -34,6 +34,7 @@ export function formatDateForSwagger(dateString) {
   if (dateString) {
     return formatDate(dateString, swaggerDateFormat);
   }
+  return undefined;
 }
 
 export function formatDateTime(dateString) {
@@ -41,4 +42,5 @@ export function formatDateTime(dateString) {
     const startOfDay = moment(dateString).hour(0);
     return moment.utc(startOfDay).format(utcDateFormat);
   }
+  return undefined;
 }

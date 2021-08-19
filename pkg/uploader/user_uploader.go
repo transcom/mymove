@@ -37,7 +37,7 @@ func NewUserUploader(db *pop.Connection, logger Logger, storer storage.FileStore
 	}, nil
 }
 
-// PrepareFileForUpload called Uploader.PrepareFileForUpload
+// PrepareFileForUpload calls Uploader.PrepareFileForUpload
 func (u *UserUploader) PrepareFileForUpload(file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
 	return u.uploader.PrepareFileForUpload(file, filename)
@@ -89,9 +89,9 @@ func (u *UserUploader) CreateUserUploadForDocument(documentID *uuid.UUID, userID
 
 	userUpload, verrs, uploadError = u.createAndStore(documentID, userID, file, allowedTypes)
 	if verrs.HasAny() || uploadError != nil {
-		u.logger.Error("error creating new user upload (existing TX)", zap.Error(uploadError))
+		u.logger.Error("error creating new user upload", zap.Error(uploadError))
 	} else {
-		u.logger.Info("created a user upload with id and key (existing TX)", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
+		u.logger.Info("created a user upload with id and key", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
 	}
 
 	return userUpload, verrs, uploadError

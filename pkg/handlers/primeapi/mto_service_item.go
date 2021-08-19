@@ -31,14 +31,14 @@ var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
 }
 
-// CreateMTOServiceItemHandler is the handler to update MTO shipments
+// CreateMTOServiceItemHandler is the handler to create MTO service items
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
 	mtoServiceItemCreator  services.MTOServiceItemCreator
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
-// Handle handler that updates a mto shipment
+// Handle handler that creates a mto service item
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -109,7 +109,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemsPayload)
 }
 
-// UpdateMTOServiceItemHandler is the handler to update MTO shipments
+// UpdateMTOServiceItemHandler is the handler to update MTO service items
 type UpdateMTOServiceItemHandler struct {
 	handlers.HandlerContext
 	services.MTOServiceItemUpdater

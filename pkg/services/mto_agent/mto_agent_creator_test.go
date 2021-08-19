@@ -57,7 +57,6 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(err)
 		suite.NotNil(createdAgent)
-		suite.Equal(receivingAgent.ID, createdAgent.ID)
 		suite.Equal(receivingAgent.FirstName, createdAgent.FirstName)
 		suite.Equal(receivingAgent.LastName, createdAgent.LastName)
 		suite.Equal(receivingAgent.Email, createdAgent.Email)
@@ -74,7 +73,6 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentCreator() {
 
 		suite.Nil(err)
 		suite.NotNil(createdAgent)
-		suite.Equal(releasingAgent.ID, createdAgent.ID)
 		suite.Equal(releasingAgent.FirstName, createdAgent.FirstName)
 		suite.Equal(releasingAgent.LastName, createdAgent.LastName)
 		suite.Equal(releasingAgent.Email, createdAgent.Email)

@@ -7,18 +7,15 @@ import ServicesCounselingShipmentForm from './ServicesCounselingShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
+const mockPush = jest.fn();
+
 const defaultProps = {
   isCreatePage: true,
-  pageList: ['page1', 'anotherPage/:foo/:bar'],
-  pageKey: 'page1',
   match: { isExact: false, path: '', url: '', params: { moveCode: 'move123', shipementId: 'shipment123' } },
   history: {
-    goBack: jest.fn(),
-    push: jest.fn(),
+    push: mockPush,
   },
-  showLoggedInUser: jest.fn(),
-  createMTOShipment: jest.fn(),
-  updateMTOShipment: jest.fn(),
+  submitHandler: jest.fn(),
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -36,6 +33,8 @@ const defaultProps = {
       totalWeightSelf: 5000,
     },
   },
+  moveTaskOrderID: 'mock move id',
+  mtoShipments: [],
 };
 
 const mockMtoShipment = {
@@ -57,6 +56,22 @@ const mockMtoShipment = {
     state: 'WA',
     postal_code: '98421',
   },
+  mtoAgents: [
+    {
+      agentType: 'RELEASING_AGENT',
+      email: 'jasn@email.com',
+      firstName: 'Jason',
+      lastName: 'Ash',
+      phone: '999-999-9999',
+    },
+    {
+      agentType: 'RECEIVING_AGENT',
+      email: 'rbaker@email.com',
+      firstName: 'Riley',
+      lastName: 'Baker',
+      phone: '863-555-9664',
+    },
+  ],
 };
 
 describe('ServicesCounselingShipmentForm component', () => {
@@ -69,7 +84,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -97,13 +112,9 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-    });
-
-    it('does not render special NTS What to expect section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(
-        await screen.queryByText(
+        screen.queryByText(
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
@@ -112,7 +123,7 @@ describe('ServicesCounselingShipmentForm component', () => {
     it('uses the current residence address for pickup address when checked', async () => {
       render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
-      userEvent.click(screen.getByLabelText('Use my current address'));
+      userEvent.click(screen.getByLabelText('Use current address'));
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
         defaultProps.currentResidence.street_address_1,
@@ -161,12 +172,16 @@ describe('ServicesCounselingShipmentForm component', () => {
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
+      expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
+      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
+      expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
       expect(screen.getByLabelText('Yes')).toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
@@ -174,6 +189,10 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
       expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
+      expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
+      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
+      expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
       expect(screen.getByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
     });
@@ -188,7 +207,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -243,13 +262,9 @@ describe('ServicesCounselingShipmentForm component', () => {
 
       expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-    });
-
-    it('does not render special NTS What to expect section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(
-        await screen.queryByText(
+        screen.queryByText(
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
@@ -257,8 +272,8 @@ describe('ServicesCounselingShipmentForm component', () => {
   });
 
   describe('filling the form', () => {
-    it('shows an error if the updateMTOShipment returns an error', async () => {
-      const mockUpdateMTOShipment = jest.fn(() =>
+    it('shows an error if the submitHandler returns an error', async () => {
+      const mockSubmitHandler = jest.fn(() =>
         // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
         // eslint-disable-next-line prefer-promise-reject-errors
         Promise.reject({
@@ -276,7 +291,7 @@ describe('ServicesCounselingShipmentForm component', () => {
           {...defaultProps}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
-          updateMTOShipment={mockUpdateMTOShipment}
+          submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
       );
@@ -288,7 +303,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalled();
+        expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
       expect(await screen.findByText('A server error occurred editing the shipment details')).toBeInTheDocument();
@@ -317,11 +332,28 @@ describe('ServicesCounselingShipmentForm component', () => {
             postal_code: '78234',
             street_address_2: '',
           },
+          agents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              email: 'jasn@email.com',
+              firstName: 'Jason',
+              lastName: 'Ash',
+              phone: '999-999-9999',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              email: 'rbaker@email.com',
+              firstName: 'Riley',
+              lastName: 'Baker',
+              phone: '863-555-9664',
+            },
+          ],
           requestedDeliveryDate: '2020-03-30',
           requestedPickupDate: '2020-03-01',
           shipmentType: 'HHG',
         },
         shipmentID: 'shipment123',
+        moveTaskOrderID: 'mock move id',
         normalize: false,
       };
 
@@ -331,14 +363,14 @@ describe('ServicesCounselingShipmentForm component', () => {
         updated_at: '2021-02-11T16:48:04.117Z',
       };
 
-      const mockUpdateMTOShipment = jest.fn(() => Promise.resolve(patchResponse));
+      const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
 
       render(
         <ServicesCounselingShipmentForm
           {...defaultProps}
           selectedMoveType={SHIPMENT_OPTIONS.HHG}
           mtoShipment={mockMtoShipment}
-          updateMTOShipment={mockUpdateMTOShipment}
+          submitHandler={mockSubmitHandler}
           isCreatePage={false}
         />,
       );
@@ -362,7 +394,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(mockUpdateMTOShipment).toHaveBeenCalledWith(expectedPayload);
+        expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload);
       });
     });
   });

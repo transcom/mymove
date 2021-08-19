@@ -76,113 +76,6 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   }
 };
 
-function diffContainsNosec(diffForFile) {
-  return !!diffForFile.includes('#nosec');
-}
-
-function diffContainsEslint(diffForFile) {
-  return !!diffForFile.includes('eslint-disable');
-}
-
-function doesLineHaveProhibitedOverride(disablingString) {
-  const okBypassRules = [
-    'no-underscore-dangle',
-    'prefer-object-spread',
-    'object-shorthand',
-    'camelcase',
-    'react/jsx-props-no-spreading',
-    'react/destructuring-assignment',
-    'react/forbid-prop-types',
-    'react/prefer-stateless-function',
-    'react/sort-comp',
-    'import/no-extraneous-dependencies',
-    'import/order',
-    'import/prefer-default-export',
-    'import/no-named-as-default',
-  ];
-  let prohibitedOverrideMsg = '';
-  // disablingStringParts format: 'eslint-disable-next-line no-jsx, no-default'
-  // split along commas and/or spaces and remove surrounding spaces
-  const disablingStringParts = disablingString
-    .trim()
-    .split(/[\s,]+/)
-    .map((item) => item.trim())
-    .filter((str) => !str.includes('*/')); // edgecase where string has a dangling */ or */}
-  // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
-
-  if (disablingStringParts.length === 1) {
-    // fail because rule should be specified
-    prohibitedOverrideMsg = 'Must specify the rule you are disabling';
-    return prohibitedOverrideMsg;
-  }
-
-  // rules format: ['no-jsx', 'no-default']
-  const rules = disablingStringParts.slice(1);
-  for (let r = 0; r < rules.length; r += 1) {
-    const rule = rules[r];
-    if (!okBypassRules.includes(rule)) {
-      prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. You are free to disable only: (\n${okBypassRules.map(
-        (q) => `${q}\n`,
-      )})`;
-      break;
-    }
-  }
-  return prohibitedOverrideMsg;
-}
-
-function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
-  let badOverrideMsg = '';
-  Object.keys(dangerJSDiffCollection).forEach((d) => {
-    const diffFile = dangerJSDiffCollection[`${d}`];
-    const diff = diffFile.added;
-    if (diffContainsNosec(diff)) {
-      badOverrideMsg = 'Contains prohibited linter override "#nosec".';
-      return;
-    }
-
-    if (!diffContainsEslint(diff)) {
-      return;
-    }
-
-    // split file diffs into lines
-    const lines = diff.split('\n');
-    for (let l = 0; l < lines.length; l += 1) {
-      const line = lines[l];
-      if (diffContainsEslint(line)) {
-        // check for comment marker (// or /*)
-        // eg line: 'const whatever = something() // eslint-disable-line'
-        let lineParts = line.split('//');
-        if (lineParts.length === 1) {
-          lineParts = line.split('/*');
-          if (lineParts.length === 1) {
-            throw new Error('uhhhh, how did we find eslint disable but no // or /*');
-          }
-        }
-
-        // eg lineParts: ['const whatever = something()', 'eslint-disable-line']
-        const stringAfterCommentMarker = lineParts[1];
-        badOverrideMsg = doesLineHaveProhibitedOverride(stringAfterCommentMarker);
-      }
-    }
-  });
-
-  return badOverrideMsg;
-}
-
-const bypassingLinterChecks = async () => {
-  const allFiles = danger.git.modified_files
-    .concat(danger.git.created_files)
-    .filter((file) => file.includes('src/') || file.includes('pkg/'));
-  const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
-  const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
-  if (dangerMsgSegment) {
-    warn(
-      `It looks like you are attempting to bypass a linter rule, which is not within
-      security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-IS3`,
-    );
-  }
-};
-
 const cypressUpdateChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
@@ -264,5 +157,4 @@ if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependa
   fileChecks();
   checkYarnAudit();
   cypressUpdateChecks();
-  bypassingLinterChecks();
 }

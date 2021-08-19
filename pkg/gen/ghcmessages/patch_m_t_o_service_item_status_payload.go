@@ -6,6 +6,7 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,6 +21,7 @@ import (
 type PatchMTOServiceItemStatusPayload struct {
 
 	// Reason the service item was rejected
+	// Example: Insufficent details provided
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// Describes all statuses for a MTOServiceItem
@@ -74,7 +76,6 @@ func (m *PatchMTOServiceItemStatusPayload) validateStatusEnum(path, location str
 }
 
 func (m *PatchMTOServiceItemStatusPayload) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
@@ -84,6 +85,11 @@ func (m *PatchMTOServiceItemStatusPayload) validateStatus(formats strfmt.Registr
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this patch m t o service item status payload based on context it is used
+func (m *PatchMTOServiceItemStatusPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

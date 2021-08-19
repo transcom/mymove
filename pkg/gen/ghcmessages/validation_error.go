@@ -6,9 +6,12 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ValidationError validation error
@@ -104,6 +107,26 @@ func (m *ValidationError) Validate(formats strfmt.Registry) error {
 
 func (m *ValidationError) validateInvalidFields(formats strfmt.Registry) error {
 
+	if err := validate.Required("invalid_fields", "body", m.InvalidFields); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this validation error based on the context it is used
+func (m *ValidationError) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	// validation for a type composition with ClientError
+	if err := m.ClientError.ContextValidate(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+	// validation for a type composition with ValidationErrorAllOf1
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 

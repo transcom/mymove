@@ -47,15 +47,8 @@ export class DocumentsUploaded extends Component {
 
   render() {
     const { showDocs } = this.state;
-    const {
-      expenseDocs,
-      weightTicketSetDocs,
-      weightTicketDocs,
-      moveId,
-      showLinks,
-      inReviewPage,
-      deleteMoveDocument,
-    } = this.props;
+    const { expenseDocs, weightTicketSetDocs, weightTicketDocs, moveId, showLinks, inReviewPage, deleteMoveDocument } =
+      this.props;
     const totalDocs = expenseDocs.length + weightTicketSetDocs.length + weightTicketDocs.length;
     const expandedDocumentList = showDocs || inReviewPage;
     const hiddenDocumentList = !inReviewPage && !showDocs;

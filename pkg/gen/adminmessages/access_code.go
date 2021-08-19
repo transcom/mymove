@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -20,13 +21,16 @@ import (
 type AccessCode struct {
 
 	// code
+	// Example: CODE456
 	Code string `json:"code,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// locator
+	// Example: 11232
 	Locator string `json:"locator,omitempty"`
 
 	// Selected Move Type
@@ -53,7 +57,6 @@ func (m *AccessCode) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AccessCode) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -92,7 +95,6 @@ func (m *AccessCode) validateMoveTypeEnum(path, location string, value string) e
 }
 
 func (m *AccessCode) validateMoveType(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.MoveType) { // not required
 		return nil
 	}
@@ -102,6 +104,11 @@ func (m *AccessCode) validateMoveType(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this access code based on context it is used
+func (m *AccessCode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -1,7 +1,9 @@
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import {
   formatAddress,
+  formatAgent,
   formatCustomerDestination,
   formatPaymentRequestAddressString,
   formatPaymentRequestReviewAddressString,
@@ -46,6 +48,31 @@ describe('shipmentDisplay utils', () => {
       it('omits city and state', () => {
         expect(component.text()).toEqual('34747');
       });
+    });
+  });
+  describe('formatAgent', () => {
+    it('shows entire agent', () => {
+      const agent = {
+        firstName: 'John',
+        lastName: 'Johnson',
+        phone: '(405) 555-1234',
+        email: 'johnson@example.com',
+      };
+      render(formatAgent(agent));
+      expect(screen.getByText(`${agent.firstName} ${agent.lastName}`)).toBeInTheDocument();
+      expect(screen.getByText(`${agent.phone}`)).toBeInTheDocument();
+      expect(screen.getByText(`${agent.email}`)).toBeInTheDocument();
+    });
+
+    it('shows just first name and last name', () => {
+      const agent = {
+        firstName: 'Jane',
+        lastName: 'Jamison',
+      };
+      render(formatAgent(agent));
+      expect(screen.getByText(`${agent.firstName} ${agent.lastName}`)).toBeInTheDocument();
+      expect(screen.queryByText(`${agent.phone}`)).toBeFalsy();
+      expect(screen.queryByText(`${agent.email}`)).toBeFalsy();
     });
   });
   describe('formatDestination', () => {

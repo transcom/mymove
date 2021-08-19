@@ -9,15 +9,17 @@ import DeliveryDisplay from '../DeliveryDisplay';
 
 import { AddressShape } from 'types/address';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { customerRoutes } from 'constants/routes';
 
 const HHGShipmentCard = ({
   destinationLocation,
   destinationZIP,
+  secondaryDeliveryAddress,
   moveId,
   onEditClick,
   pickupLocation,
+  secondaryPickupAddress,
   receivingAgent,
   releasingAgent,
   remarks,
@@ -60,6 +62,7 @@ const HHGShipmentCard = ({
             shipmentType={shipmentType}
             requestedPickupDate={requestedPickupDate}
             pickupLocation={pickupLocation}
+            secondaryPickupAddress={secondaryPickupAddress}
             releasingAgent={releasingAgent}
           />
           <DeliveryDisplay
@@ -67,6 +70,7 @@ const HHGShipmentCard = ({
             shipmentType={shipmentType}
             requestedDeliveryDate={requestedDeliveryDate}
             destinationLocation={destinationLocation}
+            secondaryDeliveryAddress={secondaryDeliveryAddress}
             destinationZIP={destinationZIP}
             receivingAgent={receivingAgent}
           />
@@ -90,7 +94,9 @@ HHGShipmentCard.propTypes = {
   showEditBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
+  secondaryPickupAddress: AddressShape,
   destinationLocation: AddressShape,
+  secondaryDeliveryAddress: AddressShape,
   releasingAgent: shape({
     firstName: string,
     lastName: string,
@@ -111,6 +117,8 @@ HHGShipmentCard.propTypes = {
 
 HHGShipmentCard.defaultProps = {
   destinationLocation: null,
+  secondaryPickupAddress: null,
+  secondaryDeliveryAddress: null,
   releasingAgent: null,
   receivingAgent: null,
   remarks: '',

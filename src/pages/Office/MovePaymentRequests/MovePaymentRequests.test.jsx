@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor, screen, within } from '@testing-library/react';
 
 import MovePaymentRequests from './MovePaymentRequests';
 
@@ -215,6 +215,18 @@ const emptyPaymentRequests = {
   mtoShipments: [],
 };
 
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
+
+const errorReturnValue = {
+  isLoading: false,
+  isError: true,
+  isSuccess: false,
+};
+
 function renderMovePaymentRequests(props) {
   return render(
     <MockProviders initialEntries={[`/moves/L2BKD6/payment-requests`]}>
@@ -224,14 +236,34 @@ function renderMovePaymentRequests(props) {
 }
 
 describe('MovePaymentRequests', () => {
+  describe('check loading and error component states', () => {
+    it('renders the Loading Placeholder when the query is still loading', async () => {
+      useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
+
+      renderMovePaymentRequests(testProps);
+
+      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      expect(h2).toBeInTheDocument();
+    });
+
+    it('renders the Something Went Wrong component when the query errors', async () => {
+      useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
+
+      renderMovePaymentRequests(testProps);
+
+      const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
+
   describe('with multiple payment requests', () => {
     beforeEach(() => {
-      useMovePaymentRequestsQueries.mockImplementation(() => multiplePaymentRequests);
+      useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     });
 
     it('renders without errors', () => {
       renderMovePaymentRequests(testProps);
-      expect(screen.getByText('Payment requests')).toBeInTheDocument();
+      expect(screen.getByTestId('MovePaymentRequests')).toBeInTheDocument();
     });
 
     it('renders multiple payment requests', async () => {
@@ -267,7 +299,18 @@ describe('MovePaymentRequests', () => {
 
   describe('with one reviewed payment request', () => {
     beforeEach(() => {
-      useMovePaymentRequestsQueries.mockImplementation(() => singleReviewedPaymentRequest);
+      useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
+    });
+
+    it('renders side navigation for each section', () => {
+      renderMovePaymentRequests(testProps);
+      const leftNav = screen.getByRole('navigation');
+      expect(leftNav).toBeInTheDocument();
+
+      const paymentRequstNavLink = within(leftNav).getByText('Payment requests');
+
+      expect(paymentRequstNavLink.href).toContain('#payment-requests');
+      expect(paymentRequstNavLink.text).toBe('Payment requests');
     });
 
     it('updates the pending payment request count callback', async () => {
@@ -294,7 +337,17 @@ describe('MovePaymentRequests', () => {
 
   describe('with no payment requests for move', () => {
     beforeEach(() => {
-      useMovePaymentRequestsQueries.mockImplementation(() => emptyPaymentRequests);
+      useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+    });
+
+    it('does not render side navigation for payment request section', () => {
+      renderMovePaymentRequests(testProps);
+      const leftNav = screen.getByRole('navigation');
+      expect(leftNav).toBeInTheDocument();
+
+      const paymentRequstNavLink = within(leftNav).queryByText('Payment requests');
+
+      expect(paymentRequstNavLink).toBeNull();
     });
 
     it('renders with empty message when no payment requests exist', async () => {

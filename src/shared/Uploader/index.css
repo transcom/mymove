@@ -3,9 +3,9 @@
     cursor: pointer;
 }
 
-/* underline color for "Browse" button */
+/* color for "Browse" button */
 .filepond--label-action {
-    text-decoration-color: #aaa;
+    color: #0050d8;
 }
 
 [data-filepond-item-state=processing-complete] .filepond--item-panel {
@@ -13,12 +13,10 @@
   background-color: #0071bc
 }
 
-.filepond--root {
-    max-width: 500px;
-}
-
 .filepond--panel-root {
-  border: 1px dashed #B0B0B0;
+  border: 1px dashed #a9aeb1;
+  border-radius: 0px;
+  background-color: #ffffff;
 }
 
 .filepond--drop-label label {

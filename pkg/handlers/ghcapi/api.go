@@ -24,135 +24,215 @@ import (
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
-func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
+func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
-	queryBuilder := query.NewQueryBuilder(context.DB())
+	queryBuilder := query.NewQueryBuilder(ctx.DB())
+	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
+	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
+		ctx.DB(),
+		queryBuilder,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+		moveRouter,
+	)
+
 	ghcAPI.ServeError = handlers.ServeCustomError
 
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
-		HandlerContext: context,
-		MoveFetcher:    move.NewMoveFetcher(context.DB()),
+		HandlerContext: ctx,
+		MoveFetcher:    move.NewMoveFetcher(ctx.DB()),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
-		HandlerContext:        context,
-		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		HandlerContext:        ctx,
+		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 		Fetcher:               fetch.NewFetcher(queryBuilder),
 	}
 
 	ghcAPI.MtoServiceItemListMTOServiceItemsHandler = ListMTOServiceItemsHandler{
-		context,
+		ctx,
 		fetch.NewListFetcher(queryBuilder),
 		fetch.NewFetcher(queryBuilder),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
-		context,
-		paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		ctx,
+		paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestsForMoveHandler = GetPaymentRequestForMoveHandler{
-		HandlerContext:            context,
-		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+		HandlerContext:            ctx,
+		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(ctx.DB()),
 	}
 
 	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
-		HandlerContext:              context,
+		HandlerContext:              ctx,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(ctx.DB()),
 	}
 
 	ghcAPI.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = UpdatePaymentServiceItemStatusHandler{
-		HandlerContext: context,
+		HandlerContext: ctx,
 		Fetcher:        fetch.NewFetcher(queryBuilder),
 		Builder:        *queryBuilder,
 	}
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
-		context,
-		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+		ctx,
+		movetaskorder.NewMoveTaskOrderFetcher(ctx.DB()),
 	}
 
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
-		context,
-		customer.NewCustomerFetcher(context.DB()),
+		ctx,
+		customer.NewCustomerFetcher(ctx.DB()),
 	}
 	ghcAPI.CustomerUpdateCustomerHandler = UpdateCustomerHandler{
-		context,
-		customer.NewCustomerUpdater(context.DB()),
+		ctx,
+		customer.NewCustomerUpdater(ctx.DB()),
 	}
 	ghcAPI.OrderGetOrderHandler = GetOrdersHandler{
-		context,
-		order.NewOrderFetcher(context.DB()),
+		ctx,
+		order.NewOrderFetcher(ctx.DB()),
 	}
+	ghcAPI.OrderCounselingUpdateOrderHandler = CounselingUpdateOrderHandler{
+		ctx,
+		order.NewOrderUpdater(ctx.DB()),
+	}
+
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
-		context,
-		order.NewOrderUpdater(context.DB()),
-		order.NewOrderFetcher(context.DB()),
+		ctx,
+		order.NewOrderUpdater(ctx.DB()),
+		moveTaskOrderUpdater,
 	}
-	ghcAPI.OrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
 	ghcAPI.OrderUpdateAllowanceHandler = UpdateAllowanceHandler{
-		context,
-		order.NewOrderUpdater(context.DB()),
-		order.NewOrderFetcher(context.DB()),
+		ctx,
+		order.NewOrderUpdater(ctx.DB()),
+	}
+	ghcAPI.OrderCounselingUpdateAllowanceHandler = CounselingUpdateAllowanceHandler{
+		ctx,
+		order.NewOrderUpdater(ctx.DB()),
 	}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
-		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		ctx,
+		moveTaskOrderUpdater,
 	}
 
 	ghcAPI.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler = UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
-		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		ctx,
+		moveTaskOrderUpdater,
+	}
+
+	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
+		ctx,
+		mtoshipment.NewMTOShipmentCreator(
+			ctx.DB(),
+			queryBuilder,
+			fetch.NewFetcher(queryBuilder),
+			moveRouter,
+		),
 	}
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
-		context,
+		ctx,
 		fetch.NewListFetcher(queryBuilder),
 		fetch.NewFetcher(queryBuilder),
 	}
 
 	ghcAPI.ShipmentDeleteShipmentHandler = DeleteShipmentHandler{
-		context,
-		mtoshipment.NewShipmentDeleter(context.DB()),
+		ctx,
+		mtoshipment.NewShipmentDeleter(ctx.DB()),
 	}
 
-	ghcAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchShipmentHandler{
-		context,
+	ghcAPI.ShipmentApproveShipmentHandler = ApproveShipmentHandler{
+		ctx,
+		mtoshipment.NewShipmentApprover(
+			ctx.DB(),
+			mtoshipment.NewShipmentRouter(ctx.DB()),
+			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
+			ctx.Planner(),
+		),
+	}
+
+	ghcAPI.ShipmentRequestShipmentDiversionHandler = RequestShipmentDiversionHandler{
+		ctx,
+		mtoshipment.NewShipmentDiversionRequester(
+			ctx.DB(),
+			mtoshipment.NewShipmentRouter(ctx.DB()),
+		),
+	}
+
+	ghcAPI.ShipmentApproveShipmentDiversionHandler = ApproveShipmentDiversionHandler{
+		ctx,
+		mtoshipment.NewShipmentDiversionApprover(
+			ctx.DB(),
+			mtoshipment.NewShipmentRouter(ctx.DB()),
+		),
+	}
+
+	ghcAPI.ShipmentRejectShipmentHandler = RejectShipmentHandler{
+		ctx,
+		mtoshipment.NewShipmentRejecter(
+			ctx.DB(),
+			mtoshipment.NewShipmentRouter(ctx.DB()),
+		),
+	}
+
+	ghcAPI.ShipmentRequestShipmentCancellationHandler = RequestShipmentCancellationHandler{
+		ctx,
+		mtoshipment.NewShipmentCancellationRequester(
+			ctx.DB(),
+			mtoshipment.NewShipmentRouter(ctx.DB()),
+		),
+	}
+
+	ghcAPI.ShipmentRequestShipmentReweighHandler = RequestShipmentReweighHandler{
+		ctx,
+		mtoshipment.NewShipmentReweighRequester(
+			ctx.DB(),
+		),
+	}
+
+	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
+		ctx,
 		fetch.NewFetcher(queryBuilder),
-		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder), context.Planner()),
+		mtoshipment.NewMTOShipmentUpdater(
+			ctx.DB(),
+			queryBuilder,
+			fetch.NewFetcher(queryBuilder),
+			ctx.Planner(),
+			moveRouter,
+		),
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{
-		HandlerContext: context,
+		HandlerContext: ctx,
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
 	}
 
-	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{context}
+	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
-		context,
-		order.NewOrderFetcher(context.DB()),
+		ctx,
+		order.NewOrderFetcher(ctx.DB()),
 	}
 
 	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
-		context,
-		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+		ctx,
+		paymentrequest.NewPaymentRequestListFetcher(ctx.DB()),
 	}
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
-		context,
-		order.NewOrderFetcher(context.DB()),
+		ctx,
+		order.NewOrderFetcher(ctx.DB()),
 	}
 
 	ghcAPI.TacTacValidationHandler = TacValidationHandler{
-		context,
+		ctx,
 	}
 
 	return ghcAPI

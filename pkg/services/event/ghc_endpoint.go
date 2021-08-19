@@ -19,9 +19,6 @@ const GhcGetMovesQueueEndpointKey = "Ghc.GetMovesQueue"
 // GhcGetOrderEndpointKey is the key for the getOrder endpoint in ghc
 const GhcGetOrderEndpointKey = "Ghc.GetOrder"
 
-// GhcListMoveTaskOrdersEndpointKey is the key for the listMoveTaskOrders endpoint in ghc
-const GhcListMoveTaskOrdersEndpointKey = "Ghc.ListMoveTaskOrders"
-
 // GhcGetMoveTaskOrderEndpointKey is the key for the getMoveTaskOrder endpoint in ghc
 const GhcGetMoveTaskOrderEndpointKey = "Ghc.GetMoveTaskOrder"
 
@@ -37,11 +34,29 @@ const GhcCreateMTOServiceItemEndpointKey = "Ghc.CreateMTOServiceItem"
 // GhcListMTOShipmentsEndpointKey is the key for the listMTOShipments endpoint in ghc
 const GhcListMTOShipmentsEndpointKey = "Ghc.ListMTOShipments"
 
-// GhcPatchMTOShipmentStatusEndpointKey is the key for the patchMTOShipmentStatus endpoint in ghc
-const GhcPatchMTOShipmentStatusEndpointKey = "Ghc.PatchMTOShipmentStatus"
+// GhcUpdateMTOShipmentEndpointKey is the key for the updateMTOShipment endpoint in ghc
+const GhcUpdateMTOShipmentEndpointKey = "Ghc.UpdateMTOShipment"
 
 // GhcDeleteShipmentEndpointKey is the key for the deleteShipment endpoint in ghc
 const GhcDeleteShipmentEndpointKey = "Ghc.DeleteShipment"
+
+// GhcApproveShipmentEndpointKey is the key for the approveShipment endpoint in ghc
+const GhcApproveShipmentEndpointKey = "Ghc.ApproveShipment"
+
+// GhcRequestShipmentDiversionEndpointKey is the key for the requestShipmentDiversion endpoint in ghc
+const GhcRequestShipmentDiversionEndpointKey = "Ghc.RequestShipmentDiversion"
+
+// GhcApproveShipmentDiversionEndpointKey is the key for the approveShipmentDiversion endpoint in ghc
+const GhcApproveShipmentDiversionEndpointKey = "Ghc.ApproveShipmentDiversion"
+
+// GhcRejectShipmentEndpointKey is the key for the rejectShipment endpoint in ghc
+const GhcRejectShipmentEndpointKey = "Ghc.RejectShipment"
+
+// GhcRequestShipmentCancellationEndpointKey is the key for the requestShipmentCancellation endpoint in ghc
+const GhcRequestShipmentCancellationEndpointKey = "Ghc.RequestShipmentCancellation"
+
+// GhcRequestShipmentReweighEndpointKey is the key for the requestShipmentReweigh endpoint in ghc
+const GhcRequestShipmentReweighEndpointKey = "Ghc.RequestShipmentReweigh"
 
 // GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
 const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
@@ -79,8 +94,14 @@ const GhcUpdatePaymentRequestStatusEndpointKey = "Ghc.UpdatePaymentRequestStatus
 // GhcUpdateOrderEndpointKey is the key for the updateOrder endpoint in ghc
 const GhcUpdateOrderEndpointKey = "Ghc.UpdateOrder"
 
+// GhcCounselingUpdateOrderEndpointKey is the key for the counselingUpdateOrder endpoint in ghc
+const GhcCounselingUpdateOrderEndpointKey = "Ghc.CounselingUpdateOrder"
+
 // GhcUpdateAllowanceEndpointKey is the key for the updateAllowance endpoint in ghc
 const GhcUpdateAllowanceEndpointKey = "Ghc.UpdateAllowance"
+
+// GhcCounselingUpdateAllowanceEndpointKey is the key for the counselingUpdateAllowance endpoint in ghc
+const GhcCounselingUpdateAllowanceEndpointKey = "Ghc.CounselingUpdateAllowance"
 
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
@@ -99,10 +120,6 @@ var ghcEndpoints = EndpointMapType{
 	GhcGetOrderEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "getOrder",
-	},
-	GhcListMoveTaskOrdersEndpointKey: {
-		APIName:     GhcAPIName,
-		OperationID: "listMoveTaskOrders",
 	},
 	GhcGetMoveTaskOrderEndpointKey: {
 		APIName:     GhcAPIName,
@@ -124,13 +141,37 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "listMTOShipments",
 	},
-	GhcPatchMTOShipmentStatusEndpointKey: {
+	GhcUpdateMTOShipmentEndpointKey: {
 		APIName:     GhcAPIName,
-		OperationID: "patchMTOShipmentStatus",
+		OperationID: "updateMTOShipment",
 	},
 	GhcDeleteShipmentEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "deleteShipment",
+	},
+	GhcApproveShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveShipment",
+	},
+	GhcRequestShipmentDiversionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "requestShipmentDiversion",
+	},
+	GhcApproveShipmentDiversionEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "approveShipmentDiversion",
+	},
+	GhcRejectShipmentEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "rejectShipment",
+	},
+	GhcRequestShipmentCancellationEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "requestShipmentCancellation",
+	},
+	GhcRequestShipmentReweighEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "requestShipmentReweigh",
 	},
 	GhcFetchMTOAgentListEndpointKey: {
 		APIName:     GhcAPIName,
@@ -180,8 +221,16 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "updateOrder",
 	},
+	GhcCounselingUpdateOrderEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "counselingUpdateOrder",
+	},
 	GhcUpdateAllowanceEndpointKey: {
 		APIName:     GhcAPIName,
 		OperationID: "updateAllowance",
+	},
+	GhcCounselingUpdateAllowanceEndpointKey: {
+		APIName:     GhcAPIName,
+		OperationID: "counselingUpdateAllowance",
 	},
 }

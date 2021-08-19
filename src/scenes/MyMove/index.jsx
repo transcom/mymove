@@ -38,7 +38,6 @@ import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
-import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
@@ -61,6 +60,8 @@ const MovingInfo = lazy(() => import('pages/MyMove/MovingInfo'));
 const EditServiceInfo = lazy(() => import('pages/MyMove/Profile/EditServiceInfo'));
 const Profile = lazy(() => import('pages/MyMove/Profile/Profile'));
 const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'));
+const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
+const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -168,7 +169,8 @@ export class CustomerApp extends Component {
                     path={customerRoutes.CONTACT_INFO_EDIT_PATH}
                     component={EditContactInfo}
                   />
-                  <CustomerPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <CustomerPrivateRoute path={customerRoutes.ORDERS_EDIT_PATH} component={EditOrders} />
+                  <CustomerPrivateRoute path={customerRoutes.ORDERS_AMEND_PATH} component={AmendOrders} />
                   <CustomerPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"
                     component={EditDateAndLocation}

@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowDocumentParams creates a new ShowDocumentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowDocumentParams() ShowDocumentParams {
 
 	return ShowDocumentParams{}
@@ -50,7 +51,6 @@ func (o *ShowDocumentParams) BindRequest(r *http.Request, route *middleware.Matc
 	if err := o.bindDocumentID(rDocumentID, rhkDocumentID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

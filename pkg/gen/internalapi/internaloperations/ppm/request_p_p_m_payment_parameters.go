@@ -15,7 +15,8 @@ import (
 )
 
 // NewRequestPPMPaymentParams creates a new RequestPPMPaymentParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewRequestPPMPaymentParams() RequestPPMPaymentParams {
 
 	return RequestPPMPaymentParams{}
@@ -50,7 +51,6 @@ func (o *RequestPPMPaymentParams) BindRequest(r *http.Request, route *middleware
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

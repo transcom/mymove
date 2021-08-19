@@ -6,6 +6,7 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -17,6 +18,11 @@ import (
 //
 // swagger:model SignedCertificationTypeCreate
 type SignedCertificationTypeCreate string
+
+func NewSignedCertificationTypeCreate(value SignedCertificationTypeCreate) *SignedCertificationTypeCreate {
+	v := value
+	return &v
+}
 
 const (
 
@@ -59,5 +65,10 @@ func (m SignedCertificationTypeCreate) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// ContextValidate validates this signed certification type create based on context it is used
+func (m SignedCertificationTypeCreate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }

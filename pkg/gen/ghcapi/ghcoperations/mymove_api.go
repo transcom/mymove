@@ -46,6 +46,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
+		useSwaggerUI:        false,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
@@ -55,6 +56,21 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		ShipmentApproveShipmentHandler: shipment.ApproveShipmentHandlerFunc(func(params shipment.ApproveShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipment has not yet been implemented")
+		}),
+		ShipmentApproveShipmentDiversionHandler: shipment.ApproveShipmentDiversionHandlerFunc(func(params shipment.ApproveShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.ApproveShipmentDiversion has not yet been implemented")
+		}),
+		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
+		}),
+		OrderCounselingUpdateOrderHandler: order.CounselingUpdateOrderHandlerFunc(func(params order.CounselingUpdateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CounselingUpdateOrder has not yet been implemented")
+		}),
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		}),
 		ShipmentDeleteShipmentHandler: shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
 		}),
@@ -103,11 +119,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
 		}),
-		OrderListMoveTaskOrdersHandler: order.ListMoveTaskOrdersHandlerFunc(func(params order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation order.ListMoveTaskOrders has not yet been implemented")
+		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
-		MtoShipmentPatchMTOShipmentStatusHandler: mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
+		ShipmentRequestShipmentCancellationHandler: shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
+		}),
+		ShipmentRequestShipmentDiversionHandler: shipment.RequestShipmentDiversionHandlerFunc(func(params shipment.RequestShipmentDiversionParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentDiversion has not yet been implemented")
+		}),
+		ShipmentRequestShipmentReweighHandler: shipment.RequestShipmentReweighHandlerFunc(func(params shipment.RequestShipmentReweighParams) middleware.Responder {
+			return middleware.NotImplemented("operation shipment.RequestShipmentReweigh has not yet been implemented")
 		}),
 		TacTacValidationHandler: tac.TacValidationHandlerFunc(func(params tac.TacValidationParams) middleware.Responder {
 			return middleware.NotImplemented("operation tac.TacValidation has not yet been implemented")
@@ -123,6 +145,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
+		}),
+		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler: move_task_order.UpdateMTOStatusServiceCounselingCompletedHandlerFunc(func(params move_task_order.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMTOStatusServiceCounselingCompleted has not yet been implemented")
@@ -156,13 +181,16 @@ type MymoveAPI struct {
 	defaultConsumes string
 	defaultProduces string
 	Middleware      func(middleware.Builder) http.Handler
+	useSwaggerUI    bool
 
 	// BasicAuthenticator generates a runtime.Authenticator from the supplied basic auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BasicAuthenticator func(security.UserPassAuthentication) runtime.Authenticator
+
 	// APIKeyAuthenticator generates a runtime.Authenticator from the supplied token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	APIKeyAuthenticator func(string, string, security.TokenAuthentication) runtime.Authenticator
+
 	// BearerAuthenticator generates a runtime.Authenticator from the supplied bearer token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
@@ -175,6 +203,16 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
+	ShipmentApproveShipmentHandler shipment.ApproveShipmentHandler
+	// ShipmentApproveShipmentDiversionHandler sets the operation handler for the approve shipment diversion operation
+	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
+	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
+	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
+	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
+	OrderCounselingUpdateOrderHandler order.CounselingUpdateOrderHandler
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// ShipmentDeleteShipmentHandler sets the operation handler for the delete shipment operation
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// MtoAgentFetchMTOAgentListHandler sets the operation handler for the fetch m t o agent list operation
@@ -207,10 +245,14 @@ type MymoveAPI struct {
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
-	// OrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
-	OrderListMoveTaskOrdersHandler order.ListMoveTaskOrdersHandler
-	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
-	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
+	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
+	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
+	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
+	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
+	ShipmentRequestShipmentDiversionHandler shipment.RequestShipmentDiversionHandler
+	// ShipmentRequestShipmentReweighHandler sets the operation handler for the request shipment reweigh operation
+	ShipmentRequestShipmentReweighHandler shipment.RequestShipmentReweighHandler
 	// TacTacValidationHandler sets the operation handler for the tac validation operation
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
@@ -221,6 +263,8 @@ type MymoveAPI struct {
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
+	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
+	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler sets the operation handler for the update m t o status service counseling completed operation
 	MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
@@ -233,6 +277,7 @@ type MymoveAPI struct {
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
 	PaymentServiceItemUpdatePaymentServiceItemStatusHandler payment_service_item.UpdatePaymentServiceItemStatusHandler
+
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -250,6 +295,16 @@ type MymoveAPI struct {
 
 	// User defined logger function.
 	Logger func(string, ...interface{})
+}
+
+// UseRedoc for documentation at /docs
+func (o *MymoveAPI) UseRedoc() {
+	o.useSwaggerUI = false
+}
+
+// UseSwaggerUI for documentation at /docs
+func (o *MymoveAPI) UseSwaggerUI() {
+	o.useSwaggerUI = true
 }
 
 // SetDefaultProduces sets the default produces media type
@@ -299,6 +354,21 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.ShipmentApproveShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentHandler")
+	}
+	if o.ShipmentApproveShipmentDiversionHandler == nil {
+		unregistered = append(unregistered, "shipment.ApproveShipmentDiversionHandler")
+	}
+	if o.OrderCounselingUpdateAllowanceHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
+	}
+	if o.OrderCounselingUpdateOrderHandler == nil {
+		unregistered = append(unregistered, "order.CounselingUpdateOrderHandler")
+	}
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
 	if o.ShipmentDeleteShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.DeleteShipmentHandler")
 	}
@@ -347,11 +417,17 @@ func (o *MymoveAPI) Validate() error {
 	if o.MtoShipmentListMTOShipmentsHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
 	}
-	if o.OrderListMoveTaskOrdersHandler == nil {
-		unregistered = append(unregistered, "order.ListMoveTaskOrdersHandler")
+	if o.ShipmentRejectShipmentHandler == nil {
+		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
 	}
-	if o.MtoShipmentPatchMTOShipmentStatusHandler == nil {
-		unregistered = append(unregistered, "mto_shipment.PatchMTOShipmentStatusHandler")
+	if o.ShipmentRequestShipmentCancellationHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentCancellationHandler")
+	}
+	if o.ShipmentRequestShipmentDiversionHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentDiversionHandler")
+	}
+	if o.ShipmentRequestShipmentReweighHandler == nil {
+		unregistered = append(unregistered, "shipment.RequestShipmentReweighHandler")
 	}
 	if o.TacTacValidationHandler == nil {
 		unregistered = append(unregistered, "tac.TacValidationHandler")
@@ -367,6 +443,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
+	}
+	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
 	}
 	if o.MoveTaskOrderUpdateMTOStatusServiceCounselingCompletedHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMTOStatusServiceCounselingCompletedHandler")
@@ -474,6 +553,26 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/approve"] = shipment.NewApproveShipment(o.context, o.ShipmentApproveShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/approve-diversion"] = shipment.NewApproveShipmentDiversion(o.context, o.ShipmentApproveShipmentDiversionHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}/allowances"] = order.NewCounselingUpdateAllowance(o.context, o.OrderCounselingUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/counseling/orders/{orderID}"] = order.NewCounselingUpdateOrder(o.context, o.OrderCounselingUpdateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -538,14 +637,22 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/orders/{orderID}/move-task-orders"] = order.NewListMoveTaskOrders(o.context, o.OrderListMoveTaskOrdersHandler)
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
+	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status"] = mto_shipment.NewPatchMTOShipmentStatus(o.context, o.MtoShipmentPatchMTOShipmentStatusHandler)
+	o.handlers["POST"]["/shipments/{shipmentID}/request-cancellation"] = shipment.NewRequestShipmentCancellation(o.context, o.ShipmentRequestShipmentCancellationHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-diversion"] = shipment.NewRequestShipmentDiversion(o.context, o.ShipmentRequestShipmentDiversionHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/shipments/{shipmentID}/request-reweigh"] = shipment.NewRequestShipmentReweigh(o.context, o.ShipmentRequestShipmentReweighHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -566,6 +673,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemStatus(o.context, o.MtoServiceItemUpdateMTOServiceItemStatusHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -599,6 +710,9 @@ func (o *MymoveAPI) Serve(builder middleware.Builder) http.Handler {
 
 	if o.Middleware != nil {
 		return o.Middleware(builder)
+	}
+	if o.useSwaggerUI {
+		return o.context.APIHandlerSwaggerUI(builder)
 	}
 	return o.context.APIHandler(builder)
 }

@@ -11,6 +11,7 @@
 
   td {
     @include u-padding-x(1);
+    white-space: pre-wrap;
   }
 
   .iconCellContainer {

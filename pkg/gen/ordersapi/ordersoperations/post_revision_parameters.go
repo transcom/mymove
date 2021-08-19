@@ -6,6 +6,7 @@ package ordersoperations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewPostRevisionParams creates a new PostRevisionParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewPostRevisionParams() PostRevisionParams {
 
 	return PostRevisionParams{}
@@ -99,6 +101,11 @@ func (o *PostRevisionParams) BindRequest(r *http.Request, route *middleware.Matc
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Revision = &body
 			}
@@ -124,10 +131,10 @@ func (o *PostRevisionParams) bindIssuer(rawData []string, hasKey bool, formats s
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("issuer", "query", raw); err != nil {
 		return err
 	}
-
 	o.Issuer = raw
 
 	if err := o.validateIssuer(formats); err != nil {
@@ -159,10 +166,10 @@ func (o *PostRevisionParams) bindMemberID(rawData []string, hasKey bool, formats
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("memberId", "query", raw); err != nil {
 		return err
 	}
-
 	o.MemberID = raw
 
 	if err := o.validateMemberID(formats); err != nil {
@@ -194,10 +201,10 @@ func (o *PostRevisionParams) bindOrdersNum(rawData []string, hasKey bool, format
 
 	// Required: true
 	// AllowEmptyValue: false
+
 	if err := validate.RequiredString("ordersNum", "query", raw); err != nil {
 		return err
 	}
-
 	o.OrdersNum = raw
 
 	return nil

@@ -1,6 +1,6 @@
 describe('Customer NTS Setup flow', function () {
   // profile2@complete.draft
-  const profileCompleteUser = '3b9360a3-3304-4c60-90f4-83d687884077';
+  const profileCompleteUser = '2194daed-3589-408f-b988-e9889c9f120e';
   // nts@ntsr.unsubmitted
   const ntsUser = '583cfbe1-cb34-4381-9e1f-54f68200da1b';
 
@@ -46,11 +46,12 @@ function customerSubmitsNTSShipmentMoveFromHomePage() {
 function customerEditsNTSShipmentFromHomePage() {
   cy.get('[data-testid="shipment-list-item-container"]').contains('NTS').click();
   cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
-
+  cy.get('input[name="secondaryPickup.address.city"]').clear().type('The Hills');
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
+  cy.get('[data-testid="nts-summary"]').contains('The Hills, CA 90210');
 }
 
 function customerReviewsNTSMoveDetails() {
@@ -63,6 +64,10 @@ function customerReviewsNTSMoveDetails() {
   // Pickup location
   cy.get('[data-testid="nts-summary"]').contains('123 Any Street P.O. Box 12345');
   cy.get('[data-testid="nts-summary"]').contains('Beverly Hills, CA 90210');
+
+  // Secondary pickup address
+  cy.get('[data-testid="nts-summary"]').contains('123 Some address');
+  cy.get('[data-testid="nts-summary"]').contains('Some city, CA 90210');
 
   // Releasing agent
   cy.get('[data-testid="nts-summary"]').contains('John Lee');
@@ -78,6 +83,7 @@ function customerEditsNTSShipment() {
   cy.get('input[name="pickup.requestedDate"]').clear().type('12/25/2020').blur();
   cy.get('input[name="pickup.agent.lastName"]').clear().type('Bourne').blur();
   cy.get('textarea[data-testid="remarks"]').clear().type('Handle with care').blur();
+  cy.get('input[name="secondaryPickup.address.street_address_1"]').clear().type('999 Any Street');
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
@@ -85,6 +91,7 @@ function customerEditsNTSShipment() {
   cy.get('[data-testid="nts-summary"]').contains('25 Dec 2020');
   cy.get('[data-testid="nts-summary"]').contains('Jason Bourne');
   cy.get('[data-testid="nts-summary"]').contains('Handle with care');
+  cy.get('[data-testid="nts-summary"]').contains('999 Any Street');
 }
 
 function customerVisitsReviewPage() {
@@ -93,7 +100,7 @@ function customerVisitsReviewPage() {
 }
 
 function customerCreatesAnNTSShipment() {
-  cy.get('[data-testid="shipment-selection-btn"]').contains('Plan your shipments').click();
+  cy.get('[data-testid="shipment-selection-btn"]').contains('Set up your shipments').click();
   cy.nextPage();
   cy.get('input[type="radio"]').eq(2).check({ force: true });
   cy.nextPage();
@@ -106,6 +113,13 @@ function customerCreatesAnNTSShipment() {
 
   // pickup location
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
+
+  // secondary pickup location
+  cy.get(`input[data-testid="has-secondary-pickup"]`).check({ force: true });
+  cy.get(`input[name="secondaryPickup.address.street_address_1"]`).type('123 Some address');
+  cy.get(`input[name="secondaryPickup.address.city"]`).type('Some city');
+  cy.get(`select[name="secondaryPickup.address.state"]`).select('CA');
+  cy.get(`input[name="secondaryPickup.address.postal_code"]`).type('90210').blur();
 
   // releasing agent
   cy.get('input[name="pickup.agent.firstName"]').type('John');

@@ -2,7 +2,6 @@ package mtoserviceitem
 
 import (
 	"strings"
-	"time"
 
 	"github.com/gobuffalo/pop/v5"
 
@@ -199,30 +198,30 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	}
 
 	// Set string fields:
-	newMTOServiceItem.Reason = setOptionalStringField(v.updatedServiceItem.Reason, newMTOServiceItem.Reason)
+	newMTOServiceItem.Reason = services.SetOptionalStringField(v.updatedServiceItem.Reason, newMTOServiceItem.Reason)
 
-	newMTOServiceItem.Description = setOptionalStringField(
+	newMTOServiceItem.Description = services.SetOptionalStringField(
 		v.updatedServiceItem.Description, newMTOServiceItem.Description)
 
-	newMTOServiceItem.RejectionReason = setOptionalStringField(
+	newMTOServiceItem.RejectionReason = services.SetOptionalStringField(
 		v.updatedServiceItem.RejectionReason, newMTOServiceItem.RejectionReason)
 
-	newMTOServiceItem.SITPostalCode = setOptionalStringField(
+	newMTOServiceItem.SITPostalCode = services.SetOptionalStringField(
 		v.updatedServiceItem.SITPostalCode, newMTOServiceItem.SITPostalCode)
 
 	// TODO are we going to remove this field from the model at some point?
-	newMTOServiceItem.PickupPostalCode = setOptionalStringField(
+	newMTOServiceItem.PickupPostalCode = services.SetOptionalStringField(
 		v.updatedServiceItem.PickupPostalCode, newMTOServiceItem.PickupPostalCode)
 
 	// Set date fields:
-	newMTOServiceItem.ApprovedAt = setOptionalDateField(v.updatedServiceItem.ApprovedAt, newMTOServiceItem.ApprovedAt)
+	newMTOServiceItem.ApprovedAt = services.SetOptionalDateTimeField(v.updatedServiceItem.ApprovedAt, newMTOServiceItem.ApprovedAt)
 
-	newMTOServiceItem.RejectedAt = setOptionalDateField(v.updatedServiceItem.RejectedAt, newMTOServiceItem.RejectedAt)
+	newMTOServiceItem.RejectedAt = services.SetOptionalDateTimeField(v.updatedServiceItem.RejectedAt, newMTOServiceItem.RejectedAt)
 
-	newMTOServiceItem.SITEntryDate = setOptionalDateField(
+	newMTOServiceItem.SITEntryDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
 
-	newMTOServiceItem.SITDepartureDate = setOptionalDateField(
+	newMTOServiceItem.SITDepartureDate = services.SetOptionalDateTimeField(
 		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
 
 	if v.updatedServiceItem.SITDestinationFinalAddress != nil {
@@ -237,35 +236,12 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 		}
 	}
 
+	// Set weight fields:
+	newMTOServiceItem.EstimatedWeight = services.SetOptionalPoundField(
+		v.updatedServiceItem.EstimatedWeight, newMTOServiceItem.EstimatedWeight)
+
+	newMTOServiceItem.ActualWeight = services.SetOptionalPoundField(
+		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
+
 	return &newMTOServiceItem
-}
-
-// setOptionalDateField sets the correct new value for the updated date field. Can be nil.
-func setOptionalDateField(newDate *time.Time, oldDate *time.Time) *time.Time {
-	// check if the user wanted to keep this field the same:
-	if newDate == nil {
-		return oldDate
-	}
-
-	// check if the user wanted to nullify the value in this field:
-	if newDate.IsZero() {
-		return nil
-	}
-
-	return newDate // return the new intended value
-}
-
-// setOptionalStringField sets the correct new value for the updated string field. Can be nil.
-func setOptionalStringField(newString *string, oldString *string) *string {
-	// check if the user wanted to keep this field the same:
-	if newString == nil {
-		return oldString
-	}
-
-	// check if the user wanted to nullify the value in this field:
-	if *newString == "" {
-		return nil
-	}
-
-	return newString // return the new intended value
 }

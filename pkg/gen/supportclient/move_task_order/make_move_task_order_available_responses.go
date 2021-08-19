@@ -71,9 +71,8 @@ func (o *MakeMoveTaskOrderAvailableReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -82,7 +81,7 @@ func NewMakeMoveTaskOrderAvailableOK() *MakeMoveTaskOrderAvailableOK {
 	return &MakeMoveTaskOrderAvailableOK{}
 }
 
-/*MakeMoveTaskOrderAvailableOK handles this case with default header values.
+/* MakeMoveTaskOrderAvailableOK describes a response with status code 200, with default header values.
 
 Successfully made MTO available to Prime.
 */
@@ -93,7 +92,6 @@ type MakeMoveTaskOrderAvailableOK struct {
 func (o *MakeMoveTaskOrderAvailableOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableOK  %+v", 200, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableOK) GetPayload() *supportmessages.MoveTaskOrder {
 	return o.Payload
 }
@@ -115,7 +113,7 @@ func NewMakeMoveTaskOrderAvailableBadRequest() *MakeMoveTaskOrderAvailableBadReq
 	return &MakeMoveTaskOrderAvailableBadRequest{}
 }
 
-/*MakeMoveTaskOrderAvailableBadRequest handles this case with default header values.
+/* MakeMoveTaskOrderAvailableBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -126,7 +124,6 @@ type MakeMoveTaskOrderAvailableBadRequest struct {
 func (o *MakeMoveTaskOrderAvailableBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -148,7 +145,7 @@ func NewMakeMoveTaskOrderAvailableUnauthorized() *MakeMoveTaskOrderAvailableUnau
 	return &MakeMoveTaskOrderAvailableUnauthorized{}
 }
 
-/*MakeMoveTaskOrderAvailableUnauthorized handles this case with default header values.
+/* MakeMoveTaskOrderAvailableUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -159,7 +156,6 @@ type MakeMoveTaskOrderAvailableUnauthorized struct {
 func (o *MakeMoveTaskOrderAvailableUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -181,7 +177,7 @@ func NewMakeMoveTaskOrderAvailableForbidden() *MakeMoveTaskOrderAvailableForbidd
 	return &MakeMoveTaskOrderAvailableForbidden{}
 }
 
-/*MakeMoveTaskOrderAvailableForbidden handles this case with default header values.
+/* MakeMoveTaskOrderAvailableForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -192,7 +188,6 @@ type MakeMoveTaskOrderAvailableForbidden struct {
 func (o *MakeMoveTaskOrderAvailableForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableForbidden  %+v", 403, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -214,7 +209,7 @@ func NewMakeMoveTaskOrderAvailableNotFound() *MakeMoveTaskOrderAvailableNotFound
 	return &MakeMoveTaskOrderAvailableNotFound{}
 }
 
-/*MakeMoveTaskOrderAvailableNotFound handles this case with default header values.
+/* MakeMoveTaskOrderAvailableNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -225,7 +220,6 @@ type MakeMoveTaskOrderAvailableNotFound struct {
 func (o *MakeMoveTaskOrderAvailableNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableNotFound  %+v", 404, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -247,7 +241,7 @@ func NewMakeMoveTaskOrderAvailablePreconditionFailed() *MakeMoveTaskOrderAvailab
 	return &MakeMoveTaskOrderAvailablePreconditionFailed{}
 }
 
-/*MakeMoveTaskOrderAvailablePreconditionFailed handles this case with default header values.
+/* MakeMoveTaskOrderAvailablePreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -258,7 +252,6 @@ type MakeMoveTaskOrderAvailablePreconditionFailed struct {
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailablePreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailablePreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -280,7 +273,7 @@ func NewMakeMoveTaskOrderAvailableUnprocessableEntity() *MakeMoveTaskOrderAvaila
 	return &MakeMoveTaskOrderAvailableUnprocessableEntity{}
 }
 
-/*MakeMoveTaskOrderAvailableUnprocessableEntity handles this case with default header values.
+/* MakeMoveTaskOrderAvailableUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -291,7 +284,6 @@ type MakeMoveTaskOrderAvailableUnprocessableEntity struct {
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -313,7 +305,7 @@ func NewMakeMoveTaskOrderAvailableInternalServerError() *MakeMoveTaskOrderAvaila
 	return &MakeMoveTaskOrderAvailableInternalServerError{}
 }
 
-/*MakeMoveTaskOrderAvailableInternalServerError handles this case with default header values.
+/* MakeMoveTaskOrderAvailableInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -324,7 +316,6 @@ type MakeMoveTaskOrderAvailableInternalServerError struct {
 func (o *MakeMoveTaskOrderAvailableInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/available-to-prime][%d] makeMoveTaskOrderAvailableInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *MakeMoveTaskOrderAvailableInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

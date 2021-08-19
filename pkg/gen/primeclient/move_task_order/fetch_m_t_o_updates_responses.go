@@ -59,9 +59,8 @@ func (o *FetchMTOUpdatesReader) ReadResponse(response runtime.ClientResponse, co
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -70,7 +69,7 @@ func NewFetchMTOUpdatesOK() *FetchMTOUpdatesOK {
 	return &FetchMTOUpdatesOK{}
 }
 
-/*FetchMTOUpdatesOK handles this case with default header values.
+/* FetchMTOUpdatesOK describes a response with status code 200, with default header values.
 
 Successfully retrieved move task orders where `availableToPrimeAt` has been set.
 */
@@ -81,7 +80,6 @@ type FetchMTOUpdatesOK struct {
 func (o *FetchMTOUpdatesOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesOK  %+v", 200, o.Payload)
 }
-
 func (o *FetchMTOUpdatesOK) GetPayload() primemessages.MoveTaskOrders {
 	return o.Payload
 }
@@ -101,7 +99,7 @@ func NewFetchMTOUpdatesBadRequest() *FetchMTOUpdatesBadRequest {
 	return &FetchMTOUpdatesBadRequest{}
 }
 
-/*FetchMTOUpdatesBadRequest handles this case with default header values.
+/* FetchMTOUpdatesBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -112,7 +110,6 @@ type FetchMTOUpdatesBadRequest struct {
 func (o *FetchMTOUpdatesBadRequest) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *FetchMTOUpdatesBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -134,7 +131,7 @@ func NewFetchMTOUpdatesUnauthorized() *FetchMTOUpdatesUnauthorized {
 	return &FetchMTOUpdatesUnauthorized{}
 }
 
-/*FetchMTOUpdatesUnauthorized handles this case with default header values.
+/* FetchMTOUpdatesUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -145,7 +142,6 @@ type FetchMTOUpdatesUnauthorized struct {
 func (o *FetchMTOUpdatesUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *FetchMTOUpdatesUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -167,7 +163,7 @@ func NewFetchMTOUpdatesForbidden() *FetchMTOUpdatesForbidden {
 	return &FetchMTOUpdatesForbidden{}
 }
 
-/*FetchMTOUpdatesForbidden handles this case with default header values.
+/* FetchMTOUpdatesForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -178,7 +174,6 @@ type FetchMTOUpdatesForbidden struct {
 func (o *FetchMTOUpdatesForbidden) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesForbidden  %+v", 403, o.Payload)
 }
-
 func (o *FetchMTOUpdatesForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -200,7 +195,7 @@ func NewFetchMTOUpdatesNotFound() *FetchMTOUpdatesNotFound {
 	return &FetchMTOUpdatesNotFound{}
 }
 
-/*FetchMTOUpdatesNotFound handles this case with default header values.
+/* FetchMTOUpdatesNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -211,7 +206,6 @@ type FetchMTOUpdatesNotFound struct {
 func (o *FetchMTOUpdatesNotFound) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesNotFound  %+v", 404, o.Payload)
 }
-
 func (o *FetchMTOUpdatesNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -233,7 +227,7 @@ func NewFetchMTOUpdatesInternalServerError() *FetchMTOUpdatesInternalServerError
 	return &FetchMTOUpdatesInternalServerError{}
 }
 
-/*FetchMTOUpdatesInternalServerError handles this case with default header values.
+/* FetchMTOUpdatesInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -244,7 +238,6 @@ type FetchMTOUpdatesInternalServerError struct {
 func (o *FetchMTOUpdatesInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *FetchMTOUpdatesInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

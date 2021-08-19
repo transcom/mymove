@@ -18,14 +18,9 @@ type GHCRateEngineServiceSuite struct {
 	logger Logger
 }
 
-func (suite *GHCRateEngineServiceSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestGHCRateEngineServiceSuite(t *testing.T) {
 	ts := &GHCRateEngineServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
@@ -109,6 +104,32 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 	}
 
 	suite.MustSave(&otherPrice)
+}
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code models.ReServiceCode, schedule int, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Name:                 contractYearName,
+				EscalationCompounded: escalationCompounded,
+			},
+		})
+
+	service := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	accessorialPrice := models.ReDomesticAccessorialPrice{
+		ContractID:       contractYear.Contract.ID,
+		ServiceID:        service.ID,
+		ServicesSchedule: schedule,
+		PerUnitCents:     perUnitCents,
+	}
+
+	suite.MustSave(&accessorialPrice)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {

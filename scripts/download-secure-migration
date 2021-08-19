@@ -9,8 +9,8 @@ set -eu -o pipefail
 readonly aws_command="aws"
 # Environments to download production migrations from
 # shellcheck disable=SC2206
-readonly environments=(${ENVIRONMENTS:-exp stg prd})
-readonly valid_envs=("exp" "stg" "prd")
+readonly environments=(${ENVIRONMENTS:-demo exp stg prd})
+readonly valid_envs=("demo" "exp" "stg" "prd")
 readonly aws_gov_prefix="transcom-gov-milmove-"
 readonly aws_gov_region="us-gov-west-1"
 readonly aws_gov_bucket_suffix="-app-${aws_gov_region}"

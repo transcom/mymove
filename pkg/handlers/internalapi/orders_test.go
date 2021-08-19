@@ -14,6 +14,7 @@ import (
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	orderservice "github.com/transcom/mymove/pkg/services/order"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -37,13 +38,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		SpouseHasProGear:    handlers.FmtBool(spouseHasProGear),
 		IssueDate:           handlers.FmtDate(issueDate),
 		ReportByDate:        handlers.FmtDate(reportByDate),
-		OrdersType:          ordersType,
+		OrdersType:          internalmessages.NewOrdersType(ordersType),
 		NewDutyStationID:    handlers.FmtUUID(station.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
 		Tac:                 handlers.FmtString("E19A"),
 		Sac:                 handlers.FmtString("SacNumber"),
-		DepartmentIndicator: &deptIndicator,
+		DepartmentIndicator: internalmessages.NewDeptIndicator(deptIndicator),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -65,7 +66,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
 	suite.Assertions.Len(okResponse.Payload.Moves, 1)
-	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
@@ -107,7 +108,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	okResponse := response.(*ordersop.ShowOrdersOK)
 
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(order.OrdersType, *okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(order.OrdersTypeDetail, okResponse.Payload.OrdersTypeDetail)
 	suite.Assertions.Equal(*order.Grade, *okResponse.Payload.Grade)
 	suite.Assertions.Equal(*order.TAC, *okResponse.Payload.Tac)
@@ -116,6 +117,46 @@ func (suite *HandlerSuite) TestShowOrder() {
 	//suite.Assertions.Equal(order.ReportByDate.String(), okResponse.Payload.ReportByDate.String())
 	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
+}
+
+func (suite *HandlerSuite) TestUploadAmendedOrder() {
+	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Address: testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{}),
+		},
+	})
+	var moves models.Moves
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation: &dutyStation,
+		},
+		Move: mto,
+	})
+	order.Moves = append(moves, mto)
+	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
+	req := httptest.NewRequest("PATCH", path, nil)
+	req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+	params := ordersop.UploadAmendedOrdersParams{
+		HTTPRequest: req,
+		File:        suite.Fixture("test.pdf"),
+		OrdersID:    *handlers.FmtUUID(order.ID),
+	}
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFileStorer(fakeS3)
+	uploadAmendedHandler := UploadAmendedOrdersHandler{
+		HandlerContext: context,
+		OrderUpdater:   orderservice.NewOrderUpdater(suite.DB()),
+	}
+	response := uploadAmendedHandler.Handle(params)
+
+	suite.Assertions.IsType(&ordersop.UploadAmendedOrdersCreated{}, response)
+	okResponse := response.(*ordersop.UploadAmendedOrdersCreated)
+	suite.Assertions.NotNil(okResponse.Payload.ID.String()) // UploadPayload
+	suite.Assertions.Equal("test.pdf", *okResponse.Payload.Filename)
 }
 
 // TODO: Fix now that we capture transaction error. May be a data setup problem

@@ -30,7 +30,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
-	moves "github.com/transcom/mymove/pkg/services/move"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -153,14 +153,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler struct {
 	handlers.HandlerContext
-	// Unable to get logger to pass in for the instantiation of
-	// move.InitNewMoveRouter(h.DB(), logger),
-	// This limitation has come up a few times
-	// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
-	// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600
-	// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
-	// As a temporary workaround move.InitNewMoveRouter
-	// is called directly in the handler
+	services.MoveRouter
 }
 
 // Handle ... submit a move to TOO for approval
@@ -174,15 +167,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
-
-	moveRouter, err := moves.InitNewMoveRouter(h.DB(), logger)
-	if err != nil {
-		msg := "failed to initialize InitNewMoveRouter"
-		logger.Error(msg, zap.Error(err))
-		return moveop.NewSubmitMoveForApprovalInternalServerError()
-	}
-
-	err = moveRouter.Submit(move)
+	h.MoveRouter.SetLogger(logger)
+	err = h.MoveRouter.Submit(move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -428,4 +414,48 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 // ShowShipmentSummaryWorksheetHandler returns a Shipment Summary Worksheet PDF
 type ShowShipmentSummaryWorksheetHandler struct {
 	handlers.HandlerContext
+}
+
+// SubmitAmendedOrdersHandler approves a move via POST /moves/{moveId}/submit
+type SubmitAmendedOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveRouter
+}
+
+// Handle ... submit a move to TOO for approval
+func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+	h.MoveRouter.SetLogger(logger)
+
+	err = h.MoveRouter.Submit(move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	if verrs, saveErr := h.DB().ValidateAndSave(move); verrs.HasAny() || saveErr != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(saveErr, "Error Saving Move")
+	}
+
+	if responseVErrors.HasAny() {
+		return handlers.ResponseForVErrors(logger, responseVErrors, responseError)
+	}
+
+	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return moveop.NewSubmitAmendedOrdersOK().WithPayload(movePayload)
 }

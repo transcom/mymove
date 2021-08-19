@@ -29,7 +29,7 @@ func NewShowAvailableMoveDates(ctx *middleware.Context, handler ShowAvailableMov
 	return &ShowAvailableMoveDates{Context: ctx, Handler: handler}
 }
 
-/*ShowAvailableMoveDates swagger:route GET /calendar/available_move_dates calendar showAvailableMoveDates
+/* ShowAvailableMoveDates swagger:route GET /calendar/available_move_dates calendar showAvailableMoveDates
 
 Returns available dates for the move calendar
 
@@ -44,17 +44,15 @@ type ShowAvailableMoveDates struct {
 func (o *ShowAvailableMoveDates) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewShowAvailableMoveDatesParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

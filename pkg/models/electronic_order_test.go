@@ -37,8 +37,6 @@ func (suite *ModelSuite) TestElectronicOrderValidations() {
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrder() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -51,8 +49,6 @@ func (suite *ModelSuite) TestCreateElectronicOrder() {
 }
 
 func (suite *ModelSuite) TestCreateElectronicOrderWithRevision() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -78,8 +74,6 @@ func (suite *ModelSuite) TestCreateElectronicOrderWithRevision() {
 }
 
 func (suite *ModelSuite) TestFetchElectronicOrderByID() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -99,8 +93,6 @@ func (suite *ModelSuite) TestFetchElectronicOrderByID() {
 }
 
 func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
 		Issuer:       models.IssuerArmy,
@@ -120,8 +112,6 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 }
 
 func (suite *ModelSuite) TestFetchElectronicOrdersByEdipiAndIssuers() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 	edipi := "1234567890"
 	newOrder1 := models.ElectronicOrder{
 		Edipi:        edipi,

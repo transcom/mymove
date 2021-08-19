@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetOrdersByIssuerAndOrdersNumParams creates a new GetOrdersByIssuerAndOrdersNumParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetOrdersByIssuerAndOrdersNumParams() GetOrdersByIssuerAndOrdersNumParams {
 
 	return GetOrdersByIssuerAndOrdersNumParams{}
@@ -60,7 +61,6 @@ func (o *GetOrdersByIssuerAndOrdersNumParams) BindRequest(r *http.Request, route
 	if err := o.bindOrdersNum(rOrdersNum, rhkOrdersNum, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -76,7 +76,6 @@ func (o *GetOrdersByIssuerAndOrdersNumParams) bindIssuer(rawData []string, hasKe
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.Issuer = raw
 
 	if err := o.validateIssuer(formats); err != nil {
@@ -105,7 +104,6 @@ func (o *GetOrdersByIssuerAndOrdersNumParams) bindOrdersNum(rawData []string, ha
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.OrdersNum = raw
 
 	return nil

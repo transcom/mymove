@@ -29,7 +29,7 @@ func NewGetEntitlements(ctx *middleware.Context, handler GetEntitlementsHandler)
 	return &GetEntitlements{Context: ctx, Handler: handler}
 }
 
-/*GetEntitlements swagger:route GET /move-task-orders/{moveTaskOrderID}/entitlements moveTaskOrder getEntitlements
+/* GetEntitlements swagger:route GET /move-task-orders/{moveTaskOrderID}/entitlements moveTaskOrder getEntitlements
 
 Gets entitlements for a move by ID
 
@@ -44,17 +44,15 @@ type GetEntitlements struct {
 func (o *GetEntitlements) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewGetEntitlementsParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

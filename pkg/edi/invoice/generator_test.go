@@ -68,6 +68,7 @@ N9*CT*TRUSS_TEST**
 N9*1W*Leo, Spacemen**
 N9*ML*E_1**
 N9*3L*ARMY**
+C3*USD***
 G62*10*20200909**
 N1*BY*BuyerOrganizationName*92*LKNQ
 N1*SE*SellerOrganizationName*2*BLKW
@@ -88,6 +89,7 @@ GE*1*9999
 IEA*1*000009999
 `, ediString)
 	})
+
 }
 
 func (suite *InvoiceSuite) TestValidate() {
@@ -131,6 +133,10 @@ func MakeValidEdi() Invoice858C {
 		ServiceMemberBranch: edisegment.N9{
 			ReferenceIdentificationQualifier: "3L",
 			ReferenceIdentification:          "ARMY",
+		},
+
+		Currency: edisegment.C3{
+			CurrencyCodeC301: "USD",
 		},
 
 		RequestedPickupDate: &date,

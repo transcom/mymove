@@ -7,7 +7,7 @@ import styles from './ShipmentCard.module.scss';
 
 import { formatCustomerDate } from 'utils/formatters';
 
-const PickupDisplay = ({ pickupLocation, releasingAgent, requestedPickupDate }) => {
+const PickupDisplay = ({ pickupLocation, secondaryPickupAddress, releasingAgent, requestedPickupDate }) => {
   return (
     <div>
       <div className={styles.row}>
@@ -21,6 +21,16 @@ const PickupDisplay = ({ pickupLocation, releasingAgent, requestedPickupDate }) 
             {pickupLocation.street_address_1} {pickupLocation.street_address_2}
             <br />
             {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
+          </dd>
+        </div>
+      )}
+      {secondaryPickupAddress && (
+        <div className={styles.row}>
+          <dt>Second pickup location</dt>
+          <dd>
+            {secondaryPickupAddress.street_address_1} {secondaryPickupAddress.street_address_2}
+            <br />
+            {secondaryPickupAddress.city}, {secondaryPickupAddress.state} {secondaryPickupAddress.postal_code}
           </dd>
         </div>
       )}
@@ -49,6 +59,7 @@ const PickupDisplay = ({ pickupLocation, releasingAgent, requestedPickupDate }) 
 PickupDisplay.propTypes = {
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
+  secondaryPickupAddress: AddressShape,
   releasingAgent: shape({
     firstName: string,
     lastName: string,
@@ -58,6 +69,7 @@ PickupDisplay.propTypes = {
 };
 
 PickupDisplay.defaultProps = {
+  secondaryPickupAddress: null,
   releasingAgent: null,
 };
 

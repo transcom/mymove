@@ -6,6 +6,7 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateMoveTaskOrderStatusParams creates a new UpdateMoveTaskOrderStatusParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMoveTaskOrderStatusParams() UpdateMoveTaskOrderStatusParams {
 
 	return UpdateMoveTaskOrderStatusParams{}
@@ -84,6 +86,11 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.ServiceItemCodes = &body
 			}
@@ -112,7 +119,6 @@ func (o *UpdateMoveTaskOrderStatusParams) bindIfMatch(rawData []string, hasKey b
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -127,7 +133,6 @@ func (o *UpdateMoveTaskOrderStatusParams) bindMoveTaskOrderID(rawData []string, 
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil

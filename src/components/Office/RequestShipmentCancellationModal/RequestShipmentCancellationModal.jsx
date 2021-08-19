@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Overlay, ModalContainer } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
-import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
+import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
+import Modal, { ModalTitle, ModalClose, ModalActions } from 'components/Modal/Modal';
 
-export const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) => (
+const RequestShipmentCancellationModal = ({ onClose, onSubmit, shipmentInfo }) => (
   <div>
     <Overlay />
     <ModalContainer>
@@ -51,4 +52,4 @@ RequestShipmentCancellationModal.propTypes = {
 
 RequestShipmentCancellationModal.displayName = 'RequestShipmentCancellationModal';
 
-export default connectModal(RequestShipmentCancellationModal);
+export default RequestShipmentCancellationModal;

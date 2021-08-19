@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -59,6 +61,11 @@ func (m *PPMIncentive) validateIncentivePercentage(formats strfmt.Registry) erro
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this p p m incentive based on context it is used
+func (m *PPMIncentive) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

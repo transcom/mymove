@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
@@ -16,12 +18,6 @@ import (
 // HandlerSuite is an abstraction of our original suite
 type HandlerSuite struct {
 	handlers.BaseHandlerTestSuite
-}
-
-// SetupTest sets up the test suite by preparing the DB
-func (suite *HandlerSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
 }
 
 // AfterTest completes tests by trying to close open files
@@ -39,6 +35,14 @@ func (suite *HandlerSuite) AfterTest() {
 	}
 }
 
+func (suite *HandlerSuite) createHandlerContext() handlers.HandlerContext {
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+
+	return context
+}
+
 // TestHandlerSuite creates our test suite
 func TestHandlerSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
@@ -47,7 +51,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger), testingsuite.CurrentPackage()),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger), testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 	}
 
 	suite.Run(t, hs)

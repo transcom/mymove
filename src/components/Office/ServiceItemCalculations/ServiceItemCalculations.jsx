@@ -6,13 +6,19 @@ import classnames from 'classnames';
 import { makeCalculations } from './helpers';
 import styles from './ServiceItemCalculations.module.scss';
 
-import { PaymentServiceItemParam } from 'types/order';
+import { PaymentServiceItemParam, MTOServiceItemShape } from 'types/order';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
 
 const times = <FontAwesomeIcon className={styles.icon} icon="times" />;
 const equals = <FontAwesomeIcon className={styles.icon} icon="equals" />;
 
-const ServiceItemCalculations = ({ itemCode, totalAmountRequested, serviceItemParams, tableSize }) => {
+const ServiceItemCalculations = ({
+  itemCode,
+  totalAmountRequested,
+  serviceItemParams,
+  additionalServiceItemData,
+  tableSize,
+}) => {
   if (!allowedServiceItemCalculations.includes(itemCode) || serviceItemParams.length === 0) {
     return <></>;
   }
@@ -33,7 +39,7 @@ const ServiceItemCalculations = ({ itemCode, totalAmountRequested, serviceItemPa
     return <></>;
   };
 
-  const calculations = makeCalculations(itemCode, totalAmountRequested, serviceItemParams);
+  const calculations = makeCalculations(itemCode, totalAmountRequested, serviceItemParams, additionalServiceItemData);
 
   return (
     <div
@@ -89,6 +95,7 @@ ServiceItemCalculations.propTypes = {
   // in cents
   totalAmountRequested: PropTypes.number.isRequired,
   serviceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
+  additionalServiceItemData: MTOServiceItemShape,
   // apply small or large styling
   tableSize: PropTypes.oneOf(['small', 'large']),
 };
@@ -96,6 +103,7 @@ ServiceItemCalculations.propTypes = {
 ServiceItemCalculations.defaultProps = {
   tableSize: 'large',
   serviceItemParams: [],
+  additionalServiceItemData: {},
 };
 
 export default ServiceItemCalculations;

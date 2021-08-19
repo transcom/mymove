@@ -5,7 +5,7 @@ set -eu -o pipefail
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-GOVERSION='1.16.4'
+GOVERSION='1.16.6'
 
 prereqs_found=true
 
@@ -61,14 +61,14 @@ has shellcheck "brew install shellcheck"
 has psql "brew install postgresql"
 has nodenv "brew install nodenv"
 has_path ".nodenv/shims" "nodenv init"
-has node "nodenv local 12.21.0"
+has node "nodenv local 14.17.1"
 has yq "brew install yq"
 
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then
   # CAC tools
-  has pkcs11-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs11-tool; brew link opensc"
-  has pkcs15-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs15-tool; brew link opensc"
+  has pkcs11-tool "brew install --cask opensc"
+  has pkcs15-tool "brew install --cask opensc"
 
   has circleci "brew install circleci"
   has direnv "brew install direnv"

@@ -6,6 +6,7 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
@@ -29,6 +30,7 @@ type Notification struct {
 	Email *string `json:"email"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
@@ -179,6 +181,11 @@ func (m *Notification) validateSesMessageID(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this notification based on context it is used
+func (m *Notification) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

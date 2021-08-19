@@ -18,56 +18,70 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
-// NewProcessReviewedPaymentRequestsParams creates a new ProcessReviewedPaymentRequestsParams object
-// with the default values initialized.
+// NewProcessReviewedPaymentRequestsParams creates a new ProcessReviewedPaymentRequestsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewProcessReviewedPaymentRequestsParams() *ProcessReviewedPaymentRequestsParams {
-	var ()
 	return &ProcessReviewedPaymentRequestsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewProcessReviewedPaymentRequestsParamsWithTimeout creates a new ProcessReviewedPaymentRequestsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewProcessReviewedPaymentRequestsParamsWithTimeout(timeout time.Duration) *ProcessReviewedPaymentRequestsParams {
-	var ()
 	return &ProcessReviewedPaymentRequestsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewProcessReviewedPaymentRequestsParamsWithContext creates a new ProcessReviewedPaymentRequestsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewProcessReviewedPaymentRequestsParamsWithContext(ctx context.Context) *ProcessReviewedPaymentRequestsParams {
-	var ()
 	return &ProcessReviewedPaymentRequestsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewProcessReviewedPaymentRequestsParamsWithHTTPClient creates a new ProcessReviewedPaymentRequestsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewProcessReviewedPaymentRequestsParamsWithHTTPClient(client *http.Client) *ProcessReviewedPaymentRequestsParams {
-	var ()
 	return &ProcessReviewedPaymentRequestsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ProcessReviewedPaymentRequestsParams contains all the parameters to send to the API endpoint
-for the process reviewed payment requests operation typically these are written to a http.Request
+/* ProcessReviewedPaymentRequestsParams contains all the parameters to send to the API endpoint
+   for the process reviewed payment requests operation.
+
+   Typically these are written to a http.Request.
 */
 type ProcessReviewedPaymentRequestsParams struct {
 
-	/*Body*/
+	// Body.
 	Body *supportmessages.ProcessReviewedPaymentRequests
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the process reviewed payment requests params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ProcessReviewedPaymentRequestsParams) WithDefaults() *ProcessReviewedPaymentRequestsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the process reviewed payment requests params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ProcessReviewedPaymentRequestsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the process reviewed payment requests params
@@ -121,7 +135,6 @@ func (o *ProcessReviewedPaymentRequestsParams) WriteToRequest(r runtime.ClientRe
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

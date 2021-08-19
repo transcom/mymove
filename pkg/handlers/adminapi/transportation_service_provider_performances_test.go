@@ -214,27 +214,19 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexTSPPsHandlerHelpers() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	handler := IndexTSPPsHandler{
-		HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		NewQueryFilter: query.NewQueryFilter,
-		TransportationServiceProviderPerformanceListFetcher: tsp.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
-		NewPagination: pagination.NewPagination,
-	}
-
 	suite.T().Run("test both filters present", func(t *testing.T) {
 
 		s := `{"traffic_distribution_list_id":"001a4a1b-8b04-4621-b9ec-711d828f67e3", "transportation_service_provider_id":"8f166861-b8c4-4a8f-a43e-77ed5e745086"}`
-		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		qfs := generateQueryFilters(suite.TestLogger(), &s, tsppFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("traffic_distribution_list_id", "=", "001a4a1b-8b04-4621-b9ec-711d828f67e3"),
 			query.NewQueryFilter("transportation_service_provider_id", "=", "8f166861-b8c4-4a8f-a43e-77ed5e745086"),
 		}
-		suite.Equal(expectedFilters, qfs)
+		suite.ElementsMatch(expectedFilters, qfs) // order not important
 	})
 	suite.T().Run("test only traffic_distribution_list_id present", func(t *testing.T) {
 		s := `{"traffic_distribution_list_id":"001a4a1b-8b04-4621-b9ec-711d828f67e3"}`
-		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		qfs := generateQueryFilters(suite.TestLogger(), &s, tsppFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("traffic_distribution_list_id", "=", "001a4a1b-8b04-4621-b9ec-711d828f67e3"),
 		}
@@ -242,7 +234,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandlerHelpers() {
 	})
 	suite.T().Run("test only transportation_service_provider_id present", func(t *testing.T) {
 		s := `{"transportation_service_provider_id":"8f166861-b8c4-4a8f-a43e-77ed5e745086"}`
-		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		qfs := generateQueryFilters(suite.TestLogger(), &s, tsppFilterConverters)
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("transportation_service_provider_id", "=", "8f166861-b8c4-4a8f-a43e-77ed5e745086"),
 		}

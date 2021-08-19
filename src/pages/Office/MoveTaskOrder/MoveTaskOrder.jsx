@@ -7,32 +7,44 @@ import { func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
+import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
 
+import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
+
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
-import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
 import LeftNav from 'components/LeftNav';
-import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
-import { RequestShipmentCancellationModal } from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
-import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
-import ShipmentContainer from 'components/Office/ShipmentContainer';
-import ShipmentHeading from 'components/Office/ShipmentHeading';
-import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import RequestShipmentCancellationModal from 'components/Office/RequestShipmentCancellationModal/RequestShipmentCancellationModal';
+import RequestReweighModal from 'components/Office/RequestReweighModal/RequestReweighModal';
+import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
+import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
+import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
-import { patchMTOServiceItemStatus, updateMTOShipmentStatus } from 'services/ghcApi';
+import {
+  patchMTOServiceItemStatus,
+  updateAllowance,
+  updateMTOShipmentRequestReweigh,
+  updateMTOShipmentStatus,
+} from 'services/ghcApi';
 import { MOVE_STATUSES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
 import { MatchShape } from 'types/router';
+import WeightDisplay from 'components/Office/WeightDisplay/WeightDisplay';
 
 function formatShipmentDate(shipmentDateString) {
+  if (shipmentDateString == null) {
+    return '';
+  }
   const dateObj = new Date(shipmentDateString);
   const weekday = new Intl.DateTimeFormat('en', { weekday: 'long' }).format(dateObj);
   const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(dateObj);
@@ -41,13 +53,20 @@ function formatShipmentDate(shipmentDateString) {
   return `${weekday}, ${day} ${month} ${year}`;
 }
 
-function approvedFilter(shipment) {
-  return shipment.status === shipmentStatuses.APPROVED || shipment.status === shipmentStatuses.CANCELLATION_REQUESTED;
+function showShipmentFilter(shipment) {
+  return (
+    shipment.status === shipmentStatuses.APPROVED ||
+    shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+    shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+    shipment.status === shipmentStatuses.CANCELED
+  );
 }
 
 export const MoveTaskOrder = ({ match, ...props }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
+  const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
@@ -57,12 +76,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const { moveCode } = match.params;
   const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
 
-  const { orders = {}, moveTaskOrders, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(
-    moveCode,
-  );
+  const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
   const order = Object.values(orders)?.[0];
-  const moveTaskOrder = Object.values(moveTaskOrders || {})?.[0];
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -76,13 +92,15 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       newItem.serviceItem = item.reServiceName;
       newItem.details = {
         pickupPostalCode: item.pickupPostalCode,
+        SITPostalCode: item.SITPostalCode,
         reason: item.reason,
-        imgURL: '',
         description: item.description,
         itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
         crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
         firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
         secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+        estimatedWeight: item.estimatedWeight,
+        rejectionReason: item.rejectionReason,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -97,11 +115,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
-      mtoServiceItems[
-        mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)
-      ] = newMTOServiceItem;
-      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveTaskOrderId, false], mtoServiceItems);
-      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveTaskOrderId]);
+      mtoServiceItems[mtoServiceItems.find((serviceItem) => serviceItem.id === newMTOServiceItem.id)] =
+        newMTOServiceItem;
+      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.moveId, false], mtoServiceItems);
+      queryCache.invalidateQueries([MTO_SERVICE_ITEMS, variables.moveId]);
       setIsModalVisible(false);
       setSelectedServiceItem({});
     },
@@ -129,17 +146,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       queryCache.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       // InvalidateQuery tells other components using this data that they need to re-fetch
       // This allows the requestCancellation button to update immediately
-      queryCache.invalidateQueries([MTO_SHIPMENTS, variables.moveTaskOrderID]);
+      queryCache.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
 
       setIsCancelModalVisible(false);
       // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
-      setMessage(
-        `MSG_CANCEL_SUCCESS_${variables.shipmentID}`,
-        'success',
-        'The request to cancel that shipment has been sent to the movers.',
-        '',
-        true,
-      );
+      setMessage(`MSG_CANCEL_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -157,12 +168,93 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
+  const [mutateMTOShipmentRequestReweigh] = useMutation(updateMTOShipmentRequestReweigh, {
+    onSuccess: (data, variables) => {
+      // Update mtoShipments with our updated status and set query data to match
+      mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === data.shipmentID)] = data;
+      queryCache.setQueryData([MTO_SHIPMENTS, data.shipment.moveTaskOrderID, false], mtoShipments);
+
+      // InvalidateQuery tells other components using this data that they need to re-fetch
+      // This allows the requestReweigh button to update immediately
+      queryCache.invalidateQueries([MTO_SHIPMENTS, data.shipment.moveTaskOrderID]);
+
+      setIsReweighModalVisible(false);
+      // Must set FlashMesage after hiding the modal, since FlashMessage will disappear when focus changes
+      setMessage(`MSG_REWEIGH_SUCCESS_${variables.shipmentID}`, 'success', variables.onSuccessFlashMsg, '', true);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
+  const [mutateOrders] = useMutation(updateAllowance, {
+    onSuccess: (data, variables) => {
+      const updatedOrder = data.orders[variables.orderID];
+      queryCache.setQueryData([ORDERS, variables.orderID], {
+        orders: {
+          [`${variables.orderID}`]: updatedOrder,
+        },
+      });
+      queryCache.invalidateQueries([ORDERS, variables.orderID]);
+      setIsWeightModalVisible(false);
+      setMessage(
+        `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
+        'success',
+        'The maximum billable weight has been updated.',
+        '',
+        true,
+      );
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
+  const handleDivertShipment = (mtoShipmentID, eTag) => {
+    mutateMTOShipmentStatus({
+      shipmentID: mtoShipmentID,
+      operationPath: 'shipment.requestShipmentDiversion',
+      ifMatchETag: eTag,
+      onSuccessFlashMsg: `Diversion successfully requested for Shipment #${mtoShipmentID}`,
+    });
+  };
+
+  const handleReweighShipment = (mtoShipmentID, eTag) => {
+    mutateMTOShipmentRequestReweigh({
+      shipmentID: mtoShipmentID,
+      ifMatchETag: eTag,
+      onSuccessFlashMsg: `Reweigh successfully requested.`,
+    });
+  };
+
   const handleUpdateMTOShipmentStatus = (moveTaskOrderID, mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
-      moveTaskOrderID,
       shipmentID: mtoShipmentID,
-      shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
+      operationPath: 'shipment.requestShipmentCancellation',
       ifMatchETag: eTag,
+      onSuccessFlashMsg: 'The request to cancel that shipment has been sent to the movers.',
     });
   };
 
@@ -170,7 +262,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     const mtoServiceItemForRequest = shipmentServiceItems[`${mtoShipmentID}`]?.find((s) => s.id === mtoServiceItemID);
 
     mutateMTOServiceItemStatus({
-      moveTaskOrderId: moveTaskOrder.id,
+      moveId: move.id,
       mtoServiceItemID,
       status,
       rejectionReason,
@@ -178,11 +270,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
+  const handleUpdateAllowance = (maxBillableWeight) => {
+    mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+  };
+
   useEffect(() => {
     let serviceItemCount = 0;
     const serviceItemsCountForShipment = {};
     mtoShipments?.forEach((mtoShipment) => {
-      if (mtoShipment.status === shipmentStatuses.APPROVED) {
+      if (
+        mtoShipment.status === shipmentStatuses.APPROVED ||
+        mtoShipment.status === shipmentStatuses.DIVERSION_REQUESTED
+      ) {
         const requestedServiceItemCount = shipmentServiceItems[`${mtoShipment.id}`]?.filter(
           (serviceItem) => serviceItem.status === SERVICE_ITEM_STATUSES.SUBMITTED,
         )?.length;
@@ -208,7 +307,9 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     mtoShipments?.forEach((shipment) => {
       if (
         shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED
+        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+        shipment.status === shipmentStatuses.CANCELED
       ) {
         shipmentSections.push({
           id: shipment.id,
@@ -256,10 +357,19 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     setIsCancelModalVisible(true);
   };
 
+  const handleRequestReweighModal = (mtoShipment) => {
+    setSelectedShipment(mtoShipment);
+    setIsReweighModalVisible(true);
+  };
+
+  const handleShowWeightModal = () => {
+    setIsWeightModalVisible(true);
+  };
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  if (moveTaskOrder.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(approvedFilter)) {
+  if (move.status === MOVE_STATUSES.SUBMITTED || !mtoShipments.some(showShipmentFilter)) {
     return (
       <div className={styles.tabContent}>
         <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
@@ -272,6 +382,24 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         </GridContainer>
       </div>
     );
+  }
+
+  let moveWeightTotal = null;
+  if (mtoShipments?.some((s) => s.primeActualWeight)) {
+    moveWeightTotal = mtoShipments
+      ?.filter((s) => s.primeActualWeight)
+      .reduce((prev, current) => {
+        return prev + current.primeActualWeight;
+      }, 0);
+  }
+
+  let estimatedWeightTotal = null;
+  if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+    estimatedWeightTotal = mtoShipments
+      ?.filter((s) => s.primeEstimatedWeight)
+      .reduce((prev, current) => {
+        return prev + current.primeEstimatedWeight;
+      }, 0);
   }
 
   return (
@@ -305,17 +433,46 @@ export const MoveTaskOrder = ({ match, ...props }) => {
               onSubmit={handleUpdateMTOShipmentStatus}
             />
           )}
+          {isReweighModalVisible && (
+            <RequestReweighModal
+              shipmentInfo={selectedShipment}
+              onClose={setIsReweighModalVisible}
+              onSubmit={handleReweighShipment}
+            />
+          )}
+          {isWeightModalVisible && (
+            <EditMaxBillableWeightModal
+              defaultWeight={order.entitlement.totalWeight}
+              maxBillableWeight={order.entitlement.authorizedWeight}
+              onSubmit={handleUpdateAllowance}
+              onClose={setIsWeightModalVisible}
+            />
+          )}
           <div className={styles.pageHeader}>
             <h1>Move task order</h1>
             <div className={styles.pageHeaderDetails}>
-              <h6>MTO Reference ID #{moveTaskOrder?.referenceId}</h6>
+              <h6>MTO Reference ID #{move?.referenceId}</h6>
               <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
             </div>
+          </div>
+          <div className={moveTaskOrderStyles.weightHeader}>
+            <WeightDisplay heading="Weight allowance" weightValue={order.entitlement.totalWeight} />
+            <WeightDisplay heading="Estimated weight (total)" weightValue={estimatedWeightTotal}>
+              {hasRiskOfExcess(estimatedWeightTotal, order.entitlement.totalWeight) && <Tag>Risk of excess</Tag>}
+            </WeightDisplay>
+            <WeightDisplay
+              heading="Max billable weight"
+              weightValue={order.entitlement.authorizedWeight}
+              onEdit={handleShowWeightModal}
+            />
+            <WeightDisplay heading="Move weight (total)" weightValue={moveWeightTotal} />
           </div>
           {mtoShipments.map((mtoShipment) => {
             if (
               mtoShipment.status !== shipmentStatuses.APPROVED &&
-              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED
+              mtoShipment.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
+              mtoShipment.status !== shipmentStatuses.DIVERSION_REQUESTED &&
+              mtoShipment.status !== shipmentStatuses.CANCELED
             ) {
               return false;
             }
@@ -346,6 +503,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   shipmentInfo={{
                     shipmentID: mtoShipment.id,
                     shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
+                    isDiversion: mtoShipment.diversion,
                     originCity: pickupAddress?.city,
                     originState: pickupAddress?.state,
                     originPostalCode: pickupAddress?.postal_code,
@@ -357,19 +515,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                 />
-                <ImportantShipmentDates
-                  requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
-                  scheduledPickupDate={formattedScheduledPickup}
-                />
-                <ShipmentAddresses
-                  pickupAddress={pickupAddress}
-                  destinationAddress={destinationAddress || dutyStationPostal}
-                  originDutyStation={order.originDutyStation?.address}
-                  destinationDutyStation={order.destinationDutyStation?.address}
-                />
-                <ShipmentWeightDetails
-                  estimatedWeight={mtoShipment.primeEstimatedWeight}
-                  actualWeight={mtoShipment.primeActualWeight}
+                <ShipmentDetails
+                  shipment={mtoShipment}
+                  order={order}
+                  handleDivertShipment={handleDivertShipment}
+                  handleRequestReweighModal={handleRequestReweighModal}
                 />
                 {requestedServiceItems?.length > 0 && (
                   <RequestedServiceItemsTable

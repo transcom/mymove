@@ -18,14 +18,8 @@ import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveCode } = match.params;
-  const {
-    paymentRequest,
-    paymentRequests,
-    paymentServiceItems,
-    mtoShipments,
-    isLoading,
-    isError,
-  } = usePaymentRequestQueries(paymentRequestId);
+  const { paymentRequest, paymentRequests, paymentServiceItems, mtoShipments, isLoading, isError } =
+    usePaymentRequestQueries(paymentRequestId);
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
@@ -122,6 +116,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       mtoShipmentModificationType: selectedShipment ? getShipmentModificationType(selectedShipment) : undefined,
       mtoServiceItemCode: item.mtoServiceItemCode,
       mtoServiceItemName: item.mtoServiceItemName,
+      mtoServiceItems: selectedShipment?.mtoServiceItems,
       amount: item.priceCents ? item.priceCents / 100 : 0,
       createdAt: item.createdAt,
       status: item.status,

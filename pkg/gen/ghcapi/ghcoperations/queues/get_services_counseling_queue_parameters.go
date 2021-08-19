@@ -18,7 +18,8 @@ import (
 )
 
 // NewGetServicesCounselingQueueParams creates a new GetServicesCounselingQueueParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetServicesCounselingQueueParams() GetServicesCounselingQueueParams {
 
 	return GetServicesCounselingQueueParams{}
@@ -163,7 +164,6 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 	if err := o.bindSubmittedAt(qSubmittedAt, qhkSubmittedAt, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -179,10 +179,10 @@ func (o *GetServicesCounselingQueueParams) bindBranch(rawData []string, hasKey b
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Branch = &raw
 
 	return nil
@@ -197,10 +197,10 @@ func (o *GetServicesCounselingQueueParams) bindDestinationDutyStation(rawData []
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.DestinationDutyStation = &raw
 
 	return nil
@@ -215,10 +215,10 @@ func (o *GetServicesCounselingQueueParams) bindDodID(rawData []string, hasKey bo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.DodID = &raw
 
 	return nil
@@ -233,10 +233,10 @@ func (o *GetServicesCounselingQueueParams) bindLastName(rawData []string, hasKey
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.LastName = &raw
 
 	return nil
@@ -251,10 +251,10 @@ func (o *GetServicesCounselingQueueParams) bindLocator(rawData []string, hasKey 
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Locator = &raw
 
 	return nil
@@ -269,10 +269,10 @@ func (o *GetServicesCounselingQueueParams) bindOrder(rawData []string, hasKey bo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Order = &raw
 
 	if err := o.validateOrder(formats); err != nil {
@@ -301,10 +301,10 @@ func (o *GetServicesCounselingQueueParams) bindOriginGBLOC(rawData []string, has
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.OriginGBLOC = &raw
 
 	return nil
@@ -319,6 +319,7 @@ func (o *GetServicesCounselingQueueParams) bindPage(rawData []string, hasKey boo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -341,6 +342,7 @@ func (o *GetServicesCounselingQueueParams) bindPerPage(rawData []string, hasKey 
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -363,10 +365,10 @@ func (o *GetServicesCounselingQueueParams) bindRequestedMoveDate(rawData []strin
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.RequestedMoveDate = &raw
 
 	return nil
@@ -381,10 +383,10 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-
 	o.Sort = &raw
 
 	if err := o.validateSort(formats); err != nil {
@@ -408,7 +410,6 @@ func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry)
 //
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *GetServicesCounselingQueueParams) bindStatus(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
 	var qvStatus string
 	if len(rawData) > 0 {
 		qvStatus = rawData[len(rawData)-1]
@@ -446,7 +447,6 @@ func (o *GetServicesCounselingQueueParams) validateStatus(formats strfmt.Registr
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -459,6 +459,7 @@ func (o *GetServicesCounselingQueueParams) bindSubmittedAt(rawData []string, has
 
 	// Required: false
 	// AllowEmptyValue: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}

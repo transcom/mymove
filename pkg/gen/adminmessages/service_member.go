@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -21,6 +23,7 @@ type ServiceMember struct {
 	FirstName *string `json:"firstName,omitempty"`
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -32,6 +35,7 @@ type ServiceMember struct {
 	MiddleName *string `json:"middleName,omitempty"`
 
 	// user Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
 	// Format: uuid
 	UserID strfmt.UUID `json:"userId,omitempty"`
@@ -56,7 +60,6 @@ func (m *ServiceMember) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ServiceMember) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -69,12 +72,47 @@ func (m *ServiceMember) validateID(formats strfmt.Registry) error {
 }
 
 func (m *ServiceMember) validateUserID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this service member based on the context it is used
+func (m *ServiceMember) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUserID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ServiceMember) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ServiceMember) contextValidateUserID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "userId", "body", strfmt.UUID(m.UserID)); err != nil {
 		return err
 	}
 

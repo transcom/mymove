@@ -11,14 +11,14 @@ import (
 )
 
 // MoveDocumentUpdater is an interface for moveDocument implementation
-//go:generate mockery --name MoveDocumentUpdater
+//go:generate mockery --name MoveDocumentUpdater --disable-version-string
 type MoveDocumentUpdater interface {
 	Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 	MoveDocumentStatusUpdater
 }
 
 // MoveDocumentStatusUpdater is an interface for moveDocument implementation
-//go:generate mockery --name MoveDocumentStatusUpdater
+//go:generate mockery --name MoveDocumentStatusUpdater --disable-version-string
 type MoveDocumentStatusUpdater interface {
 	UpdateMoveDocumentStatus(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocument *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }

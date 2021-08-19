@@ -15,7 +15,8 @@ import (
 )
 
 // NewListMTOShipmentsParams creates a new ListMTOShipmentsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewListMTOShipmentsParams() ListMTOShipmentsParams {
 
 	return ListMTOShipmentsParams{}
@@ -50,7 +51,6 @@ func (o *ListMTOShipmentsParams) BindRequest(r *http.Request, route *middleware.
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

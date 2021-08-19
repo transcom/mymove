@@ -77,9 +77,8 @@ func (o *HideNonFakeMoveTaskOrdersReader) ReadResponse(response runtime.ClientRe
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -88,7 +87,7 @@ func NewHideNonFakeMoveTaskOrdersOK() *HideNonFakeMoveTaskOrdersOK {
 	return &HideNonFakeMoveTaskOrdersOK{}
 }
 
-/*HideNonFakeMoveTaskOrdersOK handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersOK describes a response with status code 200, with default header values.
 
 Successfully hid MTOs.
 */
@@ -99,7 +98,6 @@ type HideNonFakeMoveTaskOrdersOK struct {
 func (o *HideNonFakeMoveTaskOrdersOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersOK  %+v", 200, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersOK) GetPayload() *supportmessages.MTOHideMovesResponse {
 	return o.Payload
 }
@@ -121,7 +119,7 @@ func NewHideNonFakeMoveTaskOrdersBadRequest() *HideNonFakeMoveTaskOrdersBadReque
 	return &HideNonFakeMoveTaskOrdersBadRequest{}
 }
 
-/*HideNonFakeMoveTaskOrdersBadRequest handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -132,7 +130,6 @@ type HideNonFakeMoveTaskOrdersBadRequest struct {
 func (o *HideNonFakeMoveTaskOrdersBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -154,7 +151,7 @@ func NewHideNonFakeMoveTaskOrdersUnauthorized() *HideNonFakeMoveTaskOrdersUnauth
 	return &HideNonFakeMoveTaskOrdersUnauthorized{}
 }
 
-/*HideNonFakeMoveTaskOrdersUnauthorized handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -165,7 +162,6 @@ type HideNonFakeMoveTaskOrdersUnauthorized struct {
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -187,7 +183,7 @@ func NewHideNonFakeMoveTaskOrdersForbidden() *HideNonFakeMoveTaskOrdersForbidden
 	return &HideNonFakeMoveTaskOrdersForbidden{}
 }
 
-/*HideNonFakeMoveTaskOrdersForbidden handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -198,7 +194,6 @@ type HideNonFakeMoveTaskOrdersForbidden struct {
 func (o *HideNonFakeMoveTaskOrdersForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersForbidden  %+v", 403, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -220,7 +215,7 @@ func NewHideNonFakeMoveTaskOrdersNotFound() *HideNonFakeMoveTaskOrdersNotFound {
 	return &HideNonFakeMoveTaskOrdersNotFound{}
 }
 
-/*HideNonFakeMoveTaskOrdersNotFound handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -231,7 +226,6 @@ type HideNonFakeMoveTaskOrdersNotFound struct {
 func (o *HideNonFakeMoveTaskOrdersNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersNotFound  %+v", 404, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersNotFound) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -253,7 +247,7 @@ func NewHideNonFakeMoveTaskOrdersConflict() *HideNonFakeMoveTaskOrdersConflict {
 	return &HideNonFakeMoveTaskOrdersConflict{}
 }
 
-/*HideNonFakeMoveTaskOrdersConflict handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersConflict describes a response with status code 409, with default header values.
 
 There was a conflict with the request.
 */
@@ -264,7 +258,6 @@ type HideNonFakeMoveTaskOrdersConflict struct {
 func (o *HideNonFakeMoveTaskOrdersConflict) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersConflict  %+v", 409, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersConflict) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -286,7 +279,7 @@ func NewHideNonFakeMoveTaskOrdersPreconditionFailed() *HideNonFakeMoveTaskOrders
 	return &HideNonFakeMoveTaskOrdersPreconditionFailed{}
 }
 
-/*HideNonFakeMoveTaskOrdersPreconditionFailed handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -297,7 +290,6 @@ type HideNonFakeMoveTaskOrdersPreconditionFailed struct {
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersPreconditionFailed) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -319,7 +311,7 @@ func NewHideNonFakeMoveTaskOrdersUnprocessableEntity() *HideNonFakeMoveTaskOrder
 	return &HideNonFakeMoveTaskOrdersUnprocessableEntity{}
 }
 
-/*HideNonFakeMoveTaskOrdersUnprocessableEntity handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -330,7 +322,6 @@ type HideNonFakeMoveTaskOrdersUnprocessableEntity struct {
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
 	return o.Payload
 }
@@ -352,7 +343,7 @@ func NewHideNonFakeMoveTaskOrdersInternalServerError() *HideNonFakeMoveTaskOrder
 	return &HideNonFakeMoveTaskOrdersInternalServerError{}
 }
 
-/*HideNonFakeMoveTaskOrdersInternalServerError handles this case with default header values.
+/* HideNonFakeMoveTaskOrdersInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -363,7 +354,6 @@ type HideNonFakeMoveTaskOrdersInternalServerError struct {
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/hide][%d] hideNonFakeMoveTaskOrdersInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *HideNonFakeMoveTaskOrdersInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

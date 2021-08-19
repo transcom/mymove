@@ -29,7 +29,7 @@ func NewPostRevision(ctx *middleware.Context, handler PostRevisionHandler) *Post
 	return &PostRevision{Context: ctx, Handler: handler}
 }
 
-/*PostRevision swagger:route POST /orders postRevision
+/* PostRevision swagger:route POST /orders postRevision
 
 Submit a new set of orders, make an amendment to an existing set of orders, or cancel a set of orders.
 
@@ -60,17 +60,15 @@ type PostRevision struct {
 func (o *PostRevision) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
-		r = rCtx
+		*r = *rCtx
 	}
 	var Params = NewPostRevisionParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

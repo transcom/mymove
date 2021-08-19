@@ -53,12 +53,12 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 		{name: "problem pdf", pdfName: "../../testdatagen/testdata/orders.pdf", expectedPages: 4},
 	}
 	uploadKeyRe := regexp.MustCompile(`(user/.+/uploads/.+)\?`)
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	// Context gives us our file storer and filesystem
-	context := suite.createHandlerContext()
-
 	for _, test := range tests {
 		suite.Run(test.name, func() {
+			officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+			// Context gives us our file storer and filesystem
+			context := suite.createHandlerContext()
+
 			ppm := testdatagen.MakeDefaultPPM(suite.DB())
 			expDoc := testdatagen.MakeMovingExpenseDocument(suite.DB(), testdatagen.Assertions{
 				MoveDocument: models.MoveDocument{
@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			suite.NoError(err)
 
 			// Create upload for expense document model
-			userUploader, err := uploader.NewUserUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), 100*uploader.MB)
+			userUploader, err := uploader.NewUserUploader(suite.DB(), suite.TestLogger(), context.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 			suite.NoError(err)
 			//RA Summary: gosec - errcheck - Unchecked return value
 			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.

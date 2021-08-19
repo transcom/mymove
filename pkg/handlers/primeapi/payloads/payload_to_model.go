@@ -108,9 +108,12 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 
 	model := &models.MTOShipment{
 		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks: mtoShipment.CustomerRemarks,
 		Diversion:       bool(mtoShipment.Diversion),
+	}
+
+	if mtoShipment.ShipmentType != nil {
+		model.ShipmentType = models.MTOShipmentType(*mtoShipment.ShipmentType)
 	}
 
 	if mtoShipment.PrimeEstimatedWeight > 0 {
@@ -144,21 +147,19 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	return model
 }
 
-// MTOShipmentModel model
-func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipment {
+// MTOShipmentModelFromUpdate model
+func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}
 
 	model := &models.MTOShipment{
-		ID:                         uuid.FromStringOrNil(mtoShipment.ID.String()),
+		ID:                         uuid.FromStringOrNil(mtoShipmentID.String()),
 		ActualPickupDate:           handlers.FmtDatePtrToPopPtr(mtoShipment.ActualPickupDate),
 		FirstAvailableDeliveryDate: handlers.FmtDatePtrToPopPtr(mtoShipment.FirstAvailableDeliveryDate),
-		RequiredDeliveryDate:       handlers.FmtDatePtrToPopPtr(mtoShipment.RequiredDeliveryDate),
-		RequestedPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.RequestedPickupDate),
 		ScheduledPickupDate:        handlers.FmtDatePtrToPopPtr(mtoShipment.ScheduledPickupDate),
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
-		Diversion:                  bool(mtoShipment.Diversion),
+		Diversion:                  mtoShipment.Diversion,
 	}
 
 	if mtoShipment.PrimeActualWeight > 0 {
@@ -196,10 +197,6 @@ func MTOShipmentModel(mtoShipment *primemessages.MTOShipment) *models.MTOShipmen
 		model.SecondaryDeliveryAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-	}
-
-	if mtoShipment.Agents != nil {
-		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
 	}
 
 	return model
@@ -292,6 +289,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCode(*shuttleService.ReServiceCode)
 		model.Reason = shuttleService.Reason
 		model.Description = shuttleService.Description
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttleService.ActualWeight)
+
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:
 		domesticCrating := mtoServiceItem.(*primemessages.MTOServiceItemDomesticCrating)
 
@@ -304,6 +304,7 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		// have to get code from payload
 		model.ReService.Code = models.ReServiceCode(*domesticCrating.ReServiceCode)
 		model.Description = domesticCrating.Description
+		model.Reason = domesticCrating.Reason
 		model.Dimensions = models.MTOServiceItemDimensions{
 			models.MTOServiceItemDimension{
 				Type:   models.DimensionTypeItem,
@@ -321,7 +322,9 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
-		model.ReService.Code = models.ReServiceCode(basic.ReServiceCode)
+		if basic.ReServiceCode != nil {
+			model.ReService.Code = models.ReServiceCode(*basic.ReServiceCode)
+		}
 	}
 
 	return model, nil
@@ -349,8 +352,8 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 
 	// Here we initialize more fields below for the specific model types.
 	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
-	modelType := mtoServiceItem.ModelType()
-	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+	switch mtoServiceItem.ModelType() {
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT:
 		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
 		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
 		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
@@ -362,19 +365,33 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemShuttle:
+		shuttle := mtoServiceItem.(*primemessages.UpdateMTOServiceItemShuttle)
+		model.EstimatedWeight = handlers.PoundPtrFromInt64Ptr(shuttle.EstimatedWeight)
+		model.ActualWeight = handlers.PoundPtrFromInt64Ptr(shuttle.ActualWeight)
 
-		return model, nil
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+	default:
+		// assume basic service item
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
 	}
 
-	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
-	return nil, verrs
-
+	return model, nil
 }
 
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
 	return validate.Validate(
-		&models.ItemCanFitInsideCrate{Name: "Item", NameCompared: "Crate", Item: m.Item, Crate: m.Crate},
+		&models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
 	)
 }
 

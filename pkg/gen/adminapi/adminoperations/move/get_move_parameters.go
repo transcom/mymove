@@ -15,7 +15,8 @@ import (
 )
 
 // NewGetMoveParams creates a new GetMoveParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetMoveParams() GetMoveParams {
 
 	return GetMoveParams{}
@@ -50,7 +51,6 @@ func (o *GetMoveParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

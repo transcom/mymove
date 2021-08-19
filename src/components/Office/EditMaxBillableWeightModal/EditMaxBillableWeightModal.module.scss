@@ -1,0 +1,45 @@
+@import '../../../shared/styles/colors';
+@import '../../../shared/styles/_basics';
+
+.EditMaxBillableWeightModal {
+
+  h4 {
+    @include u-font-weight(bold)
+  }
+
+  dl {
+    @include u-font-size('body', '3xs');
+    @include u-font-weight(bold);
+    @include u-margin-bottom(1);
+    color: $base-darker;
+  }
+
+  dt {
+    @include u-display(inline);
+    @include u-margin-right(1);
+  }
+
+  dd {
+    @include u-display(inline);
+    @include u-margin-left(0);
+  }
+
+  :global .usa-label {
+    @include u-margin-top(2);
+    color: $base-darker;
+  }
+
+  /* there seems to be an issue with the base .usa-button background being set to primary and the .usa-button--outline
+    transparent background color being superseded */
+  .backButton {
+    @include u-bg('transparent');
+  }
+
+  button.weightModalClose {
+    svg {
+      @include u-width(14px);
+      @include u-height(14px);
+      color: $primary;
+    }
+  }
+}

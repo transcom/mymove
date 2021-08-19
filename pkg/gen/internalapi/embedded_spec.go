@@ -1743,6 +1743,52 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/submit_amended_orders": {
+      "post": {
+        "description": "Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.",
+        "tags": [
+          "moves"
+        ],
+        "summary": "Submits amended orders for review",
+        "operationId": "submitAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns updated (submitted) move object",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to approve this move"
+          },
+          "409": {
+            "description": "the move is not in a state to be approved",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -2082,6 +2128,62 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/orders/{ordersId}/upload_amended_orders": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "orders"
+        ],
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "ordersId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/UploadPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -3609,7 +3711,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -3668,7 +3769,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -3734,6 +3834,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         }
@@ -3751,7 +3857,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
@@ -4116,7 +4221,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "office_user": {
-          "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
         "roles": {
@@ -4126,7 +4230,6 @@ func init() {
           }
         },
         "service_member": {
-          "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
       }
@@ -4155,7 +4258,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -4790,7 +4892,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "CANCELED",
-        "NEEDS SERVICE COUNSELING"
+        "NEEDS SERVICE COUNSELING",
+        "APPROVALS REQUESTED"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -4990,6 +5093,14 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "uploaded_amended_orders": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "uploaded_amended_orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
@@ -5252,7 +5363,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -5311,7 +5421,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -5960,7 +6069,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationType"
         },
         "created_at": {
@@ -6259,7 +6367,6 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -6268,7 +6375,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -6281,6 +6387,12 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -6304,6 +6416,10 @@ func init() {
       "properties": {
         "bytes": {
           "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
         },
         "content_type": {
           "type": "string",
@@ -8183,6 +8299,52 @@ func init() {
         }
       }
     },
+    "/moves/{moveId}/submit_amended_orders": {
+      "post": {
+        "description": "Submits amended orders for review by the office. The status of the move will be updated to an appropriate status depending on whether it needs services counseling or not.",
+        "tags": [
+          "moves"
+        ],
+        "summary": "Submits amended orders for review",
+        "operationId": "submitAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the move",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns updated (submitted) move object",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "not authorized to approve this move"
+          },
+          "409": {
+            "description": "the move is not in a state to be approved",
+            "schema": {
+              "$ref": "#/definitions/MovePayload"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/moves/{moveId}/weight_ticket": {
       "post": {
         "description": "Created a weight ticket document with the given information",
@@ -8573,6 +8735,62 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/orders/{ordersId}/upload_amended_orders": {
+      "patch": {
+        "description": "Patch the amended orders for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "orders"
+        ],
+        "summary": "Patch the amended orders for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "ordersId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/UploadPayload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -10102,7 +10320,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -10161,7 +10378,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -10227,6 +10443,12 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         }
@@ -10244,7 +10466,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
@@ -10622,7 +10843,6 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "office_user": {
-          "x-nullable": true,
           "$ref": "#/definitions/OfficeUser"
         },
         "roles": {
@@ -10632,7 +10852,6 @@ func init() {
           }
         },
         "service_member": {
-          "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
       }
@@ -10661,7 +10880,6 @@ func init() {
         "id": {
           "type": "string",
           "format": "uuid",
-          "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "lastName": {
@@ -11298,7 +11516,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "CANCELED",
-        "NEEDS SERVICE COUNSELING"
+        "NEEDS SERVICE COUNSELING",
+        "APPROVALS REQUESTED"
       ],
       "x-display-value": {
         "APPROVED": "Approved",
@@ -11498,6 +11717,14 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "uploaded_amended_orders": {
+          "$ref": "#/definitions/DocumentPayload"
+        },
+        "uploaded_amended_orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "uploaded_orders": {
           "$ref": "#/definitions/DocumentPayload"
@@ -11762,7 +11989,6 @@ func init() {
           "$ref": "#/definitions/Affiliation"
         },
         "backup_mailing_address": {
-          "title": "Backup Mailing Address",
           "$ref": "#/definitions/Address"
         },
         "current_station_id": {
@@ -11821,7 +12047,6 @@ func init() {
           "$ref": "#/definitions/ServiceMemberRank"
         },
         "residential_address": {
-          "title": "Residential Address",
           "$ref": "#/definitions/Address"
         },
         "secondary_telephone": {
@@ -12472,7 +12697,6 @@ func init() {
           "type": "string"
         },
         "certification_type": {
-          "x-nullable": true,
           "$ref": "#/definitions/SignedCertificationType"
         },
         "created_at": {
@@ -12774,7 +12998,6 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -12783,7 +13006,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -12796,6 +13018,12 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -12819,6 +13047,10 @@ func init() {
       "properties": {
         "bytes": {
           "type": "integer"
+        },
+        "checksum": {
+          "type": "string",
+          "example": "ImGQ2Ush0bDHsaQthV5BnQ=="
         },
         "content_type": {
           "type": "string",

@@ -34,7 +34,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 )
 
-//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/internal.yaml --api-package internaloperations --model-package internalmessages --server-package internalapi --exclude-main
+//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/internal.yaml --api-package internaloperations --model-package internalmessages --server-package internalapi --principal interface{} --exclude-main
 
 func configureFlags(api *internaloperations.MymoveAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -50,11 +50,20 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	// Example:
 	// api.Logger = log.Printf
 
+	api.UseSwaggerUI()
+	// To continue using redoc as your UI, uncomment the following line
+	// api.UseRedoc()
+
 	api.JSONConsumer = runtime.JSONConsumer()
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// uploads.CreateUploadMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// orders.UploadAmendedOrdersMaxParseMemory = 32 << 20
 
 	if api.OfficeApproveMoveHandler == nil {
 		api.OfficeApproveMoveHandler = office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
@@ -321,6 +330,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		})
 	}
+	if api.MovesSubmitAmendedOrdersHandler == nil {
+		api.MovesSubmitAmendedOrdersHandler = moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
+		})
+	}
 	if api.MovesSubmitMoveForApprovalHandler == nil {
 		api.MovesSubmitMoveForApprovalHandler = moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
@@ -361,6 +375,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
 		})
 	}
+	if api.OrdersUploadAmendedOrdersHandler == nil {
+		api.OrdersUploadAmendedOrdersHandler = orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
+		})
+	}
 	if api.AccesscodeValidateAccessCodeHandler == nil {
 		api.AccesscodeValidateAccessCodeHandler = accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
 			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
@@ -392,18 +411,18 @@ func configureTLS(tlsConfig *tls.Config) {
 // As soon as server is initialized but not run yet, this function will be called.
 // If you need to modify a config, store server instance to stop it individually later, this is the place.
 // This function can be called multiple times, depending on the number of serving schemes.
-// scheme value will be set accordingly: "http", "https" or "unix"
+// scheme value will be set accordingly: "http", "https" or "unix".
 func configureServer(s *http.Server, scheme, addr string) {
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
-// The middleware executes after routing but before authentication, binding and validation
+// The middleware executes after routing but before authentication, binding and validation.
 func setupMiddlewares(handler http.Handler) http.Handler {
 	return handler
 }
 
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
-// So this is a good place to plug in a panic handling middleware, logging and metrics
+// So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return handler
 }

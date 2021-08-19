@@ -54,6 +54,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
+		useSwaggerUI:        false,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
@@ -224,6 +225,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesShowShipmentSummaryWorksheetHandler: moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		}),
+		MovesSubmitAmendedOrdersHandler: moves.SubmitAmendedOrdersHandlerFunc(func(params moves.SubmitAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.SubmitAmendedOrders has not yet been implemented")
+		}),
 		MovesSubmitMoveForApprovalHandler: moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
 		}),
@@ -248,6 +252,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BackupContactsUpdateServiceMemberBackupContactHandler: backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
 			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
 		}),
+		OrdersUploadAmendedOrdersHandler: orders.UploadAmendedOrdersHandlerFunc(func(params orders.UploadAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation orders.UploadAmendedOrders has not yet been implemented")
+		}),
 		AccesscodeValidateAccessCodeHandler: accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
 			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
 		}),
@@ -271,13 +278,16 @@ type MymoveAPI struct {
 	defaultConsumes string
 	defaultProduces string
 	Middleware      func(middleware.Builder) http.Handler
+	useSwaggerUI    bool
 
 	// BasicAuthenticator generates a runtime.Authenticator from the supplied basic auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BasicAuthenticator func(security.UserPassAuthentication) runtime.Authenticator
+
 	// APIKeyAuthenticator generates a runtime.Authenticator from the supplied token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	APIKeyAuthenticator func(string, string, security.TokenAuthentication) runtime.Authenticator
+
 	// BearerAuthenticator generates a runtime.Authenticator from the supplied bearer token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
@@ -402,6 +412,8 @@ type MymoveAPI struct {
 	ServiceMembersShowServiceMemberOrdersHandler service_members.ShowServiceMemberOrdersHandler
 	// MovesShowShipmentSummaryWorksheetHandler sets the operation handler for the show shipment summary worksheet operation
 	MovesShowShipmentSummaryWorksheetHandler moves.ShowShipmentSummaryWorksheetHandler
+	// MovesSubmitAmendedOrdersHandler sets the operation handler for the submit amended orders operation
+	MovesSubmitAmendedOrdersHandler moves.SubmitAmendedOrdersHandler
 	// MovesSubmitMoveForApprovalHandler sets the operation handler for the submit move for approval operation
 	MovesSubmitMoveForApprovalHandler moves.SubmitMoveForApprovalHandler
 	// PpmSubmitPersonallyProcuredMoveHandler sets the operation handler for the submit personally procured move operation
@@ -418,12 +430,15 @@ type MymoveAPI struct {
 	PpmUpdatePersonallyProcuredMoveEstimateHandler ppm.UpdatePersonallyProcuredMoveEstimateHandler
 	// BackupContactsUpdateServiceMemberBackupContactHandler sets the operation handler for the update service member backup contact operation
 	BackupContactsUpdateServiceMemberBackupContactHandler backup_contacts.UpdateServiceMemberBackupContactHandler
+	// OrdersUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
+	OrdersUploadAmendedOrdersHandler orders.UploadAmendedOrdersHandler
 	// AccesscodeValidateAccessCodeHandler sets the operation handler for the validate access code operation
 	AccesscodeValidateAccessCodeHandler accesscode.ValidateAccessCodeHandler
 	// EntitlementsValidateEntitlementHandler sets the operation handler for the validate entitlement operation
 	EntitlementsValidateEntitlementHandler entitlements.ValidateEntitlementHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
+
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -441,6 +456,16 @@ type MymoveAPI struct {
 
 	// User defined logger function.
 	Logger func(string, ...interface{})
+}
+
+// UseRedoc for documentation at /docs
+func (o *MymoveAPI) UseRedoc() {
+	o.useSwaggerUI = false
+}
+
+// UseSwaggerUI for documentation at /docs
+func (o *MymoveAPI) UseSwaggerUI() {
+	o.useSwaggerUI = true
 }
 
 // SetDefaultProduces sets the default produces media type
@@ -655,6 +680,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MovesShowShipmentSummaryWorksheetHandler == nil {
 		unregistered = append(unregistered, "moves.ShowShipmentSummaryWorksheetHandler")
 	}
+	if o.MovesSubmitAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "moves.SubmitAmendedOrdersHandler")
+	}
 	if o.MovesSubmitMoveForApprovalHandler == nil {
 		unregistered = append(unregistered, "moves.SubmitMoveForApprovalHandler")
 	}
@@ -678,6 +706,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.UpdateServiceMemberBackupContactHandler")
+	}
+	if o.OrdersUploadAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "orders.UploadAmendedOrdersHandler")
 	}
 	if o.AccesscodeValidateAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.ValidateAccessCodeHandler")
@@ -995,6 +1026,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/moves/{moveId}/submit_amended_orders"] = moves.NewSubmitAmendedOrders(o.context, o.MovesSubmitAmendedOrdersHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/moves/{moveId}/submit"] = moves.NewSubmitMoveForApproval(o.context, o.MovesSubmitMoveForApprovalHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1024,6 +1059,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewUpdateServiceMemberBackupContact(o.context, o.BackupContactsUpdateServiceMemberBackupContactHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/orders/{ordersId}/upload_amended_orders"] = orders.NewUploadAmendedOrders(o.context, o.OrdersUploadAmendedOrdersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1045,6 +1084,9 @@ func (o *MymoveAPI) Serve(builder middleware.Builder) http.Handler {
 
 	if o.Middleware != nil {
 		return o.Middleware(builder)
+	}
+	if o.useSwaggerUI {
+		return o.context.APIHandlerSwaggerUI(builder)
 	}
 	return o.context.APIHandler(builder)
 }

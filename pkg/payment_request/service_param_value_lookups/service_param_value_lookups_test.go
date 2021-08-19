@@ -37,11 +37,6 @@ type ServiceParamValueLookupsSuite struct {
 	planner route.Planner
 }
 
-func (suite *ServiceParamValueLookupsSuite) SetupTest() {
-	err := suite.TruncateAll()
-	suite.FatalNoError(err)
-}
-
 func TestServiceParamValueLookupsSuite(t *testing.T) {
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -58,7 +53,7 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	).Return(defaultZip5Distance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 		planner:      planner,
 	}
@@ -78,6 +73,35 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
 				ShipmentType:         shipmentType,
+			},
+		})
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+			},
+		})
+
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	suite.FatalNoError(err)
+
+	return mtoServiceItem, paymentRequest, paramLookup
+}
+
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+				Name: string(code),
+			},
+			MTOServiceItem: models.MTOServiceItem{
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
+			MTOShipment: models.MTOShipment{
+				ShipmentType: shipmentType,
 			},
 		})
 

@@ -91,6 +91,8 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(pickupPath string
 				} else {
 					s.logger.Info("Deleted Syncada file", zap.String("path", filePath))
 				}
+			} else {
+				s.logger.Info("Delete sftp files: false", zap.String("path", filePath))
 			}
 		}
 	}

@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MTOServiceItemStatus represents the possible statuses for a mto shipment
@@ -44,6 +46,8 @@ type MTOServiceItem struct {
 	SITDestinationFinalAddress    *Address                       `belongs_to:"addresses" fk_id:"sit_destination_final_address_id"`
 	SITDestinationFinalAddressID  *uuid.UUID                     `db:"sit_destination_final_address_id"`
 	Description                   *string                        `db:"description"`
+	EstimatedWeight               *unit.Pound                    `db:"estimated_weight"`
+	ActualWeight                  *unit.Pound                    `db:"actual_weight"`
 	Dimensions                    MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts              MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
 	CreatedAt                     time.Time                      `db:"created_at"`

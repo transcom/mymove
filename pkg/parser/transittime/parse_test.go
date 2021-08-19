@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
-	"github.com/tealeg/xlsx"
+	"github.com/tealeg/xlsx/v3"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"

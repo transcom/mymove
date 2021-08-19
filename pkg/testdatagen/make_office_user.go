@@ -110,6 +110,7 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 	officeUser := MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
 			User: tioUser,
 		},
 		Stub: assertions.Stub,
@@ -264,6 +265,57 @@ func MakeServicesCounselorOfficeUserWithUSMCGBLOC(db *pop.Connection) models.Off
 			TransportationOffice: transportationOffice,
 		},
 	})
+}
+
+// MakeOfficeUserWithMultipleRoles makes an OfficeUser with Counselor and TXO roles
+func MakeOfficeUserWithMultipleRoles(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	servicesRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeServicesCounselor,
+		RoleName: "Services Counselor",
+	}
+
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	multipleRoleUser := models.User{
+		Roles: []roles.Role{tooRole, tioRole, servicesRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: multipleRoleUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	// save roles to db
+	rolesList := officeUser.User.Roles
+	for _, role := range rolesList {
+		newRole := MakeRole(db, Assertions{
+			Role: role,
+			Stub: assertions.Stub,
+		})
+		MakeUsersRoles(db, Assertions{
+			UsersRoles: models.UsersRoles{
+				UserID: officeUser.User.ID,
+				RoleID: newRole.ID,
+			},
+			Stub: assertions.Stub,
+		})
+	}
+
+	return officeUser
 }
 
 // MakeStubbedOfficeUser returns a user without hitting the DB

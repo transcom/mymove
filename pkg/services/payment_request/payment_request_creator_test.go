@@ -56,8 +56,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         models.ServiceItemParamNameCanStandAlone,
-			Description: "can stand alone",
+			Key:         models.ServiceItemParamNameZipPickupAddress,
+			Description: "zip pickup address",
 			Type:        models.ServiceItemParamTypeString,
 			Origin:      models.ServiceItemParamOriginPrime,
 		},

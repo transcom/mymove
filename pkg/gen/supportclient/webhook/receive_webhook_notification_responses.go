@@ -53,9 +53,8 @@ func (o *ReceiveWebhookNotificationReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -64,7 +63,7 @@ func NewReceiveWebhookNotificationOK() *ReceiveWebhookNotificationOK {
 	return &ReceiveWebhookNotificationOK{}
 }
 
-/*ReceiveWebhookNotificationOK handles this case with default header values.
+/* ReceiveWebhookNotificationOK describes a response with status code 200, with default header values.
 
 Received notification
 */
@@ -75,7 +74,6 @@ type ReceiveWebhookNotificationOK struct {
 func (o *ReceiveWebhookNotificationOK) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationOK  %+v", 200, o.Payload)
 }
-
 func (o *ReceiveWebhookNotificationOK) GetPayload() *supportmessages.WebhookNotification {
 	return o.Payload
 }
@@ -97,7 +95,7 @@ func NewReceiveWebhookNotificationBadRequest() *ReceiveWebhookNotificationBadReq
 	return &ReceiveWebhookNotificationBadRequest{}
 }
 
-/*ReceiveWebhookNotificationBadRequest handles this case with default header values.
+/* ReceiveWebhookNotificationBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -108,7 +106,6 @@ type ReceiveWebhookNotificationBadRequest struct {
 func (o *ReceiveWebhookNotificationBadRequest) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *ReceiveWebhookNotificationBadRequest) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -130,7 +127,7 @@ func NewReceiveWebhookNotificationUnauthorized() *ReceiveWebhookNotificationUnau
 	return &ReceiveWebhookNotificationUnauthorized{}
 }
 
-/*ReceiveWebhookNotificationUnauthorized handles this case with default header values.
+/* ReceiveWebhookNotificationUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -141,7 +138,6 @@ type ReceiveWebhookNotificationUnauthorized struct {
 func (o *ReceiveWebhookNotificationUnauthorized) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *ReceiveWebhookNotificationUnauthorized) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -163,7 +159,7 @@ func NewReceiveWebhookNotificationForbidden() *ReceiveWebhookNotificationForbidd
 	return &ReceiveWebhookNotificationForbidden{}
 }
 
-/*ReceiveWebhookNotificationForbidden handles this case with default header values.
+/* ReceiveWebhookNotificationForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -174,7 +170,6 @@ type ReceiveWebhookNotificationForbidden struct {
 func (o *ReceiveWebhookNotificationForbidden) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationForbidden  %+v", 403, o.Payload)
 }
-
 func (o *ReceiveWebhookNotificationForbidden) GetPayload() *supportmessages.ClientError {
 	return o.Payload
 }
@@ -196,7 +191,7 @@ func NewReceiveWebhookNotificationInternalServerError() *ReceiveWebhookNotificat
 	return &ReceiveWebhookNotificationInternalServerError{}
 }
 
-/*ReceiveWebhookNotificationInternalServerError handles this case with default header values.
+/* ReceiveWebhookNotificationInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -207,7 +202,6 @@ type ReceiveWebhookNotificationInternalServerError struct {
 func (o *ReceiveWebhookNotificationInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /webhook-notify][%d] receiveWebhookNotificationInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *ReceiveWebhookNotificationInternalServerError) GetPayload() *supportmessages.Error {
 	return o.Payload
 }

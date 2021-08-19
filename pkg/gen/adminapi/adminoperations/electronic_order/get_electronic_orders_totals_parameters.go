@@ -16,7 +16,8 @@ import (
 )
 
 // NewGetElectronicOrdersTotalsParams creates a new GetElectronicOrdersTotalsParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetElectronicOrdersTotalsParams() GetElectronicOrdersTotalsParams {
 
 	return GetElectronicOrdersTotalsParams{}
@@ -61,7 +62,6 @@ func (o *GetElectronicOrdersTotalsParams) BindRequest(r *http.Request, route *mi
 	if err := o.bindFilter(qFilter, qhkFilter, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -72,7 +72,6 @@ func (o *GetElectronicOrdersTotalsParams) BindRequest(r *http.Request, route *mi
 //
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *GetElectronicOrdersTotalsParams) bindAndFilter(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
 	var qvAndFilter string
 	if len(rawData) > 0 {
 		qvAndFilter = rawData[len(rawData)-1]
@@ -100,7 +99,6 @@ func (o *GetElectronicOrdersTotalsParams) bindAndFilter(rawData []string, hasKey
 //
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *GetElectronicOrdersTotalsParams) bindFilter(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
 	var qvFilter string
 	if len(rawData) > 0 {
 		qvFilter = rawData[len(rawData)-1]

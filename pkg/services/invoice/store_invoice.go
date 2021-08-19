@@ -59,7 +59,7 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	}
 
 	// Create UserUpload
-	loader, err := uploader.NewUserUploader(s.DB, s.Logger, *s.Storer, 25*uploader.MB)
+	loader, err := uploader.NewUserUploader(s.DB, s.Logger, *s.Storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		s.Logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}

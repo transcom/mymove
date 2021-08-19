@@ -143,7 +143,7 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 		suite.Equal(*mtoReferenceID+"-"+psiIDDigits[:models.PaymentServiceItemMinReferenceIDSuffixLength], referenceID)
 
 		paymentServiceItem.ReferenceID = referenceID
-		suite.MustCreate(suite.DB(), &paymentServiceItem)
+		suite.MustCreate(&paymentServiceItem)
 	})
 
 	suite.T().Run("test another payment request with ID that differs by a digit", func(t *testing.T) {
@@ -174,7 +174,7 @@ func (suite *ModelSuite) TestGeneratePSIReferenceID() {
 				Status:           "REQUESTED",
 				RequestedAt:      time.Now(),
 			}
-			suite.MustCreate(suite.DB(), &psiLongReferenceID)
+			suite.MustCreate(&psiLongReferenceID)
 		}
 
 		_, err := paymentServiceItem2.GeneratePSIReferenceID(suite.DB())

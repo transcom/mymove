@@ -119,6 +119,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			zap.String("ReferenceIdentification/PaymentRequestNumber", edi858c.Header.PaymentRequestNumber.ReferenceIdentification),
 			zap.String("Date", edi858c.ISA.InterchangeDate),
 			zap.String("Time", edi858c.ISA.InterchangeTime),
+			zap.String("UsageIndicator (ISA-15)", edi858c.ISA.UsageIndicator),
 		)
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.

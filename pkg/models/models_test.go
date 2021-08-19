@@ -5,21 +5,24 @@ import (
 	"sort"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/models"
+	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type ModelSuite struct {
 	testingsuite.PopTestSuite
+	logger Logger
 }
 
 func (suite *ModelSuite) SetupTest() {
 
 }
 
-func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, exp map[string][]string) {
+func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map[string][]string) {
 	t := suite.T()
 	t.Helper()
 
@@ -50,7 +53,10 @@ func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, 
 }
 
 func TestModelSuite(t *testing.T) {
-	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())}
+	hs := &ModelSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		logger:       zap.NewNop(), // Use a no-op logger during testing
+	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
 }

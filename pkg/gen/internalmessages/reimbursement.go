@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -18,6 +20,7 @@ import (
 type Reimbursement struct {
 
 	// id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
@@ -33,6 +36,7 @@ type Reimbursement struct {
 	RequestedAmount *int64 `json:"requested_amount"`
 
 	// Requested Date
+	// Example: 2018-04-26
 	// Format: date
 	RequestedDate *strfmt.Date `json:"requested_date,omitempty"`
 
@@ -71,7 +75,6 @@ func (m *Reimbursement) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Reimbursement) validateID(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.ID) { // not required
 		return nil
 	}
@@ -84,6 +87,10 @@ func (m *Reimbursement) validateID(formats strfmt.Registry) error {
 }
 
 func (m *Reimbursement) validateMethodOfReceipt(formats strfmt.Registry) error {
+
+	if err := validate.Required("method_of_receipt", "body", m.MethodOfReceipt); err != nil {
+		return err
+	}
 
 	if err := validate.Required("method_of_receipt", "body", m.MethodOfReceipt); err != nil {
 		return err
@@ -107,7 +114,7 @@ func (m *Reimbursement) validateRequestedAmount(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.MinimumInt("requested_amount", "body", int64(*m.RequestedAmount), 1, false); err != nil {
+	if err := validate.MinimumInt("requested_amount", "body", *m.RequestedAmount, 1, false); err != nil {
 		return err
 	}
 
@@ -115,7 +122,6 @@ func (m *Reimbursement) validateRequestedAmount(formats strfmt.Registry) error {
 }
 
 func (m *Reimbursement) validateRequestedDate(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.RequestedDate) { // not required
 		return nil
 	}
@@ -128,13 +134,58 @@ func (m *Reimbursement) validateRequestedDate(formats strfmt.Registry) error {
 }
 
 func (m *Reimbursement) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
 	if m.Status != nil {
 		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this reimbursement based on the context it is used
+func (m *Reimbursement) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateMethodOfReceipt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Reimbursement) contextValidateMethodOfReceipt(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MethodOfReceipt != nil {
+		if err := m.MethodOfReceipt.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("method_of_receipt")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Reimbursement) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Status != nil {
+		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status")
 			}

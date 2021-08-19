@@ -15,7 +15,8 @@ import (
 )
 
 // NewShowDutyStationTransportationOfficeParams creates a new ShowDutyStationTransportationOfficeParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewShowDutyStationTransportationOfficeParams() ShowDutyStationTransportationOfficeParams {
 
 	return ShowDutyStationTransportationOfficeParams{}
@@ -50,7 +51,6 @@ func (o *ShowDutyStationTransportationOfficeParams) BindRequest(r *http.Request,
 	if err := o.bindDutyStationID(rDutyStationID, rhkDutyStationID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

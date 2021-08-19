@@ -125,6 +125,49 @@ paths:
       description: Returns a given move for a unique alphanumeric locator string
       summary: Returns a given move
       operationId: getMove
+  '/counseling/orders/{orderID}':
+    parameters:
+      - description: ID of order to update
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates an order (performed by a services counselor)
+      description: All fields sent in this request will be set on the order referenced
+      operationId: counselingUpdateOrder
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CounselingUpdateOrderPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/orders/{orderID}':
     parameters:
       - description: ID of order to use
@@ -160,12 +203,12 @@ paths:
             $ref: '#/definitions/Order'
         '400':
           $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -229,10 +272,6 @@ paths:
           description: updated instance of allowance
           schema:
             $ref: '#/definitions/Order'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/Unauthorized'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
@@ -243,7 +282,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/orders/{orderID}/move-task-orders':
+  '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
         in: path
@@ -251,30 +290,41 @@ paths:
         required: true
         type: string
         format: uuid
-    get:
+    patch:
+      summary: Updates an allowance (Orders with Entitlements)
+      description: All fields sent in this request will be set on the order referenced
+      operationId: counselingUpdateAllowance
+      tags:
+        - order
+      consumes:
+        - application/json
       produces:
         - application/json
-      parameters: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CounselingUpdateAllowancePayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         '200':
-          description: Successfully retrieved all move task orders associated with an order
+          description: updated instance of allowance
           schema:
-            $ref: '#/definitions/MoveTaskOrders'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
+            $ref: '#/definitions/Order'
         '403':
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-      tags:
-        - order
-      description: Gets move task orders associated with an order
-      operationId: listMoveTaskOrders
-      summary: Gets move task orders associated with an order
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move to use
@@ -373,6 +423,47 @@ paths:
       description: Gets all line items for a move
       operationId: listMTOServiceItems
       summary: Gets all line items for a move
+  '/mto-shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Releasing / Receiving agents
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+        * An array of optional accessorial service item codes
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateMTOShipment'
+      responses:
+        '200':
+          description: Successfully created a MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -426,40 +517,101 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}':
+    patch:
+      summary: updateMTOShipment
+      description: |
+        Updates a specified MTO shipment.
+
+        Required fields include:
+        * MTO Shipment ID required in path
+        * If-Match required in headers
+        * No fields required in body
+
+        Optional fields include:
+        * New shipment status type
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Customer Remarks
+        * Counselor Remarks
+        * Releasing / Receiving agents
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: updateMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+          description: ID of move task order for mto shipment to use
+        - in: path
+          name: shipmentID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the MTO Shipment to update
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UpdateShipment'
+      responses:
+        '200':
+          description: Successfully updated the specified MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/shipments/{shipmentID}/approve':
     parameters:
-      - description: ID of move task order for mto shipment to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        format: uuid
-        type: string
       - description: ID of the shipment
         in: path
         name: shipmentID
         required: true
         format: uuid
         type: string
-    patch:
+    post:
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PatchMTOShipmentStatus'
         - in: header
           name: If-Match
           type: string
           required: true
       responses:
         '200':
-          description: Successfully updated shipment
+          description: Successfully approved the shipment
           schema:
             $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '409':
@@ -471,10 +623,211 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
       tags:
-        - mtoShipment
-      description: Updates a shipment's status
-      operationId: patchMTOShipmentStatus
-      summary: Updates a shipment's status
+        - shipment
+      description: Approves a shipment
+      operationId: approveShipment
+      summary: Approves a shipment
+  '/shipments/{shipmentID}/request-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment diversion
+      operationId: requestShipmentDiversion
+      summary: Requests a shipment diversion
+  '/shipments/{shipmentID}/approve-diversion':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully approved the shipment diversion
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Approves a shipment diversion
+      operationId: approveShipmentDiversion
+      summary: Approves a shipment diversion
+  '/shipments/{shipmentID}/reject':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RejectShipment'
+      responses:
+        '200':
+          description: Successfully rejected the shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: rejects a shipment
+      operationId: rejectShipment
+      summary: rejects a shipment
+  '/shipments/{shipmentID}/request-cancellation':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully requested the shipment cancellation
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+      description: Requests a shipment cancellation
+      operationId: requestShipmentCancellation
+      summary: Requests a shipment cancellation
+  '/shipments/{shipmentID}/request-reweigh':
+    parameters:
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully requested a reweigh of the shipment
+          schema:
+            $ref: '#/definitions/Reweigh'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - shipment
+        - reweigh
+      description: Requests a shipment reweigh
+      operationId: requestShipmentReweigh
+      summary: Requests a shipment reweigh
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
     parameters:
       - description: ID of move task order
@@ -1386,17 +1739,18 @@ definitions:
     properties:
       name:
         type: string
-        x-nullable: true
       email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        x-nullable: true
       phone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        x-nullable: true
+    required:
+      - name
+      - email
+      - phone
   Contractor:
     properties:
       contractNumber:
@@ -1430,11 +1784,17 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
-      current_address:
+      suffix:
+        type: string
+        example: Jr.
         x-nullable: true
+      middle_name:
+        type: string
+        example: David
+        x-nullable: true
+      current_address:
         $ref: '#/definitions/Address'
       backup_contact:
-        x-nullable: true
         $ref: '#/definitions/BackupContact'
       id:
         type: string
@@ -1467,11 +1827,17 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
-      current_address:
+      suffix:
+        type: string
+        example: Jr.
         x-nullable: true
+      middle_name:
+        type: string
+        example: David
+        x-nullable: true
+      current_address:
         $ref: '#/definitions/Address'
       backup_contact:
-        x-nullable: true
         $ref: '#/definitions/BackupContact'
   DutyStation:
     type: object
@@ -1773,6 +2139,15 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      uploadedAmendedOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        x-nullable: true
+      amendedOrdersAcknowledgedAt:
+        type: string
+        format: date-time
+        x-nullable: true
       order_number:
         type: string
         x-nullable: true
@@ -1814,6 +2189,37 @@ definitions:
       eTag:
         type: string
     type: object
+  CounselingUpdateOrderPayload:
+    type: object
+    properties:
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        example: '2018-04-26'
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        example: '2018-04-26'
+        title: Report-by date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      originDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      newDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - issueDate
+      - reportByDate
+      - ordersType
+      - originDutyStationId
+      - newDutyStationId
   UpdateOrderPayload:
     type: object
     properties:
@@ -1849,6 +2255,8 @@ definitions:
       tac:
         type: string
         title: TAC
+        minLength: 4
+        maxLength: 4
         example: 'F8J1'
         x-nullable: true
       sac:
@@ -1858,6 +2266,10 @@ definitions:
         x-nullable: true
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
+      ordersAcknowledgement:
+        description: Confirmation that the new amended orders were reviewed after previously approving the original orders
+        type: boolean
         x-nullable: true
     required:
       - issueDate
@@ -1869,12 +2281,49 @@ definitions:
     type: object
     properties:
       authorizedWeight:
-        minimum: 1
         description: unit is in lbs
         example: 2000
+        minimum: 1
         type: integer
         x-formatting: weight
         x-nullable: true
+      grade:
+        $ref: '#/definitions/Grade'
+      dependentsAuthorized:
+        type: boolean
+        x-nullable: true
+      agency:
+        description: the branch that the service member belongs to
+        $ref: '#/definitions/Branch'
+      proGearWeight:
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        minimum: 0
+        maximum: 2000
+        x-formatting: weight
+        x-nullable: true
+      proGearWeightSpouse:
+        description: unit is in lbs
+        example: 500
+        type: integer
+        minimum: 0
+        maximum: 500
+        x-formatting: weight
+        x-nullable: true
+      requiredMedicalEquipmentWeight:
+        description: unit is in lbs
+        example: 2000
+        type: integer
+        minimum: 0
+        x-formatting: weight
+      organizationalClothingAndIndividualEquipment:
+        description: only for Army
+        type: boolean
+        x-nullable: true
+  CounselingUpdateAllowancePayload:
+    type: object
+    properties:
       grade:
         $ref: '#/definitions/Grade'
       dependentsAuthorized:
@@ -2147,7 +2596,6 @@ definitions:
     type: string
     enum:
       - ActualPickupDate
-      - CanStandAlone
       - ContractCode
       - ContractYearName
       - CubicFeetBilled
@@ -2257,6 +2705,10 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      deletedAt:
+        x-nullable: true
+        format: date-time
+        type: string
       primeEstimatedWeight:
         x-nullable: true
         example: 2000
@@ -2268,6 +2720,7 @@ definitions:
       scheduledPickupDate:
         format: date
         type: string
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
@@ -2275,9 +2728,13 @@ definitions:
         x-nullable: true
         format: date
         type: string
-      approvedDate:
+      requestedDeliveryDate:
         format: date
         type: string
+      approvedDate:
+        format: date-time
+        type: string
+        x-nullable: true
       diversion:
         type: boolean
         example: true
@@ -2297,6 +2754,18 @@ definitions:
         type: string
         example: handle with care
         x-nullable: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
       shipmentType:
         enum:
           - HHG
@@ -2308,16 +2777,107 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+      reweigh:
+        x-nullable: true
+        x-omitempty: true
+        $ref: '#/definitions/Reweigh'
       mtoAgents:
         $ref: '#/definitions/MTOAgents'
       mtoServiceItems:
         $ref: '#/definitions/MTOServiceItems'
       eTag:
         type: string
+  UpdateShipment:
+    type: object
+    properties:
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      requestedPickupDate:
+        format: date
+        type: string
+      requestedDeliveryDate:
+        format: date
+        type: string
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      counselorRemarks:
+        type: string
+        example: counselor approved
+        x-nullable: true
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+        x-nullable: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  CreateMTOShipment:
+    type: object
+    properties:
+      moveTaskOrderID:
+        description: The ID of the move this new shipment is for.
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedPickupDate:
+        description: >
+          The customer's preferred pickup date. Other dates, such as required delivery date and (outside MilMove) the
+          pack date, are derived from this date.
+        format: date
+        type: string
+      customerRemarks:
+        description: |
+          The customer can use the customer remarks field to inform the services counselor and the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Customer enters this information during onboarding. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      counselorRemarks:
+        description: |
+          The counselor can use the counselor remarks field to inform the movers about any
+          special circumstances for this shipment. Typical examples:
+            * bulky or fragile items,
+            * weapons,
+            * access info for their address.
+
+          Counselors enters this information when creating or editing an MTO Shipment. Optional field.
+        type: string
+        example: handle with care
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        description: A list of service items connected to this shipment.
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+      pickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+    required:
+      - moveTaskOrderID
+      - requestedPickupDate
+      - pickupAddress
+      - destinationAddress
   MTOShipmentStatus:
     type: string
     title: Shipment Status
@@ -2327,6 +2887,8 @@ definitions:
       - REJECTED
       - APPROVED
       - CANCELLATION_REQUESTED
+      - CANCELED
+      - DIVERSION_REQUESTED
   MTOShipmentType:
     type: string
     title: Shipment Type
@@ -2343,16 +2905,13 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
-  PatchMTOShipmentStatus:
+  RejectShipment:
     properties:
-      status:
-        $ref: '#/definitions/MTOShipmentStatus'
       rejectionReason:
         type: string
         example: MTO Shipment not good enough
-        x-nullable: true
     required:
-      - status
+      - rejectionReason
   PatchMTOServiceItemStatusPayload:
     properties:
       status:
@@ -2411,6 +2970,10 @@ definitions:
         x-nullable: true
       pickupPostalCode:
         type: string
+      SITPostalCode:
+        type: string
+        readOnly: true
+        x-nullable: true
       feeType:
         enum:
           - COUNSELING
@@ -2434,6 +2997,12 @@ definitions:
       total:
         format: cents
         type: integer
+      estimatedWeight:
+        type: integer
+        description: estimated weight of the shuttle service item provided by the prime
+        example: 2500
+        x-formatting: weight
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string
@@ -2704,6 +3273,44 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+  Reweigh:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      requestedAt:
+        format: date-time
+        type: string
+      requestedBy:
+        $ref: '#/definitions/ReweighRequester'
+      verificationProvidedAt:
+        x-nullable: true
+        format: date-time
+        type: string
+      verificationReason:
+        example: 'The reweigh was not performed due to some justification provided by the Prime'
+        type: string
+        x-nullable: true
+      weight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
+      shipment:
+        $ref: '#/definitions/MTOShipment'
+      shipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+
+  ReweighRequester:
+    type: string
+    enum:
+      - CUSTOMER
+      - PRIME
+      - SYSTEM
+      - TOO
   GBLOC:
     type: string
     enum:
@@ -2744,10 +3351,6 @@ responses:
       $ref: '#/definitions/Error'
   PermissionDenied:
     description: The request was denied
-    schema:
-      $ref: '#/definitions/Error'
-  Unauthorized:
-    description: The request was unauthorized
     schema:
       $ref: '#/definitions/Error'
   ServerError:

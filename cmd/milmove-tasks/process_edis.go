@@ -176,6 +176,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	sendToSyncada := v.GetBool(cli.SendToSyncada)
 	logger.Info(fmt.Sprintf("SendToSyncada is %v", sendToSyncada))
+	processEdiDeleteFiles := v.GetBool(ProcessEDIDeleteFilesFlag)
+	logger.Info(fmt.Sprintf("ProcessEDIDeleteFiles is %v", processEdiDeleteFiles))
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate

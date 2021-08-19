@@ -77,9 +77,8 @@ func (o *UpdateMTOServiceItemReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
 }
 
@@ -88,7 +87,7 @@ func NewUpdateMTOServiceItemOK() *UpdateMTOServiceItemOK {
 	return &UpdateMTOServiceItemOK{}
 }
 
-/*UpdateMTOServiceItemOK handles this case with default header values.
+/* UpdateMTOServiceItemOK describes a response with status code 200, with default header values.
 
 Successfully updated the MTO service item.
 */
@@ -99,7 +98,6 @@ type UpdateMTOServiceItemOK struct {
 func (o *UpdateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemOK  %+v", 200, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemOK) GetPayload() primemessages.MTOServiceItem {
 	return o.Payload
 }
@@ -121,7 +119,7 @@ func NewUpdateMTOServiceItemBadRequest() *UpdateMTOServiceItemBadRequest {
 	return &UpdateMTOServiceItemBadRequest{}
 }
 
-/*UpdateMTOServiceItemBadRequest handles this case with default header values.
+/* UpdateMTOServiceItemBadRequest describes a response with status code 400, with default header values.
 
 The request payload is invalid.
 */
@@ -132,7 +130,6 @@ type UpdateMTOServiceItemBadRequest struct {
 func (o *UpdateMTOServiceItemBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemBadRequest) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -154,7 +151,7 @@ func NewUpdateMTOServiceItemUnauthorized() *UpdateMTOServiceItemUnauthorized {
 	return &UpdateMTOServiceItemUnauthorized{}
 }
 
-/*UpdateMTOServiceItemUnauthorized handles this case with default header values.
+/* UpdateMTOServiceItemUnauthorized describes a response with status code 401, with default header values.
 
 The request was denied.
 */
@@ -165,7 +162,6 @@ type UpdateMTOServiceItemUnauthorized struct {
 func (o *UpdateMTOServiceItemUnauthorized) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemUnauthorized) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -187,7 +183,7 @@ func NewUpdateMTOServiceItemForbidden() *UpdateMTOServiceItemForbidden {
 	return &UpdateMTOServiceItemForbidden{}
 }
 
-/*UpdateMTOServiceItemForbidden handles this case with default header values.
+/* UpdateMTOServiceItemForbidden describes a response with status code 403, with default header values.
 
 The request was denied.
 */
@@ -198,7 +194,6 @@ type UpdateMTOServiceItemForbidden struct {
 func (o *UpdateMTOServiceItemForbidden) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemForbidden) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -220,7 +215,7 @@ func NewUpdateMTOServiceItemNotFound() *UpdateMTOServiceItemNotFound {
 	return &UpdateMTOServiceItemNotFound{}
 }
 
-/*UpdateMTOServiceItemNotFound handles this case with default header values.
+/* UpdateMTOServiceItemNotFound describes a response with status code 404, with default header values.
 
 The requested resource wasn't found.
 */
@@ -231,7 +226,6 @@ type UpdateMTOServiceItemNotFound struct {
 func (o *UpdateMTOServiceItemNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -253,7 +247,7 @@ func NewUpdateMTOServiceItemConflict() *UpdateMTOServiceItemConflict {
 	return &UpdateMTOServiceItemConflict{}
 }
 
-/*UpdateMTOServiceItemConflict handles this case with default header values.
+/* UpdateMTOServiceItemConflict describes a response with status code 409, with default header values.
 
 The request could not be processed because of conflict in the current state of the resource.
 */
@@ -264,7 +258,6 @@ type UpdateMTOServiceItemConflict struct {
 func (o *UpdateMTOServiceItemConflict) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemConflict  %+v", 409, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemConflict) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -286,7 +279,7 @@ func NewUpdateMTOServiceItemPreconditionFailed() *UpdateMTOServiceItemPreconditi
 	return &UpdateMTOServiceItemPreconditionFailed{}
 }
 
-/*UpdateMTOServiceItemPreconditionFailed handles this case with default header values.
+/* UpdateMTOServiceItemPreconditionFailed describes a response with status code 412, with default header values.
 
 Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
 */
@@ -297,7 +290,6 @@ type UpdateMTOServiceItemPreconditionFailed struct {
 func (o *UpdateMTOServiceItemPreconditionFailed) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemPreconditionFailed  %+v", 412, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemPreconditionFailed) GetPayload() *primemessages.ClientError {
 	return o.Payload
 }
@@ -319,7 +311,7 @@ func NewUpdateMTOServiceItemUnprocessableEntity() *UpdateMTOServiceItemUnprocess
 	return &UpdateMTOServiceItemUnprocessableEntity{}
 }
 
-/*UpdateMTOServiceItemUnprocessableEntity handles this case with default header values.
+/* UpdateMTOServiceItemUnprocessableEntity describes a response with status code 422, with default header values.
 
 The payload was unprocessable.
 */
@@ -330,7 +322,6 @@ type UpdateMTOServiceItemUnprocessableEntity struct {
 func (o *UpdateMTOServiceItemUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
@@ -352,7 +343,7 @@ func NewUpdateMTOServiceItemInternalServerError() *UpdateMTOServiceItemInternalS
 	return &UpdateMTOServiceItemInternalServerError{}
 }
 
-/*UpdateMTOServiceItemInternalServerError handles this case with default header values.
+/* UpdateMTOServiceItemInternalServerError describes a response with status code 500, with default header values.
 
 A server error occurred.
 */
@@ -363,7 +354,6 @@ type UpdateMTOServiceItemInternalServerError struct {
 func (o *UpdateMTOServiceItemInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *UpdateMTOServiceItemInternalServerError) GetPayload() *primemessages.Error {
 	return o.Payload
 }

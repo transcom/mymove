@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 	// Create handler and request
 	handler := UpdateMTOAgentHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		mtoagent.NewMTOAgentUpdater(suite.DB()),
+		mtoagent.NewMTOAgentUpdater(suite.DB(), movetaskorder.NewMoveTaskOrderChecker(suite.DB())),
 	}
 	req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", agent.MTOShipmentID.String(), agent.ID.String()), nil)
 

@@ -4,6 +4,8 @@ import { normalize } from 'normalizr';
 import * as Cookies from 'js-cookie';
 
 import * as schema from 'shared/Entities/schema';
+import { interceptInjection } from 'store/interceptor/injectionMiddleware';
+import { interceptResponse } from 'store/interceptor/actions';
 
 // setting up the same config from Swagger/api.js
 export const requestInterceptor = (req) => {
@@ -27,6 +29,21 @@ export const requestInterceptor = (req) => {
     }
   }
   return req;
+};
+
+export const responseInterceptor = (res) => {
+  switch (res.status) {
+    case 500: {
+      interceptInjection(interceptResponse(true, res.headers['x-milmove-trace-id']));
+      break;
+    }
+
+    default: {
+      interceptInjection(interceptResponse(false));
+    }
+  }
+
+  return res;
 };
 
 /**

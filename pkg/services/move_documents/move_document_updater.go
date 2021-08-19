@@ -24,7 +24,7 @@ type moveDocumentUpdater struct {
 }
 
 //Updater interface for individual document updaters
-//go:generate mockery --name Updater
+//go:generate mockery --name Updater --disable-version-string
 type Updater interface {
 	Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }
@@ -49,7 +49,11 @@ func NewMoveDocumentUpdater(db *pop.Connection) services.MoveDocumentUpdater {
 //Update dispatches the various types of move documents to the appropriate Updater
 func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+
+	if moveDocumentPayload.MoveDocumentType == nil {
+		return nil, returnVerrs, errors.New("missing required field: MoveDocumentType")
+	}
+	newType := models.MoveDocumentType(*moveDocumentPayload.MoveDocumentType)
 	newExpenseType := models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
 	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID, false)
 	if err != nil {
@@ -74,7 +78,10 @@ type moveDocumentStatusUpdater struct {
 // Returns and error if the status transition is invalid
 func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	newStatus := models.MoveDocumentStatus(moveDocumentPayload.Status)
+	if moveDocumentPayload.MoveDocumentType == nil {
+		return nil, returnVerrs, errors.New("missing required field: MoveDocumentType")
+	}
+	newStatus := models.MoveDocumentStatus(*moveDocumentPayload.Status)
 	if moveDoc == nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("updateMoveDocumentStatus: missing move document")
 	}

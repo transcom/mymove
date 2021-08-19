@@ -30,16 +30,8 @@ import 'scenes/Moves/Ppm/DateAndLocation.css';
 const sitEstimateDebounceTime = 300;
 
 let EditDateAndLocationForm = (props) => {
-  const {
-    handleSubmit,
-    currentOrders,
-    getSitEstimate,
-    sitEstimate,
-    schema,
-    valid,
-    sitReimbursement,
-    submitting,
-  } = props;
+  const { handleSubmit, currentOrders, getSitEstimate, sitEstimate, schema, valid, sitReimbursement, submitting } =
+    props;
 
   const displayedSitReimbursement = sitEstimate ? '$' + formatCents(sitEstimate) : sitReimbursement;
 
@@ -143,6 +135,7 @@ class EditDateAndLocation extends Component {
           return err;
         });
     }
+    return undefined;
   };
 
   getSitEstimate = (ppmId, moveDate, sitDays, pickupZip, ordersID, weight) => {

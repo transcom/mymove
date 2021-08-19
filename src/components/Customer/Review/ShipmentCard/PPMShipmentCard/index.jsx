@@ -2,7 +2,7 @@ import React from 'react';
 import { func, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import ShipmentContainer from '../../../../Office/ShipmentContainer';
+import ShipmentContainer from '../../../../Office/ShipmentContainer/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -52,8 +52,8 @@ const PPMShipmentCard = ({
             <dd data-testid="sit-display">{Number(sitDays) ? `Yes, ${sitDays} days` : 'No'}</dd>
           </div>
           <div className={styles.row}>
-            <dt className={styles.noborder}>Destination ZIP</dt>
-            <dd className={styles.noborder}>{destinationZIP}</dd>
+            <dt className={styles.noBorder}>Destination ZIP</dt>
+            <dd className={styles.noBorder}>{destinationZIP}</dd>
           </div>
         </dl>
         <div className={`${styles.subsectionHeader} todo`}>
@@ -68,8 +68,8 @@ const PPMShipmentCard = ({
             <dd>{estimatedWeight} lbs</dd>
           </div>
           <div className={`${styles.row} todo`}>
-            <dt className={styles.noborder}>Estimated incentive</dt>
-            <dd className={styles.noborder}>{estimatedIncentive || 'Rate info unavailable'}</dd>
+            <dt className={styles.noBorder}>Estimated incentive</dt>
+            <dd className={styles.noBorder}>{estimatedIncentive || 'Rate info unavailable'}</dd>
           </div>
         </dl>
       </ShipmentContainer>

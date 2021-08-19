@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -33,6 +35,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		handler := CreateUploadHandler{
 			context,
+			paymentrequest.NewPaymentRequestUploadCreator(suite.DB(), suite.TestLogger(), context.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")
@@ -52,6 +55,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		handler := CreateUploadHandler{
 			context,
+			paymentrequest.NewPaymentRequestUploadCreator(suite.DB(), suite.TestLogger(), context.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")
@@ -73,6 +77,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		handler := CreateUploadHandler{
 			context,
+			paymentrequest.NewPaymentRequestUploadCreator(suite.DB(), suite.TestLogger(), context.FileStorer()),
 		}
 
 		file := suite.Fixture("test.pdf")

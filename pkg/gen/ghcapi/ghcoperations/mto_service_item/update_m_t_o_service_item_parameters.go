@@ -6,6 +6,7 @@ package mto_service_item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -19,7 +20,8 @@ import (
 )
 
 // NewUpdateMTOServiceItemParams creates a new UpdateMTOServiceItemParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewUpdateMTOServiceItemParams() UpdateMTOServiceItemParams {
 
 	return UpdateMTOServiceItemParams{}
@@ -84,6 +86,11 @@ func (o *UpdateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.Body = &body
 			}
@@ -91,6 +98,7 @@ func (o *UpdateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 	} else {
 		res = append(res, errors.Required("body", "body", ""))
 	}
+
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
@@ -100,7 +108,6 @@ func (o *UpdateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 	if err := o.bindMtoServiceItemID(rMtoServiceItemID, rhkMtoServiceItemID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -122,7 +129,6 @@ func (o *UpdateMTOServiceItemParams) bindIfMatch(rawData []string, hasKey bool, 
 	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
 		return err
 	}
-
 	o.IfMatch = raw
 
 	return nil
@@ -137,7 +143,6 @@ func (o *UpdateMTOServiceItemParams) bindMoveTaskOrderID(rawData []string, hasKe
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MoveTaskOrderID = raw
 
 	return nil
@@ -152,7 +157,6 @@ func (o *UpdateMTOServiceItemParams) bindMtoServiceItemID(rawData []string, hasK
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.MtoServiceItemID = raw
 
 	return nil

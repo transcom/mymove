@@ -20,8 +20,6 @@ func (s ServiceItemParamName) String() string {
 const (
 	// ServiceItemParamNameActualPickupDate is the param key name ActualPickupDate
 	ServiceItemParamNameActualPickupDate ServiceItemParamName = "ActualPickupDate"
-	// ServiceItemParamNameCanStandAlone is the param key name CanStandAlone
-	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
 	// ServiceItemParamNameContractCode is the param key name ContractCode
 	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
 	// ServiceItemParamNameContractYearName is the param key name ContractYearName
@@ -30,6 +28,12 @@ const (
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
 	ServiceItemParamNameCubicFeetCrating ServiceItemParamName = "CubicFeetCrating"
+	// ServiceItemParamNameDimensionHeight is the param key name DimensionHeight
+	ServiceItemParamNameDimensionHeight ServiceItemParamName = "DimensionHeight"
+	// ServiceItemParamNameDimensionLength is the param key name DimensionLength
+	ServiceItemParamNameDimensionLength ServiceItemParamName = "DimensionLength"
+	// ServiceItemParamNameDimensionWidth is the param key name DimensionWidth
+	ServiceItemParamNameDimensionWidth ServiceItemParamName = "DimensionWidth"
 	// ServiceItemParamNameDistanceZip3 is the param key name DistanceZip3
 	ServiceItemParamNameDistanceZip3 ServiceItemParamName = "DistanceZip3"
 	// ServiceItemParamNameDistanceZip5 is the param key name DistanceZip5
@@ -185,7 +189,6 @@ const (
 // ValidServiceItemParamNames lists all valid service item param key names
 var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameActualPickupDate,
-	ServiceItemParamNameCanStandAlone,
 	ServiceItemParamNameContractCode,
 	ServiceItemParamNameContractYearName,
 	ServiceItemParamNameCubicFeetBilled,
@@ -249,7 +252,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 // ValidServiceItemParamNameStrings lists all valid service item param key names
 var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameActualPickupDate),
-	string(ServiceItemParamNameCanStandAlone),
 	string(ServiceItemParamNameContractCode),
 	string(ServiceItemParamNameContractYearName),
 	string(ServiceItemParamNameCubicFeetBilled),

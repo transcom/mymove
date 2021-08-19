@@ -584,8 +584,6 @@ definitions:
         type: boolean
   UserUpdatePayload:
     type: object
-    required:
-      - active
     properties:
       revokeAdminSession:
         type: boolean
@@ -598,6 +596,7 @@ definitions:
         x-nullable: true
       active:
         type: boolean
+        x-nullable: true
   AdminUserUpdatePayload:
     type: object
     properties:
@@ -1725,6 +1724,8 @@ paths:
           description: Must be authenticated to use this end point
         403:
           description: Not authorized to update this user
+        404:
+          description: Not found
         422:
           description: Validation error
           schema:

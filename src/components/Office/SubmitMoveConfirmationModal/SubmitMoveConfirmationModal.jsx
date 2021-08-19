@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, ModalContainer, Overlay } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
+import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { connectModal, ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 
 export const SubmitMoveConfirmationModal = ({ onClose, onSubmit }) => (
