@@ -27,7 +27,7 @@ func (f *reweighCreator) CreateReweigh(reweigh *models.Reweigh) (*models.Reweigh
 
 	// NOTE: First I'm finding the ID, then filling it in to the MTOShipment model
 	// IF the ID isn't found I then an `error` object is placed in the `err` variable, finally do a check on err
-	err := f.db.Find(mtoShipment, reweigh.ShipmentID)
+	err := f.db.Eager("Reweighs").Find(mtoShipment, reweigh.ShipmentID)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
