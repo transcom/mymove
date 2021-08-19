@@ -42,6 +42,7 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
 	var logger Logger
+	var userActivityEmail notifications.Notification
 
 	if user == nil {
 		return nil, nil, nil
@@ -54,6 +55,7 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 	}
 
 	// Update user's new status for Active
+	userWasActive := foundUser.Active
 	foundUser.Active = user.Active
 
 	verrs, err := o.builder.UpdateOne(&foundUser, nil)
@@ -100,6 +102,31 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 			} else if err != nil {
 				logger.Error("Could not update admin user", zap.Error(err))
 			}
+		}
+
+		if userWasActive {
+			email, emailErr := notifications.NewUserAccountDeactivated(
+				ctx, "sandy@truss.works", foundUser.ID, foundUser.UpdatedAt)
+			if emailErr != nil {
+				logger.Error("Could not send user deactivation email", zap.Error(emailErr))
+			} else {
+				userActivityEmail = notifications.Notification(email)
+			}
+		}
+	} else if !userWasActive {
+		email, emailErr := notifications.NewUserAccountActivated(
+			ctx, "sandy@truss.works", foundUser.ID, foundUser.UpdatedAt)
+		if emailErr != nil {
+			logger.Error("Could not send user activation email", zap.Error(emailErr))
+		} else {
+			userActivityEmail = notifications.Notification(email)
+		}
+	}
+
+	if userActivityEmail != nil {
+		err = o.notificationSender.SendNotification(userActivityEmail)
+		if err != nil {
+			return nil, nil, err
 		}
 	}
 
