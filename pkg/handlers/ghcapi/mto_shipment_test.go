@@ -1344,6 +1344,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+		handlerContext.SetNotificationSender(suite.TestNotificationSender())
 
 		handler := RequestShipmentReweighHandler{
 			handlerContext,

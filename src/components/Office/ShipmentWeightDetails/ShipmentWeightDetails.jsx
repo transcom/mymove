@@ -1,16 +1,18 @@
 import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
 
 import DataPointGroup from '../../DataPointGroup/index';
 import DataPoint from '../../DataPoint/index';
 
 import styles from './ShipmentWeightDetails.module.scss';
 
+import returnLowestValue from 'utils/returnLowestValue';
 import { formatWeight } from 'shared/formatters';
 
 const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
+  const lowestWeight = returnLowestValue(actualWeight, shipmentInfo.reweighWeight);
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
       <span>Shipment weight</span>
@@ -21,6 +23,8 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
           </Button>
         </div>
       )}
+      {shipmentInfo.reweighID && !shipmentInfo.reweighWeight && <Tag>reweigh requested</Tag>}
+      {shipmentInfo.reweighWeight && <Tag>reweighed</Tag>}
     </div>
   );
   return (
@@ -32,7 +36,7 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
         />
       </DataPointGroup>
       <DataPointGroup className="maxw-mobile">
-        <DataPoint columnHeaders={[reweighHeader]} dataRow={actualWeight ? [formatWeight(actualWeight)] : ['']} />
+        <DataPoint columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
       </DataPointGroup>
     </div>
   );
@@ -45,6 +49,7 @@ ShipmentWeightDetails.propTypes = {
     shipmentID: PropTypes.string,
     ifMatchEtag: PropTypes.string,
     reweighID: PropTypes.string,
+    reweighWeight: PropTypes.number,
   }).isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
 };

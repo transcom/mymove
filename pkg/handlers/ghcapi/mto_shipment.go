@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -676,6 +678,13 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	moveID := reweigh.Shipment.MoveTaskOrderID
 	h.triggerRequestShipmentReweighEvent(shipmentID, moveID, params)
 
+	err = h.NotificationSender().SendNotification(
+		notifications.NewReweighRequested(h.DB(), logger, session, moveID),
+	)
+	if err != nil {
+		logger.Error("problem sending email to user", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
 	payload := payloads.Reweigh(reweigh)
 	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
 }

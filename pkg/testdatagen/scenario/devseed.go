@@ -57,6 +57,7 @@ func (e *devSeedScenario) Setup(db *pop.Connection, userUploader *uploader.UserU
 		"shipment_hhg_cancelled":       subScenarioShipmentHHGCancelled(db, allDutyStations, originDutyStationsInGBLOC),
 		"txo_queues":                   subScenarioTXOQueues(db, userUploader, logger),
 		"misc":                         subScenarioMisc(db, userUploader, primeUploader, moveRouter),
+		"reweighs":                     subScenarioReweighs(db, userUploader, primeUploader, moveRouter),
 	}
 }
 

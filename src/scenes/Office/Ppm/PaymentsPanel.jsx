@@ -79,7 +79,7 @@ class PaymentsTable extends Component {
   };
 
   togglePaperwork = () => {
-    this.setState({ showPaperwork: !this.state.showPaperwork });
+    this.setState((prevState) => ({ showPaperwork: !prevState.showPaperwork }));
   };
 
   disableDownloadAll = () => {
