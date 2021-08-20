@@ -250,6 +250,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 		adminUserCreator := &mocks.AdminUserCreator{}
 
 		adminUserCreator.On("CreateAdminUser",
+			req.Context(),
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
@@ -267,6 +268,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 		adminUserCreator := &mocks.AdminUserCreator{}
 
 		adminUserCreator.On("CreateAdminUser",
+			req.Context(),
 			&adminUser,
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 

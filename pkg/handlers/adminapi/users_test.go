@@ -269,8 +269,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		// Adding a logger to the request context for the notification email the UserUpdater generates
-		ctx := logging.NewContext(req.Context(), suite.TestLogger())
-		req = req.WithContext(ctx)
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
@@ -317,6 +316,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// Create the update to revoke 2 sessions and deactivate the user
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
@@ -362,6 +363,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
@@ -409,6 +412,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
@@ -451,6 +456,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
 			User: &adminmessages.UserUpdatePayload{
@@ -507,6 +514,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		userID := user.ID
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -524,6 +533,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		err := validate.NewErrors()
 
 		userUpdater.On("UpdateUser",
+			req.Context(),
 			userID,
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
@@ -568,6 +578,8 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		userID := user.ID
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
+		// Adding a logger to the request context for the notification email the UserUpdater generates
+		req = req.WithContext(logging.NewContext(req.Context(), suite.TestLogger()))
 
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -593,6 +605,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		).Return(nil, err, nil).Once()
 
 		userUpdater.On("UpdateUser",
+			req.Context(),
 			userID,
 			mock.AnythingOfType("*models.User"),
 		).Return(nil, nil, err).Once()
@@ -616,5 +629,4 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		suite.Equal(officeSessionID, foundUser.CurrentOfficeSessionID)
 		suite.Equal(true, foundUser.Active)
 	})
-
 }
