@@ -2596,6 +2596,32 @@ func createMoveWithHHGAndNTSRPaymentRequest(db *pop.Connection, userUploader *up
 	})
 }
 
+func createMoveWith2MinimalShipments(db *pop.Connection, userUploader *uploader.UserUploader) {
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusSUBMITTED,
+			Locator: "INXSWT",
+		},
+	})
+
+	requestedPickupDate := time.Now().AddDate(0, 3, 0)
+	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &requestedPickupDate,
+		},
+		Move: move,
+	})
+
+	testdatagen.MakeMTOShipmentMinimal(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:              models.MTOShipmentStatusSubmitted,
+			RequestedPickupDate: &requestedPickupDate,
+		},
+		Move: move,
+	})
+}
+
 func createMoveWith2ShipmentsAndPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader) {
 	msCost := unit.Cents(10000)
 

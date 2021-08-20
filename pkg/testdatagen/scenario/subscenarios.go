@@ -186,9 +186,10 @@ func subScenarioDivertedShipments(db *pop.Connection, userUploader *uploader.Use
 				AvailableToPrimeAt: swag.Time(time.Now()),
 			},
 			MTOShipment: models.MTOShipment{
-				Diversion:    true,
-				Status:       models.MTOShipmentStatusApproved,
-				ApprovedDate: swag.Time(time.Now()),
+				Diversion:           true,
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        swag.Time(time.Now()),
+				ScheduledPickupDate: swag.Time(time.Now().AddDate(0, 3, 0)),
 			},
 		})
 	}
@@ -225,6 +226,7 @@ func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, pr
 		// This move will still have shipments with some unapproved service items
 		// without payment service items
 		createMoveWith2ShipmentsAndPaymentRequest(db, userUploader)
+		createMoveWith2MinimalShipments(db, userUploader)
 
 		// Prime API
 		createWebhookSubscriptionForPaymentRequestUpdate(db)

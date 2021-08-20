@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	moverouter "github.com/transcom/mymove/pkg/services/move"
+	moveservices "github.com/transcom/mymove/pkg/services/move"
 
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder(suite.DB())
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
 
 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
@@ -346,8 +346,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
-	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveWeights := moveservices.NewMoveWeights()
+	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -766,9 +767,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveWeights := moveservices.NewMoveWeights()
 
-	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
+	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -920,9 +922,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 	// Create a handler object to use in the tests
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveWeights := moveservices.NewMoveWeights()
 
-	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter)
+	updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
@@ -1369,11 +1372,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	).Return(400, nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	context.SetPlanner(planner)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moveservices.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveWeights := moveservices.NewMoveWeights()
 
 	handler := UpdateMTOShipmentStatusHandler{
 		context,
-		mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter),
+		mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner, moveRouter, moveWeights),
 		mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),
 	}
