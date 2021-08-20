@@ -327,7 +327,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
 
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &supportmessages.MTOServiceItemDomesticCrating{

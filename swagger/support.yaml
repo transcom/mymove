@@ -1218,7 +1218,6 @@ definitions:
             description: Service codes allowed for this model type.
             enum:
               - DCRT # Domestic Crating
-              - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
@@ -1240,7 +1239,7 @@ definitions:
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
-        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+        * DCRT, DUCRT - MTOServiceItemDomesticCrating
 
       The documentation will then update with the supported fields.
 
@@ -1721,7 +1720,6 @@ definitions:
       - DBHF
       - DBTF
       - DCRT
-      - DCRTSA
       - DDASIT
       - DDDSIT
       - DDFSIT

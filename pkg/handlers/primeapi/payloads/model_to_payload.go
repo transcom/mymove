@@ -482,7 +482,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
 		}
 
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		cratingSI := primemessages.MTOServiceItemDomesticCrating{

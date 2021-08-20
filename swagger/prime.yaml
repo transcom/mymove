@@ -1508,7 +1508,6 @@ definitions:
             description: A unique code for the service item. Indicates if the service is for crating (DCRT) or uncrating (DUCRT).
             enum:
               - DCRT # Domestic Crating
-              - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
             description: The dimensions of the item being crated.
@@ -1543,7 +1542,7 @@ definitions:
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
-        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+        * DCRT, DUCRT - MTOServiceItemDomesticCrating
 
       The documentation will then update with the supported fields.
 
@@ -2027,7 +2026,6 @@ definitions:
       - DBHF
       - DBTF
       - DCRT
-      - DCRTSA
       - DDASIT
       - DDDSIT
       - DDFSIT
