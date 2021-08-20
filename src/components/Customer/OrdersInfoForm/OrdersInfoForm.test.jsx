@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
@@ -132,26 +131,26 @@ const testProps = {
 
 describe('OrdersInfoForm component', () => {
   it('renders the form inputs', async () => {
-    const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+    render(<OrdersInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Orders type')).toBeRequired();
-      expect(getByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Orders date')).toBeRequired();
-      expect(getByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Report-by date')).toBeRequired();
-      expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('New duty station')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByLabelText('Orders type')).toBeRequired();
+      expect(screen.getByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Orders date')).toBeRequired();
+      expect(screen.getByLabelText('Report-by date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Report-by date')).toBeRequired();
+      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('New duty station')).toBeInstanceOf(HTMLInputElement);
     });
   });
 
   it('renders each option for orders type', async () => {
-    const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+    render(<OrdersInfoForm {...testProps} />);
 
     await waitFor(() => {
-      const ordersTypeDropdown = getByLabelText('Orders type');
+      const ordersTypeDropdown = screen.getByLabelText('Orders type');
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
       userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
@@ -166,59 +165,58 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('validates the new duty station against the current duty station', async () => {
-    const { queryByText, getByRole, getByLabelText } = render(
-      <OrdersInfoForm {...testProps} currentStation={{ name: 'Luke AFB' }} />,
-    );
+    render(<OrdersInfoForm {...testProps} currentStation={{ name: 'Luke AFB' }} />);
 
-    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-    userEvent.click(getByLabelText('No'));
+    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
+    userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
+    userEvent.click(await screen.findByText('Luke'));
 
     await waitFor(() => {
-      expect(getByRole('form')).toHaveFormValues({
+      expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_station: 'Luke AFB',
       });
-      expect(getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
+      expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('disabled');
       expect(
-        queryByText('You entered the same duty station for your origin and destination. Please change one of them.'),
+        screen.queryByText(
+          'You entered the same duty station for your origin and destination. Please change one of them.',
+        ),
       ).toBeInTheDocument();
     });
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText } = render(<OrdersInfoForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Next' });
+    render(<OrdersInfoForm {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Next' });
 
     userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
+      expect(screen.getAllByText('Required').length).toBe(3);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<OrdersInfoForm {...testProps} />);
+    render(<OrdersInfoForm {...testProps} />);
 
-    userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-    userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-    userEvent.click(getByLabelText('No'));
+    userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+    userEvent.click(screen.getByLabelText('No'));
 
     // Test Duty Station Search Box interaction
-    fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-    await selectEvent.select(getByLabelText('New duty station'), /Luke/);
-    expect(getByRole('form')).toHaveFormValues({
+    userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
+    userEvent.click(await screen.findByText('Luke'));
+    expect(await screen.findByRole('form')).toHaveFormValues({
       new_duty_station: 'Luke AFB',
     });
 
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const submitBtn = screen.getByRole('button', { name: 'Next' });
     userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -244,8 +242,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('implements the onBack handler when the Back button is clicked', async () => {
-    const { getByRole } = render(<OrdersInfoForm {...testProps} />);
-    const backBtn = getByRole('button', { name: 'Back' });
+    render(<OrdersInfoForm {...testProps} />);
+    const backBtn = screen.getByRole('button', { name: 'Back' });
 
     userEvent.click(backBtn);
 
@@ -281,21 +279,19 @@ describe('OrdersInfoForm component', () => {
     };
 
     it('pre-fills the inputs', async () => {
-      const { getByRole, queryByText, getByLabelText } = render(
-        <OrdersInfoForm {...testProps} initialValues={testInitialValues} />,
-      );
+      render(<OrdersInfoForm {...testProps} initialValues={testInitialValues} />);
 
       await waitFor(() => {
-        expect(getByRole('form')).toHaveFormValues({
+        expect(screen.getByRole('form')).toHaveFormValues({
           new_duty_station: 'Yuma AFB',
         });
 
-        expect(getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
-        expect(getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-        expect(getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
-        expect(getByLabelText('Yes')).not.toBeChecked();
-        expect(getByLabelText('No')).toBeChecked();
-        expect(queryByText('Yuma AFB')).toBeInTheDocument();
+        expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
+        expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
+        expect(screen.getByLabelText('Report-by date')).toHaveValue('26 Nov 2020');
+        expect(screen.getByLabelText('Yes')).not.toBeChecked();
+        expect(screen.getByLabelText('No')).toBeChecked();
+        expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
       });
     });
   });

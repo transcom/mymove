@@ -1,8 +1,6 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import selectEvent from 'react-select-event';
 
 import { Orders } from './Orders';
 
@@ -146,10 +144,10 @@ describe('Orders page', () => {
 
   describe('if there are no current orders', () => {
     it('does not load orders on mount', async () => {
-      const { queryByRole } = render(<Orders {...testProps} />);
+      render(<Orders {...testProps} />);
 
       await waitFor(() => {
-        expect(queryByRole('heading', { name: 'Tell us about your move orders', level: 1 })).toBeInTheDocument();
+        expect(screen.queryByRole('heading', { name: 'Tell us about your move orders', level: 1 })).toBeInTheDocument();
         expect(getOrdersForServiceMember).not.toHaveBeenCalled();
       });
     });
@@ -183,21 +181,21 @@ describe('Orders page', () => {
 
       createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { queryByRole, getByLabelText, getByRole } = render(<Orders {...testProps} />);
+      render(<Orders {...testProps} />);
 
       await waitFor(() => {
-        userEvent.selectOptions(getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+        userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
       });
 
-      userEvent.type(getByLabelText('Orders date'), '08 Nov 2020');
-      userEvent.type(getByLabelText('Report-by date'), '26 Nov 2020');
-      userEvent.click(getByLabelText('No'));
+      userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+      userEvent.type(screen.getByLabelText('Report-by date'), '26 Nov 2020');
+      userEvent.click(screen.getByLabelText('No'));
 
       // Test Duty Station Search Box interaction
-      fireEvent.change(getByLabelText('New duty station'), { target: { value: 'AFB' } });
-      await selectEvent.select(getByLabelText('New duty station'), /Luke/);
+      userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
+      userEvent.click(await screen.findByText('Luke'));
 
-      expect(getByRole('form')).toHaveFormValues({
+      expect(await screen.findByRole('form')).toHaveFormValues({
         orders_type: 'PERMANENT_CHANGE_OF_STATION',
         issue_date: '08 Nov 2020',
         report_by_date: '26 Nov 2020',
@@ -205,7 +203,7 @@ describe('Orders page', () => {
         new_duty_station: 'Luke AFB',
       });
 
-      const submitButton = queryByRole('button', { name: 'Next' });
+      const submitButton = screen.queryByRole('button', { name: 'Next' });
       expect(submitButton).toBeEnabled();
 
       expect(submitButton).toBeInTheDocument();
@@ -252,12 +250,12 @@ describe('Orders page', () => {
 
       getOrdersForServiceMember.mockImplementation(() => Promise.resolve(testOrdersValues));
 
-      const { queryByText } = render(<Orders {...testProps} currentOrders={{ id: 'testOrders' }} />);
+      render(<Orders {...testProps} currentOrders={{ id: 'testOrders' }} />);
 
-      expect(queryByText('Loading, please wait...')).toBeInTheDocument();
+      expect(screen.queryByText('Loading, please wait...')).toBeInTheDocument();
 
       await waitFor(() => {
-        expect(queryByText('Loading, please wait...')).not.toBeInTheDocument();
+        expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument();
         expect(getOrdersForServiceMember).toHaveBeenCalled();
         expect(testProps.updateOrders).toHaveBeenCalledWith(testOrdersValues);
       });
@@ -294,10 +292,10 @@ describe('Orders page', () => {
       patchOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
 
       // Need to provide initial values because we aren't testing the form here, and just want to submit immediately
-      const { queryByRole } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
+      render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
       await waitFor(() => {
-        const submitButton = queryByRole('button', { name: 'Next' });
+        const submitButton = screen.queryByRole('button', { name: 'Next' });
         expect(submitButton).toBeInTheDocument();
         userEvent.click(submitButton);
       });
@@ -316,9 +314,9 @@ describe('Orders page', () => {
   });
 
   it('back button goes to the Home page', async () => {
-    const { queryByText } = render(<Orders {...testProps} />);
+    render(<Orders {...testProps} />);
 
-    const backButton = queryByText('Back');
+    const backButton = screen.queryByText('Back');
     await waitFor(() => {
       expect(backButton).toBeInTheDocument();
     });
@@ -370,10 +368,10 @@ describe('Orders page', () => {
     );
 
     // Need to provide complete & valid initial values because we aren't testing the form here, and just want to submit immediately
-    const { queryByText } = render(<Orders {...testProps} currentOrders={testOrdersValues} />);
+    render(<Orders {...testProps} currentOrders={testOrdersValues} />);
 
     await waitFor(() => {
-      const submitButton = queryByText('Next');
+      const submitButton = screen.queryByText('Next');
       expect(submitButton).toBeInTheDocument();
       userEvent.click(submitButton);
     });
@@ -382,26 +380,24 @@ describe('Orders page', () => {
       expect(patchOrders).toHaveBeenCalled();
     });
 
-    expect(queryByText('A server error occurred saving the orders')).toBeInTheDocument();
+    expect(screen.queryByText('A server error occurred saving the orders')).toBeInTheDocument();
     expect(testProps.updateOrders).toHaveBeenCalledTimes(1);
     expect(testProps.push).not.toHaveBeenCalled();
   });
 
   describe('with the allOrdersType feature flag set to true', () => {
     it('passes all orders types into the form', async () => {
-      const wrapper = mount(<Orders {...testProps} context={{ flags: { allOrdersTypes: true } }} />);
-      await waitFor(() => {
-        expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual(ordersOptions);
-      });
+      render(<Orders {...testProps} context={{ flags: { allOrdersTypes: true } }} />);
+      const orderTypeDropdown = await screen.findByLabelText('Orders type');
+      expect(orderTypeDropdown.children.length).toEqual(ordersOptions.length + 1);
     });
   });
 
   describe('with the allOrdersType feature flag set to false', () => {
     it('passes only the PCS option into the form', async () => {
-      const wrapper = mount(<Orders {...testProps} context={{ flags: { allOrdersTypes: false } }} />);
-      await waitFor(() => {
-        expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual([ordersOptions[0]]);
-      });
+      render(<Orders {...testProps} context={{ flags: { allOrdersTypes: false } }} />);
+      const orderTypeDropdown = await screen.findByLabelText('Orders type');
+      expect(orderTypeDropdown.children.length).toEqual(2);
     });
   });
 
