@@ -12,6 +12,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -429,14 +432,16 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db *pop.Connection
+	db     *pop.Connection
+	sender notifications.NotificationSender
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection, sender notifications.NotificationSender) CallbackHandler {
 	handler := CallbackHandler{
 		Context: ac,
 		db:      db,
+		sender:  sender,
 	}
 	return handler
 }
@@ -721,6 +726,17 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+		if err == nil {
+			//todo new function and tests
+			emailContext := context.Background()
+			emailContext = logging.NewContext(emailContext, h.logger)
+			emailContext = auth.SetSessionInContext(emailContext, session)
+			email, emailErr := notifications.NewUserAccountCreated(
+				emailContext, "sandy@truss.works", user.ID, user.UpdatedAt)
+			if emailErr != nil {
+				err = h.sender.SendNotification(email)
+			}
+		}
 		// Create the user's service member now and add the ServiceMemberID to
 		// the session to allow the user's `CurrentMilSessionId` field to be
 		// populated. This field is only populated if `session.IsServiceMember()`
