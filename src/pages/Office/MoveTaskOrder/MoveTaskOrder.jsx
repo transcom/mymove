@@ -332,7 +332,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && s.status === SERVICE_ITEM_STATUSES.APPROVED)
+        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
