@@ -1,5 +1,3 @@
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
-
 const timer =
   typeof performance !== 'undefined' && performance !== null && typeof performance.now === 'function'
     ? performance
@@ -19,7 +17,7 @@ export default function logger({ getState }) {
     }
     logEntry.took = timer.now() - logEntry.started;
     logEntry.nextState = getState();
-    milmoveLog(MILMOVE_LOG_LEVEL.LOG, logEntry.action.type, ' will dispatch ', logEntry);
+    console.log(logEntry.action.type, ' will dispatch ', logEntry); // eslint-disable-line
     return returnedValue;
   };
 }

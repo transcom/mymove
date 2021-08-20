@@ -11,7 +11,6 @@ import {
   selectPaymentRequestCertificationForMove,
 } from 'shared/Entities/modules/signed_certifications';
 import { selectCurrentMove } from 'store/entities/selectors';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const PpmStatuses = {
   Submitted: 'SUBMITTED',
@@ -75,7 +74,7 @@ export class PPMStatusTimeline extends React.Component {
       case PpmStatusTimelineCodes.PaymentReviewed:
         return ppm.status === PpmStatuses.Completed;
       default:
-        milmoveLog(MILMOVE_LOG_LEVEL.LOG, 'Unknown status');
+        console.log('Unknown status');
     }
     return undefined;
   }

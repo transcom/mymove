@@ -5,7 +5,6 @@ import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 import { isEmpty, uniq } from 'lodash';
 import { reduxForm, Field } from 'redux-form';
 import 'shared/JsonSchemaForm/index.css';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:
@@ -75,7 +74,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
             requiredErrors[requiredFieldName] = 'Required.';
           }
         } else {
-          milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'The schema should have all required fields in it.');
+          console.error('The schema should have all required fields in it.');
         }
       }
     });
@@ -92,7 +91,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
         }
       }
     } else {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `The schema should have fields for all present values. Missing ${key}`);
+      console.error(`The schema should have fields for all present values. Missing ${key}`);
     }
   });
 
@@ -137,7 +136,7 @@ export const recursivelyAnnotateRequiredFields = (schema) => {
           schemaForKey[ALWAYS_REQUIRED_KEY] = true;
         }
       } else {
-        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'The schema should have all required fields in it.');
+        console.error('The schema should have all required fields in it.');
       }
     });
   }
