@@ -91,13 +91,14 @@ const MovePaymentRequests = ({
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav className={txoStyles.sidebar}>
-          {sections?.map((s) => {
-            return (
-              <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
-                {sectionLabels[`${s}`]}
-              </a>
-            );
-          })}
+          {paymentRequests.length &&
+            sections?.map((s) => {
+              return (
+                <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+                  {sectionLabels[`${s}`]}
+                </a>
+              );
+            })}
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>

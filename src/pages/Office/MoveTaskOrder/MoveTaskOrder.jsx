@@ -327,7 +327,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    let estimatedWeightCalc = 0;
+    let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
