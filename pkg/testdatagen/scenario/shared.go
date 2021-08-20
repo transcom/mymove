@@ -3555,7 +3555,7 @@ func createHHGMoveWithReweigh(db *pop.Connection, userUploader *uploader.UserUpl
 	move := testdatagen.MakeAvailableMove(db)
 	move.Locator = "REWAYD"
 	mustSave(db, &move)
-	reweighedWeight := unit.Pound(1000)
+	reweighedWeight := unit.Pound(800)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
 		UserUploader: userUploader,
 		MTOShipment: models.MTOShipment{

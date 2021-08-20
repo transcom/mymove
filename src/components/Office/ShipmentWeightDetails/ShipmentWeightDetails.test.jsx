@@ -121,4 +121,17 @@ describe('ShipmentWeightDetails', () => {
     expect(reweighRequestedLabel).toBeFalsy();
     expect(reweighedLabel).toBeTruthy();
   });
+
+  it('renders the lowest of either reweight or actual weight', async () => {
+    render(
+      <ShipmentWeightDetails
+        estimatedWeight={11000}
+        actualWeight={12000}
+        shipmentInfo={shipmentInfoReweigh}
+        handleRequestReweighModal={handleRequestReweighModal}
+      />,
+    );
+
+    expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
+  });
 });
