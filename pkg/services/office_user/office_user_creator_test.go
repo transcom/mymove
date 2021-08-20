@@ -40,7 +40,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		TransportationOffice:   transportationOffice,
 	}
 
-	//
+	//todo
 	sender := notifications.NewStubNotificationSender("adminlocal", suite.logger)
 	ctx := context.Background()
 	ctx = logging.NewContext(ctx, suite.logger)
