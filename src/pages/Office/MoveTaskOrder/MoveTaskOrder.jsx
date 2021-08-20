@@ -327,12 +327,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments]);
 
   useEffect(() => {
-    let estimatedWeightCalc = null;
-    let excessBillableWeightCount = null;
+    let estimatedWeightCalc = 0;
+    let excessBillableWeightCount = 0;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight)
+        ?.filter((s) => s.primeEstimatedWeight && s.status === SERVICE_ITEM_STATUSES.APPROVED)
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
@@ -340,12 +340,12 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     setEstimatedWeightTotal(estimatedWeightCalc);
 
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.authorizedWeight)) {
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
       excessBillableWeightCount = 1;
-      setExcessWeightRiskCount(excessBillableWeightCount);
+      setExcessWeightRiskCount(1);
     }
 
-    setIsWeightAlertVisible(excessBillableWeightCount);
+    setIsWeightAlertVisible(!!excessBillableWeightCount);
   }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
 
   useEffect(() => {
@@ -409,16 +409,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       }, 0);
   }
 
-  const excessWeightAlertMessage = (
-    <span>
-      This move is at risk for excess weight.{' '}
-      <span className={styles.rightAlignButtonWrapper}>
-        <Button type="button" onClick={handleShowWeightModal} unstyled>
-          Review billable weight
-        </Button>
-      </span>
-    </span>
-  );
   const excessWeightAlertControl = (
     <Button type="button" onClick={handleHideWeightAlert} unstyled>
       <FontAwesomeIcon icon="times" />
@@ -444,7 +434,14 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
           {isWeightAlertVisible && (
             <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
-              {excessWeightAlertMessage}
+              <span>
+                This move is at risk for excess weight.{' '}
+                <span className={styles.rightAlignButtonWrapper}>
+                  <Button type="button" onClick={handleShowWeightModal} unstyled>
+                    Review billable weight
+                  </Button>
+                </span>
+              </span>
             </Alert>
           )}
           {isModalVisible && (

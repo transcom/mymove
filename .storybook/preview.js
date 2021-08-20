@@ -1,6 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'happo-plugin-storybook/register';
-import { addDecorator } from '@storybook/react';
 import { MemoryRouter } from 'react-router';
 
 import './storybook.scss';
@@ -8,8 +7,6 @@ import '../src/index.scss';
 import '../src/ghc_index.scss';
 
 import '../src/icons';
-
-addDecorator((story) => <MemoryRouter initialEntries={['/']}>{story()}</MemoryRouter>);
 
 export const parameters = {
   options: {

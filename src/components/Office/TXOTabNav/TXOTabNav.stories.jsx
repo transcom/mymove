@@ -1,4 +1,5 @@
 import React from 'react';
+import { MemoryRouter } from 'react-router';
 
 import TXOTabNav from './TXOTabNav';
 
@@ -9,6 +10,17 @@ export default {
       url: 'https://share.goabstract.com/d23132ee-a6ce-451e-95f9-0a4ef0882ace?mode=design',
     },
   },
+  decorators: [
+    (Story) => {
+      return (
+        <MemoryRouter initialEntries={['/']}>
+          <div style={{ padding: '20px' }}>
+            <Story />
+          </div>
+        </MemoryRouter>
+      );
+    },
+  ],
 };
 
 const basicNavProps = {

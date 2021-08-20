@@ -30,7 +30,7 @@ const MovePaymentRequests = ({
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
-  let sections = useMemo(() => {
+  const sections = useMemo(() => {
     return ['payment-requests'];
   }, []);
 
@@ -87,15 +87,11 @@ const MovePaymentRequests = ({
     });
   }
 
-  if (paymentRequests.length === 0) {
-    sections = [];
-  }
-
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav className={txoStyles.sidebar}>
-          {sections.map((s) => {
+          {sections?.map((s) => {
             return (
               <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
                 {sectionLabels[`${s}`]}

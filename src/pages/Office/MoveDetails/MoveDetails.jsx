@@ -38,7 +38,6 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const history = useHistory();
 
   const [activeSection, setActiveSection] = useState('');
-  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
@@ -106,24 +105,19 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   useEffect(() => {
     let estimatedWeightCalc = null;
-    let excessWeightCount = null;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight)
+        ?.filter((s) => s.primeEstimatedWeight && s.status === SERVICE_ITEM_STATUSES)
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
     }
 
-    setEstimatedWeightTotal(estimatedWeightCalc);
-
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.authorizedWeight)) {
-      excessWeightCount = 1;
-
-      setExcessWeightRiskCount(excessWeightCount);
+    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight)) {
+      setExcessWeightRiskCount(1);
     }
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal]);
+  }, [mtoShipments, setExcessWeightRiskCount, order]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
