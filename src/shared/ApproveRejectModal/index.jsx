@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 export class ApproveRejectModal extends Component {
   state = {
@@ -27,7 +26,7 @@ export class ApproveRejectModal extends Component {
 
   handleRejectionClick = () => {
     if (!this.state.rejectionReason) {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, 'Rejection reason empty. Please fill out rejection reason.');
+      console.error('Rejection reason empty. Please fill out rejection reason.');
     } else {
       this.props.rejectBtnOnClick(this.state.rejectionReason);
     }

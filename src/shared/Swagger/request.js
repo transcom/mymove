@@ -1,6 +1,5 @@
 import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
-import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // Given a schema path (e.g. shipments.getShipment), return the
 // route's definition from the Swagger spec
@@ -35,10 +34,7 @@ function successfulReturnType(routeDefinition, status) {
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
-    milmoveLog(
-      MILMOVE_LOG_LEVEL.ERROR,
-      `No response found for operation ${routeDefinition.operationId} with status ${status}`,
-    );
+    console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return undefined;
   }
   return toCamelCase(schemaKey);
@@ -77,7 +73,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
     try {
       request = operation(params);
     } catch (error) {
-      milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${error}`);
+      console.error(`Operation ${operationPath} failed: ${error}`);
       const updatedRequestLog = Object.assign({}, requestLog, {
         ok: false,
         end: new Date(),
@@ -123,8 +119,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
         if (schemaKey.indexOf('Payload') !== -1) {
           const newSchemaKey = schemaKey.replace('Payload', '');
-          milmoveLog(
-            MILMOVE_LOG_LEVEL.WARN,
+          console.warn(
             `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
           );
           schemaKey = newSchemaKey;
@@ -144,7 +139,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         return action;
       })
       .catch((response) => {
-        milmoveLog(MILMOVE_LOG_LEVEL.ERROR, `Operation ${operationPath} failed: ${response} (${response.status})`);
+        console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
         const updatedRequestLog = Object.assign({}, requestLog, {
           ok: false,
           end: new Date(),
