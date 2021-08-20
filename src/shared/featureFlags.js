@@ -1,5 +1,6 @@
 import queryString from 'query-string';
 import { forEach } from 'lodash';
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 
 // Simple feature toggling for client-side code.
 //
@@ -90,9 +91,7 @@ export function detectEnvironment(nodeEnv, host) {
 function validateFlag(name) {
   // Warn if the value being fetched was never set.
   if (Object.keys(defaultFlags).indexOf(name) === -1) {
-    if (console && console.warn) {
-      console.warn(`'${name}' is not a valid flag name.`);
-    }
+    milmoveLog(MILMOVE_LOG_LEVEL.WARN, `'${name}' is not a valid flag name.`);
     return false;
   }
   return true;
