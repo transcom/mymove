@@ -334,14 +334,12 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(item.ID.String()),
-				Type:   supportmessages.DimensionType(item.Type),
 				Height: item.Height.Int32Ptr(),
 				Length: item.Length.Int32Ptr(),
 				Width:  item.Width.Int32Ptr(),
 			},
 			Crate: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(crate.ID.String()),
-				Type:   supportmessages.DimensionType(crate.Type),
 				Height: crate.Height.Int32Ptr(),
 				Length: crate.Length.Int32Ptr(),
 				Width:  crate.Width.Int32Ptr(),

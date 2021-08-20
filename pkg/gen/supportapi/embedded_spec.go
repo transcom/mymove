@@ -1010,14 +1010,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension.",
-      "type": "string",
-      "enum": [
-        "ITEM",
-        "CRATE"
-      ]
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -1408,9 +1400,6 @@ func init() {
           "type": "integer",
           "format": "int32",
           "example": 1000
-        },
-        "type": {
-          "$ref": "#/definitions/DimensionType"
         },
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
@@ -3722,14 +3711,6 @@ func init() {
       },
       "x-nullable": true
     },
-    "DimensionType": {
-      "description": "Describes a dimension type for a MTOServiceItemDimension.",
-      "type": "string",
-      "enum": [
-        "ITEM",
-        "CRATE"
-      ]
-    },
     "Document": {
       "type": "object",
       "required": [
@@ -4120,9 +4101,6 @@ func init() {
           "type": "integer",
           "format": "int32",
           "example": 1000
-        },
-        "type": {
-          "$ref": "#/definitions/DimensionType"
         },
         "width": {
           "description": "Width in thousandth inches. 1000 thou = 1 inch.",
