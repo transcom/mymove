@@ -78,7 +78,7 @@ ShipmentListItem.defaultProps = {
   onShipmentClick: null,
 };
 
-const ShipmentList = ({ shipments, entitlements, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
+const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentWeight }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
@@ -101,13 +101,13 @@ const ShipmentList = ({ shipments, entitlements, onShipmentClick, moveSubmitted,
         }
         const shipmentNumber = shipmentNumbersByType[shipmentType];
         let canEdit = moveSubmitted ? shipmentType === 'PPM' : true;
-        let entitlement;
         let isOverweight;
         let isMissingWeight;
+        let showNumber = shipmentCountByType[shipmentType] > 1;
         if (showShipmentWeight) {
           canEdit = false;
-          entitlement = entitlements.find((entitlment) => entitlment.shipmentId === shipment.id);
-          if (entitlement.authorizedWeight < shipment.billableWeightCap) {
+          showNumber = false;
+          if (parseInt(shipment.billableWeightCap, 10) > parseInt(shipment.primeEstimatedWeight, 10) * 1.1) {
             isOverweight = true;
           }
           if (shipment.reweigh?.id && !shipment.reweigh?.weight) {
@@ -118,7 +118,7 @@ const ShipmentList = ({ shipments, entitlements, onShipmentClick, moveSubmitted,
           <ShipmentListItem
             key={shipment.id}
             shipmentNumber={shipmentNumber}
-            showNumber={shipmentCountByType[shipmentType] > 1}
+            showNumber={showNumber}
             showShipmentWeight={showShipmentWeight}
             canEdit={canEdit}
             isOverweight={isOverweight}
@@ -140,7 +140,6 @@ ShipmentList.propTypes = {
       reweigh: shape({ id: string.isRequired, weight: string }),
     }),
   ).isRequired,
-  entitlements: arrayOf(shape({ id: string.isRequired, authorizedWeight: string.isRequired })),
   onShipmentClick: func,
   moveSubmitted: bool.isRequired,
   showShipmentWeight: bool,
@@ -148,7 +147,6 @@ ShipmentList.propTypes = {
 
 ShipmentList.defaultProps = {
   showShipmentWeight: false,
-  entitlements: [],
   onShipmentClick: null,
 };
 

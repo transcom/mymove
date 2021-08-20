@@ -54,18 +54,12 @@ describe('ShipmentList component', () => {
 describe('BillableWeightCard', () => {
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
     const shipments = [
-      { id: '0001', shipmentType: 'HHG', billableWeightCap: '5,600' },
+      { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
       { id: '0002', shipmentType: 'HHG', billableWeightCap: '3,200', reweigh: { id: '1234' } },
-      { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400' },
-    ];
-    const entitlements = [
-      { id: '1234', shipmentId: '0001', authorizedWeight: '4,600' },
-      { id: '12346', shipmentId: '0002', authorizedWeight: '4,600' },
-      { id: '12347', shipmentId: '0003', authorizedWeight: '4,600' },
+      { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400', primeEstimatedWeight: '5,000' },
     ];
     const defaultProps = {
       shipments,
-      entitlements,
       moveSubmitted: false,
       showShipmentWeight: true,
     };

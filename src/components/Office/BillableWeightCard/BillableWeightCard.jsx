@@ -14,7 +14,6 @@ export default function BillableWeightCard({
   weightAllowance,
   totalBillableWeight,
   shipments,
-  entitlements,
 }) {
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
@@ -37,7 +36,7 @@ export default function BillableWeightCard({
           <h5>Total billable weight</h5>
           <h4>{formatWeight(totalBillableWeight)}</h4>
           <div className={styles.shipmentList}>
-            <ShipmentList shipments={shipments} entitlements={entitlements} showShipmentWeight />
+            <ShipmentList shipments={shipments} showShipmentWeight />
           </div>
         </div>
       </div>
@@ -57,5 +56,4 @@ BillableWeightCard.propTypes = {
       reweigh: shape({ id: string.isRequired, weight: string }),
     }),
   ).isRequired,
-  entitlements: arrayOf(shape({ id: string.isRequired, authorizedWeight: string.isRequired })).isRequired,
 };

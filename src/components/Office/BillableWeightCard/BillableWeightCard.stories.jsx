@@ -15,14 +15,15 @@ export const Card = () => (
       weightRequested="12,460"
       weightAllowance="8,000"
       shipments={[
-        { id: '0001', shipmentType: 'HHG', billableWeightCap: '5,600' },
-        { id: '0002', shipmentType: 'HHG', billableWeightCap: '3,200', reweigh: { id: '1234' } },
-        { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400' },
-      ]}
-      entitlements={[
-        { id: '1234', shipmentId: '0001', authorizedWeight: '4,600' },
-        { id: '12346', shipmentId: '0002', authorizedWeight: '4,600' },
-        { id: '12347', shipmentId: '0003', authorizedWeight: '4,600' },
+        { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
+        {
+          id: '0002',
+          shipmentType: 'HHG',
+          billableWeightCap: '3,200',
+          primeEstimatedWeight: '5,000',
+          reweigh: { id: '1234' },
+        },
+        { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400', primeEstimatedWeight: '5,000' },
       ]}
     />
   </div>
