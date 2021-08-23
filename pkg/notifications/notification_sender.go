@@ -92,9 +92,11 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (Notific
 }
 
 // GetSysAdminEmail returns the System Administrators' email address that has been set in the NotificationSender
-func GetSysAdminEmail(sender NotificationSender) string {
-	senderContext := sender.(NotificationSendingContext)
-	return senderContext.sysAdminEmail
+func GetSysAdminEmail(sender NotificationSender) (email string) {
+	if senderContext, ok := sender.(NotificationSendingContext); ok {
+		email = senderContext.sysAdminEmail
+	}
+	return email
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {
