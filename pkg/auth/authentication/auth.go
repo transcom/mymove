@@ -738,7 +738,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			if emailErr != nil {
 				err = h.sender.SendNotification(email)
 			} else {
-				h.logger.Error("Error creating user activity email", zap.Error(err))
+				h.logger.Error("Error creating user activity email", zap.Error(emailErr))
 			}
 		}
 		// Create the user's service member now and add the ServiceMemberID to
