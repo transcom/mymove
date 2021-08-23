@@ -9332,10 +9332,10 @@ fork-ts-checker-webpack-plugin@^6.0.4:
     semver "^7.3.2"
     tapable "^1.0.0"
 
-form-data-encoder@1.4.3, form-data-encoder@^1.0.1:
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/form-data-encoder/-/form-data-encoder-1.4.3.tgz#b0975dbe5795676f211c0ff98e473eaf52b0db4a"
-  integrity sha512-ARLR/jJaj3+tlKkO7h1uvvjQcD6xCiKyg42hcG5Q4jv8uDa1IMPs81bM3BwI8BrqVEQxF9pX6tx0iLIzAvr31Q==
+form-data-encoder@^1.4.3:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/form-data-encoder/-/form-data-encoder-1.4.4.tgz#0c6518ee21aaadc1ee0d39e2c82f60791363a0d7"
+  integrity sha512-7fHkKl/w+qxecNdv6Dy6gqAVuJ1Th4oyZd52nx0jGcgDBatMqCnIr5MtnuiFsLgEHs9HI2FufOmeHrj3obdhwA==
 
 form-data@^2.5.0:
   version "2.5.1"
@@ -9369,13 +9369,12 @@ format@^0.2.0:
   resolved "https://registry.yarnpkg.com/format/-/format-0.2.2.tgz#d6170107e9efdc4ed30c9dc39016df942b5cb58b"
   integrity sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=
 
-formdata-node@^3.6.2:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-3.7.0.tgz#b58942e617639a0ebea57227cfff8332a4020760"
-  integrity sha512-O3y7XoWwE4zRvI5e1yVPDHyDGtEgGEI10KxTbQeMbEEt+imR7uxbL5Z4BCaHz5M09d1pkrFaqeYc8beAce4VSw==
+formdata-node@^4.0.0:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/formdata-node/-/formdata-node-4.0.1.tgz#7370d752e9c53fe6c5cf1fd141dc0564172595fb"
+  integrity sha512-7qe/s/LQR4KE9zzPBg8HXRQQsgze4VtwTX9viuVOsodD5QSu7MKsNiSy5BWYDwV+kAcDTh3y7WnC5ZHK5t4Aqg==
   dependencies:
     fetch-blob "2.1.2"
-    form-data-encoder "1.4.3"
     node-domexception "1.0.0"
 
 formik@^2.2.9:
@@ -19015,10 +19014,10 @@ svgo@^1.0.0, svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swagger-client@^3.15.0:
-  version "3.15.0"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.15.0.tgz#ba9de5830a8baf40ec5a867e815fa4588d974fa3"
-  integrity sha512-8Ki4bVbT+bl8hGmy3vR89wktZhVLXKNUk8CoUvfwn7Rq45bZ15c9UQXVr4VU6hP3f9diWJGJs0bKZR9pPOq4ZA==
+swagger-client@^3.16.0:
+  version "3.16.0"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.16.0.tgz#548f8b3dbd92a3a7d214c3e1cfbdfed9c0fe4923"
+  integrity sha512-fE+HPDla35+k9uXd9BmgZNvhUaM1oA8iCILOINYrziFK3+dkiSLG57h9Z4QOlcVMr/MjVHYy/1JbftlMt+sQ2A==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     btoa "^1.2.1"
@@ -19027,8 +19026,8 @@ swagger-client@^3.15.0:
     cross-fetch "^3.1.4"
     deep-extend "~0.6.0"
     fast-json-patch "^3.0.0-1"
-    form-data-encoder "^1.0.1"
-    formdata-node "^3.6.2"
+    form-data-encoder "^1.4.3"
+    formdata-node "^4.0.0"
     js-yaml "^4.1.0"
     lodash "^4.17.19"
     qs "^6.9.4"
