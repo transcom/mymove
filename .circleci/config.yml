@@ -20,7 +20,7 @@ references:
 executors:
   av_medium:
     resource_class: medium
-    working_directory: /root/project
+    working_directory: ~/transcom/mymove
     docker:
       - image: mkodockx/docker-clamav:latest
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
@@ -697,7 +697,7 @@ jobs:
       - checkout
       - run: clamscan --version
       - run: mkdir -p /store && chown clamav /store
-      - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
+      - run: cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /store
       - run:
           name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
           command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
@@ -714,7 +714,7 @@ jobs:
             --max-files=50000 \
             --tempdir=/tmp \
             --database=/store \
-            /root/project \
+            ~/transcom/mymove \
             /store
       - announce_failure
 
