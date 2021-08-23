@@ -186,11 +186,23 @@ func subScenarioDivertedShipments(db *pop.Connection, userUploader *uploader.Use
 				AvailableToPrimeAt: swag.Time(time.Now()),
 			},
 			MTOShipment: models.MTOShipment{
-				Diversion:    true,
-				Status:       models.MTOShipmentStatusApproved,
-				ApprovedDate: swag.Time(time.Now()),
+				Diversion:           true,
+				Status:              models.MTOShipmentStatusApproved,
+				ApprovedDate:        swag.Time(time.Now()),
+				ScheduledPickupDate: swag.Time(time.Now().AddDate(0, 3, 0)),
 			},
 		})
+	}
+}
+
+func subScenarioReweighs(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+	return func() {
+		createHHGMoveWithReweigh(db, userUploader)
+		createHHGMoveWithBillableWeights(db, userUploader, primeUploader)
+		createReweighWithMultipleShipments(db, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentMissingReweigh(db, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentMaxBillableWeightExceeded(db, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentNoEstimatedWeight(db, userUploader, primeUploader, moveRouter)
 	}
 }
 
@@ -207,13 +219,14 @@ func subScenarioMisc(db *pop.Connection, userUploader *uploader.UserUploader, pr
 		createHHGMoveWith2PaymentRequests(db, userUploader)
 		createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(db, userUploader)
 		createHHGMoveWithTaskOrderServices(db, userUploader)
-		createHHGMoveWithReweigh(db, userUploader)
+
 		// This one doesn't have submitted shipments. Can we get rid of it?
 		// createRecentlyUpdatedHHGMove(db, userUploader)
 		createMoveWithHHGAndNTSRPaymentRequest(db, userUploader)
 		// This move will still have shipments with some unapproved service items
 		// without payment service items
 		createMoveWith2ShipmentsAndPaymentRequest(db, userUploader)
+		createMoveWith2MinimalShipments(db, userUploader)
 
 		// Prime API
 		createWebhookSubscriptionForPaymentRequestUpdate(db)

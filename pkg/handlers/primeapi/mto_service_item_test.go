@@ -279,11 +279,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Code: "DUCRT",
 		},
 	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: "DCRTSA",
-		},
-	})
 	builder := query.NewQueryBuilder(suite.DB())
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
@@ -358,29 +353,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
-	suite.T().Run("Successful POST - Integration Test - Domestic Crating Standalone", func(t *testing.T) {
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
-		creator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
-		handler := CreateMTOServiceItemHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			creator,
-			mtoChecker,
-		}
-
-		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
-		params := mtoserviceitemops.CreateMTOServiceItemParams{
-			HTTPRequest: req,
-			Body:        payloads.MTOServiceItem(&mtoServiceItem),
-		}
-
-		suite.NoError(params.Body.Validate(strfmt.Default))
-		response := handler.Handle(params)
-		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
-
-		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload[0].ID())
-	})
-
 	suite.T().Run("POST failure - 422", func(t *testing.T) {
 		mockCreator := mocks.MTOServiceItemCreator{}
 		handler := CreateMTOServiceItemHandler{
@@ -394,7 +366,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			mock.Anything,
 		).Return(nil, nil, err)
 
-		mtoServiceItem.ReService.Code = models.ReServiceCodeDCRTSA
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDUCRT
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),

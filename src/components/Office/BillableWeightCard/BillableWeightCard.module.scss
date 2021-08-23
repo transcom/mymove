@@ -78,15 +78,10 @@
   }
 
   .shipmentSection {
-    min-width: 684px;
+    min-width: 584px;
   }
 
-  .shipmentPlaceholder {
-    width: 684px;
-    height: 94px;
-    background-color: $bg-gray;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .shipmentList button {
+    margin-bottom: 10px;
   }
 }

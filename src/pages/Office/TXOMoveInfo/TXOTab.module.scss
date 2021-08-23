@@ -32,6 +32,21 @@
       @include u-padding-left(4);
     }
   }
+
+  .alertWithButton {
+    span:first-child {
+      display: flex;
+      button {
+        padding-left: 0;
+      }
+    }
+    :nth-child(2) {
+      button {
+        padding-right: 0;
+        color: $base-darker;
+      }
+    }
+  }
 }
 
 .container {

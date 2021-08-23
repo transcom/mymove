@@ -3443,6 +3443,12 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "excess_weight_qualified_at": {
+          "description": "Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -8631,6 +8637,12 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excess_weight_qualified_at": {
+          "description": "Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "id": {
           "type": "string",

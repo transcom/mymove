@@ -796,12 +796,6 @@ definitions:
       ARMY: 21 Army
       AIR_FORCE: 57 Air Force
       COAST_GUARD: 70 Coast Guard
-  DimensionType:
-    description: Describes a dimension type for a MTOServiceItemDimension.
-    type: string
-    enum:
-      - ITEM
-      - CRATE
   Document:
     type: object
     properties:
@@ -1186,8 +1180,6 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      type:
-        $ref: '#/definitions/DimensionType'
       length:
         description: Length in thousandth inches. 1000 thou = 1 inch.
         example: 1000
@@ -1218,7 +1210,6 @@ definitions:
             description: Service codes allowed for this model type.
             enum:
               - DCRT # Domestic Crating
-              - DCRTSA # Domestic Crating - Standalone
               - DUCRT # Domestic Uncrating
           item:
             $ref: '#/definitions/MTOServiceItemDimension'
@@ -1240,7 +1231,7 @@ definitions:
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
-        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+        * DCRT, DUCRT - MTOServiceItemDomesticCrating
 
       The documentation will then update with the supported fields.
 
@@ -1721,7 +1712,6 @@ definitions:
       - DBHF
       - DBTF
       - DCRT
-      - DCRTSA
       - DDASIT
       - DDDSIT
       - DDFSIT

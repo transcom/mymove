@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'happo-plugin-storybook/register';
+import { MemoryRouter } from 'react-router';
 
 import './storybook.scss';
 import '../src/index.scss';
