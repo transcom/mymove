@@ -735,7 +735,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			h.logger.Info(fmt.Sprintf("Sys admin email: %s", sysAdminEmail))
 			email, emailErr := notifications.NewUserAccountCreated(
 				emailContext, sysAdminEmail, user.ID, user.UpdatedAt)
-			if emailErr != nil {
+			if emailErr == nil {
 				err = h.sender.SendNotification(email)
 			} else {
 				h.logger.Error("Error creating user activity email", zap.Error(emailErr))
