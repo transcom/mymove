@@ -732,10 +732,13 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			emailContext = logging.NewContext(emailContext, h.logger)
 			emailContext = auth.SetSessionInContext(emailContext, session)
 			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
+			h.logger.Info(fmt.Sprintf("Sys admin email: %s", sysAdminEmail))
 			email, emailErr := notifications.NewUserAccountCreated(
 				emailContext, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr != nil {
 				err = h.sender.SendNotification(email)
+			} else {
+				h.logger.Error("Error creating user activity email", zap.Error(err))
 			}
 		}
 		// Create the user's service member now and add the ServiceMemberID to
