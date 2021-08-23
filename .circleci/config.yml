@@ -693,7 +693,7 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apt-get update && apt-get install -y curl git ssh
+      - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
       - run: mkdir -p /store && chown clamav /store
