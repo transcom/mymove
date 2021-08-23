@@ -106,7 +106,7 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 
 		if userWasActive {
 			email, emailErr := notifications.NewUserAccountDeactivated(
-				ctx, "sandy@truss.works", foundUser.ID, foundUser.UpdatedAt)
+				ctx, notifications.GetSysAdminEmail(o.notificationSender), foundUser.ID, foundUser.UpdatedAt)
 			if emailErr != nil {
 				logger.Error("Could not send user deactivation email", zap.Error(emailErr))
 			} else {
@@ -115,7 +115,7 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 		}
 	} else if !userWasActive {
 		email, emailErr := notifications.NewUserAccountActivated(
-			ctx, "sandy@truss.works", foundUser.ID, foundUser.UpdatedAt)
+			ctx, notifications.GetSysAdminEmail(o.notificationSender), foundUser.ID, foundUser.UpdatedAt)
 		if emailErr != nil {
 			logger.Error("Could not send user activation email", zap.Error(emailErr))
 		} else {

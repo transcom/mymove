@@ -731,8 +731,9 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			emailContext := context.Background()
 			emailContext = logging.NewContext(emailContext, h.logger)
 			emailContext = auth.SetSessionInContext(emailContext, session)
+			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
 			email, emailErr := notifications.NewUserAccountCreated(
-				emailContext, "sandy@truss.works", user.ID, user.UpdatedAt)
+				emailContext, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr != nil {
 				err = h.sender.SendNotification(email)
 			}

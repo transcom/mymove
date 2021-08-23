@@ -38,17 +38,19 @@ type NotificationSender interface {
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationSendingContext struct {
-	svc    sesiface.SESAPI
-	domain string
-	logger Logger
+	svc           sesiface.SESAPI
+	domain        string
+	logger        Logger
+	sysAdminEmail string
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, domain string, logger Logger) NotificationSendingContext {
+func NewNotificationSender(svc sesiface.SESAPI, domain string, logger Logger, sysAdminEmail string) NotificationSendingContext {
 	return NotificationSendingContext{
-		svc:    svc,
-		domain: domain,
-		logger: logger,
+		svc:           svc,
+		domain:        domain,
+		logger:        logger,
+		sysAdminEmail: sysAdminEmail,
 	}
 }
 
@@ -70,6 +72,7 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (Notific
 		// below.
 		awsSESRegion := v.GetString(cli.AWSSESRegionFlag)
 		awsSESDomain := v.GetString(cli.AWSSESDomainFlag)
+		sysAdminEmail := v.GetString(cli.SysAdminEmail)
 		logger.Info("Using ses email backend",
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
@@ -78,14 +81,20 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (Notific
 		result, err := sesService.GetAccountSendingEnabled(input)
 		if err != nil || result == nil || *result.Enabled {
 			logger.Error("email sending not enabled", zap.Error(err))
-			return NewNotificationSender(sesService, awsSESDomain, logger), err
+			return NewNotificationSender(sesService, awsSESDomain, logger, sysAdminEmail), err
 		}
-		return NewNotificationSender(sesService, awsSESDomain, logger), nil
+		return NewNotificationSender(sesService, awsSESDomain, logger, sysAdminEmail), nil
 	}
 
 	domain := "milmovelocal"
 	logger.Info("Using local email backend", zap.String("domain", domain))
 	return NewStubNotificationSender(domain, logger), nil
+}
+
+// GetSysAdminEmail returns the System Administrators' email address that has been set in the NotificationSender
+func GetSysAdminEmail(sender NotificationSender) string {
+	senderContext := sender.(NotificationSendingContext)
+	return senderContext.sysAdminEmail
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {

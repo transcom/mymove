@@ -58,7 +58,8 @@ func (o *officeUserCreator) CreateOfficeUser(
 				return err
 			}
 
-			email, emailErr := notifications.NewUserAccountCreated(ctx, "sandy@truss.works", user.ID, user.UpdatedAt)
+			email, emailErr := notifications.NewUserAccountCreated(
+				ctx, notifications.GetSysAdminEmail(o.notificationSender), user.ID, user.UpdatedAt)
 			if emailErr != nil {
 				return emailErr
 			}
