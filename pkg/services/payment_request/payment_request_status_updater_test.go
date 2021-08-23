@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -22,8 +21,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.NoError(err)
 	})
 
@@ -49,8 +47,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 	})
@@ -77,8 +74,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(paymentRequest.UpdatedAt))
 		suite.NoError(err)
 	})
 
@@ -88,8 +84,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := updater.UpdatePaymentRequestStatus(appCfg, &paymentRequest, etag.GenerateEtag(time.Now()))
+		_, err := updater.UpdatePaymentRequestStatus(suite.TestAppContext(), &paymentRequest, etag.GenerateEtag(time.Now()))
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
 	})

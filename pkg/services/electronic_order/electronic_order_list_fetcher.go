@@ -1,14 +1,14 @@
 package electronicorder
 
 import (
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type electronicOrderListQueryBuilder interface {
-	FetchMany(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
-	Count(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) (int, error)
+	FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
+	Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error)
 }
 
 type electronicOrderListFetcher struct {
@@ -16,16 +16,16 @@ type electronicOrderListFetcher struct {
 }
 
 // FetchElectronicOrderList uses the passed query builder to fetch a list of electronic_orders
-func (o *electronicOrderListFetcher) FetchElectronicOrderList(appCfg appconfig.AppConfig, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.ElectronicOrders, error) {
+func (o *electronicOrderListFetcher) FetchElectronicOrderList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.ElectronicOrders, error) {
 	var electronicOrders models.ElectronicOrders
-	error := o.builder.FetchMany(appCfg, &electronicOrders, filters, associations, pagination, ordering)
+	error := o.builder.FetchMany(appCtx, &electronicOrders, filters, associations, pagination, ordering)
 	return electronicOrders, error
 }
 
 // FetchElectronicOrderCount uses the passed query builder to count electronic_orders
-func (o *electronicOrderListFetcher) FetchElectronicOrderCount(appCfg appconfig.AppConfig, filters []services.QueryFilter) (int, error) {
+func (o *electronicOrderListFetcher) FetchElectronicOrderCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	var electronicOrders models.ElectronicOrders
-	count, error := o.builder.Count(appCfg, &electronicOrders, filters)
+	count, error := o.builder.Count(appCtx, &electronicOrders, filters)
 	return count, error
 }
 

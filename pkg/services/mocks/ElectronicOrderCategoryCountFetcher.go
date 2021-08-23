@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	services "github.com/transcom/mymove/pkg/services"
 )
@@ -14,13 +14,13 @@ type ElectronicOrderCategoryCountFetcher struct {
 	mock.Mock
 }
 
-// FetchElectronicOrderCategoricalCounts provides a mock function with given fields: appCfg, filters, andFilters
-func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCounts(appCfg appconfig.AppConfig, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
-	ret := _m.Called(appCfg, filters, andFilters)
+// FetchElectronicOrderCategoricalCounts provides a mock function with given fields: appCtx, filters, andFilters
+func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCounts(appCtx appcontext.AppContext, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+	ret := _m.Called(appCtx, filters, andFilters)
 
 	var r0 map[interface{}]int
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter, *[]services.QueryFilter) map[interface{}]int); ok {
-		r0 = rf(appCfg, filters, andFilters)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, *[]services.QueryFilter) map[interface{}]int); ok {
+		r0 = rf(appCtx, filters, andFilters)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[interface{}]int)
@@ -28,8 +28,8 @@ func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCo
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter, *[]services.QueryFilter) error); ok {
-		r1 = rf(appCfg, filters, andFilters)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter, *[]services.QueryFilter) error); ok {
+		r1 = rf(appCtx, filters, andFilters)
 	} else {
 		r1 = ret.Error(1)
 	}

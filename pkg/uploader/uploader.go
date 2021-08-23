@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -122,54 +122,54 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 }
 
 // PrepareFileForUpload copy file buffer into Afero file, return Afero file
-func (u *Uploader) PrepareFileForUpload(appCfg appconfig.AppConfig, file io.ReadCloser, filename string) (afero.File, error) {
+func (u *Uploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
 	aFile, err := u.Storer.TempFileSystem().Create(filename)
 	if err != nil {
 		errorString := "Error opening afero file"
-		appCfg.Logger().Error(errorString, zap.Error(err))
+		appCtx.Logger().Error(errorString, zap.Error(err))
 		return aFile, fmt.Errorf("%s %v", errorString, zap.Error(err))
 	}
 
 	_, err = io.Copy(aFile, file)
 	if err != nil {
 		errorString := "Error copying incoming data into afero file."
-		appCfg.Logger().Error(errorString, zap.Error(err))
+		appCtx.Logger().Error(errorString, zap.Error(err))
 		return aFile, fmt.Errorf("%s %v", errorString, zap.Error(err))
 	}
 
 	return aFile, nil
 }
 
-func (u *Uploader) createAndPushUploadToS3(appCfg appconfig.AppConfig, file File, upload *models.Upload) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) createAndPushUploadToS3(appCtx appcontext.AppContext, file File, upload *models.Upload) (*models.Upload, *validate.Errors, error) {
 
-	verrs, err := appCfg.DB().ValidateAndCreate(upload)
+	verrs, err := appCtx.DB().ValidateAndCreate(upload)
 	if err != nil || verrs.HasAny() {
-		appCfg.Logger().Error("Error creating new upload", zap.Error(err))
+		appCtx.Logger().Error("Error creating new upload", zap.Error(err))
 		return nil, verrs, fmt.Errorf("error creating upload %w", err)
 	}
 
 	// Push file to S3
 	if _, err := u.Storer.Store(upload.StorageKey, file.File, upload.Checksum, file.Tags); err != nil {
 		responseVErrors := validate.NewErrors()
-		appCfg.Logger().Error("failed to store object", zap.Error(err))
+		appCtx.Logger().Error("failed to store object", zap.Error(err))
 		responseVErrors.Append(verrs)
 		return nil, responseVErrors, fmt.Errorf("failed to store object %w", err)
 	}
 
-	appCfg.Logger().Info("created an upload with id and key ", zap.Any("new_upload_id", upload.ID), zap.String("key", upload.StorageKey))
+	appCtx.Logger().Info("created an upload with id and key ", zap.Any("new_upload_id", upload.ID), zap.String("key", upload.StorageKey))
 	return upload, verrs, nil
 }
 
 // CreateUpload creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUpload(appCfg appconfig.AppConfig, file File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUpload(appCtx appcontext.AppContext, file File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
 	info, fileStatErr := file.Stat()
 	if fileStatErr != nil {
-		appCfg.Logger().Error("Could not get file info", zap.Error(fileStatErr))
+		appCtx.Logger().Error("Could not get file info", zap.Error(fileStatErr))
 	}
 
 	if info.Size() == 0 {
@@ -177,7 +177,7 @@ func (u *Uploader) CreateUpload(appCfg appconfig.AppConfig, file File, allowedTy
 	}
 
 	if info.Size() > u.FileSizeLimit.Int64() {
-		appCfg.Logger().Error("upload exceeds file size limit",
+		appCtx.Logger().Error("upload exceeds file size limit",
 			zap.Int64("FileSize", info.Size()),
 			zap.Int64("FileSizeLimit", u.FileSizeLimit.Int64()),
 		)
@@ -186,14 +186,14 @@ func (u *Uploader) CreateUpload(appCfg appconfig.AppConfig, file File, allowedTy
 
 	contentType, detectContentTypeErr := storage.DetectContentType(file)
 	if detectContentTypeErr != nil {
-		appCfg.Logger().Error("Could not detect content type", zap.Error(detectContentTypeErr))
+		appCtx.Logger().Error("Could not detect content type", zap.Error(detectContentTypeErr))
 		return nil, responseVErrors, detectContentTypeErr
 	}
 
 	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
 	validator.IsValid(responseVErrors)
 	if responseVErrors.HasAny() {
-		appCfg.Logger().Error("Invalid content type for upload",
+		appCtx.Logger().Error("Invalid content type for upload",
 			zap.String("ContentType", contentType),
 		)
 		return nil, responseVErrors, nil
@@ -201,7 +201,7 @@ func (u *Uploader) CreateUpload(appCfg appconfig.AppConfig, file File, allowedTy
 
 	checksum, computeChecksumErr := storage.ComputeChecksum(file)
 	if computeChecksumErr != nil {
-		appCfg.Logger().Error("Could not compute checksum", zap.Error(computeChecksumErr))
+		appCtx.Logger().Error("Could not compute checksum", zap.Error(computeChecksumErr))
 		return nil, responseVErrors, computeChecksumErr
 	}
 
@@ -225,20 +225,20 @@ func (u *Uploader) CreateUpload(appCfg appconfig.AppConfig, file File, allowedTy
 
 	var uploadError error
 	// If we are already in a transaction, don't start one
-	if appCfg.DB().TX != nil {
+	if appCtx.DB().TX != nil {
 		var responseCreateAndPushVerrs *validate.Errors
 		var responseCreateAndPushErr error
-		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(appCfg, file, newUpload)
+		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(appCtx, file, newUpload)
 		if responseCreateAndPushErr != nil || responseCreateAndPushVerrs.HasAny() {
 			responseVErrors.Append(responseCreateAndPushVerrs)
 			uploadError = errors.Wrap(responseCreateAndPushErr, "failed to create and store upload object")
 			return nil, responseVErrors, uploadError
 		}
-		appCfg.Logger().Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", newUpload.StorageKey))
+		appCtx.Logger().Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", newUpload.StorageKey))
 		return newUpload, responseVErrors, nil
 	}
 
-	err := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	err := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		var responseCreateAndPushVerrs *validate.Errors
 		var responseCreateAndPushErr error
@@ -258,10 +258,10 @@ func (u *Uploader) CreateUpload(appCfg appconfig.AppConfig, file File, allowedTy
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.
-func (u *Uploader) PresignedURL(appCfg appconfig.AppConfig, upload *models.Upload) (string, error) {
+func (u *Uploader) PresignedURL(appCtx appcontext.AppContext, upload *models.Upload) (string, error) {
 	url, err := u.Storer.PresignedURL(upload.StorageKey, upload.ContentType)
 	if err != nil {
-		appCfg.Logger().Error("failed to get presigned url", zap.Error(err))
+		appCtx.Logger().Error("failed to get presigned url", zap.Error(err))
 		return "", err
 	}
 	return url, nil
@@ -269,17 +269,17 @@ func (u *Uploader) PresignedURL(appCfg appconfig.AppConfig, upload *models.Uploa
 
 // DeleteUpload removes an Upload from the database and deletes its file from the
 // storer.
-func (u *Uploader) DeleteUpload(appCfg appconfig.AppConfig, upload *models.Upload) error {
+func (u *Uploader) DeleteUpload(appCtx appcontext.AppContext, upload *models.Upload) error {
 	if err := u.Storer.Delete(upload.StorageKey); err != nil {
 		return err
 	}
-	return models.DeleteUpload(appCfg.DB(), upload)
+	return models.DeleteUpload(appCtx.DB(), upload)
 }
 
 // Download fetches an Upload's file and stores it in a tempfile. The path to this
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (u *Uploader) Download(appCfg appconfig.AppConfig, upload *models.Upload) (io.ReadCloser, error) {
+func (u *Uploader) Download(appCtx appcontext.AppContext, upload *models.Upload) (io.ReadCloser, error) {
 	return u.Storer.Fetch(upload.StorageKey)
 }

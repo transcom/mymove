@@ -3,7 +3,6 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,8 +21,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		paymentServiceItem := suite.setupManagementServicesItem()
 		managementServicesPricer := NewManagementServicesPricer()
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 
@@ -38,8 +36,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, _, err := managementServicesPricer.Price(appCfg, testdatagen.DefaultContractCode, msAvailableToPrimeAt)
+		priceCents, _, err := managementServicesPricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, msAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -48,8 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := managementServicesPricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
+		_, _, err := managementServicesPricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
@@ -57,8 +53,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := managementServicesPricer.Price(appCfg, "BOGUS", msAvailableToPrimeAt)
+		_, _, err := managementServicesPricer.Price(suite.TestAppContext(), "BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

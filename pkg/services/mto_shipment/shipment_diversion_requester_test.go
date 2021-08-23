@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
@@ -30,8 +29,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		divertedShipment, err := requester.RequestShipmentDiversion(appCfg, shipment.ID, shipmentEtag)
+		divertedShipment, err := requester.RequestShipmentDiversion(suite.TestAppContext(), shipment.ID, shipmentEtag)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, divertedShipment.MoveTaskOrderID)
@@ -52,8 +50,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := requester.RequestShipmentDiversion(appCfg, rejectedShipment.ID, eTag)
+		_, err := requester.RequestShipmentDiversion(suite.TestAppContext(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -67,8 +64,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 			},
 		})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := requester.RequestShipmentDiversion(appCfg, staleShipment.ID, staleETag)
+		_, err := requester.RequestShipmentDiversion(suite.TestAppContext(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -78,8 +74,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := requester.RequestShipmentDiversion(appCfg, badShipmentID, eTag)
+		_, err := requester.RequestShipmentDiversion(suite.TestAppContext(), badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -87,7 +82,6 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 
 	suite.T().Run("It calls RequestDiversion on the ShipmentRouter", func(t *testing.T) {
 		shipmentRouter := &mocks.ShipmentRouter{}
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		requester := NewShipmentDiversionRequester(shipmentRouter)
 		shipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
@@ -100,9 +94,9 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		shipmentRouter.On("RequestDiversion", mock.AnythingOfType("*appconfig.appConfig"), &createdShipment).Return(nil)
+		shipmentRouter.On("RequestDiversion", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err = requester.RequestShipmentDiversion(appCfg, shipment.ID, eTag)
+		_, err = requester.RequestShipmentDiversion(suite.TestAppContext(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "RequestDiversion", 1)

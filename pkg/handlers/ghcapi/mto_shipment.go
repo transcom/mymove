@@ -5,7 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/notifications"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -37,7 +37,7 @@ type ListMTOShipmentsHandler struct {
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	// return any parsing error
@@ -55,7 +55,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	}
 
 	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(appCfg, moveTaskOrder, queryFilters)
+	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
 	if err != nil {
 		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 
@@ -85,7 +85,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	queryOrder := query.NewQueryOrder(swag.String("created_at"), swag.Bool(true))
 
 	var shipments models.MTOShipments
-	err = h.ListFetcher.FetchRecordList(appCfg, &shipments, queryFilters, queryAssociations, nil, queryOrder)
+	err = h.ListFetcher.FetchRecordList(appCtx, &shipments, queryFilters, queryAssociations, nil, queryOrder)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto shipments : ", zap.Error(err))
@@ -106,7 +106,7 @@ type CreateMTOShipmentHandler struct {
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	payload := params.Body
 
 	if payload == nil {
@@ -115,7 +115,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCfg, mtoShipment, nil)
+	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, nil)
 
 	if err != nil {
 		logger.Error("ghcapi.CreateMTOShipmentHandler error", zap.Error(err))
@@ -153,7 +153,7 @@ type UpdateShipmentHandler struct {
 // Handle updates shipments
 func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	payload := params.Body
 	if payload == nil {
@@ -170,7 +170,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	}
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCfg, shipmentID)
+	oldShipment, err := h.MTOShipmentUpdater.RetrieveMTOShipment(appCtx, shipmentID)
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -186,7 +186,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		}
 	}
 
-	updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCfg, oldShipment, session)
+	updateable, err := h.MTOShipmentUpdater.CheckIfMTOShipmentCanBeUpdated(appCtx, oldShipment, session)
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -206,7 +206,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 	mtoShipment.ID = shipmentID
 
-	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCfg, mtoShipment, params.IfMatch)
+	updatedMtoShipment, err := h.MTOShipmentUpdater.UpdateMTOShipmentOffice(appCtx, mtoShipment, params.IfMatch)
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
@@ -276,7 +276,7 @@ type DeleteShipmentHandler struct {
 // Handle soft deletes a shipment
 func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		logger.Error("user is not authenticated with service counselor office role")
@@ -284,7 +284,7 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	}
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	moveID, err := h.DeleteShipment(appCfg, shipmentID)
+	moveID, err := h.DeleteShipment(appCtx, shipmentID)
 	if err != nil {
 		logger.Error("ghcapi.DeleteShipmentHandler", zap.Error(err))
 
@@ -339,7 +339,7 @@ type ApproveShipmentHandler struct {
 // Handle approves a shipment
 func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can approve shipments")
@@ -348,7 +348,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.ApproveShipment(appCfg, shipmentID, eTag)
+	shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
 
 	if err != nil {
 		logger.Error("ghcapi.ApproveShipmentHandler", zap.Error(err))
@@ -403,7 +403,7 @@ type RequestShipmentDiversionHandler struct {
 // Handle Requests a shipment diversion
 func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipmentDiversionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can Request shipment diversions")
@@ -412,7 +412,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.RequestShipmentDiversion(appCfg, shipmentID, eTag)
+	shipment, err := h.RequestShipmentDiversion(appCtx, shipmentID, eTag)
 
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentDiversionHandler", zap.Error(err))
@@ -467,7 +467,7 @@ type ApproveShipmentDiversionHandler struct {
 // Handle approves a shipment diversion
 func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipmentDiversionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can approve shipment diversions")
@@ -476,7 +476,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.ApproveShipmentDiversion(appCfg, shipmentID, eTag)
+	shipment, err := h.ApproveShipmentDiversion(appCtx, shipmentID, eTag)
 
 	if err != nil {
 		logger.Error("ghcapi.ApproveShipmentDiversionHandler", zap.Error(err))
@@ -531,7 +531,7 @@ type RejectShipmentHandler struct {
 // Handle rejects a shipment
 func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can reject shipments")
@@ -541,7 +541,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
 	rejectionReason := params.Body.RejectionReason
-	shipment, err := h.RejectShipment(appCfg, shipmentID, eTag, rejectionReason)
+	shipment, err := h.RejectShipment(appCtx, shipmentID, eTag, rejectionReason)
 
 	if err != nil {
 		logger.Error("ghcapi.RejectShipmentHandler", zap.Error(err))
@@ -596,7 +596,7 @@ type RequestShipmentCancellationHandler struct {
 // Handle Requests a shipment diversion
 func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShipmentCancellationParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can Request shipment diversions")
@@ -605,7 +605,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 	eTag := params.IfMatch
-	shipment, err := h.RequestShipmentCancellation(appCfg, shipmentID, eTag)
+	shipment, err := h.RequestShipmentCancellation(appCtx, shipmentID, eTag)
 
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentCancellationHandler", zap.Error(err))
@@ -660,7 +660,7 @@ type RequestShipmentReweighHandler struct {
 // Handle Requests a shipment reweigh
 func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipmentReweighParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can Request a shipment reweigh")
@@ -668,7 +668,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	}
 
 	shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
-	reweigh, err := h.RequestShipmentReweigh(appCfg, shipmentID)
+	reweigh, err := h.RequestShipmentReweigh(appCtx, shipmentID)
 
 	if err != nil {
 		logger.Error("ghcapi.RequestShipmentReweighHandler", zap.Error(err))

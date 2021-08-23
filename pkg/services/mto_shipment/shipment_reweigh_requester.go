@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -20,21 +20,21 @@ func NewShipmentReweighRequester() services.ShipmentReweighRequester {
 }
 
 // RequestShipmentReweigh Requests the shipment reweigh
-func (f *shipmentReweighRequester) RequestShipmentReweigh(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.Reweigh, error) {
-	shipment, err := f.findShipment(appCfg, shipmentID)
+func (f *shipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error) {
+	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	reweigh, err := f.createReweigh(appCfg, shipment, checkReweighAllowed())
+	reweigh, err := f.createReweigh(appCtx, shipment, checkReweighAllowed())
 
 	return reweigh, err
 }
 
-func (f *shipmentReweighRequester) findShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentReweighRequester) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
 
-	err := appCfg.DB().Q().
+	err := appCtx.DB().Q().
 		Eager("Reweigh").
 		Find(&shipment, shipmentID)
 
@@ -47,8 +47,8 @@ func (f *shipmentReweighRequester) findShipment(appCfg appconfig.AppConfig, ship
 	return &shipment, nil
 }
 
-func (f *shipmentReweighRequester) createReweigh(appCfg appconfig.AppConfig, shipment *models.MTOShipment, checks ...validator) (*models.Reweigh, error) {
-	if verr := validateShipment(appCfg, shipment, shipment, checks...); verr != nil {
+func (f *shipmentReweighRequester) createReweigh(appCtx appcontext.AppContext, shipment *models.MTOShipment, checks ...validator) (*models.Reweigh, error) {
+	if verr := validateShipment(appCtx, shipment, shipment, checks...); verr != nil {
 		return nil, verr
 	}
 
@@ -59,7 +59,7 @@ func (f *shipmentReweighRequester) createReweigh(appCfg appconfig.AppConfig, shi
 		ShipmentID:  shipment.ID,
 	}
 
-	verrs, dbErr := appCfg.DB().ValidateAndSave(&reweigh)
+	verrs, dbErr := appCtx.DB().ValidateAndSave(&reweigh)
 	if verrs != nil && verrs.HasAny() {
 		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not save the reweigh while requesting the reweigh as a TOO.")
 

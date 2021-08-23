@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +16,13 @@ type CustomerFetcher struct {
 	mock.Mock
 }
 
-// FetchCustomer provides a mock function with given fields: appCfg, customerID
-func (_m *CustomerFetcher) FetchCustomer(appCfg appconfig.AppConfig, customerID uuid.UUID) (*models.ServiceMember, error) {
-	ret := _m.Called(appCfg, customerID)
+// FetchCustomer provides a mock function with given fields: appCtx, customerID
+func (_m *CustomerFetcher) FetchCustomer(appCtx appcontext.AppContext, customerID uuid.UUID) (*models.ServiceMember, error) {
+	ret := _m.Called(appCtx, customerID)
 
 	var r0 *models.ServiceMember
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) *models.ServiceMember); ok {
-		r0 = rf(appCfg, customerID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.ServiceMember); ok {
+		r0 = rf(appCtx, customerID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.ServiceMember)
@@ -30,8 +30,8 @@ func (_m *CustomerFetcher) FetchCustomer(appCfg appconfig.AppConfig, customerID 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, customerID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, customerID)
 	} else {
 		r1 = ret.Error(1)
 	}

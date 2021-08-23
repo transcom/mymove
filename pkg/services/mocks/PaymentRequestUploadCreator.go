@@ -5,7 +5,7 @@ package mocks
 import (
 	io "io"
 
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -19,13 +19,13 @@ type PaymentRequestUploadCreator struct {
 	mock.Mock
 }
 
-// CreateUpload provides a mock function with given fields: appCfg, file, paymentRequestID, userID, filename
-func (_m *PaymentRequestUploadCreator) CreateUpload(appCfg appconfig.AppConfig, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error) {
-	ret := _m.Called(appCfg, file, paymentRequestID, userID, filename)
+// CreateUpload provides a mock function with given fields: appCtx, file, paymentRequestID, userID, filename
+func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error) {
+	ret := _m.Called(appCtx, file, paymentRequestID, userID, filename)
 
 	var r0 *models.Upload
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, io.ReadCloser, uuid.UUID, uuid.UUID, string) *models.Upload); ok {
-		r0 = rf(appCfg, file, paymentRequestID, userID, filename)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) *models.Upload); ok {
+		r0 = rf(appCtx, file, paymentRequestID, userID, filename)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Upload)
@@ -33,8 +33,8 @@ func (_m *PaymentRequestUploadCreator) CreateUpload(appCfg appconfig.AppConfig, 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, io.ReadCloser, uuid.UUID, uuid.UUID, string) error); ok {
-		r1 = rf(appCfg, file, paymentRequestID, userID, filename)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, file, paymentRequestID, userID, filename)
 	} else {
 		r1 = ret.Error(1)
 	}

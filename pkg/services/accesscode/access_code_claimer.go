@@ -8,7 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -23,10 +23,10 @@ func NewAccessCodeClaimer() services.AccessCodeClaimer {
 }
 
 // fetchAccessCodeForUpdate gets an access code based upon the code given to determine whether or not it is a used code
-func fetchAccessCodeForUpdate(appCfg appconfig.AppConfig, code string) (*models.AccessCode, error) {
+func fetchAccessCodeForUpdate(appCtx appcontext.AppContext, code string) (*models.AccessCode, error) {
 	ac := models.AccessCode{}
 
-	err := appCfg.DB().RawQuery(`
+	err := appCtx.DB().RawQuery(`
     SELECT access_codes.claimed_at,
 		access_codes.code,
 		access_codes.created_at,
@@ -45,12 +45,12 @@ func fetchAccessCodeForUpdate(appCfg appconfig.AppConfig, code string) (*models.
 
 // ClaimAccessCode validates an access code based upon the code and move type. A valid access
 // code is assumed to have no `service_member_id`
-func (v accessCodeClaimer) ClaimAccessCode(appCfg appconfig.AppConfig, code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
+func (v accessCodeClaimer) ClaimAccessCode(appCtx appcontext.AppContext, code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
 	var accessCode *models.AccessCode
 	var err error
 	verrs := validate.NewErrors()
 
-	transactionErr := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		accessCode, err = fetchAccessCodeForUpdate(txnAppCfg, code)
 
 		if err != nil {

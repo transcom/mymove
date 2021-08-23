@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 
 	ediResponse997 "github.com/transcom/mymove/pkg/edi/edi997"
@@ -24,17 +24,17 @@ func NewEDI997Processor() services.SyncadaFileProcessor {
 }
 
 //ProcessFile parses an EDI 997 response and updates the payment request status
-func (e *edi997Processor) ProcessFile(appCfg appconfig.AppConfig, path string, stringEDI997 string) error {
+func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, path string, stringEDI997 string) error {
 	fmt.Print(path)
 
 	edi997 := ediResponse997.EDI{}
 	err := edi997.Parse(stringEDI997)
 	if err != nil {
-		appCfg.Logger().Error("unable to parse EDI997", zap.Error(err))
+		appCtx.Logger().Error("unable to parse EDI997", zap.Error(err))
 		return fmt.Errorf("unable to parse EDI997")
 	}
-	appCfg.Logger().Info("RECEIVED: 997 Processor received a 997")
-	e.logEDI(appCfg, edi997)
+	appCtx.Logger().Info("RECEIVED: 997 Processor received a 997")
+	e.logEDI(appCtx, edi997)
 
 	// Find the PaymentRequestID that matches the GCN
 	var gcn int64
@@ -46,23 +46,23 @@ func (e *edi997Processor) ProcessFile(appCfg appconfig.AppConfig, path string, s
 
 			ediTypeFromAK2 = edi997.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.TransactionSetResponses[0].AK2.TransactionSetIdentifierCode
 		} else {
-			appCfg.Logger().Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
+			appCtx.Logger().Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
 			return fmt.Errorf("Validation error(s) detected with the EDI997. EDI Errors could not be saved: %w", err)
 		}
 	} else {
-		appCfg.Logger().Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
+		appCtx.Logger().Error("Validation error(s) detected with the EDI997. EDI Errors could not be saved", zap.Error(err))
 		return fmt.Errorf("Validation error(s) detected with the EDI997. EDI Errors could not be saved: %w", err)
 	}
 
 	// In the 858, the EDI only has 1 group, and the ICN and the GCN are the same. Therefore, we'll query the PR to ICN table
 	// to find the associated payment request using the reported GCN from the 997.
 	var paymentRequest models.PaymentRequest
-	err = appCfg.DB().Q().
+	err = appCtx.DB().Q().
 		Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
 		Where("payment_request_to_interchange_control_numbers.interchange_control_number = ? and payment_request_to_interchange_control_numbers.edi_type = ?", int(gcn), ediTypeFromAK2).
 		First(&paymentRequest)
 	if err != nil {
-		appCfg.Logger().Error("unable to find PaymentRequest with GCN", zap.Error(err))
+		appCtx.Logger().Error("unable to find PaymentRequest with GCN", zap.Error(err))
 		return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(gcn))
 	}
 
@@ -73,7 +73,7 @@ func (e *edi997Processor) ProcessFile(appCfg appconfig.AppConfig, path string, s
 		EDIType:                  models.EDIType997,
 	}
 
-	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		lookupErr := txnAppCfg.DB().Where("payment_request_id = ? and interchange_control_number = ? and edi_type = ?", prToICN.PaymentRequestID, prToICN.InterchangeControlNumber, prToICN.EDIType).First(&prToICN)
 		if lookupErr != nil {
 			txnAppCfg.Logger().Error("failure looking up payment request to interchange control number", zap.Error(err))
@@ -119,7 +119,7 @@ func (e *edi997Processor) ProcessFile(appCfg appconfig.AppConfig, path string, s
 	})
 
 	if transactionError != nil {
-		appCfg.Logger().Error(transactionError.Error())
+		appCtx.Logger().Error(transactionError.Error())
 		return transactionError
 	}
 
@@ -130,32 +130,32 @@ func (e *edi997Processor) EDIType() models.EDIType {
 	return models.EDIType997
 }
 
-func (e *edi997Processor) logEDI(appCfg appconfig.AppConfig, edi ediResponse997.EDI) {
+func (e *edi997Processor) logEDI(appCtx appcontext.AppContext, edi ediResponse997.EDI) {
 	var ak1 edisegment.AK1
 	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
 		ak1 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
 	} else {
-		appCfg.Logger().Warn("unable to log EDI 997, failed functional group or transaction set index check")
+		appCtx.Logger().Warn("unable to log EDI 997, failed functional group or transaction set index check")
 		return
 	}
 
-	appCfg.Logger().Info("EDI 997 log",
+	appCtx.Logger().Info("EDI 997 log",
 		zap.Int64("997 ICN", edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
 		zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
 		zap.String("UsageIndicator (ISA-15)", edi.InterchangeControlEnvelope.ISA.UsageIndicator),
 	)
 }
 
-func (e *edi997Processor) logEDIWithPaymentRequest(appCfg appconfig.AppConfig, edi ediResponse997.EDI, paymentRequest models.PaymentRequest) {
+func (e *edi997Processor) logEDIWithPaymentRequest(appCtx appcontext.AppContext, edi ediResponse997.EDI, paymentRequest models.PaymentRequest) {
 	var ak1 edisegment.AK1
 	if len(edi.InterchangeControlEnvelope.FunctionalGroups) > 0 && len(edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets) > 0 {
 		ak1 = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].FunctionalGroupResponse.AK1
 	} else {
-		appCfg.Logger().Warn("unable to log EDI 997, failed functional group or transaction set index check")
+		appCtx.Logger().Warn("unable to log EDI 997, failed functional group or transaction set index check")
 		return
 	}
 
-	appCfg.Logger().Info("EDI 997 log",
+	appCtx.Logger().Info("EDI 997 log",
 		zap.Int64("997 ICN", edi.InterchangeControlEnvelope.ISA.InterchangeControlNumber),
 		zap.Int64("858 GCN/ICN", ak1.GroupControlNumber),
 		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),

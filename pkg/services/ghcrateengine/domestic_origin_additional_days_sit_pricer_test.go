@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -31,8 +30,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticOriginAdditionalDaysSITServiceItem()
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, displayParams, err := pricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(doasitTestPriceCents, priceCents)
 
@@ -48,16 +46,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		priceCents, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.NoError(err)
 		suite.Equal(doasitTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 		// this is the first param checked for, otherwise error doesn't matter
 		suite.Equal("could not find param with key ContractCode", err.Error())
@@ -66,16 +62,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	suite.Run("invalid weight", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
 		badWeight := unit.Pound(250)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, badWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, doasitTestRequestedPickupDate, badWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "weight of 250 less than the minimum")
 	})
 
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, "BOGUS", doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		_, _, err := pricer.Price(suite.TestAppContext(), "BOGUS", doasitTestRequestedPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic origin additional days SIT rate")
 	})
@@ -83,8 +77,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOASIT, doasitTestServiceArea, doasitTestIsPeakPeriod, doasitTestBasePriceCents, doasitTestContractYearName, doasitTestEscalationCompounded)
 		twoYearsLaterPickupDate := doasitTestRequestedPickupDate.AddDate(2, 0, 0)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
+		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doasitTestWeight, doasitTestServiceArea, doasitTestNumberOfDaysInSIT)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch contract year")
 	})
@@ -207,8 +200,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 				data.psiParams,
 			)
 
-			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-			_, _, err := pricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+			_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 			suite.Error(err)
 			suite.Contains(err.Error(), data.expectedError)
 		})

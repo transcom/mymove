@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 
@@ -49,8 +48,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 			},
 		)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
@@ -63,8 +61,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 		paymentServiceItem := suite.setupDomesticUnpackServiceItems()
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		cost, displayParams, err := pricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+		cost, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		expectedCost := unit.Cents(5470)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -83,26 +80,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 		paymentServiceItem := suite.setupDomesticUnpackServiceItems()
 
 		// No contract code
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 
 		// No requested pickup date
 		missingRequestedPickupDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameRequestedPickupDate)
-		_, _, err = pricer.PriceUsingParams(appCfg, missingRequestedPickupDate)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingRequestedPickupDate)
 		suite.Error(err)
 		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
 
 		// No weight
 		missingBilledActualWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilledActual)
-		_, _, err = pricer.PriceUsingParams(appCfg, missingBilledActualWeight)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledActualWeight)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilledActual", err.Error())
 
 		// No service schedule destination
 		missingServicesScheduleDest := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServicesScheduleDest)
-		_, _, err = pricer.PriceUsingParams(appCfg, missingServicesScheduleDest)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingServicesScheduleDest)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServicesScheduleDest", err.Error())
 	})
@@ -114,9 +110,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 	suite.Run("success domestic unpack cost within peak period", func() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		cost, _, err := pricer.Price(
-			appCfg,
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unpackWeightBilledActual,
@@ -131,9 +126,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
 		nonPeakDate := peakStart.addDate(0, -1)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		cost, _, err := pricer.Price(
-			appCfg,
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
 			unpackWeightBilledActual,
@@ -147,9 +141,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 	suite.Run("failure if contract code bogus", func() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		_, _, err := pricer.Price(
-			appCfg,
+			suite.TestAppContext(),
 			"bogus_code",
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unpackWeightBilledActual,
@@ -163,9 +156,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 	suite.Run("failure if move date is outside of contract year", func() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		_, _, err := pricer.Price(
-			appCfg,
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear+1, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unpackWeightBilledActual,
@@ -179,9 +171,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 	suite.Run("weight below minimum", func() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		cost, _, err := pricer.Price(
-			appCfg,
+			suite.TestAppContext(),
 			testdatagen.DefaultContractCode,
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			unit.Pound(499),
@@ -198,23 +189,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, "", requestedPickupDate, unpackWeightBilledActual, servicesScheduleDest)
+		_, _, err := pricer.Price(suite.TestAppContext(), "", requestedPickupDate, unpackWeightBilledActual, servicesScheduleDest)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No requested pickup date
-		_, _, err = pricer.Price(appCfg, testdatagen.DefaultContractCode, time.Time{}, unpackWeightBilledActual, servicesScheduleDest)
+		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, time.Time{}, unpackWeightBilledActual, servicesScheduleDest)
 		suite.Error(err)
 		suite.Equal("RequestedPickupDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(appCfg, testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleDest)
+		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, 0, servicesScheduleDest)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service schedule
-		_, _, err = pricer.Price(appCfg, testdatagen.DefaultContractCode, requestedPickupDate, unpackWeightBilledActual, 0)
+		_, _, err = pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, requestedPickupDate, unpackWeightBilledActual, 0)
 		suite.Error(err)
 		suite.Equal("Service schedule is required", err.Error())
 	})

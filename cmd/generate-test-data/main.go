@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -168,7 +168,7 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCfg := appconfig.NewAppConfig(dbConnection, logger)
+	appCtx := appcontext.NewAppContext(dbConnection, logger)
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
 	namedSubScenario := v.GetString(namedSubScenarioFlag)
@@ -228,7 +228,7 @@ func main() {
 		}
 
 		if namedScenario == tdgs.E2eBasicScenario.Name {
-			tdgs.E2eBasicScenario.Run(appCfg, userUploader, primeUploader)
+			tdgs.E2eBasicScenario.Run(appCtx, userUploader, primeUploader)
 		} else if namedScenario == tdgs.DevSeedScenario.Name {
 			// Something is different about our cert config in CI so only running this
 			// for the devseed scenario not e2e_basic for Cypress
@@ -238,7 +238,7 @@ func main() {
 			}
 
 			// Initialize setup
-			tdgs.DevSeedScenario.Setup(appCfg, userUploader, primeUploader)
+			tdgs.DevSeedScenario.Setup(appCtx, userUploader, primeUploader)
 
 			// Sub-scenarios are generated at run time
 			// Check config

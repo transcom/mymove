@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -24,7 +24,7 @@ type ShowPPMIncentiveHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
@@ -41,7 +41,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 
 	engine := rateengine.NewRateEngine(h.DB(), logger, move)
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(appCfg, ordersID)
+	destinationZip, err := GetDestinationDutyStationPostalCode(appCtx, ordersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

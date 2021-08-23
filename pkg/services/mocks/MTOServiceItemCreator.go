@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +16,13 @@ type MTOServiceItemCreator struct {
 	mock.Mock
 }
 
-// CreateMTOServiceItem provides a mock function with given fields: appCfg, serviceItem
-func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCfg appconfig.AppConfig, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
-	ret := _m.Called(appCfg, serviceItem)
+// CreateMTOServiceItem provides a mock function with given fields: appCtx, serviceItem
+func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
+	ret := _m.Called(appCtx, serviceItem)
 
 	var r0 *models.MTOServiceItems
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOServiceItem) *models.MTOServiceItems); ok {
-		r0 = rf(appCfg, serviceItem)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) *models.MTOServiceItems); ok {
+		r0 = rf(appCtx, serviceItem)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItems)
@@ -30,8 +30,8 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCfg appconfig.AppConfig
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOServiceItem) *validate.Errors); ok {
-		r1 = rf(appCfg, serviceItem)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem) *validate.Errors); ok {
+		r1 = rf(appCtx, serviceItem)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +39,8 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCfg appconfig.AppConfig
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, *models.MTOServiceItem) error); ok {
-		r2 = rf(appCfg, serviceItem)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.MTOServiceItem) error); ok {
+		r2 = rf(appCtx, serviceItem)
 	} else {
 		r2 = ret.Error(2)
 	}

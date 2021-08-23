@@ -17,6 +17,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -43,6 +44,11 @@ func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.Notificati
 // TestLogger returns the logger to use in the suite
 func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
 	return suite.logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *BaseHandlerTestSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests

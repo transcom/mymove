@@ -8,7 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -38,8 +38,8 @@ func validateAndSave(db *pop.Connection, move *models.Move) (*validate.Errors, e
 	return db.ValidateAndSave(move)
 }
 
-func (w moveWeights) CheckExcessWeight(appCfg appconfig.AppConfig, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
-	db := appCfg.DB()
+func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
+	db := appCtx.DB()
 	var move models.Move
 	err := db.EagerPreload("MTOShipments", "Orders.Entitlement").Find(&move, moveID)
 	if err != nil {

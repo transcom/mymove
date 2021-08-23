@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +16,13 @@ type MoveTaskOrderFetcher struct {
 	mock.Mock
 }
 
-// FetchMoveTaskOrder provides a mock function with given fields: appCfg, searchParams
-func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCfg appconfig.AppConfig, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
-	ret := _m.Called(appCfg, searchParams)
+// FetchMoveTaskOrder provides a mock function with given fields: appCtx, searchParams
+func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
+	ret := _m.Called(appCtx, searchParams)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *services.MoveTaskOrderFetcherParams) *models.Move); ok {
-		r0 = rf(appCfg, searchParams)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) *models.Move); ok {
+		r0 = rf(appCtx, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -30,8 +30,8 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCfg appconfig.AppConfig, s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *services.MoveTaskOrderFetcherParams) error); ok {
-		r1 = rf(appCfg, searchParams)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
+		r1 = rf(appCtx, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -39,13 +39,13 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCfg appconfig.AppConfig, s
 	return r0, r1
 }
 
-// ListAllMoveTaskOrders provides a mock function with given fields: appCfg, searchParams
-func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCfg appconfig.AppConfig, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
-	ret := _m.Called(appCfg, searchParams)
+// ListAllMoveTaskOrders provides a mock function with given fields: appCtx, searchParams
+func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	ret := _m.Called(appCtx, searchParams)
 
 	var r0 models.Moves
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
-		r0 = rf(appCfg, searchParams)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
+		r0 = rf(appCtx, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
@@ -53,8 +53,8 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCfg appconfig.AppConfig
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *services.MoveTaskOrderFetcherParams) error); ok {
-		r1 = rf(appCfg, searchParams)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
+		r1 = rf(appCtx, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -62,13 +62,13 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCfg appconfig.AppConfig
 	return r0, r1
 }
 
-// ListPrimeMoveTaskOrders provides a mock function with given fields: appCfg, searchParams
-func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCfg appconfig.AppConfig, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
-	ret := _m.Called(appCfg, searchParams)
+// ListPrimeMoveTaskOrders provides a mock function with given fields: appCtx, searchParams
+func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	ret := _m.Called(appCtx, searchParams)
 
 	var r0 models.Moves
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
-		r0 = rf(appCfg, searchParams)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
+		r0 = rf(appCtx, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Moves)
@@ -76,8 +76,8 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCfg appconfig.AppConf
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *services.MoveTaskOrderFetcherParams) error); ok {
-		r1 = rf(appCfg, searchParams)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
+		r1 = rf(appCtx, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}

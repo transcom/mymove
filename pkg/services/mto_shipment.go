@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -11,81 +11,81 @@ import (
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment
 //go:generate mockery --name MTOShipmentUpdater --disable-version-string
 type MTOShipmentUpdater interface {
-	CheckIfMTOShipmentCanBeUpdated(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error)
-	MTOShipmentsMTOAvailableToPrime(appCfg appconfig.AppConfig, mtoShipmentID uuid.UUID) (bool, error)
-	RetrieveMTOShipment(appCfg appconfig.AppConfig, mtoShipmentID uuid.UUID) (*models.MTOShipment, error)
-	UpdateMTOShipmentOffice(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
-	UpdateMTOShipmentCustomer(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
-	UpdateMTOShipmentPrime(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error)
+	MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error)
+	RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error)
+	UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentDeleter is the service object interface for deleting a shipment
 //go:generate mockery --name ShipmentDeleter --disable-version-string
 type ShipmentDeleter interface {
-	DeleteShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (uuid.UUID, error)
+	DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error)
 }
 
 //ShipmentApprover is the service object interface for approving a shipment
 //go:generate mockery --name ShipmentApprover --disable-version-string
 type ShipmentApprover interface {
-	ApproveShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentDiversionRequester is the service object interface for approving a shipment diversion
 //go:generate mockery --name ShipmentDiversionRequester --disable-version-string
 type ShipmentDiversionRequester interface {
-	RequestShipmentDiversion(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentDiversionApprover is the service object interface for approving a shipment diversion
 //go:generate mockery --name ShipmentDiversionApprover --disable-version-string
 type ShipmentDiversionApprover interface {
-	ApproveShipmentDiversion(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	ApproveShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentRejecter is the service object interface for approving a shipment
 //go:generate mockery --name ShipmentRejecter --disable-version-string
 type ShipmentRejecter interface {
-	RejectShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error)
+	RejectShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error)
 }
 
 //ShipmentCancellationRequester is the service object interface for approving a shipment diversion
 //go:generate mockery --name ShipmentCancellationRequester --disable-version-string
 type ShipmentCancellationRequester interface {
-	RequestShipmentCancellation(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	RequestShipmentCancellation(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
 }
 
 //ShipmentReweighRequester is the service object interface for approving a shipment diversion
 //go:generate mockery --name ShipmentReweighRequester --disable-version-string
 type ShipmentReweighRequester interface {
-	RequestShipmentReweigh(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.Reweigh, error)
+	RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.Reweigh, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery --name MTOShipmentStatusUpdater --disable-version-string
 type MTOShipmentStatusUpdater interface {
-	UpdateMTOShipmentStatus(appCfg appconfig.AppConfig, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error)
 }
 
 // MTOShipmentCreator is the exported interface for creating a payment request
 //go:generate mockery --name MTOShipmentCreator --disable-version-string
 type MTOShipmentCreator interface {
-	CreateMTOShipment(appCfg appconfig.AppConfig, MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
+	CreateMTOShipment(appCtx appcontext.AppContext, MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
 }
 
 // MTOShipmentAddressUpdater is the exported interface for updating an address on an MTO Shipment
 type MTOShipmentAddressUpdater interface {
-	UpdateMTOShipmentAddress(appCfg appconfig.AppConfig, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error)
+	UpdateMTOShipmentAddress(appCtx appcontext.AppContext, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error)
 }
 
 // ShipmentRouter is used for setting the status on shipments at different stages
 //go:generate mockery --name ShipmentRouter --disable-version-string
 type ShipmentRouter interface {
-	Submit(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error
-	Approve(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error
-	RequestCancellation(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error
-	Cancel(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error
-	Reject(appCfg appconfig.AppConfig, shipment *models.MTOShipment, rejectionReason *string) error
-	RequestDiversion(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error
-	ApproveDiversion(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error
+	Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	RequestCancellation(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	Cancel(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, rejectionReason *string) error
+	RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
+	ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error
 }

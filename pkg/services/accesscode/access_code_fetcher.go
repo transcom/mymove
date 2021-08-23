@@ -3,7 +3,7 @@ package accesscode
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -18,9 +18,9 @@ func NewAccessCodeFetcher() services.AccessCodeFetcher {
 }
 
 // FetchAccessCode fetches an access code based upon the service member id.
-func (f accessCodeFetcher) FetchAccessCode(appCfg appconfig.AppConfig, serviceMemberID uuid.UUID) (*models.AccessCode, error) {
+func (f accessCodeFetcher) FetchAccessCode(appCtx appcontext.AppContext, serviceMemberID uuid.UUID) (*models.AccessCode, error) {
 	ac := models.AccessCode{}
-	err := appCfg.DB().
+	err := appCtx.DB().
 		Where("service_member_id = ?", serviceMemberID).
 		First(&ac)
 

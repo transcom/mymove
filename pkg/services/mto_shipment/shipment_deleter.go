@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -20,27 +20,27 @@ func NewShipmentDeleter() services.ShipmentDeleter {
 }
 
 // DeleteShipment soft deletes the shipment
-func (f *shipmentDeleter) DeleteShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (uuid.UUID, error) {
-	shipment, err := f.findShipment(appCfg, shipmentID)
+func (f *shipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error) {
+	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	err = f.verifyShipmentCanBeDeleted(appCfg, shipment)
+	err = f.verifyShipmentCanBeDeleted(appCtx, shipment)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
 	now := time.Now()
 	shipment.DeletedAt = &now
-	err = appCfg.DB().Save(shipment)
+	err = appCtx.DB().Save(shipment)
 
 	return shipment.MoveTaskOrderID, err
 }
 
-func (f *shipmentDeleter) findShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentDeleter) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCfg.DB().Q().Eager("MoveTaskOrder").Where("mto_shipments.deleted_at IS NULL").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Eager("MoveTaskOrder").Where("mto_shipments.deleted_at IS NULL").Find(&shipment, shipmentID)
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
@@ -51,7 +51,7 @@ func (f *shipmentDeleter) findShipment(appCfg appconfig.AppConfig, shipmentID uu
 	return &shipment, nil
 }
 
-func (f *shipmentDeleter) verifyShipmentCanBeDeleted(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
+func (f *shipmentDeleter) verifyShipmentCanBeDeleted(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	move := shipment.MoveTaskOrder
 	if move.Status != models.MoveStatusDRAFT && move.Status != models.MoveStatusNeedsServiceCounseling {
 		return services.NewForbiddenError("A shipment can only be deleted if the move is in Draft or NeedsServiceCounseling")

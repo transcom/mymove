@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -15,8 +15,8 @@ type EIAFuelPriceLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r EIAFuelPriceLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
-	db := appCfg.DB()
+func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	db := appCtx.DB()
 
 	// Make sure there is an actual pickup date since ActualPickupDate is nullable
 	actualPickupDate := r.MTOShipment.ActualPickupDate

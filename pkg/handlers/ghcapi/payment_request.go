@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/transcom/mymove/pkg/services/event"
@@ -35,7 +35,7 @@ type GetPaymentRequestForMoveHandler struct {
 // Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
 func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
 		return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
@@ -43,7 +43,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPayme
 
 	locator := params.Locator
 
-	paymentRequests, err := h.FetchPaymentRequestListByMove(appCfg, session.OfficeUserID, locator)
+	paymentRequests, err := h.FetchPaymentRequestListByMove(appCtx, session.OfficeUserID, locator)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
@@ -68,7 +68,7 @@ type GetPaymentRequestHandler struct {
 // Handle gets payment requests
 func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
@@ -82,7 +82,7 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
-	paymentRequest, err := h.FetchPaymentRequest(appCfg, paymentRequestID)
+	paymentRequest, err := h.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
@@ -114,7 +114,7 @@ type UpdatePaymentRequestStatusHandler struct {
 // Handle updates payment requests status
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
 		logger.Error("user is not authenticated with TIO office role")
@@ -129,7 +129,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
-	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCfg, paymentRequestID)
+	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(appCtx, paymentRequestID)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
@@ -161,7 +161,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCfg, &existingPaymentRequest, params.IfMatch)
+	updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(appCtx, &existingPaymentRequest, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {

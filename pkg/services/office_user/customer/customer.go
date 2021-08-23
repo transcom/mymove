@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -18,9 +18,9 @@ func NewCustomerFetcher() services.CustomerFetcher {
 }
 
 //FetchCustomer retrieves a Customer for a given UUID
-func (f fetchCustomer) FetchCustomer(appCfg appconfig.AppConfig, customerID uuid.UUID) (*models.ServiceMember, error) {
+func (f fetchCustomer) FetchCustomer(appCtx appcontext.AppContext, customerID uuid.UUID) (*models.ServiceMember, error) {
 	customer := &models.ServiceMember{}
-	if err := appCfg.DB().Eager().Find(customer, customerID); err != nil {
+	if err := appCtx.DB().Eager().Find(customer, customerID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return &models.ServiceMember{}, services.NewNotFoundError(customerID, "")

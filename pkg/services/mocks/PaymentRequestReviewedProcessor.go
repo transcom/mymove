@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -14,13 +14,13 @@ type PaymentRequestReviewedProcessor struct {
 	mock.Mock
 }
 
-// ProcessAndLockReviewedPR provides a mock function with given fields: appCfg, pr
-func (_m *PaymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCfg appconfig.AppConfig, pr models.PaymentRequest) error {
-	ret := _m.Called(appCfg, pr)
+// ProcessAndLockReviewedPR provides a mock function with given fields: appCtx, pr
+func (_m *PaymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
+	ret := _m.Called(appCtx, pr)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, models.PaymentRequest) error); ok {
-		r0 = rf(appCfg, pr)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentRequest) error); ok {
+		r0 = rf(appCtx, pr)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -28,7 +28,7 @@ func (_m *PaymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCfg appco
 	return r0
 }
 
-// ProcessReviewedPaymentRequest provides a mock function with given fields: appCfg
-func (_m *PaymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCfg appconfig.AppConfig) {
-	_m.Called(appCfg)
+// ProcessReviewedPaymentRequest provides a mock function with given fields: appCtx
+func (_m *PaymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx appcontext.AppContext) {
+	_m.Called(appCtx)
 }

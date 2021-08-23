@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

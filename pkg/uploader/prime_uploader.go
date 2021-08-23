@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -37,20 +37,20 @@ func NewPrimeUploader(storer storage.FileStorer, fileSizeLimit ByteSize) (*Prime
 }
 
 // PrepareFileForUpload called Uploader.PrepareFileForUpload
-func (u *PrimeUploader) PrepareFileForUpload(appCfg appconfig.AppConfig, file io.ReadCloser, filename string) (afero.File, error) {
+func (u *PrimeUploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
-	return u.uploader.PrepareFileForUpload(appCfg, file, filename)
+	return u.uploader.PrepareFileForUpload(appCtx, file, filename)
 }
 
-func (u *PrimeUploader) createAndStore(appCfg appconfig.AppConfig, posID *uuid.UUID, contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
+func (u *PrimeUploader) createAndStore(appCtx appcontext.AppContext, posID *uuid.UUID, contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
 	// If storage key is not set assign a default
 	if u.GetUploadStorageKey() == "" {
 		u.uploader.DefaultStorageKey = path.Join("prime", contractorID.String())
 	}
 
-	newUpload, verrs, err := u.uploader.CreateUpload(appCfg, File{File: file}, allowedTypes)
+	newUpload, verrs, err := u.uploader.CreateUpload(appCtx, File{File: file}, allowedTypes)
 	if verrs.HasAny() || err != nil {
-		appCfg.Logger().Error("error creating and storing new upload for prime", zap.Error(err))
+		appCtx.Logger().Error("error creating and storing new upload for prime", zap.Error(err))
 		return nil, verrs, err
 	}
 
@@ -64,9 +64,9 @@ func (u *PrimeUploader) createAndStore(appCfg appconfig.AppConfig, posID *uuid.U
 		Upload:              *newUpload,
 	}
 
-	verrs, err = appCfg.DB().ValidateAndCreate(newUploadForUser)
+	verrs, err = appCtx.DB().ValidateAndCreate(newUploadForUser)
 	if err != nil || verrs.HasAny() {
-		appCfg.Logger().Error("error creating new prime upload", zap.Error(err))
+		appCtx.Logger().Error("error creating new prime upload", zap.Error(err))
 		return nil, verrs, err
 	}
 
@@ -76,7 +76,7 @@ func (u *PrimeUploader) createAndStore(appCfg appconfig.AppConfig, posID *uuid.U
 // CreatePrimeUploadForDocument creates a new PrimeUpload by performing validations, storing the specified
 // file using the supplied storer, and saving an PrimeUpload object to the database containing
 // the file's metadata.
-func (u *PrimeUploader) CreatePrimeUploadForDocument(appCfg appconfig.AppConfig, posID *uuid.UUID, contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
+func (u *PrimeUploader) CreatePrimeUploadForDocument(appCtx appcontext.AppContext, posID *uuid.UUID, contractorID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.PrimeUpload, *validate.Errors, error) {
 
 	if u.uploader == nil {
 		return nil, &validate.Errors{}, errors.New("Did not call NewPrimeUploader before calling this function")
@@ -87,18 +87,18 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(appCfg appconfig.AppConfig,
 	var uploadError error
 
 	// If we are already in a transaction, don't start one
-	if appCfg.DB().TX != nil {
-		primeUpload, verrs, uploadError = u.createAndStore(appCfg, posID, contractorID, file, allowedTypes)
+	if appCtx.DB().TX != nil {
+		primeUpload, verrs, uploadError = u.createAndStore(appCtx, posID, contractorID, file, allowedTypes)
 		if verrs.HasAny() || uploadError != nil {
-			appCfg.Logger().Error("error creating new prime upload (existing TX)", zap.Error(uploadError))
+			appCtx.Logger().Error("error creating new prime upload (existing TX)", zap.Error(uploadError))
 		} else {
-			appCfg.Logger().Info("created a prime upload with id and key (existing TX)", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
+			appCtx.Logger().Info("created a prime upload with id and key (existing TX)", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
 		}
 
 		return primeUpload, verrs, uploadError
 	}
 
-	txError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	txError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		primeUpload, verrs, uploadError = u.createAndStore(txnAppCfg, posID, contractorID, file, allowedTypes)
 		if verrs.HasAny() || uploadError != nil {
@@ -118,15 +118,15 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(appCfg appconfig.AppConfig,
 
 // DeletePrimeUpload removes an PrimeUpload from the database and deletes its file from the
 // storer.
-func (u *PrimeUploader) DeletePrimeUpload(appCfg appconfig.AppConfig, primeUpload *models.PrimeUpload) error {
-	if appCfg.DB().TX != nil {
-		if err := u.uploader.DeleteUpload(appCfg, &primeUpload.Upload); err != nil {
+func (u *PrimeUploader) DeletePrimeUpload(appCtx appcontext.AppContext, primeUpload *models.PrimeUpload) error {
+	if appCtx.DB().TX != nil {
+		if err := u.uploader.DeleteUpload(appCtx, &primeUpload.Upload); err != nil {
 			return err
 		}
-		return models.DeletePrimeUpload(appCfg.DB(), primeUpload)
+		return models.DeletePrimeUpload(appCtx.DB(), primeUpload)
 
 	}
-	return appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	return appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		if err := u.uploader.DeleteUpload(txnAppCfg, &primeUpload.Upload); err != nil {
 			return err
 		}
@@ -135,14 +135,14 @@ func (u *PrimeUploader) DeletePrimeUpload(appCfg appconfig.AppConfig, primeUploa
 }
 
 // PresignedURL returns a URL that can be used to access an PrimeUpload's file.
-func (u *PrimeUploader) PresignedURL(appCfg appconfig.AppConfig, primeUpload *models.PrimeUpload) (string, error) {
+func (u *PrimeUploader) PresignedURL(appCtx appcontext.AppContext, primeUpload *models.PrimeUpload) (string, error) {
 	if primeUpload == nil {
-		appCfg.Logger().Error("failed to get PrimeUploader presigned url")
+		appCtx.Logger().Error("failed to get PrimeUploader presigned url")
 		return "", errors.New("failed to get PrimeUploader presigned url")
 	}
-	url, err := u.uploader.PresignedURL(appCfg, &primeUpload.Upload)
+	url, err := u.uploader.PresignedURL(appCtx, &primeUpload.Upload)
 	if err != nil {
-		appCfg.Logger().Error("failed to get PrimeUploader presigned url", zap.Error(err))
+		appCtx.Logger().Error("failed to get PrimeUploader presigned url", zap.Error(err))
 		return "", err
 	}
 	return url, nil
@@ -177,6 +177,6 @@ func (u *PrimeUploader) GetUploadStorageKey() string {
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (u *PrimeUploader) Download(appCfg appconfig.AppConfig, primeUpload *models.PrimeUpload) (io.ReadCloser, error) {
-	return u.uploader.Download(appCfg, &primeUpload.Upload)
+func (u *PrimeUploader) Download(appCtx appcontext.AppContext, primeUpload *models.PrimeUpload) (io.ReadCloser, error) {
+	return u.uploader.Download(appCtx, &primeUpload.Upload)
 }

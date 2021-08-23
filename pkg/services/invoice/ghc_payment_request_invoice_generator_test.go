@@ -11,7 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -32,6 +32,11 @@ type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger       *zap.Logger
 	icnSequencer sequence.Sequencer
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *GHCInvoiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *GHCInvoiceSuite) SetupTest() {
@@ -280,8 +285,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.NoError(icnErr)
 
 	// Proceed with full EDI Generation tests
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	result, err := generator.Generate(appCfg, paymentRequest, false)
+	result, err := generator.Generate(suite.TestAppContext(), paymentRequest, false)
 	suite.NoError(err)
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
@@ -737,8 +741,7 @@ func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
 		assertions,
 	)
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	_, err := generator.Generate(appCfg, paymentRequest, false)
+	_, err := generator.Generate(suite.TestAppContext(), paymentRequest, false)
 	suite.NoError(err)
 }
 
@@ -798,7 +801,6 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	// This won't work because we don't have PaymentServiceItems on the PaymentRequest right now.
 	// nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	panicFunc := func() {
 		//RA Summary: gosec - errcheck - Unchecked return value
 		//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
@@ -809,7 +811,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: N/A
 		// nolint:errcheck
-		generator.Generate(appCfg, nilPaymentRequest, false)
+		generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
 	}
 
 	suite.T().Run("nil TAC does not cause panic", func(t *testing.T) {
@@ -823,8 +825,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		blank := ""
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := generator.Generate(appCfg, nilPaymentRequest, false)
+		_, err := generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
@@ -834,8 +835,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 	suite.T().Run("nil TAC returns error", func(t *testing.T) {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := generator.Generate(appCfg, nilPaymentRequest, false)
+		_, err := generator.Generate(suite.TestAppContext(), nilPaymentRequest, false)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
@@ -929,8 +929,7 @@ func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
 		assertions,
 	)
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	result, err := generator.Generate(appCfg, paymentRequest, false)
+	result, err := generator.Generate(suite.TestAppContext(), paymentRequest, false)
 	suite.Error(err)
 
 	suite.T().Run("Service items that are not approved should be not added to invoice", func(t *testing.T) {

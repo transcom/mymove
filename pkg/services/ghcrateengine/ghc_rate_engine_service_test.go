@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,6 +17,11 @@ import (
 type GHCRateEngineServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *GHCRateEngineServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {

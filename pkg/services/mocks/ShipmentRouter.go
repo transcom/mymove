@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -14,13 +14,13 @@ type ShipmentRouter struct {
 	mock.Mock
 }
 
-// Approve provides a mock function with given fields: appCfg, shipment
-func (_m *ShipmentRouter) Approve(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCfg, shipment)
+// Approve provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment) error); ok {
-		r0 = rf(appCfg, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -28,13 +28,13 @@ func (_m *ShipmentRouter) Approve(appCfg appconfig.AppConfig, shipment *models.M
 	return r0
 }
 
-// ApproveDiversion provides a mock function with given fields: appCfg, shipment
-func (_m *ShipmentRouter) ApproveDiversion(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCfg, shipment)
+// ApproveDiversion provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment) error); ok {
-		r0 = rf(appCfg, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -42,13 +42,13 @@ func (_m *ShipmentRouter) ApproveDiversion(appCfg appconfig.AppConfig, shipment 
 	return r0
 }
 
-// Cancel provides a mock function with given fields: appCfg, shipment
-func (_m *ShipmentRouter) Cancel(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCfg, shipment)
+// Cancel provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) Cancel(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment) error); ok {
-		r0 = rf(appCfg, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -56,13 +56,13 @@ func (_m *ShipmentRouter) Cancel(appCfg appconfig.AppConfig, shipment *models.MT
 	return r0
 }
 
-// Reject provides a mock function with given fields: appCfg, shipment, rejectionReason
-func (_m *ShipmentRouter) Reject(appCfg appconfig.AppConfig, shipment *models.MTOShipment, rejectionReason *string) error {
-	ret := _m.Called(appCfg, shipment, rejectionReason)
+// Reject provides a mock function with given fields: appCtx, shipment, rejectionReason
+func (_m *ShipmentRouter) Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, rejectionReason *string) error {
+	ret := _m.Called(appCtx, shipment, rejectionReason)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment, *string) error); ok {
-		r0 = rf(appCfg, shipment, rejectionReason)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *string) error); ok {
+		r0 = rf(appCtx, shipment, rejectionReason)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -70,13 +70,13 @@ func (_m *ShipmentRouter) Reject(appCfg appconfig.AppConfig, shipment *models.MT
 	return r0
 }
 
-// RequestCancellation provides a mock function with given fields: appCfg, shipment
-func (_m *ShipmentRouter) RequestCancellation(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCfg, shipment)
+// RequestCancellation provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) RequestCancellation(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment) error); ok {
-		r0 = rf(appCfg, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -84,13 +84,13 @@ func (_m *ShipmentRouter) RequestCancellation(appCfg appconfig.AppConfig, shipme
 	return r0
 }
 
-// RequestDiversion provides a mock function with given fields: appCfg, shipment
-func (_m *ShipmentRouter) RequestDiversion(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCfg, shipment)
+// RequestDiversion provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment) error); ok {
-		r0 = rf(appCfg, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -98,13 +98,13 @@ func (_m *ShipmentRouter) RequestDiversion(appCfg appconfig.AppConfig, shipment 
 	return r0
 }
 
-// Submit provides a mock function with given fields: appCfg, shipment
-func (_m *ShipmentRouter) Submit(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
-	ret := _m.Called(appCfg, shipment)
+// Submit provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentRouter) Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	ret := _m.Called(appCtx, shipment)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment) error); ok {
-		r0 = rf(appCfg, shipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
+		r0 = rf(appCtx, shipment)
 	} else {
 		r0 = ret.Error(0)
 	}

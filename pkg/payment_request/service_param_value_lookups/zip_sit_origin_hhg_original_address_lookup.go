@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -14,11 +14,11 @@ type ZipSITOriginHHGOriginalAddressLookup struct {
 	ServiceItem models.MTOServiceItem
 }
 
-func (z ZipSITOriginHHGOriginalAddressLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
+func (z ZipSITOriginHHGOriginalAddressLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 
 	// load updated origin SIT addresses from service item
 	if z.ServiceItem.SITOriginHHGOriginalAddressID != nil && *z.ServiceItem.SITOriginHHGOriginalAddressID != uuid.Nil {
-		err := appCfg.DB().Load(&z.ServiceItem, "SITOriginHHGOriginalAddress")
+		err := appCtx.DB().Load(&z.ServiceItem, "SITOriginHHGOriginalAddress")
 		if err != nil {
 			return "", err
 		}

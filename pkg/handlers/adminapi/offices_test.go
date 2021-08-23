@@ -64,14 +64,14 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		}
 		officeListFetcher := &mocks.OfficeListFetcher{}
 		officeListFetcher.On("FetchOfficeList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(models.TransportationOffices{office}, nil).Once()
 		officeListFetcher.On("FetchOfficeCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
 		handler := IndexOfficesHandler{
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		expectedError := models.ErrFetchNotFound
 		officeListFetcher := &mocks.OfficeListFetcher{}
 		officeListFetcher.On("FetchOfficeList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		officeListFetcher.On("FetchOfficeCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 		).Return(0, expectedError).Once()
 		handler := IndexOfficesHandler{
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

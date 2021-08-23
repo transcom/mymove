@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		}
 		listFetcher := &mocks.ListFetcher{}
 		listFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		}
 		listFetcher := &mocks.ListFetcher{}
 		listFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 		}
 		listFetcher := &mocks.ListFetcher{}
 		listFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

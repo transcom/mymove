@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,20 +16,20 @@ type OfficeUserFetcherPop struct {
 	mock.Mock
 }
 
-// FetchOfficeUserByID provides a mock function with given fields: appCfg, id
-func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCfg appconfig.AppConfig, id uuid.UUID) (models.OfficeUser, error) {
-	ret := _m.Called(appCfg, id)
+// FetchOfficeUserByID provides a mock function with given fields: appCtx, id
+func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
+	ret := _m.Called(appCtx, id)
 
 	var r0 models.OfficeUser
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) models.OfficeUser); ok {
-		r0 = rf(appCfg, id)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) models.OfficeUser); ok {
+		r0 = rf(appCtx, id)
 	} else {
 		r0 = ret.Get(0).(models.OfficeUser)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, id)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

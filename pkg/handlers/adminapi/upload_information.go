@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -48,10 +48,10 @@ type GetUploadHandler struct {
 // Handle retrieves a specific upload
 func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	uploadID := uuid.FromStringOrNil(params.UploadID.String())
-	uploadInformation, err := h.FetchUploadInformation(appCfg, uploadID)
+	uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:

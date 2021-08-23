@@ -10,7 +10,6 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
 	"github.com/spf13/afero"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -85,7 +84,6 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			// Create upload for expense document model
 			userUploader, err := uploader.NewUserUploader(context.FileStorer(), uploader.MaxOfficeUploadFileSizeLimit)
 			suite.NoError(err)
-			appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
 			//RA Summary: gosec - errcheck - Unchecked return value
 			//RA: Linter flags errcheck error: Ignoring a method's return value can cause the program to overlook unexpected states and conditions.
 			//RA: Functions with unchecked return values in the file are used fetch data and assign data to a variable that is checked later on
@@ -95,7 +93,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			//RA Validator Status: Mitigated
 			//RA Modified Severity: N/A
 			// nolint:errcheck
-			userUploader.CreateUserUploadForDocument(appCfg, &expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember)
+			userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember)
 
 			request := httptest.NewRequest("POST", "/fake/path", nil)
 			request = suite.AuthenticateOfficeRequest(request, officeUser)

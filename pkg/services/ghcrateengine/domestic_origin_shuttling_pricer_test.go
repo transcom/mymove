@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -29,8 +28,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 
 		paymentServiceItem := suite.setupDomesticOriginShuttlingServiceItem()
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, displayParams, err := pricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(doshutTestPriceCents, priceCents)
 
@@ -45,32 +43,28 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		priceCents, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.NoError(err)
 		suite.Equal(doshutTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 		badWeight := unit.Pound(250)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of 500")
 	})
 
 	suite.Run("not finding a rate record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.TestAppContext(), "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
 	})
@@ -78,8 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	suite.Run("not finding a contract year record", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
 		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := pricer.Price(appCfg, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doshutTestWeight, doshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Could not lookup contract year")
 	})

@@ -3,7 +3,7 @@ package mtoagent
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -32,25 +32,25 @@ func NewMTOAgentCreator(mtoAvailabilityChecker services.MoveTaskOrderChecker) se
 }
 
 // CreateMTOAgentBasic passes the Prime validator key to CreateMTOAgent
-func (f *mtoAgentCreator) CreateMTOAgentBasic(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.createMTOAgent(appCfg, mtoAgent, f.basicChecks...)
+func (f *mtoAgentCreator) CreateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	return f.createMTOAgent(appCtx, mtoAgent, f.basicChecks...)
 }
 
 // CreateMTOAgentPrime passes the Prime validator key to CreateMTOAgent
-func (f *mtoAgentCreator) CreateMTOAgentPrime(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
-	return f.createMTOAgent(appCfg, mtoAgent, f.primeChecks...)
+func (f *mtoAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
+	return f.createMTOAgent(appCtx, mtoAgent, f.primeChecks...)
 }
 
 // CreateMTOAgent creates an MTO Agent
-func (f *mtoAgentCreator) createMTOAgent(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
+func (f *mtoAgentCreator) createMTOAgent(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
 	// Get existing shipment and agents information for validation
 	mtoShipment := &models.MTOShipment{}
-	err := appCfg.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
+	err := appCtx.DB().Eager("MTOAgents").Find(mtoShipment, mtoAgent.MTOShipmentID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.MTOShipmentID, "while looking for MTOShipment")
 	}
 
-	err = validateMTOAgent(appCfg, *mtoAgent, nil, mtoShipment, checks...)
+	err = validateMTOAgent(appCtx, *mtoAgent, nil, mtoShipment, checks...)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (f *mtoAgentCreator) createMTOAgent(appCfg appconfig.AppConfig, mtoAgent *m
 	// why this is necessary
 	mtoAgent = mergeAgent(*mtoAgent, nil)
 
-	verrs, err := appCfg.DB().ValidateAndCreate(mtoAgent)
+	verrs, err := appCtx.DB().ValidateAndCreate(mtoAgent)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {

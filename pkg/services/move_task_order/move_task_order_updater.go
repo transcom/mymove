@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/validate/v3"
@@ -34,7 +34,7 @@ func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceIte
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
-func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	var err error
 	var verrs *validate.Errors
 
@@ -42,7 +42,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCfg appc
 		IncludeHidden:   false,
 		MoveTaskOrderID: moveTaskOrderID,
 	}
-	move, err := o.FetchMoveTaskOrder(appCfg, &searchParams)
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
 		return &models.Move{}, err
 	}
@@ -68,7 +68,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCfg appc
 		return nil, services.NewPreconditionFailedError(move.ID, err)
 	}
 
-	verrs, err = appCfg.DB().ValidateAndSave(move)
+	verrs, err = appCtx.DB().ValidateAndSave(move)
 	if verrs != nil && verrs.HasAny() {
 		return &models.Move{}, services.NewInvalidInputError(move.ID, nil, verrs, "")
 	}
@@ -88,14 +88,14 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCfg appc
 // creates Move-level service items (counseling and move management) if the
 // TOO selected them. If the move received service counseling, the counseling
 // service item will automatically be created without the TOO having to select it.
-func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, eTag string,
+func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string,
 	includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   false,
 		MoveTaskOrderID: moveTaskOrderID,
 	}
-	move, err := o.FetchMoveTaskOrder(appCfg, &searchParams)
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
 		return &models.Move{}, err
 	}
@@ -109,12 +109,12 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCfg appconfig.AppConfig, 
 		now := time.Now()
 		move.AvailableToPrimeAt = &now
 
-		err = o.moveRouter.Approve(appCfg, move)
+		err = o.moveRouter.Approve(appCtx, move)
 		if err != nil {
 			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 		}
 
-		transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+		transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 			err = o.updateMove(txnAppCfg, *move, order.CheckRequiredFields())
 			if err != nil {
 				return err
@@ -144,12 +144,12 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCfg appconfig.AppConfig, 
 	return move, nil
 }
 
-func (o *moveTaskOrderUpdater) updateMove(appCfg appconfig.AppConfig, move models.Move, checks ...order.Validator) error {
+func (o *moveTaskOrderUpdater) updateMove(appCtx appcontext.AppContext, move models.Move, checks ...order.Validator) error {
 	if verr := order.ValidateOrder(&move.Orders, checks...); verr != nil {
 		return verr
 	}
 
-	verrs, err := appCfg.DB().ValidateAndUpdate(&move)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 
 	if verrs != nil && verrs.HasAny() {
 		return services.NewInvalidInputError(move.ID, nil, verrs, "")
@@ -158,12 +158,12 @@ func (o *moveTaskOrderUpdater) updateMove(appCfg appconfig.AppConfig, move model
 	return err
 }
 
-func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCfg appconfig.AppConfig, move models.Move, code models.ReServiceCode) error {
+func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCtx appcontext.AppContext, move models.Move, code models.ReServiceCode) error {
 	now := time.Now()
 
 	siCreator := o.serviceItemCreator
 
-	_, verrs, err := siCreator.CreateMTOServiceItem(appCfg, &models.MTOServiceItem{
+	_, verrs, err := siCreator.CreateMTOServiceItem(appCtx, &models.MTOServiceItem{
 		MoveTaskOrderID: move.ID,
 		MTOShipmentID:   nil,
 		ReService:       models.ReService{Code: code},
@@ -187,14 +187,14 @@ func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCfg appconfig.AppCo
 
 // UpdateMoveTaskOrderQueryBuilder is the query builder for updating MTO
 type UpdateMoveTaskOrderQueryBuilder interface {
-	UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 // UpdatePostCounselingInfo updates the counseling info
-func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
+func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 
-	err := appCfg.DB().Q().EagerPreload(
+	err := appCtx.DB().Q().EagerPreload(
 		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
@@ -209,7 +209,7 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCfg appconfig.AppConf
 	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)
 	moveTaskOrder.PPMType = &body.PpmType
 	moveTaskOrder.PPMEstimatedWeight = &estimatedWeight
-	verrs, err := o.builder.UpdateOne(appCfg, &moveTaskOrder, &eTag)
+	verrs, err := o.builder.UpdateOne(appCtx, &moveTaskOrder, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(moveTaskOrder.ID, err, verrs, "")
@@ -228,12 +228,12 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(appCfg appconfig.AppConf
 }
 
 // ShowHide changes the value in the "Show" field for a Move. This can be either True or False and indicates if the move has been deactivated or not.
-func (o *moveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveID uuid.UUID, show *bool) (*models.Move, error) {
+func (o *moveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveID uuid.UUID, show *bool) (*models.Move, error) {
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   true, // We need to search every move to change its status
 		MoveTaskOrderID: moveID,
 	}
-	move, err := o.FetchMoveTaskOrder(appCfg, &searchParams)
+	move, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveID, "while fetching the Move")
 	}
@@ -243,7 +243,7 @@ func (o *moveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveID uuid.
 	}
 
 	move.Show = show
-	verrs, err := appCfg.DB().ValidateAndSave(move)
+	verrs, err := appCtx.DB().ValidateAndSave(move)
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(move.ID, err, verrs, "Invalid input found while updating the Move")
 	} else if err != nil {
@@ -251,7 +251,7 @@ func (o *moveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveID uuid.
 	}
 
 	// Get the updated Move and return
-	updatedMove, err := o.FetchMoveTaskOrder(appCfg, &searchParams)
+	updatedMove, err := o.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
 		return nil, services.NewQueryError("Move", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
@@ -259,9 +259,9 @@ func (o *moveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveID uuid.
 	return updatedMove, nil
 }
 
-func (o *moveTaskOrderUpdater) UpdateApprovedAmendedOrders(appCfg appconfig.AppConfig, move models.Move) error {
+func (o *moveTaskOrderUpdater) UpdateApprovedAmendedOrders(appCtx appcontext.AppContext, move models.Move) error {
 	eTag := etag.GenerateEtag(move.UpdatedAt)
-	verrs, err := o.builder.UpdateOne(appCfg, &move, &eTag)
+	verrs, err := o.builder.UpdateOne(appCtx, &move, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return services.NewInvalidInputError(move.ID, err, verrs, "")

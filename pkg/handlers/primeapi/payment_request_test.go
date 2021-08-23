@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.MatchedBy(func(paymentRequest *models.PaymentRequest) bool {
 				// Making sure the service items are ordered by priority regardless of the order in which they come in through the payment request parameters
 				return paymentRequest.PaymentServiceItems[0].MTOServiceItemID == subtestData.serviceItemID1
@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -235,7 +235,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -259,7 +259,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -292,7 +292,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -321,7 +321,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -363,7 +363,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -402,7 +402,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		err := services.NewConflictError(ordersID, "incomplete orders")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{
@@ -440,7 +440,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		err := services.NewBadDataError("sent some bad data, foo!")
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
 
 		handler := CreatePaymentRequestHandler{

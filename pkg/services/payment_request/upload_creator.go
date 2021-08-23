@@ -6,7 +6,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -31,9 +31,9 @@ func NewPaymentRequestUploadCreator(fileStorer storage.FileStorer) services.Paym
 	return &paymentRequestUploadCreator{fileStorer, uploader.MaxFileSizeLimit}
 }
 
-func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCfg appconfig.AppConfig, paymentRequestID uuid.UUID, filename string) (string, error) {
+func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, filename string) (string, error) {
 	var paymentRequest models.PaymentRequest
-	err := appCfg.DB().Where("id=$1", paymentRequestID).First(&paymentRequest)
+	err := appCtx.DB().Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
 		return "", services.NewNotFoundError(paymentRequestID, "")
 	}
@@ -45,9 +45,9 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(appCfg appconfi
 	return uploadFileName, err
 }
 
-func (p *paymentRequestUploadCreator) CreateUpload(appCfg appconfig.AppConfig, file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string) (*models.Upload, error) {
+func (p *paymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string) (*models.Upload, error) {
 	var upload *models.Upload
-	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		newUploader, err := uploader.NewPrimeUploader(p.fileStorer, p.fileSizeLimit)
 		if err != nil {
 			if err == uploader.ErrFileSizeLimitExceedsMax {

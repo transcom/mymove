@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -31,12 +30,11 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := availableToPrimeAt.Format(ghcrateengine.TimestampParamFormat)
 		suite.Equal(expected, valueStr)
@@ -49,7 +47,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 		moveTaskOrder.AvailableToPrimeAt = nil
 		suite.MustSave(&moveTaskOrder)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.IsType(&services.BadDataError{}, errors.Unwrap(err))
 		expected := fmt.Sprintf("Data received from requester is bad: %s: This move task order is not available to prime", services.BadDataCode)
@@ -63,11 +61,10 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	suite.T().Run("bogus MoveTaskOrderID", func(t *testing.T) {
 		// Pass in a non-existent MoveTaskOrderID
 		invalidMoveTaskOrderID := uuid.Must(uuid.NewV4())
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		badParamLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID, nil)
+		badParamLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := badParamLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := badParamLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)

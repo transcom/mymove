@@ -3,7 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -18,12 +18,12 @@ func NewDomesticOriginFirstDaySITPricer() services.DomesticOriginFirstDaySITPric
 }
 
 // Price determines the price for domestic origin first day SIT
-func (p domesticOriginFirstDaySITPricer) Price(appCfg appconfig.AppConfig, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticFirstDaySIT(appCfg, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, weight, serviceArea)
+func (p domesticOriginFirstDaySITPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticFirstDaySIT(appCtx, models.ReServiceCodeDOFSIT, contractCode, requestedPickupDate, weight, serviceArea)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
-func (p domesticOriginFirstDaySITPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginFirstDaySITPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -44,5 +44,5 @@ func (p domesticOriginFirstDaySITPricer) PriceUsingParams(appCfg appconfig.AppCo
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCfg, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
 }

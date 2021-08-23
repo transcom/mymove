@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	services "github.com/transcom/mymove/pkg/services"
 
@@ -16,20 +16,20 @@ type UploadInformationFetcher struct {
 	mock.Mock
 }
 
-// FetchUploadInformation provides a mock function with given fields: appCfg, _a1
-func (_m *UploadInformationFetcher) FetchUploadInformation(appCfg appconfig.AppConfig, _a1 uuid.UUID) (services.UploadInformation, error) {
-	ret := _m.Called(appCfg, _a1)
+// FetchUploadInformation provides a mock function with given fields: appCtx, _a1
+func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.AppContext, _a1 uuid.UUID) (services.UploadInformation, error) {
+	ret := _m.Called(appCtx, _a1)
 
 	var r0 services.UploadInformation
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) services.UploadInformation); ok {
-		r0 = rf(appCfg, _a1)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) services.UploadInformation); ok {
+		r0 = rf(appCtx, _a1)
 	} else {
 		r0 = ret.Get(0).(services.UploadInformation)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, _a1)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,20 +16,20 @@ type ServiceItemPricer struct {
 	mock.Mock
 }
 
-// PriceServiceItem provides a mock function with given fields: appCfg, item
-func (_m *ServiceItemPricer) PriceServiceItem(appCfg appconfig.AppConfig, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
-	ret := _m.Called(appCfg, item)
+// PriceServiceItem provides a mock function with given fields: appCtx, item
+func (_m *ServiceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
+	ret := _m.Called(appCtx, item)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, models.PaymentServiceItem) unit.Cents); ok {
-		r0 = rf(appCfg, item)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItem) unit.Cents); ok {
+		r0 = rf(appCtx, item)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 models.PaymentServiceItemParams
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, models.PaymentServiceItem) models.PaymentServiceItemParams); ok {
-		r1 = rf(appCfg, item)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItem) models.PaymentServiceItemParams); ok {
+		r1 = rf(appCtx, item)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(models.PaymentServiceItemParams)
@@ -37,8 +37,8 @@ func (_m *ServiceItemPricer) PriceServiceItem(appCfg appconfig.AppConfig, item m
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, models.PaymentServiceItem) error); ok {
-		r2 = rf(appCfg, item)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItem) error); ok {
+		r2 = rf(appCtx, item)
 	} else {
 		r2 = ret.Error(2)
 	}

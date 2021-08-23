@@ -9,7 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -19,6 +19,11 @@ import (
 type ProcessEDI997Suite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *ProcessEDI997Suite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *ProcessEDI997Suite) SetupTest() {
@@ -67,8 +72,7 @@ IEA*1*000000022
 				EDIType:                  models.EDIType858,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 	})
 
@@ -84,8 +88,7 @@ IEA*1*000000022
 		GE*1*1
 		IEA*1*000000995
 `
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Contains(err.Error(), "unable to parse EDI997")
 	})
 
@@ -116,8 +119,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -161,8 +163,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -206,8 +207,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -243,8 +243,7 @@ IEA*1*000000022
 				EDIType:                  models.EDIType858,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err)
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
@@ -259,8 +258,7 @@ GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
 GE*1*220001
 IEA*1*000000022
 `
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI997. EDI Errors could not be saved")
 	})
 
@@ -278,8 +276,7 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
@@ -298,8 +295,7 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
@@ -356,8 +352,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := edi997Processor.ProcessFile(appCfg, "", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		errString := err.Error()
 		actualErrors := strings.Split(errString, "\n")

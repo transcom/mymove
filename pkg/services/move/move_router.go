@@ -10,7 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -27,26 +27,26 @@ func NewMoveRouter() services.MoveRouter {
 // to send the move to Service Counseling or directly to the TOO. If it goes to
 // Service Counseling, its status becomes "Needs Service Counseling", otherwise,
 // "Submitted".
-func (router moveRouter) Submit(appCfg appconfig.AppConfig, move *models.Move) error {
-	router.logMove(appCfg, move)
+func (router moveRouter) Submit(appCtx appcontext.AppContext, move *models.Move) error {
+	router.logMove(appCtx, move)
 
-	needsServicesCounseling, err := router.needsServiceCounseling(appCfg, move)
+	needsServicesCounseling, err := router.needsServiceCounseling(appCtx, move)
 	if err != nil {
-		appCfg.Logger().Error("failure determining if a move needs services counseling", zap.Error(err))
+		appCtx.Logger().Error("failure determining if a move needs services counseling", zap.Error(err))
 		return err
 	}
-	appCfg.Logger().Info("SUCCESS: Determining if move needs services counseling or not")
+	appCtx.Logger().Info("SUCCESS: Determining if move needs services counseling or not")
 
 	if needsServicesCounseling {
-		err = router.sendToServiceCounselor(appCfg, move)
+		err = router.sendToServiceCounselor(appCtx, move)
 		if err != nil {
-			appCfg.Logger().Error("failure routing move to services counseling", zap.Error(err))
+			appCtx.Logger().Error("failure routing move to services counseling", zap.Error(err))
 			return err
 		}
-		appCfg.Logger().Info("SUCCESS: Move sent to services counseling")
+		appCtx.Logger().Info("SUCCESS: Move sent to services counseling")
 	} else if move.Orders.UploadedAmendedOrders != nil {
-		appCfg.Logger().Info("Move has amended orders")
-		transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+		appCtx.Logger().Info("Move has amended orders")
+		transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 			err = router.SendToOfficeUser(txnAppCfg, move)
 			if err != nil {
 				txnAppCfg.Logger().Error("failure routing move submission with amended orders", zap.Error(err))
@@ -78,33 +78,33 @@ func (router moveRouter) Submit(appCfg appconfig.AppConfig, move *models.Move) e
 		if transactionError != nil {
 			return transactionError
 		}
-		appCfg.Logger().Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
+		appCtx.Logger().Info("SUCCESS: Move with amended orders sent to office user / TOO queue")
 	} else {
-		err = router.sendNewMoveToOfficeUser(appCfg, move)
+		err = router.sendNewMoveToOfficeUser(appCtx, move)
 		if err != nil {
-			appCfg.Logger().Error("failure routing move to office user / TOO queue", zap.Error(err))
+			appCtx.Logger().Error("failure routing move to office user / TOO queue", zap.Error(err))
 			return err
 		}
-		appCfg.Logger().Info("SUCCESS: Move sent to office user / TOO queue")
+		appCtx.Logger().Info("SUCCESS: Move sent to office user / TOO queue")
 	}
 
-	appCfg.Logger().Info("SUCCESS: Move submitted and routed to the appropriate queue")
+	appCtx.Logger().Info("SUCCESS: Move submitted and routed to the appropriate queue")
 	return nil
 }
 
-func (router moveRouter) needsServiceCounseling(appCfg appconfig.AppConfig, move *models.Move) (bool, error) {
+func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, move *models.Move) (bool, error) {
 	var orders models.Order
-	err := appCfg.DB().Q().
+	err := appCtx.DB().Q().
 		Where("orders.id = ?", move.OrdersID).
 		First(&orders)
 
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			appCfg.Logger().Error("failure finding move", zap.Error(err))
+			appCtx.Logger().Error("failure finding move", zap.Error(err))
 			return false, services.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
 		default:
-			appCfg.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
+			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
 			return false, fmt.Errorf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID)
 		}
 	}
@@ -115,9 +115,9 @@ func (router moveRouter) needsServiceCounseling(appCfg appconfig.AppConfig, move
 		return false, services.NewInvalidInputError(orders.ID, err, nil, "orders missing OriginDutyStation")
 	}
 
-	originDutyStation, err = models.FetchDutyStation(appCfg.DB(), *orders.OriginDutyStationID)
+	originDutyStation, err = models.FetchDutyStation(appCtx.DB(), *orders.OriginDutyStationID)
 	if err != nil {
-		appCfg.Logger().Error("failure finding the origin duty station", zap.Error(err))
+		appCtx.Logger().Error("failure finding the origin duty station", zap.Error(err))
 		return false, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 	}
 
@@ -129,13 +129,13 @@ func (router moveRouter) needsServiceCounseling(appCfg appconfig.AppConfig, move
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
-func (router moveRouter) sendToServiceCounselor(appCfg appconfig.AppConfig, move *models.Move) error {
+func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, move *models.Move) error {
 	if move.Status == models.MoveStatusNeedsServiceCounseling {
 		return nil
 	}
 
 	if move.Status != models.MoveStatusDRAFT {
-		appCfg.Logger().Warn(fmt.Sprintf(
+		appCtx.Logger().Warn(fmt.Sprintf(
 			"Cannot move to NeedsServiceCounseling state when the Move is not in Draft status. Its current status is: %s",
 			move.Status,
 		))
@@ -157,9 +157,9 @@ func (router moveRouter) sendToServiceCounselor(appCfg appconfig.AppConfig, move
 
 // sendNewMoveToOfficeUser makes the move available for a TOO to review
 // The Submitted status indicates to the TOO that this is a new move.
-func (router moveRouter) sendNewMoveToOfficeUser(appCfg appconfig.AppConfig, move *models.Move) error {
+func (router moveRouter) sendNewMoveToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error {
 	if move.Status != models.MoveStatusDRAFT {
-		appCfg.Logger().Warn(fmt.Sprintf(
+		appCtx.Logger().Warn(fmt.Sprintf(
 			"Cannot move to Submitted state for TOO review when the Move is not in Draft status. Its current status is: %s",
 			move.Status))
 
@@ -176,7 +176,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCfg appconfig.AppConfig, mov
 		ppm := &move.PersonallyProcuredMoves[i]
 		err := ppm.Submit(now)
 		if err != nil {
-			appCfg.Logger().Error("Failure submitting ppm", zap.Error(err))
+			appCtx.Logger().Error("Failure submitting ppm", zap.Error(err))
 			return err
 		}
 	}
@@ -185,7 +185,7 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCfg appconfig.AppConfig, mov
 		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
 			if err != nil {
-				appCfg.Logger().Error("Failure requesting reimbursement for ppm", zap.Error(err))
+				appCtx.Logger().Error("Failure requesting reimbursement for ppm", zap.Error(err))
 				return err
 			}
 		}
@@ -195,18 +195,18 @@ func (router moveRouter) sendNewMoveToOfficeUser(appCfg appconfig.AppConfig, mov
 
 // Approve makes the Move available to the Prime. The Prime cannot create
 // Service Items unless the Move is approved.
-func (router moveRouter) Approve(appCfg appconfig.AppConfig, move *models.Move) error {
-	router.logMove(appCfg, move)
+func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
+	router.logMove(appCtx, move)
 	if router.approvable(move) {
 		move.Status = models.MoveStatusAPPROVED
-		appCfg.Logger().Info("SUCCESS: Move approved")
+		appCtx.Logger().Info("SUCCESS: Move approved")
 		return nil
 	}
 	if router.alreadyApproved(move) {
 		return nil
 	}
 
-	appCfg.Logger().Warn(fmt.Sprintf(
+	appCtx.Logger().Warn(fmt.Sprintf(
 		"A move can only be approved if it's in one of these states: %q. However, its current status is: %s",
 		validStatusesBeforeApproval, move.Status,
 	))
@@ -245,27 +245,27 @@ var validStatusesBeforeApproval = []models.MoveStatus{
 // SendToOfficeUser sets the moves status to
 // "Approvals Requested", which indicates to the TOO that they have new
 // service items to review.
-func (router moveRouter) SendToOfficeUser(appCfg appconfig.AppConfig, move *models.Move) error {
-	router.logMove(appCfg, move)
+func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error {
+	router.logMove(appCtx, move)
 	// Do nothing if it's already in the desired state
 	if move.Status == models.MoveStatusAPPROVALSREQUESTED {
 		return nil
 	}
 	if move.Status == models.MoveStatusCANCELED {
 		errorMessage := fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID)
-		appCfg.Logger().Warn(errorMessage)
+		appCtx.Logger().Warn(errorMessage)
 
 		return errors.Wrap(models.ErrInvalidTransition, errorMessage)
 	}
 	move.Status = models.MoveStatusAPPROVALSREQUESTED
-	appCfg.Logger().Info("SUCCESS: Move sent to TOO to request approval")
+	appCtx.Logger().Info("SUCCESS: Move sent to TOO to request approval")
 
 	return nil
 }
 
 // Cancel cancels the Move and its associated PPMs
-func (router moveRouter) Cancel(appCfg appconfig.AppConfig, reason string, move *models.Move) error {
-	router.logMove(appCfg, move)
+func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
+	router.logMove(appCtx, move)
 	// We can cancel any move that isn't already complete.
 	// TODO: What does complete mean? How do we determine when a move is complete?
 	if move.Status == models.MoveStatusCANCELED {
@@ -294,7 +294,7 @@ func (router moveRouter) Cancel(appCfg appconfig.AppConfig, reason string, move 
 		return err
 	}
 
-	appCfg.Logger().Info("SUCCESS: Move Canceled")
+	appCtx.Logger().Info("SUCCESS: Move Canceled")
 	return nil
 
 }
@@ -302,7 +302,7 @@ func (router moveRouter) Cancel(appCfg appconfig.AppConfig, reason string, move 
 // CompleteServiceCounseling sets the move status to "Service Counseling Completed",
 // which makes the move available to the TOO. This gets called when the Service
 // Counselor is done reviewing the move and submits it.
-func (router moveRouter) CompleteServiceCounseling(appCfg appconfig.AppConfig, move *models.Move) error {
+func (router moveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {
 	if move.Status != models.MoveStatusNeedsServiceCounseling {
 		return errors.Wrap(
 			models.ErrInvalidTransition,
@@ -322,15 +322,15 @@ func (router moveRouter) CompleteServiceCounseling(appCfg appconfig.AppConfig, m
 // ApproveAmendedOrders sets the move status to APPROVED if its status was set to
 // APPROVALS REQUESTED because of the customer amending their orders.  If there are accessorial
 // service items needing review from the TOO the status should remain in APPROVALS REQUESTED
-func (router moveRouter) ApproveAmendedOrders(appCfg appconfig.AppConfig, moveID uuid.UUID, ordersID uuid.UUID) (models.Move, error) {
+func (router moveRouter) ApproveAmendedOrders(appCtx appcontext.AppContext, moveID uuid.UUID, ordersID uuid.UUID) (models.Move, error) {
 
 	var move models.Move
-	err := appCfg.DB().EagerPreload("MTOServiceItems").
+	err := appCtx.DB().EagerPreload("MTOServiceItems").
 		Where("moves.id = ?", moveID).
 		First(&move)
 
 	if err != nil {
-		appCfg.Logger().Error("failure encountered querying for move associated with orders", zap.Error(err))
+		appCtx.Logger().Error("failure encountered querying for move associated with orders", zap.Error(err))
 		return models.Move{}, fmt.Errorf("failure encountered querying for move associated with orders, %s, id: %s", err.Error(), ordersID)
 	}
 
@@ -350,7 +350,7 @@ func (router moveRouter) ApproveAmendedOrders(appCfg appconfig.AppConfig, moveID
 	}
 
 	if !hasRequestedServiceItems {
-		approveErr := router.Approve(appCfg, &move)
+		approveErr := router.Approve(appCtx, &move)
 		if approveErr != nil {
 			return models.Move{}, approveErr
 		}
@@ -359,8 +359,8 @@ func (router moveRouter) ApproveAmendedOrders(appCfg appconfig.AppConfig, moveID
 	return move, nil
 }
 
-func (router moveRouter) logMove(appCfg appconfig.AppConfig, move *models.Move) {
-	appCfg.Logger().Info("Move log",
+func (router moveRouter) logMove(appCtx appcontext.AppContext, move *models.Move) {
+	appCtx.Logger().Info("Move log",
 		zap.String("Move.ID", move.ID.String()),
 		zap.String("Move.Locator", move.Locator),
 		zap.String("Move.Status", string(move.Status)),

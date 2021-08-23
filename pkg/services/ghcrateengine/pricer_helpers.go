@@ -8,13 +8,13 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticFirstDaySIT(appCfg appconfig.AppConfig, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticFirstDaySIT(appCtx appcontext.AppContext, firstDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if firstDaySITCode == models.ReServiceCodeDDFSIT {
 		sitType = "destination"
@@ -29,12 +29,12 @@ func priceDomesticFirstDaySIT(appCfg appconfig.AppConfig, firstDaySITCode models
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCfg, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
+	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, firstDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s first day SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCfg, serviceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -54,7 +54,7 @@ func priceDomesticFirstDaySIT(appCfg appconfig.AppConfig, firstDaySITCode models
 	return totalPriceCents, params, nil
 }
 
-func priceDomesticAdditionalDaysSIT(appCfg appconfig.AppConfig, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDaySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType string
 	if additionalDaySITCode == models.ReServiceCodeDDASIT {
 		sitType = "destination"
@@ -69,12 +69,12 @@ func priceDomesticAdditionalDaysSIT(appCfg appconfig.AppConfig, additionalDaySIT
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCfg, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
+	serviceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, additionalDaySITCode, serviceArea, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s additional days SIT rate: %w", sitType, err)
 	}
 
-	contractYear, err := fetchContractYear(appCfg, serviceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, serviceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -106,7 +106,7 @@ func priceDomesticAdditionalDaysSIT(appCfg appconfig.AppConfig, additionalDaySIT
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticPickupDeliverySIT(appCfg appconfig.AppConfig, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
@@ -142,7 +142,7 @@ func priceDomesticPickupDeliverySIT(appCfg appconfig.AppConfig, pickupDeliverySI
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer()
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCfg, contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -156,7 +156,7 @@ func priceDomesticPickupDeliverySIT(appCfg appconfig.AppConfig, pickupDeliverySI
 	if distance > 50 {
 		// Do a normal linehaul calculation
 		linehaulPricer := NewDomesticLinehaulPricer()
-		totalPriceCents, displayParams, err := linehaulPricer.Price(appCfg, contractCode, requestedPickupDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}
@@ -170,11 +170,11 @@ func priceDomesticPickupDeliverySIT(appCfg appconfig.AppConfig, pickupDeliverySI
 
 	// Rate comes from the domestic other price table based on SIT schedule
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	domOtherPrice, err := fetchDomOtherPrice(appCfg, contractCode, pickupDeliverySITCode, sitSchedule, isPeakPeriod)
+	domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, pickupDeliverySITCode, sitSchedule, isPeakPeriod)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic %s SIT %s rate: %w", sitType, sitModifier, err)
 	}
-	contractYear, err := fetchContractYear(appCfg, domOtherPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domOtherPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch contract year: %w", err)
 	}
@@ -205,7 +205,7 @@ func priceDomesticPickupDeliverySIT(appCfg appconfig.AppConfig, pickupDeliverySI
 	return totalPriceCents, displayParams, nil
 }
 
-func priceDomesticShuttling(appCfg appconfig.AppConfig, shuttlingCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	if shuttlingCode != models.ReServiceCodeDOSHUT && shuttlingCode != models.ReServiceCodeDDSHUT {
 		return 0, nil, fmt.Errorf("unsupported domestic shuttling code of %s", shuttlingCode)
 	}
@@ -224,12 +224,12 @@ func priceDomesticShuttling(appCfg appconfig.AppConfig, shuttlingCode models.ReS
 	}
 
 	// look up rate for domestic accessorial price
-	domAccessorialPrice, err := fetchAccessorialPrice(appCfg, contractCode, shuttlingCode, serviceSchedule)
+	domAccessorialPrice, err := fetchAccessorialPrice(appCtx, contractCode, shuttlingCode, serviceSchedule)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCfg, domAccessorialPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
@@ -255,7 +255,7 @@ func priceDomesticShuttling(appCfg appconfig.AppConfig, shuttlingCode models.ReS
 	return totalCost, params, nil
 }
 
-func priceDomesticCrating(appCfg appconfig.AppConfig, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticCrating(appCtx appcontext.AppContext, code models.ReServiceCode, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
 	if code != models.ReServiceCodeDCRT && code != models.ReServiceCodeDUCRT {
 		return 0, nil, fmt.Errorf("unsupported domestic crating code of %s", code)
 	}
@@ -263,13 +263,13 @@ func priceDomesticCrating(appCfg appconfig.AppConfig, code models.ReServiceCode,
 	if billedCubicFeet < 4.0 {
 		return 0, nil, fmt.Errorf("crate must be billed for a minimum of 4 cubic feet")
 	}
-	domAccessorialPrice, err := fetchAccessorialPrice(appCfg, contractCode, code, serviceSchedule)
+	domAccessorialPrice, err := fetchAccessorialPrice(appCtx, contractCode, code, serviceSchedule)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
 	basePrice := domAccessorialPrice.PerUnitCents.Float64() * float64(billedCubicFeet)
-	contractYear, err := fetchContractYear(appCfg, domAccessorialPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domAccessorialPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not lookup contract year: %w", err)
 	}
@@ -295,7 +295,7 @@ func priceDomesticCrating(appCfg appconfig.AppConfig, code models.ReServiceCode,
 
 // createPricerGeneratedParams stores PaymentServiceItemParams, whose origin is the PRICER, into the database
 // It also returns the newly created PaymentServiceItemParams.
-func createPricerGeneratedParams(appCfg appconfig.AppConfig, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
+func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID, params services.PricingDisplayParams) (models.PaymentServiceItemParams, error) {
 	var paymentServiceItemParams models.PaymentServiceItemParams
 
 	if len(params) == 0 {
@@ -306,7 +306,7 @@ func createPricerGeneratedParams(appCfg appconfig.AppConfig, paymentServiceItemI
 
 		// Find the paymentServiceItemParam associated with this PricingDisplayParam
 		var serviceItemParamKey models.ServiceItemParamKey
-		err := appCfg.DB().Q().
+		err := appCtx.DB().Q().
 			Where("key = ?", param.Key).
 			First(&serviceItemParamKey)
 		if err != nil {
@@ -324,7 +324,7 @@ func createPricerGeneratedParams(appCfg appconfig.AppConfig, paymentServiceItemI
 			Value:                 param.Value,
 		}
 
-		verrs, err := appCfg.DB().ValidateAndCreate(&newParam)
+		verrs, err := appCtx.DB().ValidateAndCreate(&newParam)
 		if err != nil {
 			return paymentServiceItemParams, fmt.Errorf("failure creating payment service item param: %w", err)
 		} else if verrs.HasAny() {

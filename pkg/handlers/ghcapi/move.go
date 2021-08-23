@@ -4,7 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	moveop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -20,14 +20,14 @@ type GetMoveHandler struct {
 // Handle handles the getMove by locator request
 func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	locator := params.Locator
 	if locator == "" {
 		return moveop.NewGetMoveBadRequest()
 	}
 
-	move, err := h.FetchMove(appCfg, locator, nil)
+	move, err := h.FetchMove(appCtx, locator, nil)
 
 	if err != nil {
 		logger.Error("Error retrieving move by locator", zap.Error(err))

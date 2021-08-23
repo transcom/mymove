@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -49,14 +49,14 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 	}
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if session == nil {
 		return accesscodeop.NewFetchAccessCodeUnauthorized()
 	}
 
 	// Fetch access code
-	accessCode, err := h.accessCodeFetcher.FetchAccessCode(appCfg, session.ServiceMemberID)
+	accessCode, err := h.accessCodeFetcher.FetchAccessCode(appCtx, session.ServiceMemberID)
 	var fetchAccessCodePayload *internalmessages.AccessCode
 
 	if err != nil {
@@ -78,7 +78,7 @@ type ValidateAccessCodeHandler struct {
 // Handle accepts the code - validates the access code
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if session == nil {
 		return accesscodeop.NewValidateAccessCodeUnauthorized()
@@ -87,7 +87,7 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 	splitParams := strings.Split(*params.Code, "-")
 	moveType, code := splitParams[0], splitParams[1]
 
-	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCfg, code, models.SelectedMoveType(moveType))
+	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(appCtx, code, models.SelectedMoveType(moveType))
 	var validateAccessCodePayload *internalmessages.AccessCode
 
 	if !valid {
@@ -110,13 +110,13 @@ type ClaimAccessCodeHandler struct {
 // Handle accepts the code - updates the access code
 func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if session == nil || session.ServiceMemberID == uuid.Nil {
 		return accesscodeop.NewClaimAccessCodeUnauthorized()
 	}
 
-	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCfg, *params.AccessCode.Code, session.ServiceMemberID)
+	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(appCtx, *params.AccessCode.Code, session.ServiceMemberID)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)

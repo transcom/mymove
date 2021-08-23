@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -13,8 +12,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShipment() 
 
 	suite.Run("actual weight is present on MTO Shipment", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
@@ -26,11 +24,10 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShipment() 
 		mtoShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoShipment)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find actual weight for MTOShipmentID [%s]", mtoShipment.ID)
 		suite.Contains(err.Error(), expected)
@@ -43,8 +40,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShuttling()
 
 	suite.Run("actual weight is present on MTO Shipment", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
@@ -55,11 +51,10 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShuttling()
 		mtoServiceItem.ActualWeight = nil
 		suite.MustSave(&mtoServiceItem)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find actual weight for MTOServiceItemID [%s]", mtoServiceItem.ID)
 		suite.Contains(err.Error(), expected)

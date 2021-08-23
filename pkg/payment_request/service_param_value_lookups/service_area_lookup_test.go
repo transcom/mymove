@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -67,21 +66,19 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	})
 
 	suite.T().Run("origin golden path", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, originKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), originKey)
 		suite.FatalNoError(err)
 		suite.Equal(originDomesticServiceArea.ServiceArea, valueStr)
 	})
 
 	suite.T().Run("destination golden path", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, destKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), destKey)
 		suite.FatalNoError(err)
 		suite.Equal(destDomesticServiceArea.ServiceArea, valueStr)
 	})

@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -20,6 +21,11 @@ type ModelSuite struct {
 
 func (suite *ModelSuite) SetupTest() {
 
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *ModelSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map[string][]string) {

@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -14,20 +14,20 @@ type OfficeUserGblocFetcher struct {
 	mock.Mock
 }
 
-// FetchGblocForOfficeUser provides a mock function with given fields: appCfg, id
-func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(appCfg appconfig.AppConfig, id uuid.UUID) (string, error) {
-	ret := _m.Called(appCfg, id)
+// FetchGblocForOfficeUser provides a mock function with given fields: appCtx, id
+func (_m *OfficeUserGblocFetcher) FetchGblocForOfficeUser(appCtx appcontext.AppContext, id uuid.UUID) (string, error) {
+	ret := _m.Called(appCtx, id)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) string); ok {
-		r0 = rf(appCfg, id)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) string); ok {
+		r0 = rf(appCtx, id)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, id)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

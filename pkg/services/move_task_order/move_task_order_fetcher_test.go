@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,8 +26,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			MoveTaskOrderID: expectedMTO.ID,
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(appCfg, &searchParams)
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.TestAppContext(), &searchParams)
 		suite.NoError(err)
 
 		suite.NotZero(expectedMTO.ID, actualMTO.ID)
@@ -46,8 +44,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			Locator:       expectedMTO.Locator,
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(appCfg, &searchParams)
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.TestAppContext(), &searchParams)
 		suite.NoError(err)
 
 		suite.NotZero(expectedMTO.ID, actualMTO.ID)
@@ -66,8 +63,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			MoveTaskOrderID: badID,
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := mtoFetcher.FetchMoveTaskOrder(appCfg, &searchParams)
+		_, err := mtoFetcher.FetchMoveTaskOrder(suite.TestAppContext(), &searchParams)
 		suite.Error(err)
 	})
 }
@@ -93,8 +89,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			Since:              nil,
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(appCfg, &searchParams)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.TestAppContext(), &searchParams)
 		suite.NoError(err)
 
 		move := moveTaskOrders[0]
@@ -106,8 +101,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	})
 
 	suite.RunWithRollback("default search - excludes hidden move task orders", func() {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(appCfg, nil)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.TestAppContext(), nil)
 		suite.NoError(err)
 
 		// The hidden move should be nowhere in the output list:
@@ -130,8 +124,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 			Since: nil,
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(appCfg, &searchParams)
+		moveTaskOrders, err := mtoFetcher.ListAllMoveTaskOrders(suite.TestAppContext(), &searchParams)
 		suite.NoError(err)
 		suite.Equal(2, len(moveTaskOrders))
 
@@ -144,7 +137,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 			now.Add(-2*time.Second), oldMTO.ID).Exec())
 		searchParams.Since = &now
-		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(appCfg, &searchParams)
+		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(suite.TestAppContext(), &searchParams)
 		suite.NoError(err)
 		suite.Equal(1, len(mtosWithSince))
 	})
@@ -178,8 +171,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	searchParams := services.MoveTaskOrderFetcherParams{}
 
 	// Run the fetcher without `since` to get all Prime moves:
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(appCfg, &searchParams)
+	primeMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.TestAppContext(), &searchParams)
 	suite.NoError(err)
 	suite.Len(primeMoves, 3)
 
@@ -193,7 +185,7 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersFetcher() {
 	// Run the fetcher with `since` to get primeMove2 and primeMove3 (because of the shipment)
 	since := now.Add(-5 * time.Second)
 	searchParams.Since = &since
-	sinceMoves, err := fetcher.ListPrimeMoveTaskOrders(appCfg, &searchParams)
+	sinceMoves, err := fetcher.ListPrimeMoveTaskOrders(suite.TestAppContext(), &searchParams)
 	suite.NoError(err)
 	suite.Len(sinceMoves, 2)
 

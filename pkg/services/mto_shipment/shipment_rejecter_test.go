@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
@@ -27,8 +26,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
 		fetchedShipment := models.MTOShipment{}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		rejectedShipment, err := approver.RejectShipment(appCfg, shipment.ID, shipmentEtag, &reason)
+		rejectedShipment, err := approver.RejectShipment(suite.TestAppContext(), shipment.ID, shipmentEtag, &reason)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, rejectedShipment.MoveTaskOrderID)
@@ -50,8 +48,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := approver.RejectShipment(appCfg, rejectedShipment.ID, eTag, &reason)
+		_, err := approver.RejectShipment(suite.TestAppContext(), rejectedShipment.ID, eTag, &reason)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -61,8 +58,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		staleETag := etag.GenerateEtag(time.Now())
 		staleShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := approver.RejectShipment(appCfg, staleShipment.ID, staleETag, &reason)
+		_, err := approver.RejectShipment(suite.TestAppContext(), staleShipment.ID, staleETag, &reason)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -72,8 +68,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := approver.RejectShipment(appCfg, badShipmentID, eTag, &reason)
+		_, err := approver.RejectShipment(suite.TestAppContext(), badShipmentID, eTag, &reason)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -84,8 +79,7 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		emptyReason := ""
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := approver.RejectShipment(appCfg, shipment.ID, eTag, &emptyReason)
+		_, err := approver.RejectShipment(suite.TestAppContext(), shipment.ID, eTag, &emptyReason)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
@@ -101,10 +95,9 @@ func (suite *MTOShipmentServiceSuite) TestRejectShipment() {
 		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
-		shipmentRouter.On("Reject", mock.AnythingOfType("*appconfig.appConfig"), &createdShipment, &reason).Return(nil)
+		shipmentRouter.On("Reject", mock.AnythingOfType("*appcontext.appContext"), &createdShipment, &reason).Return(nil)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = rejecter.RejectShipment(appCfg, shipment.ID, eTag, &reason)
+		_, err = rejecter.RejectShipment(suite.TestAppContext(), shipment.ID, eTag, &reason)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "Reject", 1)

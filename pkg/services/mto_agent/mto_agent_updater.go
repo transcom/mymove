@@ -3,7 +3,7 @@ package mtoagent
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -33,26 +33,26 @@ func NewMTOAgentUpdater(mtoChecker services.MoveTaskOrderChecker) services.MTOAg
 }
 
 // UpdateMTOAgentBasic updates the MTO Agent using base validators
-func (f *mtoAgentUpdater) UpdateMTOAgentBasic(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.updateMTOAgent(appCfg, mtoAgent, eTag, f.basicChecks...)
+func (f *mtoAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	return f.updateMTOAgent(appCtx, mtoAgent, eTag, f.basicChecks...)
 }
 
 // UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
-func (f *mtoAgentUpdater) UpdateMTOAgentPrime(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.updateMTOAgent(appCfg, mtoAgent, eTag, f.primeChecks...)
+func (f *mtoAgentUpdater) UpdateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	return f.updateMTOAgent(appCtx, mtoAgent, eTag, f.primeChecks...)
 }
 
 // UpdateMTOAgent updates the MTO Agent
-func (f *mtoAgentUpdater) updateMTOAgent(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, eTag string, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
+func (f *mtoAgentUpdater) updateMTOAgent(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string, checks ...mtoAgentValidator) (*models.MTOAgent, error) {
 	oldAgent := models.MTOAgent{}
 
 	// Find the agent, return error if not found
-	err := appCfg.DB().Eager("MTOShipment.MTOAgents").Find(&oldAgent, mtoAgent.ID)
+	err := appCtx.DB().Eager("MTOShipment.MTOAgents").Find(&oldAgent, mtoAgent.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
-	err = validateMTOAgent(appCfg, *mtoAgent, &oldAgent, &oldAgent.MTOShipment, checks...)
+	err = validateMTOAgent(appCtx, *mtoAgent, &oldAgent, &oldAgent.MTOShipment, checks...)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (f *mtoAgentUpdater) updateMTOAgent(appCfg appconfig.AppConfig, mtoAgent *m
 	}
 
 	// Make the update and create a InvalidInputError if there were validation issues
-	verrs, err := appCfg.DB().ValidateAndSave(newAgent)
+	verrs, err := appCtx.DB().ValidateAndSave(newAgent)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
@@ -77,7 +77,7 @@ func (f *mtoAgentUpdater) updateMTOAgent(appCfg appconfig.AppConfig, mtoAgent *m
 
 	// Get the updated agent and return
 	updatedAgent := models.MTOAgent{}
-	err = appCfg.DB().Find(&updatedAgent, newAgent.ID)
+	err = appCtx.DB().Find(&updatedAgent, newAgent.ID)
 	if err != nil {
 		return nil, services.NewQueryError("MTOAgent", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}

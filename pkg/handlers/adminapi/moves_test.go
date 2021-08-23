@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		moveListFetcher.On("FetchMoveList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

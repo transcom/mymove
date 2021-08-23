@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 		expectedError := models.ErrFetchNotFound
 		listFetcher := &mocks.ListFetcher{}
 		listFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		listFetcher.On("FetchRecordCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/sftp"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -29,7 +29,7 @@ func NewSyncadaSFTPReaderSession(client services.SFTPClient, deleteFilesAfterPro
 }
 
 // FetchAndProcessSyncadaFiles downloads Syncada files with SFTP, processes them using the provided processor, and deletes them from the SFTP server if they were successfully processed
-func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(appCfg appconfig.AppConfig, pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
+func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(appCtx appcontext.AppContext, pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
 	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0
 	start := time.Now()
@@ -40,20 +40,20 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(appCfg appconfig.
 			ProcessEndedAt:   time.Now(),
 			NumEDIsProcessed: numProcessed,
 		}
-		appCfg.Logger().Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
+		appCtx.Logger().Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
 
-		verrs, err := appCfg.DB().ValidateAndCreate(&ediProcessing)
+		verrs, err := appCtx.DB().ValidateAndCreate(&ediProcessing)
 		if err != nil {
-			appCfg.Logger().Error("failed to create EDIProcessing record", zap.Error(err))
+			appCtx.Logger().Error("failed to create EDIProcessing record", zap.Error(err))
 		}
 		if verrs.HasAny() {
-			appCfg.Logger().Error("failed to validate EDIProcessing record", zap.Error(err))
+			appCtx.Logger().Error("failed to validate EDIProcessing record", zap.Error(err))
 		}
 	}()
 
 	fileList, err := s.client.ReadDir(pickupPath)
 	if err != nil {
-		appCfg.Logger().Error("Error reading SFTP directory", zap.String("directory", pickupPath))
+		appCtx.Logger().Error("Error reading SFTP directory", zap.String("directory", pickupPath))
 		return time.Time{}, err
 	}
 
@@ -66,15 +66,15 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(appCfg appconfig.
 			}
 			filePath := sftp.Join(pickupPath, fileInfo.Name())
 
-			fileText, err := s.downloadFile(appCfg, filePath)
+			fileText, err := s.downloadFile(appCtx, filePath)
 			if err != nil {
-				appCfg.Logger().Info("Error while downloading Syncada file", zap.String("path", filePath), zap.Error(err))
+				appCtx.Logger().Info("Error while downloading Syncada file", zap.String("path", filePath), zap.Error(err))
 				continue
 			}
 
-			err = processor.ProcessFile(appCfg, filePath, fileText)
+			err = processor.ProcessFile(appCtx, filePath, fileText)
 			if err != nil {
-				appCfg.Logger().Error("Error while processing Syncada file", zap.String("path", filePath), zap.String("file contents", fileText), zap.Error(err))
+				appCtx.Logger().Error("Error while processing Syncada file", zap.String("path", filePath), zap.String("file contents", fileText), zap.Error(err))
 				continue
 			}
 
@@ -83,12 +83,12 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(appCfg appconfig.
 			if s.deleteFilesAfterProcessing {
 				err = s.client.Remove(filePath)
 				if err != nil {
-					appCfg.Logger().Error("Error while deleting Syncada file", zap.String("path", filePath))
+					appCtx.Logger().Error("Error while deleting Syncada file", zap.String("path", filePath))
 				} else {
-					appCfg.Logger().Info("Deleted Syncada file", zap.String("path", filePath))
+					appCtx.Logger().Info("Deleted Syncada file", zap.String("path", filePath))
 				}
 			} else {
-				appCfg.Logger().Info("Delete sftp files: false", zap.String("path", filePath))
+				appCtx.Logger().Info("Delete sftp files: false", zap.String("path", filePath))
 			}
 		}
 	}
@@ -96,7 +96,7 @@ func (s *syncadaReaderSFTPSession) FetchAndProcessSyncadaFiles(appCfg appconfig.
 	return mostRecentFileModTime, nil
 }
 
-func (s *syncadaReaderSFTPSession) downloadFile(appCfg appconfig.AppConfig, path string) (string, error) {
+func (s *syncadaReaderSFTPSession) downloadFile(appCtx appcontext.AppContext, path string) (string, error) {
 	file, err := s.client.Open(path)
 	if err != nil {
 		// This is expected (at least in the US Bank testing environment) because they
@@ -113,7 +113,7 @@ func (s *syncadaReaderSFTPSession) downloadFile(appCfg appconfig.AppConfig, path
 	if err != nil {
 		// If close fails, just log it as we're already in an error situation.
 		if closeErr := file.Close(); closeErr != nil {
-			appCfg.Logger().Error("could not close file", zap.Error(closeErr))
+			appCtx.Logger().Error("could not close file", zap.Error(closeErr))
 		}
 		return "", fmt.Errorf("failed to read file over SFTP: %w", err)
 	}

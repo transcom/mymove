@@ -4,7 +4,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,10 +15,10 @@ type adminUserUpdater struct {
 	builder adminUserQueryBuilder
 }
 
-func (o *adminUserUpdater) UpdateAdminUser(appCfg appconfig.AppConfig, id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error) {
+func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.AdminUserUpdatePayload) (*models.AdminUser, *validate.Errors, error) {
 	var foundUser models.AdminUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-	err := o.builder.FetchOne(appCfg, &foundUser, filters)
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
@@ -36,7 +36,7 @@ func (o *adminUserUpdater) UpdateAdminUser(appCfg appconfig.AppConfig, id uuid.U
 		foundUser.Active = *payload.Active
 	}
 
-	verrs, err := o.builder.UpdateOne(appCfg, &foundUser, nil)
+	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}

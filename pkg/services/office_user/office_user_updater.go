@@ -4,7 +4,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -16,10 +16,10 @@ type officeUserUpdater struct {
 }
 
 // UpdateOfficeUser updates an office user
-func (o *officeUserUpdater) UpdateOfficeUser(appCfg appconfig.AppConfig, id uuid.UUID, payload *adminmessages.OfficeUserUpdatePayload) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdatePayload) (*models.OfficeUser, *validate.Errors, error) {
 	var foundUser models.OfficeUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-	err := o.builder.FetchOne(appCfg, &foundUser, filters)
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
@@ -53,7 +53,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCfg appconfig.AppConfig, id uuid
 		}
 		// Use FetchOne to see if we have a transportation office that matches the provided id
 		var transportationOffice models.TransportationOffice
-		fetchErr := o.builder.FetchOne(appCfg, &transportationOffice, transportationIDFilter)
+		fetchErr := o.builder.FetchOne(appCtx, &transportationOffice, transportationIDFilter)
 
 		if fetchErr != nil {
 			return nil, nil, fetchErr
@@ -62,7 +62,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCfg appconfig.AppConfig, id uuid
 		foundUser.TransportationOfficeID = uuid.FromStringOrNil(transportationOfficeID)
 	}
 
-	verrs, err := o.builder.UpdateOne(appCfg, &foundUser, nil)
+	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}

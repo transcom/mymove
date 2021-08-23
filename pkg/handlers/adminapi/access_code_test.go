@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		accessCodeListFetcher.On("FetchAccessCodeList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

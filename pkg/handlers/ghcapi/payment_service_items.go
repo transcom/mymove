@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/go-openapi/swag"
@@ -34,7 +34,7 @@ type UpdatePaymentServiceItemStatusHandler struct {
 // Handle handles the handling for UpdatePaymentServiceItemStatusHandler
 func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemOp.UpdatePaymentServiceItemStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	paymentServiceItemID, err := uuid.FromString(params.PaymentServiceItemID)
 	// Create a zero paymentServiceRequest for us to use in FetchRecord
 	var paymentServiceItem models.PaymentServiceItem
@@ -45,7 +45,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentServiceItemID.String())}
 	// Get the existing record
-	err = h.Fetcher.FetchRecord(appCfg, &paymentServiceItem, filters)
+	err = h.Fetcher.FetchRecord(appCtx, &paymentServiceItem, filters)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding payment service item for status update with ID: %s", params.PaymentServiceItemID), zap.Error(err))
@@ -78,7 +78,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError()
 	}
 	// Do the update
-	verrs, err := h.UpdateOne(appCfg, &paymentServiceItem, &params.IfMatch)
+	verrs, err := h.UpdateOne(appCtx, &paymentServiceItem, &params.IfMatch)
 	// Using a switch to match error causes to appropriate return type in gen code
 	if err != nil {
 		logger.Error("Error updating payment service item status", zap.Error(err))

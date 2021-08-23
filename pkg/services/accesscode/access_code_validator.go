@@ -1,7 +1,7 @@
 package accesscode
 
 import (
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -17,9 +17,9 @@ func NewAccessCodeValidator() services.AccessCodeValidator {
 
 // ValidateAccessCode validates an access code based upon the code and move type. A valid access
 // code is assumed to have no `service_member_id`
-func (v accessCodeValidator) ValidateAccessCode(appCfg appconfig.AppConfig, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
+func (v accessCodeValidator) ValidateAccessCode(appCtx appcontext.AppContext, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
 	ac := models.AccessCode{}
-	err := appCfg.DB().
+	err := appCtx.DB().
 		Where("code = ?", code).
 		Where("move_type = ?", moveType).
 		First(&ac)

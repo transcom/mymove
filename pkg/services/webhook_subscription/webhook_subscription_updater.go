@@ -3,7 +3,7 @@ package webhooksubscription
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -17,13 +17,13 @@ type webhookSubscriptionUpdater struct {
 // It uses the id in the passed in model to find the subscription.
 // For the severity field, it uses severity from the parameter not the model. If nil, severity will not be updated.
 // For all other fields, it uses the values found in the model.
-func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(appCfg appconfig.AppConfig, requestedUpdate *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error) {
+func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(appCtx appcontext.AppContext, requestedUpdate *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error) {
 	webhookSubscriptionID := uuid.FromStringOrNil(requestedUpdate.ID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscriptionID)}
 
 	// Find the existing web subscription to update
 	var foundSub models.WebhookSubscription
-	err := o.builder.FetchOne(appCfg, &foundSub, queryFilters)
+	err := o.builder.FetchOne(appCtx, &foundSub, queryFilters)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (o *webhookSubscriptionUpdater) UpdateWebhookSubscription(appCfg appconfig.
 		foundSub.CallbackURL = requestedUpdate.CallbackURL
 	}
 
-	verrs, err := o.builder.UpdateOne(appCfg, &foundSub, eTag)
+	verrs, err := o.builder.UpdateOne(appCtx, &foundSub, eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(webhookSubscriptionID, err, verrs, "")

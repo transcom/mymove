@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/pkg/errors"
@@ -23,7 +23,7 @@ func NewDomesticOriginPricer() services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(appCfg appconfig.AppConfig, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -41,12 +41,12 @@ func (p domesticOriginPricer) Price(appCfg appconfig.AppConfig, contractCode str
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 
 	// look up rate for domestic origin price
-	domServiceAreaPrice, err := fetchDomServiceAreaPrice(appCfg, contractCode, models.ReServiceCodeDOP, serviceArea, isPeakPeriod)
+	domServiceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, models.ReServiceCodeDOP, serviceArea, isPeakPeriod)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCfg, domServiceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domServiceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
@@ -77,7 +77,7 @@ func (p domesticOriginPricer) Price(appCfg appconfig.AppConfig, contractCode str
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams
-func (p domesticOriginPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -98,5 +98,5 @@ func (p domesticOriginPricer) PriceUsingParams(appCfg appconfig.AppConfig, param
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCfg, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin)
 }

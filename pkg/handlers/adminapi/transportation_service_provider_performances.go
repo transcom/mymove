@@ -3,7 +3,7 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -55,19 +55,19 @@ var tsppFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of transportation service provider performance
 func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := generateQueryFilters(logger, params.Filter, tsppFilterConverters)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	tspps, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceList(appCfg, queryFilters, nil, pagination, ordering)
+	tspps, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceList(appCtx, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalTSPPsCount, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceCount(appCfg, queryFilters)
+	totalTSPPsCount, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceCount(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -92,13 +92,13 @@ type GetTSPPHandler struct {
 // Handle returns the payload for TSPP
 func (h GetTSPPHandler) Handle(params tsppop.GetTSPPParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	tsppID := params.TsppID
 
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", tsppID)}
 
-	tspp, err := h.TransportationServiceProviderPerformanceFetcher.FetchTransportationServiceProviderPerformance(appCfg, queryFilters)
+	tspp, err := h.TransportationServiceProviderPerformanceFetcher.FetchTransportationServiceProviderPerformance(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

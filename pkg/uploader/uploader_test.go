@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/storage/mocks"
@@ -41,6 +41,11 @@ type UploaderSuite struct {
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *UploaderSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *UploaderSuite) SetupTest() {
@@ -121,8 +126,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -136,8 +140,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesAny)
+	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -150,8 +153,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.NoError(err)
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -164,8 +166,7 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	suite.NoError(err)
 	defer cleanup()
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	_, verrs, err := up.CreateUpload(appCfg, uploader.File{File: f}, uploader.AllowedTypesAny)
+	_, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -185,9 +186,8 @@ func (suite *UploaderSuite) TestStorerCalledWithTags() {
 		mock.Anything,
 		mock.Anything,
 		&tags).Return(&storage.StoreResult{}, nil)
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	// assert tags are passed along to storer
-	_, verrs, err := up.CreateUpload(appCfg, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
+	_, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -230,16 +230,15 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	fixtureFileInfo, err := file.Stat()
 	suite.NoError(err)
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	// Create file and upload
-	upload, verrs, err := up.CreateUpload(appCfg, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(suite.TestAppContext(), uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")
 	file.Close()
 
 	// Download file and test size
-	download, err := up.Download(appCfg, upload)
+	download, err := up.Download(suite.TestAppContext(), upload)
 	suite.NoError(err)
 	defer download.Close()
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -33,8 +32,7 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
 		u := uu.Upload
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		ui, err := uif.FetchUploadInformation(appCfg, u.ID)
+		ui, err := uif.FetchUploadInformation(suite.TestAppContext(), u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.ServiceMemberID)
@@ -51,8 +49,7 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 		suite.NotNil(uu.UploadID)
 		suite.NotNil(uu.Upload)
 		u := uu.Upload
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		ui, err := uif.FetchUploadInformation(appCfg, u.ID)
+		ui, err := uif.FetchUploadInformation(suite.TestAppContext(), u.ID)
 
 		suite.NoError(err)
 		suite.Nil(ui.OfficeUserID)

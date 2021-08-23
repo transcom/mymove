@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -18,8 +18,8 @@ type PSILinehaulDomPriceLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func getPaymentServiceItem(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData, mtoShipment models.MTOShipment) (models.PaymentServiceItem, error) {
-	db := appCfg.DB()
+func getPaymentServiceItem(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData, mtoShipment models.MTOShipment) (models.PaymentServiceItem, error) {
+	db := appCtx.DB()
 
 	paymentRequestID := keyData.PaymentRequestID
 
@@ -45,8 +45,8 @@ func getPaymentServiceItem(appCfg appconfig.AppConfig, keyData *ServiceItemParam
 	return paymentServiceItemDLH, nil
 }
 
-func (r PSILinehaulDomLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
-	paymentServiceItem, err := getPaymentServiceItem(appCfg, keyData, r.MTOShipment)
+func (r PSILinehaulDomLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	paymentServiceItem, err := getPaymentServiceItem(appCtx, keyData, r.MTOShipment)
 	if err != nil {
 		return "", err
 	}
@@ -54,8 +54,8 @@ func (r PSILinehaulDomLookup) lookup(appCfg appconfig.AppConfig, keyData *Servic
 	return paymentServiceItem.ID.String(), nil
 }
 
-func (r PSILinehaulDomPriceLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
-	paymentServiceItem, err := getPaymentServiceItem(appCfg, keyData, r.MTOShipment)
+func (r PSILinehaulDomPriceLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	paymentServiceItem, err := getPaymentServiceItem(appCtx, keyData, r.MTOShipment)
 	if err != nil {
 		return "", err
 	}

@@ -534,7 +534,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Set expectation that a call to InternalCreateMoveTaskOrder will return a notFoundError
 		notFoundError := services.NotFoundError{}
 		mockCreator.On("InternalCreateMoveTaskOrder",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, notFoundError)

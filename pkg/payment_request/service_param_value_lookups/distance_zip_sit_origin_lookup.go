@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,13 +13,13 @@ type DistanceZipSITOriginLookup struct {
 	ServiceItem models.MTOServiceItem
 }
 
-func (r DistanceZipSITOriginLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
+func (r DistanceZipSITOriginLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	planner := keyData.planner
 
 	// If the zip3s are identical, we do a zip3 distance calc (which uses RM).
 	// If they are different, we do a zip5 distance calc (which uses DTOD).
 
-	originZip, err := keyData.ServiceParamValue(appCfg, models.ServiceItemParamNameZipSITOriginHHGOriginalAddress)
+	originZip, err := keyData.ServiceParamValue(appCtx, models.ServiceItemParamNameZipSITOriginHHGOriginalAddress)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +30,7 @@ func (r DistanceZipSITOriginLookup) lookup(appCfg appconfig.AppConfig, keyData *
 	originZip3 := originZip[:3]
 
 	var actualOriginZip string
-	actualOriginZip, err = keyData.ServiceParamValue(appCfg, models.ServiceItemParamNameZipSITOriginHHGActualAddress)
+	actualOriginZip, err = keyData.ServiceParamValue(appCtx, models.ServiceItemParamNameZipSITOriginHHGActualAddress)
 	if err != nil {
 		return "", err
 	}

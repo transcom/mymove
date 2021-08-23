@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/fetch"
 
 	"github.com/gobuffalo/validate/v3"
@@ -16,9 +16,9 @@ import (
 )
 
 type createMTOShipmentQueryBuilder interface {
-	FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error
-	CreateOne(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error)
-	UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error)
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentCreator struct {
@@ -43,7 +43,7 @@ func NewMTOShipmentCreator(builder createMTOShipmentQueryBuilder, fetcher servic
 }
 
 // CreateMTOShipment updates the mto shipment
-func (f mtoShipmentCreator) CreateMTOShipment(appCfg appconfig.AppConfig, shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
+func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, serviceItems models.MTOServiceItems) (*models.MTOShipment, error) {
 	var verrs *validate.Errors
 	var err error
 
@@ -60,7 +60,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCfg appconfig.AppConfig, shipme
 	}
 
 	// check if Move exists
-	err = f.builder.FetchOne(appCfg, &move, queryFilters)
+	err = f.builder.FetchOne(appCtx, &move, queryFilters)
 	if err != nil {
 		return nil, services.NewNotFoundError(moveID, "for move")
 	}
@@ -86,7 +86,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCfg appconfig.AppConfig, shipme
 			queryFilters = []services.QueryFilter{
 				query.NewQueryFilter("code", "=", reServiceCode),
 			}
-			err = f.builder.FetchOne(appCfg, &reService, queryFilters)
+			err = f.builder.FetchOne(appCtx, &reService, queryFilters)
 			if err != nil {
 				return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 			}
@@ -108,7 +108,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCfg appconfig.AppConfig, shipme
 		shipment.MTOServiceItems = serviceItemsList
 	}
 
-	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
 			verrs, err = f.builder.CreateOne(txnAppCfg, shipment.PickupAddress)

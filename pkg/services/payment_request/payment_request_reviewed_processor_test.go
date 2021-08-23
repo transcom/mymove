@@ -11,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/services"
@@ -202,8 +201,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -245,12 +243,11 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that payment requst was not sent to gex
 		fetcher := NewPaymentRequestFetcher()
-		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, rejectedPaymentRequest.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), rejectedPaymentRequest.ID)
 		suite.NoError(err)
 		suite.Nil(paymentRequest.SentToGexAt)
 		suite.Equal(rejectedPaymentRequest.Status, models.PaymentRequestStatusReviewedAllRejected)
@@ -295,13 +292,12 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at timestamp has been added
 		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(appCfg, pr.ID)
+			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(fetchErr)
 			suite.NotNil(paymentRequest.SentToGexAt)
 			suite.Equal(false, paymentRequest.SentToGexAt.IsZero())
@@ -335,7 +331,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		ediGenerator.
-			On("Generate", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
+			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -344,13 +340,12 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			gexSender,
 			SFTPSession)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(appCfg, pr.ID)
+			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(fetchErr)
 			suite.Nil(paymentRequest.SentToGexAt)
 			suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
@@ -418,7 +413,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		ediGenerator.
-			On("Generate", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
+			On("Generate", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -427,14 +422,13 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			sendToSyncada,
 			mockGexSender,
 			SFTPSender)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
 			var paymentRequest models.PaymentRequest
-			paymentRequest, err = fetcher.FetchPaymentRequest(appCfg, pr.ID)
+			paymentRequest, err = fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(err)
 			suite.Nil(paymentRequest.SentToGexAt)
 			suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
@@ -478,7 +472,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// models.PaymentRequests, error
 		reviewedPaymentRequestFetcher := &mocks.PaymentRequestReviewedFetcher{}
 		reviewedPaymentRequestFetcher.
-			On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appconfig.appConfig")).Return(models.PaymentRequests{}, errors.New("test error"))
+			On("FetchReviewedPaymentRequest", mock.AnythingOfType("*appcontext.appContext")).Return(models.PaymentRequests{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
 		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
@@ -488,13 +482,12 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			SFTPSession)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(appCfg, pr.ID)
+			paymentRequest, fetchErr := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(fetchErr)
 			suite.Nil(paymentRequest.SentToGexAt)
 			suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
@@ -536,12 +529,11 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			sftpSender)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		// Ensure that sent_to_gex_at is Nil on unsuccessful call to processReviewedPaymentRequest service
 		fetcher := NewPaymentRequestFetcher()
-		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, pr.ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 		suite.NoError(err)
 		suite.Nil(paymentRequest.SentToGexAt)
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
@@ -583,8 +575,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			gexSender,
 			sftpSender)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -600,7 +591,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		// Ensure that status is updated to SENT_TO_GEX when PRs are sent successfully
 		fetcher := NewPaymentRequestFetcher()
 		for _, pr := range prs {
-			paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, pr.ID)
+			paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), pr.ID)
 			suite.NoError(err)
 			suite.Equal(models.PaymentRequestStatusSentToGex, paymentRequest.Status)
 		}
@@ -609,8 +600,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 	suite.Run("process reviewed payment request, successfully test init function", func() {
 		// Run init with no issues
 		icnSequencer := sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := InitNewPaymentRequestReviewedProcessor(appCfg, false, icnSequencer, nil)
+		_, err := InitNewPaymentRequestReviewedProcessor(suite.TestAppContext(), false, icnSequencer, nil)
 		suite.NoError(err)
 	})
 }
@@ -647,8 +637,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 			mockGexSender,
 			sftpSender)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(appCfg)
+		paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest(suite.TestAppContext())
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -660,7 +649,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		suite.Equal(countProcessingRecordsBefore+1, newCount)
 
 		fetcher := NewPaymentRequestFetcher()
-		paymentRequest, err := fetcher.FetchPaymentRequest(appCfg, prs[0].ID)
+		paymentRequest, err := fetcher.FetchPaymentRequest(suite.TestAppContext(), prs[0].ID)
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
 	})

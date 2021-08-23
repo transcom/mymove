@@ -190,7 +190,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	// so we can mock this here to speed up the test and avoid hitting the DB
 	moveUpdater := &mocks.MoveTaskOrderUpdater{}
 	moveUpdater.On("MakeAvailableToPrime",
-		mock.AnythingOfType("*appconfig.appConfig"),
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 		false,

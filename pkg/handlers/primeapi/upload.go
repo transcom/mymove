@@ -5,7 +5,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -39,7 +39,7 @@ type CreateUploadHandler struct {
 // Handle creates uploads
 func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	var contractorID uuid.UUID
 	contractor, err := models.FetchGHCPrimeTestContractor(h.DB())
@@ -71,7 +71,7 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 		return paymentrequestop.NewCreateUploadInternalServerError()
 	}
 
-	createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCfg, file.Data, paymentRequestID, contractorID, file.Header.Filename)
+	createdUpload, err := h.PaymentRequestUploadCreator.CreateUpload(appCtx, file.Data, paymentRequestID, contractorID, file.Header.Filename)
 	if err != nil {
 		logger.Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {

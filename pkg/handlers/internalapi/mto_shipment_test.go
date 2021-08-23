@@ -291,7 +291,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOShipment",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)
@@ -636,7 +636,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		err := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentCustomer",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -844,7 +844,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		notfound := errors.New("Not found error")
 
 		mockFetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(notfound)
@@ -866,13 +866,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockFetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil)
 
 		mockListFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

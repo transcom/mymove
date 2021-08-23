@@ -74,14 +74,14 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 		}
 		ListFetcher := &mocks.TransportationServiceProviderPerformanceListFetcher{}
 		ListFetcher.On("FetchTransportationServiceProviderPerformanceList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(models.TransportationServiceProviderPerformances{tspp}, nil).Once()
 		ListFetcher.On("FetchTransportationServiceProviderPerformanceCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
 		handler := IndexTSPPsHandler{
@@ -106,7 +106,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 		expectedError := models.ErrFetchNotFound
 		ListFetcher := &mocks.TransportationServiceProviderPerformanceListFetcher{}
 		ListFetcher.On("FetchTransportationServiceProviderPerformanceList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 		}
 		Fetcher := &mocks.TransportationServiceProviderPerformanceFetcher{}
 		Fetcher.On("FetchTransportationServiceProviderPerformance",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(tspp, nil).Once()
 		handler := GetTSPPHandler{
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 		expectedError := models.ErrFetchNotFound
 		Fetcher := &mocks.TransportationServiceProviderPerformanceFetcher{}
 		Fetcher.On("FetchTransportationServiceProviderPerformance",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.TransportationServiceProviderPerformance{}, expectedError).Once()
 		handler := GetTSPPHandler{

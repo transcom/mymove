@@ -3,7 +3,6 @@ package accesscode
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services/pagination"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -40,8 +39,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	acs, err := lf.FetchAccessCodeList(appCfg, queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	acs, err := lf.FetchAccessCodeList(suite.TestAppContext(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 2)
@@ -73,8 +71,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
 	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	acs, err := lf.FetchAccessCodeList(appCfg, queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	acs, err := lf.FetchAccessCodeList(suite.TestAppContext(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)
@@ -104,8 +101,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 	queryBuilder := query.NewQueryBuilder()
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	acs, err := lf.FetchAccessCodeList(appCfg, queryFilters, newAssociations, defaultPagination(), defaultOrdering())
+	acs, err := lf.FetchAccessCodeList(suite.TestAppContext(), queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)

@@ -5,7 +5,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	ediResponse824 "github.com/transcom/mymove/pkg/edi/edi824"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 
@@ -23,23 +23,23 @@ func NewEDI824Processor() services.SyncadaFileProcessor {
 }
 
 //ProcessFile parses an EDI 824 response and updates the payment request status
-func (e *edi824Processor) ProcessFile(appCfg appconfig.AppConfig, path string, stringEDI824 string) error {
+func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string, stringEDI824 string) error {
 	fmt.Print(path)
 
 	edi824 := ediResponse824.EDI{}
 	err := edi824.Parse(stringEDI824)
 	if err != nil {
-		appCfg.Logger().Error("unable to parse EDI824", zap.Error(err))
+		appCtx.Logger().Error("unable to parse EDI824", zap.Error(err))
 		return fmt.Errorf("unable to parse EDI824")
 	}
 
-	appCfg.Logger().Info("RECEIVED: 824 Processor received a 824")
-	e.logEDI(appCfg, edi824)
+	appCtx.Logger().Info("RECEIVED: 824 Processor received a 824")
+	e.logEDI(appCtx, edi824)
 
 	var transactionError error
 	var otiGCN int64
 	var bgn edisegment.BGN
-	transactionError = appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionError = appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		icn := edi824.InterchangeControlEnvelope.ISA.InterchangeControlNumber
 		if edi824.InterchangeControlEnvelope.FunctionalGroups != nil {
 			if edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
@@ -145,12 +145,12 @@ func (e *edi824Processor) ProcessFile(appCfg appconfig.AppConfig, path string, s
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
 		txnAppCfg.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
-		e.logEDIWithPaymentRequest(appCfg, edi824, paymentRequest)
+		e.logEDIWithPaymentRequest(appCtx, edi824, paymentRequest)
 		return nil
 	})
 
 	if transactionError != nil {
-		appCfg.Logger().Error(transactionError.Error())
+		appCtx.Logger().Error(transactionError.Error())
 		return transactionError
 	}
 
@@ -171,7 +171,7 @@ func (e *edi824Processor) EDIType() models.EDIType {
 	return models.EDIType824
 }
 
-func (e *edi824Processor) logEDI(appCfg appconfig.AppConfig, edi ediResponse824.EDI) {
+func (e *edi824Processor) logEDI(appCtx appcontext.AppContext, edi ediResponse824.EDI) {
 	var transactionSet0 ediResponse824.TransactionSet
 	var bgn edisegment.BGN
 	var otiGCN int64
@@ -182,15 +182,15 @@ func (e *edi824Processor) logEDI(appCfg appconfig.AppConfig, edi ediResponse824.
 		if len(transactionSet0.OTIs) > 0 {
 			otiGCN = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0].GroupControlNumber
 		} else {
-			appCfg.Logger().Warn("unable to log EDI 824, failed OTI index check")
+			appCtx.Logger().Warn("unable to log EDI 824, failed OTI index check")
 			return
 		}
 	} else {
-		appCfg.Logger().Warn("unable to log EDI 824, failed functional group or transaction sets index check")
+		appCtx.Logger().Warn("unable to log EDI 824, failed functional group or transaction sets index check")
 		return
 	}
 
-	appCfg.Logger().Info("EDI 824 log",
+	appCtx.Logger().Info("EDI 824 log",
 		zap.Int64("824 ICN", icn),
 		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
 		zap.Int64("858 GCN", otiGCN),
@@ -198,7 +198,7 @@ func (e *edi824Processor) logEDI(appCfg appconfig.AppConfig, edi ediResponse824.
 	)
 }
 
-func (e *edi824Processor) logEDIWithPaymentRequest(appCfg appconfig.AppConfig, edi ediResponse824.EDI, paymentRequest models.PaymentRequest) {
+func (e *edi824Processor) logEDIWithPaymentRequest(appCtx appcontext.AppContext, edi ediResponse824.EDI, paymentRequest models.PaymentRequest) {
 	var transactionSet0 ediResponse824.TransactionSet
 	var bgn edisegment.BGN
 	var otiGCN int64
@@ -209,15 +209,15 @@ func (e *edi824Processor) logEDIWithPaymentRequest(appCfg appconfig.AppConfig, e
 		if len(transactionSet0.OTIs) > 0 {
 			otiGCN = edi.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets[0].OTIs[0].GroupControlNumber
 		} else {
-			appCfg.Logger().Warn("unable to log EDI 824, failed OTI index check")
+			appCtx.Logger().Warn("unable to log EDI 824, failed OTI index check")
 			return
 		}
 	} else {
-		appCfg.Logger().Warn("unable to log EDI 824, failed functional group or transaction sets index check")
+		appCtx.Logger().Warn("unable to log EDI 824, failed functional group or transaction sets index check")
 		return
 	}
 
-	appCfg.Logger().Info("EDI 824 log",
+	appCtx.Logger().Info("EDI 824 log",
 		zap.Int64("824 ICN", icn),
 		zap.String("BGN.ReferenceIdentification", bgn.ReferenceIdentification),
 		zap.Int64("858 GCN", otiGCN),

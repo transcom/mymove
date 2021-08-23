@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 )
 
 // UploadInformation contains information for uploads
@@ -31,5 +31,5 @@ type UploadInformation struct {
 // UploadInformationFetcher is the service object interface for FetchUploadInformation
 //go:generate mockery --name UploadInformationFetcher --disable-version-string
 type UploadInformationFetcher interface {
-	FetchUploadInformation(appCfg appconfig.AppConfig, uuid uuid.UUID) (UploadInformation, error)
+	FetchUploadInformation(appCtx appcontext.AppContext, uuid uuid.UUID) (UploadInformation, error)
 }

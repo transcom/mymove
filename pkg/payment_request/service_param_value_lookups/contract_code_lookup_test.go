@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,11 +17,10 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	suite.T().Run("golden path", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
 	})
@@ -60,11 +58,10 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		})
 
 		paramCache := NewServiceParamsCache()
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem1.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem1.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, serviceItemParamKey1.Key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
 

@@ -3,7 +3,7 @@ package paymentrequest
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -17,9 +17,9 @@ func NewPaymentRequestReviewedFetcher() services.PaymentRequestReviewedFetcher {
 }
 
 //FetchReviewedPaymentRequest finds all payment request with status 'reviewed'
-func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCfg appconfig.AppConfig) (models.PaymentRequests, error) {
+func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCtx appcontext.AppContext) (models.PaymentRequests, error) {
 	var reviewedPaymentRequests models.PaymentRequests
-	err := appCfg.DB().Q().
+	err := appCtx.DB().Q().
 		Where("status = ?", models.PaymentRequestStatusReviewed).
 		All(&reviewedPaymentRequests)
 	if err != nil {

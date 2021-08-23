@@ -3,7 +3,7 @@ package mtoagent
 import (
 	"github.com/gobuffalo/validate/v3"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -14,15 +14,15 @@ type mtoAgentValidator interface {
 	// oldAgent parameter is expected to be nil in creation use cases.
 	// It is safe to return a *validate.Errors with zero added errors as
 	// a success case.
-	Validate(appCfg appconfig.AppConfig, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error
+	Validate(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error
 }
 
 // mtoAgentValidatorFunc is an adapter type for converting a function into an implementation of mtoAgentValidator
-type mtoAgentValidatorFunc func(appconfig.AppConfig, models.MTOAgent, *models.MTOAgent, *models.MTOShipment) error
+type mtoAgentValidatorFunc func(appcontext.AppContext, models.MTOAgent, *models.MTOAgent, *models.MTOShipment) error
 
 // Validate fulfills the mtoAgentValidator interface
-func (fn mtoAgentValidatorFunc) Validate(appCfg appconfig.AppConfig, newer models.MTOAgent, older *models.MTOAgent, ship *models.MTOShipment) error {
-	return fn(appCfg, newer, older, ship)
+func (fn mtoAgentValidatorFunc) Validate(appCtx appcontext.AppContext, newer models.MTOAgent, older *models.MTOAgent, ship *models.MTOShipment) error {
+	return fn(appCtx, newer, older, ship)
 }
 
 // validateMTOAgent checks an MTOAgent against a passed-in set of business rule checks
@@ -31,7 +31,7 @@ func (fn mtoAgentValidatorFunc) Validate(appCfg appconfig.AppConfig, newer model
 // and returned immediately, ignoring any accumulated validation errors and short circuiting
 // the execution of any further mtoAgentValidator instances.
 func validateMTOAgent(
-	appCfg appconfig.AppConfig,
+	appCtx appcontext.AppContext,
 	newAgent models.MTOAgent,
 	oldAgent *models.MTOAgent,
 	shipment *models.MTOShipment,
@@ -39,7 +39,7 @@ func validateMTOAgent(
 ) (result error) {
 	verrs := validate.NewErrors()
 	for _, checker := range checks {
-		if err := checker.Validate(appCfg, newAgent, oldAgent, shipment); err != nil {
+		if err := checker.Validate(appCtx, newAgent, oldAgent, shipment); err != nil {
 			switch e := err.(type) {
 			case *validate.Errors:
 				// accumulate validation errors

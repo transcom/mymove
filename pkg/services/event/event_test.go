@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,6 +22,11 @@ import (
 type EventServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *EventServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *EventServiceSuite) SetupTest() {

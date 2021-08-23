@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	services "github.com/transcom/mymove/pkg/services"
 )
@@ -14,20 +14,20 @@ type ListFetcher struct {
 	mock.Mock
 }
 
-// FetchRecordCount provides a mock function with given fields: appCfg, model, filters
-func (_m *ListFetcher) FetchRecordCount(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) (int, error) {
-	ret := _m.Called(appCfg, model, filters)
+// FetchRecordCount provides a mock function with given fields: appCtx, model, filters
+func (_m *ListFetcher) FetchRecordCount(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(appCtx, model, filters)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, interface{}, []services.QueryFilter) int); ok {
-		r0 = rf(appCfg, model, filters)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter) int); ok {
+		r0 = rf(appCtx, model, filters)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, interface{}, []services.QueryFilter) error); ok {
-		r1 = rf(appCfg, model, filters)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, interface{}, []services.QueryFilter) error); ok {
+		r1 = rf(appCtx, model, filters)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -35,13 +35,13 @@ func (_m *ListFetcher) FetchRecordCount(appCfg appconfig.AppConfig, model interf
 	return r0, r1
 }
 
-// FetchRecordList provides a mock function with given fields: appCfg, model, filters, associations, pagination, ordering
-func (_m *ListFetcher) FetchRecordList(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
-	ret := _m.Called(appCfg, model, filters, associations, pagination, ordering)
+// FetchRecordList provides a mock function with given fields: appCtx, model, filters, associations, pagination, ordering
+func (_m *ListFetcher) FetchRecordList(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+	ret := _m.Called(appCtx, model, filters, associations, pagination, ordering)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, interface{}, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
-		r0 = rf(appCfg, model, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r0 = rf(appCtx, model, filters, associations, pagination, ordering)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -12,7 +12,6 @@ package models_test
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -88,10 +87,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(appCfg, &ppm.Move)
-	moveRouter.Approve(appCfg, &ppm.Move)
+	moveRouter.Submit(suite.TestAppContext(), &ppm.Move)
+	moveRouter.Approve(suite.TestAppContext(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
@@ -215,10 +213,9 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 	moveRouter := moverouter.NewMoveRouter()
-	moveRouter.Submit(appCfg, &ppm.Move)
-	moveRouter.Approve(appCfg, &ppm.Move)
+	moveRouter.Submit(suite.TestAppContext(), &ppm.Move)
+	moveRouter.Approve(suite.TestAppContext(), &ppm.Move)
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())

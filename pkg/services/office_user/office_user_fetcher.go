@@ -4,16 +4,16 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type officeUserQueryBuilder interface {
-	FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error
-	QueryForAssociations(appCfg appconfig.AppConfig, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
-	CreateOne(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error)
-	UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error)
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	QueryForAssociations(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
+	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type officeUserFetcher struct {
@@ -21,9 +21,9 @@ type officeUserFetcher struct {
 }
 
 // FetchOfficeUser fetches an office user given a slice of filters
-func (o *officeUserFetcher) FetchOfficeUser(appCfg appconfig.AppConfig, filters []services.QueryFilter) (models.OfficeUser, error) {
+func (o *officeUserFetcher) FetchOfficeUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.OfficeUser, error) {
 	var officeUser models.OfficeUser
-	err := o.builder.FetchOne(appCfg, &officeUser, filters)
+	err := o.builder.FetchOne(appCtx, &officeUser, filters)
 	return officeUser, err
 }
 
@@ -37,9 +37,9 @@ type officeUserFetcherPop struct {
 }
 
 // FetchOfficeUserByID fetches an office user given a slice of filters
-func (o *officeUserFetcherPop) FetchOfficeUserByID(appCfg appconfig.AppConfig, id uuid.UUID) (models.OfficeUser, error) {
+func (o *officeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
 	var officeUser models.OfficeUser
-	err := appCfg.DB().Eager("TransportationOffice").Find(&officeUser, id)
+	err := appCtx.DB().Eager("TransportationOffice").Find(&officeUser, id)
 	return officeUser, err
 }
 

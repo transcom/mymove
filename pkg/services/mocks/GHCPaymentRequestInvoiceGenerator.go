@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 
 	mock "github.com/stretchr/testify/mock"
@@ -16,20 +16,20 @@ type GHCPaymentRequestInvoiceGenerator struct {
 	mock.Mock
 }
 
-// Generate provides a mock function with given fields: appCfg, paymentRequest, sendProductionInvoice
-func (_m *GHCPaymentRequestInvoiceGenerator) Generate(appCfg appconfig.AppConfig, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
-	ret := _m.Called(appCfg, paymentRequest, sendProductionInvoice)
+// Generate provides a mock function with given fields: appCtx, paymentRequest, sendProductionInvoice
+func (_m *GHCPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
+	ret := _m.Called(appCtx, paymentRequest, sendProductionInvoice)
 
 	var r0 ediinvoice.Invoice858C
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, models.PaymentRequest, bool) ediinvoice.Invoice858C); ok {
-		r0 = rf(appCfg, paymentRequest, sendProductionInvoice)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentRequest, bool) ediinvoice.Invoice858C); ok {
+		r0 = rf(appCtx, paymentRequest, sendProductionInvoice)
 	} else {
 		r0 = ret.Get(0).(ediinvoice.Invoice858C)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, models.PaymentRequest, bool) error); ok {
-		r1 = rf(appCfg, paymentRequest, sendProductionInvoice)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentRequest, bool) error); ok {
+		r1 = rf(appCtx, paymentRequest, sendProductionInvoice)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -19,10 +19,10 @@ type userSessionRevocation struct {
 }
 
 // RevokeUserSession revokes the user's session
-func (o *userSessionRevocation) RevokeUserSession(appCfg appconfig.AppConfig, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
+func (o *userSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
 	var foundUser models.User
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-	err := o.builder.FetchOne(appCfg, &foundUser, filters)
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
@@ -33,7 +33,7 @@ func (o *userSessionRevocation) RevokeUserSession(appCfg appconfig.AppConfig, id
 		return nil, nil, redisErr
 	}
 
-	return deleteSessionIDFromDB(appCfg, o, foundUser, payload)
+	return deleteSessionIDFromDB(appCtx, o, foundUser, payload)
 }
 
 // NewUserSessionRevocation returns a new admin user creator builder
@@ -85,7 +85,7 @@ func deleteSessionIDFromRedis(user models.User, payload *adminmessages.UserUpdat
 	return nil
 }
 
-func deleteSessionIDFromDB(appCfg appconfig.AppConfig, o *userSessionRevocation, user models.User, payload *adminmessages.UserUpdatePayload) (*models.User, *validate.Errors, error) {
+func deleteSessionIDFromDB(appCtx appcontext.AppContext, o *userSessionRevocation, user models.User, payload *adminmessages.UserUpdatePayload) (*models.User, *validate.Errors, error) {
 	if payload.RevokeAdminSession != nil && *payload.RevokeAdminSession {
 		user.CurrentAdminSessionID = ""
 	}
@@ -98,7 +98,7 @@ func deleteSessionIDFromDB(appCfg appconfig.AppConfig, o *userSessionRevocation,
 		user.CurrentMilSessionID = ""
 	}
 
-	verrs, err := o.builder.UpdateOne(appCfg, &user, nil)
+	verrs, err := o.builder.UpdateOne(appCtx, &user, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}

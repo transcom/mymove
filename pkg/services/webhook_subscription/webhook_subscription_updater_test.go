@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gofrs/uuid"
@@ -33,8 +32,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		}
 		sev := int64(newSub.Severity)
 		eTag := etag.GenerateEtag(origSub.UpdatedAt)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedSub, err := updater.UpdateWebhookSubscription(appCfg, &newSub, &sev, &eTag)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, &sev, &eTag)
 
 		suite.NoError(err)
 		suite.Equal(newSub.CallbackURL, updatedSub.CallbackURL)
@@ -54,8 +52,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			ID:          fakeID,
 			CallbackURL: "/this/is/changed/again"}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedSub, err := updater.UpdateWebhookSubscription(appCfg, &newSub, nil, nil)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, nil, nil)
 
 		suite.Equal(models.RecordNotFoundErrorString, err.Error())
 		suite.Nil(updatedSub)
@@ -74,8 +71,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 			CallbackURL:  "/this/is/changed/again",
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedSub, err := updater.UpdateWebhookSubscription(appCfg, &newSub, nil, nil)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, nil, nil)
 
 		suite.Error(err)
 		suite.Nil(updatedSub)
@@ -93,8 +89,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionUpdater() {
 		}
 		sev := int64(newSub.Severity)
 		eTag := etag.GenerateEtag(time.Now())
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedSub, err := updater.UpdateWebhookSubscription(appCfg, &newSub, &sev, &eTag)
+		updatedSub, err := updater.UpdateWebhookSubscription(suite.TestAppContext(), &newSub, &sev, &eTag)
 
 		suite.Error(err)
 		suite.Nil(updatedSub)

@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -25,11 +24,10 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
 			{"Approved", models.MoveStatusAPPROVED},
 		}
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		for _, validStatus := range validStatuses {
 			move.Status = validStatus.status
 
-			err := moveRouter.Approve(appCfg, &move)
+			err := moveRouter.Approve(suite.TestAppContext(), &move)
 
 			suite.NoError(err)
 			suite.Equal(models.MoveStatusAPPROVED, move.Status)
@@ -45,11 +43,10 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 			{"Canceled", models.MoveStatusCANCELED},
 			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
 		}
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		for _, invalidStatus := range invalidStatuses {
 			move.Status = invalidStatus.status
 
-			err := moveRouter.Approve(appCfg, &move)
+			err := moveRouter.Approve(suite.TestAppContext(), &move)
 
 			suite.Error(err)
 			suite.Contains(err.Error(), "A move can only be approved if it's in one of these states")
@@ -63,21 +60,19 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		var move models.Move
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Submit(appCfg, &move)
+		err := moveRouter.Submit(suite.TestAppContext(), &move)
 		suite.Error(err)
 		suite.Contains(err.Error(), "not found looking for move.OrdersID")
 	})
 
 	suite.Run("returns error when OriginDutyStation is missing", func() {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		move := testdatagen.MakeDefaultMove(suite.DB())
 		order := move.Orders
 		order.OriginDutyStation = nil
 		order.OriginDutyStationID = nil
 		suite.NoError(suite.DB().Update(&order))
 
-		err := moveRouter.Submit(appCfg, &move)
+		err := moveRouter.Submit(suite.TestAppContext(), &move)
 		suite.Error(err)
 		suite.Contains(err.Error(), "orders missing OriginDutyStation")
 	})
@@ -97,8 +92,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			Order: order,
 		})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Submit(appCfg, &move)
+		err := moveRouter.Submit(suite.TestAppContext(), &move)
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 	})
@@ -118,8 +112,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			Order: order,
 		})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Submit(appCfg, &move)
+		err := moveRouter.Submit(suite.TestAppContext(), &move)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s can not be sent to 'Approvals Requested' if the status is cancelled.", move.ID))
 	})
@@ -141,8 +134,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			Order: order,
 		})
 		suite.NotNil(move.Orders.AmendedOrdersAcknowledgedAt)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Submit(appCfg, &move)
+		err := moveRouter.Submit(suite.TestAppContext(), &move)
 		suite.NoError(err)
 		var updatedOrders models.Order
 		err = suite.DB().Find(&updatedOrders, move.OrdersID)
@@ -169,8 +161,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			suite.Run(tt.desc, func() {
 				move.Status = tt.status
 
-				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-				err := moveRouter.Submit(appCfg, &move)
+				err := moveRouter.Submit(suite.TestAppContext(), &move)
 				suite.Error(err)
 				suite.Contains(err.Error(), "Cannot move to Submitted state for TOO review when the Move is not in Draft status")
 				suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
@@ -205,8 +196,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 			suite.Run(tt.desc, func() {
 				move.Status = tt.status
 
-				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-				err := moveRouter.Submit(appCfg, &move)
+				err := moveRouter.Submit(suite.TestAppContext(), &move)
 				suite.Error(err)
 				suite.Contains(err.Error(), "Cannot move to NeedsServiceCounseling state when the Move is not in Draft status")
 				suite.Contains(err.Error(), fmt.Sprintf("Its current status is: %s", tt.status))
@@ -231,8 +221,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		})
 		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Submit(appCfg, &move)
+		err := moveRouter.Submit(suite.TestAppContext(), &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
@@ -245,8 +234,7 @@ func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
 
 	suite.Run("approves move with no service items in requested status", func() {
 		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(appCfg, move.ID, move.Orders.ID)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(suite.TestAppContext(), move.ID, move.Orders.ID)
 
 		suite.NoError(approveErr)
 		suite.Equal(models.MoveStatusAPPROVED, approvedMove.Status)
@@ -267,8 +255,7 @@ func (suite *MoveServiceSuite) TestApproveAmendedOrders() {
 				Status: models.MTOServiceItemStatusSubmitted,
 			},
 		})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(appCfg, move.ID, move.Orders.ID)
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(suite.TestAppContext(), move.ID, move.Orders.ID)
 
 		suite.NoError(approveErr)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, approvedMove.Status)
@@ -280,8 +267,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 
 	suite.Run("defaults to nil reason if empty string provided", func() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Cancel(appCfg, "", &move)
+		err := moveRouter.Cancel(suite.TestAppContext(), "", &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
@@ -292,8 +278,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Stub: true})
 
 		reason := "SM's orders revoked"
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Cancel(appCfg, reason, &move)
+		err := moveRouter.Cancel(suite.TestAppContext(), reason, &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
@@ -317,8 +302,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		})
 		move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		err := moveRouter.Cancel(appCfg, "", &move)
+		err := moveRouter.Cancel(suite.TestAppContext(), "", &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
@@ -345,8 +329,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 				move.Status = tt.status
 				move.Orders.Status = models.OrderStatusSUBMITTED
 
-				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-				err := moveRouter.Cancel(appCfg, "", &move)
+				err := moveRouter.Cancel(suite.TestAppContext(), "", &move)
 
 				suite.NoError(err)
 				suite.Equal(models.MoveStatusCANCELED, move.Status)
@@ -367,8 +350,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 			suite.Run(tt.desc, func() {
 				move.Status = tt.status
 
-				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-				err := moveRouter.Cancel(appCfg, "", &move)
+				err := moveRouter.Cancel(suite.TestAppContext(), "", &move)
 
 				suite.Error(err)
 				suite.Contains(err.Error(), "Cannot cancel a move that is already canceled.")
@@ -396,8 +378,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			suite.Run(tt.desc, func() {
 				move.Status = tt.status
 
-				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-				err := moveRouter.SendToOfficeUser(appCfg, &move)
+				err := moveRouter.SendToOfficeUser(suite.TestAppContext(), &move)
 
 				suite.NoError(err)
 				suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
@@ -416,8 +397,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 			suite.Run(tt.desc, func() {
 				move.Status = tt.status
 
-				appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-				err := moveRouter.SendToOfficeUser(appCfg, &move)
+				err := moveRouter.SendToOfficeUser(suite.TestAppContext(), &move)
 
 				suite.Error(err)
 				suite.Contains(err.Error(), fmt.Sprintf("The status for the move with ID %s", move.ID))

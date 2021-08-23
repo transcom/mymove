@@ -3,7 +3,7 @@ package webhooksubscription
 import (
 	"github.com/gobuffalo/validate/v3"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -13,18 +13,18 @@ type webhookSubscriptionCreator struct {
 }
 
 // CreateWebhookSubscription creates admin user
-func (o *webhookSubscriptionCreator) CreateWebhookSubscription(appCfg appconfig.AppConfig, subscription *models.WebhookSubscription, subscriberIDFilter []services.QueryFilter) (*models.WebhookSubscription, *validate.Errors, error) {
+func (o *webhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription, subscriberIDFilter []services.QueryFilter) (*models.WebhookSubscription, *validate.Errors, error) {
 	var contractor models.Contractor
 	var verrs *validate.Errors
 	var err error
 
 	// check to see if subscriber exists
-	fetchErr := o.builder.FetchOne(appCfg, &contractor, subscriberIDFilter)
+	fetchErr := o.builder.FetchOne(appCtx, &contractor, subscriberIDFilter)
 	if fetchErr != nil {
 		return nil, nil, services.NewNotFoundError(subscription.SubscriberID, "while looking for SubscriberID")
 	}
 
-	verrs, err = o.builder.CreateOne(appCfg, subscription)
+	verrs, err = o.builder.CreateOne(appCtx, subscription)
 	if verrs != nil && verrs.HasAny() {
 		return nil, verrs, nil
 	} else if err != nil {

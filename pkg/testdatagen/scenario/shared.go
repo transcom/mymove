@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
@@ -86,8 +86,8 @@ func mustSave(db *pop.Connection, model interface{}) {
 	}
 }
 
-func createPPMOfficeUser(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createPPMOfficeUser(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	email := "ppm_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
@@ -126,8 +126,8 @@ func createPPMOfficeUser(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createPPMWithAdvance(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createPPMWithAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	/*
 	 * Service member with uploaded orders and a new ppm
 	 */
@@ -176,7 +176,7 @@ func createPPMWithAdvance(appCfg appconfig.AppConfig, userUploader *uploader.Use
 			ServiceMember:   ppm0.Move.Orders.ServiceMember,
 		},
 	})
-	err := moveRouter.Submit(appCfg, &ppm0.Move)
+	err := moveRouter.Submit(appCtx, &ppm0.Move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -187,8 +187,8 @@ func createPPMWithAdvance(appCfg appconfig.AppConfig, userUploader *uploader.Use
 	}
 }
 
-func createPPMWithNoAdvance(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createPPMWithNoAdvance(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	/*
 	 * Service member with uploaded orders, a new ppm and no advance
 	 */
@@ -221,7 +221,7 @@ func createPPMWithNoAdvance(appCfg appconfig.AppConfig, userUploader *uploader.U
 		},
 		UserUploader: userUploader,
 	})
-	err := moveRouter.Submit(appCfg, &ppmNoAdvance.Move)
+	err := moveRouter.Submit(appCtx, &ppmNoAdvance.Move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -232,8 +232,8 @@ func createPPMWithNoAdvance(appCfg appconfig.AppConfig, userUploader *uploader.U
 	}
 }
 
-func createPPMWithPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createPPMWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	/*
 	 * Service member with a ppm move with payment requested
 	 */
@@ -275,12 +275,12 @@ func createPPMWithPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploa
 		},
 		UserUploader: userUploader,
 	})
-	err := moveRouter.Submit(appCfg, &ppm2.Move)
+	err := moveRouter.Submit(appCtx, &ppm2.Move)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	err = moveRouter.Approve(appCfg, &ppm2.Move)
+	err = moveRouter.Approve(appCtx, &ppm2.Move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -300,8 +300,8 @@ func createPPMWithPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploa
 	}
 }
 
-func createCanceledPPM(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createCanceledPPM(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	/*
 	 * A PPM move that has been canceled.
 	 */
@@ -334,7 +334,7 @@ func createCanceledPPM(appCfg appconfig.AppConfig, userUploader *uploader.UserUp
 		},
 		UserUploader: userUploader,
 	})
-	err := moveRouter.Submit(appCfg, &ppmCanceled.Move)
+	err := moveRouter.Submit(appCtx, &ppmCanceled.Move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -342,7 +342,7 @@ func createCanceledPPM(appCfg appconfig.AppConfig, userUploader *uploader.UserUp
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
 	}
-	err = moveRouter.Cancel(appCfg, "reasons", &ppmCanceled.Move)
+	err = moveRouter.Cancel(appCtx, "reasons", &ppmCanceled.Move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -352,8 +352,8 @@ func createCanceledPPM(appCfg appconfig.AppConfig, userUploader *uploader.UserUp
 	}
 }
 
-func createServiceMemberWithOrdersButNoMoveType(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createServiceMemberWithOrdersButNoMoveType(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/*
 	 * A service member with orders and a move, but no move type selected
 	 */
@@ -386,8 +386,8 @@ func createServiceMemberWithOrdersButNoMoveType(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createServiceMemberWithNoUploadedOrders(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createServiceMemberWithNoUploadedOrders(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/*
 	 * Service member with no uploaded orders
 	 */
@@ -414,8 +414,8 @@ func createServiceMemberWithNoUploadedOrders(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createMoveWithPPMAndHHG(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	/*
 	 * A service member with orders and a submitted move with a ppm and hhg
 	 */
@@ -509,7 +509,7 @@ func createMoveWithPPMAndHHG(appCfg appconfig.AppConfig, userUploader *uploader.
 	})
 
 	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -519,8 +519,8 @@ func createMoveWithPPMAndHHG(appCfg appconfig.AppConfig, userUploader *uploader.
 	}
 }
 
-func createMoveWithHHGMissingOrdersInfo(appCfg appconfig.AppConfig, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "REQINF",
@@ -534,15 +534,15 @@ func createMoveWithHHGMissingOrdersInfo(appCfg appconfig.AppConfig, moveRouter s
 	order.OrdersTypeDetail = nil
 	mustSave(db, &order)
 
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
 	mustSave(db, &move)
 }
 
-func createUnsubmittedHHGMove(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createUnsubmittedHHGMove(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/*
 	 * A service member with an hhg only, unsubmitted move
 	 */
@@ -600,8 +600,8 @@ func createUnsubmittedHHGMove(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createUnsubmittedHHGMoveMultipleDestinations(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/*
 		A service member with an un-submitted move that has an HHG shipment going to multiple destination addresses
 	*/
@@ -671,8 +671,8 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createUnsubmittedHHGMoveMultiplePickup(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/*
 	 * A service member with an hhg only, unsubmitted move
 	 */
@@ -756,8 +756,8 @@ func createUnsubmittedHHGMoveMultiplePickup(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	/*
 	 * A service member with an hhg only, submitted move, with multiple addresses and amended orders
 	 */
@@ -875,8 +875,8 @@ func getNtsAndNtsrUuids(move int) [7]string {
 	}
 }
 
-func createUnsubmittedMoveWithNTSAndNTSR(appCfg appconfig.AppConfig, moveNumber int) {
-	db := appCfg.DB()
+func createUnsubmittedMoveWithNTSAndNTSR(appCtx appcontext.AppContext, moveNumber int) {
+	db := appCtx.DB()
 	/*
 	 * A service member with an NTS, NTS-R shipment, & unsubmitted move
 	 */
@@ -965,8 +965,8 @@ func createUnsubmittedMoveWithNTSAndNTSR(appCfg appconfig.AppConfig, moveNumber 
 	})
 }
 
-func createNTSMove(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createNTSMove(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	testdatagen.MakeNTSMoveWithShipment(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Spaceman"),
@@ -975,8 +975,8 @@ func createNTSMove(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createNTSRMove(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createNTSRMove(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	testdatagen.MakeNTSRMoveWithShipment(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Spaceman"),
@@ -985,8 +985,8 @@ func createNTSRMove(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createPPMReadyToRequestPayment(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createPPMReadyToRequestPayment(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	/*
 	 * Service member with a ppm ready to request payment
 	 */
@@ -1029,11 +1029,11 @@ func createPPMReadyToRequestPayment(appCfg appconfig.AppConfig, userUploader *up
 		},
 		UserUploader: userUploader,
 	})
-	err := moveRouter.Submit(appCfg, &ppm6.Move)
+	err := moveRouter.Submit(appCtx, &ppm6.Move)
 	if err != nil {
 		log.Panic(err)
 	}
-	err = moveRouter.Approve(appCfg, &ppm6.Move)
+	err = moveRouter.Approve(appCtx, &ppm6.Move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -1081,8 +1081,8 @@ func getPpmUuids(moveNumber int) [3]string {
 	return uuids
 }
 
-func createPPMUsers(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	for moveNumber := 1; moveNumber < 4; moveNumber++ {
 		uuids := getPpmUuids(moveNumber)
 		email := fmt.Sprintf("ppm.test.user%d@example.com", moveNumber)
@@ -1120,15 +1120,15 @@ func createPPMUsers(appCfg appconfig.AppConfig, userUploader *uploader.UserUploa
 	}
 }
 
-func createDefaultHHGMoveWithPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
-	createHHGMoveWithPaymentRequest(appCfg, userUploader, affiliation, testdatagen.Assertions{})
+func createDefaultHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation) {
+	createHHGMoveWithPaymentRequest(appCtx, userUploader, affiliation, testdatagen.Assertions{})
 }
 
 // Creates a payment request with domestic longhaul and shorthaul shipments with
 // service item pricing params for displaying cost calculations
-func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
-	logger := appCfg.Logger()
+func createHHGWithPaymentServiceItems(appCtx appcontext.AppContext, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
+	logger := appCtx.Logger()
 
 	issueDate := time.Date(testdatagen.GHCTestYear, 3, 15, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(testdatagen.GHCTestYear, 8, 1, 0, 0, 0, 0, time.UTC)
@@ -1169,7 +1169,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 		Move: move,
 	})
 
-	submissionErr := moveRouter.Submit(appCfg, &move)
+	submissionErr := moveRouter.Submit(appCtx, &move)
 	if submissionErr != nil {
 		logger.Fatal(fmt.Sprintf("Error submitting move: %s", submissionErr))
 	}
@@ -1183,7 +1183,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
-	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCfg, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
+	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
 		logger.Fatal("Error approving move")
@@ -1214,7 +1214,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCfg, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 		}
@@ -1243,7 +1243,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 		Stub: true,
 	})
 
-	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCfg, &originSIT)
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
@@ -1267,7 +1267,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 		Stub: true,
 	})
 
-	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCfg, &destSIT)
+	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destSIT)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
@@ -1291,7 +1291,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	originDepartureDate := originEntryDate.Add(15 * 24 * time.Hour)
 	originPickupSIT.SITDepartureDate = &originDepartureDate
 
-	updatedDOPSIT, updateOriginErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCfg, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
+	updatedDOPSIT, updateOriginErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &originPickupSIT, etag.GenerateEtag(originPickupSIT.UpdatedAt))
 
 	if updateOriginErr != nil {
 		logger.Fatal("Error updating DOPSIT with departure date")
@@ -1300,7 +1300,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	originPickupSIT = *updatedDOPSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{originFirstDaySIT, originAdditionalDaySIT, originPickupSIT} {
-		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCfg, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -1325,7 +1325,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	serviceItemDDDSIT.SITDestinationFinalAddress = &destSITAddress
 	serviceItemDDDSIT.SITDestinationFinalAddressID = &destSITAddress.ID
 
-	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCfg, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
+	updatedDDDSIT, updateDestErr := serviceItemUpdator.UpdateMTOServiceItemPrime(appCtx, &serviceItemDDDSIT, etag.GenerateEtag(serviceItemDDDSIT.UpdatedAt))
 
 	if updateDestErr != nil {
 		logger.Fatal("Error updating DDDSIT with departure date")
@@ -1334,7 +1334,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	serviceItemDDDSIT = *updatedDDDSIT
 
 	for _, createdServiceItem := range []models.MTOServiceItem{serviceItemDDFSIT, serviceItemDDASIT, serviceItemDDDSIT} {
-		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCfg, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
+		_, updateErr := serviceItemUpdator.UpdateMTOServiceItemStatus(appCtx, createdServiceItem.ID, models.MTOServiceItemStatusApproved, nil, etag.GenerateEtag(createdServiceItem.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error approving SIT service item", zap.Error(updateErr))
 		}
@@ -1395,7 +1395,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 
 	cratingServiceItems := []models.MTOServiceItem{crating, uncrating}
 	for index := range cratingServiceItems {
-		_, _, cratingErr := serviceItemCreator.CreateMTOServiceItem(appCfg, &cratingServiceItems[index])
+		_, _, cratingErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &cratingServiceItems[index])
 		if cratingErr != nil {
 			logger.Fatal("Error creating crating service item", zap.Error(cratingErr))
 		}
@@ -1441,7 +1441,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 
 	shuttleServiceItems := []models.MTOServiceItem{originShuttle, destShuttle}
 	for index := range shuttleServiceItems {
-		_, _, shuttlingErr := serviceItemCreator.CreateMTOServiceItem(appCfg, &shuttleServiceItems[index])
+		_, _, shuttlingErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &shuttleServiceItems[index])
 		if shuttlingErr != nil {
 			logger.Fatal("Error creating shuttle service item", zap.Error(shuttlingErr))
 		}
@@ -1472,7 +1472,7 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	}
 
 	paymentRequest.PaymentServiceItems = paymentServiceItems
-	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequest(appCfg, &paymentRequest)
+	newPaymentRequest, createErr := paymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
 
 	if createErr != nil {
 		logger.Fatal("Error creating payment request", zap.Error(createErr))
@@ -1501,14 +1501,14 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 
 	// Creates custom test.jpg prime upload
 	file := testdatagen.Fixture("test.jpg")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCfg, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
 	}
 
 	// Creates custom test.png prime upload
 	file = testdatagen.Fixture("test.png")
-	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCfg, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
 	if verrs.HasAny() || err != nil {
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
@@ -1516,9 +1516,9 @@ func createHHGWithPaymentServiceItems(appCfg appconfig.AppConfig, primeUploader 
 	logger.Info(fmt.Sprintf("New payment request with service item params created with locator %s", move.Locator))
 }
 
-func createHHGMoveWithPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
-	db := appCfg.DB()
-	logger := appCfg.Logger()
+func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, affiliation models.ServiceMemberAffiliation, assertions testdatagen.Assertions) {
+	db := appCtx.DB()
+	logger := appCtx.Logger()
 	serviceMember := models.ServiceMember{
 		Affiliation: &affiliation,
 	}
@@ -1635,8 +1635,8 @@ func createHHGMoveWithPaymentRequest(appCfg appconfig.AppConfig, userUploader *u
 	logger.Debug("Response of create payment request handler: ", zap.Any("", showResponse))
 }
 
-func createHHGMoveWith10ServiceItems(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createHHGMoveWith10ServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
 	customer8 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
@@ -1975,8 +1975,8 @@ func createHHGMoveWith10ServiceItems(appCfg appconfig.AppConfig, userUploader *u
 	})
 }
 
-func createHHGMoveWith2PaymentRequests(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createHHGMoveWith2PaymentRequests(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	/* Customer with two payment requests */
 	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -2165,8 +2165,8 @@ func createHHGMoveWith2PaymentRequests(appCfg appconfig.AppConfig, userUploader 
 	})
 }
 
-func createMoveWithHHGAndNTSRPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
 	customer := testdatagen.MakeDefaultServiceMember(db)
@@ -2618,8 +2618,8 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCfg appconfig.AppConfig, userUplo
 	})
 }
 
-func createMoveWith2MinimalShipments(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createMoveWith2MinimalShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Status:  models.MoveStatusSUBMITTED,
@@ -2645,8 +2645,8 @@ func createMoveWith2MinimalShipments(appCfg appconfig.AppConfig, userUploader *u
 	})
 }
 
-func createMoveWith2ShipmentsAndPaymentRequest(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	msCost := unit.Cents(10000)
 
 	customer := testdatagen.MakeDefaultServiceMember(db)
@@ -3074,8 +3074,8 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCfg appconfig.AppConfig, userU
 	})
 }
 
-func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	/* Customer with two payment requests */
 	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -3277,8 +3277,8 @@ func createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCfg app
 	})
 }
 
-func createTOO(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createTOO(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	email := "too_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
@@ -3318,8 +3318,8 @@ func createTOO(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createTIO(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createTIO(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	email := "tio_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
@@ -3359,8 +3359,8 @@ func createTIO(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createServicesCounselor(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createServicesCounselor(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	email := "services_counselor_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
@@ -3400,8 +3400,8 @@ func createServicesCounselor(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createTXO(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createTXO(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/* A user with both too and tio roles */
 	email := "too_tio_role@office.mil"
 	officeUser := models.OfficeUser{}
@@ -3453,8 +3453,8 @@ func createTXO(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createTXOUSMC(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createTXOUSMC(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	emailUSMC := "too_tio_role_usmc@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", emailUSMC).Exists(&officeUser)
@@ -3510,8 +3510,8 @@ func createTXOUSMC(appCfg appconfig.AppConfig) {
 
 }
 
-func createTXOServicesCounselor(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createTXOServicesCounselor(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	/* A user with both too, tio, and services counselor roles */
 	email := "too_tio_services_counselor_role@office.mil"
 	officeUser := models.OfficeUser{}
@@ -3556,8 +3556,8 @@ func createTXOServicesCounselor(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createTXOServicesUSMCCounselor(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	emailUSMC := "too_tio_services_counselor_role_usmc@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", emailUSMC).Exists(&officeUser)
@@ -3609,8 +3609,8 @@ func createTXOServicesUSMCCounselor(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createHHGMoveWithReweigh(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	move := testdatagen.MakeAvailableMove(db)
 	move.Locator = "REWAYD"
 	mustSave(db, &move)
@@ -3628,8 +3628,8 @@ func createHHGMoveWithReweigh(appCfg appconfig.AppConfig, userUploader *uploader
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{UserUploader: userUploader})
 }
 
-func createHHGMoveWithBillableWeights(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCfg.DB()
+func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
 	filterFile := &[]string{"150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
@@ -3641,8 +3641,8 @@ func createHHGMoveWithBillableWeights(appCfg appconfig.AppConfig, userUploader *
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
-func createReweighWithMultipleShipments(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	email := "multShipments@hhg.hhg"
 	uuidStr := "db5d94fe-ffb9-11eb-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3722,7 +3722,7 @@ func createReweighWithMultipleShipments(appCfg appconfig.AppConfig, userUploader
 		},
 	})
 
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -3737,8 +3737,8 @@ func createReweighWithMultipleShipments(appCfg appconfig.AppConfig, userUploader
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
-func createReweighWithShipmentMissingReweigh(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	email := "missingShipmentReweighWeight@hhg.hhg"
 	uuidStr := "39b0a762-ffe7-11eb-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3792,7 +3792,7 @@ func createReweighWithShipmentMissingReweigh(appCfg appconfig.AppConfig, userUpl
 		},
 	})
 
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -3807,8 +3807,8 @@ func createReweighWithShipmentMissingReweigh(appCfg appconfig.AppConfig, userUpl
 	testdatagen.MakeReweighWithNoWeightForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment)
 }
 
-func createReweighWithShipmentMaxBillableWeightExceeded(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	email := "shipmentMaxBillableWeightExceeded@hhg.hhg"
 	uuidStr := "f938fc7c-ffe9-11eb-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3862,7 +3862,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCfg appconfig.AppConf
 		},
 	})
 
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -3877,8 +3877,8 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCfg appconfig.AppConf
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(123456))
 }
 
-func createReweighWithShipmentNoEstimatedWeight(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
-	db := appCfg.DB()
+func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
+	db := appCtx.DB()
 	email := "shipmentHasNoEsimatedWeight@hhg.hhg"
 	uuidStr := "9e4600c6-0147-11ec-9a03-0242ac130003"
 	loginGovUUID := uuid.Must(uuid.NewV4())
@@ -3930,7 +3930,7 @@ func createReweighWithShipmentNoEstimatedWeight(appCfg appconfig.AppConfig, user
 		},
 	})
 
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(appCtx, &move)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -3945,9 +3945,9 @@ func createReweighWithShipmentNoEstimatedWeight(appCfg appconfig.AppConfig, user
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
-func createHHGMoveWithTaskOrderServices(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
+func createHHGMoveWithTaskOrderServices(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
 
-	db := appCfg.DB()
+	db := appCtx.DB()
 	mtoWithTaskOrderServices := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
@@ -4081,8 +4081,8 @@ func createHHGMoveWithTaskOrderServices(appCfg appconfig.AppConfig, userUploader
 	})
 }
 
-func createWebhookSubscriptionForPaymentRequestUpdate(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createWebhookSubscriptionForPaymentRequestUpdate(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	// Create one webhook subscription for PaymentRequestUpdate
 	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
 		WebhookSubscription: models.WebhookSubscription{
@@ -4091,8 +4091,8 @@ func createWebhookSubscriptionForPaymentRequestUpdate(appCfg appconfig.AppConfig
 	})
 }
 
-func createMoveWithServiceItems(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
 	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
@@ -4195,8 +4195,8 @@ func createMoveWithServiceItems(appCfg appconfig.AppConfig, userUploader *upload
 	)
 }
 
-func createMoveWithBasicServiceItems(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createMoveWithBasicServiceItems(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 	orders10 := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -4266,8 +4266,8 @@ func createMoveWithBasicServiceItems(appCfg appconfig.AppConfig, userUploader *u
 	})
 }
 
-func createMoveWithUniqueDestinationAddress(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	address := testdatagen.MakeAddress(db, testdatagen.Assertions{
 		Address: models.Address{
 			StreetAddress1: "2 Second St",
@@ -4306,8 +4306,8 @@ func createMoveWithUniqueDestinationAddress(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createHHGNeedsServicesCounseling(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createHHGNeedsServicesCounseling(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
 		DutyStation: models.DutyStation{
@@ -4349,8 +4349,8 @@ func createHHGNeedsServicesCounseling(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createHHGNeedsServicesCounselingUSMC(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
@@ -4397,8 +4397,8 @@ func createHHGNeedsServicesCounselingUSMC(appCfg appconfig.AppConfig, userUpload
 	})
 }
 
-func createHHGNeedsServicesCounselingUSMC2(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
@@ -4438,8 +4438,8 @@ func createHHGNeedsServicesCounselingUSMC2(appCfg appconfig.AppConfig, userUploa
 
 }
 
-func createHHGServicesCounselingCompleted(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -4463,8 +4463,8 @@ func createHHGServicesCounselingCompleted(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createHHGNoShipments(appCfg appconfig.AppConfig) {
-	db := appCfg.DB()
+func createHHGNoShipments(appCtx appcontext.AppContext) {
+	db := appCtx.DB()
 	submittedAt := time.Now()
 	orders := testdatagen.MakeOrderWithoutDefaults(db, testdatagen.Assertions{
 		DutyStation: models.DutyStation{
@@ -4482,8 +4482,8 @@ func createHHGNoShipments(appCfg appconfig.AppConfig) {
 	})
 }
 
-func createHHGMoveWithMultipleOrdersFiles(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCfg.DB()
+func createHHGMoveWithMultipleOrdersFiles(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
@@ -4493,8 +4493,8 @@ func createHHGMoveWithMultipleOrdersFiles(appCfg appconfig.AppConfig, userUpload
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
-func createHHGMoveWithAmendedOrders(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCfg.DB()
+func createHHGMoveWithAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
@@ -4505,8 +4505,8 @@ func createHHGMoveWithAmendedOrders(appCfg appconfig.AppConfig, userUploader *up
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
-func createHHGMoveWithRiskOfExcess(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
-	db := appCfg.DB()
+func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
+	db := appCtx.DB()
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
@@ -4516,8 +4516,8 @@ func createHHGMoveWithRiskOfExcess(appCfg appconfig.AppConfig, userUploader *upl
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
 }
 
-func createMoveWithDivertedShipments(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) {
-	db := appCfg.DB()
+func createMoveWithDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
@@ -4546,13 +4546,13 @@ func createMoveWithDivertedShipments(appCfg appconfig.AppConfig, userUploader *u
 
 // createRandomMove creates a random move with fake data that has been approved for usage
 func createRandomMove(
-	appCfg appconfig.AppConfig,
+	appCtx appcontext.AppContext,
 	possibleStatuses []models.MoveStatus,
 	allDutyStations []models.DutyStation,
 	dutyStationsInGBLOC []models.DutyStation,
 	withFullOrder bool,
 	assertions testdatagen.Assertions) models.Move {
-	db := appCfg.DB()
+	db := appCtx.DB()
 	randDays, err := random.GetRandomInt(366)
 	if err != nil {
 		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(err))

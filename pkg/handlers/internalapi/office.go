@@ -3,7 +3,7 @@ package internalapi
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -25,7 +25,7 @@ type ApproveMoveHandler struct {
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
@@ -50,7 +50,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	}
 
 	logger = logger.With(zap.String("moveLocator", move.Locator))
-	err = h.MoveRouter.Approve(appCfg, move)
+	err = h.MoveRouter.Approve(appCtx, move)
 	if err != nil {
 		logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)
@@ -79,7 +79,7 @@ type CancelMoveHandler struct {
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
@@ -97,7 +97,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 	// Canceling move will result in canceled associated PPMs
-	err = h.MoveRouter.Cancel(appCfg, *params.CancelMove.CancelReason, move)
+	err = h.MoveRouter.Cancel(appCtx, *params.CancelMove.CancelReason, move)
 	if err != nil {
 		logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return handlers.ResponseForError(logger, err)

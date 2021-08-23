@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -27,8 +26,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		notFoundAgent := newAgent
 		notFoundAgent.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &notFoundAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &notFoundAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -41,8 +39,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		invalidAgent := newAgent
 		invalidAgent.MTOShipmentID = newAgent.ID
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &invalidAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &invalidAgent, eTag) // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -55,8 +52,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &newAgent, "bloop") // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &newAgent, "bloop") // base validation
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -74,8 +70,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 		newAgent.Email = &email
 		newAgent.Phone = nil // should keep the phone number from oldAgent
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(appCfg, &newAgent, eTag) // base validation
+		updatedAgent, err := mtoAgentUpdater.UpdateMTOAgentBasic(suite.TestAppContext(), &newAgent, eTag) // base validation
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)

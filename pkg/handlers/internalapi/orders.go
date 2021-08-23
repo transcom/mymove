@@ -10,7 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/uploader"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
@@ -289,7 +289,7 @@ type UploadAmendedOrdersHandler struct {
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
 	ctx := params.HTTPRequest.Context()
 	session, logger := h.SessionAndLoggerFromContext(ctx)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
@@ -310,7 +310,7 @@ func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersPa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCfg, session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+	upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, session.UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
 
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {

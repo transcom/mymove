@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOShipment",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		err := services.NotFoundError{}
 
 		mockCreator.On("CreateMTOShipment",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
@@ -384,12 +384,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("MTOShipmentsMTOAvailableToPrime",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(true, nil)
 
 		mockUpdater.On("UpdateMTOShipmentPrime",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

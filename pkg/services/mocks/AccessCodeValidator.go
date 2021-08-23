@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -14,13 +14,13 @@ type AccessCodeValidator struct {
 	mock.Mock
 }
 
-// ValidateAccessCode provides a mock function with given fields: appCfg, code, moveType
-func (_m *AccessCodeValidator) ValidateAccessCode(appCfg appconfig.AppConfig, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
-	ret := _m.Called(appCfg, code, moveType)
+// ValidateAccessCode provides a mock function with given fields: appCtx, code, moveType
+func (_m *AccessCodeValidator) ValidateAccessCode(appCtx appcontext.AppContext, code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
+	ret := _m.Called(appCtx, code, moveType)
 
 	var r0 *models.AccessCode
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, string, models.SelectedMoveType) *models.AccessCode); ok {
-		r0 = rf(appCfg, code, moveType)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, models.SelectedMoveType) *models.AccessCode); ok {
+		r0 = rf(appCtx, code, moveType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AccessCode)
@@ -28,15 +28,15 @@ func (_m *AccessCodeValidator) ValidateAccessCode(appCfg appconfig.AppConfig, co
 	}
 
 	var r1 bool
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, string, models.SelectedMoveType) bool); ok {
-		r1 = rf(appCfg, code, moveType)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, models.SelectedMoveType) bool); ok {
+		r1 = rf(appCtx, code, moveType)
 	} else {
 		r1 = ret.Get(1).(bool)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, string, models.SelectedMoveType) error); ok {
-		r2 = rf(appCfg, code, moveType)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, models.SelectedMoveType) error); ok {
+		r2 = rf(appCtx, code, moveType)
 	} else {
 		r2 = ret.Error(2)
 	}

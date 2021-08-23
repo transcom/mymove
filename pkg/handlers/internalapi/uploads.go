@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -46,7 +46,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
@@ -80,7 +80,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	newUserUpload, url, verrs, createErr := uploaderpkg.CreateUserUploadForDocumentWrapper(
-		appCfg,
+		appCtx,
 		session.UserID,
 		h.FileStorer(),
 		file,
@@ -115,7 +115,7 @@ type DeleteUploadHandler struct {
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
 	userUpload, err := models.FetchUserUploadFromUploadID(h.DB(), session, uploadID)
@@ -127,7 +127,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
-	if err = userUploader.DeleteUserUpload(appCfg, &userUpload); err != nil {
+	if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -143,7 +143,7 @@ type DeleteUploadsHandler struct {
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	userUploader, err := uploaderpkg.NewUserUploader(h.FileStorer(), uploaderpkg.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
@@ -156,7 +156,7 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 			return handlers.ResponseForError(logger, err)
 		}
 
-		if err = userUploader.DeleteUserUpload(appCfg, &userUpload); err != nil {
+		if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
 			return handlers.ResponseForError(logger, err)
 		}
 	}

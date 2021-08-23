@@ -5,7 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +21,7 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	if err != nil {
@@ -56,7 +56,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 	defer func() {
-		if cleanupErr := generator.Cleanup(appCfg); cleanupErr != nil {
+		if cleanupErr := generator.Cleanup(appCtx); cleanupErr != nil {
 			logger.Error("failed to cleanup", zap.Error(cleanupErr))
 		}
 	}()
@@ -82,7 +82,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Convert to PDF and merge into single PDF
-	mergedPdf, err := generator.CreateMergedPDFUpload(appCfg, uploads)
+	mergedPdf, err := generator.CreateMergedPDFUpload(appCtx, uploads)
 	if err != nil {
 		logger.Error("failed to merge PDF files", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
@@ -92,7 +92,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	generatedObjectTags := handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
 	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
 	// UserUpload merged PDF to S3 and return UserUpload object
-	pdfUpload, verrs, err := loader.CreateUserUpload(appCfg, session.UserID, file, uploader.AllowedTypesPDF)
+	pdfUpload, verrs, err := loader.CreateUserUpload(appCtx, session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploader.ErrTooLarge:
@@ -102,7 +102,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		}
 	}
 
-	url, err := loader.PresignedURL(appCfg, pdfUpload)
+	url, err := loader.PresignedURL(appCtx, pdfUpload)
 	if err != nil {
 		logger.Error("failed to get presigned url", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()

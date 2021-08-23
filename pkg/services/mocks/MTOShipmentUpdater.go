@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	auth "github.com/transcom/mymove/pkg/auth"
 
 	mock "github.com/stretchr/testify/mock"
@@ -18,20 +18,20 @@ type MTOShipmentUpdater struct {
 	mock.Mock
 }
 
-// CheckIfMTOShipmentCanBeUpdated provides a mock function with given fields: appCfg, mtoShipment, session
-func (_m *MTOShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
-	ret := _m.Called(appCfg, mtoShipment, session)
+// CheckIfMTOShipmentCanBeUpdated provides a mock function with given fields: appCtx, mtoShipment, session
+func (_m *MTOShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, session *auth.Session) (bool, error) {
+	ret := _m.Called(appCtx, mtoShipment, session)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment, *auth.Session) bool); ok {
-		r0 = rf(appCfg, mtoShipment, session)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *auth.Session) bool); ok {
+		r0 = rf(appCtx, mtoShipment, session)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOShipment, *auth.Session) error); ok {
-		r1 = rf(appCfg, mtoShipment, session)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, *auth.Session) error); ok {
+		r1 = rf(appCtx, mtoShipment, session)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -39,20 +39,20 @@ func (_m *MTOShipmentUpdater) CheckIfMTOShipmentCanBeUpdated(appCfg appconfig.Ap
 	return r0, r1
 }
 
-// MTOShipmentsMTOAvailableToPrime provides a mock function with given fields: appCfg, mtoShipmentID
-func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCfg appconfig.AppConfig, mtoShipmentID uuid.UUID) (bool, error) {
-	ret := _m.Called(appCfg, mtoShipmentID)
+// MTOShipmentsMTOAvailableToPrime provides a mock function with given fields: appCtx, mtoShipmentID
+func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
+	ret := _m.Called(appCtx, mtoShipmentID)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) bool); ok {
-		r0 = rf(appCfg, mtoShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) bool); ok {
+		r0 = rf(appCtx, mtoShipmentID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, mtoShipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, mtoShipmentID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -60,13 +60,13 @@ func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCfg appconfig.A
 	return r0, r1
 }
 
-// RetrieveMTOShipment provides a mock function with given fields: appCfg, mtoShipmentID
-func (_m *MTOShipmentUpdater) RetrieveMTOShipment(appCfg appconfig.AppConfig, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
-	ret := _m.Called(appCfg, mtoShipmentID)
+// RetrieveMTOShipment provides a mock function with given fields: appCtx, mtoShipmentID
+func (_m *MTOShipmentUpdater) RetrieveMTOShipment(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, mtoShipmentID)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) *models.MTOShipment); ok {
-		r0 = rf(appCfg, mtoShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.MTOShipment); ok {
+		r0 = rf(appCtx, mtoShipmentID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -74,8 +74,8 @@ func (_m *MTOShipmentUpdater) RetrieveMTOShipment(appCfg appconfig.AppConfig, mt
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, mtoShipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, mtoShipmentID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -83,13 +83,13 @@ func (_m *MTOShipmentUpdater) RetrieveMTOShipment(appCfg appconfig.AppConfig, mt
 	return r0, r1
 }
 
-// UpdateMTOShipmentCustomer provides a mock function with given fields: appCfg, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentCustomer(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCfg, mtoShipment, eTag)
+// UpdateMTOShipmentCustomer provides a mock function with given fields: appCtx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentCustomer(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment, string) *models.MTOShipment); ok {
-		r0 = rf(appCfg, mtoShipment, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, mtoShipment, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -97,8 +97,8 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentCustomer(appCfg appconfig.AppConf
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOShipment, string) error); ok {
-		r1 = rf(appCfg, mtoShipment, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
+		r1 = rf(appCtx, mtoShipment, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -106,13 +106,13 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentCustomer(appCfg appconfig.AppConf
 	return r0, r1
 }
 
-// UpdateMTOShipmentOffice provides a mock function with given fields: appCfg, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentOffice(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCfg, mtoShipment, eTag)
+// UpdateMTOShipmentOffice provides a mock function with given fields: appCtx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentOffice(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment, string) *models.MTOShipment); ok {
-		r0 = rf(appCfg, mtoShipment, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, mtoShipment, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -120,8 +120,8 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentOffice(appCfg appconfig.AppConfig
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOShipment, string) error); ok {
-		r1 = rf(appCfg, mtoShipment, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
+		r1 = rf(appCtx, mtoShipment, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -129,13 +129,13 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentOffice(appCfg appconfig.AppConfig
 	return r0, r1
 }
 
-// UpdateMTOShipmentPrime provides a mock function with given fields: appCfg, mtoShipment, eTag
-func (_m *MTOShipmentUpdater) UpdateMTOShipmentPrime(appCfg appconfig.AppConfig, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCfg, mtoShipment, eTag)
+// UpdateMTOShipmentPrime provides a mock function with given fields: appCtx, mtoShipment, eTag
+func (_m *MTOShipmentUpdater) UpdateMTOShipmentPrime(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, mtoShipment, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOShipment, string) *models.MTOShipment); ok {
-		r0 = rf(appCfg, mtoShipment, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, mtoShipment, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -143,8 +143,8 @@ func (_m *MTOShipmentUpdater) UpdateMTOShipmentPrime(appCfg appconfig.AppConfig,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOShipment, string) error); ok {
-		r1 = rf(appCfg, mtoShipment, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, string) error); ok {
+		r1 = rf(appCtx, mtoShipment, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

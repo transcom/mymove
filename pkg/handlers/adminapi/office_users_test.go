@@ -321,7 +321,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.Telephone = *expectedInput.Telephone
 		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
 
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appconfig.appConfig"), officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
@@ -349,7 +349,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
 		expectedInput := *officeUserUpdates
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appconfig.appConfig"), officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)

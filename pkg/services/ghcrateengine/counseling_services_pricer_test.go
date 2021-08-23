@@ -3,7 +3,6 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -23,8 +22,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 		paymentServiceItem := suite.setupCounselingServicesItem()
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(appCfg, paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 
@@ -38,8 +36,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		priceCents, _, err := counselingServicesPricer.Price(appCfg, testdatagen.DefaultContractCode, csAvailableToPrimeAt)
+		priceCents, _, err := counselingServicesPricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, csAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -47,14 +44,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := counselingServicesPricer.PriceUsingParams(appCfg, models.PaymentServiceItemParams{})
+		_, _, err := counselingServicesPricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("not finding a rate record", func() {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := counselingServicesPricer.Price(appCfg, "BOGUS", csAvailableToPrimeAt)
+		_, _, err := counselingServicesPricer.Price(suite.TestAppContext(), "BOGUS", csAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

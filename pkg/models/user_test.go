@@ -3,7 +3,6 @@ package models_test
 import (
 	"github.com/jackc/pgerrcode"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -233,8 +232,7 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 		roles.RoleTypeTOO,
 		roles.RoleTypeTIO,
 	}
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-	_, err = userRoles.UpdateUserRoles(appCfg, *multiRoleUser.UserID, updateToRoles)
+	_, err = userRoles.UpdateUserRoles(suite.TestAppContext(), *multiRoleUser.UserID, updateToRoles)
 	suite.NoError(err)
 
 	// re-fetch user identity and check roles

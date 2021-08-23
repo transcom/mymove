@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -14,13 +14,13 @@ type CustomerUpdater struct {
 	mock.Mock
 }
 
-// UpdateCustomer provides a mock function with given fields: appCfg, eTag, customer
-func (_m *CustomerUpdater) UpdateCustomer(appCfg appconfig.AppConfig, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
-	ret := _m.Called(appCfg, eTag, customer)
+// UpdateCustomer provides a mock function with given fields: appCtx, eTag, customer
+func (_m *CustomerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
+	ret := _m.Called(appCtx, eTag, customer)
 
 	var r0 *models.ServiceMember
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, string, models.ServiceMember) *models.ServiceMember); ok {
-		r0 = rf(appCfg, eTag, customer)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, models.ServiceMember) *models.ServiceMember); ok {
+		r0 = rf(appCtx, eTag, customer)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.ServiceMember)
@@ -28,8 +28,8 @@ func (_m *CustomerUpdater) UpdateCustomer(appCfg appconfig.AppConfig, eTag strin
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, string, models.ServiceMember) error); ok {
-		r1 = rf(appCfg, eTag, customer)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, models.ServiceMember) error); ok {
+		r1 = rf(appCtx, eTag, customer)
 	} else {
 		r1 = ret.Error(1)
 	}

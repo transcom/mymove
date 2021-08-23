@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -25,6 +26,7 @@ import (
 type HandlerContext interface {
 	DB() *pop.Connection
 	Logger() *zap.Logger
+	AppContextFromRequest(r *http.Request) appcontext.AppContext
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger)
 	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger)
 	SessionFromRequest(r *http.Request) *auth.Session
@@ -97,6 +99,12 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 		db:     db,
 		logger: logger,
 	}
+}
+
+// AppContextFromRequest builds an AppContext from the http request
+func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
+	// use LoggerFromRequest to get the most specific logger
+	return appcontext.NewAppContext(hctx.db, hctx.LoggerFromRequest(r))
 }
 
 func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {

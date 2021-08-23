@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
@@ -22,6 +22,11 @@ import (
 type SyncadaSftpReaderSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *SyncadaSftpReaderSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestSyncadaSftpReaderSuite(t *testing.T) {
@@ -150,11 +155,10 @@ IEA*1*000000029`,
 		processor.On("EDIType").Return(models.EDIType997)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 		client.AssertCalled(t, "ReadDir", pickupDir)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
@@ -177,8 +181,7 @@ IEA*1*000000029`,
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("EDIType").Return(models.EDIType997)
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 		suite.Error(err)
 
 		var ediProcessing models.EDIProcessing
@@ -203,15 +206,14 @@ IEA*1*000000029`,
 
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("EDIType").Return(models.EDIType997)
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything).Return(nil)
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
@@ -241,16 +243,15 @@ IEA*1*000000029`,
 
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("EDIType").Return(models.EDIType997)
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything).Return(nil)
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
@@ -280,16 +281,15 @@ IEA*1*000000029`,
 
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("EDIType").Return(models.EDIType997)
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything).Return(nil)
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
@@ -319,16 +319,15 @@ IEA*1*000000029`,
 
 		processor := &mocks.SyncadaFileProcessor{}
 		processor.On("EDIType").Return(models.EDIType997)
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything).Return(nil)
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		_, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 		suite.NoError(err)
 
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		client.AssertCalled(t, "Open", mock.Anything)
-		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything)
+		processor.AssertNotCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything)
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 
 		var ediProcessing models.EDIProcessing
@@ -358,16 +357,15 @@ IEA*1*000000029`,
 		processor.On("EDIType").Return(models.EDIType997)
 
 		// Mock processing error for one of the files
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"),
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"),
 			multipleFileTestData[1].path, multipleFileTestData[1].file.contents).Return(errors.New("ERROR"))
 		// No error for the rest of the files
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), mock.Anything, mock.Anything).Return(nil)
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 
 		var modTime time.Time
-		modTime, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		modTime, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
@@ -376,7 +374,7 @@ IEA*1*000000029`,
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		for _, data := range multipleFileTestData {
 			client.AssertCalled(t, "Open", data.path)
-			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), data.path, data.file.contents)
+			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
 		}
 		client.AssertNotCalled(t, "Remove", multipleFileTestData[1].path)
 
@@ -403,14 +401,13 @@ IEA*1*000000029`,
 		client.On("ReadDir", mock.Anything).Return(infoForMultipleFiles, nil)
 		for _, data := range multipleFileTestData {
 			client.On("Open", data.path).Return(data.file, nil)
-			processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), data.path, data.file.contents).Return(nil)
+			processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents).Return(nil)
 			client.On("Remove", data.path).Return(nil)
 		}
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		var modTime time.Time
-		modTime, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		modTime, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
@@ -419,7 +416,7 @@ IEA*1*000000029`,
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		for _, data := range multipleFileTestData {
 			client.AssertCalled(t, "Open", data.path)
-			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), data.path, data.file.contents)
+			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
 			client.AssertCalled(t, "Remove", data.path)
 		}
 
@@ -442,13 +439,12 @@ IEA*1*000000029`,
 		client.On("ReadDir", mock.Anything).Return(infoForMultipleFiles, nil)
 		for _, data := range multipleFileTestData {
 			client.On("Open", data.path).Return(data.file, nil)
-			processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), data.path, data.file.contents).Return(nil)
+			processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents).Return(nil)
 			client.On("Remove", data.path).Return(nil)
 		}
 
 		session := NewSyncadaSFTPReaderSession(client, false)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		modTime, err := session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		modTime, err := session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
@@ -457,7 +453,7 @@ IEA*1*000000029`,
 		client.AssertCalled(t, "ReadDir", pickupDir)
 		for _, data := range multipleFileTestData {
 			client.AssertCalled(t, "Open", data.path)
-			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), data.path, data.file.contents)
+			processor.AssertCalled(t, "ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents)
 		}
 		client.AssertNotCalled(t, "Remove", mock.Anything)
 	})
@@ -471,12 +467,11 @@ IEA*1*000000029`,
 		client.On("Remove", mock.Anything).Return(errors.New("ERROR"))
 		for _, data := range multipleFileTestData {
 			client.On("Open", data.path).Return(data.file, nil)
-			processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), data.path, data.file.contents).Return(nil)
+			processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), data.path, data.file.contents).Return(nil)
 		}
 
 		session := NewSyncadaSFTPReaderSession(client, true)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		modTime, err := session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, time.Time{}, processor)
+		modTime, err := session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, time.Time{}, processor)
 
 		suite.NoError(err)
 		suite.Equal(multipleFileTestData[len(multipleFileTestData)-1].fileInfo.ModTime(), modTime)
@@ -500,7 +495,7 @@ IEA*1*000000029`,
 
 		// only need to mock calls for the one file that will be processed
 		client.On("Open", multipleFileTestData[2].path).Return(multipleFileTestData[2].file, nil)
-		processor.On("ProcessFile", mock.AnythingOfType("*appconfig.appConfig"), multipleFileTestData[2].path, multipleFileTestData[2].file.contents).Return(nil)
+		processor.On("ProcessFile", mock.AnythingOfType("*appcontext.appContext"), multipleFileTestData[2].path, multipleFileTestData[2].file.contents).Return(nil)
 		client.On("Remove", multipleFileTestData[2].path).Return(nil)
 
 		session := NewSyncadaSFTPReaderSession(client, true)
@@ -508,8 +503,7 @@ IEA*1*000000029`,
 		// We're using the modified time for the second file as the last read time.
 		// The files are sorted by modTime, so we should skip the first two files and only process the third
 		var modTime time.Time
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		modTime, err = session.FetchAndProcessSyncadaFiles(appCfg, pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
+		modTime, err = session.FetchAndProcessSyncadaFiles(suite.TestAppContext(), pickupDir, multipleFileTestData[1].fileInfo.modTime, processor)
 
 		suite.NoError(err)
 		suite.Equal(multipleFileTestData[2].fileInfo.ModTime(), modTime)

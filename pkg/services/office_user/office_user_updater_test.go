@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -36,8 +35,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(appCfg, officeUser.ID, payload)
+		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(suite.TestAppContext(), officeUser.ID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.Equal(updatedOfficeUser.ID.String(), officeUser.ID.String())
@@ -50,8 +48,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	suite.T().Run("If we are provided an office user that doesn't exist, the create should fail", func(t *testing.T) {
 		payload := &adminmessages.OfficeUserUpdatePayload{}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := updater.UpdateOfficeUser(appCfg, uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
+		_, _, err := updater.UpdateOfficeUser(suite.TestAppContext(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})
@@ -62,8 +59,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, _, err := updater.UpdateOfficeUser(appCfg, officeUser.ID, payload)
+		_, _, err := updater.UpdateOfficeUser(suite.TestAppContext(), officeUser.ID, payload)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})

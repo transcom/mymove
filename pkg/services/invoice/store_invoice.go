@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -23,7 +23,7 @@ type StoreInvoice858C struct {
 }
 
 // Call stores the EDI/Invoice to S3.
-func (s StoreInvoice858C) Call(appCfg appconfig.AppConfig, edi string, invoice *models.Invoice, userID uuid.UUID) (*validate.Errors, error) {
+func (s StoreInvoice858C) Call(appCtx appcontext.AppContext, edi string, invoice *models.Invoice, userID uuid.UUID) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
 
 	// Create path for EDI file
@@ -42,7 +42,7 @@ func (s StoreInvoice858C) Call(appCfg appconfig.AppConfig, edi string, invoice *
 
 	defer func() {
 		if closeErr := f.Close(); closeErr != nil {
-			appCfg.Logger().Info("Errors encountered while closing file", zap.Error(closeErr))
+			appCtx.Logger().Info("Errors encountered while closing file", zap.Error(closeErr))
 		}
 	}()
 
@@ -59,7 +59,7 @@ func (s StoreInvoice858C) Call(appCfg appconfig.AppConfig, edi string, invoice *
 	// Create UserUpload
 	loader, err := uploader.NewUserUploader(*s.Storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
-		appCfg.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+		appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
 	}
 	// Set Storagekey path for S3
 	loader.SetUploadStorageKey(ediTmpFile)
@@ -67,18 +67,18 @@ func (s StoreInvoice858C) Call(appCfg appconfig.AppConfig, edi string, invoice *
 	// Delete of previous upload, if it exist
 	// If Delete of UserUpload fails, ignoring this error because we still have a new UserUpload that needs to be saved
 	// to the Invoice
-	err = UploadUpdater{UserUploader: loader}.DeleteUpload(appCfg, invoice)
+	err = UploadUpdater{UserUploader: loader}.DeleteUpload(appCtx, invoice)
 	if err != nil {
 		logStr := ""
 		if invoice != nil && invoice.UserUploadID != nil {
 			logStr = invoice.UserUploadID.String()
 		}
-		appCfg.Logger().Info("Errors encountered for while deleting previous UserUpload:"+logStr,
+		appCtx.Logger().Info("Errors encountered for while deleting previous UserUpload:"+logStr,
 			zap.Any("verrors", verrs.Error()))
 	}
 
 	// Create and save UserUpload to s3
-	userUpload, verrs2, err := loader.CreateUserUpload(appCfg, userID, uploader.File{File: f}, uploader.AllowedTypesText)
+	userUpload, verrs2, err := loader.CreateUserUpload(appCtx, userID, uploader.File{File: f}, uploader.AllowedTypesText)
 	verrs.Append(verrs2)
 	if err != nil {
 		return verrs, errors.Wrapf(err, "Failed to Create UserUpload for StoreInvoice858C(), invoice ID: %s", invoiceID)
@@ -89,14 +89,14 @@ func (s StoreInvoice858C) Call(appCfg appconfig.AppConfig, edi string, invoice *
 	}
 
 	// Save UserUpload to Invoice
-	verrs2, err = UploadUpdater{UserUploader: loader}.Call(appCfg, invoice, userUpload)
+	verrs2, err = UploadUpdater{UserUploader: loader}.Call(appCtx, invoice, userUpload)
 	verrs.Append(verrs2)
 	if err != nil {
 		return verrs, errors.New("Failed to save UserUpload to Invoice: " + invoiceID)
 	}
 
 	if verrs.HasAny() {
-		appCfg.Logger().Error("Errors encountered for StoreInvoice858C():",
+		appCtx.Logger().Error("Errors encountered for StoreInvoice858C():",
 			zap.Any("verrors", verrs.Error()))
 	}
 

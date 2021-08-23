@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +16,13 @@ type MoveRouter struct {
 	mock.Mock
 }
 
-// Approve provides a mock function with given fields: appCfg, move
-func (_m *MoveRouter) Approve(appCfg appconfig.AppConfig, move *models.Move) error {
-	ret := _m.Called(appCfg, move)
+// Approve provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
+	ret := _m.Called(appCtx, move)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.Move) error); ok {
-		r0 = rf(appCfg, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
+		r0 = rf(appCtx, move)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -30,20 +30,20 @@ func (_m *MoveRouter) Approve(appCfg appconfig.AppConfig, move *models.Move) err
 	return r0
 }
 
-// ApproveAmendedOrders provides a mock function with given fields: appCfg, moveID, orderID
-func (_m *MoveRouter) ApproveAmendedOrders(appCfg appconfig.AppConfig, moveID uuid.UUID, orderID uuid.UUID) (models.Move, error) {
-	ret := _m.Called(appCfg, moveID, orderID)
+// ApproveAmendedOrders provides a mock function with given fields: appCtx, moveID, orderID
+func (_m *MoveRouter) ApproveAmendedOrders(appCtx appcontext.AppContext, moveID uuid.UUID, orderID uuid.UUID) (models.Move, error) {
+	ret := _m.Called(appCtx, moveID, orderID)
 
 	var r0 models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, uuid.UUID) models.Move); ok {
-		r0 = rf(appCfg, moveID, orderID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) models.Move); ok {
+		r0 = rf(appCtx, moveID, orderID)
 	} else {
 		r0 = ret.Get(0).(models.Move)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, uuid.UUID) error); ok {
-		r1 = rf(appCfg, moveID, orderID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
+		r1 = rf(appCtx, moveID, orderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -51,13 +51,13 @@ func (_m *MoveRouter) ApproveAmendedOrders(appCfg appconfig.AppConfig, moveID uu
 	return r0, r1
 }
 
-// Cancel provides a mock function with given fields: appCfg, reason, move
-func (_m *MoveRouter) Cancel(appCfg appconfig.AppConfig, reason string, move *models.Move) error {
-	ret := _m.Called(appCfg, reason, move)
+// Cancel provides a mock function with given fields: appCtx, reason, move
+func (_m *MoveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
+	ret := _m.Called(appCtx, reason, move)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, string, *models.Move) error); ok {
-		r0 = rf(appCfg, reason, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *models.Move) error); ok {
+		r0 = rf(appCtx, reason, move)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -65,13 +65,13 @@ func (_m *MoveRouter) Cancel(appCfg appconfig.AppConfig, reason string, move *mo
 	return r0
 }
 
-// CompleteServiceCounseling provides a mock function with given fields: appCfg, move
-func (_m *MoveRouter) CompleteServiceCounseling(appCfg appconfig.AppConfig, move *models.Move) error {
-	ret := _m.Called(appCfg, move)
+// CompleteServiceCounseling provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {
+	ret := _m.Called(appCtx, move)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.Move) error); ok {
-		r0 = rf(appCfg, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
+		r0 = rf(appCtx, move)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -79,13 +79,13 @@ func (_m *MoveRouter) CompleteServiceCounseling(appCfg appconfig.AppConfig, move
 	return r0
 }
 
-// SendToOfficeUser provides a mock function with given fields: appCfg, move
-func (_m *MoveRouter) SendToOfficeUser(appCfg appconfig.AppConfig, move *models.Move) error {
-	ret := _m.Called(appCfg, move)
+// SendToOfficeUser provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error {
+	ret := _m.Called(appCtx, move)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.Move) error); ok {
-		r0 = rf(appCfg, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
+		r0 = rf(appCtx, move)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -93,13 +93,13 @@ func (_m *MoveRouter) SendToOfficeUser(appCfg appconfig.AppConfig, move *models.
 	return r0
 }
 
-// Submit provides a mock function with given fields: appCfg, move
-func (_m *MoveRouter) Submit(appCfg appconfig.AppConfig, move *models.Move) error {
-	ret := _m.Called(appCfg, move)
+// Submit provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) Submit(appCtx appcontext.AppContext, move *models.Move) error {
+	ret := _m.Called(appCtx, move)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.Move) error); ok {
-		r0 = rf(appCfg, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
+		r0 = rf(appCtx, move)
 	} else {
 		r0 = ret.Error(0)
 	}

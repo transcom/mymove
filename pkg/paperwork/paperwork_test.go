@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -22,6 +23,11 @@ type PaperworkSuite struct {
 	logger       *zap.Logger
 	userUploader *uploader.UserUploader
 	filesToClose []afero.File
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *PaperworkSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *PaperworkSuite) AfterTest() {

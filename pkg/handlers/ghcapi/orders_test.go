@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			OrderID:     strfmt.UUID(order.ID.String()),
 		}
 		orderFetcher := mocks.OrderFetcher{}
-		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appconfig.appConfig"),
+		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		}
 
 		orderFetcher := mocks.OrderFetcher{}
-		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appconfig.appConfig"),
+		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		orderUpdater := mocks.OrderUpdater{}
 		// This is not modified but we're relying on the check of the params short circuiting
-		orderUpdater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		orderUpdater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			amendedOrder.ID, *body, params.IfMatch).Return(&amendedOrder, approvalsRequestedMove.ID, nil)
 
 		moveUpdater := mocks.MoveTaskOrderUpdater{}
@@ -428,7 +428,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		orderUpdater := mocks.OrderUpdater{}
 		acknowledgedAt := time.Now()
 		order.AmendedOrdersAcknowledgedAt = &acknowledgedAt
-		orderUpdater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		orderUpdater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *body, params.IfMatch).Return(&order, move.ID, nil)
 
 		moveUpdater := mocks.MoveTaskOrderUpdater{}
@@ -590,7 +590,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			&mocks.MoveTaskOrderUpdater{},
 		}
 
-		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 		response := handler.Handle(params)
 
@@ -620,7 +620,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			&mocks.MoveTaskOrderUpdater{},
 		}
 
-		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -651,7 +651,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			&mocks.MoveTaskOrderUpdater{},
 		}
 
-		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -682,7 +682,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 			&mocks.MoveTaskOrderUpdater{},
 		}
 
-		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
 
 		response := handler.Handle(params)
@@ -710,7 +710,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	}
 
 	updater := &mocks.OrderUpdater{}
-	updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+	updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -856,7 +856,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			updater,
 		}
 
-		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -886,7 +886,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			updater,
 		}
 
-		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -916,7 +916,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			updater,
 		}
 
-		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateOrderAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
 
 		response := handler.Handle(params)
@@ -1055,7 +1055,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			updater,
 		}
 
-		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -1085,7 +1085,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			updater,
 		}
 
-		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -1115,7 +1115,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			updater,
 		}
 
-		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
 
 		response := handler.Handle(params)
@@ -1143,7 +1143,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	}
 
 	updater := &mocks.OrderUpdater{}
-	updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appconfig.appConfig"),
+	updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -1277,7 +1277,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			updater,
 		}
 
-		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.NotFoundError{})
 
 		response := handler.Handle(params)
@@ -1306,7 +1306,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			updater,
 		}
 
-		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
 
 		response := handler.Handle(params)
@@ -1335,7 +1335,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			updater,
 		}
 
-		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appconfig.appConfig"),
+		updater.On("UpdateAllowanceAsCounselor", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID, *params.Body, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
 
 		response := handler.Handle(params)

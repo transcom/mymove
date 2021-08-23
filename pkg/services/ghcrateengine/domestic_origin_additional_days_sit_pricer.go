@@ -3,7 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -18,12 +18,12 @@ func NewDomesticOriginAdditionalDaysSITPricer() services.DomesticOriginAdditiona
 }
 
 // Price determines the price for domestic origin additional days SIT
-func (p domesticOriginAdditionalDaysSITPricer) Price(appCfg appconfig.AppConfig, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticAdditionalDaysSIT(appCfg, models.ReServiceCodeDOASIT, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
+func (p domesticOriginAdditionalDaysSITPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, numberOfDaysInSIT int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticAdditionalDaysSIT(appCtx, models.ReServiceCodeDOASIT, contractCode, requestedPickupDate, weight, serviceArea, numberOfDaysInSIT)
 }
 
 // PriceUsingParams determines the price for domestic origin first day SIT given PaymentServiceItemParams
-func (p domesticOriginAdditionalDaysSITPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginAdditionalDaysSITPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -49,5 +49,5 @@ func (p domesticOriginAdditionalDaysSITPricer) PriceUsingParams(appCfg appconfig
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCfg, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin, numberOfDaysInSIT)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceAreaOrigin, numberOfDaysInSIT)
 }

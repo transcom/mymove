@@ -551,7 +551,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdatePostCounselingInfo",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -574,7 +574,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -597,7 +597,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

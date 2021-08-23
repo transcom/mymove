@@ -7,7 +7,7 @@ import (
 	"github.com/namsral/flag"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -49,8 +49,8 @@ func main() {
 		log.Fatal("Must specify at least one input file")
 	}
 
-	appCfg := appconfig.NewAppConfig(nil, logger)
-	path, err := generator.MergeImagesToPDF(appCfg, inputFiles)
+	appCtx := appcontext.NewAppContext(nil, logger)
+	path, err := generator.MergeImagesToPDF(appCtx, inputFiles)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

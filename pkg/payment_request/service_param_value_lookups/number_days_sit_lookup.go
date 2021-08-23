@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -17,13 +17,13 @@ type NumberDaysSITLookup struct {
 const hoursInADay float64 = 24
 const fullBillingPeriod int = 29
 
-func (s NumberDaysSITLookup) lookup(appCfg appconfig.AppConfig, keyData *ServiceItemParamKeyData) (string, error) {
-	moveTaskOrderSITPaymentServiceItems, err := fetchMoveTaskOrderSITPaymentServiceItems(appCfg, s.MTOShipment)
+func (s NumberDaysSITLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	moveTaskOrderSITPaymentServiceItems, err := fetchMoveTaskOrderSITPaymentServiceItems(appCtx, s.MTOShipment)
 	if err != nil {
 		return "", err
 	}
 
-	mtoShipmentSITPaymentServiceItems, err := fetchMTOShipmentSITPaymentServiceItems(appCfg, s.MTOShipment)
+	mtoShipmentSITPaymentServiceItems, err := fetchMTOShipmentSITPaymentServiceItems(appCtx, s.MTOShipment)
 	if err != nil {
 		return "", err
 	}
@@ -51,10 +51,10 @@ func (s NumberDaysSITLookup) lookup(appCfg appconfig.AppConfig, keyData *Service
 	return strconv.Itoa(billableMTOServiceItemSITDays), nil
 }
 
-func fetchMoveTaskOrderSITPaymentServiceItems(appCfg appconfig.AppConfig, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
+func fetchMoveTaskOrderSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
 	moveTaskOrderSITPaymentServiceItems := models.PaymentServiceItems{}
 
-	err := appCfg.DB().Q().
+	err := appCtx.DB().Q().
 		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		Join("re_services", "re_services.id = mto_service_items.re_service_id").
 		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").
@@ -67,10 +67,10 @@ func fetchMoveTaskOrderSITPaymentServiceItems(appCfg appconfig.AppConfig, mtoShi
 	return moveTaskOrderSITPaymentServiceItems, nil
 }
 
-func fetchMTOShipmentSITPaymentServiceItems(appCfg appconfig.AppConfig, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
+func fetchMTOShipmentSITPaymentServiceItems(appCtx appcontext.AppContext, mtoShipment models.MTOShipment) (models.PaymentServiceItems, error) {
 	mtoShipmentSITPaymentServiceItems := models.PaymentServiceItems{}
 
-	err := appCfg.DB().Q().
+	err := appCtx.DB().Q().
 		Join("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		Join("re_services", "re_services.id = mto_service_items.re_service_id").
 		Eager("MTOServiceItem.ReService", "PaymentServiceItemParams.ServiceItemParamKey").

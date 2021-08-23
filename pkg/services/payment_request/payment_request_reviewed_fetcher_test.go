@@ -3,7 +3,6 @@ package paymentrequest
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -28,8 +27,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchReviewedPaymentRequest() {
 	})
 
 	suite.T().Run("check for reviewed payment requests", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		result, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest(appCfg)
+		result, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest(suite.TestAppContext())
 		suite.NoError(err)
 		suite.Equal(1, len(result))
 	})

@@ -1,7 +1,7 @@
 package customer
 
 import (
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -18,8 +18,8 @@ func NewCustomerUpdater() services.CustomerUpdater {
 }
 
 // UpdateCustomer updates the Customer model
-func (s *customerUpdater) UpdateCustomer(appCfg appconfig.AppConfig, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
-	existingCustomer, err := s.fetchCustomer.FetchCustomer(appCfg, customer.ID)
+func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
+	existingCustomer, err := s.fetchCustomer.FetchCustomer(appCtx, customer.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(customer.ID, "while looking for customer")
 	}
@@ -29,7 +29,7 @@ func (s *customerUpdater) UpdateCustomer(appCfg appconfig.AppConfig, eTag string
 		return nil, services.NewPreconditionFailedError(customer.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
 			existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
 			existingCustomer.ResidentialAddress.City = residentialAddress.City

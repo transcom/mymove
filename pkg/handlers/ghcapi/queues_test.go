@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
 
 		orderFetcher := mocks.OrderFetcher{}
-		orderFetcher.On("ListOrders", mock.AnythingOfType("*appconfig.appConfig"),
+		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
 			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
@@ -936,7 +936,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", mock.AnythingOfType("*appconfig.appConfig"),
+	paymentRequestListFetcher.On("FetchPaymentRequestList", mock.AnythingOfType("*appcontext.appContext"),
 		officeUser.ID,
 		mock.Anything,
 		mock.Anything).Return(nil, 0, errors.New("database query error"))
@@ -964,7 +964,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", mock.AnythingOfType("*appconfig.appConfig"),
+	paymentRequestListFetcher.On("FetchPaymentRequestList", mock.AnythingOfType("*appcontext.appContext"),
 		officeUser.ID,
 		mock.Anything,
 		mock.Anything).Return(&models.PaymentRequests{}, 0, nil)

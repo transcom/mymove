@@ -7,7 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -15,17 +15,17 @@ import (
 )
 
 type testElectronicOrderListQueryBuilder struct {
-	fakeFetchMany func(appCfg appconfig.AppConfig, model interface{}) error
-	fakeCount     func(appCfg appconfig.AppConfig, model interface{}) (int, error)
+	fakeFetchMany func(appCtx appcontext.AppContext, model interface{}) error
+	fakeCount     func(appCtx appcontext.AppContext, model interface{}) (int, error)
 }
 
-func (t *testElectronicOrderListQueryBuilder) FetchMany(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
-	m := t.fakeFetchMany(appCfg, model)
+func (t *testElectronicOrderListQueryBuilder) FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+	m := t.fakeFetchMany(appCtx, model)
 	return m
 }
 
-func (t *testElectronicOrderListQueryBuilder) Count(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) (int, error) {
-	count, m := t.fakeCount(appCfg, model)
+func (t *testElectronicOrderListQueryBuilder) Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(appCtx, model)
 	return count, m
 }
 
@@ -44,10 +44,9 @@ func defaultOrdering() services.QueryOrder {
 
 func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 	suite.T().Run("if the transportation order is fetched, it should be returned", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchMany := func(appCfg appconfig.AppConfig, model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.ElectronicOrder{ID: id})))
 			return nil
@@ -61,15 +60,14 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(appCfg, filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		electronicOrders, err := fetcher.FetchElectronicOrderList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, electronicOrders[0].ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with no electronic orders", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		fakeFetchMany := func(appCfg appconfig.AppConfig, model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testElectronicOrderListQueryBuilder{
@@ -78,7 +76,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 
 		fetcher := NewElectronicOrderListFetcher(builder)
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(appCfg, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		electronicOrders, err := fetcher.FetchElectronicOrderList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

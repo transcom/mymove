@@ -4,7 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -28,8 +28,8 @@ func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOS
 }
 
 // ApproveShipment Approves the shipment
-func (f *shipmentApprover) ApproveShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(appCfg, shipmentID)
+func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -39,17 +39,17 @@ func (f *shipmentApprover) ApproveShipment(appCfg appconfig.AppConfig, shipmentI
 		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.Approve(appCfg, shipment)
+	err = f.router.Approve(appCtx, shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	err = f.setRequiredDeliveryDate(appCfg, shipment)
+	err = f.setRequiredDeliveryDate(appCtx, shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 
 		verrs, err := txnAppCfg.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
@@ -76,9 +76,9 @@ func (f *shipmentApprover) ApproveShipment(appCfg appconfig.AppConfig, shipmentI
 	return shipment, nil
 }
 
-func (f *shipmentApprover) findShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCfg.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Eager("MoveTaskOrder", "PickupAddress", "DestinationAddress").Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")
@@ -89,11 +89,11 @@ func (f *shipmentApprover) findShipment(appCfg appconfig.AppConfig, shipmentID u
 	return &shipment, nil
 }
 
-func (f *shipmentApprover) setRequiredDeliveryDate(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
+func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	if shipment.ScheduledPickupDate != nil &&
 		shipment.RequiredDeliveryDate == nil &&
 		shipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCfg, f.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, f.planner, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
 		if calcErr != nil {
 			return calcErr
 		}
@@ -104,12 +104,12 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCfg appconfig.AppConfig, s
 	return nil
 }
 
-func (f *shipmentApprover) createShipmentServiceItems(appCfg appconfig.AppConfig, shipment *models.MTOShipment) error {
+func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
-		_, verrs, err := f.siCreator.CreateMTOServiceItem(appCfg, &copyOfServiceItem)
+		_, verrs, err := f.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
 
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")

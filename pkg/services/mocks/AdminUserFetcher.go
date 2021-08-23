@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,20 +16,20 @@ type AdminUserFetcher struct {
 	mock.Mock
 }
 
-// FetchAdminUser provides a mock function with given fields: appCfg, filters
-func (_m *AdminUserFetcher) FetchAdminUser(appCfg appconfig.AppConfig, filters []services.QueryFilter) (models.AdminUser, error) {
-	ret := _m.Called(appCfg, filters)
+// FetchAdminUser provides a mock function with given fields: appCtx, filters
+func (_m *AdminUserFetcher) FetchAdminUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.AdminUser, error) {
+	ret := _m.Called(appCtx, filters)
 
 	var r0 models.AdminUser
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter) models.AdminUser); ok {
-		r0 = rf(appCfg, filters)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) models.AdminUser); ok {
+		r0 = rf(appCtx, filters)
 	} else {
 		r0 = ret.Get(0).(models.AdminUser)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter) error); ok {
-		r1 = rf(appCfg, filters)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter) error); ok {
+		r1 = rf(appCtx, filters)
 	} else {
 		r1 = ret.Error(1)
 	}

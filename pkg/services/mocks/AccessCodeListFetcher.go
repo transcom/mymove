@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,20 +16,20 @@ type AccessCodeListFetcher struct {
 	mock.Mock
 }
 
-// FetchAccessCodeCount provides a mock function with given fields: appCfg, filters
-func (_m *AccessCodeListFetcher) FetchAccessCodeCount(appCfg appconfig.AppConfig, filters []services.QueryFilter) (int, error) {
-	ret := _m.Called(appCfg, filters)
+// FetchAccessCodeCount provides a mock function with given fields: appCtx, filters
+func (_m *AccessCodeListFetcher) FetchAccessCodeCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(appCtx, filters)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter) int); ok {
-		r0 = rf(appCfg, filters)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) int); ok {
+		r0 = rf(appCtx, filters)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter) error); ok {
-		r1 = rf(appCfg, filters)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter) error); ok {
+		r1 = rf(appCtx, filters)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,13 +37,13 @@ func (_m *AccessCodeListFetcher) FetchAccessCodeCount(appCfg appconfig.AppConfig
 	return r0, r1
 }
 
-// FetchAccessCodeList provides a mock function with given fields: appCfg, filters, associations, pagination, ordering
-func (_m *AccessCodeListFetcher) FetchAccessCodeList(appCfg appconfig.AppConfig, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AccessCodes, error) {
-	ret := _m.Called(appCfg, filters, associations, pagination, ordering)
+// FetchAccessCodeList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
+func (_m *AccessCodeListFetcher) FetchAccessCodeList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AccessCodes, error) {
+	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
 
 	var r0 models.AccessCodes
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.AccessCodes); ok {
-		r0 = rf(appCfg, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.AccessCodes); ok {
+		r0 = rf(appCtx, filters, associations, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.AccessCodes)
@@ -51,8 +51,8 @@ func (_m *AccessCodeListFetcher) FetchAccessCodeList(appCfg appconfig.AppConfig,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
-		r1 = rf(appCfg, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r1 = rf(appCtx, filters, associations, pagination, ordering)
 	} else {
 		r1 = ret.Error(1)
 	}

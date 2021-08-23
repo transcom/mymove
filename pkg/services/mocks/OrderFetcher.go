@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -18,13 +18,13 @@ type OrderFetcher struct {
 	mock.Mock
 }
 
-// FetchOrder provides a mock function with given fields: appCfg, moveTaskOrderID
-func (_m *OrderFetcher) FetchOrder(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID) (*models.Order, error) {
-	ret := _m.Called(appCfg, moveTaskOrderID)
+// FetchOrder provides a mock function with given fields: appCtx, moveTaskOrderID
+func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Order, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID)
 
 	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID) *models.Order); ok {
-		r0 = rf(appCfg, moveTaskOrderID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *models.Order); ok {
+		r0 = rf(appCtx, moveTaskOrderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -32,8 +32,8 @@ func (_m *OrderFetcher) FetchOrder(appCfg appconfig.AppConfig, moveTaskOrderID u
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID) error); ok {
-		r1 = rf(appCfg, moveTaskOrderID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -41,13 +41,13 @@ func (_m *OrderFetcher) FetchOrder(appCfg appconfig.AppConfig, moveTaskOrderID u
 	return r0, r1
 }
 
-// ListOrders provides a mock function with given fields: appCfg, officeUserID, params
-func (_m *OrderFetcher) ListOrders(appCfg appconfig.AppConfig, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
-	ret := _m.Called(appCfg, officeUserID, params)
+// ListOrders provides a mock function with given fields: appCtx, officeUserID, params
+func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+	ret := _m.Called(appCtx, officeUserID, params)
 
 	var r0 []models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, *services.ListOrderParams) []models.Move); ok {
-		r0 = rf(appCfg, officeUserID, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) []models.Move); ok {
+		r0 = rf(appCtx, officeUserID, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Move)
@@ -55,15 +55,15 @@ func (_m *OrderFetcher) ListOrders(appCfg appconfig.AppConfig, officeUserID uuid
 	}
 
 	var r1 int
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, *services.ListOrderParams) int); ok {
-		r1 = rf(appCfg, officeUserID, params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) int); ok {
+		r1 = rf(appCtx, officeUserID, params)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, *services.ListOrderParams) error); ok {
-		r2 = rf(appCfg, officeUserID, params)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
+		r2 = rf(appCtx, officeUserID, params)
 	} else {
 		r2 = ret.Error(2)
 	}

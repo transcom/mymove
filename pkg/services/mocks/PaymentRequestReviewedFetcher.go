@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -14,13 +14,13 @@ type PaymentRequestReviewedFetcher struct {
 	mock.Mock
 }
 
-// FetchReviewedPaymentRequest provides a mock function with given fields: appCfg
-func (_m *PaymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCfg appconfig.AppConfig) (models.PaymentRequests, error) {
-	ret := _m.Called(appCfg)
+// FetchReviewedPaymentRequest provides a mock function with given fields: appCtx
+func (_m *PaymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCtx appcontext.AppContext) (models.PaymentRequests, error) {
+	ret := _m.Called(appCtx)
 
 	var r0 models.PaymentRequests
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig) models.PaymentRequests); ok {
-		r0 = rf(appCfg)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) models.PaymentRequests); ok {
+		r0 = rf(appCtx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.PaymentRequests)
@@ -28,8 +28,8 @@ func (_m *PaymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCfg appc
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig) error); ok {
-		r1 = rf(appCfg)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
 	} else {
 		r1 = ret.Error(1)
 	}

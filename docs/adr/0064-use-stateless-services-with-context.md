@@ -27,16 +27,38 @@ service logs don't include the per request trace id.
 
 ## Considered Alternatives
 
+- Modify all service methods to accept a custom interface
 - Modify all service methods to accept *both* a `Context` and a custom interface
 - Modify all service methods to accept a `Context`
-- Modify all service methods to accept a custom interface
 - Do nothing
 
 ## Decision Outcome
 
-- Chosen Alternative: Modify all service methods to accept *both* a `Context` and a custom interface
+- Chosen Alternative: Modify all service methods to accept a custom interface
 
 ## Pros and Cons of the Alternatives
+
+### Modify all service methods to accept a custom interface
+
+- `+` Services can be composed, calling each other and passing
+  transaction connections around if necessary
+- `+` A custom interface provides ease of use and type safety, easy
+  extensibility in the future, and mocking if necessary
+- `+` Modifying all service methods means implementers and consumers
+  don't have to think about what the method signature should be. It
+  also ensures all are available in case the implementation changes
+  and they are now needed
+- `+` Services that log now can include the per request trace id
+- `+` A single argument is passed
+- `+` For instrumentation, the [opentelemetry
+  api](https://opentelemetry.io/docs/go/getting-started/) needs a
+  `Context` and we can easily extend the custom interface to include
+  that.
+- `=` Go best practice is a bit
+  [unclear](https://github.com/golang/go/issues/22602) on whether it
+  is okay to include a `Context` in a struct that is used as an argument
+  to an API. It seems like including a `Context` is pretty reasonable
+  for APIs that are only used internal to the project.
 
 ### Modify all service methods to accept *both* a `Context` and a custom interface
 
@@ -55,8 +77,8 @@ service logs don't include the per request trace id.
 - `-` Passing two arguments instead of one
 
 The need for the context for instrumentation means we really have to
-pass the context around. Passing two arguments to get more type safety
-is a good trade off.
+pass the context around. Passing two arguments is pretty ugly and has
+some significant negatives for developer experience.
 
 ### Modify all service methods to accept a `Context`
 
@@ -78,28 +100,8 @@ is a good trade off.
   changed), not having compile time safety significantly increases the
   risk.
 
-The loss of type safety is not worth the "cost" of having to provide
- two arguments instead of one.
-
-### Modify all service methods to accept a custom interface
-
-- `+` Services can be composed, calling each other and passing
-  transaction connections around if necessary
-- `+` A custom interface provides ease of use and type safety, easy
-  extensibility in the future, and mocking if necessary
-- `+` Modifying all service methods means implementers and consumers don't have to
-  think about what the method signature should be. It also ensures all are available in case the implementation changes and
-  they are now needed
-- `+` Services that log now can include the per request trace id
-- `+` A single argument is passed
-- `-` For instrumentation, the [opentelemetry
-  api](https://opentelemetry.io/docs/go/getting-started/) needs a
-  context. Go best practice is pretty clear that a `Context` should
-  not be stored in a struct, so including it in the custom interface
-  doesn't seem to be an option.
-
-The need for the context for instrumentation is a deal breaker for
-this option.
+The loss of type safety is not worth the "cost" of not including a
+`Context` in a custom argument.
 
 ### Do nothing
 

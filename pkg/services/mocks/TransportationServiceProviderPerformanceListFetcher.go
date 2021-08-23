@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,20 +16,20 @@ type TransportationServiceProviderPerformanceListFetcher struct {
 	mock.Mock
 }
 
-// FetchTransportationServiceProviderPerformanceCount provides a mock function with given fields: appCfg, filters
-func (_m *TransportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceCount(appCfg appconfig.AppConfig, filters []services.QueryFilter) (int, error) {
-	ret := _m.Called(appCfg, filters)
+// FetchTransportationServiceProviderPerformanceCount provides a mock function with given fields: appCtx, filters
+func (_m *TransportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(appCtx, filters)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter) int); ok {
-		r0 = rf(appCfg, filters)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) int); ok {
+		r0 = rf(appCtx, filters)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter) error); ok {
-		r1 = rf(appCfg, filters)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter) error); ok {
+		r1 = rf(appCtx, filters)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,13 +37,13 @@ func (_m *TransportationServiceProviderPerformanceListFetcher) FetchTransportati
 	return r0, r1
 }
 
-// FetchTransportationServiceProviderPerformanceList provides a mock function with given fields: appCfg, filters, associations, pagination, ordering
-func (_m *TransportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceList(appCfg appconfig.AppConfig, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.TransportationServiceProviderPerformances, error) {
-	ret := _m.Called(appCfg, filters, associations, pagination, ordering)
+// FetchTransportationServiceProviderPerformanceList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
+func (_m *TransportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.TransportationServiceProviderPerformances, error) {
+	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
 
 	var r0 models.TransportationServiceProviderPerformances
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.TransportationServiceProviderPerformances); ok {
-		r0 = rf(appCfg, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.TransportationServiceProviderPerformances); ok {
+		r0 = rf(appCtx, filters, associations, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.TransportationServiceProviderPerformances)
@@ -51,8 +51,8 @@ func (_m *TransportationServiceProviderPerformanceListFetcher) FetchTransportati
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
-		r1 = rf(appCfg, filters, associations, pagination, ordering)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r1 = rf(appCtx, filters, associations, pagination, ordering)
 	} else {
 		r1 = ret.Error(1)
 	}

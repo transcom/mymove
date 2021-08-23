@@ -87,13 +87,13 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockFetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil)
 
 		mockListFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		notfound := errors.New("Not found error")
 
 		mockFetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(notfound)
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(errors.New("Not found error")).Once()
@@ -177,13 +177,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
 
 		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -203,13 +203,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
 
 		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -229,13 +229,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
 
 		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -256,7 +256,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		fetcher := mocks.Fetcher{}
 		params.MtoServiceItemID = ""
 		fetcher.On("FetchRecord",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()

@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -34,20 +34,20 @@ func NewUserUploader(storer storage.FileStorer, fileSizeLimit ByteSize) (*UserUp
 }
 
 // PrepareFileForUpload calls Uploader.PrepareFileForUpload
-func (u *UserUploader) PrepareFileForUpload(appCfg appconfig.AppConfig, file io.ReadCloser, filename string) (afero.File, error) {
+func (u *UserUploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
-	return u.uploader.PrepareFileForUpload(appCfg, file, filename)
+	return u.uploader.PrepareFileForUpload(appCtx, file, filename)
 }
 
-func (u *UserUploader) createAndStore(appCfg appconfig.AppConfig, documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) createAndStore(appCtx appcontext.AppContext, documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 	// If storage key is not set assign a default
 	if u.GetUploadStorageKey() == "" {
 		u.uploader.DefaultStorageKey = path.Join("user", userID.String())
 	}
 
-	newUpload, verrs, err := u.uploader.CreateUpload(appCfg, File{File: file}, allowedTypes)
+	newUpload, verrs, err := u.uploader.CreateUpload(appCtx, File{File: file}, allowedTypes)
 	if verrs.HasAny() || err != nil {
-		appCfg.Logger().Error("error creating and storing new upload for user", zap.Error(err))
+		appCtx.Logger().Error("error creating and storing new upload for user", zap.Error(err))
 		return nil, verrs, err
 	}
 
@@ -61,9 +61,9 @@ func (u *UserUploader) createAndStore(appCfg appconfig.AppConfig, documentID *uu
 		Upload:     *newUpload,
 	}
 
-	verrs, err = appCfg.DB().ValidateAndCreate(newUploadForUser)
+	verrs, err = appCtx.DB().ValidateAndCreate(newUploadForUser)
 	if err != nil || verrs.HasAny() {
-		appCfg.Logger().Error("error creating new user upload", zap.Error(err))
+		appCtx.Logger().Error("error creating new user upload", zap.Error(err))
 		return nil, verrs, err
 	}
 
@@ -73,7 +73,7 @@ func (u *UserUploader) createAndStore(appCfg appconfig.AppConfig, documentID *uu
 // CreateUserUploadForDocument creates a new UserUpload by performing validations, storing the specified
 // file using the supplied storer, and saving an UserUpload object to the database containing
 // the file's metadata.
-func (u *UserUploader) CreateUserUploadForDocument(appCfg appconfig.AppConfig, documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) CreateUserUploadForDocument(appCtx appcontext.AppContext, documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 
 	if u.uploader == nil {
 		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
@@ -83,35 +83,35 @@ func (u *UserUploader) CreateUserUploadForDocument(appCfg appconfig.AppConfig, d
 	var verrs *validate.Errors
 	var uploadError error
 
-	userUpload, verrs, uploadError = u.createAndStore(appCfg, documentID, userID, file, allowedTypes)
+	userUpload, verrs, uploadError = u.createAndStore(appCtx, documentID, userID, file, allowedTypes)
 	if verrs.HasAny() || uploadError != nil {
-		appCfg.Logger().Error("error creating new user upload", zap.Error(uploadError))
+		appCtx.Logger().Error("error creating new user upload", zap.Error(uploadError))
 	} else {
-		appCfg.Logger().Info("created a user upload with id and key", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
+		appCtx.Logger().Info("created a user upload with id and key", zap.Any("new_user_upload_id", userUpload.ID), zap.String("key", userUpload.Upload.StorageKey))
 	}
 
 	return userUpload, verrs, uploadError
 }
 
 // CreateUserUpload stores UserUpload but does not assign a Document
-func (u *UserUploader) CreateUserUpload(appCfg appconfig.AppConfig, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
+func (u *UserUploader) CreateUserUpload(appCtx appcontext.AppContext, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.UserUpload, *validate.Errors, error) {
 	if u.uploader == nil {
 		return nil, &validate.Errors{}, errors.New("Did not call NewUserUploader before calling this function")
 	}
-	return u.CreateUserUploadForDocument(appCfg, nil, userID, file, allowedTypes)
+	return u.CreateUserUploadForDocument(appCtx, nil, userID, file, allowedTypes)
 }
 
 // DeleteUserUpload removes an UserUpload from the database and deletes its file from the
 // storer.
-func (u *UserUploader) DeleteUserUpload(appCfg appconfig.AppConfig, userUpload *models.UserUpload) error {
+func (u *UserUploader) DeleteUserUpload(appCtx appcontext.AppContext, userUpload *models.UserUpload) error {
 
-	if appCfg.DB().TX != nil {
-		if err := u.uploader.DeleteUpload(appCfg, &userUpload.Upload); err != nil {
+	if appCtx.DB().TX != nil {
+		if err := u.uploader.DeleteUpload(appCtx, &userUpload.Upload); err != nil {
 			return err
 		}
-		return models.DeleteUserUpload(appCfg.DB(), userUpload)
+		return models.DeleteUserUpload(appCtx.DB(), userUpload)
 	}
-	return appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	return appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		if err := u.uploader.DeleteUpload(txnAppCfg, &userUpload.Upload); err != nil {
 			return err
 		}
@@ -120,14 +120,14 @@ func (u *UserUploader) DeleteUserUpload(appCfg appconfig.AppConfig, userUpload *
 }
 
 // PresignedURL returns a URL that can be used to access an UserUpload's file.
-func (u *UserUploader) PresignedURL(appCfg appconfig.AppConfig, userUpload *models.UserUpload) (string, error) {
+func (u *UserUploader) PresignedURL(appCtx appcontext.AppContext, userUpload *models.UserUpload) (string, error) {
 	if userUpload == nil {
-		appCfg.Logger().Error("failed to get UserUploader presigned url")
+		appCtx.Logger().Error("failed to get UserUploader presigned url")
 		return "", errors.New("failed to get UserUploader presigned url")
 	}
-	url, err := u.uploader.PresignedURL(appCfg, &userUpload.Upload)
+	url, err := u.uploader.PresignedURL(appCtx, &userUpload.Upload)
 	if err != nil {
-		appCfg.Logger().Error("failed to get UserUploader presigned url", zap.Error(err))
+		appCtx.Logger().Error("failed to get UserUploader presigned url", zap.Error(err))
 		return "", err
 	}
 	return url, nil
@@ -162,6 +162,6 @@ func (u *UserUploader) GetUploadStorageKey() string {
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (u *UserUploader) Download(appCfg appconfig.AppConfig, userUpload *models.UserUpload) (io.ReadCloser, error) {
-	return u.uploader.Download(appCfg, &userUpload.Upload)
+func (u *UserUploader) Download(appCtx appcontext.AppContext, userUpload *models.UserUpload) (io.ReadCloser, error) {
+	return u.uploader.Download(appCtx, &userUpload.Upload)
 }

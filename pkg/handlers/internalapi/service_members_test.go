@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -387,8 +386,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 
 	suite.MustSave(&move.Orders)
 	moveRouter := moverouter.NewMoveRouter()
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
-	moveRouter.Submit(appCfg, &move)
+	moveRouter.Submit(suite.TestAppContext(), &move)
 	suite.MustSave(&move)
 
 	resAddress := fakeAddressPayload()

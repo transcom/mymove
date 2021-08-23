@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -18,8 +17,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		shipmentDeleter := NewShipmentDeleter()
 		uuid := uuid.Must(uuid.NewV4())
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := shipmentDeleter.DeleteShipment(appCfg, uuid)
+		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), uuid)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -32,8 +30,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		move.Status = models.MoveStatusServiceCounselingCompleted
 		suite.MustSave(&move)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
 
 		suite.Error(err)
 		suite.IsType(services.ForbiddenError{}, err)
@@ -55,8 +52,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			move.Status = validStatus.status
 			suite.MustSave(&move)
 
-			appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-			moveID, err := shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
+			moveID, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
 			suite.NoError(err)
 			// Verify that the shipment's Move ID is returned because the
 			// handler needs it to generate the TriggerEvent.
@@ -81,13 +77,12 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	suite.T().Run("Returns not found error when the shipment is already deleted", func(t *testing.T) {
 		shipmentDeleter := NewShipmentDeleter()
 		shipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
 
 		suite.NoError(err)
 
 		// Try to delete the shipment a second time
-		_, err = shipmentDeleter.DeleteShipment(appCfg, shipment.ID)
+		_, err = shipmentDeleter.DeleteShipment(suite.TestAppContext(), shipment.ID)
 		suite.IsType(services.NotFoundError{}, err)
 	})
 }

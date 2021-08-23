@@ -3,7 +3,7 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -50,7 +50,7 @@ var accessCodeFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of access codes
 func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryFilters := generateQueryFilters(logger, params.Filter, accessCodeFilterConverters)
@@ -60,13 +60,13 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	associations := query.NewQueryAssociationsPreload(queryAssociations)
-	accessCodes, err := h.AccessCodeListFetcher.FetchAccessCodeList(appCfg, queryFilters, associations, pagination, ordering)
+	accessCodes, err := h.AccessCodeListFetcher.FetchAccessCodeList(appCtx, queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 	accessCodesCount := len(accessCodes)
 
-	totalAccessCodeCount, err := h.AccessCodeListFetcher.FetchAccessCodeCount(appCfg, queryFilters)
+	totalAccessCodeCount, err := h.AccessCodeListFetcher.FetchAccessCodeCount(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

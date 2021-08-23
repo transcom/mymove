@@ -3,7 +3,7 @@ package paymentrequest
 import (
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -17,12 +17,12 @@ func NewPaymentRequestFetcher() services.PaymentRequestFetcher {
 }
 
 //FetchPaymentRequest finds the payment request by id
-func (p *paymentRequestFetcher) FetchPaymentRequest(appCfg appconfig.AppConfig, paymentRequestID uuid.UUID) (models.PaymentRequest, error) {
+func (p *paymentRequestFetcher) FetchPaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (models.PaymentRequest, error) {
 	var paymentRequest models.PaymentRequest
 
 	// fetch the payment request first with proof of service docs
 	// will error if payment request not found
-	err := appCfg.DB().Eager(
+	err := appCtx.DB().Eager(
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",
 		"PaymentServiceItems.MTOServiceItem.ReService",
 		"PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
@@ -36,7 +36,7 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(appCfg appconfig.AppConfig, 
 	// empty records are expected
 	for index, posd := range paymentRequest.ProofOfServiceDocs {
 		var primeUploads models.PrimeUploads
-		err = appCfg.DB().Q().
+		err = appCtx.DB().Q().
 			Where("prime_uploads.proof_of_service_docs_id = ? AND prime_uploads.deleted_at IS NULL AND u.deleted_at IS NULL", posd.ID).
 			Eager("Upload").
 			Join("uploads as u", "u.id = prime_uploads.upload_id").

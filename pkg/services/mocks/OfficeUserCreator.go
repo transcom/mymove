@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -18,13 +18,13 @@ type OfficeUserCreator struct {
 	mock.Mock
 }
 
-// CreateOfficeUser provides a mock function with given fields: appCfg, user, transportationIDFilter
-func (_m *OfficeUserCreator) CreateOfficeUser(appCfg appconfig.AppConfig, user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
-	ret := _m.Called(appCfg, user, transportationIDFilter)
+// CreateOfficeUser provides a mock function with given fields: appCtx, user, transportationIDFilter
+func (_m *OfficeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
+	ret := _m.Called(appCtx, user, transportationIDFilter)
 
 	var r0 *models.OfficeUser
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.OfficeUser, []services.QueryFilter) *models.OfficeUser); ok {
-		r0 = rf(appCfg, user, transportationIDFilter)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) *models.OfficeUser); ok {
+		r0 = rf(appCtx, user, transportationIDFilter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.OfficeUser)
@@ -32,8 +32,8 @@ func (_m *OfficeUserCreator) CreateOfficeUser(appCfg appconfig.AppConfig, user *
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.OfficeUser, []services.QueryFilter) *validate.Errors); ok {
-		r1 = rf(appCfg, user, transportationIDFilter)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) *validate.Errors); ok {
+		r1 = rf(appCtx, user, transportationIDFilter)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -41,8 +41,8 @@ func (_m *OfficeUserCreator) CreateOfficeUser(appCfg appconfig.AppConfig, user *
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, *models.OfficeUser, []services.QueryFilter) error); ok {
-		r2 = rf(appCfg, user, transportationIDFilter)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.OfficeUser, []services.QueryFilter) error); ok {
+		r2 = rf(appCtx, user, transportationIDFilter)
 	} else {
 		r2 = ret.Error(2)
 	}

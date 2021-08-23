@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	io "io"
@@ -24,13 +24,13 @@ type OrderUpdater struct {
 	mock.Mock
 }
 
-// UpdateAllowanceAsCounselor provides a mock function with given fields: appCfg, orderID, payload, eTag
-func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCfg appconfig.AppConfig, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
-	ret := _m.Called(appCfg, orderID, payload, eTag)
+// UpdateAllowanceAsCounselor provides a mock function with given fields: appCtx, orderID, payload, eTag
+func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
+	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) *models.Order); ok {
-		r0 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) *models.Order); ok {
+		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -38,8 +38,8 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCfg appconfig.AppConfig, o
 	}
 
 	var r1 uuid.UUID
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) uuid.UUID); ok {
-		r1 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) uuid.UUID); ok {
+		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(uuid.UUID)
@@ -47,8 +47,8 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCfg appconfig.AppConfig, o
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) error); ok {
-		r2 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateAllowancePayload, string) error); ok {
+		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -56,13 +56,13 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCfg appconfig.AppConfig, o
 	return r0, r1, r2
 }
 
-// UpdateAllowanceAsTOO provides a mock function with given fields: appCfg, orderID, payload, eTag
-func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCfg appconfig.AppConfig, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
-	ret := _m.Called(appCfg, orderID, payload, eTag)
+// UpdateAllowanceAsTOO provides a mock function with given fields: appCtx, orderID, payload, eTag
+func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
+	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) *models.Order); ok {
-		r0 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) *models.Order); ok {
+		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -70,8 +70,8 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCfg appconfig.AppConfig, orderID
 	}
 
 	var r1 uuid.UUID
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) uuid.UUID); ok {
-		r1 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) uuid.UUID); ok {
+		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(uuid.UUID)
@@ -79,8 +79,8 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCfg appconfig.AppConfig, orderID
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) error); ok {
-		r2 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateAllowancePayload, string) error); ok {
+		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -88,13 +88,13 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCfg appconfig.AppConfig, orderID
 	return r0, r1, r2
 }
 
-// UpdateOrderAsCounselor provides a mock function with given fields: appCfg, orderID, payload, eTag
-func (_m *OrderUpdater) UpdateOrderAsCounselor(appCfg appconfig.AppConfig, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	ret := _m.Called(appCfg, orderID, payload, eTag)
+// UpdateOrderAsCounselor provides a mock function with given fields: appCtx, orderID, payload, eTag
+func (_m *OrderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) *models.Order); ok {
-		r0 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) *models.Order); ok {
+		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -102,8 +102,8 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCfg appconfig.AppConfig, order
 	}
 
 	var r1 uuid.UUID
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) uuid.UUID); ok {
-		r1 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) uuid.UUID); ok {
+		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(uuid.UUID)
@@ -111,8 +111,8 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCfg appconfig.AppConfig, order
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) error); ok {
-		r2 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.CounselingUpdateOrderPayload, string) error); ok {
+		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -120,13 +120,13 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCfg appconfig.AppConfig, order
 	return r0, r1, r2
 }
 
-// UpdateOrderAsTOO provides a mock function with given fields: appCfg, orderID, payload, eTag
-func (_m *OrderUpdater) UpdateOrderAsTOO(appCfg appconfig.AppConfig, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
-	ret := _m.Called(appCfg, orderID, payload, eTag)
+// UpdateOrderAsTOO provides a mock function with given fields: appCtx, orderID, payload, eTag
+func (_m *OrderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	ret := _m.Called(appCtx, orderID, payload, eTag)
 
 	var r0 *models.Order
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.UpdateOrderPayload, string) *models.Order); ok {
-		r0 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) *models.Order); ok {
+		r0 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Order)
@@ -134,8 +134,8 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCfg appconfig.AppConfig, orderID uui
 	}
 
 	var r1 uuid.UUID
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.UpdateOrderPayload, string) uuid.UUID); ok {
-		r1 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) uuid.UUID); ok {
+		r1 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(uuid.UUID)
@@ -143,8 +143,8 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCfg appconfig.AppConfig, orderID uui
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, ghcmessages.UpdateOrderPayload, string) error); ok {
-		r2 = rf(appCfg, orderID, payload, eTag)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, ghcmessages.UpdateOrderPayload, string) error); ok {
+		r2 = rf(appCtx, orderID, payload, eTag)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -152,27 +152,27 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCfg appconfig.AppConfig, orderID uui
 	return r0, r1, r2
 }
 
-// UploadAmendedOrdersAsCustomer provides a mock function with given fields: appCfg, userID, orderID, file, filename, storer
-func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCfg appconfig.AppConfig, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
-	ret := _m.Called(appCfg, userID, orderID, file, filename, storer)
+// UploadAmendedOrdersAsCustomer provides a mock function with given fields: appCtx, userID, orderID, file, filename, storer
+func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	ret := _m.Called(appCtx, userID, orderID, file, filename, storer)
 
 	var r0 models.Upload
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) models.Upload); ok {
-		r0 = rf(appCfg, userID, orderID, file, filename, storer)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) models.Upload); ok {
+		r0 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
 		r0 = ret.Get(0).(models.Upload)
 	}
 
 	var r1 string
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) string); ok {
-		r1 = rf(appCfg, userID, orderID, file, filename, storer)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) string); ok {
+		r1 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
 	var r2 *validate.Errors
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) *validate.Errors); ok {
-		r2 = rf(appCfg, userID, orderID, file, filename, storer)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) *validate.Errors); ok {
+		r2 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
 		if ret.Get(2) != nil {
 			r2 = ret.Get(2).(*validate.Errors)
@@ -180,8 +180,8 @@ func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCfg appconfig.AppConfig
 	}
 
 	var r3 error
-	if rf, ok := ret.Get(3).(func(appconfig.AppConfig, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) error); ok {
-		r3 = rf(appCfg, userID, orderID, file, filename, storer)
+	if rf, ok := ret.Get(3).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) error); ok {
+		r3 = rf(appCtx, userID, orderID, file, filename, storer)
 	} else {
 		r3 = ret.Error(3)
 	}

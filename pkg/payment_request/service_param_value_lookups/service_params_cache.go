@@ -3,7 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gofrs/uuid"
@@ -85,7 +85,7 @@ func (spc *ServiceParamsCache) ParamValue(mtoShipmentID uuid.UUID, paramKey mode
 	return nil
 }
 
-func (spc *ServiceParamsCache) setNeedsParamKeyMap(appCfg appconfig.AppConfig, code models.ReServiceCode) error {
+func (spc *ServiceParamsCache) setNeedsParamKeyMap(appCtx appcontext.AppContext, code models.ReServiceCode) error {
 	// build up service item code paramkey map if it doesn't yet exist
 	if _, ok := spc.needsParamKey[code]; !ok {
 		type ParamKeys []string
@@ -97,7 +97,7 @@ func (spc *ServiceParamsCache) setNeedsParamKeyMap(appCfg appconfig.AppConfig, c
 		WHERE rs.code = $1
     `
 		codeStr := string(code)
-		err := appCfg.DB().RawQuery(query, codeStr).All(&paramKeys)
+		err := appCtx.DB().RawQuery(query, codeStr).All(&paramKeys)
 		if err != nil {
 			return err
 		}
@@ -121,14 +121,14 @@ func (spc *ServiceParamsCache) paramKeyExist(paramKey models.ServiceItemParamNam
 
 // ServiceItemNeedsParamKey returns true/false if the ReServiceCode uses the particular ServiceItemParamKey
 // for calculating the service item  price
-func (spc *ServiceParamsCache) ServiceItemNeedsParamKey(appCfg appconfig.AppConfig, code models.ReServiceCode, paramKey models.ServiceItemParamName) (bool, error) {
+func (spc *ServiceParamsCache) ServiceItemNeedsParamKey(appCtx appcontext.AppContext, code models.ReServiceCode, paramKey models.ServiceItemParamName) (bool, error) {
 	var err error
 
 	if keyMap, codeOK := spc.needsParamKey[code]; codeOK {
 		return spc.paramKeyExist(paramKey, keyMap), nil
 	}
 
-	err = spc.setNeedsParamKeyMap(appCfg, code)
+	err = spc.setNeedsParamKeyMap(appCtx, code)
 	if err == nil {
 		if keyMap, codeOK := spc.needsParamKey[code]; codeOK {
 			return spc.paramKeyExist(paramKey, keyMap), nil

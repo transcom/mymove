@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -88,22 +87,20 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 	)
 
 	suite.T().Run("distance when zip3s are identical", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		distanceStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip5Distance)
 		suite.Equal(expected, distanceStr)
 	})
 
 	suite.T().Run("distance when zip3s are different", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		distanceStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip3Distance)
 		suite.Equal(expected, distanceStr)
@@ -114,11 +111,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		destAddress.PostalCode = "5678"
 		suite.MustSave(&destAddress)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(appCfg, key)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid destination postal code")
 
@@ -131,11 +127,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 		finalDestDiffZip3Address.PostalCode = "5678"
 		suite.MustSave(&finalDestDiffZip3Address)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemDiffZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(appCfg, key)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid SIT final destination postal code")
 
@@ -150,11 +145,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			mock.Anything,
 		).Return(0, errors.New("error with Zip5TransitDistance"))
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, errorPlanner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), errorPlanner, mtoServiceItemSameZip3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(appCfg, key)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 	})
 }

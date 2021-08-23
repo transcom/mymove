@@ -3,7 +3,6 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -15,8 +14,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchTaskOrderFee() {
 	suite.Run("golden path", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, testCents)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		taskOrderFee, err := fetchTaskOrderFee(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeMS, testAvailableToPrimeAt)
+		taskOrderFee, err := fetchTaskOrderFee(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeMS, testAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(testCents, taskOrderFee.PriceCents)
 	})
@@ -25,8 +23,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchTaskOrderFee() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, testCents)
 
 		// Look for service code CS that we haven't added
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := fetchTaskOrderFee(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeCS, testAvailableToPrimeAt)
+		_, err := fetchTaskOrderFee(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeCS, testAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }
@@ -39,8 +36,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
 	suite.Run("golden path", func() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		domOtherPrice, err := fetchDomOtherPrice(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeDPK, servicesSchedule, isPeakPeriod)
+		domOtherPrice, err := fetchDomOtherPrice(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, servicesSchedule, isPeakPeriod)
 		suite.NoError(err)
 		suite.Equal(testCents, domOtherPrice.PriceCents)
 	})
@@ -54,8 +50,7 @@ func (suite *GHCRateEngineServiceSuite) Test_unpackFetchDomOtherPrice() {
 	suite.Run("golden path", func() {
 		suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		domOtherPrice, err := fetchDomOtherPrice(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeDUPK, servicesSchedule, isPeakPeriod)
+		domOtherPrice, err := fetchDomOtherPrice(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeDUPK, servicesSchedule, isPeakPeriod)
 		suite.NoError(err)
 		suite.Equal(testCents, domOtherPrice.PriceCents)
 	})
@@ -69,8 +64,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 	suite.Run("golden path", func() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, "Test Contract Year", 1.125)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		domServiceAreaPrice, err := fetchDomServiceAreaPrice(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod)
+		domServiceAreaPrice, err := fetchDomServiceAreaPrice(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod)
 		suite.NoError(err)
 		suite.Equal(testCents, domServiceAreaPrice.PriceCents)
 	})
@@ -79,8 +73,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, "Test Contract Year", 1.125)
 
 		// Look for service code DDFSIT that we haven't added
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := fetchDomServiceAreaPrice(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeDDFSIT, testServiceArea, testIsPeakPeriod)
+		_, err := fetchDomServiceAreaPrice(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeDDFSIT, testServiceArea, testIsPeakPeriod)
 		suite.Error(err)
 	})
 }
@@ -88,8 +81,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 func (suite *GHCRateEngineServiceSuite) Test_fetchAccessorialPrice() {
 	suite.Run("golden path", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		domAccessorialPrice, err := fetchAccessorialPrice(appCfg, testdatagen.DefaultContractCode, models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
+		domAccessorialPrice, err := fetchAccessorialPrice(suite.TestAppContext(), testdatagen.DefaultContractCode, models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule)
 
 		suite.NoError(err)
 		suite.Equal(ddshutTestBasePriceCents, domAccessorialPrice.PerUnitCents)
@@ -108,8 +100,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 				},
 			})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		contractYear, err := fetchContractYear(appCfg, newContractYear.ContractID, testDate)
+		contractYear, err := fetchContractYear(suite.TestAppContext(), newContractYear.ContractID, testDate)
 		suite.NoError(err)
 		suite.Equal(testEscalationCompounded, contractYear.EscalationCompounded)
 	})
@@ -123,8 +114,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchContractYear() {
 			})
 
 		// Look for a testDate that's a couple of years later.
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := fetchContractYear(appCfg, newContractYear.ContractID, testDate.AddDate(2, 0, 0))
+		_, err := fetchContractYear(suite.TestAppContext(), newContractYear.ContractID, testDate.AddDate(2, 0, 0))
 		suite.Error(err)
 	})
 }

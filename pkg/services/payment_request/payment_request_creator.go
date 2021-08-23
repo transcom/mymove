@@ -10,7 +10,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
@@ -31,8 +31,8 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 	}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(appCfg appconfig.AppConfig, paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
-	transactionError := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
+	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		var err error
 		now := time.Now()
 
@@ -85,7 +85,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCfg appconfig.AppConfig,
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
-			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(appCfg.DB(), paymentServiceItem, paymentRequestArg, now)
+			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(appCtx.DB(), paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
 					return err
@@ -105,7 +105,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCfg appconfig.AppConfig,
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param models.PaymentServiceItemParam
 				var key, value *string
-				param, key, value, err = p.createPaymentServiceItemParam(appCfg.DB(), paymentServiceItemParam, paymentServiceItem)
+				param, key, value, err = p.createPaymentServiceItemParam(appCtx.DB(), paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*services.BadDataError); ok {
 						return err
@@ -130,14 +130,14 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCfg appconfig.AppConfig,
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 
-			reServiceParams, err := paymentHelper.FetchServiceParamList(appCfg, paymentServiceItem.MTOServiceItemID)
+			reServiceParams, err := paymentHelper.FetchServiceParamList(appCtx, paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(appCfg, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(appCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}
@@ -145,7 +145,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCfg appconfig.AppConfig,
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
 					var param *models.PaymentServiceItemParam
-					param, err = p.createServiceItemParamFromLookup(appCfg, paramLookup, reServiceParam, paymentServiceItem)
+					param, err = p.createServiceItemParamFromLookup(appCtx, paramLookup, reServiceParam, paymentServiceItem)
 					if err != nil {
 						errMessage := fmt.Sprintf("Failed to create service item param for param key <%s> %s", reServiceParam.ServiceItemParamKey.Key, errMessageString)
 						return fmt.Errorf("%s err: %w", errMessage, err)
@@ -176,7 +176,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCfg appconfig.AppConfig,
 			// Price the payment service item
 			var psItem models.PaymentServiceItem
 			var displayParams models.PaymentServiceItemParams
-			psItem, displayParams, err = p.pricePaymentServiceItem(appCfg, paymentServiceItem)
+			psItem, displayParams, err = p.pricePaymentServiceItem(appCtx, paymentServiceItem)
 			if err != nil {
 				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
 					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
@@ -332,8 +332,8 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	return paymentServiceItem, mtoServiceItem, nil
 }
 
-func (p *paymentRequestCreator) pricePaymentServiceItem(appCfg appconfig.AppConfig, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItem, models.PaymentServiceItemParams, error) {
-	price, displayParams, err := p.pricer.PriceServiceItem(appCfg, paymentServiceItem)
+func (p *paymentRequestCreator) pricePaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItem, models.PaymentServiceItemParams, error) {
+	price, displayParams, err := p.pricer.PriceServiceItem(appCtx, paymentServiceItem)
 	if err != nil {
 		// If a pricer isn't implemented yet, just skip saving any pricing for now.
 		// TODO: Once all pricers are implemented, this should be removed.
@@ -346,7 +346,7 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(appCfg appconfig.AppConf
 
 	paymentServiceItem.PriceCents = &price
 
-	verrs, err := appCfg.DB().ValidateAndUpdate(&paymentServiceItem)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&paymentServiceItem)
 	if verrs.HasAny() {
 		return models.PaymentServiceItem{}, displayParams, services.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
 	}
@@ -414,7 +414,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 	return models.PaymentServiceItemParam{}, nil, nil, nil
 }
 
-func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCfg appconfig.AppConfig, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
+func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCtx appcontext.AppContext, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// Pricing/pricer functions will create the params originating from pricers. Nothing to do here.
 	if serviceParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
 		return &models.PaymentServiceItemParam{}, nil
@@ -422,7 +422,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCfg appconfi
 
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
-	value, err := paramLookup.ServiceParamValue(appCfg, serviceParam.ServiceItemParamKey.Key)
+	value, err := paramLookup.ServiceParamValue(appCtx, serviceParam.ServiceItemParamKey.Key)
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
@@ -445,7 +445,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCfg appconfi
 	}
 
 	var verrs *validate.Errors
-	verrs, err = appCfg.DB().ValidateAndCreate(&paymentServiceItemParam)
+	verrs, err = appCtx.DB().ValidateAndCreate(&paymentServiceItemParam)
 	if verrs.HasAny() {
 		msg := fmt.Sprintf("validation error creating payment service item param: for payment service item ID <%s> and service item key <%s>", paymentServiceItem.ID.String(), serviceParam.ServiceItemParamKey.Key)
 		return nil, services.NewInvalidCreateInputError(verrs, msg)

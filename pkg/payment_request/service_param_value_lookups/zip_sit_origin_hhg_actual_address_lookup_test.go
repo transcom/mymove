@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"testing"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -65,22 +64,20 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGActualAddressLook
 	)
 
 	suite.T().Run("success SIT origin actual zip lookup", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemWithSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemWithSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		sitOriginZipActual, err := paramLookup.ServiceParamValue(appCfg, key)
+		sitOriginZipActual, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := mtoServiceItemWithSITOriginZips.SITOriginHHGActualAddress.PostalCode
 		suite.Equal(expected, sitOriginZipActual)
 	})
 
 	suite.T().Run("fail to find SIT origin actual zip lookup", func(t *testing.T) {
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, err := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemNoSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemNoSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		sitOriginZipActual, err := paramLookup.ServiceParamValue(appCfg, key)
+		sitOriginZipActual, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.Equal("", sitOriginZipActual)
 		suite.Contains(err.Error(), "nil SITOriginHHGActualAddressID")

@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -372,10 +371,9 @@ func (suite *HandlerSuite) TestCreateMTOAgentHandler() {
 
 		subtestData := suite.makeCreateMTOAgentSubtestData()
 		payload := subtestData.receivingAgent
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
 		// set up the shipment and agent as already associated with
 		// each other
-		_, err := subtestData.handler.MTOAgentCreator.CreateMTOAgentPrime(appCfg, payloads.MTOAgentModel(payload))
+		_, err := subtestData.handler.MTOAgentCreator.CreateMTOAgentPrime(suite.TestAppContext(), payloads.MTOAgentModel(payload))
 		suite.NoError(err)
 		params := mtoshipmentops.CreateMTOAgentParams{
 			HTTPRequest:   subtestData.req,

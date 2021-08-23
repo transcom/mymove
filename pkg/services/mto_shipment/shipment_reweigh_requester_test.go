@@ -7,7 +7,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,8 +23,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		})
 		fetchedShipment := models.MTOShipment{}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		reweigh, err := requester.RequestShipmentReweigh(appCfg, shipment.ID)
+		reweigh, err := requester.RequestShipmentReweigh(suite.TestAppContext(), shipment.ID)
 
 		suite.NoError(err)
 		suite.Equal(shipment.MoveTaskOrderID, reweigh.Shipment.MoveTaskOrderID)
@@ -46,8 +44,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 			},
 		})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := requester.RequestShipmentReweigh(appCfg, rejectedShipment.ID)
+		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), rejectedShipment.ID)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -58,8 +55,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 		reweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 		existingShipment := reweigh.Shipment
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := requester.RequestShipmentReweigh(appCfg, existingShipment.ID)
+		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), existingShipment.ID)
 
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
@@ -69,8 +65,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentReweigh() {
 	suite.T().Run("Passing in a bad shipment id returns a Not Found error", func(t *testing.T) {
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := requester.RequestShipmentReweigh(appCfg, badShipmentID)
+		_, err := requester.RequestShipmentReweigh(suite.TestAppContext(), badShipmentID)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

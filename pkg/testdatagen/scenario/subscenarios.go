@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,11 +15,11 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func subScenarioShipmentHHGCancelled(appCfg appconfig.AppConfig, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
-	db := appCfg.DB()
+func subScenarioShipmentHHGCancelled(appCtx appcontext.AppContext, allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
+	db := appCtx.DB()
 	return func() {
-		createTXO(appCfg)
-		createTXOUSMC(appCfg)
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
 
 		validStatuses := []models.MoveStatus{models.MoveStatusAPPROVED}
 		// shipment cancelled was approved before
@@ -30,7 +30,7 @@ func subScenarioShipmentHHGCancelled(appCfg appconfig.AppConfig, allDutyStations
 		ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 		tac := "1234"
 		// make sure to create moves that does not go to US marines affiliation
-		move := createRandomMove(appCfg, validStatuses, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+		move := createRandomMove(appCtx, validStatuses, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
 			Order: models.Order{
 				DepartmentIndicator: (*string)(&affiliationAirForce),
 				OrdersNumber:        &ordersNumber,
@@ -55,96 +55,96 @@ func subScenarioShipmentHHGCancelled(appCfg appconfig.AppConfig, allDutyStations
 	}
 }
 
-func subScenarioPPMOfficeQueue(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+func subScenarioPPMOfficeQueue(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
-		createPPMOfficeUser(appCfg)
+		createPPMOfficeUser(appCtx)
 
 		// PPM Office Queue
-		createPPMWithAdvance(appCfg, userUploader, moveRouter)
-		createPPMWithNoAdvance(appCfg, userUploader, moveRouter)
-		createPPMWithPaymentRequest(appCfg, userUploader, moveRouter)
-		createCanceledPPM(appCfg, userUploader, moveRouter)
-		createPPMReadyToRequestPayment(appCfg, userUploader, moveRouter)
+		createPPMWithAdvance(appCtx, userUploader, moveRouter)
+		createPPMWithNoAdvance(appCtx, userUploader, moveRouter)
+		createPPMWithPaymentRequest(appCtx, userUploader, moveRouter)
+		createCanceledPPM(appCtx, userUploader, moveRouter)
+		createPPMReadyToRequestPayment(appCtx, userUploader, moveRouter)
 	}
 }
 
-func subScenarioAdditionalPPMUsers(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) func() {
+func subScenarioAdditionalPPMUsers(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
 		// Create additional PPM users for mymove tests
-		createPPMUsers(appCfg, userUploader)
+		createPPMUsers(appCtx, userUploader)
 	}
 }
 
-func subScenarioHHGOnboarding(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader) func() {
+func subScenarioHHGOnboarding(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
 	return func() {
-		createTXO(appCfg)
-		createTXOUSMC(appCfg)
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
 
 		// Onboarding
-		createUnsubmittedHHGMove(appCfg)
-		createUnsubmittedMoveWithNTSAndNTSR(appCfg, 1)
-		createUnsubmittedMoveWithNTSAndNTSR(appCfg, 2)
-		createUnsubmittedHHGMoveMultiplePickup(appCfg)
-		createUnsubmittedHHGMoveMultipleDestinations(appCfg)
-		createServiceMemberWithOrdersButNoMoveType(appCfg)
-		createServiceMemberWithNoUploadedOrders(appCfg)
-		createSubmittedHHGMoveMultiplePickupAmendedOrders(appCfg, userUploader)
+		createUnsubmittedHHGMove(appCtx)
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, 1)
+		createUnsubmittedMoveWithNTSAndNTSR(appCtx, 2)
+		createUnsubmittedHHGMoveMultiplePickup(appCtx)
+		createUnsubmittedHHGMoveMultipleDestinations(appCtx)
+		createServiceMemberWithOrdersButNoMoveType(appCtx)
+		createServiceMemberWithNoUploadedOrders(appCtx)
+		createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx, userUploader)
 	}
 }
 
-func subScenarioHHGServicesCounseling(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader,
+func subScenarioHHGServicesCounseling(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
 	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
 	return func() {
-		createTXOServicesCounselor(appCfg)
-		createTXOServicesUSMCCounselor(appCfg)
+		createTXOServicesCounselor(appCtx)
+		createTXOServicesUSMCCounselor(appCtx)
 
 		// Services Counseling
-		createHHGNeedsServicesCounseling(appCfg)
-		createHHGNeedsServicesCounselingUSMC(appCfg, userUploader)
-		createHHGNeedsServicesCounselingUSMC2(appCfg, userUploader)
-		createHHGServicesCounselingCompleted(appCfg)
-		createHHGNoShipments(appCfg)
+		createHHGNeedsServicesCounseling(appCtx)
+		createHHGNeedsServicesCounselingUSMC(appCtx, userUploader)
+		createHHGNeedsServicesCounselingUSMC2(appCtx, userUploader)
+		createHHGServicesCounselingCompleted(appCtx)
+		createHHGNoShipments(appCtx)
 
 		for i := 0; i < 12; i++ {
 			validStatuses := []models.MoveStatus{models.MoveStatusNeedsServiceCounseling, models.MoveStatusServiceCounselingCompleted}
-			createRandomMove(appCfg, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
+			createRandomMove(appCtx, validStatuses, allDutyStations, originDutyStationsInGBLOC, false, testdatagen.Assertions{
 				UserUploader: userUploader,
 			})
 		}
 	}
 }
 
-func subScenarioTXOQueues(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, logger *zap.Logger) func() {
+func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, logger *zap.Logger) func() {
 	return func() {
-		createTOO(appCfg)
-		createTIO(appCfg)
-		createTXO(appCfg)
-		createTXOUSMC(appCfg)
-		createServicesCounselor(appCfg)
-		createTXOServicesCounselor(appCfg)
-		createTXOServicesUSMCCounselor(appCfg)
+		createTOO(appCtx)
+		createTIO(appCtx)
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
+		createServicesCounselor(appCtx)
+		createTXOServicesCounselor(appCtx)
+		createTXOServicesUSMCCounselor(appCtx)
 
 		// TXO Queues
-		createNTSMove(appCfg)
-		createNTSRMove(appCfg)
+		createNTSMove(appCtx)
+		createNTSRMove(appCtx)
 
 		// This allows testing the pagination feature in the TXO queues.
 		// Feel free to comment out the loop if you don't need this many moves.
 		for i := 1; i < 12; i++ {
-			createDefaultHHGMoveWithPaymentRequest(appCfg, userUploader, models.AffiliationAIRFORCE)
+			createDefaultHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE)
 		}
-		createDefaultHHGMoveWithPaymentRequest(appCfg, userUploader, models.AffiliationMARINES)
+		createDefaultHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationMARINES)
 	}
 }
 
-func subScenarioPaymentRequestCalculations(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
+func subScenarioPaymentRequestCalculations(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter) func() {
 	return func() {
-		createTXO(appCfg)
-		createTXOUSMC(appCfg)
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
 
 		// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
-		createHHGMoveWithPaymentRequest(appCfg, userUploader, models.AffiliationAIRFORCE, testdatagen.Assertions{
+		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE, testdatagen.Assertions{
 			Move: models.Move{
 				Locator: "SidDLH",
 			},
@@ -157,30 +157,30 @@ func subScenarioPaymentRequestCalculations(appCfg appconfig.AppConfig, userUploa
 			},
 		})
 		// Locator PARAMS
-		createHHGWithPaymentServiceItems(appCfg, primeUploader, moveRouter)
+		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter)
 	}
 }
 
-func subScenarioPPMAndHHG(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
+func subScenarioPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, moveRouter services.MoveRouter) func() {
 	return func() {
-		createTXO(appCfg)
-		createTXOUSMC(appCfg)
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
 
-		createMoveWithPPMAndHHG(appCfg, userUploader, moveRouter)
+		createMoveWithPPMAndHHG(appCtx, userUploader, moveRouter)
 	}
 }
 
-func subScenarioDivertedShipments(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader,
+func subScenarioDivertedShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader,
 	allDutyStations []models.DutyStation, originDutyStationsInGBLOC []models.DutyStation) func() {
 	return func() {
-		createTXO(appCfg)
-		createTXOUSMC(appCfg)
+		createTXO(appCtx)
+		createTXOUSMC(appCtx)
 
 		// Create diverted shipments that need TOO approval
-		createMoveWithDivertedShipments(appCfg, userUploader)
+		createMoveWithDivertedShipments(appCtx, userUploader)
 
 		// Create diverted shipments that are approved and appear on the Move Task Order page
-		createRandomMove(appCfg, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
+		createRandomMove(appCtx, nil, allDutyStations, originDutyStationsInGBLOC, true, testdatagen.Assertions{
 			UserUploader: userUploader,
 			Move: models.Move{
 				Status:             models.MoveStatusAPPROVED,
@@ -197,51 +197,51 @@ func subScenarioDivertedShipments(appCfg appconfig.AppConfig, userUploader *uplo
 	}
 }
 
-func subScenarioReweighs(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
+func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) func() {
 	return func() {
-		createHHGMoveWithReweigh(appCfg, userUploader)
-		createHHGMoveWithBillableWeights(appCfg, userUploader, primeUploader)
-		createReweighWithMultipleShipments(appCfg, userUploader, primeUploader, moveRouter)
-		createReweighWithShipmentMissingReweigh(appCfg, userUploader, primeUploader, moveRouter)
-		createReweighWithShipmentMaxBillableWeightExceeded(appCfg, userUploader, primeUploader, moveRouter)
-		createReweighWithShipmentNoEstimatedWeight(appCfg, userUploader, primeUploader, moveRouter)
+		createHHGMoveWithReweigh(appCtx, userUploader)
+		createHHGMoveWithBillableWeights(appCtx, userUploader, primeUploader)
+		createReweighWithMultipleShipments(appCtx, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentMissingReweigh(appCtx, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentMaxBillableWeightExceeded(appCtx, userUploader, primeUploader, moveRouter)
+		createReweighWithShipmentNoEstimatedWeight(appCtx, userUploader, primeUploader, moveRouter)
 	}
 }
 
-func subScenarioMisc(appCfg appconfig.AppConfig, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
+func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader,
 	moveRouter services.MoveRouter) func() {
 	return func() {
-		createTXOServicesCounselor(appCfg)
-		createTXOServicesUSMCCounselor(appCfg)
+		createTXOServicesCounselor(appCtx)
+		createTXOServicesUSMCCounselor(appCtx)
 
 		// A move with missing required order fields
-		createMoveWithHHGMissingOrdersInfo(appCfg, moveRouter)
+		createMoveWithHHGMissingOrdersInfo(appCtx, moveRouter)
 
-		createHHGMoveWith10ServiceItems(appCfg, userUploader)
-		createHHGMoveWith2PaymentRequests(appCfg, userUploader)
-		createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCfg, userUploader)
-		createHHGMoveWithTaskOrderServices(appCfg, userUploader)
+		createHHGMoveWith10ServiceItems(appCtx, userUploader)
+		createHHGMoveWith2PaymentRequests(appCtx, userUploader)
+		createHHGMoveWith2PaymentRequestsReviewedAllRejectedServiceItems(appCtx, userUploader)
+		createHHGMoveWithTaskOrderServices(appCtx, userUploader)
 
 		// This one doesn't have submitted shipments. Can we get rid of it?
-		// createRecentlyUpdatedHHGMove(appCfg, userUploader)
-		createMoveWithHHGAndNTSRPaymentRequest(appCfg, userUploader)
+		// createRecentlyUpdatedHHGMove(appCtx, userUploader)
+		createMoveWithHHGAndNTSRPaymentRequest(appCtx, userUploader)
 		// This move will still have shipments with some unapproved service items
 		// without payment service items
-		createMoveWith2ShipmentsAndPaymentRequest(appCfg, userUploader)
-		createMoveWith2MinimalShipments(appCfg, userUploader)
+		createMoveWith2ShipmentsAndPaymentRequest(appCtx, userUploader)
+		createMoveWith2MinimalShipments(appCtx, userUploader)
 
 		// Prime API
-		createWebhookSubscriptionForPaymentRequestUpdate(appCfg)
+		createWebhookSubscriptionForPaymentRequestUpdate(appCtx)
 		// This move below is a PPM move in DRAFT status. It should probably
 		// be changed to an HHG move in SUBMITTED status to reflect reality.
-		createMoveWithServiceItems(appCfg, userUploader)
-		createMoveWithBasicServiceItems(appCfg, userUploader)
+		createMoveWithServiceItems(appCtx, userUploader)
+		createMoveWithBasicServiceItems(appCtx, userUploader)
 		// Sets up a move with a non-default destination duty station address
 		// (to more easily spot issues with addresses being overwritten).
-		createMoveWithUniqueDestinationAddress(appCfg)
+		createMoveWithUniqueDestinationAddress(appCtx)
 		// Creates a move that has multiple orders uploaded
-		createHHGMoveWithMultipleOrdersFiles(appCfg, userUploader, primeUploader)
-		createHHGMoveWithAmendedOrders(appCfg, userUploader, primeUploader)
-		createHHGMoveWithRiskOfExcess(appCfg, userUploader, primeUploader)
+		createHHGMoveWithMultipleOrdersFiles(appCtx, userUploader, primeUploader)
+		createHHGMoveWithAmendedOrders(appCtx, userUploader, primeUploader)
+		createHHGMoveWithRiskOfExcess(appCtx, userUploader, primeUploader)
 	}
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -63,10 +62,9 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		})
 
 		paramCache := NewServiceParamsCache()
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookupWithCache, _ := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookupWithCache, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 
-		valueStr, err := paramLookupWithCache.ServiceParamValue(appCfg, serviceItemParamKey1.Key)
+		valueStr, err := paramLookupWithCache.ServiceParamValue(suite.TestAppContext(), serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
@@ -89,10 +87,9 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, _ := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
@@ -111,8 +108,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, _ := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		// Set the actual pickup date to nil
 		mtoShipment := mtoServiceItem.MTOShipment
@@ -120,7 +116,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		mtoShipment.ActualPickupDate = nil
 		suite.MustSave(&mtoShipment)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find an actual pickup date for MTOShipmentID [%s]", mtoShipment.ID)
 		suite.Contains(err.Error(), expected)
@@ -143,15 +139,14 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		paramLookup, _ := ServiceParamLookupInitialize(appCfg, suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		// Set the MTOShipmentID to nil
 		oldMTOShipmentID := mtoServiceItem.MTOShipmentID
 		mtoServiceItem.MTOShipmentID = nil
 		suite.MustSave(&mtoServiceItem)
 
-		valueStr, err := paramLookup.ServiceParamValue(appCfg, key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
@@ -175,8 +170,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		_, err := ServiceParamLookupInitialize(appCfg, suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		_, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

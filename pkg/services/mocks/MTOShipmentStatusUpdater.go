@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +16,13 @@ type MTOShipmentStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOShipmentStatus provides a mock function with given fields: appCfg, shipmentID, status, rejectionReason, eTag
-func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(appCfg appconfig.AppConfig, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCfg, shipmentID, status, rejectionReason, eTag)
+// UpdateMTOShipmentStatus provides a mock function with given fields: appCtx, shipmentID, status, rejectionReason, eTag
+func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, eTag string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipmentID, status, rejectionReason, eTag)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, models.MTOShipmentStatus, *string, string) *models.MTOShipment); ok {
-		r0 = rf(appCfg, shipmentID, status, rejectionReason, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipmentID, status, rejectionReason, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -30,8 +30,8 @@ func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(appCfg appconfig.App
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, models.MTOShipmentStatus, *string, string) error); ok {
-		r1 = rf(appCfg, shipmentID, status, rejectionReason, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, string) error); ok {
+		r1 = rf(appCtx, shipmentID, status, rejectionReason, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

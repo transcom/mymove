@@ -4,7 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -23,8 +23,8 @@ func NewShipmentRejecter(router services.ShipmentRouter) services.ShipmentReject
 }
 
 // RejectShipment rejects the shipment
-func (f *shipmentRejecter) RejectShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
-	shipment, err := f.findShipment(appCfg, shipmentID)
+func (f *shipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
+	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -34,12 +34,12 @@ func (f *shipmentRejecter) RejectShipment(appCfg appconfig.AppConfig, shipmentID
 		return &models.MTOShipment{}, services.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	err = f.router.Reject(appCfg, shipment, reason)
+	err = f.router.Reject(appCtx, shipment, reason)
 	if err != nil {
 		return nil, err
 	}
 
-	verrs, err := appCfg.DB().ValidateAndSave(shipment)
+	verrs, err := appCtx.DB().ValidateAndSave(shipment)
 	if verrs != nil && verrs.HasAny() {
 		invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "Could not validate shipment while rejecting the shipment.")
 
@@ -49,9 +49,9 @@ func (f *shipmentRejecter) RejectShipment(appCfg appconfig.AppConfig, shipmentID
 	return shipment, err
 }
 
-func (f *shipmentRejecter) findShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID) (*models.MTOShipment, error) {
+func (f *shipmentRejecter) findShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
 	var shipment models.MTOShipment
-	err := appCfg.DB().Q().Find(&shipment, shipmentID)
+	err := appCtx.DB().Q().Find(&shipment, shipmentID)
 
 	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 		return nil, services.NewNotFoundError(shipmentID, "while looking for shipment")

@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -14,13 +14,13 @@ type MTOAgentUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOAgentBasic provides a mock function with given fields: appCfg, mtoAgent, eTag
-func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	ret := _m.Called(appCfg, mtoAgent, eTag)
+// UpdateMTOAgentBasic provides a mock function with given fields: appCtx, mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	ret := _m.Called(appCtx, mtoAgent, eTag)
 
 	var r0 *models.MTOAgent
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOAgent, string) *models.MTOAgent); ok {
-		r0 = rf(appCfg, mtoAgent, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) *models.MTOAgent); ok {
+		r0 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOAgent)
@@ -28,8 +28,8 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCfg appconfig.AppConfig, mtoAg
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOAgent, string) error); ok {
-		r1 = rf(appCfg, mtoAgent, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent, string) error); ok {
+		r1 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,13 +37,13 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCfg appconfig.AppConfig, mtoAg
 	return r0, r1
 }
 
-// UpdateMTOAgentPrime provides a mock function with given fields: appCfg, mtoAgent, eTag
-func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCfg appconfig.AppConfig, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	ret := _m.Called(appCfg, mtoAgent, eTag)
+// UpdateMTOAgentPrime provides a mock function with given fields: appCtx, mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	ret := _m.Called(appCtx, mtoAgent, eTag)
 
 	var r0 *models.MTOAgent
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, *models.MTOAgent, string) *models.MTOAgent); ok {
-		r0 = rf(appCfg, mtoAgent, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) *models.MTOAgent); ok {
+		r0 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOAgent)
@@ -51,8 +51,8 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCfg appconfig.AppConfig, mtoAg
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, *models.MTOAgent, string) error); ok {
-		r1 = rf(appCfg, mtoAgent, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent, string) error); ok {
+		r1 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

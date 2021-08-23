@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -18,13 +18,13 @@ type MoveTaskOrderUpdater struct {
 	mock.Mock
 }
 
-// MakeAvailableToPrime provides a mock function with given fields: appCfg, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS
-func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
-	ret := _m.Called(appCfg, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
+// MakeAvailableToPrime provides a mock function with given fields: appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS
+func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, string, bool, bool) *models.Move); ok {
-		r0 = rf(appCfg, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, bool) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -32,8 +32,8 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCfg appconfig.AppConfig,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, string, bool, bool) error); ok {
-		r1 = rf(appCfg, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, bool, bool) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -41,13 +41,13 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCfg appconfig.AppConfig,
 	return r0, r1
 }
 
-// ShowHide provides a mock function with given fields: appCfg, moveTaskOrderID, show
-func (_m *MoveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error) {
-	ret := _m.Called(appCfg, moveTaskOrderID, show)
+// ShowHide provides a mock function with given fields: appCtx, moveTaskOrderID, show
+func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID, show)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, *bool) *models.Move); ok {
-		r0 = rf(appCfg, moveTaskOrderID, show)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *bool) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID, show)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -55,8 +55,8 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveTaskOrd
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, *bool) error); ok {
-		r1 = rf(appCfg, moveTaskOrderID, show)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *bool) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID, show)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -64,13 +64,13 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCfg appconfig.AppConfig, moveTaskOrd
 	return r0, r1
 }
 
-// UpdateApprovedAmendedOrders provides a mock function with given fields: appCfg, move
-func (_m *MoveTaskOrderUpdater) UpdateApprovedAmendedOrders(appCfg appconfig.AppConfig, move models.Move) error {
-	ret := _m.Called(appCfg, move)
+// UpdateApprovedAmendedOrders provides a mock function with given fields: appCtx, move
+func (_m *MoveTaskOrderUpdater) UpdateApprovedAmendedOrders(appCtx appcontext.AppContext, move models.Move) error {
+	ret := _m.Called(appCtx, move)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, models.Move) error); ok {
-		r0 = rf(appCfg, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Move) error); ok {
+		r0 = rf(appCtx, move)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -78,13 +78,13 @@ func (_m *MoveTaskOrderUpdater) UpdateApprovedAmendedOrders(appCfg appconfig.App
 	return r0
 }
 
-// UpdatePostCounselingInfo provides a mock function with given fields: appCfg, moveTaskOrderID, body, eTag
-func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
-	ret := _m.Called(appCfg, moveTaskOrderID, body, eTag)
+// UpdatePostCounselingInfo provides a mock function with given fields: appCtx, moveTaskOrderID, body, eTag
+func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID, body, eTag)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.Move); ok {
-		r0 = rf(appCfg, moveTaskOrderID, body, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID, body, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -92,8 +92,8 @@ func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCfg appconfig.AppCon
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) error); ok {
-		r1 = rf(appCfg, moveTaskOrderID, body, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID, body, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -101,13 +101,13 @@ func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCfg appconfig.AppCon
 	return r0, r1
 }
 
-// UpdateStatusServiceCounselingCompleted provides a mock function with given fields: appCfg, moveTaskOrderID, eTag
-func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCfg appconfig.AppConfig, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
-	ret := _m.Called(appCfg, moveTaskOrderID, eTag)
+// UpdateStatusServiceCounselingCompleted provides a mock function with given fields: appCtx, moveTaskOrderID, eTag
+func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, string) *models.Move); ok {
-		r0 = rf(appCfg, moveTaskOrderID, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.Move); ok {
+		r0 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -115,8 +115,8 @@ func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCfg ap
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, string) error); ok {
-		r1 = rf(appCfg, moveTaskOrderID, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
+		r1 = rf(appCtx, moveTaskOrderID, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

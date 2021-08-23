@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		}
 		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
 		uploadInformationFetcher.On("FetchUploadInformation",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(uploaded, nil).Once()
 		handler := GetUploadHandler{
@@ -124,7 +124,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		expectedError := models.ErrFetchNotFound
 		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
 		uploadInformationFetcher.On("FetchUploadInformation",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(services.UploadInformation{}, expectedError).Once()
 		handler := GetUploadHandler{

@@ -7,7 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -15,17 +15,17 @@ import (
 )
 
 type testMoveListQueryBuilder struct {
-	fakeFetchMany func(appCfg appconfig.AppConfig, model interface{}) error
-	fakeCount     func(appCfg appconfig.AppConfig, model interface{}) (int, error)
+	fakeFetchMany func(appCtx appcontext.AppContext, model interface{}) error
+	fakeCount     func(appCtx appcontext.AppContext, model interface{}) (int, error)
 }
 
-func (t *testMoveListQueryBuilder) FetchMany(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
-	m := t.fakeFetchMany(appCfg, model)
+func (t *testMoveListQueryBuilder) FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+	m := t.fakeFetchMany(appCtx, model)
 	return m
 }
 
-func (t *testMoveListQueryBuilder) Count(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) (int, error) {
-	count, m := t.fakeCount(appCfg, model)
+func (t *testMoveListQueryBuilder) Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(appCtx, model)
 	return count, m
 }
 
@@ -46,7 +46,7 @@ func (suite *MoveServiceSuite) TestFetchMoveList() {
 	suite.T().Run("if the move is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchMany := func(appCfg appconfig.AppConfig, model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.Move{ID: id})))
 			return nil
@@ -60,15 +60,14 @@ func (suite *MoveServiceSuite) TestFetchMoveList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		moves, err := fetcher.FetchMoveList(appCfg, filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		moves, err := fetcher.FetchMoveList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, moves[0].ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with no moves", func(t *testing.T) {
-		fakeFetchMany := func(appCfg appconfig.AppConfig, model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testMoveListQueryBuilder{
@@ -77,8 +76,7 @@ func (suite *MoveServiceSuite) TestFetchMoveList() {
 
 		fetcher := NewMoveListFetcher(builder)
 
-		appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
-		moves, err := fetcher.FetchMoveList(appCfg, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		moves, err := fetcher.FetchMoveList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

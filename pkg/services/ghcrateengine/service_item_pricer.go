@@ -3,7 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -19,7 +19,7 @@ func NewServiceItemPricer() services.ServiceItemPricer {
 }
 
 // PriceServiceItem returns a price for any PaymentServiceItem
-func (p serviceItemPricer) PriceServiceItem(appCfg appconfig.AppConfig, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
+func (p serviceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
 	pricer, err := p.getPricer(item.MTOServiceItem.ReService.Code)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -27,7 +27,7 @@ func (p serviceItemPricer) PriceServiceItem(appCfg appconfig.AppConfig, item mod
 
 	// pricingParams are rate engine params that were queried from the pricing tables such as
 	// price, rate, escalation etc.
-	priceCents, pricingParams, err := pricer.PriceUsingParams(appCfg, item.PaymentServiceItemParams)
+	priceCents, pricingParams, err := pricer.PriceUsingParams(appCtx, item.PaymentServiceItemParams)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -38,7 +38,7 @@ func (p serviceItemPricer) PriceServiceItem(appCfg appconfig.AppConfig, item mod
 	// TODO: this conditional logic should be removed
 	var displayParams models.PaymentServiceItemParams
 	if len(pricingParams) > 0 {
-		displayParams, err = createPricerGeneratedParams(appCfg, item.ID, pricingParams)
+		displayParams, err = createPricerGeneratedParams(appCtx, item.ID, pricingParams)
 	}
 	return priceCents, displayParams, err
 }

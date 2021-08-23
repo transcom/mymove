@@ -4,7 +4,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -35,8 +34,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(suite.TestAppContext(), &move)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -72,8 +70,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
-	err := moveRouter.Submit(appCfg, &move)
+	err := moveRouter.Submit(suite.TestAppContext(), &move)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -142,8 +139,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.NoError(err)
 
 	// Move is submitted
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.TestLogger())
-	err = moveRouter.Submit(appCfg, move)
+	err = moveRouter.Submit(suite.TestAppContext(), move)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 

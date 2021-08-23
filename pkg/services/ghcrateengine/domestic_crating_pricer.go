@@ -3,7 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -18,12 +18,12 @@ func NewDomesticCratingPricer() services.DomesticCratingPricer {
 }
 
 // Price determines the price for domestic destination first day SIT
-func (p domesticCratingPricer) Price(appCfg appconfig.AppConfig, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticCrating(appCfg, models.ReServiceCodeDCRT, contractCode, requestedPickupDate, billedCubicFeet, serviceSchedule)
+func (p domesticCratingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, billedCubicFeet unit.CubicFeet, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceDomesticCrating(appCtx, models.ReServiceCodeDCRT, contractCode, requestedPickupDate, billedCubicFeet, serviceSchedule)
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
-func (p domesticCratingPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticCratingPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -46,5 +46,5 @@ func (p domesticCratingPricer) PriceUsingParams(appCfg appconfig.AppConfig, para
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCfg, contractCode, requestedPickupDate, cubicFeetBilled, serviceScheduleDestination)
+	return p.Price(appCtx, contractCode, requestedPickupDate, cubicFeetBilled, serviceScheduleDestination)
 }

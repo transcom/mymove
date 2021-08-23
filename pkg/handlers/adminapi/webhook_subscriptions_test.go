@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		webhookSubscriptionListFetcher := &mocks.ListFetcher{}
 
 		webhookSubscriptionListFetcher.On("FetchRecordList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -79,7 +79,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		).Return(nil, expectedError).Once()
 
 		webhookSubscriptionListFetcher.On("FetchRecordCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()
@@ -144,7 +144,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		}
 
 		webhookSubscriptionFetcher.On("FetchWebhookSubscription",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.WebhookSubscription{}, expectedError).Once()
 

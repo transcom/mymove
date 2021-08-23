@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/gobuffalo/validate/v3"
@@ -31,7 +31,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	// TODO: authorization to create payment request
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	payload := params.Body
 	if payload == nil {
@@ -81,7 +81,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
-	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCfg, &paymentRequest)
+	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(appCtx, &paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
 		switch e := err.(type) {

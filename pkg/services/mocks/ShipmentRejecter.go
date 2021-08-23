@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	models "github.com/transcom/mymove/pkg/models"
 
@@ -16,13 +16,13 @@ type ShipmentRejecter struct {
 	mock.Mock
 }
 
-// RejectShipment provides a mock function with given fields: appCfg, shipmentID, eTag, reason
-func (_m *ShipmentRejecter) RejectShipment(appCfg appconfig.AppConfig, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCfg, shipmentID, eTag, reason)
+// RejectShipment provides a mock function with given fields: appCtx, shipmentID, eTag, reason
+func (_m *ShipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipmentID, eTag, reason)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, string, *string) *models.MTOShipment); ok {
-		r0 = rf(appCfg, shipmentID, eTag, reason)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipmentID, eTag, reason)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -30,8 +30,8 @@ func (_m *ShipmentRejecter) RejectShipment(appCfg appconfig.AppConfig, shipmentI
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, string, *string) error); ok {
-		r1 = rf(appCfg, shipmentID, eTag, reason)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, *string) error); ok {
+		r1 = rf(appCtx, shipmentID, eTag, reason)
 	} else {
 		r1 = ret.Error(1)
 	}

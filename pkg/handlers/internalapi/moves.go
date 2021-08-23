@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -157,7 +157,7 @@ type SubmitMoveHandler struct {
 // Handle ... submit a move to TOO for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -165,7 +165,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
-	err = h.MoveRouter.Submit(appCfg, move)
+	err = h.MoveRouter.Submit(appCtx, move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -175,7 +175,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	certificateParams.HTTPRequest = params.HTTPRequest
 	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := h.saveMoveDependencies(appCfg, move, certificateParams, session.UserID)
+	verrs, err := h.saveMoveDependencies(appCtx, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -197,8 +197,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
 // and shipment GBLOCs.
-func (h SubmitMoveHandler) saveMoveDependencies(appCfg appconfig.AppConfig, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
-	logger := appCfg.Logger()
+func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+	logger := appCtx.Logger()
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -219,7 +219,7 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCfg appconfig.AppConfig, move
 		newSignedCertification.PersonallyProcuredMoveID = &ppmID
 	}
 
-	transactionErr := appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		// TODO: move creation of signed certification into a service
 		verrs, err := txnAppCfg.DB().ValidateAndCreate(&newSignedCertification)
@@ -423,7 +423,7 @@ type SubmitAmendedOrdersHandler struct {
 // Handle ... submit a move to TOO for approval
 func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -434,7 +434,7 @@ func (h SubmitAmendedOrdersHandler) Handle(params moveop.SubmitAmendedOrdersPara
 
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	err = h.MoveRouter.Submit(appCfg, move)
+	err = h.MoveRouter.Submit(appCtx, move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

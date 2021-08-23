@@ -3,7 +3,7 @@ package move
 import (
 	"database/sql"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -17,9 +17,9 @@ func NewMoveFetcher() services.MoveFetcher {
 }
 
 //FetchOrder retrieves a Move if it is visible for a given locator
-func (f moveFetcher) FetchMove(appCfg appconfig.AppConfig, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
+func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	move := &models.Move{}
-	query := appCfg.DB().Where("locator = $1", locator)
+	query := appCtx.DB().Where("locator = $1", locator)
 
 	if searchParams == nil || !searchParams.IncludeHidden {
 		query.Where("show = TRUE")

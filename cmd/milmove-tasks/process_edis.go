@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/certs"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -167,7 +167,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCfg := appconfig.NewAppConfig(dbConnection, logger)
+	appCtx := appcontext.NewAppContext(dbConnection, logger)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
 
@@ -214,13 +214,13 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		v.GetString(cli.GEXBasicAuthUsernameFlag),
 		v.GetString(cli.GEXBasicAuthPasswordFlag))
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(appCfg, sendToSyncada, icnSequencer, gexSender)
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(appCtx, sendToSyncada, icnSequencer, gexSender)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
 
 	// Process 858s
-	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest(appCfg)
+	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest(appCtx)
 	logger.Info("Finished processing reviewed payment requests")
 
 	if !sendToSyncada {
@@ -265,7 +265,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	// Process 997s
 	path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCfg, path997, lastReadTime, invoice.NewEDI997Processor())
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path997, lastReadTime, invoice.NewEDI997Processor())
 	if err != nil {
 		logger.Error("Error reading EDI997 acknowledgement responses", zap.Error(err))
 	} else {
@@ -274,7 +274,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	// Process 824s
 	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCfg, path824, lastReadTime, invoice.NewEDI824Processor())
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor())
 	if err != nil {
 		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
 	} else {

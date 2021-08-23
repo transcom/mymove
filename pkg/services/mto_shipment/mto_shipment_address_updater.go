@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -45,14 +45,14 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 // Since address records have no parent id, caller must supply the mtoShipmentID associated with this address.
 // Function will check that the etag matches before making the update
 // If mustBeAvailableToPrime is set, update will not happen unless the mto with which the address + shipment is associated, is also availableToPrime
-func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCfg appconfig.AppConfig, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error) {
+func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCtx appcontext.AppContext, newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error) {
 
 	// Find the mtoShipment based on id, so we can pull the uuid for the move
 	mtoShipment := models.MTOShipment{}
 	oldAddress := models.Address{}
 
 	// Find the shipment, return error if not found
-	err := appCfg.DB().Find(&mtoShipment, mtoShipmentID)
+	err := appCtx.DB().Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(mtoShipmentID, "looking for mtoShipment")
@@ -62,14 +62,14 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCfg appconfig.App
 	if mustBeAvailableToPrime {
 		// Make sure the associated move is available to the prime
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-		mtoAvailableToPrime, _ := mtoChecker.MTOAvailableToPrime(appCfg, mtoShipment.MoveTaskOrderID)
+		mtoAvailableToPrime, _ := mtoChecker.MTOAvailableToPrime(appCtx, mtoShipment.MoveTaskOrderID)
 		if !mtoAvailableToPrime {
 			return nil, services.NewNotFoundError(mtoShipment.MoveTaskOrderID, "looking for moveTaskOrder")
 		}
 	}
 
 	// Find the address, return error if not found
-	err = appCfg.DB().Find(&oldAddress, newAddress.ID)
+	err = appCtx.DB().Find(&oldAddress, newAddress.ID)
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(newAddress.ID, "looking for address")
@@ -88,7 +88,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCfg appconfig.App
 	}
 
 	// Make the update and create a InvalidInput Error if there were validation issues
-	verrs, err := appCfg.DB().ValidateAndSave(newAddress)
+	verrs, err := appCtx.DB().ValidateAndSave(newAddress)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
@@ -100,7 +100,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(appCfg appconfig.App
 
 	// Get the updated address and return
 	updatedAddress := models.Address{}
-	err = appCfg.DB().Find(&updatedAddress, newAddress.ID)
+	err = appCtx.DB().Find(&updatedAddress, newAddress.ID)
 	if err != nil {
 		return nil, services.NewQueryError("Address", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}

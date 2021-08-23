@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		err := services.InvalidInputError{}
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		err := services.ConflictError{}
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		err := services.NotFoundError{}
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
@@ -251,7 +251,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		verrs.Add("test", "testing")
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, verrs, nil)
 
@@ -270,7 +270,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		err := services.NotFoundError{}
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 
@@ -403,7 +403,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		err := errors.New("ServerError")
 
 		mockCreator.On("CreateMTOServiceItem",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(nil, nil, err)
 

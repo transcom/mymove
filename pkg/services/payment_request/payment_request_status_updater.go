@@ -4,15 +4,15 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type paymentRequestStatusQueryBuilder interface {
-	FetchMany(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
-	UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error)
+	FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type paymentRequestStatusUpdater struct {
@@ -24,7 +24,7 @@ func NewPaymentRequestStatusUpdater(builder paymentRequestStatusQueryBuilder) se
 	return &paymentRequestStatusUpdater{builder}
 }
 
-func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCfg appconfig.AppConfig, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
+func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
 	id := paymentRequest.ID
 	status := paymentRequest.Status
 
@@ -35,7 +35,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCfg appconfi
 			query.NewQueryFilter("payment_request_id", "=", id),
 			query.NewQueryFilter("status", "=", models.PaymentServiceItemStatusRequested),
 		}
-		error := p.builder.FetchMany(appCfg, &paymentServiceItems, serviceItemFilter, nil, nil, nil)
+		error := p.builder.FetchMany(appCtx, &paymentServiceItems, serviceItemFilter, nil, nil, nil)
 
 		if error != nil {
 			return nil, error
@@ -49,9 +49,9 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCfg appconfi
 	var verrs *validate.Errors
 	var err error
 	if eTag == "" {
-		verrs, err = p.builder.UpdateOne(appCfg, paymentRequest, nil)
+		verrs, err = p.builder.UpdateOne(appCtx, paymentRequest, nil)
 	} else {
-		verrs, err = p.builder.UpdateOne(appCfg, paymentRequest, &eTag)
+		verrs, err = p.builder.UpdateOne(appCtx, paymentRequest, &eTag)
 	}
 
 	if verrs != nil && verrs.HasAny() {

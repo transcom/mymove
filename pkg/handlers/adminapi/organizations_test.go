@@ -65,14 +65,14 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		}
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
 		organizationListFetcher.On("FetchOrganizationList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(models.Organizations{org}, nil).Once()
 		organizationListFetcher.On("FetchOrganizationCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(1, nil).Once()
 		handler := IndexOrganizationsHandler{
@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		expectedError := models.ErrFetchNotFound
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
 		organizationListFetcher.On("FetchOrganizationList",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		organizationListFetcher.On("FetchOrganizationCount",
-			mock.AnythingOfType("*appconfig.appConfig"),
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexOrganizationsHandler{

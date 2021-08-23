@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -37,18 +37,18 @@ type IndexElectronicOrdersHandler struct {
 // Handle returns an index of electronic orders
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(appCfg, queryFilters, nil, pagination, ordering)
+	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(appCtx, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(appCfg, queryFilters)
+	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -96,7 +96,7 @@ func translateComparator(s string) string {
 // Handle returns electronic orders totals
 func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCfg := appconfig.NewAppConfig(h.DB(), logger)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	comparator := ""
 
 	andQueryFilters := make([]services.QueryFilter, len(params.AndFilter))
@@ -127,7 +127,7 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 		}
 	}
 
-	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(appCfg, queryFilters, &andQueryFilters)
+	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(appCtx, queryFilters, &andQueryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

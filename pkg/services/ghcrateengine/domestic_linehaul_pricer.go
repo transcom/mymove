@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/pkg/errors"
@@ -27,7 +27,7 @@ func NewDomesticLinehaulPricer() services.DomesticLinehaulPricer {
 }
 
 // Price determines the price for a domestic linehaul
-func (p domesticLinehaulPricer) Price(appCfg appconfig.AppConfig, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -46,12 +46,12 @@ func (p domesticLinehaulPricer) Price(appCfg appconfig.AppConfig, contractCode s
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(appCfg, contractCode, isPeakPeriod, distance, weight, serviceArea)
+	domesticLinehaulPrice, err := fetchDomesticLinehaulPrice(appCtx, contractCode, isPeakPeriod, distance, weight, serviceArea)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(appCfg, domesticLinehaulPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domesticLinehaulPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
@@ -73,7 +73,7 @@ func (p domesticLinehaulPricer) Price(appCfg appconfig.AppConfig, contractCode s
 }
 
 // PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
-func (p domesticLinehaulPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticLinehaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -99,12 +99,12 @@ func (p domesticLinehaulPricer) PriceUsingParams(appCfg appconfig.AppConfig, par
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCfg, contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distanceZip3), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }
 
-func fetchDomesticLinehaulPrice(appCfg appconfig.AppConfig, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
+func fetchDomesticLinehaulPrice(appCtx appcontext.AppContext, contractCode string, isPeakPeriod bool, distance unit.Miles, weight unit.Pound, serviceArea string) (models.ReDomesticLinehaulPrice, error) {
 	var domesticLinehaulPrice models.ReDomesticLinehaulPrice
-	err := appCfg.DB().Q().
+	err := appCtx.DB().Q().
 		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
 		Join("re_contracts c", "re_domestic_linehaul_prices.contract_id = c.id").
 		Where("c.code = $1", contractCode).

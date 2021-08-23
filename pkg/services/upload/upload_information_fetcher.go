@@ -6,7 +6,7 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -19,7 +19,7 @@ func NewUploadInformationFetcher() services.UploadInformationFetcher {
 }
 
 // FetchUploadInformation fetches upload information
-func (uif *uploadInformationFetcher) FetchUploadInformation(appCfg appconfig.AppConfig, uploadID uuid.UUID) (services.UploadInformation, error) {
+func (uif *uploadInformationFetcher) FetchUploadInformation(appCtx appcontext.AppContext, uploadID uuid.UUID) (services.UploadInformation, error) {
 	pop.Debug = true
 	q := `
 SELECT uploads.id as upload_id,
@@ -49,7 +49,7 @@ FROM uploads
          LEFT JOIN office_users ou ON u.id = ou.user_id
 where uploads.id = $1`
 	ui := services.UploadInformation{}
-	err := appCfg.DB().RawQuery(q, uploadID).First(&ui)
+	err := appCtx.DB().RawQuery(q, uploadID).First(&ui)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

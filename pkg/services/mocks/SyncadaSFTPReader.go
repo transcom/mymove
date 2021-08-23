@@ -4,7 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 
 	services "github.com/transcom/mymove/pkg/services"
 
@@ -16,20 +16,20 @@ type SyncadaSFTPReader struct {
 	mock.Mock
 }
 
-// FetchAndProcessSyncadaFiles provides a mock function with given fields: appCfg, pickupPath, lastRead, processor
-func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(appCfg appconfig.AppConfig, pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
-	ret := _m.Called(appCfg, pickupPath, lastRead, processor)
+// FetchAndProcessSyncadaFiles provides a mock function with given fields: appCtx, pickupPath, lastRead, processor
+func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(appCtx appcontext.AppContext, pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
+	ret := _m.Called(appCtx, pickupPath, lastRead, processor)
 
 	var r0 time.Time
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, string, time.Time, services.SyncadaFileProcessor) time.Time); ok {
-		r0 = rf(appCfg, pickupPath, lastRead, processor)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, services.SyncadaFileProcessor) time.Time); ok {
+		r0 = rf(appCtx, pickupPath, lastRead, processor)
 	} else {
 		r0 = ret.Get(0).(time.Time)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, string, time.Time, services.SyncadaFileProcessor) error); ok {
-		r1 = rf(appCfg, pickupPath, lastRead, processor)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, services.SyncadaFileProcessor) error); ok {
+		r1 = rf(appCtx, pickupPath, lastRead, processor)
 	} else {
 		r1 = ret.Error(1)
 	}

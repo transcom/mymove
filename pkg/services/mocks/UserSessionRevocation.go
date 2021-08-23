@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	appconfig "github.com/transcom/mymove/pkg/appconfig"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
 	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
 
 	mock "github.com/stretchr/testify/mock"
@@ -22,13 +22,13 @@ type UserSessionRevocation struct {
 	mock.Mock
 }
 
-// RevokeUserSession provides a mock function with given fields: appCfg, id, payload, sessionStore
-func (_m *UserSessionRevocation) RevokeUserSession(appCfg appconfig.AppConfig, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
-	ret := _m.Called(appCfg, id, payload, sessionStore)
+// RevokeUserSession provides a mock function with given fields: appCtx, id, payload, sessionStore
+func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdatePayload, sessionStore scs.Store) (*models.User, *validate.Errors, error) {
+	ret := _m.Called(appCtx, id, payload, sessionStore)
 
 	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(appconfig.AppConfig, uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) *models.User); ok {
-		r0 = rf(appCfg, id, payload, sessionStore)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) *models.User); ok {
+		r0 = rf(appCtx, id, payload, sessionStore)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.User)
@@ -36,8 +36,8 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCfg appconfig.AppConfig, i
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(appconfig.AppConfig, uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) *validate.Errors); ok {
-		r1 = rf(appCfg, id, payload, sessionStore)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) *validate.Errors); ok {
+		r1 = rf(appCtx, id, payload, sessionStore)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -45,8 +45,8 @@ func (_m *UserSessionRevocation) RevokeUserSession(appCfg appconfig.AppConfig, i
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(appconfig.AppConfig, uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) error); ok {
-		r2 = rf(appCfg, id, payload, sessionStore)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.UserUpdatePayload, scs.Store) error); ok {
+		r2 = rf(appCtx, id, payload, sessionStore)
 	} else {
 		r2 = ret.Error(2)
 	}

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/flect"
@@ -249,7 +249,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 
 // FetchOne fetches a single model record using pop's First method
 // Will return error if model is not pointer to struct
-func (p *Builder) FetchOne(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) error {
+func (p *Builder) FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(FetchOneReflectionMessage)
@@ -258,7 +258,7 @@ func (p *Builder) FetchOne(appCfg appconfig.AppConfig, model interface{}, filter
 	if t.Kind() != reflect.Struct {
 		return errors.New(FetchOneReflectionMessage)
 	}
-	query := appCfg.DB().Q()
+	query := appCtx.DB().Q()
 	query, err := filteredQuery(query, filters, t)
 	if err != nil {
 		return err
@@ -280,7 +280,7 @@ func (p *Builder) FetchOne(appCfg appconfig.AppConfig, model interface{}, filter
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+func (p *Builder) FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -293,7 +293,7 @@ func (p *Builder) FetchMany(appCfg appconfig.AppConfig, model interface{}, filte
 	if t.Kind() != reflect.Struct {
 		return errors.New(fetchManyReflectionMessage)
 	}
-	query := appCfg.DB().Q()
+	query := appCtx.DB().Q()
 	query, err := buildQuery(query, filters, pagination, ordering, t)
 	if err != nil {
 		return err
@@ -308,7 +308,7 @@ func (p *Builder) FetchMany(appCfg appconfig.AppConfig, model interface{}, filte
 }
 
 // Count returns a count from a filter
-func (p *Builder) Count(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter) (int, error) {
+func (p *Builder) Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return 0, errors.New(fetchManyReflectionMessage)
@@ -321,7 +321,7 @@ func (p *Builder) Count(appCfg appconfig.AppConfig, model interface{}, filters [
 	if t.Kind() != reflect.Struct {
 		return 0, errors.New(fetchManyReflectionMessage)
 	}
-	query := appCfg.DB().Q()
+	query := appCtx.DB().Q()
 	query, err := filteredQuery(query, filters, t)
 	if err != nil {
 		return 0, err
@@ -335,13 +335,13 @@ func (p *Builder) Count(appCfg appconfig.AppConfig, model interface{}, filters [
 }
 
 // CreateOne creates exactly one model
-func (p *Builder) CreateOne(appCfg appconfig.AppConfig, model interface{}) (*validate.Errors, error) {
+func (p *Builder) CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
-	verrs, err := appCfg.DB().ValidateAndCreate(model)
+	verrs, err := appCtx.DB().ValidateAndCreate(model)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}
@@ -358,7 +358,7 @@ func (e StaleIdentifierError) Error() string {
 }
 
 // UpdateOne updates exactly one model
-func (p *Builder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag *string) (*validate.Errors, error) {
+func (p *Builder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
@@ -368,7 +368,7 @@ func (p *Builder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag 
 	var err error
 
 	if eTag != nil {
-		err = appCfg.NewTransaction(func(txnAppCfg appconfig.AppConfig) error {
+		err = appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
 			t = t.Elem()
 			v := reflect.ValueOf(model).Elem()
 			var id uuid.UUID
@@ -406,7 +406,7 @@ func (p *Builder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag 
 			return nil
 		})
 	} else {
-		verrs, err = appCfg.DB().ValidateAndUpdate(model)
+		verrs, err = appCtx.DB().ValidateAndUpdate(model)
 	}
 
 	if err != nil {
@@ -421,8 +421,8 @@ func (p *Builder) UpdateOne(appCfg appconfig.AppConfig, model interface{}, eTag 
 }
 
 // FetchCategoricalCountsFromOneModel returns categorical counts from exactly one model
-func (p *Builder) FetchCategoricalCountsFromOneModel(appCfg appconfig.AppConfig, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
-	conn := appCfg.DB()
+func (p *Builder) FetchCategoricalCountsFromOneModel(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+	conn := appCtx.DB()
 	t := reflect.TypeOf(model)
 	categoricalCounts, err := categoricalCountsQueryOneModel(conn, filters, andFilters, t)
 	if err != nil {
@@ -432,7 +432,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(appCfg appconfig.AppConfig,
 }
 
 // QueryForAssociations builds a query for associations
-func (p *Builder) QueryForAssociations(appCfg appconfig.AppConfig, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+func (p *Builder) QueryForAssociations(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(FetchOneReflectionMessage)
@@ -445,7 +445,7 @@ func (p *Builder) QueryForAssociations(appCfg appconfig.AppConfig, model interfa
 	if t.Kind() != reflect.Struct {
 		return errors.New(fetchManyReflectionMessage)
 	}
-	query := appCfg.DB().Q()
+	query := appCtx.DB().Q()
 	query, err := buildQuery(query, filters, pagination, ordering, t)
 	if err != nil {
 		return err

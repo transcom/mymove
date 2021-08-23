@@ -19,7 +19,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/appconfig"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -231,9 +230,8 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	filters := []services.QueryFilter{
 		query.NewQueryFilter("email", "=", user.LoginGovEmail),
 	}
-	appCfg := appconfig.NewAppConfig(suite.DB(), suite.logger)
 
-	if err := queryBuilder.FetchOne(appCfg, &adminUser, filters); err != nil {
+	if err := queryBuilder.FetchOne(suite.TestAppContext(), &adminUser, filters); err != nil {
 		t.Error("Couldn't find admin user record")
 	}
 

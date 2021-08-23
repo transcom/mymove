@@ -5,7 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -28,7 +28,7 @@ func NewUserUpdater(builder userQueryBuilder, officeUserUpdater services.OfficeU
 }
 
 // UpdateUser updates any user
-func (o *userUpdater) UpdateUser(appCfg appconfig.AppConfig, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
+func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
 
@@ -36,7 +36,7 @@ func (o *userUpdater) UpdateUser(appCfg appconfig.AppConfig, id uuid.UUID, user 
 		return nil, nil, nil
 	}
 	// Find the existing user to update
-	err := o.builder.FetchOne(appCfg, &foundUser, filters)
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
@@ -45,7 +45,7 @@ func (o *userUpdater) UpdateUser(appCfg appconfig.AppConfig, id uuid.UUID, user 
 	// Update user's new status for Active
 	foundUser.Active = user.Active
 
-	verrs, err := o.builder.UpdateOne(appCfg, &foundUser, nil)
+	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
@@ -59,35 +59,35 @@ func (o *userUpdater) UpdateUser(appCfg appconfig.AppConfig, id uuid.UUID, user 
 		// Check for Office User
 		foundOfficeUser := models.OfficeUser{}
 		filters = []services.QueryFilter{query.NewQueryFilter("user_id", "=", id.String())}
-		err = o.builder.FetchOne(appCfg, &foundOfficeUser, filters)
+		err = o.builder.FetchOne(appCtx, &foundOfficeUser, filters)
 
 		// If we find a matching Office User, update their status
 		if err == nil {
 			payload := adminmessages.OfficeUserUpdatePayload{
 				Active: &user.Active,
 			}
-			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCfg, foundOfficeUser.ID, &payload)
+			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCtx, foundOfficeUser.ID, &payload)
 
 			if verrs != nil {
-				appCfg.Logger().Error("Could not update office user", zap.Error(verrs))
+				appCtx.Logger().Error("Could not update office user", zap.Error(verrs))
 			} else if err != nil {
-				appCfg.Logger().Error("Could not update office user", zap.Error(err))
+				appCtx.Logger().Error("Could not update office user", zap.Error(err))
 			}
 		}
 
 		// Check for Admin User
 		foundAdminUser := models.AdminUser{}
-		err = o.builder.FetchOne(appCfg, &foundAdminUser, filters)
+		err = o.builder.FetchOne(appCtx, &foundAdminUser, filters)
 		// If we find a matching Admin User, update their status
 		if err == nil {
 			payload := adminmessages.AdminUserUpdatePayload{
 				Active: &user.Active,
 			}
-			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(appCfg, foundAdminUser.ID, &payload)
+			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(appCtx, foundAdminUser.ID, &payload)
 			if verrs != nil {
-				appCfg.Logger().Error("Could not update admin user", zap.Error(verrs))
+				appCtx.Logger().Error("Could not update admin user", zap.Error(verrs))
 			} else if err != nil {
-				appCfg.Logger().Error("Could not update admin user", zap.Error(err))
+				appCtx.Logger().Error("Could not update admin user", zap.Error(err))
 			}
 		}
 	}

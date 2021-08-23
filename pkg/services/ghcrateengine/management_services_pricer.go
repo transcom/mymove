@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appconfig"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -19,8 +19,8 @@ func NewManagementServicesPricer() services.ManagementServicesPricer {
 }
 
 // Price determines the price for a management service
-func (p managementServicesPricer) Price(appCfg appconfig.AppConfig, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
-	taskOrderFee, err := fetchTaskOrderFee(appCfg, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
+func (p managementServicesPricer) Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
+	taskOrderFee, err := fetchTaskOrderFee(appCtx, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
 	if err != nil {
 		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
 	}
@@ -35,7 +35,7 @@ func (p managementServicesPricer) Price(appCfg appconfig.AppConfig, contractCode
 }
 
 // PriceUsingParams determines the price for a management service given PaymentServiceItemParams
-func (p managementServicesPricer) PriceUsingParams(appCfg appconfig.AppConfig, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p managementServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -46,5 +46,5 @@ func (p managementServicesPricer) PriceUsingParams(appCfg appconfig.AppConfig, p
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCfg, contractCode, mtoAvailableToPrimeAt)
+	return p.Price(appCtx, contractCode, mtoAvailableToPrimeAt)
 }
