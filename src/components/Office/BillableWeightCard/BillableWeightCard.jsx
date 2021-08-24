@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, func, shape } from 'prop-types';
+import { string, arrayOf, func, shape, number } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
@@ -55,7 +55,7 @@ BillableWeightCard.propTypes = {
     shape({
       id: string.isRequired,
       shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: string }),
+      reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
 };

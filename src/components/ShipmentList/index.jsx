@@ -22,7 +22,10 @@ export const ShipmentListItem = ({
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
-    [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
+    [styles[`shipment-list-item-HHG`]]:
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
   });
 
@@ -137,7 +140,7 @@ ShipmentList.propTypes = {
     shape({
       id: string.isRequired,
       shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: string }),
+      reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
   onShipmentClick: func,
