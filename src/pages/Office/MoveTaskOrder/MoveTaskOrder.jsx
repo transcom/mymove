@@ -9,6 +9,7 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import returnLowestValue from '../../../utils/returnLowestValue';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
@@ -61,6 +62,15 @@ function showShipmentFilter(shipment) {
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELED
+  );
+}
+
+// only sum actual/reweigh weights for shipments in these statuses
+function includedStatuses(status) {
+  return (
+    status === shipmentStatuses.APPROVED ||
+    status === shipmentStatuses.DIVERSION_REQUESTED ||
+    status === shipmentStatuses.CANCELLATION_REQUESTED
   );
 }
 
@@ -400,14 +410,13 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     );
   }
 
-  let moveWeightTotal = null;
-  if (mtoShipments?.some((s) => s.primeActualWeight)) {
-    moveWeightTotal = mtoShipments
-      ?.filter((s) => s.primeActualWeight)
+  // Edge case of diversion shipments being counted twice
+  const moveWeightTotal =
+    mtoShipments
+      ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
       .reduce((prev, current) => {
-        return prev + current.primeActualWeight;
-      }, 0);
-  }
+        return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
+      }, 0) || null;
 
   const excessWeightAlertControl = (
     <Button type="button" onClick={handleHideWeightAlert} unstyled>
