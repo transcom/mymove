@@ -1,8 +1,6 @@
 package reweigh
 
 import (
-	"database/sql"
-
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -32,9 +30,11 @@ func (f *reweighCreator) CreateReweigh(reweigh *models.Reweigh) (*models.Reweigh
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
 		return nil, services.NewQueryError("Reweigh", err, "")
-	} else if err == sql.ErrNoRows {
-		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
 	}
+
+	//if err == sql.ErrNoRows {
+	//	return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
+	//}
 
 	return reweigh, nil
 }
