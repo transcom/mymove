@@ -694,6 +694,9 @@ jobs:
     executor: av_medium
     steps:
       - checkout
+      - run: clamscan --version
+      - run: mkdir -p /store && chown clamav /store
+      - run: cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /store
       - run: >
           clamscan \
             --recursive \
@@ -1668,8 +1671,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: fix-av-ci
-              # only: master
+              only: master
 
       - pre_test:
           requires:
