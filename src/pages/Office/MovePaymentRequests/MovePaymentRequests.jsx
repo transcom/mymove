@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
+import { generatePath } from 'react-router';
 import { GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -7,6 +8,7 @@ import classnames from 'classnames';
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
 import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
+import { tioRoutes } from 'constants/routes';
 import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
@@ -90,7 +92,7 @@ const MovePaymentRequests = ({
   }
 
   const handleReviewWeightsClick = () => {
-    history.push('/');
+    history.push(generatePath(tioRoutes.BILLABLE_WEIGHT_PATH, { moveCode }));
   };
 
   return (
