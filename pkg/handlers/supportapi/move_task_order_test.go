@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 	handler := ListMTOsHandler{
 		HandlerContext:       context,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -168,13 +168,13 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
 	handler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
 
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMoveTaskOrderHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
@@ -271,7 +271,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	request := httptest.NewRequest("POST", "/move-task-orders", nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := CreateMoveTaskOrderHandler{context,
-		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 	}
 
 	suite.T().Run("Successful createMoveTaskOrder 201", func(t *testing.T) {
@@ -356,13 +356,13 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			MoveTaskOrderID: createdMTO.ID.String(),
 			IfMatch:         createdMTO.ETag,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// Submit the request to approve the MTO
 		approvalHandler := MakeMoveTaskOrderAvailableHandlerFunc{context,
-			movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 		approvalResponse := approvalHandler.Handle(approvalParams)
 
@@ -534,6 +534,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		// Set expectation that a call to InternalCreateMoveTaskOrder will return a notFoundError
 		notFoundError := services.NotFoundError{}
 		mockCreator.On("InternalCreateMoveTaskOrder",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, notFoundError)
@@ -569,7 +570,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 
 		handler := CreateMoveTaskOrderHandler{context,
-			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
 		}
 
 		// CALL FUNCTION UNDER TEST

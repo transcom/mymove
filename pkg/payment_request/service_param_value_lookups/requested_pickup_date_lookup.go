@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
@@ -12,7 +13,7 @@ type RequestedPickupDateLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r RequestedPickupDateLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r RequestedPickupDateLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	// Make sure there's a requested pickup date since that's nullable
 	requestedPickupDate := r.MTOShipment.RequestedPickupDate
 	if requestedPickupDate == nil {

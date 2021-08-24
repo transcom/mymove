@@ -48,8 +48,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	suite.NoError(err)
 
 	suite.T().Run("PrimeUpload is created successfully", func(t *testing.T) {
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
-		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
+		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
+		upload, err := uploadCreator.CreateUpload(suite.TestAppContext(), testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 
 		expectedFilename := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
 		suite.NoError(err)
@@ -87,8 +87,8 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 			}
 		}()
 
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
-		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
+		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
+		_, err = uploadCreator.CreateUpload(suite.TestAppContext(), testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
@@ -103,14 +103,14 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		}()
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
-		_, err = uploadCreator.CreateUpload(testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
+		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
+		_, err = uploadCreator.CreateUpload(suite.TestAppContext(), testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
 	suite.T().Run("invalid file type", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
+		uploadCreator := NewPaymentRequestUploadCreator(fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
 
@@ -120,7 +120,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 			}
 		}()
 
-		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
+		_, err = uploadCreator.CreateUpload(suite.TestAppContext(), wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
 	})
 

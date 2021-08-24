@@ -2,10 +2,12 @@ package middleware
 
 import (
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 // ValidMethodsStatic only lets GET AND HEAD requests for static resources.
-func ValidMethodsStatic(logger Logger) func(inner http.Handler) http.Handler {
+func ValidMethodsStatic(logger *zap.Logger) func(inner http.Handler) http.Handler {
 	logger.Debug("ValidMethodsStatic Middleware used")
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

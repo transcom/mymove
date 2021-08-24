@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -17,8 +18,8 @@ type FSCWeightBasedDistanceMultiplierLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r FSCWeightBasedDistanceMultiplierLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	weight, err := WeightBilledActualLookup(r).lookup(keyData)
+func (r FSCWeightBasedDistanceMultiplierLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	weight, err := WeightBilledActualLookup(r).lookup(appCtx, keyData)
 	if err != nil {
 		return "", err
 	}

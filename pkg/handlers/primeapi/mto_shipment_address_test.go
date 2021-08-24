@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 	// Create handler
 	handler := UpdateMTOShipmentAddressHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		mtoshipment.NewMTOShipmentAddressUpdater(suite.DB()),
+		mtoshipment.NewMTOShipmentAddressUpdater(),
 	}
 
 	var updatedETag string

@@ -71,9 +71,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	}
 
 	// Used for all tests except 500 error:
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(queryBuilder)
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	planner := &routemocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	}
 	_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
 
-	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
+	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
 	handler := UpdateMTOShipmentStatusHandlerFunc{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		fetcher,
@@ -113,6 +113,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

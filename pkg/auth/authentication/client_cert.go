@@ -7,7 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gobuffalo/pop/v5"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -34,9 +36,10 @@ func ClientCertFromContext(ctx context.Context) *models.ClientCert {
 }
 
 // ClientCertMiddleware enforces that the incoming request includes a known client certificate, and stores the fetched permissions in the session
-func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+func ClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
 
 			if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
 				logger.Info("Unauthenticated")
@@ -66,9 +69,10 @@ func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Hand
 
 // DevlocalClientCertMiddleware fakes the client cert as always
 // devlocal. This will only be used if devlocal auth is enabled
-func DevlocalClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+func DevlocalClientCertMiddleware(globalLogger *zap.Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
 			hashString := ""
 			// if a TLS connection has a client cert, use that
 			if r.TLS != nil && len(r.TLS.PeerCertificates) != 0 {

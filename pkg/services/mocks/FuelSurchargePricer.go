@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -18,20 +20,20 @@ type FuelSurchargePricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice
-func (_m *FuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+// Price provides a mock function with given fields: appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice
+func (_m *FuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) unit.Cents); ok {
-		r0 = rf(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) unit.Cents); ok {
+		r0 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 services.PricingDisplayParams
-	if rf, ok := ret.Get(1).(func(time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingDisplayParams); ok {
-		r1 = rf(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
@@ -39,8 +41,8 @@ func (_m *FuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.M
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) error); ok {
-		r2 = rf(actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, time.Time, unit.Miles, unit.Pound, float64, unit.Millicents) error); ok {
+		r2 = rf(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -48,20 +50,20 @@ func (_m *FuelSurchargePricer) Price(actualPickupDate time.Time, distance unit.M
 	return r0, r1, r2
 }
 
-// PriceUsingParams provides a mock function with given fields: params
-func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(params)
+// PriceUsingParams provides a mock function with given fields: appCtx, params
+func (_m *FuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, params)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(models.PaymentServiceItemParams) unit.Cents); ok {
-		r0 = rf(params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
+		r0 = rf(appCtx, params)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 services.PricingDisplayParams
-	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
-		r1 = rf(params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, params)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
@@ -69,8 +71,8 @@ func (_m *FuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItem
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(models.PaymentServiceItemParams) error); ok {
-		r2 = rf(params)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
+		r2 = rf(appCtx, params)
 	} else {
 		r2 = ret.Error(2)
 	}

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/certs"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -36,7 +37,7 @@ const (
 )
 
 // Call this from the command line with go run ./cmd/milmove-tasks process-edis
-func checkProcessEDIsConfig(v *viper.Viper, logger logger) error {
+func checkProcessEDIsConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 
 	err := cli.CheckDatabase(v, logger)
@@ -166,6 +167,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	appCtx := appcontext.NewAppContext(dbConnection, logger)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
 
@@ -212,13 +214,13 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		v.GetString(cli.GEXBasicAuthUsernameFlag),
 		v.GetString(cli.GEXBasicAuthPasswordFlag))
 
-	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(dbConnection, logger, sendToSyncada, icnSequencer, gexSender)
+	reviewedPaymentRequestProcessor, err := paymentrequest.InitNewPaymentRequestReviewedProcessor(appCtx, sendToSyncada, icnSequencer, gexSender)
 	if err != nil {
 		logger.Fatal("InitNewPaymentRequestReviewedProcessor failed", zap.Error(err))
 	}
 
 	// Process 858s
-	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
+	reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest(appCtx)
 	logger.Info("Finished processing reviewed payment requests")
 
 	if !sendToSyncada {
@@ -248,7 +250,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 	}()
 
 	wrappedSFTPClient := invoice.NewSFTPClientWrapper(sftpClient)
-	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, dbConnection, logger, v.GetBool(ProcessEDIDeleteFilesFlag))
+	syncadaSFTPSession := invoice.NewSyncadaSFTPReaderSession(wrappedSFTPClient, v.GetBool(ProcessEDIDeleteFilesFlag))
 
 	// Sample expected format: 2021-03-16T18:25:36Z
 	lastReadTimeFlag := v.GetString(ProcessEDILastReadTimeFlag)
@@ -263,7 +265,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	// Process 997s
 	path997 := v.GetString(cli.GEXSFTP997PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path997, lastReadTime, invoice.NewEDI997Processor(dbConnection, logger))
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path997, lastReadTime, invoice.NewEDI997Processor())
 	if err != nil {
 		logger.Error("Error reading EDI997 acknowledgement responses", zap.Error(err))
 	} else {
@@ -272,7 +274,7 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 
 	// Process 824s
 	path824 := v.GetString(cli.GEXSFTP824PickupDirectory)
-	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(path824, lastReadTime, invoice.NewEDI824Processor(dbConnection, logger))
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, path824, lastReadTime, invoice.NewEDI824Processor())
 	if err != nil {
 		logger.Error("Error reading EDI824 application advice responses", zap.Error(err))
 	} else {

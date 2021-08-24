@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	// make the request
 	handler := FetchMTOUpdatesHandler{
 		HandlerContext:       context,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	suite.T().Run("mto shipment has relevant fields", func(t *testing.T) {
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 
 	response := handler.Handle(params)
 
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -264,7 +264,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -359,7 +359,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := FetchMTOUpdatesHandler{
 		HandlerContext:       context,
-		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 	response := handler.Handle(params)
 
@@ -399,7 +399,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMoveTaskOrderHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
 	suite.T().Run("Success with Prime-available move by ID", func(t *testing.T) {
@@ -474,12 +474,12 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter)
-		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -519,12 +519,12 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			IfMatch: eTag,
 		}
 
-		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
-		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
@@ -539,7 +539,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
-		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -551,6 +551,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		internalServerErr := errors.New("ServerError")
 
 		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -563,7 +564,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Patch failure - 404", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
-		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -573,6 +574,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -585,7 +587,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
-		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -595,6 +597,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

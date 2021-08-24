@@ -152,13 +152,20 @@ func makeAmendedOrders(order models.Order, db *pop.Connection, userUploader *upl
 
 func makeMoveForOrders(orders models.Order, db *pop.Connection, moveCode string, moveStatus models.MoveStatus) models.Move {
 	hhgMoveType := models.SelectedMoveTypeHHG
+
+	var availableToPrimeAt *time.Time
+	if moveStatus == models.MoveStatusAPPROVED || moveStatus == models.MoveStatusAPPROVALSREQUESTED {
+		now := time.Now()
+		availableToPrimeAt = &now
+	}
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Status:           moveStatus,
-			OrdersID:         orders.ID,
-			Orders:           orders,
-			SelectedMoveType: &hhgMoveType,
-			Locator:          moveCode,
+			Status:             moveStatus,
+			OrdersID:           orders.ID,
+			Orders:             orders,
+			SelectedMoveType:   &hhgMoveType,
+			Locator:            moveCode,
+			AvailableToPrimeAt: availableToPrimeAt,
 		},
 	})
 

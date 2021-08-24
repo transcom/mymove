@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetCustomerHandler{
 		context,
-		customerservice.NewCustomerFetcher(suite.DB()),
+		customerservice.NewCustomerFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -79,7 +79,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := UpdateCustomerHandler{
 		context,
-		customerservice.NewCustomerUpdater(suite.DB()),
+		customerservice.NewCustomerUpdater(),
 	}
 	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)

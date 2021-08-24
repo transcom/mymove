@@ -27,9 +27,8 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRoles() {
 		roleTypes = append(roleTypes, r.RoleType)
 	}
 	suite.NoError(err)
-	urc := NewUsersRolesCreator(suite.DB())
-
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, roleTypes)
+	urc := NewUsersRolesCreator()
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, roleTypes)
 	suite.NoError(err)
 
 	ur := models.UsersRoles{}
@@ -59,12 +58,12 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesTwice() {
 		roleTypes = append(roleTypes, r.RoleType)
 	}
 	suite.NoError(err)
-	urc := NewUsersRolesCreator(suite.DB())
+	urc := NewUsersRolesCreator()
 
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, roleTypes)
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, roleTypes)
 	suite.NoError(err)
 	// associate again with same role again shouldn't result in a new row in users_roles table
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, roleTypes)
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, roleTypes)
 	suite.NoError(err)
 
 	ur := models.UsersRoles{}
@@ -95,14 +94,14 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemove() {
 	err := suite.DB().Create(rs)
 	origRoleTypes := []roles.RoleType{role1.RoleType}
 	suite.NoError(err)
-	urc := NewUsersRolesCreator(suite.DB())
+	urc := NewUsersRolesCreator()
 
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, origRoleTypes)
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, origRoleTypes)
 	suite.NoError(err)
 
 	// soft delete role1 and add role2
 	newRoleTypes := []roles.RoleType{role2.RoleType}
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, newRoleTypes)
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, newRoleTypes)
 	suite.NoError(err)
 
 	ur := []models.UsersRoles{}
@@ -128,9 +127,9 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesMultiple() {
 	err := suite.DB().Create(rs)
 	origRoleTypes := []roles.RoleType{role1.RoleType, role2.RoleType}
 	suite.NoError(err)
-	urc := NewUsersRolesCreator(suite.DB())
+	urc := NewUsersRolesCreator()
 
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, origRoleTypes)
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, origRoleTypes)
 	suite.NoError(err)
 
 	ur := models.UsersRoles{}
@@ -165,10 +164,10 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemoveAllRoles() {
 	rs := roles.Roles{role1, role2}
 	err := suite.DB().Create(rs)
 	suite.NoError(err)
-	urc := NewUsersRolesCreator(suite.DB())
+	urc := NewUsersRolesCreator()
 
 	// add two roles for this user
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, []roles.RoleType{role1.RoleType, role2.RoleType})
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, []roles.RoleType{role1.RoleType, role2.RoleType})
 	suite.NoError(err)
 	ur := models.UsersRoles{}
 	n, err := suite.DB().Count(&ur)
@@ -176,7 +175,7 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemoveAllRoles() {
 	suite.Equal(2, n)
 
 	// confirm both roles are soft deleted when empty no roles passed in
-	_, err = urc.UpdateUserRoles(*officeUser.UserID, []roles.RoleType{})
+	_, err = urc.UpdateUserRoles(suite.TestAppContext(), *officeUser.UserID, []roles.RoleType{})
 	suite.NoError(err)
 	usersRolesSlice := []models.UsersRoles{}
 	err = suite.DB().All(&usersRolesSlice)

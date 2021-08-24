@@ -1,7 +1,17 @@
 import { isEmpty } from 'lodash';
+import moment from 'moment';
 
 import { MTOAgentType } from 'shared/constants';
-import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
+import { parseDate } from 'shared/dates';
+import { parseSwaggerDate } from 'shared/formatters';
+
+const formatDateForSwagger = (date) => {
+  const parsedDate = parseDate(date);
+  if (parsedDate) {
+    return moment(parsedDate).format('YYYY-MM-DD');
+  }
+  return '';
+};
 
 function formatAgentForDisplay(agent) {
   const agentCopy = { ...agent };
@@ -167,7 +177,7 @@ export function formatMtoShipmentForAPI({
   };
 
   if (pickup?.requestedDate && pickup.requestedDate !== '') {
-    formattedMtoShipment.requestedPickupDate = formatSwaggerDate(pickup.requestedDate);
+    formattedMtoShipment.requestedPickupDate = formatDateForSwagger(pickup.requestedDate);
     formattedMtoShipment.pickupAddress = formatAddressForAPI(pickup.address);
 
     if (pickup.agent) {
@@ -179,7 +189,7 @@ export function formatMtoShipmentForAPI({
   }
 
   if (delivery?.requestedDate && delivery.requestedDate !== '') {
-    formattedMtoShipment.requestedDeliveryDate = formatSwaggerDate(delivery.requestedDate);
+    formattedMtoShipment.requestedDeliveryDate = formatDateForSwagger(delivery.requestedDate);
 
     if (delivery.address) {
       formattedMtoShipment.destinationAddress = formatAddressForAPI(delivery.address);

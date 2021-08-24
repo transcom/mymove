@@ -8,7 +8,7 @@ if [ -n "${CIRCLECI+x}" ]; then
   echo "CircleCI has swagger built in"
 else
   # Locally we need to download the docker image to get the binary
-  image=milmove/circleci-docker:milmove-app-680f0d69e2ae7606232685efbce29cbce7327083
+  image=milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562d
   docker pull -q "${image}"
 fi
 
