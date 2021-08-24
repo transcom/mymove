@@ -65,7 +65,7 @@ function showShipmentFilter(shipment) {
   );
 }
 
-// only sum actual/reweigh weights for shipments in these statuses
+// only sum estimated/actual/reweigh weights for shipments in these statuses
 function includedStatuses(status) {
   return (
     status === shipmentStatuses.APPROVED ||
@@ -319,30 +319,25 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
   useEffect(() => {
-    const shipmentSections = [];
-    mtoShipments?.forEach((shipment) => {
-      if (
-        shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-        shipment.status === shipmentStatuses.CANCELED
-      ) {
-        shipmentSections.push({
+    const shipmentSections = mtoShipments?.reduce((previous, shipment) => {
+      if (showShipmentFilter(shipment)) {
+        previous.push({
           id: shipment.id,
           label: shipmentSectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
         });
       }
-    });
-    setSections(shipmentSections);
+      return previous;
+    }, []);
+    setSections(shipmentSections || []);
   }, [mtoShipments]);
 
   useEffect(() => {
     let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
 
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatuses(s.status))) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
+        ?.filter((s) => s.primeEstimatedWeight && includedStatuses(s.status))
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
@@ -357,6 +352,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     setIsWeightAlertVisible(!!excessBillableWeightCount);
   }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
+
+  // Edge case of diversion shipments being counted twice
+  const moveWeightTotal = useMemo(() => {
+    return (
+      mtoShipments
+        ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
+        .reduce((prev, current) => {
+          return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
+        }, 0) || null
+    );
+  }, [mtoShipments]);
 
   useEffect(() => {
     // attach scroll listener
@@ -409,14 +415,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       </div>
     );
   }
-
-  // Edge case of diversion shipments being counted twice
-  const moveWeightTotal =
-    mtoShipments
-      ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
-      .reduce((prev, current) => {
-        return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
-      }, 0) || null;
 
   const excessWeightAlertControl = (
     <Button type="button" onClick={handleHideWeightAlert} unstyled>

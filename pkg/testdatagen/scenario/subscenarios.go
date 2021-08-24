@@ -203,6 +203,7 @@ func subScenarioReweighs(db *pop.Connection, userUploader *uploader.UserUploader
 		createReweighWithShipmentMissingReweigh(db, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentMaxBillableWeightExceeded(db, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentNoEstimatedWeight(db, userUploader, primeUploader, moveRouter)
+		createReweighWithMixedShipmentStatuses(db, userUploader)
 	}
 }
 

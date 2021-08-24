@@ -593,7 +593,10 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
 		for _, shipment := range move.MTOShipments {
-			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+			if shipment.Status == models.MTOShipmentStatusSubmitted ||
+				shipment.Status == models.MTOShipmentStatusApproved ||
+				shipment.Status == models.MTOShipmentStatusDiversionRequested ||
+				shipment.Status == models.MTOShipmentStatusCancellationRequested {
 				if earliestRequestedPickup == nil {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
