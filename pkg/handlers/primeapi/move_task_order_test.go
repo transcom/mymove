@@ -54,11 +54,11 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 	// make the request
 	handler := FetchMTOUpdatesHandler{
-		HandlerConfig:        context,
+		HandlerConfig:        hConfig,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
@@ -193,10 +193,10 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerConfig: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+	handler := FetchMTOUpdatesHandler{HandlerConfig: hConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 
 	response := handler.Handle(params)
 
@@ -229,10 +229,10 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerConfig: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+	handler := FetchMTOUpdatesHandler{HandlerConfig: hConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -261,10 +261,10 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	request := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders?since=%d", lastFetch.Unix()), nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request, Since: &since}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := FetchMTOUpdatesHandler{HandlerConfig: context, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
+	handler := FetchMTOUpdatesHandler{HandlerConfig: hConfig, MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher()}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -356,9 +356,9 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 	// Setup and call the handler.
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := FetchMTOUpdatesHandler{
-		HandlerConfig:        context,
+		HandlerConfig:        hConfig,
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 	response := handler.Handle(params)
@@ -397,8 +397,8 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	handler := GetMoveTaskOrderHandlerFunc{context,
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	handler := GetMoveTaskOrderHandlerFunc{hConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 

@@ -53,9 +53,9 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	createHandler := CreateOrdersHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	createHandler := CreateOrdersHandler{hConfig}
 
 	response := createHandler.Handle(params)
 
@@ -98,9 +98,9 @@ func (suite *HandlerSuite) TestShowOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	showHandler := ShowOrdersHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	showHandler := ShowOrdersHandler{hConfig}
 
 	response := showHandler.Handle(params)
 
@@ -145,10 +145,10 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
 	uploadAmendedHandler := UploadAmendedOrdersHandler{
-		HandlerConfig: context,
+		HandlerConfig: hConfig,
 		OrderUpdater:  orderservice.NewOrderUpdater(),
 	}
 	response := uploadAmendedHandler.Handle(params)
@@ -196,9 +196,9 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	updateHandler := UpdateOrdersHandler{context}
+	hConfig := handlers.NewHandlerHConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	updateHandler := UpdateOrdersHandler{hConfig}
 
 	response := updateHandler.Handle(params)
 

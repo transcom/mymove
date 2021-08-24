@@ -155,14 +155,14 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		WeightEstimate:       7500,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMEstimateHandler{context}
+	hConfig.SetPlanner(planner)
+	showHandler := ShowPPMEstimateHandler{hConfig}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
@@ -196,14 +196,14 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		WeightEstimate:       600,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMEstimateHandler{context}
+	hConfig.SetPlanner(planner)
+	showHandler := ShowPPMEstimateHandler{hConfig}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)

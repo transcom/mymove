@@ -62,9 +62,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := GetMoveTaskOrderHandler{
-		context,
+		hConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
@@ -119,13 +119,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			IfMatch:          etag.GenerateEtag(move.UpdatedAt),
 			ServiceItemCodes: &serviceItemCodes,
 		}
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 		// setup the handler
-		handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+		handler := UpdateMoveTaskOrderStatusHandlerFunc{hConfig,
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
 		traceID, err := uuid.NewV4()
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(time.Now()),
 	}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 	// Stale ETags are already unit tested in the move_task_order_updater_test,
 	// so we can mock this here to speed up the test and avoid hitting the DB
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	).Return(nil, services.PreconditionFailedError{})
 
 	// make the request
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, moveUpdater}
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{hConfig, moveUpdater}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusPreconditionFailed{}, response)
 }
@@ -220,13 +220,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		MoveTaskOrderID: move.ID.String(),
 		IfMatch:         etag.GenerateEtag(move.UpdatedAt),
 	}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 
 	// make the request
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{hConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 	response := handler.Handle(params)
@@ -253,12 +253,12 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter)
 	handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
-		context,
+		hConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 	}
 

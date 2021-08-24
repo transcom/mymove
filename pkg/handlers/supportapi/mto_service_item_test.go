@@ -72,10 +72,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	handler := UpdateMTOServiceItemStatusHandler{context,
+	handler := UpdateMTOServiceItemStatusHandler{hConfig,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
@@ -120,10 +120,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	handler := UpdateMTOServiceItemStatusHandler{context,
+	handler := UpdateMTOServiceItemStatusHandler{hConfig,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 
@@ -168,10 +168,10 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
-	handler := UpdateMTOServiceItemStatusHandler{context,
+	handler := UpdateMTOServiceItemStatusHandler{hConfig,
 		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 	}
 

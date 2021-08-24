@@ -63,12 +63,12 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 		HTTPRequest: req,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
-	context.SetFeatureFlag(featureFlag)
+	hConfig.SetFeatureFlag(featureFlag)
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{context, builder}
+	handler := ShowLoggedInUserHandler{hConfig, builder}
 
 	response := handler.Handle(params)
 
@@ -96,11 +96,11 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 		HTTPRequest: req,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
-	context.SetFeatureFlag(featureFlag)
+	hConfig.SetFeatureFlag(featureFlag)
 	builder := officeuser.NewOfficeUserFetcherPop()
-	handler := ShowLoggedInUserHandler{context, builder}
+	handler := ShowLoggedInUserHandler{hConfig, builder}
 
 	response := handler.Handle(params)
 
@@ -155,11 +155,11 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 	builder := officeuser.NewOfficeUserFetcherPop()
 
-	handler := ShowLoggedInUserHandler{context, builder}
+	handler := ShowLoggedInUserHandler{hConfig, builder}
 
 	response := handler.Handle(params)
 

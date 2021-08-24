@@ -158,9 +158,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     move.Locator,
 		}
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
-			HandlerConfig:             context,
+			HandlerConfig:             hConfig,
 			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
 		}
 		response := handler.Handle(params)
@@ -194,9 +194,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
-			HandlerConfig:             context,
+			HandlerConfig:             hConfig,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
 		}
 		response := handler.Handle(params)
@@ -217,9 +217,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
-			HandlerConfig:             context,
+			HandlerConfig:             hConfig,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
 		}
 		response := handler.Handle(params)

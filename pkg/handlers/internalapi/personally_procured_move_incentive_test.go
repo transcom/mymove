@@ -152,14 +152,14 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		OrdersID:             strfmt.UUID(ordersID.String()),
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMIncentiveHandler{context}
+	hConfig.SetPlanner(planner)
+	showHandler := ShowPPMIncentiveHandler{hConfig}
 	showResponse := showHandler.Handle(params)
 	suite.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
 }
@@ -184,14 +184,14 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		OrdersID:             strfmt.UUID(ordersID.String()),
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMIncentiveHandler{context}
+	hConfig.SetPlanner(planner)
+	showHandler := ShowPPMIncentiveHandler{hConfig}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
@@ -223,14 +223,14 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		OrdersID:             strfmt.UUID(ordersID.String()),
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(1693, nil)
-	context.SetPlanner(planner)
-	showHandler := ShowPPMIncentiveHandler{context}
+	hConfig.SetPlanner(planner)
+	showHandler := ShowPPMIncentiveHandler{hConfig}
 	showResponse := showHandler.Handle(params)
 
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)

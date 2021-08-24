@@ -216,9 +216,9 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{hConfig, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -265,9 +265,9 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// And: a move is submitted
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{hConfig, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -315,9 +315,9 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
 		// When: a move is submitted
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-		handler := SubmitMoveHandler{context, moverouter.NewMoveRouter()}
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{hConfig, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -418,10 +418,10 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		mock.Anything,
 	).Return(1125, nil)
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetPlanner(planner)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetPlanner(planner)
 
-	showHandler := ShowMoveDatesSummaryHandler{context}
+	showHandler := ShowMoveDatesSummaryHandler{hConfig}
 	response := showHandler.Handle(params)
 
 	suite.IsType(&moveop.ShowMoveDatesSummaryOK{}, response)
@@ -489,10 +489,10 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 		mock.Anything,
 	).Return(1125, nil)
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetPlanner(planner)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetPlanner(planner)
 
-	showHandler := ShowMoveDatesSummaryHandler{context}
+	showHandler := ShowMoveDatesSummaryHandler{hConfig}
 	response := showHandler.Handle(params)
 
 	// Then: expect a forbidden response
@@ -594,15 +594,15 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		PreparationDate: preparationDate,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	planner := &mocks.Planner{}
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
 	).Return(1044, nil)
-	context.SetPlanner(planner)
+	hConfig.SetPlanner(planner)
 
-	handler := ShowShipmentSummaryWorksheetHandler{context}
+	handler := ShowShipmentSummaryWorksheetHandler{hConfig}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&moveop.ShowShipmentSummaryWorksheetOK{}, response)
@@ -646,9 +646,9 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 			MoveID:      strfmt.UUID(move.ID.String()),
 		}
 		// And: a move is submitted
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
-		handler := SubmitAmendedOrdersHandler{context, moverouter.NewMoveRouter()}
+		handler := SubmitAmendedOrdersHandler{hConfig, moverouter.NewMoveRouter()}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code

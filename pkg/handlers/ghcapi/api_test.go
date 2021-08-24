@@ -36,11 +36,11 @@ func (suite *HandlerSuite) AfterTest() {
 }
 
 func (suite *HandlerSuite) createHandlerContext() handlers.HandlerConfig {
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
+	hConfig.SetFileStorer(fakeS3)
 
-	return context
+	return hConfig
 }
 
 // TestHandlerSuite creates our test suite

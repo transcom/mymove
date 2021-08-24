@@ -39,8 +39,8 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 		HTTPRequest: request,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFeatureFlag(
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: true},
 	)
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&accessCode, nil)
 
-	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	handler := FetchAccessCodeHandler{hConfig, accessCodeFetcher}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -73,8 +73,8 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Failure() {
 		HTTPRequest: request,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFeatureFlag(
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: true},
 	)
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
@@ -83,7 +83,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Failure() {
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.AccessCode{}, models.ErrFetchNotFound)
 
-	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	handler := FetchAccessCodeHandler{hConfig, accessCodeFetcher}
 	response := handler.Handle(params)
 
 	fetchAccessCodeResponse := response.(*accesscodeops.FetchAccessCodeNotFound)
@@ -102,12 +102,12 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 		HTTPRequest: request,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFeatureFlag(
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: false},
 	)
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
-	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	handler := FetchAccessCodeHandler{hConfig, accessCodeFetcher}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 		Code:        &fullCode,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	accessCodeValidator := &mocks.AccessCodeValidator{}
 	accessCodeValidator.On("ValidateAccessCode",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 		mock.AnythingOfType("models.SelectedMoveType"),
 	).Return(&accessCode, true, nil)
 
-	handler := ValidateAccessCodeHandler{context, accessCodeValidator}
+	handler := ValidateAccessCodeHandler{hConfig, accessCodeValidator}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -180,7 +180,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 		Code:        &fullCode,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	accessCodeValidator := &mocks.AccessCodeValidator{}
 	accessCodeValidator.On("ValidateAccessCode",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -188,7 +188,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 		mock.AnythingOfType("models.SelectedMoveType"),
 	).Return(&invalidAccessCode, false, nil)
 
-	handler := ValidateAccessCodeHandler{context, accessCodeValidator}
+	handler := ValidateAccessCodeHandler{hConfig, accessCodeValidator}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -228,7 +228,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 		ClaimedAt:       &claimedAt,
 		ServiceMemberID: &serviceMember.ID,
 	}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	accessCodeClaimer := &mocks.AccessCodeClaimer{}
 	accessCodeClaimer.On("ClaimAccessCode",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -236,7 +236,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&claimedAccessCode, validate.NewErrors(), nil)
 
-	handler := ClaimAccessCodeHandler{context, accessCodeClaimer}
+	handler := ClaimAccessCodeHandler{hConfig, accessCodeClaimer}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)

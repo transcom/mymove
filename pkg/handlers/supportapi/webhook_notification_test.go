@@ -38,9 +38,9 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		context.SetTraceID(uuid.Must(uuid.NewV4()))
-		handler := CreateWebhookNotificationHandler{context}
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig.SetTraceID(uuid.Must(uuid.NewV4()))
+		handler := CreateWebhookNotificationHandler{hConfig}
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -73,9 +73,9 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			HTTPRequest: request,
 		}
 
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		context.SetTraceID(uuid.Must(uuid.NewV4()))
-		handler := CreateWebhookNotificationHandler{context}
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig.SetTraceID(uuid.Must(uuid.NewV4()))
+		handler := CreateWebhookNotificationHandler{hConfig}
 
 		// CALL FUNCTION UNDER TEST
 		response := handler.Handle(params)
@@ -115,9 +115,9 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 			Body:        requestPayload,
 		}
 
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		context.SetTraceID(uuid.Must(uuid.NewV4()))
-		handler := CreateWebhookNotificationHandler{context}
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig.SetTraceID(uuid.Must(uuid.NewV4()))
+		handler := CreateWebhookNotificationHandler{hConfig}
 
 		// CALL FUNCTION UNDER TEST
 		suite.NoError(params.Body.Validate(strfmt.Default))

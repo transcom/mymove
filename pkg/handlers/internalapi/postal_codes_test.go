@@ -30,14 +30,14 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 		PostalCodeType: postalCodeTypeString,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	postalCodeValidator := &mocks.PostalCodeValidator{}
 	postalCodeValidator.On("ValidatePostalCode",
 		postalCode,
 		postalCodeType,
 	).Return(true, nil)
 
-	handler := ValidatePostalCodeWithRateDataHandler{context, postalCodeValidator}
+	handler := ValidatePostalCodeWithRateDataHandler{hConfig, postalCodeValidator}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -68,14 +68,14 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 		PostalCodeType: postalCodeTypeString,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	postalCodeValidator := &mocks.PostalCodeValidator{}
 	postalCodeValidator.On("ValidatePostalCode",
 		postalCode,
 		postalCodeType,
 	).Return(false, nil)
 
-	handler := ValidatePostalCodeWithRateDataHandler{context, postalCodeValidator}
+	handler := ValidatePostalCodeWithRateDataHandler{hConfig, postalCodeValidator}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)

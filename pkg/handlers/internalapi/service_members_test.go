@@ -275,9 +275,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	handler := PatchServiceMemberHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	handler := PatchServiceMemberHandler{hConfig}
 	response := handler.Handle(params)
 
 	suite.IsType(&servicememberop.PatchServiceMemberOK{}, response)
@@ -418,10 +418,10 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := PatchServiceMemberHandler{context}
+	hConfig.SetFileStorer(fakeS3)
+	handler := PatchServiceMemberHandler{hConfig}
 	response := handler.Handle(params)
 
 	suite.IsType(&servicememberop.PatchServiceMemberOK{}, response)
@@ -568,9 +568,9 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 	}
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	handler := ShowServiceMemberOrdersHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	handler := ShowServiceMemberOrdersHandler{hConfig}
 
 	response := handler.Handle(params)
 

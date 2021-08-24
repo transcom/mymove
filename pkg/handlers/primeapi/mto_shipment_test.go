@@ -352,10 +352,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights()
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetPlanner(planner)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
-		context,
+		hConfig,
 		updater,
 	}
 
@@ -378,7 +378,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		mockHandler := UpdateMTOShipmentHandler{
-			context,
+			hConfig,
 			&mockUpdater,
 		}
 		internalServerErr := errors.New("ServerError")
@@ -776,10 +776,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 	moveWeights := moveservices.NewMoveWeights()
 
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetPlanner(planner)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
-		context,
+		hConfig,
 		updater,
 	}
 
@@ -932,10 +932,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	updater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights)
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetPlanner(planner)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetPlanner(planner)
 	handler := UpdateMTOShipmentHandler{
-		context,
+		hConfig,
 		updater,
 	}
 
@@ -1376,13 +1376,13 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetPlanner(planner)
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetPlanner(planner)
 	moveRouter := moverouter.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights()
 
 	handler := UpdateMTOShipmentStatusHandler{
-		context,
+		hConfig,
 		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights),
 		mtoshipment.NewMTOShipmentStatusUpdater(builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),

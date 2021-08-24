@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	dpsAuthParams := dpsauth.Params{
 		SDDCProtocol:   "http",
 		SDDCHostname:   "testhost",
@@ -21,8 +21,8 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 		DPSRedirectURL: "http://example.com",
 		CookieName:     "test",
 	}
-	context.SetDPSAuthParams(dpsAuthParams)
-	handler := DPSAuthGetCookieURLHandler{context}
+	hConfig.SetDPSAuthParams(dpsAuthParams)
+	handler := DPSAuthGetCookieURLHandler{hConfig}
 
 	// Normal service member (not a DPS user) happy path
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())

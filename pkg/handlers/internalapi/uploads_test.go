@@ -39,9 +39,9 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	handler := CreateUploadHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler{hConfig}
 	response := handler.Handle(params)
 
 	return response
@@ -181,9 +181,9 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	handler := DeleteUploadHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	handler := DeleteUploadHandler{hConfig}
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.DeleteUploadNoContent)
@@ -223,9 +223,9 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3)
-	handler := DeleteUploadsHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3)
+	handler := DeleteUploadsHandler{hConfig}
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.DeleteUploadsNoContent)
@@ -255,9 +255,9 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerFailure() {
 
 	fakeS3Failure := storageTest.NewFakeS3Storage(false)
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetFileStorer(fakeS3Failure)
-	handler := DeleteUploadHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetFileStorer(fakeS3Failure)
+	handler := DeleteUploadHandler{hConfig}
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.DeleteUploadNoContent)

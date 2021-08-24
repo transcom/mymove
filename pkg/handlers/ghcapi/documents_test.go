@@ -33,10 +33,10 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	req = suite.AuthenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
-	context.SetFileStorer(fakeS3)
-	handler := GetDocumentHandler{context}
+	hConfig.SetFileStorer(fakeS3)
+	handler := GetDocumentHandler{hConfig}
 	response := handler.Handle(params)
 
 	showResponse, ok := response.(*documentop.GetDocumentOK)

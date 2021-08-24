@@ -45,9 +45,9 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 		HTTPRequest: request,
 		OrderID:     strfmt.UUID(order.ID.String()),
 	}
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := GetOrdersHandler{
-		context,
+		hConfig,
 		orderservice.NewOrderFetcher(),
 	}
 
@@ -99,9 +99,9 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetOrdersHandler{
-			context,
+			hConfig,
 			&orderFetcher,
 		}
 		response := handler.Handle(params)
@@ -139,9 +139,9 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 		orderFetcher.On("FetchOrder", mock.AnythingOfType("*appcontext.appContext"),
 			order.ID).Return(&order, nil)
 
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetOrdersHandler{
-			context,
+			hConfig,
 			&orderFetcher,
 		}
 		response := handler.Handle(params)
@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 }
 
 type updateOrderHandlerAmendedUploadSubtestData struct {
-	handlerContext         handlers.HandlerConfig
+	handlerConfig          handlers.HandlerConfig
 	userUploader           *uploader.UserUploader
 	amendedOrder           models.Order
 	approvalsRequestedMove models.Move
@@ -172,10 +172,10 @@ type updateOrderHandlerAmendedUploadSubtestData struct {
 
 func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (subtestData *updateOrderHandlerAmendedUploadSubtestData) {
 	subtestData = &updateOrderHandlerAmendedUploadSubtestData{}
-	subtestData.handlerContext = suite.createHandlerContext()
+	subtestData.handlerConfig = suite.createHandlerContext()
 
 	var err error
-	subtestData.userUploader, err = uploader.NewUserUploader(subtestData.handlerContext.FileStorer(), 100*uploader.MB)
+	subtestData.userUploader, err = uploader.NewUserUploader(subtestData.handlerConfig.FileStorer(), 100*uploader.MB)
 	assert.NoError(suite.T(), err, "failed to create user uploader for amended orders")
 	amendedDocument := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 	amendedUpload := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{
@@ -225,7 +225,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 	suite.Run("Returns 200 when acknowledging orders", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
-		context := subtestData.handlerContext
+		hConfig := subtestData.handlerConfig
 		userUploader := subtestData.userUploader
 		destinationDutyStation := subtestData.destinationDutyStation
 		originDutyStation := subtestData.originDutyStation
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			orderservice.NewOrderUpdater(),
 			moveTaskOrderUpdater,
 		}
@@ -316,7 +316,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 	suite.Run("Does not update move status if orders are not acknowledged", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
-		context := subtestData.handlerContext
+		hConfig := subtestData.handlerConfig
 		destinationDutyStation := subtestData.destinationDutyStation
 		originDutyStation := subtestData.originDutyStation
 		amendedOrder := subtestData.amendedOrder
@@ -356,7 +356,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		moveUpdater := mocks.MoveTaskOrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			&orderUpdater,
 			&moveUpdater,
 		}
@@ -373,7 +373,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	suite.Run("Returns a 409 conflict error if move status is in invalid state", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
 		userUploader := subtestData.userUploader
-		context := subtestData.handlerContext
+		hConfig := subtestData.handlerConfig
 		destinationDutyStation := subtestData.destinationDutyStation
 		originDutyStation := subtestData.originDutyStation
 
@@ -433,7 +433,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 		moveUpdater := mocks.MoveTaskOrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			&orderUpdater,
 			&moveUpdater,
 		}
@@ -485,7 +485,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -503,7 +503,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			orderservice.NewOrderUpdater(),
 			&moveTaskOrderUpdater,
 		}
@@ -529,7 +529,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TXO role", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -548,7 +548,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 			&mocks.MoveTaskOrderUpdater{},
 		}
@@ -565,7 +565,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	// be authorized to update orders. If not, we also need to prevent them from
 	// clicking the Edit Orders button in the frontend.
 	suite.Run("Allows a TIO to update orders", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		move := subtestData.move
 		order := subtestData.order
@@ -585,7 +585,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 			&mocks.MoveTaskOrderUpdater{},
 		}
@@ -598,7 +598,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -615,7 +615,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 			&mocks.MoveTaskOrderUpdater{},
 		}
@@ -629,7 +629,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -646,7 +646,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 			&mocks.MoveTaskOrderUpdater{},
 		}
@@ -660,7 +660,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -677,7 +677,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 			&mocks.MoveTaskOrderUpdater{},
 		}
@@ -713,9 +713,9 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	updater.On("UpdateOrderAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := UpdateOrderHandler{
-		context,
+		hConfig,
 		updater,
 		&mocks.MoveTaskOrderUpdater{},
 	}
@@ -766,7 +766,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -784,7 +784,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		handler := CounselingUpdateOrderHandler{
-			context,
+			hConfig,
 			orderservice.NewOrderUpdater(),
 		}
 		response := handler.Handle(params)
@@ -803,7 +803,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -822,7 +822,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -835,7 +835,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -852,7 +852,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -865,7 +865,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -882,7 +882,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -895,7 +895,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCounselingUpdateOrderHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -912,7 +912,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateOrderHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -962,7 +962,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -980,7 +980,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		handler := UpdateAllowanceHandler{
-			context,
+			hConfig,
 			orderservice.NewOrderUpdater(),
 		}
 		response := handler.Handle(params)
@@ -1002,7 +1002,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have TOO role", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1021,7 +1021,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1034,7 +1034,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1051,7 +1051,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1064,7 +1064,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1081,7 +1081,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1094,7 +1094,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeUpdateAllowanceHandlerSubtestData()
 		order := subtestData.order
 		body := subtestData.body
@@ -1111,7 +1111,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := UpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1146,9 +1146,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	updater.On("UpdateAllowanceAsTOO", mock.AnythingOfType("*appcontext.appContext"),
 		order.ID, *params.Body, params.IfMatch).Return(&order, move.ID, nil)
 
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := UpdateAllowanceHandler{
-		context,
+		hConfig,
 		updater,
 	}
 
@@ -1188,7 +1188,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1205,7 +1205,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		handler := CounselingUpdateAllowanceHandler{
-			context,
+			hConfig,
 			orderservice.NewOrderUpdater(),
 		}
 		response := handler.Handle(params)
@@ -1226,7 +1226,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns a 403 when the user does not have Counselor role", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1244,7 +1244,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1257,7 +1257,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 404 when updater returns NotFoundError", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1273,7 +1273,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1286,7 +1286,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 412 when eTag does not match", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1302,7 +1302,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 
@@ -1315,7 +1315,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 	})
 
 	suite.Run("Returns 422 when updater service returns validation errors", func() {
-		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		move := testdatagen.MakeNeedsServiceCounselingMove(suite.DB())
 		order := move.Orders
 
@@ -1331,7 +1331,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 		updater := &mocks.OrderUpdater{}
 		handler := CounselingUpdateAllowanceHandler{
-			context,
+			hConfig,
 			updater,
 		}
 

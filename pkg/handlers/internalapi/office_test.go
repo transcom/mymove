@@ -167,9 +167,9 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	}
 
 	// And: a move is canceled
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(suite.TestNotificationSender())
-	handler := CancelMoveHandler{context, moveRouter}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetNotificationSender(suite.TestNotificationSender())
+	handler := CancelMoveHandler{hConfig, moveRouter}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -203,9 +203,9 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 		CancelMove:  reasonPayload,
 	}
 	// And: a move is canceled
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(suite.TestNotificationSender())
-	handler := CancelMoveHandler{context, moveRouter}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetNotificationSender(suite.TestNotificationSender())
+	handler := CancelMoveHandler{hConfig, moveRouter}
 	response := handler.Handle(params)
 
 	// Then: response is Forbidden
@@ -237,9 +237,9 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	}
 
 	// And: a ppm is approved
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(suite.TestNotificationSender())
-	handler := ApprovePPMHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetNotificationSender(suite.TestNotificationSender())
+	handler := ApprovePPMHandler{hConfig}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -270,9 +270,9 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	}
 
 	// And: a ppm is approved
-	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(suite.TestNotificationSender())
-	handler := ApprovePPMHandler{context}
+	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig.SetNotificationSender(suite.TestNotificationSender())
+	handler := ApprovePPMHandler{hConfig}
 	response := handler.Handle(params)
 
 	// Then: expect a Forbidden status code
