@@ -1668,7 +1668,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: fix-av-ci
+              only: master
 
       - pre_test:
           requires:
