@@ -695,8 +695,7 @@ jobs:
     steps:
       - checkout
       - run: clamscan --version
-      - run: mkdir -p /store && chown clamav /store
-      - run: cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /store
+      - run: cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
       - run: >
           clamscan \
             --recursive \
@@ -708,10 +707,7 @@ jobs:
             --max-filesize=100M \
             --max-recursion=30 \
             --max-files=50000 \
-            --tempdir=/tmp \
-            --database=/store \
-            /root/project \
-            /store
+            --tempdir=/tmp
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -1671,8 +1667,8 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              # only: master
               only: fix-av-ci
+              # only: master
 
       - pre_test:
           requires:
