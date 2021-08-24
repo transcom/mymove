@@ -1705,6 +1705,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+	// Are these just variables?
 	dependentsAuthorized := true
 
 	entitlements := testdatagen.MakeEntitlement(db, testdatagen.Assertions{
@@ -1733,6 +1734,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 	//
+
+	// Move 2
 	customer2 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
@@ -1753,7 +1756,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			OrdersID: orders2.ID,
 		},
 	})
-	//
+
+	// Move 3
 	customer3 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
@@ -1774,7 +1778,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			OrdersID: orders3.ID,
 		},
 	})
-	//
+
+	// Move 4
 	customer4 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
@@ -1795,7 +1800,8 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			OrdersID: orders4.ID,
 		},
 	})
-	//
+
+	// Move 5 - Where does it end?
 	customer5 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
@@ -1926,7 +1932,10 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
 
+	// Is this another loose variable?
 	msCost := unit.Cents(10000)
+
+	// Move 8?
 	customer8 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("9e8da3c7-ffe5-4f7f-b45a-8f01ccc56591"),
@@ -2209,7 +2218,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		MTOShipment: mtoShipment8,
 	})
 
-	/* Customer with two payment requests */
+	// Move 7?
 	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
@@ -2376,7 +2385,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		MTOServiceItem: serviceItemFSC7,
 	})
 
-	// A more recent MTO for demonstrating the since parameter
+	// A more recent MTO for demonstrating the since parameter (Move 6? Where does it end?)
 	customer6 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
