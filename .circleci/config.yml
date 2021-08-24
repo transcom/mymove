@@ -20,7 +20,7 @@ references:
 executors:
   av_medium:
     resource_class: medium
-    working_directory: /root/project
+    working_directory: ~/transcom/mymove
     docker:
       - image: milmove/clamav-ci
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
