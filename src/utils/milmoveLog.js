@@ -17,8 +17,8 @@ export const MILMOVE_LOG_LEVEL = {
 // RA: for now removing all use of console.warn console.error console.debug console.log console.info
 // RA: this new function to be used re-direct logs to the final destination
 // RA Developer Status: Known Issue
-// RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-// RA Validator:
-// RA Modified Severity:
+// RA Validator Status: Known Issue
+// RA Validator: leodis.f.scott.civ@mail.mil
+// RA Modified Severity: CAT III
 // eslint-disable-next-line no-unused-vars
 export function milmoveLog(level, message) {}
