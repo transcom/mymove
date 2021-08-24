@@ -32,15 +32,15 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppC
 		return nil, services.NewQueryError("MoveTaskOrder", nil, "Order is necessary")
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// Create or get customer
-		customer, err := createOrGetCustomer(txnAppCfg, customer.NewCustomerFetcher(), payload.Order.CustomerID, payload.Order.Customer)
+		customer, err := createOrGetCustomer(txnAppCtx, customer.NewCustomerFetcher(), payload.Order.CustomerID, payload.Order.Customer)
 		if err != nil {
 			return err
 		}
 
 		// Create order and entitlement
-		order, err := createOrder(txnAppCfg, customer, payload.Order)
+		order, err := createOrder(txnAppCtx, customer, payload.Order)
 		if err != nil {
 			return err
 		}
@@ -48,7 +48,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppC
 		// Convert payload to model for moveTaskOrder
 		moveTaskOrder = MoveTaskOrderModel(&payload)
 		// referenceID cannot be set by user so generate it
-		refID, err = models.GenerateReferenceID(txnAppCfg.DB())
+		refID, err = models.GenerateReferenceID(txnAppCtx.DB())
 		if err != nil {
 			return err
 		}
@@ -64,7 +64,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppC
 		moveTaskOrder.Orders = *order
 		moveTaskOrder.OrdersID = order.ID
 
-		verrs, err := txnAppCfg.DB().ValidateAndCreate(moveTaskOrder)
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(moveTaskOrder)
 
 		if verrs.Count() > 0 {
 			logger.Error("supportapi.createMoveTaskOrderSupport error", zap.Error(verrs))

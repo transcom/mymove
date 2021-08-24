@@ -73,19 +73,19 @@ func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 		EDIType:                  models.EDIType997,
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-		lookupErr := txnAppCfg.DB().Where("payment_request_id = ? and interchange_control_number = ? and edi_type = ?", prToICN.PaymentRequestID, prToICN.InterchangeControlNumber, prToICN.EDIType).First(&prToICN)
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		lookupErr := txnAppCtx.DB().Where("payment_request_id = ? and interchange_control_number = ? and edi_type = ?", prToICN.PaymentRequestID, prToICN.InterchangeControlNumber, prToICN.EDIType).First(&prToICN)
 		if lookupErr != nil {
-			txnAppCfg.Logger().Error("failure looking up payment request to interchange control number", zap.Error(err))
+			txnAppCtx.Logger().Error("failure looking up payment request to interchange control number", zap.Error(err))
 		}
 		if prToICN.ID == uuid.Nil {
-			err = txnAppCfg.DB().Save(&prToICN)
+			err = txnAppCtx.DB().Save(&prToICN)
 			if err != nil {
-				txnAppCfg.Logger().Error("failure saving payment request to interchange control number", zap.Error(err))
+				txnAppCtx.Logger().Error("failure saving payment request to interchange control number", zap.Error(err))
 				return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
 			}
 		} else {
-			txnAppCfg.Logger().Info(fmt.Sprintf("duplicate EDI %s processed for payment request: %s with ICN: %d", prToICN.EDIType, prToICN.PaymentRequestID, prToICN.InterchangeControlNumber))
+			txnAppCtx.Logger().Info(fmt.Sprintf("duplicate EDI %s processed for payment request: %s with ICN: %d", prToICN.EDIType, prToICN.PaymentRequestID, prToICN.InterchangeControlNumber))
 		}
 		err = edi997.Validate()
 		if err != nil {
@@ -98,23 +98,23 @@ func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType997,
 			}
-			err = txnAppCfg.DB().Save(&ediError)
+			err = txnAppCtx.DB().Save(&ediError)
 			if err != nil {
-				txnAppCfg.Logger().Error("failure saving edi validation errors", zap.Error(err))
+				txnAppCtx.Logger().Error("failure saving edi validation errors", zap.Error(err))
 				return fmt.Errorf("failure saving edi validation errors: %w", err)
 			}
-			txnAppCfg.Logger().Error("Validation error(s) detected with the EDI997", zap.Error(err))
+			txnAppCtx.Logger().Error("Validation error(s) detected with the EDI997", zap.Error(err))
 			return fmt.Errorf("Validation error(s) detected with the EDI997: %w, %v", err, desc)
 		}
 
 		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex
-		err = txnAppCfg.DB().Update(&paymentRequest)
+		err = txnAppCtx.DB().Update(&paymentRequest)
 		if err != nil {
-			txnAppCfg.Logger().Error("failure updating payment request", zap.Error(err))
+			txnAppCtx.Logger().Error("failure updating payment request", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
-		txnAppCfg.Logger().Info("SUCCESS: 997 Processor updated Payment Request to new status")
-		e.logEDIWithPaymentRequest(txnAppCfg, edi997, paymentRequest)
+		txnAppCtx.Logger().Info("SUCCESS: 997 Processor updated Payment Request to new status")
+		e.logEDIWithPaymentRequest(txnAppCtx, edi997, paymentRequest)
 		return nil
 	})
 

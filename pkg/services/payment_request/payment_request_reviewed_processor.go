@@ -77,14 +77,14 @@ func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendTo
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var lockedPR models.PaymentRequest
 
 		query := `
 			SELECT * FROM payment_requests
 			WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
 		`
-		err := txnAppCfg.DB().RawQuery(query, pr.ID).First(&lockedPR)
+		err := txnAppCtx.DB().RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil
@@ -94,18 +94,18 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
-		edi858c, err = p.ediGenerator.Generate(txnAppCfg, lockedPR, false)
+		edi858c, err = p.ediGenerator.Generate(txnAppCtx, lockedPR, false)
 		icn := edi858c.ISA.InterchangeControlNumber
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
 		}
 		var edi858cString string
-		edi858cString, err = edi858c.EDIString(appCtx.Logger())
+		edi858cString, err = edi858c.EDIString(txnAppCtx.Logger())
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
 		}
 
-		appCtx.Logger().Info("858 Processor calling SendToSyncada...",
+		txnAppCtx.Logger().Info("858 Processor calling SendToSyncada...",
 			zap.Int64("858 ICN", edi858c.ISA.InterchangeControlNumber),
 			zap.String("ShipmentIdentificationNumber/PaymentRequestNumber", edi858c.Header.ShipmentInformation.ShipmentIdentificationNumber),
 			zap.String("ReferenceIdentification/PaymentRequestNumber", edi858c.Header.PaymentRequestNumber.ReferenceIdentification),
@@ -115,14 +115,14 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		)
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentrequesthelper.SendToSyncada(appCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
+		err = paymentrequesthelper.SendToSyncada(txnAppCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
 		if err != nil {
 			return GexSendError{paymentRequestID: lockedPR.ID, err: err}
 		}
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
 		lockedPR.Status = models.PaymentRequestStatusSentToGex
-		err = txnAppCfg.DB().Update(&lockedPR)
+		err = txnAppCtx.DB().Update(&lockedPR)
 
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)

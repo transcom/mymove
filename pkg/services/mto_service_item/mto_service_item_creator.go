@@ -194,10 +194,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
-	transactionErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
 		if err != nil {
-			txnAppCfg.Logger().Error(fmt.Sprintf("error starting txn: %v", err))
+			txnAppCtx.Logger().Error(fmt.Sprintf("error starting txn: %v", err))
 			return err
 		}
 		for serviceItemIndex := range requestedServiceItems {
@@ -207,7 +207,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			if requestedServiceItem.SITOriginHHGActualAddress != nil {
 				address := requestedServiceItem.SITOriginHHGActualAddress
 				if address.ID == uuid.Nil {
-					verrs, err = o.builder.CreateOne(txnAppCfg, address)
+					verrs, err = o.builder.CreateOne(txnAppCtx, address)
 					if verrs != nil || err != nil {
 						return fmt.Errorf("failed to save SITOriginHHGActualAddress: %#v %e", verrs, err)
 					}
@@ -219,7 +219,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			if requestedServiceItem.SITOriginHHGOriginalAddress != nil {
 				address := requestedServiceItem.SITOriginHHGOriginalAddress
 				if address.ID == uuid.Nil {
-					verrs, err = o.builder.CreateOne(txnAppCfg, address)
+					verrs, err = o.builder.CreateOne(txnAppCtx, address)
 					if verrs != nil || err != nil {
 						return fmt.Errorf("failed to save SITOriginHHGOriginalAddress: %#v %e", verrs, err)
 					}
@@ -227,7 +227,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				requestedServiceItem.SITOriginHHGOriginalAddressID = &address.ID
 			}
 
-			verrs, err = o.builder.CreateOne(txnAppCfg, requestedServiceItem)
+			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
@@ -238,7 +238,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			for index := range requestedServiceItem.Dimensions {
 				createDimension := &requestedServiceItem.Dimensions[index]
 				createDimension.MTOServiceItemID = requestedServiceItem.ID
-				verrs, err = o.builder.CreateOne(txnAppCfg, createDimension)
+				verrs, err = o.builder.CreateOne(txnAppCtx, createDimension)
 				if verrs != nil && verrs.HasAny() {
 					return services.NewInvalidInputError(uuid.Nil, nil, verrs, "Failed to create dimensions")
 				}
@@ -251,7 +251,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			for index := range requestedServiceItem.CustomerContacts {
 				createCustContacts := &requestedServiceItem.CustomerContacts[index]
 				createCustContacts.MTOServiceItemID = requestedServiceItem.ID
-				verrs, err = o.builder.CreateOne(txnAppCfg, createCustContacts)
+				verrs, err = o.builder.CreateOne(txnAppCtx, createCustContacts)
 				if verrs != nil || err != nil {
 					return fmt.Errorf("%#v %e", verrs, err)
 				}
@@ -260,7 +260,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 		// If updates were made to shipment, save update in the database
 		if updateShipmentPickupAddress {
-			verrs, err = o.builder.UpdateOne(txnAppCfg, mtoShipment.PickupAddress, nil)
+			verrs, err = o.builder.UpdateOne(txnAppCtx, mtoShipment.PickupAddress, nil)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to update mtoShipment.PickupAddress: %#v %e", verrs, err)
 			}
@@ -282,7 +282,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		// In case other service items have been created at the same time on this
 		// same move, we fetch the move from the DB and check if it has any
 		// submitted service items.
-		err = txnAppCfg.DB().Reload(&move)
+		err = txnAppCtx.DB().Reload(&move)
 		if err != nil {
 			return fmt.Errorf("%e", err)
 		}
@@ -294,20 +294,20 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 
 		if moveShouldBeApproved {
-			err = o.moveRouter.Approve(txnAppCfg, &move)
+			err = o.moveRouter.Approve(txnAppCtx, &move)
 			if err != nil {
 				return fmt.Errorf("%e", err)
 			}
-			verrs, err = o.builder.UpdateOne(txnAppCfg, &move, nil)
+			verrs, err = o.builder.UpdateOne(txnAppCtx, &move, nil)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
 		} else {
-			err = o.moveRouter.SendToOfficeUser(txnAppCfg, &move)
+			err = o.moveRouter.SendToOfficeUser(txnAppCtx, &move)
 			if err != nil {
 				return fmt.Errorf("%e", err)
 			}
-			verrs, err = o.builder.UpdateOne(txnAppCfg, &move, nil)
+			verrs, err = o.builder.UpdateOne(txnAppCtx, &move, nil)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}

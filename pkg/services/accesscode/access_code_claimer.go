@@ -50,8 +50,8 @@ func (v accessCodeClaimer) ClaimAccessCode(appCtx appcontext.AppContext, code st
 	var err error
 	verrs := validate.NewErrors()
 
-	transactionErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-		accessCode, err = fetchAccessCodeForUpdate(txnAppCfg, code)
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		accessCode, err = fetchAccessCodeForUpdate(txnAppCtx, code)
 
 		if err != nil {
 			return errors.Wrap(err, "Unable to find access code")
@@ -65,7 +65,7 @@ func (v accessCodeClaimer) ClaimAccessCode(appCtx appcontext.AppContext, code st
 		accessCode.ClaimedAt = &claimedAtTime
 		accessCode.ServiceMemberID = &serviceMemberID
 
-		verrs, err = txnAppCfg.DB().ValidateAndSave(accessCode)
+		verrs, err = txnAppCtx.DB().ValidateAndSave(accessCode)
 		if err != nil || verrs.HasAny() {
 			return errors.New("error claiming access code")
 		}

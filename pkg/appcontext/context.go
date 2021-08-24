@@ -43,7 +43,7 @@ func (ac *appContext) NewTransaction(fn func(appCtx AppContext) error) error {
 		return fn(ac)
 	}
 	return ac.db.Transaction(func(tx *pop.Connection) error {
-		txnAppCfg := NewAppContext(tx, ac.logger)
-		return fn(txnAppCfg)
+		txnAppCtx := NewAppContext(tx, ac.logger)
+		return fn(txnAppCtx)
 	})
 }

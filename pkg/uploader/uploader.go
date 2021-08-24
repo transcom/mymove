@@ -238,11 +238,11 @@ func (u *Uploader) CreateUpload(appCtx appcontext.AppContext, file File, allowed
 		return newUpload, responseVErrors, nil
 	}
 
-	err := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		var responseCreateAndPushVerrs *validate.Errors
 		var responseCreateAndPushErr error
-		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(txnAppCfg, file, newUpload)
+		newUpload, responseCreateAndPushVerrs, responseCreateAndPushErr = u.createAndPushUploadToS3(txnAppCtx, file, newUpload)
 		if responseCreateAndPushErr != nil || responseCreateAndPushVerrs.HasAny() {
 			responseVErrors.Append(responseCreateAndPushVerrs)
 			uploadError = errors.Wrap(responseCreateAndPushErr, "failed to create and store upload object")

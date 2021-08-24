@@ -114,15 +114,15 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 			return &models.Move{}, services.NewConflictError(move.ID, err.Error())
 		}
 
-		transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-			err = o.updateMove(txnAppCfg, *move, order.CheckRequiredFields())
+		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			err = o.updateMove(txnAppCtx, *move, order.CheckRequiredFields())
 			if err != nil {
 				return err
 			}
 
 			// When provided, this will create and approve these Move-level service items.
 			if includeServiceCodeMS {
-				err = o.createMoveLevelServiceItem(txnAppCfg, *move, models.ReServiceCodeMS)
+				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
 			}
 
 			if err != nil {
@@ -130,7 +130,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 			}
 
 			if includeServiceCodeCS {
-				err = o.createMoveLevelServiceItem(txnAppCfg, *move, models.ReServiceCodeCS)
+				err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS)
 			}
 
 			return err

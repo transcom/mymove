@@ -219,10 +219,10 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, mo
 		newSignedCertification.PersonallyProcuredMoveID = &ppmID
 	}
 
-	transactionErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
 		// TODO: move creation of signed certification into a service
-		verrs, err := txnAppCfg.DB().ValidateAndCreate(&newSignedCertification)
+		verrs, err := txnAppCtx.DB().ValidateAndCreate(&newSignedCertification)
 		if err != nil || verrs.HasAny() {
 			responseError = fmt.Errorf("error saving signed certification: %w", err)
 			responseVErrors.Append(verrs)
@@ -232,27 +232,27 @@ func (h SubmitMoveHandler) saveMoveDependencies(appCtx appcontext.AppContext, mo
 		for _, ppm := range move.PersonallyProcuredMoves {
 			copyOfPpm := ppm // Make copy to avoid implicit memory aliasing of items from a range statement.
 			if copyOfPpm.Advance != nil {
-				if verrs, err := txnAppCfg.DB().ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
+				if verrs, err := txnAppCtx.DB().ValidateAndSave(copyOfPpm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
 					return transactionError
 				}
 			}
 
-			if verrs, err := txnAppCfg.DB().ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
+			if verrs, err := txnAppCtx.DB().ValidateAndSave(&copyOfPpm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")
 				return transactionError
 			}
 		}
 
-		if verrs, err := txnAppCfg.DB().ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+		if verrs, err := txnAppCtx.DB().ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
 			return transactionError
 		}
 
-		if verrs, err := txnAppCfg.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
+		if verrs, err := txnAppCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Move")
 			return transactionError

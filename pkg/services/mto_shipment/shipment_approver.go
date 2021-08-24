@@ -49,9 +49,9 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		return nil, err
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-		verrs, err := txnAppCfg.DB().ValidateAndSave(shipment)
+		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 
@@ -62,7 +62,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 
 		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(txnAppCfg, shipment)
+		err = f.createShipmentServiceItems(txnAppCtx, shipment)
 		if err != nil {
 			return err
 		}

@@ -98,15 +98,15 @@ func (u *PrimeUploader) CreatePrimeUploadForDocument(appCtx appcontext.AppContex
 		return primeUpload, verrs, uploadError
 	}
 
-	txError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	txError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		transactionError := errors.New("Rollback The transaction")
-		primeUpload, verrs, uploadError = u.createAndStore(txnAppCfg, posID, contractorID, file, allowedTypes)
+		primeUpload, verrs, uploadError = u.createAndStore(txnAppCtx, posID, contractorID, file, allowedTypes)
 		if verrs.HasAny() || uploadError != nil {
-			txnAppCfg.Logger().Error("error creating new prime upload", zap.Error(uploadError))
+			txnAppCtx.Logger().Error("error creating new prime upload", zap.Error(uploadError))
 			return transactionError
 		}
 
-		txnAppCfg.Logger().Info("created a prime upload with id and key ", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
+		txnAppCtx.Logger().Info("created a prime upload with id and key ", zap.Any("new_prime_upload_id", primeUpload.ID), zap.String("key", primeUpload.Upload.StorageKey))
 		return nil
 	})
 	if txError != nil {
@@ -126,11 +126,11 @@ func (u *PrimeUploader) DeletePrimeUpload(appCtx appcontext.AppContext, primeUpl
 		return models.DeletePrimeUpload(appCtx.DB(), primeUpload)
 
 	}
-	return appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-		if err := u.uploader.DeleteUpload(txnAppCfg, &primeUpload.Upload); err != nil {
+	return appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := u.uploader.DeleteUpload(txnAppCtx, &primeUpload.Upload); err != nil {
 			return err
 		}
-		return models.DeletePrimeUpload(txnAppCfg.DB(), primeUpload)
+		return models.DeletePrimeUpload(txnAppCtx.DB(), primeUpload)
 	})
 }
 

@@ -32,7 +32,7 @@ func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItem
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
 		now := time.Now()
 
@@ -41,7 +41,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
 
 		// Create the payment request
-		paymentRequestArg, err = p.createPaymentRequestSaveToDB(txnAppCfg.DB(), paymentRequestArg, now)
+		paymentRequestArg, err = p.createPaymentRequestSaveToDB(txnAppCtx.DB(), paymentRequestArg, now)
 
 		if err != nil {
 			var badDataError *services.BadDataError
@@ -85,7 +85,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
-			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(appCtx.DB(), paymentServiceItem, paymentRequestArg, now)
+			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx.DB(), paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
 					return err
@@ -105,7 +105,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param models.PaymentServiceItemParam
 				var key, value *string
-				param, key, value, err = p.createPaymentServiceItemParam(appCtx.DB(), paymentServiceItemParam, paymentServiceItem)
+				param, key, value, err = p.createPaymentServiceItemParam(txnAppCtx.DB(), paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*services.BadDataError); ok {
 						return err
@@ -130,14 +130,14 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 
-			reServiceParams, err := paymentHelper.FetchServiceParamList(appCtx, paymentServiceItem.MTOServiceItemID)
+			reServiceParams, err := paymentHelper.FetchServiceParamList(txnAppCtx, paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(appCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}
@@ -145,7 +145,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
 					var param *models.PaymentServiceItemParam
-					param, err = p.createServiceItemParamFromLookup(appCtx, paramLookup, reServiceParam, paymentServiceItem)
+					param, err = p.createServiceItemParamFromLookup(txnAppCtx, paramLookup, reServiceParam, paymentServiceItem)
 					if err != nil {
 						errMessage := fmt.Sprintf("Failed to create service item param for param key <%s> %s", reServiceParam.ServiceItemParamKey.Key, errMessageString)
 						return fmt.Errorf("%s err: %w", errMessage, err)
@@ -176,7 +176,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 			// Price the payment service item
 			var psItem models.PaymentServiceItem
 			var displayParams models.PaymentServiceItemParams
-			psItem, displayParams, err = p.pricePaymentServiceItem(appCtx, paymentServiceItem)
+			psItem, displayParams, err = p.pricePaymentServiceItem(txnAppCtx, paymentServiceItem)
 			if err != nil {
 				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
 					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)

@@ -219,10 +219,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	// Create address record (if needed) and update service item in a single transaction
-	transactionErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if validServiceItem.SITDestinationFinalAddress != nil {
 			if validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil {
-				verrs, createErr := p.builder.CreateOne(txnAppCfg, validServiceItem.SITDestinationFinalAddress)
+				verrs, createErr := p.builder.CreateOne(txnAppCtx, validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
 					return services.NewInvalidInputError(
 						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a final Destination SIT address for service item.")
@@ -234,7 +234,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 			} else {
 				// If this service item already had a SITDestinationFinalAddress, update that record instead
 				// of creating a new one.
-				verrs, updateErr := txnAppCfg.DB().ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
+				verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
 					return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating final Destination SIT address for the service item.")
 				} else if updateErr != nil {
@@ -244,7 +244,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContex
 			}
 		}
 		// Make the update and create a InvalidInputError if there were validation issues
-		verrs, updateErr := txnAppCfg.DB().ValidateAndUpdate(validServiceItem)
+		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
 
 		// If there were validation errors create an InvalidInputError type
 		if verrs != nil && verrs.HasAny() {

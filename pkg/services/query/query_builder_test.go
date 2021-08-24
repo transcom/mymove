@@ -500,8 +500,8 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 
 		var verrs *validate.Errors
 		var err error
-		txErr := suite.TestAppContext().NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-			verrs, err = builder.CreateOne(txnAppCfg, &userInfo)
+		txErr := suite.TestAppContext().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			verrs, err = builder.CreateOne(txnAppCtx, &userInfo)
 
 			return nil
 		})
@@ -523,12 +523,12 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 		}
 
 		// rollback intentionally with a successful create and unsuccessful create
-		txErr := suite.TestAppContext().NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-			verrs, err := builder.CreateOne(txnAppCfg, &testUser)
+		txErr := suite.TestAppContext().NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			verrs, err := builder.CreateOne(txnAppCtx, &testUser)
 			suite.Nil(verrs)
 			suite.Nil(err)
 
-			verrs, err = builder.CreateOne(txnAppCfg, &models.ReService{})
+			verrs, err = builder.CreateOne(txnAppCtx, &models.ReService{})
 			suite.NotNil(verrs)
 			suite.Nil(err)
 

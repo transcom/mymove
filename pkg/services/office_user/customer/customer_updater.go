@@ -29,7 +29,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		return nil, services.NewPreconditionFailedError(customer.ID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if residentialAddress := customer.ResidentialAddress; residentialAddress != nil {
 			existingCustomer.ResidentialAddress.StreetAddress1 = residentialAddress.StreetAddress1
 			existingCustomer.ResidentialAddress.City = residentialAddress.City
@@ -39,7 +39,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 				existingCustomer.ResidentialAddress.StreetAddress2 = residentialAddress.StreetAddress2
 			}
 
-			verrs, dbErr := txnAppCfg.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
+			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.ResidentialAddress)
 			if verrs != nil && verrs.HasAny() {
 				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
@@ -53,7 +53,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			existingCustomer.BackupContacts[0].Email = backupContacts[0].Email
 			existingCustomer.BackupContacts[0].Phone = backupContacts[0].Phone
 
-			verrs, dbErr := txnAppCfg.DB().ValidateAndSave(existingCustomer.BackupContacts)
+			verrs, dbErr := txnAppCtx.DB().ValidateAndSave(existingCustomer.BackupContacts)
 			if verrs != nil && verrs.HasAny() {
 				return services.NewInvalidInputError(customer.ID, dbErr, verrs, "")
 			}
@@ -95,7 +95,7 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 		}
 
 		// optimistic locking handled before transaction block
-		verrs, updateErr := txnAppCfg.DB().ValidateAndUpdate(existingCustomer)
+		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(existingCustomer)
 
 		if verrs != nil && verrs.HasAny() {
 			return services.NewInvalidInputError(customer.ID, err, verrs, "")

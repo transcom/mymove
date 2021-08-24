@@ -111,11 +111,11 @@ func (u *UserUploader) DeleteUserUpload(appCtx appcontext.AppContext, userUpload
 		}
 		return models.DeleteUserUpload(appCtx.DB(), userUpload)
 	}
-	return appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
-		if err := u.uploader.DeleteUpload(txnAppCfg, &userUpload.Upload); err != nil {
+	return appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		if err := u.uploader.DeleteUpload(txnAppCtx, &userUpload.Upload); err != nil {
 			return err
 		}
-		return models.DeleteUserUpload(txnAppCfg.DB(), userUpload)
+		return models.DeleteUserUpload(txnAppCtx.DB(), userUpload)
 	})
 }
 

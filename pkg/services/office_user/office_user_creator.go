@@ -41,9 +41,9 @@ func (o *officeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, offic
 	var verrs *validate.Errors
 	var err error
 	// We don't want to be left with a user record and no office user so setup a transaction to rollback
-	txErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if user.ID == uuid.Nil {
-			verrs, err = o.builder.CreateOne(txnAppCfg, &user)
+			verrs, err = o.builder.CreateOne(txnAppCtx, &user)
 			if verrs != nil || err != nil {
 				return err
 			}
@@ -52,7 +52,7 @@ func (o *officeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, offic
 		officeUser.UserID = &user.ID
 		officeUser.User = user
 
-		verrs, err = o.builder.CreateOne(txnAppCfg, officeUser)
+		verrs, err = o.builder.CreateOne(txnAppCtx, officeUser)
 		if verrs != nil || err != nil {
 			return err
 		}

@@ -41,9 +41,9 @@ func (o *adminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, admin *
 	var verrs *validate.Errors
 	var err error
 	// We don't want to be left with a user record and no admin user so setup a transaction to rollback
-	txErr := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if user.ID == uuid.Nil {
-			verrs, err = o.builder.CreateOne(txnAppCfg, &user)
+			verrs, err = o.builder.CreateOne(txnAppCtx, &user)
 			if verrs != nil || err != nil {
 				return err
 			}
@@ -52,7 +52,7 @@ func (o *adminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, admin *
 		admin.UserID = &user.ID
 		admin.User = user
 
-		verrs, err = o.builder.CreateOne(txnAppCfg, admin)
+		verrs, err = o.builder.CreateOne(txnAppCtx, admin)
 		if verrs != nil || err != nil {
 			return err
 		}

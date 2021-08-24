@@ -368,10 +368,10 @@ func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext,
 		return nil
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var verrs *validate.Errors
 		var err error
-		verrs, err = txnAppCfg.DB().ValidateAndSave(doc)
+		verrs, err = txnAppCtx.DB().ValidateAndSave(doc)
 		if e := handleError(verrs, err); e != nil {
 			return e
 		}
@@ -398,7 +398,7 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 		return nil
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var verrs *validate.Errors
 		var err error
 
@@ -415,7 +415,7 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 		if order.OriginDutyStationID != nil {
 			// TODO refactor to use service objects to fetch duty station
 			var originDutyStation models.DutyStation
-			originDutyStation, err = models.FetchDutyStation(txnAppCfg.DB(), *order.OriginDutyStationID)
+			originDutyStation, err = models.FetchDutyStation(txnAppCtx.DB(), *order.OriginDutyStationID)
 			if e := handleError(verrs, err); e != nil {
 				if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
 					return services.NewNotFoundError(*order.OriginDutyStationID, "while looking for OriginDutyStation")
@@ -429,7 +429,7 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 		}
 
 		if order.Grade != nil || order.OriginDutyStationID != nil {
-			verrs, err = txnAppCfg.DB().ValidateAndUpdate(&order.ServiceMember)
+			verrs, err = txnAppCtx.DB().ValidateAndUpdate(&order.ServiceMember)
 			if e := handleError(verrs, err); e != nil {
 				return e
 			}
@@ -437,7 +437,7 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 
 		// update entitlement
 		if order.Entitlement != nil {
-			verrs, err = txnAppCfg.DB().ValidateAndUpdate(order.Entitlement)
+			verrs, err = txnAppCtx.DB().ValidateAndUpdate(order.Entitlement)
 			if e := handleError(verrs, err); e != nil {
 				return e
 			}
@@ -446,7 +446,7 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 		if order.NewDutyStationID != uuid.Nil {
 			// TODO refactor to use service objects to fetch duty station
 			var newDutyStation models.DutyStation
-			newDutyStation, err = models.FetchDutyStation(txnAppCfg.DB(), order.NewDutyStationID)
+			newDutyStation, err = models.FetchDutyStation(txnAppCtx.DB(), order.NewDutyStationID)
 			if e := handleError(verrs, err); e != nil {
 				if errors.Cause(e).Error() == models.RecordNotFoundErrorString {
 					return services.NewNotFoundError(order.NewDutyStationID, "while looking for NewDutyStation")
@@ -456,7 +456,7 @@ func (f *orderUpdater) updateOrder(appCtx appcontext.AppContext, order models.Or
 			order.NewDutyStation = newDutyStation
 		}
 
-		verrs, err = txnAppCfg.DB().ValidateAndUpdate(&order)
+		verrs, err = txnAppCtx.DB().ValidateAndUpdate(&order)
 		if e := handleError(verrs, err); e != nil {
 			return e
 		}

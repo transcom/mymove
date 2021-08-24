@@ -108,10 +108,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		shipment.MTOServiceItems = serviceItemsList
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCfg, shipment.PickupAddress)
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.PickupAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
@@ -121,7 +121,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCfg, shipment.SecondaryPickupAddress)
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryPickupAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
 			}
@@ -129,7 +129,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.DestinationAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCfg, shipment.DestinationAddress)
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.DestinationAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
 			}
@@ -137,7 +137,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryDeliveryAddress != nil {
-			verrs, err = f.builder.CreateOne(txnAppCfg, shipment.SecondaryDeliveryAddress)
+			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.SecondaryDeliveryAddress)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
 			}
@@ -155,7 +155,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		// create a shipment
-		verrs, err = f.builder.CreateOne(txnAppCfg, shipment)
+		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)
 
 		if verrs != nil || err != nil {
 			return fmt.Errorf("failed to create shipment %s %e", verrs.Error(), err)
@@ -168,7 +168,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			for _, agent := range shipment.MTOAgents {
 				copyOfAgent := agent
 				copyOfAgent.MTOShipmentID = shipment.ID
-				verrs, err = f.builder.CreateOne(txnAppCfg, &copyOfAgent)
+				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
@@ -196,7 +196,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				copyOfServiceItem.MTOShipmentID = &shipment.ID
 				copyOfServiceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
 
-				verrs, err = f.builder.CreateOne(txnAppCfg, &copyOfServiceItem)
+				verrs, err = f.builder.CreateOne(txnAppCtx, &copyOfServiceItem)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
 				}
@@ -210,11 +210,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 		// transition the move to "Approvals Requested" if a shipment was created with the "Submitted" status:
 		if shipment.Status == models.MTOShipmentStatusSubmitted && move.Status == models.MoveStatusAPPROVED {
-			err = f.moveRouter.SendToOfficeUser(txnAppCfg, &move)
+			err = f.moveRouter.SendToOfficeUser(txnAppCtx, &move)
 			if err != nil {
 				return err
 			}
-			verrs, err = f.builder.UpdateOne(txnAppCfg, &move, nil)
+			verrs, err = f.builder.UpdateOne(txnAppCtx, &move, nil)
 			if err != nil {
 				return err
 			}

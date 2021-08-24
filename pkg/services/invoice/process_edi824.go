@@ -39,7 +39,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 	var transactionError error
 	var otiGCN int64
 	var bgn edisegment.BGN
-	transactionError = appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		icn := edi824.InterchangeControlEnvelope.ISA.InterchangeControlNumber
 		if edi824.InterchangeControlEnvelope.FunctionalGroups != nil {
 			if edi824.InterchangeControlEnvelope.FunctionalGroups[0].TransactionSets != nil {
@@ -47,16 +47,16 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				if len(transactionSet.OTIs) > 0 {
 					otiGCN = transactionSet.OTIs[0].GroupControlNumber
 				} else {
-					txnAppCfg.Logger().Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
+					txnAppCtx.Logger().Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
 					return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
 				}
 				bgn = transactionSet.BGN
 			} else {
-				txnAppCfg.Logger().Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
+				txnAppCtx.Logger().Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
 				return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
 			}
 		} else {
-			txnAppCfg.Logger().Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
+			txnAppCtx.Logger().Error("Validation error(s) detected with the EDI824. EDI Errors could not be saved", zap.Error(err))
 			return fmt.Errorf("Validation error(s) detected with the EDI824. EDI Errors could not be saved: %w", err)
 		}
 
@@ -64,12 +64,12 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 		// to find the associated payment request using the reported GCN from the 824.
 		// we are only processing 824s in response to 858s
 		var paymentRequest models.PaymentRequest
-		err = txnAppCfg.DB().Q().
+		err = txnAppCtx.DB().Q().
 			Join("payment_request_to_interchange_control_numbers", "payment_request_to_interchange_control_numbers.payment_request_id = payment_requests.id").
 			Where("payment_request_to_interchange_control_numbers.interchange_control_number = ? and payment_request_to_interchange_control_numbers.edi_type = ?", int(otiGCN), models.EDIType858).
 			First(&paymentRequest)
 		if err != nil {
-			txnAppCfg.Logger().Error("unable to find PaymentRequest with GCN", zap.Error(err))
+			txnAppCtx.Logger().Error("unable to find PaymentRequest with GCN", zap.Error(err))
 			return fmt.Errorf("unable to find PaymentRequest with GCN: %s, %d", err.Error(), int(otiGCN))
 		}
 
@@ -78,7 +78,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 			PaymentRequestID:         paymentRequest.ID,
 			EDIType:                  models.EDIType824,
 		}
-		err = txnAppCfg.DB().Save(&prToICN)
+		err = txnAppCtx.DB().Save(&prToICN)
 		if err != nil {
 			return fmt.Errorf("failure saving payment request to interchange control number: %w", err)
 		}
@@ -94,19 +94,19 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
-			err = txnAppCfg.DB().Save(&ediError)
+			err = txnAppCtx.DB().Save(&ediError)
 			if err != nil {
 				return fmt.Errorf("failure saving edi validation errors: %w", err)
 			}
-			txnAppCfg.Logger().Error("Validation error(s) detected with the EDI824", zap.Error(err))
+			txnAppCtx.Logger().Error("Validation error(s) detected with the EDI824", zap.Error(err))
 			return fmt.Errorf("Validation error(s) detected with the EDI824: %w, %v", err, desc)
 		}
 
 		var move models.Move
-		err = txnAppCfg.DB().Q().
+		err = txnAppCtx.DB().Q().
 			Find(&move, paymentRequest.MoveTaskOrderID)
 		if err != nil {
-			txnAppCfg.Logger().Error("unable to find move with associated payment request", zap.Error(err))
+			txnAppCtx.Logger().Error("unable to find move with associated payment request", zap.Error(err))
 			return fmt.Errorf("unable to find move with associated payment request: %w", err)
 		}
 
@@ -115,7 +115,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 		bgnRefIdentification := bgn.ReferenceIdentification
 		paymentRequestNumber := paymentRequest.PaymentRequestNumber
 		if bgnRefIdentification != paymentRequestNumber {
-			txnAppCfg.Logger().Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %s of the associated payment request", bgnRefIdentification, paymentRequestNumber), zap.Error(err))
+			txnAppCtx.Logger().Error(fmt.Sprintf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %s of the associated payment request", bgnRefIdentification, paymentRequestNumber), zap.Error(err))
 			return fmt.Errorf("The BGN02 Reference Identification field: %s doesn't match the PaymentRequestNumber %v of the associated payment request", bgnRefIdentification, paymentRequestNumber)
 		}
 
@@ -131,21 +131,21 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, path string,
 				InterchangeControlNumberID: &prToICN.ID,
 				EDIType:                    models.EDIType824,
 			}
-			err = txnAppCfg.DB().Save(&ediError)
+			err = txnAppCtx.DB().Save(&ediError)
 			if err != nil {
-				txnAppCfg.Logger().Error("failure saving edi technical error description", zap.Error(err))
+				txnAppCtx.Logger().Error("failure saving edi technical error description", zap.Error(err))
 				return fmt.Errorf("failure saving edi technical error description: %w", err)
 			}
 		}
 
 		paymentRequest.Status = models.PaymentRequestStatusEDIError
-		err = txnAppCfg.DB().Update(&paymentRequest)
+		err = txnAppCtx.DB().Update(&paymentRequest)
 		if err != nil {
-			txnAppCfg.Logger().Error("failure updating payment request status:", zap.Error(err))
+			txnAppCtx.Logger().Error("failure updating payment request status:", zap.Error(err))
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
-		txnAppCfg.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
-		e.logEDIWithPaymentRequest(appCtx, edi824, paymentRequest)
+		txnAppCtx.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")
+		e.logEDIWithPaymentRequest(txnAppCtx, edi824, paymentRequest)
 		return nil
 	})
 

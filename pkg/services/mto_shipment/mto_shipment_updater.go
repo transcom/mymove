@@ -291,7 +291,7 @@ func (f *mtoShipmentUpdater) updateMTOShipment(appCtx appcontext.AppContext, mto
 // update fails, the entire transaction will be rolled back.
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 
-	transactionError := appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
 
@@ -308,7 +308,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			// If there is an existing DestinationAddressID, tx.Save will use it
 			// to find and update the existing record. If there isn't, it will create
 			// a new record.
-			err := txnAppCfg.DB().Save(newShipment.DestinationAddress)
+			err := txnAppCtx.DB().Save(newShipment.DestinationAddress)
 			if err != nil {
 				return err
 			}
@@ -323,7 +323,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
 			}
 
-			err := txnAppCfg.DB().Save(newShipment.PickupAddress)
+			err := txnAppCtx.DB().Save(newShipment.PickupAddress)
 			if err != nil {
 				return err
 			}
@@ -336,7 +336,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.SecondaryPickupAddress.ID = *dbShipment.SecondaryPickupAddressID
 			}
 
-			err := txnAppCfg.DB().Save(newShipment.SecondaryPickupAddress)
+			err := txnAppCtx.DB().Save(newShipment.SecondaryPickupAddress)
 			if err != nil {
 				return err
 			}
@@ -349,7 +349,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				newShipment.SecondaryDeliveryAddress.ID = *dbShipment.SecondaryDeliveryAddressID
 			}
 
-			err := txnAppCfg.DB().Save(newShipment.SecondaryDeliveryAddress)
+			err := txnAppCtx.DB().Save(newShipment.SecondaryDeliveryAddress)
 			if err != nil {
 				return err
 			}
@@ -370,14 +370,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						updateAgentQuery := generateAgentQuery()
 						params := generateMTOAgentsParams(copyOfAgent)
 
-						if err := txnAppCfg.DB().RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
+						if err := txnAppCtx.DB().RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
 							return err
 						}
 					}
 				}
 				if copyOfAgent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
-					verrs, err := f.builder.CreateOne(txnAppCfg, &copyOfAgent)
+					verrs, err := f.builder.CreateOne(txnAppCtx, &copyOfAgent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
 					}
@@ -398,7 +398,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					moveRouter.ApproveAmmendedOrders if we also add checks for excess weight there and orders
 					acknowledgement
 				*/
-				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCfg, dbShipment.MoveTaskOrderID, *newShipment)
+				move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
 				if verrs != nil && verrs.HasAny() {
 					return errors.New(verrs.Error())
 				}
@@ -407,13 +407,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 
 				existingMoveStatus := move.Status
-				err = f.moveRouter.SendToOfficeUser(txnAppCfg, move)
+				err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
 				if err != nil {
 					return err
 				}
 
 				if existingMoveStatus != move.Status {
-					err = txnAppCfg.DB().Update(move)
+					err = txnAppCtx.DB().Update(move)
 					if err != nil {
 						return err
 					}
@@ -427,20 +427,20 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			// Get the move
 			var move models.Move
-			err := txnAppCfg.DB().Find(&move, dbShipment.MoveTaskOrderID)
+			err := txnAppCtx.DB().Find(&move, dbShipment.MoveTaskOrderID)
 			if err != nil {
 				return err
 			}
 
 			existingMoveStatus := move.Status
-			err = f.moveRouter.SendToOfficeUser(txnAppCfg, &move)
+			err = f.moveRouter.SendToOfficeUser(txnAppCtx, &move)
 			if err != nil {
 				return err
 			}
 
 			// only update if the move status has actually changed
 			if existingMoveStatus != move.Status {
-				err = txnAppCfg.DB().Update(&move)
+				err = txnAppCtx.DB().Update(&move)
 				if err != nil {
 					return err
 				}
@@ -450,7 +450,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
 		params := generateMTOShipmentParams(*newShipment)
 
-		if err := txnAppCfg.DB().RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
+		if err := txnAppCtx.DB().RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
 		// #TODO: Is there any reason we can't remove updateMTOShipmentQuery and use tx.Update?

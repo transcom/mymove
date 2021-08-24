@@ -368,7 +368,7 @@ func (p *Builder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTa
 	var err error
 
 	if eTag != nil {
-		err = appCtx.NewTransaction(func(txnAppCfg appcontext.AppContext) error {
+		err = appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			t = t.Elem()
 			v := reflect.ValueOf(model).Elem()
 			var id uuid.UUID
@@ -390,7 +390,7 @@ func (p *Builder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTa
 
 			sqlString := fmt.Sprintf("SELECT updated_at from %s WHERE id = $1 FOR UPDATE", pq.QuoteIdentifier(tableName))
 			var updatedAt time.Time
-			errExec := txnAppCfg.DB().RawQuery(sqlString, id.String()).First(&updatedAt)
+			errExec := txnAppCtx.DB().RawQuery(sqlString, id.String()).First(&updatedAt)
 			if errExec != nil {
 				return errExec
 			}
@@ -401,7 +401,7 @@ func (p *Builder) UpdateOne(appCtx appcontext.AppContext, model interface{}, eTa
 				return StaleIdentifierError{StaleIdentifier: *eTag}
 			}
 
-			verrs, err = txnAppCfg.DB().ValidateAndUpdate(model)
+			verrs, err = txnAppCtx.DB().ValidateAndUpdate(model)
 
 			return nil
 		})
