@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	services "github.com/transcom/mymove/pkg/services"
 )
 
@@ -12,13 +14,13 @@ type Fetcher struct {
 	mock.Mock
 }
 
-// FetchRecord provides a mock function with given fields: model, filters
-func (_m *Fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) error {
-	ret := _m.Called(model, filters)
+// FetchRecord provides a mock function with given fields: appCtx, model, filters
+func (_m *Fetcher) FetchRecord(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+	ret := _m.Called(appCtx, model, filters)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(interface{}, []services.QueryFilter) error); ok {
-		r0 = rf(model, filters)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter) error); ok {
+		r0 = rf(appCtx, model, filters)
 	} else {
 		r0 = ret.Error(0)
 	}

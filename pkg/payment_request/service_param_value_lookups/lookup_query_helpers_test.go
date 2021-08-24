@@ -22,7 +22,7 @@ func (suite *ServiceParamValueLookupsSuite) TestLookupQueryHelpers() {
 			Zip3:                "350",
 		},
 	})
-	dsa, err := fetchDomesticServiceArea(suite.DB(), zip3.Contract.Code, zip3.Zip3)
+	dsa, err := fetchDomesticServiceArea(suite.TestAppContext(), zip3.Contract.Code, zip3.Zip3)
 	suite.FatalNoError(err)
 	suite.Equal(strfmt.UUID(domesticServiceArea.ID.String()), strfmt.UUID(dsa.ID.String()))
 

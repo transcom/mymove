@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := query.NewQueryBuilder()
 	fetcher := NewWebhookSubscriptionFetcher(builder)
 
 	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
@@ -21,7 +21,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 	suite.T().Run("Get a webhook subscription successfully", func(t *testing.T) {
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", webhookSubscription.ID.String())}
 
-		webhookSubscription, err := fetcher.FetchWebhookSubscription(filters)
+		webhookSubscription, err := fetcher.FetchWebhookSubscription(suite.TestAppContext(), filters)
 
 		suite.NoError(err)
 		suite.Equal(webhookSubscriptionID, webhookSubscription.ID)
@@ -33,7 +33,7 @@ func (suite *WebhookSubscriptionServiceSuite) TestWebhookSubscriptionFetcher() {
 
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", fakeID.String())}
 
-		fakeWebhookSubscription, err := fetcher.FetchWebhookSubscription(filters)
+		fakeWebhookSubscription, err := fetcher.FetchWebhookSubscription(suite.TestAppContext(), filters)
 
 		suite.Error(err)
 		suite.Equal(models.WebhookSubscription{}, fakeWebhookSubscription)

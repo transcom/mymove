@@ -226,13 +226,13 @@ func (suite *ModelSuite) TestFetchUserIdentityDeletedRoles() {
 		Test that user identity is properly fetched after deleting roles
 	*/
 	// then update user roles to soft delete
-	userRoles := userroles.NewUsersRolesCreator(suite.DB())
+	userRoles := userroles.NewUsersRolesCreator()
 	// we'll be soft deleting the services counselor role
 	updateToRoles := []roles.RoleType{
 		roles.RoleTypeTOO,
 		roles.RoleTypeTIO,
 	}
-	_, err = userRoles.UpdateUserRoles(*multiRoleUser.UserID, updateToRoles)
+	_, err = userRoles.UpdateUserRoles(suite.TestAppContext(), *multiRoleUser.UserID, updateToRoles)
 	suite.NoError(err)
 
 	// re-fetch user identity and check roles

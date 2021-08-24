@@ -22,13 +22,13 @@ const (
 var ddshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer() {
-	suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
-
-	paymentServiceItem := suite.setupDomesticDestinationShuttlingServiceItem()
-	pricer := NewDomesticDestinationShuttlingPricer(suite.DB())
+	pricer := NewDomesticDestinationShuttlingPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		priceCents, displayParams, err := pricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+
+		paymentServiceItem := suite.setupDomesticDestinationShuttlingServiceItem()
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(ddshutTestPriceCents, priceCents)
 
@@ -41,32 +41,38 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer()
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		priceCents, _, err := pricer.Price(testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+
+		priceCents, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 		suite.NoError(err)
 		suite.Equal(ddshutTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		_, _, err := pricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		_, _, err := pricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
 		badWeight := unit.Pound(250)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, badWeight, ddshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, badWeight, ddshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of 500")
 	})
 
 	suite.Run("not finding a rate record", func() {
-		_, _, err := pricer.Price("BOGUS", ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		_, _, err := pricer.Price(suite.TestAppContext(), "BOGUS", ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Could not lookup Domestic Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
 		twoYearsLaterPickupDate := ddshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Could not lookup contract year")
 	})

@@ -7,22 +7,18 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-// Logger is an interface that describes the logging requirements of this package.
-type Logger interface {
-	Debug(msg string, fields ...zap.Field)
-	Info(msg string, fields ...zap.Field)
-	Warn(msg string, fields ...zap.Field)
-	Error(msg string, fields ...zap.Field)
-	Fatal(msg string, fields ...zap.Field)
-	WithOptions(opts ...zap.Option) *zap.Logger
-}
-
 type MoveTaskOrderServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *MoveTaskOrderServiceSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestMoveTaskOrderServiceSuite(t *testing.T) {

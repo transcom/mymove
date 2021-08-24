@@ -9,14 +9,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
 // Recovery recovers from a panic within a handler.
-func Recovery(logger Logger) func(inner http.Handler) http.Handler {
-	logger.Debug("Recovery Middleware used")
+func Recovery(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
+	globalLogger.Debug("Recovery Middleware used")
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger := logging.FromContext(r.Context())
 			defer func() {
 				if obj := recover(); obj != nil {
 

@@ -28,7 +28,7 @@ var (
 
 type testSuite struct {
 	suite.Suite
-	logger  Logger
+	logger  *zap.Logger
 	ok      http.HandlerFunc
 	reflect http.HandlerFunc
 	panic   http.HandlerFunc
@@ -64,11 +64,10 @@ func TestSuite(t *testing.T) {
 			fmt.Fprint(w, traceID)
 		}),
 		log: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if l, ok := logging.FromContext(r.Context()).(Logger); ok {
-				l.Info("Placeholder for info message")
-				l.Error("Placeholder for error message")
-				w.WriteHeader(http.StatusOK)
-			}
+			l := logging.FromContext(r.Context())
+			l.Info("Placeholder for info message")
+			l.Error("Placeholder for error message")
+			w.WriteHeader(http.StatusOK)
 		}),
 	}
 

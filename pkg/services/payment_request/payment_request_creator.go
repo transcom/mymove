@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
@@ -18,22 +19,20 @@ import (
 )
 
 type paymentRequestCreator struct {
-	db      *pop.Connection
 	planner route.Planner
 	pricer  services.ServiceItemPricer
 }
 
 // NewPaymentRequestCreator returns a new payment request creator
-func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner, pricer services.ServiceItemPricer) services.PaymentRequestCreator {
+func NewPaymentRequestCreator(planner route.Planner, pricer services.ServiceItemPricer) services.PaymentRequestCreator {
 	return &paymentRequestCreator{
-		db:      db,
 		planner: planner,
 		pricer:  pricer,
 	}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
-	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
+func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContext, paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var err error
 		now := time.Now()
 
@@ -42,7 +41,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
 
 		// Create the payment request
-		paymentRequestArg, err = p.createPaymentRequestSaveToDB(tx, paymentRequestArg, now)
+		paymentRequestArg, err = p.createPaymentRequestSaveToDB(txnAppCtx.DB(), paymentRequestArg, now)
 
 		if err != nil {
 			var badDataError *services.BadDataError
@@ -72,11 +71,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		}
 
 		// Service Item Param Cache
-		serviceParamCache := serviceparamlookups.ServiceParamsCache{}
-		serviceParamCache.Initialize(tx)
-
-		// Run the pricer within this transactional context
-		txPricer := p.pricer.UsingConnection(tx)
+		serviceParamCache := serviceparamlookups.NewServiceParamsCache()
 
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
@@ -90,7 +85,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
-			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(tx, paymentServiceItem, paymentRequestArg, now)
+			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(txnAppCtx.DB(), paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
 					return err
@@ -110,7 +105,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param models.PaymentServiceItemParam
 				var key, value *string
-				param, key, value, err = p.createPaymentServiceItemParam(tx, paymentServiceItemParam, paymentServiceItem)
+				param, key, value, err = p.createPaymentServiceItemParam(txnAppCtx.DB(), paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*services.BadDataError); ok {
 						return err
@@ -133,16 +128,16 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			//
 
 			// Retrieve all of the params needed to price this service item
-			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
+			paymentHelper := paymentrequesthelper.RequestPaymentHelper{}
 
-			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
+			reServiceParams, err := paymentHelper.FetchServiceParamList(txnAppCtx, paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(txnAppCtx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}
@@ -150,7 +145,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
 					var param *models.PaymentServiceItemParam
-					param, err = p.createServiceItemParamFromLookup(tx, paramLookup, reServiceParam, paymentServiceItem)
+					param, err = p.createServiceItemParamFromLookup(txnAppCtx, paramLookup, reServiceParam, paymentServiceItem)
 					if err != nil {
 						errMessage := fmt.Sprintf("Failed to create service item param for param key <%s> %s", reServiceParam.ServiceItemParamKey.Key, errMessageString)
 						return fmt.Errorf("%s err: %w", errMessage, err)
@@ -181,7 +176,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			// Price the payment service item
 			var psItem models.PaymentServiceItem
 			var displayParams models.PaymentServiceItemParams
-			psItem, displayParams, err = p.pricePaymentServiceItem(tx, txPricer, paymentServiceItem)
+			psItem, displayParams, err = p.pricePaymentServiceItem(txnAppCtx, paymentServiceItem)
 			if err != nil {
 				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
 					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
@@ -337,8 +332,8 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	return paymentServiceItem, mtoServiceItem, nil
 }
 
-func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pricer services.ServiceItemPricer, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItem, models.PaymentServiceItemParams, error) {
-	price, displayParams, err := pricer.PriceServiceItem(paymentServiceItem)
+func (p *paymentRequestCreator) pricePaymentServiceItem(appCtx appcontext.AppContext, paymentServiceItem models.PaymentServiceItem) (models.PaymentServiceItem, models.PaymentServiceItemParams, error) {
+	price, displayParams, err := p.pricer.PriceServiceItem(appCtx, paymentServiceItem)
 	if err != nil {
 		// If a pricer isn't implemented yet, just skip saving any pricing for now.
 		// TODO: Once all pricers are implemented, this should be removed.
@@ -351,7 +346,7 @@ func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pric
 
 	paymentServiceItem.PriceCents = &price
 
-	verrs, err := tx.ValidateAndUpdate(&paymentServiceItem)
+	verrs, err := appCtx.DB().ValidateAndUpdate(&paymentServiceItem)
 	if verrs.HasAny() {
 		return models.PaymentServiceItem{}, displayParams, services.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
 	}
@@ -419,7 +414,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 	return models.PaymentServiceItemParam{}, nil, nil, nil
 }
 
-func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connection, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
+func (p *paymentRequestCreator) createServiceItemParamFromLookup(appCtx appcontext.AppContext, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// Pricing/pricer functions will create the params originating from pricers. Nothing to do here.
 	if serviceParam.ServiceItemParamKey.Origin == models.ServiceItemParamOriginPricer {
 		return &models.PaymentServiceItemParam{}, nil
@@ -427,7 +422,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
-	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
+	value, err := paramLookup.ServiceParamValue(appCtx, serviceParam.ServiceItemParamKey.Key)
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
@@ -450,7 +445,7 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 	}
 
 	var verrs *validate.Errors
-	verrs, err = tx.ValidateAndCreate(&paymentServiceItemParam)
+	verrs, err = appCtx.DB().ValidateAndCreate(&paymentServiceItemParam)
 	if verrs.HasAny() {
 		msg := fmt.Sprintf("validation error creating payment service item param: for payment service item ID <%s> and service item key <%s>", paymentServiceItem.ID.String(), serviceParam.ServiceItemParamKey.Key)
 		return nil, services.NewInvalidCreateInputError(verrs, msg)

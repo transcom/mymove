@@ -83,7 +83,7 @@ func DeleteCookie(w http.ResponseWriter, name string) {
 }
 
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
-func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, logger Logger, useSecureCookie bool) {
+func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, useSecureCookie bool) {
 	// Match expiration settings of the _gorilla_csrf cookie (a session cookie); don't set Expires or MaxAge.
 	cookie := http.Cookie{
 		Name:     MaskedGorillaCSRFToken,
@@ -104,13 +104,13 @@ func DeleteCSRFCookies(w http.ResponseWriter) {
 }
 
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
-func MaskedCSRFMiddleware(logger Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
+func MaskedCSRFMiddleware(globalLogger *zap.Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			// Write a masked CSRF cookie (creates a new one with each request).  Per the gorilla/csrf docs:
 			// "This library generates unique-per-request (masked) tokens as a mitigation against the BREACH attack."
 			// https://github.com/gorilla/csrf#design-notes
-			WriteMaskedCSRFCookie(w, csrf.Token(r), logger, useSecureCookie)
+			WriteMaskedCSRFCookie(w, csrf.Token(r), useSecureCookie)
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
@@ -149,8 +149,8 @@ func sessionManager(session Session, sessionManagers [3]*scs.SessionManager) *sc
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(serverLogger Logger, appnames ApplicationServername, sessionManagers [3]*scs.SessionManager) func(next http.Handler) http.Handler {
-	serverLogger.Info("Creating session",
+func SessionCookieMiddleware(globalLogger *zap.Logger, appnames ApplicationServername, sessionManagers [3]*scs.SessionManager) func(next http.Handler) http.Handler {
+	globalLogger.Info("Creating session",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
 		zap.String("adminServername", appnames.AdminServername))
@@ -158,13 +158,7 @@ func SessionCookieMiddleware(serverLogger Logger, appnames ApplicationServername
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			ctx := r.Context()
-
-			var logger Logger
-			if requestLogger, ok := logging.FromContext(ctx).(Logger); ok {
-				logger = requestLogger
-			} else {
-				logger = serverLogger
-			}
+			logger := logging.FromContext(ctx)
 
 			// Set up the new session object
 			session := Session{}

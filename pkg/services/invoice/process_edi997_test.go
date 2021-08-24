@@ -9,6 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -18,6 +19,11 @@ import (
 type ProcessEDI997Suite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *ProcessEDI997Suite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *ProcessEDI997Suite) SetupTest() {
@@ -38,7 +44,7 @@ func TestProcessEDI997Suite(t *testing.T) {
 }
 
 func (suite *ProcessEDI997Suite) TestParsingEDI997() {
-	edi997Processor := NewEDI997Processor(suite.DB(), suite.logger)
+	edi997Processor := NewEDI997Processor()
 	suite.T().Run("successfully processes a valid EDI997", func(t *testing.T) {
 		sample997EDIString := `
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000999*0*T*|
@@ -66,7 +72,7 @@ IEA*1*000000022
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 	})
 
@@ -82,7 +88,7 @@ IEA*1*000000022
 		GE*1*1
 		IEA*1*000000995
 `
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Contains(err.Error(), "unable to parse EDI997")
 	})
 
@@ -113,7 +119,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -157,7 +163,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -201,7 +207,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.NoError(err)
 
 		var updatedPR models.PaymentRequest
@@ -237,7 +243,7 @@ IEA*1*000000022
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err)
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
@@ -252,7 +258,7 @@ GS*SI*8004171844*MILMOVE*20210217*152945*220001*X*004010
 GE*1*220001
 IEA*1*000000022
 `
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Contains(err.Error(), "Validation error(s) detected with the EDI997. EDI Errors could not be saved")
 	})
 
@@ -270,7 +276,7 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
@@ -289,14 +295,14 @@ SE*6*0001
 GE*1*220001
 IEA*1*000000022
 	`
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		suite.Contains(err.Error(), "unable to find PaymentRequest with GCN")
 	})
 }
 
 func (suite *ProcessEDI997Suite) TestValidatingEDI997() {
-	edi997Processor := NewEDI997Processor(suite.DB(), suite.logger)
+	edi997Processor := NewEDI997Processor()
 
 	suite.T().Run("fails when there are validation errors on EDI997 fields", func(t *testing.T) {
 		sample997EDIString := `
@@ -346,7 +352,7 @@ IEA*1*000000995
 				EDIType:                  models.EDIType858,
 			},
 		})
-		err := edi997Processor.ProcessFile("", sample997EDIString)
+		err := edi997Processor.ProcessFile(suite.TestAppContext(), "", sample997EDIString)
 		suite.Error(err, "fail to process 997")
 		errString := err.Error()
 		actualErrors := strings.Split(errString, "\n")

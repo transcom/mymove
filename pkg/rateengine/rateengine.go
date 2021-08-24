@@ -18,7 +18,7 @@ const MaxSITDays = 90
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
 	db     *pop.Connection
-	logger Logger
+	logger *zap.Logger
 	move   models.Move
 }
 
@@ -341,6 +341,6 @@ func GetNonWinningCostMove(costDetails CostDetails) CostComputation {
 }
 
 // NewRateEngine creates a new RateEngine
-func NewRateEngine(db *pop.Connection, logger Logger, move models.Move) *RateEngine {
+func NewRateEngine(db *pop.Connection, logger *zap.Logger, move models.Move) *RateEngine {
 	return &RateEngine{db: db, logger: logger, move: move}
 }

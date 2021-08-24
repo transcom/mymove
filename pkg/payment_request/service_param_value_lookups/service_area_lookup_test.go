@@ -66,19 +66,19 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	})
 
 	suite.T().Run("origin golden path", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(originKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), originKey)
 		suite.FatalNoError(err)
 		suite.Equal(originDomesticServiceArea.ServiceArea, valueStr)
 	})
 
 	suite.T().Run("destination golden path", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(destKey)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), destKey)
 		suite.FatalNoError(err)
 		suite.Equal(destDomesticServiceArea.ServiceArea, valueStr)
 	})

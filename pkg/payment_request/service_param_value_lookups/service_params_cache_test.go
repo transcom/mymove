@@ -2,7 +2,6 @@ package serviceparamvaluelookups
 
 import (
 	"strconv"
-	"testing"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,23 +9,36 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
-	// Create some records we'll need to link to
+type paramsCacheSubtestData struct {
+	paymentRequest       models.PaymentRequest
+	move                 models.Move
+	mtoShipment1         models.MTOShipment
+	mtoShipment2         models.MTOShipment
+	mtoServiceItem1      models.MTOServiceItem
+	mtoServiceItem3      models.MTOServiceItem
+	mtoServiceItem4      models.MTOServiceItem
+	serviceItemParamKey1 models.ServiceItemParamKey
+	serviceItemParamKey2 models.ServiceItemParamKey
+	serviceItemParamKey3 models.ServiceItemParamKey
+	estimatedWeight      unit.Pound
+}
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *paramsCacheSubtestData) {
+	subtestData = &paramsCacheSubtestData{}
+	subtestData.move = testdatagen.MakeDefaultMove(suite.DB())
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+	subtestData.paymentRequest = testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
 			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: move.ID,
+				MoveTaskOrderID: subtestData.move.ID,
 			},
 		})
 
-	estimatedWeight := unit.Pound(2048)
-	mtoShipment1 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move})
-	mtoShipment1.PrimeEstimatedWeight = &estimatedWeight
-	suite.MustSave(&mtoShipment1)
+	subtestData.estimatedWeight = unit.Pound(2048)
+	subtestData.mtoShipment1 = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: subtestData.move})
+	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
+	suite.MustSave(&subtestData.mtoShipment1)
 
 	reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -47,38 +59,38 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	})
 
 	// DLH
-	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        move,
+	subtestData.mtoServiceItem1 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move:        subtestData.move,
 		ReService:   reService1,
-		MTOShipment: mtoShipment1,
+		MTOShipment: subtestData.mtoShipment1,
 	})
 
 	// DOP
 	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        move,
+		Move:        subtestData.move,
 		ReService:   reService2,
-		MTOShipment: mtoShipment1,
+		MTOShipment: subtestData.mtoShipment1,
 	})
 
-	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move})
-	mtoShipment2.PrimeEstimatedWeight = &estimatedWeight
-	suite.MustSave(&mtoShipment2)
+	subtestData.mtoShipment2 = testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: subtestData.move})
+	subtestData.mtoShipment2.PrimeEstimatedWeight = &subtestData.estimatedWeight
+	suite.MustSave(&subtestData.mtoShipment2)
 
 	// DLH
-	mtoServiceItem3 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:        move,
+	subtestData.mtoServiceItem3 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move:        subtestData.move,
 		ReService:   reService1,
-		MTOShipment: mtoShipment2,
+		MTOShipment: subtestData.mtoShipment2,
 	})
 
 	// MS
-	mtoServiceItem4 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		Move:      move,
+	subtestData.mtoServiceItem4 = testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move:      subtestData.move,
 		ReService: reService3,
 	})
 
-	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+	subtestData.serviceItemParamKey1 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameWeightEstimated,
 			Description: "estimated weight",
@@ -86,7 +98,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
-	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+	subtestData.serviceItemParamKey2 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameRequestedPickupDate,
 			Description: "requested pickup date",
@@ -98,18 +110,18 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// DLH
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey1.ID,
-			ServiceItemParamKey:   serviceItemParamKey1,
+			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKey1,
 		},
 	})
 
 	// DLH
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem1.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey2.ID,
-			ServiceItemParamKey:   serviceItemParamKey2,
+			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKey2.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKey2,
 		},
 	})
 
@@ -117,12 +129,12 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
 			ServiceID:             mtoServiceItem2.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey1.ID,
-			ServiceItemParamKey:   serviceItemParamKey1,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKey1,
 		},
 	})
 
-	serviceItemParamKey3 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+	subtestData.serviceItemParamKey3 = testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key:         models.ServiceItemParamNameMTOAvailableToPrimeAt,
 			Description: "prime mto made available date",
@@ -133,107 +145,128 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 
 	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
 		ServiceParam: models.ServiceParam{
-			ServiceID:             mtoServiceItem4.ReServiceID,
-			ServiceItemParamKeyID: serviceItemParamKey3.ID,
-			ServiceItemParamKey:   serviceItemParamKey3,
+			ServiceID:             subtestData.mtoServiceItem4.ReServiceID,
+			ServiceItemParamKeyID: subtestData.serviceItemParamKey3.ID,
+			ServiceItemParamKey:   subtestData.serviceItemParamKey3,
 		},
 	})
 
-	paramCache := ServiceParamsCache{}
-	paramCache.Initialize(suite.DB())
+	return subtestData
+}
 
-	paramLookupService1, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem1.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
-	suite.NoError(err)
+func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
+	// Create some records we'll need to link to
+
+	paramCache := NewServiceParamsCache()
 
 	// Estimated Weight
-	suite.T().Run("Shipment 1 "+serviceItemParamKey1.Key.String(), func(t *testing.T) {
+	suite.Run("Shipment 1 estimated weight", func() {
+		subtestData := suite.makeSubtestData()
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem1.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
 		var estimatedWeightStr string
-		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey1.Key)
+		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(estimatedWeight.Int())
+		expected := strconv.Itoa(subtestData.estimatedWeight.Int())
 		suite.Equal(expected, estimatedWeightStr)
 	})
 
 	// Requested Pickup Date
-	suite.T().Run("Shipment 1 "+serviceItemParamKey2.Key.String(), func(t *testing.T) {
-		expectedRequestedPickupDate := mtoShipment1.RequestedPickupDate.String()[:10]
+	suite.Run("Shipment 1 requested pickup date", func() {
+		subtestData := suite.makeSubtestData()
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem1.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+		expectedRequestedPickupDate := subtestData.mtoShipment1.RequestedPickupDate.String()[:10]
 		var requestedPickupDateStr string
-		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey2.Key)
+		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey2.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 	})
 
 	// Estimated Weight changed on shipment1 but pulled from cache
-	suite.T().Run("Shipment 1 "+serviceItemParamKey1.Key.String(), func(t *testing.T) {
-		expectedWeight := strconv.Itoa(estimatedWeight.Int())
+	suite.Run("Shipment 1 estimated weight cache", func() {
+		subtestData := suite.makeSubtestData()
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem1.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+		expectedWeight := strconv.Itoa(subtestData.estimatedWeight.Int())
 		changeExpectedEstimatedWeight := unit.Pound(3048)
-		mtoShipment1.PrimeEstimatedWeight = &changeExpectedEstimatedWeight
-		suite.MustSave(&mtoShipment1)
+		subtestData.mtoShipment1.PrimeEstimatedWeight = &changeExpectedEstimatedWeight
+		suite.MustSave(&subtestData.mtoShipment1)
 		var estimatedWeightStr string
-		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey1.Key)
+		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 
 		// EstimatedWeight hasn't changed from the cache
 		suite.Equal(expectedWeight, estimatedWeightStr)
 		// mtoShipment1 was changed to the new estimated weight
-		suite.Equal(changeExpectedEstimatedWeight, *mtoShipment1.PrimeEstimatedWeight)
+		suite.Equal(changeExpectedEstimatedWeight, *subtestData.mtoShipment1.PrimeEstimatedWeight)
 	})
 
 	// Requested Pickup Date changed on shipment1 but pulled from cache
-	suite.T().Run("Shipment 1 "+serviceItemParamKey2.Key.String(), func(t *testing.T) {
-		expectedRequestedPickupDate := mtoShipment1.RequestedPickupDate.String()[:10]
+	suite.Run("Shipment 1 requested pickup date changed", func() {
+		subtestData := suite.makeSubtestData()
+		paramLookupService1, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem1.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+		expectedRequestedPickupDate := subtestData.mtoShipment1.RequestedPickupDate.String()[:10]
 		changeRequestedPickupDate := time.Date(testdatagen.GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
-		mtoShipment1.RequestedPickupDate = &changeRequestedPickupDate
-		suite.MustSave(&mtoShipment1)
+		subtestData.mtoShipment1.RequestedPickupDate = &changeRequestedPickupDate
+		suite.MustSave(&subtestData.mtoShipment1)
 
 		var requestedPickupDateStr string
-		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey2.Key)
+		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey2.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 		// mtoShipment1 was changed to the new date
-		suite.Equal(changeRequestedPickupDate.String()[:10], mtoShipment1.RequestedPickupDate.String()[:10])
+		suite.Equal(changeRequestedPickupDate.String()[:10], subtestData.mtoShipment1.RequestedPickupDate.String()[:10])
 	})
-
-	var paramLookupService2 *ServiceItemParamKeyData
-	paramLookupService2, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem3.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
-	suite.NoError(err)
-
 	// DLH - for shipment 2
 	// Estimated Weight
-	suite.T().Run("Shipment 2 "+serviceItemParamKey1.Key.String(), func(t *testing.T) {
+	suite.Run("Shipment 2 DLH estimated weight", func() {
+		subtestData := suite.makeSubtestData()
+
+		var paramLookupService2 *ServiceItemParamKeyData
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem3.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
 		var estimatedWeightStr string
-		estimatedWeightStr, err = paramLookupService2.ServiceParamValue(serviceItemParamKey1.Key)
+		estimatedWeightStr, err = paramLookupService2.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(estimatedWeight.Int())
+		expected := strconv.Itoa(subtestData.estimatedWeight.Int())
 		suite.Equal(expected, estimatedWeightStr)
 	})
 
 	// Requested Pickup Date
-	suite.T().Run("Shipment 2 "+serviceItemParamKey2.Key.String(), func(t *testing.T) {
-		expectedRequestedPickupDate := mtoShipment2.RequestedPickupDate.String()[:10]
+	suite.Run("Shipment 2 Requested Pickup Date", func() {
+		subtestData := suite.makeSubtestData()
+		paramLookupService2, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem3.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+		expectedRequestedPickupDate := subtestData.mtoShipment2.RequestedPickupDate.String()[:10]
 		var requestedPickupDateStr string
-		requestedPickupDateStr, err = paramLookupService2.ServiceParamValue(serviceItemParamKey2.Key)
+		requestedPickupDateStr, err = paramLookupService2.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey2.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 	})
 
-	mtoServiceItem4.MTOShipmentID = nil
-	mtoServiceItem4.MTOShipment = models.MTOShipment{}
-	suite.MustSave(&mtoServiceItem4)
-
-	var paramLookupService3 *ServiceItemParamKeyData
-	paramLookupService3, err = ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem4.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
-	suite.NoError(err)
-
 	// MS - has no shipment
 	// Prime MTO Made Available Date
-	suite.T().Run("Task Order Service "+serviceItemParamKey3.Key.String(), func(t *testing.T) {
+	suite.Run("Task Order Service Prime MTO available", func() {
+		subtestData := suite.makeSubtestData()
+
+		subtestData.mtoServiceItem4.MTOShipmentID = nil
+		subtestData.mtoServiceItem4.MTOShipment = models.MTOShipment{}
+		suite.MustSave(&subtestData.mtoServiceItem4)
+
+		var paramLookupService3 *ServiceItemParamKeyData
+		paramLookupService3, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, subtestData.mtoServiceItem4.ID, subtestData.paymentRequest.ID, subtestData.paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.NoError(err)
+
 		availToPrimeAt := time.Date(testdatagen.GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
-		move.AvailableToPrimeAt = &availToPrimeAt
-		suite.MustSave(&move)
-		expectedAvailToPrimeDate := move.AvailableToPrimeAt.String()[:10]
+		subtestData.move.AvailableToPrimeAt = &availToPrimeAt
+		suite.MustSave(&subtestData.move)
+		expectedAvailToPrimeDate := subtestData.move.AvailableToPrimeAt.String()[:10]
 		var availToPrimeDateStr string
-		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(serviceItemParamKey3.Key)
+		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(suite.TestAppContext(), subtestData.serviceItemParamKey3.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedAvailToPrimeDate, availToPrimeDateStr[:10])
 	})
