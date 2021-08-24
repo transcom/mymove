@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -32,7 +31,7 @@ type CreateMTOShipmentHandler struct {
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
 		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
@@ -85,7 +84,7 @@ type UpdateMTOShipmentHandler struct {
 // Handle updates the mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if session == nil {
 		return mtoshipmentops.NewUpdateMTOShipmentUnauthorized()
@@ -156,7 +155,7 @@ type ListMTOShipmentsHandler struct {
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
 		return mtoshipmentops.NewListMTOShipmentsUnauthorized()

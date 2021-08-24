@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -44,7 +43,7 @@ type IndexAdminUsersHandler struct {
 // Handle retrieves a list of admin users
 func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
@@ -83,7 +82,7 @@ type GetAdminUserHandler struct {
 // Handle retrieves a new admin user
 func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	adminUserID := params.AdminUserID
 
@@ -110,7 +109,7 @@ type CreateAdminUserHandler struct {
 func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	organizationID, err := uuid.FromString(payload.OrganizationID.String())
 	if err != nil {
@@ -157,7 +156,7 @@ type UpdateAdminUserHandler struct {
 func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams) middleware.Responder {
 	payload := params.AdminUser
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	adminUserID, err := uuid.FromString(params.AdminUserID.String())
 	if err != nil {

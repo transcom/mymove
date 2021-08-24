@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -50,7 +49,7 @@ var accessCodeFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of access codes
 func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryFilters := generateQueryFilters(logger, params.Filter, accessCodeFilterConverters)

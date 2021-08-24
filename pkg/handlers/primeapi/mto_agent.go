@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -25,7 +24,7 @@ type CreateMTOAgentHandler struct {
 // Handle created an MTO Agent for a shipment
 func (h CreateMTOAgentHandler) Handle(params mtoshipmentops.CreateMTOAgentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the mtoShipmentID and payload
 	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
@@ -84,7 +83,7 @@ type UpdateMTOAgentHandler struct {
 // Handle updates an MTO Agent for a shipment
 func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Get the params and payload
 	payload := params.Body

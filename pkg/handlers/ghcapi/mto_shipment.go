@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/notifications"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -37,7 +36,7 @@ type ListMTOShipmentsHandler struct {
 // Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	// return any parsing error
@@ -106,7 +105,7 @@ type CreateMTOShipmentHandler struct {
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.Body
 
 	if payload == nil {
@@ -153,7 +152,7 @@ type UpdateShipmentHandler struct {
 // Handle updates shipments
 func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	payload := params.Body
 	if payload == nil {
@@ -276,7 +275,7 @@ type DeleteShipmentHandler struct {
 // Handle soft deletes a shipment
 func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		logger.Error("user is not authenticated with service counselor office role")
@@ -339,7 +338,7 @@ type ApproveShipmentHandler struct {
 // Handle approves a shipment
 func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can approve shipments")
@@ -403,7 +402,7 @@ type RequestShipmentDiversionHandler struct {
 // Handle Requests a shipment diversion
 func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipmentDiversionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can Request shipment diversions")
@@ -467,7 +466,7 @@ type ApproveShipmentDiversionHandler struct {
 // Handle approves a shipment diversion
 func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipmentDiversionParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can approve shipment diversions")
@@ -531,7 +530,7 @@ type RejectShipmentHandler struct {
 // Handle rejects a shipment
 func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can reject shipments")
@@ -596,7 +595,7 @@ type RequestShipmentCancellationHandler struct {
 // Handle Requests a shipment diversion
 func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShipmentCancellationParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can Request shipment diversions")
@@ -660,7 +659,7 @@ type RequestShipmentReweighHandler struct {
 // Handle Requests a shipment reweigh
 func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipmentReweighParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("Only TOO role can Request a shipment reweigh")

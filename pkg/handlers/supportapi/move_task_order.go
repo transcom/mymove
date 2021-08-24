@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/support"
 
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
@@ -27,7 +26,7 @@ type ListMTOsHandler struct {
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden: true,
@@ -58,7 +57,7 @@ type MakeMoveTaskOrderAvailableHandlerFunc struct {
 // Handle updates the prime availability of a MoveTaskOrder
 func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.MakeMoveTaskOrderAvailableParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
@@ -116,7 +115,7 @@ type GetMoveTaskOrderHandlerFunc struct {
 // Handle fetches an MTO from the database using its UUID
 func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	searchParams := services.MoveTaskOrderFetcherParams{
 		IncludeHidden:   true,
@@ -146,7 +145,7 @@ type CreateMoveTaskOrderHandler struct {
 // Handle updates to move task order post-counseling
 func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	moveTaskOrder, err := h.moveTaskOrderCreator.InternalCreateMoveTaskOrder(appCtx, *params.Body, logger)
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/go-openapi/swag"
@@ -34,7 +33,7 @@ type UpdatePaymentServiceItemStatusHandler struct {
 // Handle handles the handling for UpdatePaymentServiceItemStatusHandler
 func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemOp.UpdatePaymentServiceItemStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	paymentServiceItemID, err := uuid.FromString(params.PaymentServiceItemID)
 	// Create a zero paymentServiceRequest for us to use in FetchRecord
 	var paymentServiceItem models.PaymentServiceItem

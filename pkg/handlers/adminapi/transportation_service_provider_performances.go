@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -55,7 +54,7 @@ var tsppFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of transportation service provider performance
 func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := generateQueryFilters(logger, params.Filter, tsppFilterConverters)
 
@@ -92,7 +91,7 @@ type GetTSPPHandler struct {
 // Handle returns the payload for TSPP
 func (h GetTSPPHandler) Handle(params tsppop.GetTSPPParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	tsppID := params.TsppID
 

@@ -5,7 +5,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -39,7 +38,7 @@ type CreateUploadHandler struct {
 // Handle creates uploads
 func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	var contractorID uuid.UUID
 	contractor, err := models.FetchGHCPrimeTestContractor(h.DB())

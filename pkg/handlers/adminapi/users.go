@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -42,7 +41,7 @@ type GetUserHandler struct {
 // Handle retrieves a specific user
 func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	userID := uuid.FromStringOrNil(params.UserID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", userID)}
@@ -74,7 +73,7 @@ var usersFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle lists all users
 func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := generateQueryFilters(logger, params.Filter, usersFilterConverters)
@@ -115,7 +114,7 @@ type UpdateUserHandler struct {
 // Handle updates a user's Active status and/or their sessions
 func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	payload := params.User
 

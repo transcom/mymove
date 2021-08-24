@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	notificationsop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -42,7 +41,7 @@ var notificationsFilterConverters = map[string]func(string) []services.QueryFilt
 // Handle does the index notification
 func (h IndexNotificationsHandler) Handle(params notificationsop.IndexNotificationsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	queryFilters := generateQueryFilters(logger, params.Filter, notificationsFilterConverters)
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryAssociations := []services.QueryAssociation{

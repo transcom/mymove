@@ -33,7 +33,7 @@ type GetOrdersHandler struct {
 // Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	orderID, _ := uuid.FromString(params.OrderID.String())
 	order, err := h.FetchOrder(appCtx, orderID)
 	if err != nil {
@@ -66,7 +66,7 @@ func amendedOrdersRequiresApproval(params orderop.UpdateOrderParams, updatedOrde
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
@@ -129,7 +129,7 @@ type CounselingUpdateOrderHandler struct {
 // Handle ... updates an order as requested by a services counselor
 func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
@@ -174,7 +174,7 @@ type UpdateAllowanceHandler struct {
 // Handle ... updates an order from a request payload
 func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
@@ -218,7 +218,7 @@ type CounselingUpdateAllowanceHandler struct {
 // Handle ... updates an order from a request payload
 func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdateAllowanceParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {

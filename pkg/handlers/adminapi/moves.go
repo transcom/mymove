@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/gofrs/uuid"
@@ -63,7 +62,7 @@ var locatorFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of moves/MTOs
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryFilters := generateQueryFilters(logger, params.Filter, locatorFilterConverters)
@@ -101,7 +100,7 @@ type UpdateMoveHandler struct {
 // Handle updates a given move
 func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {

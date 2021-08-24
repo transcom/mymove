@@ -5,7 +5,6 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -31,7 +30,7 @@ type FilterOption func(*pop.Query)
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("user is not authenticated with TOO office role")
@@ -94,7 +93,7 @@ type GetPaymentRequestsQueueHandler struct {
 func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.Roles.HasRole(roles.RoleTypeTIO) {
 		return queues.NewGetPaymentRequestsQueueForbidden()
@@ -155,7 +154,7 @@ type GetServicesCounselingQueueHandler struct {
 // Handle returns the paginated list of moves for the TOO user
 func (h GetServicesCounselingQueueHandler) Handle(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		logger.Error("user is not authenticated with an office role")

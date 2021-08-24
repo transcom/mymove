@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -28,7 +27,7 @@ type ListMTOAgentsHandler struct {
 //Handle handles the handling for listing MTO Agents.
 func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	mtoShipmentID, err := uuid.FromString(params.ShipmentID.String())
 	// Return parsing sadness

@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
@@ -27,7 +26,7 @@ type UpdateMTOShipmentStatusHandlerFunc struct {
 // Handle updates the status of a MTO Shipment
 func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 	status := models.MTOShipmentStatus(params.Body.Status)
