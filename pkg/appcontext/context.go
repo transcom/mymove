@@ -38,7 +38,8 @@ func (ac *appContext) Logger() *zap.Logger {
 }
 
 func (ac *appContext) NewTransaction(fn func(appCtx AppContext) error) error {
-	// OMFG I fucking hate go and its lack of nested transactions
+	// We need to make sure we don't start a new transaction since pop
+	// doesn't support nested transactions
 	if ac.db.TX != nil {
 		return fn(ac)
 	}
