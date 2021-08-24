@@ -707,7 +707,8 @@ jobs:
             --max-filesize=100M \
             --max-recursion=30 \
             --max-files=50000 \
-            --tempdir=/tmp
+            --tempdir=/tmp \
+            ~/transcom/mymove
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -1667,7 +1668,7 @@ workflows:
       - anti_virus:
           filters:
             branches:
-              only: master
+              only: fix-av-ci
 
       - pre_test:
           requires:
