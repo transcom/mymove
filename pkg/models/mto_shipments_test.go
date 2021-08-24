@@ -14,11 +14,13 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		// mock weights
 		estimatedWeight := unit.Pound(1000)
 		actualWeight := unit.Pound(980)
+		sitDaysAllowance := 90
 		validMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			Status:               models.MTOShipmentStatusApproved,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
+			SITDaysAllowance:     &sitDaysAllowance,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
@@ -50,6 +52,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		actualWeight := unit.Pound(-980)
 		billableWeightCap := unit.Pound(-1)
 		billableWeightJustification := ""
+		sitDaysAllowance := -1
 		invalidMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:             uuid.Must(uuid.NewV4()),
 			Status:                      models.MTOShipmentStatusRejected,
@@ -57,6 +60,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			PrimeActualWeight:           &actualWeight,
 			BillableWeightCap:           &billableWeightCap,
 			BillableWeightJustification: &billableWeightJustification,
+			SITDaysAllowance:            &sitDaysAllowance,
 		}
 		expErrors := map[string][]string{
 			"prime_estimated_weight":        {"-1000 is not greater than -1."},
@@ -64,6 +68,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"rejection_reason":              {"RejectionReason can not be blank."},
 			"billable_weight_cap":           {"-1 is less than zero."},
 			"billable_weight_justification": {"BillableWeightJustification can not be blank."},
+			"sitdays_allowance":             {"-1 is not greater than -1."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
 	})

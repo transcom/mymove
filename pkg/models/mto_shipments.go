@@ -89,6 +89,7 @@ type MTOShipment struct {
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
 	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
 	SecondaryDeliveryAddressID       *uuid.UUID        `db:"secondary_delivery_address_id"`
+	SITDaysAllowance                 *int              `db:"sit_days_allowance"`
 	PrimeEstimatedWeight             *unit.Pound       `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time        `db:"prime_estimated_weight_recorded_date"`
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
@@ -135,6 +136,9 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			rejectionReason = *m.RejectionReason
 		}
 		vs = append(vs, &validators.StringIsPresent{Field: rejectionReason, Name: "RejectionReason"})
+	}
+	if m.SITDaysAllowance != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *m.SITDaysAllowance, Compared: -1, Name: "SITDaysAllowance"})
 	}
 	return validate.Validate(vs...), nil
 }
