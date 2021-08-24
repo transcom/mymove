@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -10,6 +10,7 @@ import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 import handleScroll from 'utils/handleScroll';
 import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
+import BillableWeightCard from 'components/Office/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
@@ -27,6 +28,7 @@ const MovePaymentRequests = ({
   setPendingPaymentRequestCount,
 }) => {
   const { moveCode } = useParams();
+  const history = useHistory();
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
@@ -87,6 +89,10 @@ const MovePaymentRequests = ({
     });
   }
 
+  const handleReviewWeightsClick = () => {
+    history.push('/');
+  };
+
   return (
     <div className={txoStyles.tabContent}>
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
@@ -102,6 +108,25 @@ const MovePaymentRequests = ({
         </LeftNav>
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
+          <BillableWeightCard
+            maxBillableWeight="13,750"
+            totalBillableWeight="12,460"
+            weightRequested="12,460"
+            weightAllowance="8,000"
+            reviewWeights={handleReviewWeightsClick}
+            shipments={[
+              { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
+              {
+                id: '0002',
+                shipmentType: 'HHG',
+                billableWeightCap: '3,200',
+                primeEstimatedWeight: '5,000',
+                reweigh: { id: '1234' },
+              },
+              { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400', primeEstimatedWeight: '5,000' },
+            ]}
+          />
+          <h2>Payment requests</h2>
           <div className={txoStyles.section} id="payment-requests">
             {paymentRequests.length ? (
               paymentRequests.map((paymentRequest) => (

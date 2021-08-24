@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, shape } from 'prop-types';
+import { string, arrayOf, func, shape } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
@@ -14,12 +14,13 @@ export default function BillableWeightCard({
   weightAllowance,
   totalBillableWeight,
   shipments,
+  reviewWeights,
 }) {
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
         <h2>Billable weights</h2>
-        <Button>Review weights</Button>
+        <Button onClick={reviewWeights}>Review weights</Button>
       </div>
       <div className={styles.spaceBetween}>
         <div>
@@ -49,6 +50,7 @@ BillableWeightCard.propTypes = {
   weightRequested: string.isRequired,
   weightAllowance: string.isRequired,
   totalBillableWeight: string.isRequired,
+  reviewWeights: func.isRequired,
   shipments: arrayOf(
     shape({
       id: string.isRequired,
