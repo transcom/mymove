@@ -2605,6 +2605,9 @@ definitions:
       - ContractYearName
       - CubicFeetBilled
       - CubicFeetCrating
+      - DimensionHeight
+      - DimensionLength
+      - DimensionWidth
       - DistanceZip3
       - DistanceZip5
       - DistanceZipSITDest
@@ -2652,8 +2655,10 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - WeightActual
+      - WeightAdjusted
       - WeightBilledActual
       - WeightEstimated
+      - WeightReweigh
       - ZipDestAddress
       - ZipPickupAddress
       - ZipSITDestHHGFinalAddress
