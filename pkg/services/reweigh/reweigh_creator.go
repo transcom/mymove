@@ -23,16 +23,6 @@ func NewReweighsCreator(db *pop.Connection) services.ReweighCreator {
 
 // CreateReweigh creates a reweigh
 func (f *reweighCreator) CreateReweigh(reweigh *models.Reweigh) (*models.Reweigh, error) {
-	mtoShipment := &models.MTOShipment{}
-
-	// NOTE: First I'm finding the ID, then filling it in to the MTOShipment model
-	// IF the ID isn't found I then an `error` object is placed in the `err` variable, finally do a check on err
-	err := f.db.Eager("Reweighs").Find(mtoShipment, reweigh.ShipmentID)
-
-	if err != nil {
-		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
-	}
-
 	verrs, err := f.db.ValidateAndCreate(reweigh)
 
 	if verrs != nil && verrs.HasAny() {
@@ -40,6 +30,9 @@ func (f *reweighCreator) CreateReweigh(reweigh *models.Reweigh) (*models.Reweigh
 	} else if err != nil {
 		// If the error is something else (this is unexpected), we create a QueryError
 		return nil, services.NewQueryError("Reweigh", err, "")
+		//if err == sql.ErrNoRows {
+		//	return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for MTOShipment")
+		//}
 	}
 
 	return reweigh, nil

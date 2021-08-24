@@ -1,8 +1,8 @@
 package reweigh
 
 import (
-	"fmt"
 	"testing"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -18,10 +18,10 @@ func (suite *ReweighSuite) TestReweighCreator() {
 
 	// Create a valid reweigh for the move
 	newReweigh := &models.Reweigh{
-		ShipmentID: mtoShipment.ID,
+		RequestedAt: time.Now(),
+		RequestedBy: models.ReweighRequesterPrime,
+		ShipmentID:  mtoShipment.ID,
 	}
-	fmt.Println("🍄")
-	fmt.Println(mtoShipment)
 
 	suite.T().Run("CreateReweigh - Success", func(t *testing.T) {
 		// Under test:	CreateReweigh
