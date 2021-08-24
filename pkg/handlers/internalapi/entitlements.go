@@ -30,7 +30,7 @@ func payloadForEntitlementModel(e models.WeightAllotment) internalmessages.Weigh
 
 // IndexEntitlementsHandler indexes entitlements
 type IndexEntitlementsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler
@@ -47,7 +47,7 @@ func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsP
 
 // ValidateEntitlementHandler validates a weight estimate based on entitlement for a PPM move
 type ValidateEntitlementHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler

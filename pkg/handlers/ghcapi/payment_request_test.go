@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			paymentrequest.NewPaymentRequestFetcher(),
 		}
 		response := handler.Handle(params)
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			paymentRequestFetcher,
 		}
 		response := handler.Handle(params)
@@ -121,7 +121,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 
 		handler := GetPaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			paymentRequestFetcher,
 		}
 		response := handler.Handle(params)
@@ -158,9 +158,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     move.Locator,
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
-			HandlerContext:            context,
+			HandlerConfig:             context,
 			PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
 		}
 		response := handler.Handle(params)
@@ -194,9 +194,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
-			HandlerContext:            context,
+			HandlerConfig:             context,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
 		}
 		response := handler.Handle(params)
@@ -217,9 +217,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			HTTPRequest: request,
 			Locator:     "ABC123",
 		}
-		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		handler := GetPaymentRequestForMoveHandler{
-			HandlerContext:            context,
+			HandlerConfig:             context,
 			PaymentRequestListFetcher: paymentRequestListFetcher,
 		}
 		response := handler.Handle(params)
@@ -262,7 +262,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -293,7 +293,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -326,7 +326,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			}
 
 			handler := UpdatePaymentRequestStatusHandler{
-				HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+				HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 				PaymentRequestStatusUpdater: statusUpdater,
 				PaymentRequestFetcher:       paymentRequestFetcher,
 			}
@@ -360,7 +360,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -396,7 +396,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -429,7 +429,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -459,7 +459,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -489,7 +489,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
@@ -519,7 +519,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:               handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
 		}

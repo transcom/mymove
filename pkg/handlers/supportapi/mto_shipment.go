@@ -19,7 +19,7 @@ import (
 
 // UpdateMTOShipmentStatusHandlerFunc updates the status of a MTO Shipment
 type UpdateMTOShipmentStatusHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.Fetcher
 	services.MTOShipmentStatusUpdater
 }

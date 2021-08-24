@@ -18,7 +18,7 @@ import (
 
 // FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
 type FetchMTOUpdatesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
 }
 
@@ -49,7 +49,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 // ListMovesHandler lists move task orders with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderFetcher
 }
 
@@ -78,7 +78,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 
 // UpdateMTOPostCounselingInformationHandler updates the move task order with post-counseling information
 type UpdateMTOPostCounselingInformationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.Fetcher
 	services.MoveTaskOrderUpdater
 	mtoAvailabilityChecker services.MoveTaskOrderChecker
@@ -86,7 +86,7 @@ type UpdateMTOPostCounselingInformationHandler struct {
 
 // GetMoveTaskOrderHandlerFunc returns the details for a particular Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 

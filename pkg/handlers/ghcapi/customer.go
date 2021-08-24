@@ -21,7 +21,7 @@ import (
 
 // GetCustomerHandler fetches the information of a specific customer
 type GetCustomerHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.CustomerFetcher
 }
 
@@ -46,7 +46,7 @@ func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) midd
 
 // UpdateCustomerHandler updates a customer via PATCH /customer/{customerId}
 type UpdateCustomerHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	customerUpdater services.CustomerUpdater
 }
 

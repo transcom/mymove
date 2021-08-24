@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 	}
 
 	// And: index entitlements endpoint is hit
-	handler := IndexEntitlementsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := IndexEntitlementsHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -83,7 +83,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 409 status code
@@ -109,7 +109,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpmOrHhg(
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -133,7 +133,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -168,7 +168,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 404 status code
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerManagesNilPPMWeightEsti
 	}
 
 	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ValidateEntitlementHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

@@ -12,7 +12,7 @@ import (
 )
 
 // NewDPSAPIHandler returns a handler for the DPS API
-func NewDPSAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewDPSAPIHandler(context handlers.HandlerConfig) http.Handler {
 	dpsSpec, err := loads.Analyzed(dpsapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)

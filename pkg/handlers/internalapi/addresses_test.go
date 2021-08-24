@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 				AddressID:   *handlers.FmtUUID(ts.ID),
 			}
 
-			handler := ShowAddressHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+			handler := ShowAddressHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())}
 			res := handler.Handle(params)
 
 			response := res.(*addressop.ShowAddressOK)

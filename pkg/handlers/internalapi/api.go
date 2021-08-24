@@ -27,7 +27,7 @@ import (
 )
 
 // NewInternalAPI returns the internal API
-func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
+func NewInternalAPI(ctx handlers.HandlerConfig) *internalops.MymoveAPI {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {

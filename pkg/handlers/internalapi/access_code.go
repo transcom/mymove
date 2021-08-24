@@ -37,13 +37,13 @@ func payloadForAccessCodeModel(accessCode models.AccessCode) *internalmessages.A
 
 // FetchAccessCodeHandler fetches an access code associated with a service member
 type FetchAccessCodeHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	accessCodeFetcher services.AccessCodeFetcher
 }
 
 // Handle fetches the access code for a service member
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
-	accessCodeRequired := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+	accessCodeRequired := h.HandlerConfig.GetFeatureFlag(cli.FeatureFlagAccessCode)
 	if !accessCodeRequired {
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
@@ -71,7 +71,7 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 // ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member
 type ValidateAccessCodeHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	accessCodeValidator services.AccessCodeValidator
 }
 
@@ -103,7 +103,7 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 
 // ClaimAccessCodeHandler updates an access code to mark it as claimed
 type ClaimAccessCodeHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	accessCodeClaimer services.AccessCodeClaimer
 }
 

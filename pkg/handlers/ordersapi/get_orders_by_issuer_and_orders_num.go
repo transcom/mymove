@@ -12,7 +12,7 @@ import (
 
 // GetOrdersByIssuerAndOrdersNumHandler returns Orders for a specific issuer by ordersNum
 type GetOrdersByIssuerAndOrdersNumHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle (GetOrdersByIssuerAndOrdersNumHandler) responds to GET /issuers/{issuer}/orders/{ordersNum}

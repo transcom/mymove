@@ -20,7 +20,7 @@ import (
 
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	officeUserFetcherPop services.OfficeUserFetcherPop
 }
 
@@ -131,7 +131,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
-	requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+	requiresAccessCode := h.HandlerConfig.GetFeatureFlag(cli.FeatureFlagAccessCode)
 
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

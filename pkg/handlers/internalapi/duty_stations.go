@@ -37,7 +37,7 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 
 // SearchDutyStationsHandler returns a list of all issues
 type SearchDutyStationsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle returns a list of stations based on the search query

@@ -33,7 +33,7 @@ import (
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
 type UpdatePaymentRequestStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }
@@ -157,7 +157,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 // ListMTOPaymentRequestsHandler gets all payment requests for a given MTO
 type ListMTOPaymentRequestsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle getting payment requests for a given MTO
@@ -188,7 +188,7 @@ func (h ListMTOPaymentRequestsHandler) Handle(params paymentrequestop.ListMTOPay
 
 // GetPaymentRequestEDIHandler returns the EDI for a given payment request
 type GetPaymentRequestEDIHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestFetcher
 	services.GHCPaymentRequestInvoiceGenerator
 }
@@ -253,7 +253,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 
 // ProcessReviewedPaymentRequestsHandler returns the EDI for a given payment request
 type ProcessReviewedPaymentRequestsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestFetcher
 	services.PaymentRequestReviewedFetcher
 	services.PaymentRequestStatusUpdater

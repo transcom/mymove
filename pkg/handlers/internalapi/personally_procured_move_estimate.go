@@ -18,7 +18,7 @@ import (
 
 // ShowPPMEstimateHandler returns PPM estimate for a weight, move date, origin zip, order id
 type ShowPPMEstimateHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle calculates a PPM reimbursement range.

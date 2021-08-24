@@ -38,7 +38,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 
 // GetDocumentHandler shows a document via GETT /documents/:document_id
 type GetDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle creates a new Document from a request payload

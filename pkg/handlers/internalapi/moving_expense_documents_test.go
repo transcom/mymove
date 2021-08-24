@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
 
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMovingExpenseDocumentHandler{context}
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingN
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMovingExpenseDocumentHandler{context}
@@ -150,7 +150,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNot
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMovingExpenseDocumentHandler{context}
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerStorageExpense(
 		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
 		MoveID:                             strfmt.UUID(move.ID.String()),
 	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMovingExpenseDocumentHandler{context}

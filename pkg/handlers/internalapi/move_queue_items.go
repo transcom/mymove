@@ -47,7 +47,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 
 // ShowQueueHandler returns a list of all MoveQueueItems in the moves queue
 type ShowQueueHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // JSONDate is a time type

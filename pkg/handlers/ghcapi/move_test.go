@@ -44,8 +44,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MoveFetcher:    &mockFetcher,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			MoveFetcher:   &mockFetcher,
 		}
 
 		mockFetcher.On("FetchMove",
@@ -76,8 +76,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MoveFetcher:    &mockFetcher,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			MoveFetcher:   &mockFetcher,
 		}
 
 		response := handler.Handle(moveops.GetMoveParams{HTTPRequest: req, Locator: ""})
@@ -88,8 +88,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MoveFetcher:    &mockFetcher,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			MoveFetcher:   &mockFetcher,
 		}
 
 		mockFetcher.On("FetchMove",
@@ -106,8 +106,8 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		mockFetcher := mocks.MoveFetcher{}
 
 		handler := GetMoveHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			MoveFetcher:    &mockFetcher,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			MoveFetcher:   &mockFetcher,
 		}
 
 		mockFetcher.On("FetchMove",

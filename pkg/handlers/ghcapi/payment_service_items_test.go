@@ -82,9 +82,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			Fetcher:       fetcher,
+			Builder:       *queryBuilder,
 		}
 
 		response := handler.Handle(subtestData.params)
@@ -101,9 +101,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			Fetcher:       fetcher,
+			Builder:       *queryBuilder,
 		}
 		subtestData.params.PaymentServiceItemID = uuid.Nil.String()
 
@@ -120,9 +120,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			Fetcher:       fetcher,
+			Builder:       *queryBuilder,
 		}
 
 		response := handler.Handle(newParam)
@@ -137,9 +137,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			Fetcher:       fetcher,
+			Builder:       *queryBuilder,
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		subtestData.params.PaymentServiceItemID = paymentServiceItem.ID.String()
@@ -166,9 +166,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			Fetcher:       fetcher,
+			Builder:       *queryBuilder,
 		}
 		subtestData.params.IfMatch = etag.GenerateEtag(deniedPaymentServiceItem.UpdatedAt)
 		subtestData.params.PaymentServiceItemID = deniedPaymentServiceItem.ID.String()
@@ -207,9 +207,9 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 
 		handler := UpdatePaymentServiceItemStatusHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			Fetcher:        fetcher,
-			Builder:        *queryBuilder,
+			HandlerConfig: handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
+			Fetcher:       fetcher,
+			Builder:       *queryBuilder,
 		}
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")

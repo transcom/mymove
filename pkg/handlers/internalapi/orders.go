@@ -105,7 +105,7 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 
 // CreateOrdersHandler creates new orders via POST /orders
 type CreateOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... creates new Orders from a request payload
@@ -195,7 +195,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 // ShowOrdersHandler returns orders for a user and order ID
 type ShowOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
@@ -220,7 +220,7 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 
 // UpdateOrdersHandler updates an order via PUT /orders/{orderId}
 type UpdateOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... updates an order from a request payload
@@ -281,14 +281,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 // UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
 type UploadAmendedOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OrderUpdater
 }
 
 // Handle updates an order to attach amended orders from a request payload
 func (h UploadAmendedOrdersHandler) Handle(params ordersop.UploadAmendedOrdersParams) middleware.Responder {
-	ctx := params.HTTPRequest.Context()
-	session, logger := h.SessionAndLoggerFromContext(ctx)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	file, ok := params.File.(*runtime.File)

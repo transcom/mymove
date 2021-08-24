@@ -24,7 +24,7 @@ import (
 
 // IndexMovesHandler returns a list of moves/MTOs via GET /moves
 type IndexMovesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -94,7 +94,7 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 
 // UpdateMoveHandler updates a given move
 type UpdateMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.MoveTaskOrderUpdater
 }
 
@@ -144,7 +144,7 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 
 // GetMoveHandler retrieves the info for a given move
 type GetMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves a given move by move id

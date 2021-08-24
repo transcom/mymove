@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:        handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       query.NewQueryFilter,
 			AdminUserListFetcher: adminuser.NewAdminUserListFetcher(queryBuilder),
 			NewPagination:        pagination.NewPagination,
@@ -83,7 +83,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 		).Return(1, nil).Once()
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:        handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       newQueryFilter,
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
-			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			HandlerConfig:        handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       newQueryFilter,
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
@@ -155,7 +155,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 
 		queryBuilder := query.NewQueryBuilder()
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminuser.NewAdminUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
@@ -182,7 +182,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.Anything,
 		).Return(adminUser, nil).Once()
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminUserFetcher,
 			newQueryFilter,
 		}
@@ -206,7 +206,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 			mock.Anything,
 		).Return(models.AdminUser{}, expectedError).Once()
 		handler := GetAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminUserFetcher,
 			newQueryFilter,
 		}
@@ -256,7 +256,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
 		handler := CreateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -274,7 +274,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 			mock.Anything).Return(&adminUser, nil, nil).Once()
 
 		handler := CreateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminUserCreator,
 			newQueryFilter,
 		}
@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		).Return(&adminUser, nil, nil).Once()
 
 		handler := UpdateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminUserUpdater,
 			newQueryFilter,
 		}
@@ -332,7 +332,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		).Return(&adminUser, nil, nil).Once()
 
 		handler := UpdateAdminUserHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 			adminUserUpdater,
 			newQueryFilter,
 		}
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	).Return(nil, err, nil).Once()
 
 	handler := UpdateAdminUserHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 		adminUserUpdater,
 		newQueryFilter,
 	}

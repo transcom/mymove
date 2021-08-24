@@ -92,7 +92,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 
 // CreatePersonallyProcuredMoveHandler creates a PPM
 type CreatePersonallyProcuredMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler
@@ -148,7 +148,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 
 // IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
 type IndexPersonallyProcuredMovesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle handles the request
@@ -264,7 +264,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 
 // UpdatePersonallyProcuredMoveEstimateHandler Updates a PPMs incentive estimate
 type UpdatePersonallyProcuredMoveEstimateHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.EstimateCalculator
 }
 
@@ -337,7 +337,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 
 // PatchPersonallyProcuredMoveHandler Patches a PPM
 type PatchPersonallyProcuredMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler
@@ -380,7 +380,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 // SubmitPersonallyProcuredMoveHandler Submits a PPM
 type SubmitPersonallyProcuredMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle Submits a PPM to change its status to SUBMITTED
@@ -422,7 +422,7 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 
 // RequestPPMPaymentHandler requests a payment for a PPM
 type RequestPPMPaymentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler
@@ -523,7 +523,7 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 
 // RequestPPMExpenseSummaryHandler requests
 type RequestPPMExpenseSummaryHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler

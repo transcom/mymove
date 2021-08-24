@@ -17,7 +17,7 @@ import (
 
 // IndexAccessCodesHandler returns a list of access codes via GET /office_users
 type IndexAccessCodesHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.AccessCodeListFetcher
 	services.NewQueryFilter
 	services.NewPagination

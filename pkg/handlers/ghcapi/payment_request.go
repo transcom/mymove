@@ -28,7 +28,7 @@ import (
 
 // GetPaymentRequestForMoveHandler gets payment requests associated with a move
 type GetPaymentRequestForMoveHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
 }
 
@@ -61,7 +61,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPayme
 
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestFetcher
 }
 
@@ -106,7 +106,7 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
 type UpdatePaymentRequestStatusHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 }

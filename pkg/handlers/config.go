@@ -21,18 +21,18 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-// HandlerContext provides access to all the contextual references needed by individual handlers
-//go:generate mockery --name HandlerContext --disable-version-string
-type HandlerContext interface {
+// HandlerConfig provides access to all the contextual references needed by individual handlers
+type HandlerConfig interface {
 	DB() *pop.Connection
 	Logger() *zap.Logger
+
 	AppContextFromRequest(r *http.Request) appcontext.AppContext
-	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger)
 	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger)
 	SessionFromRequest(r *http.Request) *auth.Session
 	SessionFromContext(ctx context.Context) *auth.Session
 	LoggerFromContext(ctx context.Context) *zap.Logger
 	LoggerFromRequest(r *http.Request) *zap.Logger
+
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -93,8 +93,8 @@ type handlerContext struct {
 	sessionManagers       [3]*scs.SessionManager
 }
 
-// NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
+// NewHandlerConfig returns a new handlerContext with its required private fields set.
+func NewHandlerConfig(db *pop.Connection, logger *zap.Logger) HandlerConfig {
 	return &handlerContext{
 		db:     db,
 		logger: logger,
@@ -108,11 +108,7 @@ func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.Ap
 }
 
 func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {
-	return hctx.SessionAndLoggerFromContext(r.Context())
-}
-
-func (hctx *handlerContext) SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, *zap.Logger) {
-	return auth.SessionFromContext(ctx), hctx.LoggerFromContext(ctx)
+	return auth.SessionFromContext(r.Context()), hctx.LoggerFromContext(r.Context())
 }
 
 func (hctx *handlerContext) SessionFromRequest(r *http.Request) *auth.Session {

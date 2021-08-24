@@ -15,7 +15,7 @@ import (
 
 // CreatePersonallyProcuredMoveAttachmentsHandler creates a PPM Attachments PDF
 type CreatePersonallyProcuredMoveAttachmentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler

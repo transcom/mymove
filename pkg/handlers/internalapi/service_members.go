@@ -69,16 +69,14 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
 type CreateServiceMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
 
-	ctx := params.HTTPRequest.Context()
-
 	// User should always be populated by middleware
-	session, logger := h.SessionAndLoggerFromContext(ctx)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
@@ -116,7 +114,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		ResidentialAddress:   residentialAddress,
 		BackupMailingAddress: backupMailingAddress,
 		DutyStation:          station,
-		RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
+		RequiresAccessCode:   h.HandlerConfig.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		DutyStationID:        stationID,
 	}
 	smVerrs, err := models.SaveServiceMember(h.DB(), &newServiceMember)
@@ -136,7 +134,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerConfig.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 	sessionManager := h.SessionManager(session)
 	return handlers.NewCookieUpdateResponder(params.HTTPRequest, responder, sessionManager, session)
@@ -144,16 +142,14 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
 type ShowServiceMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
 
-	ctx := params.HTTPRequest.Context()
-
 	// User should always be populated by middleware
-	session, logger := h.SessionAndLoggerFromContext(ctx)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
@@ -162,13 +158,13 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return handlers.ResponseForError(logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerConfig.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
 type PatchServiceMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Check to see if a move is in draft state. If there are no orders, then the
@@ -186,9 +182,7 @@ func (h PatchServiceMemberHandler) isDraftMove(serviceMember *models.ServiceMemb
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 
-	ctx := params.HTTPRequest.Context()
-
-	session, logger := h.SessionAndLoggerFromContext(ctx)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
@@ -236,7 +230,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		serviceMember.Orders[0] = order
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerConfig.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -316,15 +310,13 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 
 // ShowServiceMemberOrdersHandler returns latest orders for a logged in serviceMember
 type ShowServiceMemberOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle retrieves orders for a logged in service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 
-	ctx := params.HTTPRequest.Context()
-
-	session, logger := h.SessionAndLoggerFromContext(ctx)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMember, err := models.FetchServiceMemberForUser(h.DB(), session, session.ServiceMemberID)
 	if err != nil {

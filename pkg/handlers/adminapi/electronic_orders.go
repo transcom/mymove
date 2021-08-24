@@ -28,7 +28,7 @@ func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.Ele
 
 // IndexElectronicOrdersHandler returns an index of electronic orders
 type IndexElectronicOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ElectronicOrderListFetcher
 	services.NewQueryFilter
 	services.NewPagination
@@ -65,7 +65,7 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 
 // GetElectronicOrdersTotalsHandler returns totals of electronic orders
 type GetElectronicOrdersTotalsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ElectronicOrderCategoryCountFetcher
 	services.NewQueryFilter
 }

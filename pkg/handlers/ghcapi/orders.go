@@ -26,7 +26,7 @@ import (
 
 // GetOrdersHandler fetches the information of a specific order
 type GetOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.OrderFetcher
 }
 
@@ -51,7 +51,7 @@ func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Respo
 
 // UpdateOrderHandler updates an order via PATCH /orders/{orderId}
 type UpdateOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 	moveUpdater  services.MoveTaskOrderUpdater
 }
@@ -122,7 +122,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 
 // CounselingUpdateOrderHandler updates an order via PATCH /counseling/orders/{orderId}
 type CounselingUpdateOrderHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 }
 
@@ -167,7 +167,7 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 
 // UpdateAllowanceHandler updates an order and entitlements via PATCH /orders/{orderId}/allowances
 type UpdateAllowanceHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 }
 
@@ -211,7 +211,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 
 // CounselingUpdateAllowanceHandler updates an order and entitlements via PATCH /counseling/orders/{orderId}/allowances
 type CounselingUpdateAllowanceHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	orderUpdater services.OrderUpdater
 }
 

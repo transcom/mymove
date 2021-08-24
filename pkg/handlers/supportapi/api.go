@@ -24,7 +24,7 @@ import (
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
-func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
+func NewSupportAPIHandler(ctx handlers.HandlerConfig) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
@@ -65,7 +65,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
-		HandlerContext:              ctx,
+		HandlerConfig:               ctx,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 	}
@@ -85,13 +85,13 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{ctx}
 
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
-		HandlerContext:                    ctx,
+		HandlerConfig:                     ctx,
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
 		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(ctx.ICNSequencer(), clock.New()),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                ctx,
+		HandlerConfig:                 ctx,
 		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(),
 		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(),
@@ -106,7 +106,7 @@ func NewSupportAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.WebhookCreateWebhookNotificationHandler = CreateWebhookNotificationHandler{
-		HandlerContext: ctx,
+		HandlerConfig: ctx,
 	}
 
 	return supportAPI.Serve(nil)

@@ -30,14 +30,14 @@ type eventModel struct {
 // Event holds a single event
 // It is passed to EventTrigger to trigger an event
 type Event struct {
-	EventKey        KeyType                 // Pick from a select list of predefined events (PaymentRequest.Create)
-	Request         *http.Request           // We expect to get this from the handler
-	MtoID           uuid.UUID               // This is the ID of the MTO that the object is associated with
-	UpdatedObjectID uuid.UUID               // This is the ID of the object itself (PaymentRequest.ID)
-	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
-	DBConnection    *pop.Connection         // The pop connection DB
-	HandlerContext  handlers.HandlerContext // The handler context
-	logger          *zap.Logger             // The logger
+	EventKey        KeyType                // Pick from a select list of predefined events (PaymentRequest.Create)
+	Request         *http.Request          // We expect to get this from the handler
+	MtoID           uuid.UUID              // This is the ID of the MTO that the object is associated with
+	UpdatedObjectID uuid.UUID              // This is the ID of the object itself (PaymentRequest.ID)
+	EndpointKey     EndpointKeyType        // Pick from a select list of endpoints
+	DBConnection    *pop.Connection        // The pop connection DB
+	HandlerContext  handlers.HandlerConfig // The handler context
+	logger          *zap.Logger            // The logger
 }
 
 // OrderUpdateEventKey is a key containing Order.Update

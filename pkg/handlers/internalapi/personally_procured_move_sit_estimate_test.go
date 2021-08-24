@@ -43,7 +43,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	estimateCalculator := &mocks.EstimateCalculator{}
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
-	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 	showResponse := showEstimateHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.CheckResponseNotFound(showResponse)
@@ -107,7 +107,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.CheckResponseNotFound(showResponse)
@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
@@ -155,7 +155,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		estimateCalculator := &mocks.EstimateCalculator{}
 		estimateCalculator.On("CalculateEstimates",
 			mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
-		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+		showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 		showResponse := showHandler.Handle(params)
 
 		suite.IsType(&ppmop.ShowPPMSitEstimateUnprocessableEntity{}, showResponse)
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails
 	mockedError := errors.New("this is an error")
 	estimateCalculator.On("CalculateEstimates",
 		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, mockedError).Once()
-	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 	showResponse := showHandler.Handle(params)
 
 	suite.IsType(&handlers.ErrResponse{}, showResponse)

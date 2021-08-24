@@ -42,7 +42,7 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 
 // CreateMovingExpenseDocumentHandler creates a MovingExpenseDocument
 type CreateMovingExpenseDocumentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle is the handler

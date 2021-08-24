@@ -29,7 +29,7 @@ import (
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.Fetcher
 }
@@ -99,7 +99,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	mtoShipmentCreator services.MTOShipmentCreator
 }
 
@@ -145,7 +145,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 // UpdateShipmentHandler updates shipments
 type UpdateShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.Fetcher
 	services.MTOShipmentUpdater
 }
@@ -269,7 +269,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 // DeleteShipmentHandler soft deletes a shipment
 type DeleteShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDeleter
 }
 
@@ -332,7 +332,7 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID
 
 // ApproveShipmentHandler approves a shipment
 type ApproveShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentApprover
 }
 
@@ -396,7 +396,7 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 
 // RequestShipmentDiversionHandler Requests a shipment diversion
 type RequestShipmentDiversionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDiversionRequester
 }
 
@@ -460,7 +460,7 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(sh
 
 // ApproveShipmentDiversionHandler approves a shipment diversion
 type ApproveShipmentDiversionHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentDiversionApprover
 }
 
@@ -524,7 +524,7 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(s
 
 // RejectShipmentHandler rejects a shipment
 type RejectShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentRejecter
 }
 
@@ -589,7 +589,7 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUI
 
 // RequestShipmentCancellationHandler Requests a shipment diversion
 type RequestShipmentCancellationHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentCancellationRequester
 }
 
@@ -653,7 +653,7 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 
 // RequestShipmentReweighHandler Requests a shipment reweigh
 type RequestShipmentReweighHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ShipmentReweighRequester
 }
 

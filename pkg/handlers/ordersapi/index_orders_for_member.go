@@ -13,7 +13,7 @@ import (
 
 // IndexOrdersForMemberHandler returns a list of Orders matching the provided search parameters
 type IndexOrdersForMemberHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle (IndexOrdersForMemberHandler) responds to GET /edipis/{edipi}/orders

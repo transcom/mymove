@@ -19,7 +19,7 @@ import (
 
 // ShowPPMSitEstimateHandler returns PPM SIT estimate for a weight, move date,
 type ShowPPMSitEstimateHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.EstimateCalculator
 }
 

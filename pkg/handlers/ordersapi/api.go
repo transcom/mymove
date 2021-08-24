@@ -15,7 +15,7 @@ import (
 )
 
 // NewOrdersAPIHandler returns a handler for the Orders API
-func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewOrdersAPIHandler(context handlers.HandlerConfig) http.Handler {
 
 	// Wire up the handlers to the ordersAPIMux
 	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")

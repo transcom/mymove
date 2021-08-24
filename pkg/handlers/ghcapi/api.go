@@ -24,7 +24,7 @@ import (
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
-func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
+func NewGhcAPIHandler(ctx handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -41,12 +41,12 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.ServeError = handlers.ServeCustomError
 
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
-		HandlerContext: ctx,
-		MoveFetcher:    move.NewMoveFetcher(),
+		HandlerConfig: ctx,
+		MoveFetcher:   move.NewMoveFetcher(),
 	}
 
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
-		HandlerContext:        ctx,
+		HandlerConfig:         ctx,
 		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter),
 		Fetcher:               fetch.NewFetcher(queryBuilder),
 	}
@@ -63,20 +63,20 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestsForMoveHandler = GetPaymentRequestForMoveHandler{
-		HandlerContext:            ctx,
+		HandlerConfig:             ctx,
 		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
 	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
-		HandlerContext:              ctx,
+		HandlerConfig:               ctx,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 	}
 
 	ghcAPI.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = UpdatePaymentServiceItemStatusHandler{
-		HandlerContext: ctx,
-		Fetcher:        fetch.NewFetcher(queryBuilder),
-		Builder:        *queryBuilder,
+		HandlerConfig: ctx,
+		Fetcher:       fetch.NewFetcher(queryBuilder),
+		Builder:       *queryBuilder,
 	}
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
@@ -201,8 +201,8 @@ func NewGhcAPIHandler(ctx handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{
-		HandlerContext: ctx,
-		ListFetcher:    fetch.NewListFetcher(queryBuilder),
+		HandlerConfig: ctx,
+		ListFetcher:   fetch.NewListFetcher(queryBuilder),
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{ctx}

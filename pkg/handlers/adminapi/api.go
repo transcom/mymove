@@ -32,7 +32,7 @@ import (
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
-func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
+func NewAdminAPIHandler(ctx handlers.HandlerConfig) http.Handler {
 
 	// Wire up the handlers to the publicAPIMux
 	adminSpec, err := loads.Analyzed(adminapi.SwaggerJSON, "")

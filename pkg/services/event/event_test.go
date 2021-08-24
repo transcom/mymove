@@ -69,7 +69,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		},
 	}
 	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with support api endpoint", func(t *testing.T) {
@@ -207,7 +207,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		},
 	}
 	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -268,7 +268,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		},
 	}
 	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -329,7 +329,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 		},
 	}
 	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
@@ -360,7 +360,7 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 		},
 	}
 	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 
@@ -403,7 +403,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 		},
 	}
 	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 	traceID, _ := uuid.NewV4()
 	handler.SetTraceID(traceID)
 

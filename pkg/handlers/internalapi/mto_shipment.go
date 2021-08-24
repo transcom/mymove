@@ -25,7 +25,7 @@ import (
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	mtoShipmentCreator services.MTOShipmentCreator
 }
 
@@ -78,7 +78,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	mtoShipmentUpdater services.MTOShipmentUpdater
 }
 
@@ -148,7 +148,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 	services.ListFetcher
 	services.Fetcher
 }

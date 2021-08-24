@@ -15,7 +15,7 @@ import (
 
 // PostRevisionToOrdersHandler adds a Revision to Orders by uuid
 type PostRevisionToOrdersHandler struct {
-	handlers.HandlerContext
+	handlers.HandlerConfig
 }
 
 // Handle (params ordersoperations.PostRevisionToOrdersParams) responds to POST /orders/{uuid}

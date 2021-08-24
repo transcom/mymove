@@ -23,7 +23,7 @@ import (
 )
 
 // NewPrimeAPIHandler returns a handler for the Prime API
-func NewPrimeAPIHandler(ctx handlers.HandlerContext) http.Handler {
+func NewPrimeAPIHandler(ctx handlers.HandlerConfig) http.Handler {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 

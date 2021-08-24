@@ -6,16 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/handlers/mocks"
-
 	"github.com/gofrs/uuid"
 )
 
 func (suite *testSuite) TestTrace() {
-	handlerContext := mocks.HandlerContext{}
-	handlerContext.On("SetTraceID", mock.Anything).Return(nil)
 	mw := Trace(suite.logger)
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.trace, rr, httptest.NewRequest("GET", testURL, nil))
