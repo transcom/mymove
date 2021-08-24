@@ -128,10 +128,14 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
+	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
+	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
 	ServiceItemParamNameWeightEstimated ServiceItemParamName = "WeightEstimated"
+	// ServiceItemParamNameWeightReweigh is the param key name WeightReweigh
+	ServiceItemParamNameWeightReweigh ServiceItemParamName = "WeightReweigh"
 	// ServiceItemParamNameZipDestAddress is the param key name ZipDestAddress
 	ServiceItemParamNameZipDestAddress ServiceItemParamName = "ZipDestAddress"
 	// ServiceItemParamNameZipPickupAddress is the param key name ZipPickupAddress
@@ -240,8 +244,10 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
 	ServiceItemParamNameWeightActual,
+	ServiceItemParamNameWeightAdjusted,
 	ServiceItemParamNameWeightBilledActual,
 	ServiceItemParamNameWeightEstimated,
+	ServiceItemParamNameWeightReweigh,
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
 	ServiceItemParamNameZipSITDestHHGFinalAddress,
@@ -303,8 +309,10 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightActual),
+	string(ServiceItemParamNameWeightAdjusted),
 	string(ServiceItemParamNameWeightBilledActual),
 	string(ServiceItemParamNameWeightEstimated),
+	string(ServiceItemParamNameWeightReweigh),
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
 	string(ServiceItemParamNameZipSITDestHHGFinalAddress),
