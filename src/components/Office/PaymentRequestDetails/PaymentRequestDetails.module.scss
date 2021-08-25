@@ -31,7 +31,7 @@
 
   :global .table--stacked {
     width: 100%;
-
+    table-layout: fixed;
     th {
       @include u-font-weight(bold);
       @include u-font-size('body', '3xs');
