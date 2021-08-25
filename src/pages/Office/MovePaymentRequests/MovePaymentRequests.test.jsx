@@ -350,23 +350,28 @@ describe('MovePaymentRequests', () => {
     });
   });
 
-  describe('with one reviewed payment request', () => {
+  describe('renders side navigation for each section', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
       useMoveDetailsQueries.mockReturnValue(orders);
     });
 
-    it('renders side navigation for each section', () => {
+    it.each([
+      ['Payment requests', '#payment-requests'],
+      ['Billable weights', '#billable-weights'],
+    ])('renders the %s side navigation', (name, tag) => {
       renderMovePaymentRequests(testProps);
       const leftNav = screen.getByRole('navigation');
       expect(leftNav).toBeInTheDocument();
 
-      const paymentRequstNavLink = within(leftNav).getByText('Payment requests');
+      const paymentRequstNavLink = within(leftNav).getByText(name);
 
-      expect(paymentRequstNavLink.href).toContain('#payment-requests');
-      expect(paymentRequstNavLink.text).toBe('Payment requests');
+      expect(paymentRequstNavLink.href).toContain(tag);
+      expect(paymentRequstNavLink.text).toBe(name);
     });
+  });
 
+  describe('with one reviewed payment request', () => {
     it('updates the pending payment request count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
