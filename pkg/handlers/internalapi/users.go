@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -38,12 +39,13 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsServiceMember() {
 		var officeUser models.OfficeUser
 		var err error
 		if session.OfficeUserID != uuid.Nil {
-			officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(session.OfficeUserID)
+			officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(appCtx, session.OfficeUserID)
 			if err != nil {
 				logger.Error("Error retrieving office_user", zap.Error(err))
 				return userop.NewIsLoggedInUserInternalServerError()

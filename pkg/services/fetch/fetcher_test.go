@@ -7,17 +7,18 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type testFetcherQueryBuilder struct {
-	fakeFetch func(model interface{}, filters []services.QueryFilter) error
+	fakeFetch func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
 }
 
-func (t *testFetcherQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
-	m := t.fakeFetch(model, filters)
+func (t *testFetcherQueryBuilder) FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
+	m := t.fakeFetch(appCtx, model, filters)
 	return m
 }
 
@@ -25,7 +26,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetch := func(model interface{}, filters []services.QueryFilter) error {
+		fakeFetch := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.ValueOf(models.OfficeUser{ID: id}))
 			return nil
@@ -40,14 +41,14 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		}
 
 		officeUser := &models.OfficeUser{}
-		err = fetcher.FetchRecord(officeUser, filters)
+		err = fetcher.FetchRecord(suite.TestAppContext(), officeUser, filters)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUser.ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with no office user", func(t *testing.T) {
-		fakeFetch := func(model interface{}, filters []services.QueryFilter) error {
+		fakeFetch := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testFetcherQueryBuilder{
@@ -57,7 +58,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		fetcher := NewFetcher(builder)
 
 		officeUser := &models.OfficeUser{}
-		err := fetcher.FetchRecord(officeUser, []services.QueryFilter{})
+		err := fetcher.FetchRecord(suite.TestAppContext(), officeUser, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Resource not found: Fetch error")
@@ -65,7 +66,7 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 	})
 
 	suite.T().Run("reflection error", func(t *testing.T) {
-		fakeFetch := func(model interface{}, filters []services.QueryFilter) error {
+		fakeFetch := func(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testFetcherQueryBuilder{
@@ -75,12 +76,12 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 		fetcher := NewFetcher(builder)
 
 		officeUser := models.OfficeUser{}
-		err := fetcher.FetchRecord(officeUser, []services.QueryFilter{})
+		err := fetcher.FetchRecord(suite.TestAppContext(), officeUser, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), query.FetchOneReflectionMessage)
 
-		err = fetcher.FetchRecord(1, []services.QueryFilter{})
+		err = fetcher.FetchRecord(suite.TestAppContext(), 1, []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), query.FetchOneReflectionMessage)

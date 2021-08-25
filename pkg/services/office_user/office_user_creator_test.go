@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -15,7 +16,7 @@ import (
 )
 
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	loginGovUUID := uuid.Must(uuid.NewV4())
 	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
@@ -37,7 +38,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
@@ -46,7 +47,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			}
 			return nil
 		}
-		fakeQueryAssociations := func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+		fakeQueryAssociations := func(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 			return nil
 		}
 
@@ -58,8 +59,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		officeUser, verrs, err := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(builder)
+		officeUser, verrs, err := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
@@ -78,7 +79,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			TransportationOffice:   transportationOffice,
 		}
 
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
@@ -97,8 +98,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		officeUser, verrs, err := creator.CreateOfficeUser(&existingUserInfo, filter)
+		creator := NewOfficeUserCreator(builder)
+		officeUser, verrs, err := creator.CreateOfficeUser(suite.TestAppContext(), &existingUserInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(officeUser.User)
@@ -107,7 +108,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Bad transportation office ID
 	suite.T().Run("If we are provided a transportation office that doesn't exist, the create should fail", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
@@ -115,8 +116,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(builder)
+		_, _, err := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 
@@ -124,7 +125,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 
 	// Transaction rollback on createOne validation failure
 	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
@@ -133,7 +134,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			}
 			return nil
 		}
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
 			// Fail on the OfficeUser call to CreateOne but let User succeed
 			switch model.(type) {
 			case *models.OfficeUser:
@@ -148,7 +149,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 				}
 			}
 		}
-		fakeQueryAssociations := func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+		fakeQueryAssociations := func(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 			return nil
 		}
 
@@ -160,15 +161,15 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		_, verrs, _ := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(builder)
+		_, verrs, _ := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
 		suite.NotNil(verrs)
 		suite.Equal("violation message", verrs.Errors["errorKey"][0])
 	})
 
 	// Transaction rollback on createOne error failure
 	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			switch model.(type) {
 			case *models.TransportationOffice:
 				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
@@ -177,7 +178,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			}
 			return nil
 		}
-		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeCreateOne := func(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error) {
 			// Fail on the second createOne call with OfficeUser
 			switch model.(type) {
 			case *models.OfficeUser:
@@ -186,7 +187,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 				return nil, nil
 			}
 		}
-		fakeQueryAssociations := func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+		fakeQueryAssociations := func(appCtx appcontext.AppContext, model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 			return nil
 		}
 
@@ -198,8 +199,8 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
-		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
+		creator := NewOfficeUserCreator(builder)
+		_, _, err := creator.CreateOfficeUser(suite.TestAppContext(), &userInfo, filter)
 		suite.EqualError(err, "uniqueness constraint conflict")
 	})
 }

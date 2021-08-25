@@ -2030,6 +2030,11 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
+      excess_weight_qualified_at:
+        type: string
+        format: date-time
+        description: Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
+        x-nullable: true
       createdAt:
         type: string
         format: date-time

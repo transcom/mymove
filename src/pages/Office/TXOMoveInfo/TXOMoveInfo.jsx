@@ -1,10 +1,10 @@
 import React, { Suspense, lazy } from 'react';
-import { NavLink, Switch, useParams, Redirect, Route, useLocation, matchPath } from 'react-router-dom';
+import { Switch, useParams, Redirect, Route, useLocation, matchPath } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Tag } from '@trussworks/react-uswds';
 
 import 'styles/office.scss';
-import TabNav from 'components/TabNav';
+
+import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
@@ -22,11 +22,14 @@ const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
+  const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
+
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode } = useParams();
   const { pathname } = useLocation();
   const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+
   const hideNav =
     matchPath(pathname, {
       path: '/moves/:moveCode/payment-requests/:id',
@@ -48,14 +51,6 @@ const TXOMoveInfo = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  let moveDetailsTagCount = 0;
-  if (unapprovedShipmentCount > 0) {
-    moveDetailsTagCount += unapprovedShipmentCount;
-  }
-  if (order.uploadedAmendedOrderID && !order.amendedOrdersAcknowledgedAt) {
-    moveDetailsTagCount += 1;
-  }
-
   return (
     <>
       <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
@@ -69,41 +64,14 @@ const TXOMoveInfo = () => {
         </SystemError>
       )}
       {!hideNav && (
-        <header className="nav-header">
-          <div className="grid-container-desktop-lg">
-            <TabNav
-              items={[
-                <NavLink
-                  exact
-                  activeClassName="usa-current"
-                  to={`/moves/${moveCode}/details`}
-                  role="tab"
-                  data-testid="MoveDetails-Tab"
-                >
-                  <span className="tab-title">Move details</span>
-                  {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
-                </NavLink>,
-                <NavLink
-                  data-testid="MoveTaskOrder-Tab"
-                  exact
-                  activeClassName="usa-current"
-                  to={`/moves/${moveCode}/mto`}
-                  role="tab"
-                >
-                  <span className="tab-title">Move task order</span>
-                  {unapprovedServiceItemCount > 0 && <Tag>{unapprovedServiceItemCount}</Tag>}
-                </NavLink>,
-                <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/payment-requests`} role="tab">
-                  <span className="tab-title">Payment requests</span>
-                  {pendingPaymentRequestCount > 0 && <Tag>{pendingPaymentRequestCount}</Tag>}
-                </NavLink>,
-                <NavLink exact activeClassName="usa-current" to={`/moves/${moveCode}/history`} role="tab">
-                  <span className="tab-title">History</span>
-                </NavLink>,
-              ]}
-            />
-          </div>
-        </header>
+        <TXOTabNav
+          unapprovedShipmentCount={unapprovedShipmentCount}
+          unapprovedServiceItemCount={unapprovedServiceItemCount}
+          excessWeightRiskCount={excessWeightRiskCount}
+          pendingPaymentRequestCount={pendingPaymentRequestCount}
+          moveCode={moveCode}
+          order={order}
+        />
       )}
 
       <Suspense fallback={<LoadingPlaceholder />}>
@@ -112,6 +80,7 @@ const TXOMoveInfo = () => {
             <MoveDetails
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+              setExcessWeightRiskCount={setExcessWeightRiskCount}
             />
           </Route>
 
@@ -123,6 +92,7 @@ const TXOMoveInfo = () => {
             <MoveTaskOrder
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+              setExcessWeightRiskCount={setExcessWeightRiskCount}
             />
           </Route>
 

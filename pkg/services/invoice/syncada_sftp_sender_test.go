@@ -21,7 +21,7 @@ import (
 
 type SyncadaSftpSenderSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestSyncadaSftpSenderSuite(t *testing.T) {

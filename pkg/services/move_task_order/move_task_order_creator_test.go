@@ -24,8 +24,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 		},
 	})
 
-	builder := query.NewQueryBuilder(suite.DB())
-	mtoCreator := NewMoveTaskOrderCreator(builder, suite.DB())
+	builder := query.NewQueryBuilder()
+	mtoCreator := NewMoveTaskOrderCreator(builder)
 
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 	contractor := testdatagen.MakeDefaultContractor(suite.DB())
@@ -36,7 +36,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 		Status:       models.MoveStatusDRAFT,
 		Locator:      models.GenerateLocator(),
 	}
-	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(&newMto)
+	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(suite.TestAppContext(), &newMto)
 	suite.NoError(err)
 	suite.Empty(verrs)
 

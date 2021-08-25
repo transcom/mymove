@@ -5,7 +5,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -13,7 +12,7 @@ import (
 //
 // The convertFns is a mapping from the filter parameter name(s) to the function that will operate on the
 // associated non-empty filter parameter value
-func generateQueryFilters(log handlers.Logger, params *string, convertFns map[string]func(string) []services.QueryFilter) (results []services.QueryFilter) {
+func generateQueryFilters(log *zap.Logger, params *string, convertFns map[string]func(string) []services.QueryFilter) (results []services.QueryFilter) {
 	if params == nil {
 		return results
 	}

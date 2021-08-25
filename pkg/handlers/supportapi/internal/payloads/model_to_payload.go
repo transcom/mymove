@@ -327,21 +327,19 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
 
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		item := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := primepayloads.GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		payload = &supportmessages.MTOServiceItemDomesticCrating{
 			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Item: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(item.ID.String()),
-				Type:   supportmessages.DimensionType(item.Type),
 				Height: item.Height.Int32Ptr(),
 				Length: item.Length.Int32Ptr(),
 				Width:  item.Width.Int32Ptr(),
 			},
 			Crate: &supportmessages.MTOServiceItemDimension{
 				ID:     strfmt.UUID(crate.ID.String()),
-				Type:   supportmessages.DimensionType(crate.Type),
 				Height: crate.Height.Int32Ptr(),
 				Length: crate.Length.Int32Ptr(),
 				Width:  crate.Width.Int32Ptr(),

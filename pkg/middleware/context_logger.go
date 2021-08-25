@@ -10,7 +10,7 @@ import (
 )
 
 // ContextLogger returns a handler that injects the logger into the request context.
-func ContextLogger(field string, original Logger) func(next http.Handler) http.Handler {
+func ContextLogger(field string, original *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()

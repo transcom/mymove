@@ -11,7 +11,7 @@ import (
 
 type PPMServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func (suite *PPMServiceSuite) SetupTest() {

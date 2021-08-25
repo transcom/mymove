@@ -13,7 +13,7 @@ import (
 
 type GexSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestGexSuite(t *testing.T) {

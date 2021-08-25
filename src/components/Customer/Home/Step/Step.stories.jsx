@@ -3,7 +3,7 @@ import React from 'react';
 import { text, boolean } from '@storybook/addon-knobs';
 
 import DocsUploaded from '../DocsUploaded/index';
-import ShipmentList from '../ShipmentList/index';
+import ShipmentList from '../../../ShipmentList/index';
 
 import Step from '.';
 
