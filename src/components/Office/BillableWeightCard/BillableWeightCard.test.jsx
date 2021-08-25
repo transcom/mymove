@@ -19,6 +19,7 @@ describe('BillableWeightCard', () => {
       weightRequested: 12260,
       weightAllowance: 8000,
       shipments,
+      reviewWeights: () => {},
     };
 
     render(<BillableWeightCard {...defaultProps} />);
