@@ -193,7 +193,7 @@ describe('Orders page', () => {
 
       // Test Duty Station Search Box interaction
       userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
-      userEvent.click(await screen.findByText('Luke'));
+      userEvent.click(await screen.findByText('Luke', { timeout: 4000 }));
 
       expect(await screen.findByRole('form')).toHaveFormValues({
         orders_type: 'PERMANENT_CHANGE_OF_STATION',

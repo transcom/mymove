@@ -174,7 +174,7 @@ describe('OrdersInfoForm component', () => {
 
     // Test Duty Station Search Box interaction
     userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
-    userEvent.click(await screen.findByText('Luke'));
+    userEvent.click(await screen.findByText('Luke', { timeout: 4000 }));
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -211,7 +211,7 @@ describe('OrdersInfoForm component', () => {
 
     // Test Duty Station Search Box interaction
     userEvent.type(screen.getByLabelText('New duty station'), 'AFB');
-    userEvent.click(await screen.findByText('Luke'));
+    userEvent.click(await screen.findByText('Luke', { timeout: 4000 }));
     expect(await screen.findByRole('form')).toHaveFormValues({
       new_duty_station: 'Luke AFB',
     });
