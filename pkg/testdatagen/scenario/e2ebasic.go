@@ -217,7 +217,17 @@ func userWithServicesCounselorRole(db *pop.Connection) {
 
 func userWithTOOandTIORole(db *pop.Connection) {
 	tooRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
 	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
 	email := "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
 	loginGovID := uuid.Must(uuid.NewV4())
@@ -248,8 +258,23 @@ func userWithTOOandTIORole(db *pop.Connection) {
 
 func userWithTOOandTIOandServicesCounselorRole(db *pop.Connection) {
 	tooRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+	}
+
 	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+	}
+
 	servicesCounselorRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+	}
+
 	email := "too_tio_services_counselor_role@office.mil"
 	ttooTioServicesUUID := uuid.Must(uuid.FromString("8d78c849-0853-4eb8-a7a7-73055db7a6a8"))
 	loginGovID := uuid.Must(uuid.NewV4())
