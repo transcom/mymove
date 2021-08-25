@@ -1,5 +1,7 @@
 import moment from 'moment';
 
+import { parseDate } from 'shared/dates';
+
 // Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
 export function formatOrderType(orderType) {
   return orderType
@@ -15,11 +17,13 @@ export function formatOrderType(orderType) {
 
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
-  return moment(date).format('DD MMM YYYY');
+  const parsedDate = parseDate(date);
+  return moment(parsedDate).format('DD MMM YYYY');
 }
 
 export function formatSignatureDate(date) {
-  return moment(date).format('YYYY-MM-DD');
+  const parsedDate = parseDate(date);
+  return moment(parsedDate).format('YYYY-MM-DD');
 }
 
 // Translate boolean (true/false) into "yes"/"no" string

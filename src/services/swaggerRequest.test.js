@@ -95,6 +95,8 @@ describe('makeSwaggerRequest', () => {
   });
 
   it('makes a failed request', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     const mockResponse = {
       ok: false,
       status: 400,
@@ -110,8 +112,10 @@ describe('makeSwaggerRequest', () => {
 
     const mockClient = await mockGetClient(opMock);
 
-    await makeSwaggerRequest(mockClient, 'shipments.getShipment', { shipmentID: 'abcd-1234' }).catch((error) => {
+    await makeSwaggerRequest(mockClient, 'shipments.getShipment', { shipmentID: 'abcd-1234' }).catch(async (error) => {
       expect(error).toEqual(mockResponse);
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      errorSpy.mockRestore();
     });
   });
 
