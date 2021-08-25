@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -12,8 +13,8 @@ import (
 type MTOAvailableToPrimeAtLookup struct {
 }
 
-func (m MTOAvailableToPrimeAtLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	db := *keyData.db
+func (m MTOAvailableToPrimeAtLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+	db := appCtx.DB()
 
 	// Get the MoveTaskOrder
 	moveTaskOrderID := keyData.MoveTaskOrderID

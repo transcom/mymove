@@ -19,7 +19,7 @@ import (
 
 // Call this from the command line with go run ./cmd/milmove-tasks connect-to-gex-via-sftp
 
-func checkConnectToGEXViaSFTPConfig(v *viper.Viper, logger logger) error {
+func checkConnectToGEXViaSFTPConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config")
 
 	if err := cli.CheckGEX(v); err != nil {

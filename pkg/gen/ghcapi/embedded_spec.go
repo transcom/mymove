@@ -3349,6 +3349,11 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "reweigh": {
+          "x-nullable": true,
+          "x-omitempty": true,
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -3437,6 +3442,12 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excess_weight_qualified_at": {
+          "description": "Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -8533,6 +8544,11 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "reweigh": {
+          "x-nullable": true,
+          "x-omitempty": true,
+          "$ref": "#/definitions/Reweigh"
+        },
         "scheduledPickupDate": {
           "type": "string",
           "format": "date",
@@ -8621,6 +8637,12 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excess_weight_qualified_at": {
+          "description": "Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "id": {
           "type": "string",

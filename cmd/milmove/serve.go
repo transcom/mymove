@@ -670,7 +670,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	site.Use(middleware.Trace(logger, &handlerContext)) // injects trace id into the context
+	site.Use(middleware.Trace(logger)) // injects trace id into the context
 	site.Use(middleware.ContextLogger("milmove_trace_id", logger))
 	site.Use(middleware.Recovery(logger))
 	site.Use(middleware.SecurityHeaders(logger))

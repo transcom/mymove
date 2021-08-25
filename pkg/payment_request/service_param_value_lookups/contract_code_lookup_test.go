@@ -17,10 +17,10 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	suite.T().Run("golden path", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
 	})
@@ -57,12 +57,11 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 			},
 		})
 
-		paramCache := ServiceParamsCache{}
-		paramCache.Initialize(suite.DB())
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem1.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
+		paramCache := NewServiceParamsCache()
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem1.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
 

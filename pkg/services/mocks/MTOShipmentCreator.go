@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,13 +14,13 @@ type MTOShipmentCreator struct {
 	mock.Mock
 }
 
-// CreateMTOShipment provides a mock function with given fields: MTOShipment, MTOServiceItems
-func (_m *MTOShipmentCreator) CreateMTOShipment(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error) {
-	ret := _m.Called(MTOShipment, MTOServiceItems)
+// CreateMTOShipment provides a mock function with given fields: appCtx, MTOShipment, MTOServiceItems
+func (_m *MTOShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, MTOShipment, MTOServiceItems)
 
 	var r0 *models.MTOShipment
-	if rf, ok := ret.Get(0).(func(*models.MTOShipment, models.MTOServiceItems) *models.MTOShipment); ok {
-		r0 = rf(MTOShipment, MTOServiceItems)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, models.MTOServiceItems) *models.MTOShipment); ok {
+		r0 = rf(appCtx, MTOShipment, MTOServiceItems)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
@@ -26,8 +28,8 @@ func (_m *MTOShipmentCreator) CreateMTOShipment(MTOShipment *models.MTOShipment,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.MTOShipment, models.MTOServiceItems) error); ok {
-		r1 = rf(MTOShipment, MTOServiceItems)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOShipment, models.MTOServiceItems) error); ok {
+		r1 = rf(appCtx, MTOShipment, MTOServiceItems)
 	} else {
 		r1 = ret.Error(1)
 	}

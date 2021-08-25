@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 
 import MovePaymentRequests from './MovePaymentRequests';
 
@@ -263,7 +263,7 @@ describe('MovePaymentRequests', () => {
 
     it('renders without errors', () => {
       renderMovePaymentRequests(testProps);
-      expect(screen.getByText('Payment requests')).toBeInTheDocument();
+      expect(screen.getByTestId('MovePaymentRequests')).toBeInTheDocument();
     });
 
     it('renders multiple payment requests', async () => {
@@ -302,6 +302,17 @@ describe('MovePaymentRequests', () => {
       useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
     });
 
+    it('renders side navigation for each section', () => {
+      renderMovePaymentRequests(testProps);
+      const leftNav = screen.getByRole('navigation');
+      expect(leftNav).toBeInTheDocument();
+
+      const paymentRequstNavLink = within(leftNav).getByText('Payment requests');
+
+      expect(paymentRequstNavLink.href).toContain('#payment-requests');
+      expect(paymentRequstNavLink.text).toBe('Payment requests');
+    });
+
     it('updates the pending payment request count callback', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
@@ -327,6 +338,16 @@ describe('MovePaymentRequests', () => {
   describe('with no payment requests for move', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+    });
+
+    it('does not render side navigation for payment request section', () => {
+      renderMovePaymentRequests(testProps);
+      const leftNav = screen.getByRole('navigation');
+      expect(leftNav).toBeInTheDocument();
+
+      const paymentRequstNavLink = within(leftNav).queryByText('Payment requests');
+
+      expect(paymentRequstNavLink).toBeNull();
     });
 
     it('renders with empty message when no payment requests exist', async () => {

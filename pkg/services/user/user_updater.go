@@ -1,12 +1,11 @@
 package user
 
 import (
-	"context"
-
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -16,10 +15,10 @@ import (
 )
 
 type userUpdater struct {
-	builder            userQueryBuilder
-	officeUserUpdater  services.OfficeUserUpdater
-	adminUserUpdater   services.AdminUserUpdater
-	notificationSender notifications.NotificationSender
+	builder           userQueryBuilder
+	officeUserUpdater services.OfficeUserUpdater
+	adminUserUpdater  services.AdminUserUpdater
+	sender            notifications.NotificationSender
 }
 
 // NewUserUpdater returns a new admin user creator builder
@@ -27,28 +26,27 @@ func NewUserUpdater(
 	builder userQueryBuilder,
 	officeUserUpdater services.OfficeUserUpdater,
 	adminUserUpdater services.AdminUserUpdater,
-	notificationSender notifications.NotificationSender,
+	sender notifications.NotificationSender,
 ) services.UserUpdater {
 	return &userUpdater{
 		builder,
 		officeUserUpdater,
 		adminUserUpdater,
-		notificationSender,
+		sender,
 	}
 }
 
 // UpdateUser updates any user
-func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
+func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	var foundUser models.User
-	var logger Logger
 	var userActivityEmail notifications.Notification
 
 	if user == nil {
 		return nil, nil, nil
 	}
 	// Find the existing user to update
-	err := o.builder.FetchOne(&foundUser, filters)
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
@@ -58,7 +56,7 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 	userWasActive := foundUser.Active
 	foundUser.Active = user.Active
 
-	verrs, err := o.builder.UpdateOne(&foundUser, nil)
+	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
@@ -72,59 +70,59 @@ func (o *userUpdater) UpdateUser(ctx context.Context, id uuid.UUID, user *models
 		// Check for Office User
 		foundOfficeUser := models.OfficeUser{}
 		filters = []services.QueryFilter{query.NewQueryFilter("user_id", "=", id.String())}
-		err = o.builder.FetchOne(&foundOfficeUser, filters)
+		err = o.builder.FetchOne(appCtx, &foundOfficeUser, filters)
 
 		// If we find a matching Office User, update their status
 		if err == nil {
 			payload := adminmessages.OfficeUserUpdatePayload{
 				Active: &user.Active,
 			}
-			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(foundOfficeUser.ID, &payload)
+			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCtx, foundOfficeUser.ID, &payload)
 
 			if verrs != nil {
-				logger.Error("Could not update office user", zap.Error(verrs))
+				appCtx.Logger().Error("Could not update office user", zap.Error(verrs))
 			} else if err != nil {
-				logger.Error("Could not update office user", zap.Error(err))
+				appCtx.Logger().Error("Could not update office user", zap.Error(err))
 			}
 		}
 
 		// Check for Admin User
 		foundAdminUser := models.AdminUser{}
-		err = o.builder.FetchOne(&foundAdminUser, filters)
+		err = o.builder.FetchOne(appCtx, &foundAdminUser, filters)
 		// If we find a matching Admin User, update their status
 		if err == nil {
 			payload := adminmessages.AdminUserUpdatePayload{
 				Active: &user.Active,
 			}
-			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(foundAdminUser.ID, &payload)
+			_, verrs, err = o.adminUserUpdater.UpdateAdminUser(appCtx, foundAdminUser.ID, &payload)
 			if verrs != nil {
-				logger.Error("Could not update admin user", zap.Error(verrs))
+				appCtx.Logger().Error("Could not update admin user", zap.Error(verrs))
 			} else if err != nil {
-				logger.Error("Could not update admin user", zap.Error(err))
+				appCtx.Logger().Error("Could not update admin user", zap.Error(err))
 			}
 		}
 
 		if userWasActive {
 			email, emailErr := notifications.NewUserAccountDeactivated(
-				ctx, notifications.GetSysAdminEmail(o.notificationSender), foundUser.ID, foundUser.UpdatedAt)
+				appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
 			if emailErr != nil {
-				logger.Error("Could not send user deactivation email", zap.Error(emailErr))
+				appCtx.Logger().Error("Could not send user deactivation email", zap.Error(emailErr))
 			} else {
 				userActivityEmail = notifications.Notification(email)
 			}
 		}
 	} else if !userWasActive {
 		email, emailErr := notifications.NewUserAccountActivated(
-			ctx, notifications.GetSysAdminEmail(o.notificationSender), foundUser.ID, foundUser.UpdatedAt)
+			appCtx, notifications.GetSysAdminEmail(o.sender), foundUser.ID, foundUser.UpdatedAt)
 		if emailErr != nil {
-			logger.Error("Could not send user activation email", zap.Error(emailErr))
+			appCtx.Logger().Error("Could not send user activation email", zap.Error(emailErr))
 		} else {
 			userActivityEmail = notifications.Notification(email)
 		}
 	}
 
 	if userActivityEmail != nil {
-		err = o.notificationSender.SendNotification(userActivityEmail)
+		err = o.sender.SendNotification(userActivityEmail)
 		if err != nil {
 			return nil, nil, err
 		}

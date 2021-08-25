@@ -33,6 +33,7 @@ const requiredPropsCheck = (props, propName, componentName) => {
   if (!props.heading && !props.children) {
     return new Error(`One of 'heading' or 'children' is required by '${componentName}' component.`);
   }
+  return undefined;
 };
 
 Alert.propTypes = {

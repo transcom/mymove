@@ -55,7 +55,7 @@ package serviceparamvaluelookups
 // 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		valueStr, err := paramLookup.ServiceParamValue(key)
+// 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.FatalNoError(err)
 // 		suite.Equal(expectedPSILinehaulDom.ID.String(), valueStr)
 // 	})
@@ -80,7 +80,7 @@ package serviceparamvaluelookups
 //
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		valueStr, err := paramLookup.ServiceParamValue(key)
+// 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.FatalNoError(err)
 // 		suite.Equal(psiLinehaulDomSecond.ID.String(), valueStr)
 // 	})
@@ -92,7 +92,7 @@ package serviceparamvaluelookups
 //
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		_, err := paramLookup.ServiceParamValue(key)
+// 		_, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.Error(err)
 // 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDom.PaymentRequestID, psiLinehaulDom.MTOServiceItemID)
 // 		suite.Equal(expected, err.Error())
@@ -104,7 +104,7 @@ package serviceparamvaluelookups
 // 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		_, err := paramLookup.ServiceParamValue(key)
+// 		_, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.Error(err)
 // 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomLookup with error id: %s not found looking for MTOServiceItemID", invalidMTOServiceItemID)
 // 		suite.Equal(expected, err.Error())
@@ -126,7 +126,7 @@ package serviceparamvaluelookups
 //
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
 //
-// 		_, err := paramLookup.ServiceParamValue(key)
+// 		_, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.Error(err)
 // 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.MTOServiceItemID)
 // 		suite.Equal(expected, err.Error())
@@ -141,7 +141,7 @@ package serviceparamvaluelookups
 // 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		valueStr, err := paramLookup.ServiceParamValue(key)
+// 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.FatalNoError(err)
 // 		suite.Equal(expectedPSILinehaulDom.PriceCents.String(), valueStr)
 // 	})
@@ -166,7 +166,7 @@ package serviceparamvaluelookups
 //
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		valueStr, err := paramLookup.ServiceParamValue(key)
+// 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.FatalNoError(err)
 // 		suite.Equal(psiLinehaulDomSecond.PriceCents.String(), valueStr)
 // 	})
@@ -178,7 +178,7 @@ package serviceparamvaluelookups
 //
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		_, err := paramLookup.ServiceParamValue(key)
+// 		_, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.Error(err)
 // 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomPriceLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDom.PaymentRequestID, psiLinehaulDom.MTOServiceItemID)
 // 		suite.Equal(expected, err.Error())
@@ -190,7 +190,7 @@ package serviceparamvaluelookups
 // 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
 //
-// 		_, err := paramLookup.ServiceParamValue(key)
+// 		_, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.Error(err)
 // 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomPriceLookup with error id: %s not found looking for MTOServiceItemID", invalidMTOServiceItemID)
 // 		suite.Equal(expected, err.Error())
@@ -212,7 +212,7 @@ package serviceparamvaluelookups
 //
 // 		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
 //
-// 		_, err := paramLookup.ServiceParamValue(key)
+// 		_, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 // 		suite.Error(err)
 // 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomPriceLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.MTOServiceItemID)
 // 		suite.Equal(expected, err.Error())

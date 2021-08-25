@@ -26,7 +26,7 @@ const (
 	offsetFlag string = "offset-days"
 )
 
-func checkPostMoveSurveyConfig(v *viper.Viper, logger logger) error {
+func checkPostMoveSurveyConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 

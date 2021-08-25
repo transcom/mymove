@@ -34,6 +34,7 @@ const defaultProps = {
     },
   },
   moveTaskOrderID: 'mock move id',
+  mtoShipments: [],
 };
 
 const mockMtoShipment = {
@@ -111,13 +112,9 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
 
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-    });
-
-    it('does not render special NTS What to expect section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
 
       expect(
-        await screen.queryByText(
+        screen.queryByText(
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();
@@ -183,7 +180,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
       expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
-      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('9999999999'); // formatAgentForDisplay removes '-'
+      expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
       expect(screen.getAllByLabelText('Email')[0]).toHaveValue('jasn@email.com');
       expect(screen.getByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
       expect(screen.getByLabelText('Yes')).toBeChecked();
@@ -194,7 +191,7 @@ describe('ServicesCounselingShipmentForm component', () => {
       expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
       expect(screen.getAllByLabelText('First name')[1]).toHaveValue('Riley');
       expect(screen.getAllByLabelText('Last name')[1]).toHaveValue('Baker');
-      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('8635559664'); // formatAgentForDisplay removes '-'
+      expect(screen.getAllByLabelText('Phone')[1]).toHaveValue('863-555-9664');
       expect(screen.getAllByLabelText('Email')[1]).toHaveValue('rbaker@email.com');
       expect(screen.getByLabelText('Customer remarks')).toHaveValue('mock customer remarks');
       expect(screen.getByLabelText('Counselor remarks')).toHaveValue('mock counselor remarks');
@@ -265,13 +262,9 @@ describe('ServicesCounselingShipmentForm component', () => {
 
       expect(screen.getByLabelText('Customer remarks')).toBeInstanceOf(HTMLTextAreaElement);
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
-    });
-
-    it('does not render special NTS What to expect section', async () => {
-      render(<ServicesCounselingShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
 
       expect(
-        await screen.queryByText(
+        screen.queryByText(
           'The moving company will find a storage facility approved by the government, and will move your belongings there.',
         ),
       ).not.toBeInTheDocument();

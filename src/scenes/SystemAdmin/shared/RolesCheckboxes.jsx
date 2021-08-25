@@ -5,7 +5,7 @@ import { adminOfficeRoles } from 'constants/userRoles';
 
 const makeRoleTypeArray = (roles) => {
   if (!roles || roles.length === 0) {
-    return;
+    return undefined;
   }
   return roles.reduce((rolesArray, role) => {
     if (role.roleType) {

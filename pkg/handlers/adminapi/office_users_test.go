@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			Filter:      &fakeFilter,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			ListFetcher:    fetch.NewListFetcher(queryBuilder),
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(uuidString),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeuser.NewOfficeUserFetcher(queryBuilder),
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(uuidString),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeuser.NewOfficeUserFetcher(queryBuilder),
@@ -165,7 +165,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(fakeID),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeuser.NewOfficeUserFetcher(queryBuilder),
@@ -190,9 +190,6 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	req := httptest.NewRequest("POST", "/office_users", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
-	// Adding a logger to the request context for the notification email the OfficeUserCreator generates
-	ctx := logging.NewContext(req.Context(), suite.TestLogger())
-	req = req.WithContext(ctx)
 
 	tooRoleName := "Transportation Ordering Officer"
 	tooRoleType := string(roles.RoleTypeTOO)
@@ -225,12 +222,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 				TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
 			},
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeuser.NewOfficeUserCreator(suite.DB(), queryBuilder, suite.TestNotificationSender()),
+			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
-			usersroles.NewUsersRolesCreator(suite.DB()),
+			usersroles.NewUsersRolesCreator(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
@@ -262,12 +259,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			},
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			officeuser.NewOfficeUserCreator(suite.DB(), queryBuilder, suite.TestNotificationSender()),
+			officeuser.NewOfficeUserCreator(queryBuilder, suite.TestNotificationSender()),
 			query.NewQueryFilter,
-			usersroles.NewUsersRolesCreator(suite.DB()),
+			usersroles.NewUsersRolesCreator(),
 		}
 
 		response := handler.Handle(params)
@@ -281,7 +278,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		&mockUpdater,
 		query.NewQueryFilter,
-		usersroles.NewUsersRolesCreator(suite.DB()), // a special can of worms, TODO mocked tests
+		usersroles.NewUsersRolesCreator(), // a special can of worms, TODO mocked tests
 	}
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
@@ -324,7 +321,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.Telephone = *expectedInput.Telephone
 		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
 
-		mockUpdater.On("UpdateOfficeUser", officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
@@ -352,7 +349,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
 		expectedInput := *officeUserUpdates
-		mockUpdater.On("UpdateOfficeUser", officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
 
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)

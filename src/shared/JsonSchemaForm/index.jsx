@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
 import { isEmpty, uniq } from 'lodash';
-import { reduxForm, Field } from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
 import 'shared/JsonSchemaForm/index.css';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
@@ -41,7 +41,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
 export const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
-    return;
+    return undefined;
   }
   return SchemaField.createSchemaField(fieldName, field, nameSpace);
 };
@@ -149,6 +149,7 @@ export const renderSchema = (schema, uiSchema, nameSpace = '') => {
     const fields = schema.properties || {};
     return uiSchema.order.map((i) => renderGroupOrField(i, fields, uiSchema, nameSpace));
   }
+  return undefined;
 };
 
 export const addUiSchemaRequiredFields = (schema, uiSchema) => {

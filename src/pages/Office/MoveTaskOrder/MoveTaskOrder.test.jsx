@@ -66,6 +66,9 @@ const unapprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -87,6 +90,9 @@ const unapprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: undefined,
@@ -147,6 +153,9 @@ const someShipmentsApprovedMTOQuery = {
       },
       status: shipmentStatuses.APPROVED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -168,6 +177,9 @@ const someShipmentsApprovedMTOQuery = {
       },
       status: shipmentStatuses.SUBMITTED,
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -258,6 +270,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -281,6 +296,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -304,6 +322,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '6',
@@ -327,6 +348,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 50,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '7',
@@ -350,6 +374,9 @@ const allApprovedMTOQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -399,6 +426,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -422,6 +452,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -445,6 +478,9 @@ const missingWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -475,6 +511,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: null,
       primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -498,6 +537,9 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 25,
       primeActualWeight: 25,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -521,11 +563,14 @@ const missingSomeWeightQuery = {
       eTag: '1234',
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
 
-// no weight is not returned in payload at all
+// weight is not returned in payload at all
 const noWeightQuery = {
   ...allApprovedMTOQuery,
   mtoShipments: [
@@ -549,6 +594,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -570,6 +618,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -591,6 +642,9 @@ const noWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
 };
@@ -621,6 +675,9 @@ const someWeightNotReturned = {
       eTag: '1234',
       primeActualWeight: 100,
       primeEstimatedWeight: 100,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '4',
@@ -642,6 +699,9 @@ const someWeightNotReturned = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
     {
       id: '5',
@@ -665,6 +725,86 @@ const someWeightNotReturned = {
       eTag: '1234',
       primeActualWeight: 1,
       primeEstimatedWeight: 1,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+    },
+  ],
+};
+
+const riskOfExcessWeightQuery = {
+  ...allApprovedMTOQuery,
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 100,
+        totalWeight: 100,
+      },
+    },
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 50,
+      primeActualWeight: 50,
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 40,
+      primeActualWeight: 40,
     },
   ],
 };
@@ -721,6 +861,9 @@ const approvedMTOWithCancelledShipmentQuery = {
       },
       status: 'CANCELED',
       eTag: '1234',
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
     },
   ],
   mtoServiceItems: [
@@ -739,6 +882,7 @@ const approvedMTOWithCancelledShipmentQuery = {
 
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
+const setExcessWeightRiskCount = jest.fn();
 
 const moveCode = 'WE31AZ';
 const requiredProps = {
@@ -768,12 +912,19 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
       expect(weightSummaries[0]).toHaveTextContent('8,500 lbs');
+
+      const riskOfExcessAlert = await screen.queryByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeFalsy();
+
+      const riskOfExcessTag = await screen.queryByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeFalsy();
     });
 
     it('displays the max billable weight', async () => {
@@ -783,6 +934,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -800,6 +952,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -817,6 +970,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -834,6 +988,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -851,6 +1006,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -868,6 +1024,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -885,6 +1042,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -902,6 +1060,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -919,12 +1078,51 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
       expect(weightSummaries[3]).toHaveTextContent('101');
+    });
+
+    it('displays risk of excess tag', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      const riskOfExcessTag = await screen.getByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeInTheDocument();
+    });
+
+    it('displays risk of excess alert', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      expect(setExcessWeightRiskCount).toHaveBeenCalledWith(1);
+
+      const riskOfExcessAlert = await screen.getByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeInTheDocument();
     });
 
     it('displays the estimated total weight', async () => {
@@ -936,6 +1134,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -953,6 +1152,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -961,6 +1161,7 @@ describe('MoveTaskOrder', () => {
       expect(moveWeightTotal).toBeInTheDocument();
     });
   });
+
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveTaskOrderQueries.mockReturnValue(loadingReturnValue);
@@ -971,6 +1172,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -988,6 +1190,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1005,6 +1208,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1039,6 +1243,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1054,7 +1259,7 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.length).toBe(1);
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1105,6 +1310,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1120,20 +1326,20 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
 
       expect(navLinks.at(1).contains('NTS shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
-      expect(navLinks.at(1).prop('href')).toBe('#shipment-4');
+      expect(navLinks.at(1).prop('href')).toBe('#s-4');
 
       expect(navLinks.at(2).contains('NTS-R shipment')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#shipment-5');
+      expect(navLinks.at(2).prop('href')).toBe('#s-5');
 
       expect(navLinks.at(3).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#shipment-6');
+      expect(navLinks.at(3).prop('href')).toBe('#s-6');
 
       expect(navLinks.at(4).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#shipment-7');
+      expect(navLinks.at(4).prop('href')).toBe('#s-7');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1183,6 +1389,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1198,7 +1405,7 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1208,7 +1415,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
-      expect(wrapper.find('span[data-testid="tag"]').text()).toEqual('cancelled');
+      expect(wrapper.find('span[data-testid="tag"]').at(0).text()).toEqual('cancelled');
     });
 
     it('renders the ImportantShipmentDates', () => {
@@ -1221,6 +1428,7 @@ describe('MoveTaskOrder', () => {
 
     it('renders the ShipmentWeightDetails', () => {
       expect(wrapper.find('ShipmentWeightDetails').exists()).toBe(true);
+      expect(wrapper.find('span[data-testid="tag"]').at(1).text()).toEqual('reweigh requested');
     });
 
     it('renders the RequestedServiceItemsTable for SUBMITTED service item', () => {

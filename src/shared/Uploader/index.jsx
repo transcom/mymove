@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { CreateUpload, DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
-import { concat, reject, every, includes } from 'lodash';
+import { concat, every, includes, isEqual, reject } from 'lodash';
 
 import 'filepond/dist/filepond.min.css';
 import './index.css';
@@ -46,6 +46,14 @@ export class Uploader extends Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!isEqual(prevState.files, this.state.files)) {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.files, this.isIdle());
+      }
+    }
+  }
+
   clearFiles() {
     // If this component is unloaded quickly, this function can be called after the ref is deleted,
     // so check that the ref still exists before continuing
@@ -57,10 +65,6 @@ export class Uploader extends Component {
     this.setState({
       files: [],
     });
-
-    if (this.props.onChange) {
-      this.props.onChange([], true);
-    }
   }
 
   isEmpty() {
@@ -75,7 +79,7 @@ export class Uploader extends Component {
     // If this component is unloaded quickly, this function can be called after the ref is deleted,
     // so check that the ref still exists before continuing
     if (!this.pond) {
-      return;
+      return undefined;
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
@@ -131,17 +135,18 @@ export class Uploader extends Component {
   };
 
   revertFile = (uploadId, load, error) => {
-    const { onChange, isPublic } = this.props;
+    const { isPublic } = this.props;
     DeleteUpload(uploadId, isPublic)
       .then((item) => {
         load(item);
-        const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
-        this.setState({
-          files: newFiles,
-        });
-        if (onChange) {
-          onChange(newFiles, this.isIdle());
-        }
+        const removeFile = (prevState) => {
+          const newFiles = reject(prevState.files, (upload) => upload.id === uploadId);
+          return {
+            files: newFiles,
+          };
+        };
+
+        this.setState(removeFile);
       })
       .catch(error);
   };

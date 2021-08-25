@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -41,9 +42,11 @@ type GetUserHandler struct {
 // Handle retrieves a specific user
 func (h GetUserHandler) Handle(params userop.GetUserParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
 	userID := uuid.FromStringOrNil(params.UserID.String())
 	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", userID)}
-	user, err := h.UserFetcher.FetchUser(queryFilters)
+	user, err := h.UserFetcher.FetchUser(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -71,6 +74,8 @@ var usersFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle lists all users
 func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := generateQueryFilters(logger, params.Filter, usersFilterConverters)
 
@@ -78,12 +83,12 @@ func (h IndexUsersHandler) Handle(params userop.IndexUsersParams) middleware.Res
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	var users models.Users
-	err := h.ListFetcher.FetchRecordList(&users, queryFilters, nil, pagination, ordering)
+	err := h.ListFetcher.FetchRecordList(appCtx, &users, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalUsersCount, err := h.ListFetcher.FetchRecordCount(&users, queryFilters)
+	totalUsersCount, err := h.ListFetcher.FetchRecordCount(appCtx, &users, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -110,6 +115,7 @@ type UpdateUserHandler struct {
 // Handle updates a user's Active status and/or their sessions
 func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.User
 
 	// Check that the uuid provided is valid and get user model
@@ -135,7 +141,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 		return userop.NewUpdateUserUnprocessableEntity()
 	}
 
-	_, verrs, err := h.UpdateUser(params.HTTPRequest.Context(), userID, user)
+	_, verrs, err := h.UpdateUser(appCtx, userID, user)
 	if verrs != nil || err != nil {
 		logger.Error(fmt.Sprintf("Error updating user %s", params.UserID.String()), zap.Error(err))
 	}
@@ -153,7 +159,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 	}
 
 	sessionStore := h.SessionManager(session).Store
-	updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(userID, payload, sessionStore)
+	updatedUser, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(appCtx, userID, payload, sessionStore)
 	if revokeErr != nil || validationErrors != nil {
 		fmt.Printf("%#v", validationErrors)
 		logger.Error("Error revoking user session", zap.Error(revokeErr))

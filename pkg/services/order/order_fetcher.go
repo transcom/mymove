@@ -10,24 +10,24 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type orderFetcher struct {
-	db *pop.Connection
 }
 
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
 type QueryOption func(*pop.Query)
 
-func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moves []models.Move
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
-	err := f.db.Q().
+	err := appCtx.DB().Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
@@ -62,7 +62,7 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
 	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, requestedMoveDateQuery, sortOrderQuery}
 
-	query := f.db.Q().EagerPreload(
+	query := appCtx.DB().Q().EagerPreload(
 		"Orders.ServiceMember",
 		"Orders.NewDutyStation.Address",
 		"Orders.OriginDutyStation.Address",
@@ -127,7 +127,7 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 		//   cannot eager load the address as "OriginDutyStation.Address" because
 		//   OriginDutyStation is a pointer.
 		if moves[i].Orders.OriginDutyStation != nil {
-			loadErr := f.db.Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
+			loadErr := appCtx.DB().Load(moves[i].Orders.OriginDutyStation, "TransportationOffice")
 			if loadErr != nil {
 				return []models.Move{}, 0, err
 			}
@@ -138,16 +138,16 @@ func (f orderFetcher) ListOrders(officeUserID uuid.UUID, params *services.ListOr
 }
 
 // NewOrderFetcher creates a new struct with the service dependencies
-func NewOrderFetcher(db *pop.Connection) services.OrderFetcher {
-	return &orderFetcher{db}
+func NewOrderFetcher() services.OrderFetcher {
+	return &orderFetcher{}
 }
 
 // FetchOrder retrieves an Order for a given UUID
-func (f orderFetcher) FetchOrder(orderID uuid.UUID) (*models.Order, error) {
+func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move_task_order.
 	order := &models.Order{}
-	err := f.db.Q().Eager(
+	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
 		"NewDutyStation.Address",
@@ -169,7 +169,7 @@ func (f orderFetcher) FetchOrder(orderID uuid.UUID) (*models.Order, error) {
 	// cannot eager load the address as "OriginDutyStation.Address" because
 	// OriginDutyStation is a pointer.
 	if order.OriginDutyStation != nil {
-		err = f.db.Load(order.OriginDutyStation, "Address")
+		err = appCtx.DB().Load(order.OriginDutyStation, "Address")
 		if err != nil {
 			return order, err
 		}

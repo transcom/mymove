@@ -1,3 +1,5 @@
+import { fileUploadTimeout } from '../../support/constants';
+
 describe('orders entry', function () {
   before(() => {
     cy.prepareCustomerApp();
@@ -68,8 +70,8 @@ describe('orders entry', function () {
       expect(loc.pathname).to.eq('/orders/amend');
     });
 
-    cy.upload_file('.filepond--root', 'top-secret.png');
-    cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+    cy.upload_file('.filepond--root', 'sample-orders.png');
+    cy.get('[data-filepond-item-state="processing-complete"]', { timeout: fileUploadTimeout }).should('have.length', 1);
 
     cy.wait(['@currentOrders', '@uploadAmendedOrder']);
 

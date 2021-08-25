@@ -26,9 +26,9 @@ class QueueTable extends Component {
       lastLoadedAt: new Date(),
       lastLoadedAtText: formatTimeAgo(new Date()),
       interval: setInterval(() => {
-        this.setState({
-          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
-        });
+        this.setState((prevState) => ({
+          lastLoadedAtText: formatTimeAgo(prevState.lastLoadedAt),
+        }));
       }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
@@ -123,9 +123,9 @@ class QueueTable extends Component {
       refreshing: true,
       lastLoadedAt: new Date(),
       interval: setInterval(() => {
-        this.setState({
-          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
-        });
+        this.setState((prevState) => ({
+          lastLoadedAtText: formatTimeAgo(prevState.lastLoadedAt),
+        }));
       }, 5000),
     });
 

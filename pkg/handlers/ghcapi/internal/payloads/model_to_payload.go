@@ -48,6 +48,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		Orders:                       Order(&move.Orders),
 		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
 		Status:                       ghcmessages.MoveStatus(move.Status),
+		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
 		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
 		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
@@ -293,6 +294,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		MtoAgents:                *MTOAgents(&mtoShipment.MTOAgents),
 		MtoServiceItems:          MTOServiceItemModels(mtoShipment.MTOServiceItems),
 		Diversion:                mtoShipment.Diversion,
+		Reweigh:                  Reweigh(mtoShipment.Reweigh),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
@@ -684,6 +686,9 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 
 // Reweigh payload
 func Reweigh(reweigh *models.Reweigh) *ghcmessages.Reweigh {
+	if reweigh == nil || reweigh.ID == uuid.Nil {
+		return nil
+	}
 	payload := &ghcmessages.Reweigh{
 		ID:                     strfmt.UUID(reweigh.ID.String()),
 		RequestedAt:            strfmt.DateTime(reweigh.RequestedAt),

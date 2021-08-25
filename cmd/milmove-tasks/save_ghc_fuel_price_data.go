@@ -20,7 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcdieselfuelprice"
 )
 
-func checkSaveGHCFuelPriceConfig(v *viper.Viper, logger logger) error {
+func checkSaveGHCFuelPriceConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 

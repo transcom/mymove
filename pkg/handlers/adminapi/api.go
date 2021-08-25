@@ -41,7 +41,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
-	queryBuilder := query.NewQueryBuilder(ctx.DB())
+	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
 
@@ -60,10 +60,10 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
-	userRolesCreator := usersroles.NewUsersRolesCreator(ctx.DB())
+	userRolesCreator := usersroles.NewUsersRolesCreator()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		ctx,
-		officeuser.NewOfficeUserCreator(ctx.DB(), queryBuilder, ctx.NotificationSender()),
+		officeuser.NewOfficeUserCreator(queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
@@ -144,7 +144,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
 		ctx,
-		adminuser.NewAdminUserCreator(ctx.DB(), queryBuilder, ctx.NotificationSender()),
+		adminuser.NewAdminUserCreator(queryBuilder, ctx.NotificationSender()),
 		query.NewQueryFilter,
 	}
 
@@ -168,7 +168,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 	}
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		ctx,
-		upload.NewUploadInformationFetcher(ctx.DB()),
+		upload.NewUploadInformationFetcher(),
 	}
 
 	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{
@@ -185,11 +185,10 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
-	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
+	moveRouter := move.NewMoveRouter()
 	adminAPI.MoveUpdateMoveHandler = UpdateMoveHandler{
 		ctx,
 		movetaskorder.NewMoveTaskOrderUpdater(
-			ctx.DB(),
 			queryBuilder,
 			mtoserviceitem.NewMTOServiceItemCreator(queryBuilder, moveRouter),
 			moveRouter,
@@ -215,7 +214,7 @@ func NewAdminAPIHandler(ctx handlers.HandlerContext) http.Handler {
 
 	adminAPI.WebhookSubscriptionsCreateWebhookSubscriptionHandler = CreateWebhookSubscriptionHandler{
 		ctx,
-		webhooksubscription.NewWebhookSubscriptionCreator(ctx.DB(), queryBuilder),
+		webhooksubscription.NewWebhookSubscriptionCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 

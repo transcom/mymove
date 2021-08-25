@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -14,13 +16,13 @@ type MoveFetcher struct {
 	mock.Mock
 }
 
-// FetchMove provides a mock function with given fields: locator, searchParams
-func (_m *MoveFetcher) FetchMove(locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
-	ret := _m.Called(locator, searchParams)
+// FetchMove provides a mock function with given fields: appCtx, locator, searchParams
+func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
+	ret := _m.Called(appCtx, locator, searchParams)
 
 	var r0 *models.Move
-	if rf, ok := ret.Get(0).(func(string, *services.MoveFetcherParams) *models.Move); ok {
-		r0 = rf(locator, searchParams)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *services.MoveFetcherParams) *models.Move); ok {
+		r0 = rf(appCtx, locator, searchParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Move)
@@ -28,8 +30,8 @@ func (_m *MoveFetcher) FetchMove(locator string, searchParams *services.MoveFetc
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, *services.MoveFetcherParams) error); ok {
-		r1 = rf(locator, searchParams)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, *services.MoveFetcherParams) error); ok {
+		r1 = rf(appCtx, locator, searchParams)
 	} else {
 		r1 = ret.Error(1)
 	}

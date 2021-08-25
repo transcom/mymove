@@ -1,12 +1,12 @@
 package mtoagent
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -30,7 +30,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(context.Background(), tc.newA, tc.oldA, nil)
+					err := checkShipmentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -53,7 +53,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(context.Background(), tc.newA, tc.oldA, nil)
+					err := checkShipmentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(verr.HasAny())
@@ -84,7 +84,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentID().Validate(context.Background(), tc.newA, tc.oldA, nil)
+					err := checkAgentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -110,7 +110,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentID().Validate(context.Background(), tc.newA, tc.oldA, nil)
+					err := checkAgentID().Validate(suite.TestAppContext(), tc.newA, tc.oldA, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(tc.verr, "expected something other than a *validate.Errors type")
@@ -149,7 +149,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 				Phone:     &phone,
 			}
 
-			err := checkContactInfo().Validate(context.Background(), agent, oldAgent, nil)
+			err := checkContactInfo().Validate(suite.TestAppContext(), agent, oldAgent, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.NoVerrs(verr)
@@ -170,7 +170,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 				Phone:     &phone,
 			}
 
-			err := checkContactInfo().Validate(context.Background(), agent, oldAgent, nil)
+			err := checkContactInfo().Validate(suite.TestAppContext(), agent, oldAgent, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.True(verr.HasAny())
@@ -218,7 +218,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 			}
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentType().Validate(context.Background(), tc.newA, tc.oldA, tc.ship)
+					err := checkAgentType().Validate(suite.TestAppContext(), tc.newA, tc.oldA, tc.ship)
 					suite.NoError(err, "Unexpected error from checkAgentType: %v", err)
 				})
 			}
@@ -280,7 +280,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 
 			for name, tc := range testCases {
 				suite.Run(name, func() {
-					err := checkAgentType().Validate(context.Background(), tc.newA, nil, tc.ship)
+					err := checkAgentType().Validate(suite.TestAppContext(), tc.newA, nil, tc.ship)
 					tc.verf(err)
 				})
 			}
@@ -291,10 +291,10 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 		shipment := models.MTOShipment{
 			ID: uuid.Must(uuid.NewV4()),
 		}
-		checkHappy := primeFunc(func(uuid.UUID) (bool, error) {
+		checkHappy := primeFunc(func(appcontext.AppContext, uuid.UUID) (bool, error) {
 			return true, nil
 		})
-		checkError := primeFunc(func(uuid.UUID) (bool, error) {
+		checkError := primeFunc(func(appcontext.AppContext, uuid.UUID) (bool, error) {
 			return false, fmt.Errorf("forced")
 		})
 		testCases := map[string]struct {
@@ -321,7 +321,7 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 
 		for name, tc := range testCases {
 			suite.Run(name, func() {
-				err := checkPrimeAvailability(tc.check).Validate(context.Background(), models.MTOAgent{}, nil, tc.ship)
+				err := checkPrimeAvailability(tc.check).Validate(suite.TestAppContext(), models.MTOAgent{}, nil, tc.ship)
 				if err == nil {
 					if tc.err {
 						suite.Fail("expected error")
@@ -335,8 +335,8 @@ func (suite *MTOAgentServiceSuite) TestValidationRules() {
 	})
 }
 
-type primeFunc func(uuid.UUID) (bool, error)
+type primeFunc func(appcontext.AppContext, uuid.UUID) (bool, error)
 
-func (fn primeFunc) MTOAvailableToPrime(id uuid.UUID) (bool, error) {
-	return fn(id)
+func (fn primeFunc) MTOAvailableToPrime(appCtx appcontext.AppContext, id uuid.UUID) (bool, error) {
+	return fn(appCtx, id)
 }

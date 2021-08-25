@@ -81,6 +81,8 @@ export default class ConfirmWithReasonButton extends Component {
       );
     } else {
       console.error('Unknown State: ', this.state.displayState);
+      // TODO I think we can do better here
+      return undefined;
     }
   }
 }

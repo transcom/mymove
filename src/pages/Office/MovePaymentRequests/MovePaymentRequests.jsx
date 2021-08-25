@@ -1,10 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { GridContainer } from '@trussworks/react-uswds';
 import { func } from 'prop-types';
+import classnames from 'classnames';
 
 import txoStyles from '../TXOMoveInfo/TXOTab.module.scss';
 import paymentRequestStatus from '../../../constants/paymentRequestStatus';
 
+import handleScroll from 'utils/handleScroll';
+import LeftNav from 'components/LeftNav';
 import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -12,6 +16,10 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
+
+const sectionLabels = {
+  'payment-requests': 'Payment requests',
+};
 
 const MovePaymentRequests = ({
   setUnapprovedShipmentCount,
@@ -21,6 +29,10 @@ const MovePaymentRequests = ({
   const { moveCode } = useParams();
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const [activeSection, setActiveSection] = useState('');
+  const sections = useMemo(() => {
+    return ['payment-requests'];
+  }, []);
 
   useEffect(() => {
     const shipmentCount = mtoShipments
@@ -48,6 +60,16 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
+  useEffect(() => {
+    // attach scroll listener
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
+
+    // remove scroll listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
+    };
+  }, [sections, activeSection]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -67,18 +89,35 @@ const MovePaymentRequests = ({
 
   return (
     <div className={txoStyles.tabContent}>
-      <div className="grid-container-widescreen" data-testid="MovePaymentRequests">
-        <h1>Payment requests</h1>
-
-        {paymentRequests.length ? (
-          paymentRequests.map((paymentRequest) => (
-            <PaymentRequestCard paymentRequest={paymentRequest} shipmentsInfo={shipmentsInfo} key={paymentRequest.id} />
-          ))
-        ) : (
-          <div className={txoStyles.emptyMessage}>
-            <p>No payment requests have been submitted for this move yet.</p>
+      <div className={txoStyles.container} data-testid="MovePaymentRequests">
+        <LeftNav className={txoStyles.sidebar}>
+          {paymentRequests.length &&
+            sections?.map((s) => {
+              return (
+                <a key={`sidenav_${s}`} href={`#${s}`} className={classnames({ active: s === activeSection })}>
+                  {sectionLabels[`${s}`]}
+                </a>
+              );
+            })}
+        </LeftNav>
+        <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
+          <h1>Payment requests</h1>
+          <div className={txoStyles.section} id="payment-requests">
+            {paymentRequests.length ? (
+              paymentRequests.map((paymentRequest) => (
+                <PaymentRequestCard
+                  paymentRequest={paymentRequest}
+                  shipmentsInfo={shipmentsInfo}
+                  key={paymentRequest.id}
+                />
+              ))
+            ) : (
+              <div className={txoStyles.emptyMessage}>
+                <p>No payment requests have been submitted for this move yet.</p>
+              </div>
+            )}
           </div>
-        )}
+        </GridContainer>
       </div>
     </div>
   );

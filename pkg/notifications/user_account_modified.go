@@ -2,17 +2,15 @@ package notifications
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	html "html/template"
 	"net/url"
 	text "text/template"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -30,7 +28,7 @@ var (
 // UserAccountModified has notification content for alerting admins when a user account has been modified
 type UserAccountModified struct {
 	logger            Logger
-	sysAdminEmail     string //todo env variable to get this? can get from context?
+	sysAdminEmail     string
 	host              string
 	action            string
 	modifiedUserID    uuid.UUID
@@ -42,58 +40,54 @@ type UserAccountModified struct {
 
 // NewUserAccountCreated returns a new UserAccountModified notification for account creation
 func NewUserAccountCreated(
-	ctx context.Context,
+	appCtx appcontext.AppContext,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
-	return newUserAccountModified(ctx, sysAdminEmail, "created", modifiedUserID, modifiedAt)
+	return newUserAccountModified(appCtx, sysAdminEmail, "created", modifiedUserID, modifiedAt)
 }
 
 // NewUserAccountActivated returns a new UserAccountModified notification for account activation
 func NewUserAccountActivated(
-	ctx context.Context,
+	appCtx appcontext.AppContext,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
-	return newUserAccountModified(ctx, sysAdminEmail, "activated", modifiedUserID, modifiedAt)
+	return newUserAccountModified(appCtx, sysAdminEmail, "activated", modifiedUserID, modifiedAt)
 }
 
 // NewUserAccountDeactivated returns a new UserAccountModified notification for account deactivation
 func NewUserAccountDeactivated(
-	ctx context.Context,
+	appCtx appcontext.AppContext,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
-	return newUserAccountModified(ctx, sysAdminEmail, "deactivated", modifiedUserID, modifiedAt)
+	return newUserAccountModified(appCtx, sysAdminEmail, "deactivated", modifiedUserID, modifiedAt)
 }
 
 // NewUserAccountRemoved returns a new UserAccountModified notification for account removal
 func NewUserAccountRemoved(
-	ctx context.Context,
+	appCtx appcontext.AppContext,
 	sysAdminEmail string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
-	return newUserAccountModified(ctx, sysAdminEmail, "removed", modifiedUserID, modifiedAt)
+	return newUserAccountModified(appCtx, sysAdminEmail, "removed", modifiedUserID, modifiedAt)
 }
 
 // newUserAccountModified returns a new UserAccountModified notification
 func newUserAccountModified(
-	ctx context.Context,
+	appCtx appcontext.AppContext,
 	sysAdminEmail string,
 	action string,
 	modifiedUserID uuid.UUID,
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
-	logger, ok := logging.FromContext(ctx).(Logger)
-	if !ok {
-		return nil, services.NewContextError("Unable to find Logger in Context")
-	}
-
-	session := auth.SessionFromContext(ctx)
+	logger := appCtx.Logger()
+	session := auth.SessionFromContext(appCtx.RequestContext())
 	if session == nil {
 		return nil, services.NewContextError("Unable to find Session in Context")
 	}

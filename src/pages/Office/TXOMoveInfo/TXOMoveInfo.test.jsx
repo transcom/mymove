@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen, queryByTestId } from '@testing-library/react';
+import { queryByTestId, render, screen } from '@testing-library/react';
 
 import TXOMoveInfo from './TXOMoveInfo';
 
@@ -51,11 +51,6 @@ const errorReturnValue = {
   isLoading: false,
   isError: true,
   isSuccess: false,
-};
-
-const updatedOrdersUseTXOMoveInfoQueriesValue = {
-  ...basicUseTXOMoveInfoQueriesValue,
-  order: { ...basicUseTXOMoveInfoQueriesValue.order, uploadedAmendedOrderID: '123' },
 };
 
 describe('TXO Move Info Container', () => {
@@ -145,45 +140,6 @@ describe('TXO Move Info Container', () => {
     });
   });
 
-  describe('Tag rendering', () => {
-    it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(updatedOrdersUseTXOMoveInfoQueriesValue);
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('1');
-    });
-
-    it('should render the move details tab container with a tag that shows the count of items that need attention when there are unapproved shipments', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
-      const setUnapprovedShipmentCount = jest.fn();
-      jest.spyOn(React, 'useState').mockReturnValueOnce([2, setUnapprovedShipmentCount]);
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('2');
-    });
-
-    it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended and there are unapproved shipments', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(updatedOrdersUseTXOMoveInfoQueriesValue);
-      const setUnapprovedShipmentCount = jest.fn();
-      jest.spyOn(React, 'useState').mockReturnValueOnce([2, setUnapprovedShipmentCount]);
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('3');
-    });
-  });
-
   describe('routing', () => {
     beforeAll(() => {
       useTXOMoveInfoQueries.mockReturnValue(basicUseTXOMoveInfoQueriesValue);
@@ -256,6 +212,18 @@ describe('TXO Move Info Container', () => {
       const renderedRoute = wrapper.find('Route');
       expect(renderedRoute).toHaveLength(1);
       expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/payment-requests');
+    });
+
+    it('should handle the Billable Weight route', () => {
+      const wrapper = mount(
+        <MockProviders initialEntries={[`/moves/${testMoveCode}/billable-weight`]}>
+          <TXOMoveInfo />
+        </MockProviders>,
+      );
+
+      const renderedRoute = wrapper.find('Route');
+      expect(renderedRoute).toHaveLength(1);
+      expect(renderedRoute.prop('path')).toEqual('/moves/:moveCode/billable-weight');
     });
 
     it('should handle the Move History route', () => {

@@ -14,7 +14,7 @@ import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
 import ScrollToTop from 'components/ScrollToTop';
 
-import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
+import { beforeTransition, getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
 
 export class WizardFormPage extends Component {
   constructor(props) {
@@ -63,6 +63,7 @@ export class WizardFormPage extends Component {
       return this.props.reduxFormSubmit().then(() => this.beforeTransition(getPreviousPagePath, false));
     }
     this.beforeTransition(getPreviousPagePath, shouldHandleSubmit);
+    return undefined;
   }
 
   submit() {

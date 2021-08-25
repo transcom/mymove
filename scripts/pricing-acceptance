@@ -63,7 +63,7 @@ else
   primeapiopts=(--cac --hostname "${environment}" --port 443)
 fi
 
-if bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates-fast > tmp/all_mtos.json; then
+if bin/prime-api-client "${primeapiopts[@]}" list-moves > tmp/all_mtos.json; then
   echo "server is running"
 else
   echo "server is not running"

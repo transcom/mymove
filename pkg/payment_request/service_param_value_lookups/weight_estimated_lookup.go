@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -12,7 +13,7 @@ type WeightEstimatedLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightEstimatedLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightEstimatedLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
 
 	switch keyData.MTOServiceItem.ReService.Code {
@@ -29,8 +30,7 @@ func (r WeightEstimatedLookup) lookup(keyData *ServiceItemParamKeyData) (string,
 		// Make sure there's an estimated weight since that's nullable
 		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 		if estimatedWeight == nil {
-			// TODO: Do we need a different error -- is this a "normal" scenario?
-			return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", r.MTOShipment.ID)
+			return "", nil
 		}
 	}
 
