@@ -6,9 +6,9 @@ import (
 
 func (suite *CustomerServiceSuite) TestCustomerFetcher() {
 	customer := testdatagen.MakeDefaultServiceMember(suite.DB())
-	mtoFetcher := NewCustomerFetcher(suite.DB())
+	mtoFetcher := NewCustomerFetcher()
 
-	actualCustomer, err := mtoFetcher.FetchCustomer(customer.ID)
+	actualCustomer, err := mtoFetcher.FetchCustomer(suite.TestAppContext(), customer.ID)
 	suite.NoError(err)
 
 	suite.Equal(customer.ID, actualCustomer.ID)

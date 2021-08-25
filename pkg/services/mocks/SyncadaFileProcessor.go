@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -26,13 +28,13 @@ func (_m *SyncadaFileProcessor) EDIType() models.EDIType {
 	return r0
 }
 
-// ProcessFile provides a mock function with given fields: syncadaPath, text
-func (_m *SyncadaFileProcessor) ProcessFile(syncadaPath string, text string) error {
-	ret := _m.Called(syncadaPath, text)
+// ProcessFile provides a mock function with given fields: appCtx, syncadaPath, text
+func (_m *SyncadaFileProcessor) ProcessFile(appCtx appcontext.AppContext, syncadaPath string, text string) error {
+	ret := _m.Called(appCtx, syncadaPath, text)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(syncadaPath, text)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) error); ok {
+		r0 = rf(appCtx, syncadaPath, text)
 	} else {
 		r0 = ret.Error(0)
 	}

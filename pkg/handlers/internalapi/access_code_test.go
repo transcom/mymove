@@ -45,6 +45,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 	)
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
 	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&accessCode, nil)
 
@@ -78,6 +79,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Failure() {
 	)
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
 	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&models.AccessCode{}, models.ErrFetchNotFound)
 
@@ -136,6 +138,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	accessCodeValidator := &mocks.AccessCodeValidator{}
 	accessCodeValidator.On("ValidateAccessCode",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("models.SelectedMoveType"),
 	).Return(&accessCode, true, nil)
@@ -180,6 +183,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	accessCodeValidator := &mocks.AccessCodeValidator{}
 	accessCodeValidator.On("ValidateAccessCode",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("models.SelectedMoveType"),
 	).Return(&invalidAccessCode, false, nil)
@@ -227,6 +231,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	accessCodeClaimer := &mocks.AccessCodeClaimer{}
 	accessCodeClaimer.On("ClaimAccessCode",
+		mock.AnythingOfType("*appcontext.appContext"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("uuid.UUID"),
 	).Return(&claimedAccessCode, validate.NewErrors(), nil)

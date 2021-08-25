@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		params := moveop.IndexMovesParams{
 			HTTPRequest: req,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexMovesHandler{
 			HandlerContext:  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:  query.NewQueryFilter,
@@ -63,6 +63,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 		queryFilter := mocks.QueryFilter{}
 		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 		moveListFetcher.On("FetchMoveList",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -95,12 +96,11 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
 
 	// Create handler and request:
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	handler := UpdateMoveHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		movetaskorder.NewMoveTaskOrderUpdater(
-			suite.DB(),
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter),
 			moveRouter,

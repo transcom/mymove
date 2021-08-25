@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
@@ -65,13 +66,18 @@ func ApplicationTestServername() auth.ApplicationServername {
 
 type AuthSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func (suite *AuthSuite) SetupTest() {
 	err := suite.TruncateAll()
 	suite.FatalNoError(err)
 	gob.Register(auth.Session{})
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *AuthSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func TestAuthSuite(t *testing.T) {
@@ -87,7 +93,7 @@ func TestAuthSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func fakeLoginGovProvider(logger Logger) LoginGovProvider {
+func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
 	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
 }
 
