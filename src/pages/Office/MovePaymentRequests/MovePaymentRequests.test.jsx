@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import MovePaymentRequests from './MovePaymentRequests';
 
@@ -13,6 +14,16 @@ import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
   useMoveDetailsQueries: jest.fn(),
+}));
+
+const mockPush = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn().mockReturnValue({ moveCode: 'testMoveCode' }),
+  useHistory: () => ({
+    push: mockPush,
+  }),
 }));
 
 const testProps = {
@@ -435,6 +446,25 @@ describe('MovePaymentRequests', () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(testProps.setUnapprovedServiceItemCount).toHaveBeenCalledWith(0);
+      });
+    });
+  });
+
+  describe('a billable weight', () => {
+    beforeEach(() => {
+      useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+      useMoveDetailsQueries.mockReturnValue(orders);
+    });
+
+    it('navigates the user to the reivew billable weight page', async () => {
+      renderMovePaymentRequests(testProps);
+
+      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+
+      userEvent.click(reviewWeights);
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/moves/testMoveCode/billable-weight');
       });
     });
   });
