@@ -8,6 +8,7 @@ import styles from './ShipmentList.module.scss';
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import shipmentIsOverweight from 'utils/shipmentIsOverweight';
 
 export const ShipmentListItem = ({
   shipment,
@@ -107,7 +108,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted, showShipmentW
         if (showShipmentWeight) {
           canEdit = false;
           showNumber = false;
-          if (parseInt(shipment.billableWeightCap, 10) > parseInt(shipment.primeEstimatedWeight, 10) * 1.1) {
+          if (shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap)) {
             isOverweight = true;
           }
           if (shipment.reweigh?.id && !shipment.reweigh?.weight) {

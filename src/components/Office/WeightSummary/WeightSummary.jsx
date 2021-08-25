@@ -1,0 +1,69 @@
+import React from 'react';
+import { string, arrayOf, shape, bool } from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import styles from './WeightSummary.module.scss';
+
+import { formatWeight } from 'shared/formatters';
+import shipmentIsOverweight from 'utils/shipmentIsOverweight';
+
+const WeightSummary = ({
+  maxBillableWeight,
+  weightRequested,
+  weightAllowance,
+  totalBillableWeight,
+  shipments,
+  totalBillableWeightFlag,
+}) => {
+  return (
+    <div className={styles.weightSummaryContainer}>
+      <div>
+        <h4 className={styles.weightSummaryHeading}>Max billable weight</h4>
+        <div className={styles.marginBottom}>{formatWeight(maxBillableWeight)}</div>
+        <h4 className={styles.weightSummaryHeading}>Weight requested</h4>
+        <div className={styles.marginBottom}>{formatWeight(weightRequested)}</div>
+        <h4 className={styles.weightSummaryHeading}>Weight allowance</h4>
+        <div>{formatWeight(weightAllowance)}</div>
+      </div>
+      <div>
+        <h4 className={styles.weightSummaryHeading}>Total billable weight</h4>
+        <div className={styles.flex}>
+          {totalBillableWeightFlag ? (
+            <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
+          ) : (
+            <div className={styles.noEdit} />
+          )}
+          <div className={styles.flex}>{formatWeight(totalBillableWeight)}</div>
+        </div>
+        <hr />
+        {shipments.map((shipment) => {
+          return (
+            <div className={styles.flex}>
+              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap) ? (
+                <FontAwesomeIcon icon="exclamation-triangle" className={styles.warningFlag} />
+              ) : (
+                <div className={styles.noEdit} />
+              )}
+              {formatWeight(shipment.billableWeightCap)}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+WeightSummary.propTypes = {
+  maxBillableWeight: string.isRequired,
+  weightRequested: string.isRequired,
+  weightAllowance: string.isRequired,
+  totalBillableWeight: string.isRequired,
+  totalBillableWeightFlag: bool.isRequired,
+  shipments: arrayOf(
+    shape({
+      billableWeightCap: string.isRequired,
+    }),
+  ).isRequired,
+};
+
+export default WeightSummary;
