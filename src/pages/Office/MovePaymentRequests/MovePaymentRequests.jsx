@@ -114,9 +114,9 @@ const MovePaymentRequests = ({
           <h1>Payment requests</h1>
           <div className={txoStyles.section} id="billable-weights">
             {/* TODO
-                maxBillableWeight should check to see if there has been edits by the TIO and use that number instead
                 totalBillableWeights needs to be calculated using serviceObject from MB-9278
                 weightRequested needs to be calculated using the serviceObject from MB-9278
+                weightAllowance needs to be updated to use the default weight allowance from authorizedWeight
               */}
             <BillableWeightCard
               maxBillableWeight={order?.entitlement?.authorizedWeight}
