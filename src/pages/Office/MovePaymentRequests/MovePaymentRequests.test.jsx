@@ -4,13 +4,15 @@ import { render, waitFor, screen, within } from '@testing-library/react';
 
 import MovePaymentRequests from './MovePaymentRequests';
 
+import MOVE_STATUSES from 'constants/moves';
 import { MockProviders } from 'testUtils';
-import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
+  useMoveDetailsQueries: jest.fn(),
 }));
 
 const testProps = {
@@ -85,6 +87,7 @@ const multiplePaymentRequests = {
   ],
   mtoShipments: [
     {
+      shipmentType: 'HHG',
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
@@ -110,6 +113,7 @@ const multiplePaymentRequests = {
       ],
     },
     {
+      shipmentType: 'HHG',
       id: '3',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
@@ -135,6 +139,7 @@ const multiplePaymentRequests = {
       ],
     },
     {
+      shipmentType: 'HHG',
       id: '4',
       moveTaskOrderID: '1',
       status: shipmentStatuses.SUBMITTED,
@@ -193,6 +198,7 @@ const singleReviewedPaymentRequest = {
   ],
   mtoShipments: [
     {
+      shipmentType: 'HHG',
       id: '2',
       moveTaskOrderID: '1',
       status: shipmentStatuses.APPROVED,
@@ -208,6 +214,50 @@ const singleReviewedPaymentRequest = {
       ],
     },
   ],
+};
+
+const orders = {
+  order: {
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    has_dependents: false,
+    issue_date: '2020-08-11',
+    grade: 'RANK',
+    moves: ['123'],
+    origin_duty_station: {
+      name: 'Test Duty Station',
+      address: {
+        postal_code: '123456',
+      },
+    },
+    new_duty_station: {
+      name: 'New Test Duty Station',
+      address: {
+        postal_code: '123456',
+      },
+    },
+    report_by_date: '2020-08-31',
+    service_member_id: '666',
+    spouse_has_pro_gear: false,
+    status: MOVE_STATUSES.SUBMITTED,
+    uploaded_orders: {
+      uploads: [],
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wOC0yNFQxODoyNDo0MC45NzIzMTha',
+      id: '188842d1-cf88-49ec-bd2f-dfa98da44bb2',
+      nonTemporaryStorage: true,
+      organizationalClothingAndIndividualEquipment: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      requiredMedicalEquipmentWeight: 1000,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+  },
 };
 
 const emptyPaymentRequests = {
@@ -239,6 +289,7 @@ describe('MovePaymentRequests', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(loadingReturnValue);
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
       renderMovePaymentRequests(testProps);
 
@@ -248,6 +299,7 @@ describe('MovePaymentRequests', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMovePaymentRequestsQueries.mockReturnValue(errorReturnValue);
+      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
 
       renderMovePaymentRequests(testProps);
 
@@ -259,6 +311,7 @@ describe('MovePaymentRequests', () => {
   describe('with multiple payment requests', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
+      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('renders without errors', () => {
@@ -300,6 +353,7 @@ describe('MovePaymentRequests', () => {
   describe('with one reviewed payment request', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(singleReviewedPaymentRequest);
+      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('renders side navigation for each section', () => {
@@ -338,6 +392,7 @@ describe('MovePaymentRequests', () => {
   describe('with no payment requests for move', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(emptyPaymentRequests);
+      useMoveDetailsQueries.mockReturnValue(orders);
     });
 
     it('does not render side navigation for payment request section', () => {
