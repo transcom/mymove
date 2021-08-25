@@ -9,6 +9,9 @@ import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentConta
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatWeight, formatAddressShort } from 'shared/formatters';
 
+export function formatDate(date) {
+  return moment(date).format('DD MMM YYYY');
+}
 export default function ShipmentCard({
   billableWeight,
   dateReweighRequested,
@@ -26,11 +29,9 @@ export default function ShipmentCard({
         <h2>HHG</h2>
         <section>
           <span>
-            {/* <strong>Departed</strong> 09 Jun 2021 */}
-            <strong>Departed</strong> {moment(departedDate).format('DD MMM YYYY')}
+            <strong>Departed</strong> {formatDate(departedDate)}
           </span>
           <span>
-            {/* <strong>From</strong> Rancho Santa Margarita, CA 92688 */}
             <strong>From</strong> {formatAddressShort(pickupAddress)}
           </span>
           <span>
@@ -41,12 +42,10 @@ export default function ShipmentCard({
       <main>
         <div className={styles.field}>
           <strong>Estimated weight</strong>
-          {/* <span> 5,000 lbs</span> */}
           <span>{formatWeight(estimatedWeight)}</span>
         </div>
         <div className={styles.field}>
           <strong>Original weight</strong>
-          {/* <span> 4,014 lbs</span> */}
           <span>{formatWeight(originalWeight)}</span>
         </div>
         <div className={`${styles.field} ${styles.missing}`}>
@@ -55,18 +54,15 @@ export default function ShipmentCard({
         </div>
         <div className={styles.field}>
           <strong>Date reweigh requested</strong>
-          {/* <span> 10 Jun 2021</span> */}
-          <span>{moment(dateReweighRequested).format('DD MMM YYYY')}</span>
+          <span>{formatDate(dateReweighRequested)}</span>
         </div>
         <div className={`${styles.field} ${styles.remarks}`}>
           <strong>Reweigh remarks</strong>
-          {/* <span>Unable to perform reweigh because shipment was already unloaded</span> */}
           <span>{reweighRemarks}</span>
         </div>
       </main>
       <footer>
         <h3>Billable weight</h3>
-        {/* <span>4,014 lbs</span> */}
         <span>{formatWeight(billableWeight)}</span>
         <Button className={styles.editBtn}>Edit</Button>
       </footer>
@@ -91,5 +87,9 @@ ShipmentCard.propTypes = {
     postal_code: string.isRequired,
   }).isRequired,
   reweighRemarks: string.isRequired,
-  reweightWeight: number.isRequired,
+  reweightWeight: number,
+};
+
+ShipmentCard.defaultProps = {
+  reweightWeight: null,
 };

@@ -24,7 +24,6 @@ const props = {
   estimatedWeight: 5000,
   originalWeight: 4014,
   reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
-  reweightWeight: '',
 };
 
 export const Card = () => (
