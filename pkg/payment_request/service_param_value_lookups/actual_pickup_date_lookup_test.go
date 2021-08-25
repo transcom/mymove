@@ -3,7 +3,6 @@ package serviceparamvaluelookups
 import (
 	"errors"
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -18,19 +17,19 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 	key := models.ServiceItemParamNameActualPickupDate
 
 	actualPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				ActualPickupDate: &actualPickupDate,
-			},
-		})
+	suite.Run("golden path with param cache", func() {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			})
 
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			Move: mtoServiceItem.MoveTaskOrder,
-		})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
 
-	suite.T().Run("golden path with param cache", func(t *testing.T) {
 		// FSC
 		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
@@ -62,11 +61,10 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 			},
 		})
 
-		paramCache := ServiceParamsCache{}
-		paramCache.Initialize(suite.DB())
-		paramLookupWithCache, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+		paramCache := NewServiceParamsCache()
+		paramLookupWithCache, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 
-		valueStr, err := paramLookupWithCache.ServiceParamValue(serviceItemParamKey1.Key)
+		valueStr, err := paramLookupWithCache.ServiceParamValue(suite.TestAppContext(), serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
@@ -76,23 +74,49 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		suite.Equal(expected, *paramCacheValue)
 	})
 
-	paramLookup, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	suite.Run("golden path", func() {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			})
 
-	suite.T().Run("golden path", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
 	})
 
-	suite.T().Run("nil actual pickup date", func(t *testing.T) {
+	suite.Run("nil actual pickup date", func() {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+
 		// Set the actual pickup date to nil
 		mtoShipment := mtoServiceItem.MTOShipment
 		oldActualPickupDate := mtoShipment.ActualPickupDate
 		mtoShipment.ActualPickupDate = nil
 		suite.MustSave(&mtoShipment)
 
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find an actual pickup date for MTOShipmentID [%s]", mtoShipment.ID)
 		suite.Contains(err.Error(), expected)
@@ -102,13 +126,27 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		suite.MustSave(&mtoShipment)
 	})
 
-	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
+	suite.Run("nil MTOShipmentID", func() {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
+		paramLookup, _ := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+
 		// Set the MTOShipmentID to nil
 		oldMTOShipmentID := mtoServiceItem.MTOShipmentID
 		mtoServiceItem.MTOShipmentID = nil
 		suite.MustSave(&mtoServiceItem)
 
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
@@ -117,10 +155,22 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		suite.MustSave(&mtoServiceItem)
 	})
 
-	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
+	suite.Run("bogus MTOServiceItemID", func() {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+			testdatagen.Assertions{
+				MTOShipment: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				Move: mtoServiceItem.MoveTaskOrder,
+			})
+
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		_, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

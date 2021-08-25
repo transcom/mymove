@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,9 +14,9 @@ type ZipSITOriginHHGActualAddressLookup struct {
 	ServiceItem models.MTOServiceItem
 }
 
-func (z ZipSITOriginHHGActualAddressLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (z ZipSITOriginHHGActualAddressLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	if z.ServiceItem.SITOriginHHGActualAddressID != nil && *z.ServiceItem.SITOriginHHGActualAddressID != uuid.Nil {
-		err := keyData.db.Load(&z.ServiceItem, "SITOriginHHGActualAddress")
+		err := appCtx.DB().Load(&z.ServiceItem, "SITOriginHHGActualAddress")
 		if err != nil {
 			return "", err
 		}

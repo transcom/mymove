@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -14,17 +15,17 @@ import (
 )
 
 type testAdminUserListQueryBuilder struct {
-	fakeFetchMany func(model interface{}) error
-	fakeCount     func(model interface{}) (int, error)
+	fakeFetchMany func(appCtx appcontext.AppContext, model interface{}) error
+	fakeCount     func(appCtx appcontext.AppContext, model interface{}) (int, error)
 }
 
-func (t *testAdminUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
-	m := t.fakeFetchMany(model)
+func (t *testAdminUserListQueryBuilder) FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+	m := t.fakeFetchMany(appCtx, model)
 	return m
 }
 
-func (t *testAdminUserListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
-	count, m := t.fakeCount(model)
+func (t *testAdminUserListQueryBuilder) Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(appCtx, model)
 	return count, m
 }
 
@@ -45,7 +46,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 	suite.T().Run("if the users are successfully fetched, they should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchMany := func(model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.AdminUser{ID: id})))
 			return nil
@@ -59,14 +60,14 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		adminUsers, err := fetcher.FetchAdminUserList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		adminUsers, err := fetcher.FetchAdminUserList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, adminUsers[0].ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with no admin users", func(t *testing.T) {
-		fakeFetchMany := func(model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testAdminUserListQueryBuilder{
@@ -75,7 +76,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 
 		fetcher := NewAdminUserListFetcher(builder)
 
-		adminUsers, err := fetcher.FetchAdminUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		adminUsers, err := fetcher.FetchAdminUserList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

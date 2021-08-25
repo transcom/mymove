@@ -8,9 +8,11 @@ import DataPoint from '../../DataPoint/index';
 
 import styles from './ShipmentWeightDetails.module.scss';
 
+import returnLowestValue from 'utils/returnLowestValue';
 import { formatWeight } from 'shared/formatters';
 
 const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, handleRequestReweighModal }) => {
+  const lowestWeight = returnLowestValue(actualWeight, shipmentInfo.reweighWeight);
   const reweighHeader = (
     <div className={styles.shipmentWeight}>
       <span>Shipment weight</span>
@@ -34,7 +36,7 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight, shipmentInfo, ha
         />
       </DataPointGroup>
       <DataPointGroup className="maxw-mobile">
-        <DataPoint columnHeaders={[reweighHeader]} dataRow={actualWeight ? [formatWeight(actualWeight)] : ['']} />
+        <DataPoint columnHeaders={[reweighHeader]} dataRow={lowestWeight ? [formatWeight(lowestWeight)] : ['']} />
       </DataPointGroup>
     </div>
   );

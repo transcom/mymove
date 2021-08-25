@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -19,9 +20,14 @@ import (
 
 type PaperworkSuite struct {
 	testingsuite.PopTestSuite
-	logger       Logger
+	logger       *zap.Logger
 	userUploader *uploader.UserUploader
 	filesToClose []afero.File
+}
+
+// TestAppContext returns the AppContext for the test suite
+func (suite *PaperworkSuite) TestAppContext() appcontext.AppContext {
+	return appcontext.NewAppContext(suite.DB(), suite.logger)
 }
 
 func (suite *PaperworkSuite) AfterTest() {
@@ -71,7 +77,7 @@ func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
 	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
-	newUploader, err := uploader.NewUserUploader(popSuite.DB(), logger, storer, uploader.MaxCustomerUserUploadFileSizeLimit)
+	newUploader, err := uploader.NewUserUploader(storer, uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
 		log.Panic(err)
 	}

@@ -8,8 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -17,18 +16,15 @@ import (
 
 // DomesticShorthaulPricer is a service object to price domestic shorthaul
 type domesticShorthaulPricer struct {
-	db *pop.Connection
 }
 
 // NewDomesticShorthaulPricer is the public constructor for a DomesticRateAreaPricer using Pop
-func NewDomesticShorthaulPricer(db *pop.Connection) services.DomesticShorthaulPricer {
-	return &domesticShorthaulPricer{
-		db: db,
-	}
+func NewDomesticShorthaulPricer() services.DomesticShorthaulPricer {
+	return &domesticShorthaulPricer{}
 }
 
 // Price determines the price for a counseling service
-func (p domesticShorthaulPricer) Price(contractCode string,
+func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCode string,
 	requestedPickupDate time.Time,
 	distance unit.Miles,
 	weight unit.Pound,
@@ -53,12 +49,12 @@ func (p domesticShorthaulPricer) Price(contractCode string,
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 
 	// look up rate for shorthaul
-	domServiceAreaPrice, err := fetchDomServiceAreaPrice(p.db, contractCode, models.ReServiceCodeDSH, serviceArea, isPeakPeriod)
+	domServiceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, models.ReServiceCodeDSH, serviceArea, isPeakPeriod)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
 	}
 
-	contractYear, err := fetchContractYear(p.db, domServiceAreaPrice.ContractID, requestedPickupDate)
+	contractYear, err := fetchContractYear(appCtx, domServiceAreaPrice.ContractID, requestedPickupDate)
 	if err != nil {
 		return 0, nil, fmt.Errorf("Could not lookup contract year: %w", err)
 	}
@@ -88,7 +84,7 @@ func (p domesticShorthaulPricer) Price(contractCode string,
 	return totalCost, pricingRateEngineParams, nil
 }
 
-func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -114,5 +110,5 @@ func (p domesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceIt
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(contractCode, requestedPickupDate, unit.Miles(distanceZip5), unit.Pound(weightBilledActual), serviceAreaOrigin)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distanceZip5), unit.Pound(weightBilledActual), serviceAreaOrigin)
 }

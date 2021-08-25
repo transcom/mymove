@@ -295,7 +295,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
-
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
 		MoveID:      strfmt.UUID(move1.ID.String()),
 		HTTPRequest: req,
@@ -894,13 +893,13 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+	moveRouter := moverouter.NewMoveRouter()
 
-	err := moveRouter.Submit(&move)
+	err := moveRouter.Submit(suite.TestAppContext(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = moveRouter.Approve(&move)
+	err = moveRouter.Approve(suite.TestAppContext(), &move)
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -41,6 +42,7 @@ type CreateMTOServiceItemHandler struct {
 // Handle handler that creates a mto service item
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	// restrict creation to a list
 	if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {
@@ -67,12 +69,12 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	}
 
 	moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
-	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
 	var mtoServiceItems *models.MTOServiceItems
 
 	if mtoAvailableToPrime {
 		mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
-		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
+		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
@@ -118,6 +120,7 @@ type UpdateMTOServiceItemHandler struct {
 // Handle handler that updates an MTOServiceItem. Only a limited number of service items and fields may be updated.
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	mtoServiceItem, verrs := payloads.MTOServiceItemModelFromUpdate(params.MtoServiceItemID, params.Body)
 	if verrs != nil && verrs.HasAny() {
@@ -126,7 +129,7 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 	}
 
 	eTag := params.IfMatch
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(h.DB(), mtoServiceItem, eTag)
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(appCtx, mtoServiceItem, eTag)
 
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))

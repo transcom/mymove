@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer, Tag } from '@trussworks/react-uswds';
+import { GridContainer, Tag, Button, Alert } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { queryCache, useMutation } from 'react-query';
 import { connect } from 'react-redux';
 import { func } from 'prop-types';
@@ -12,6 +13,7 @@ import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillab
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -67,14 +69,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isReweighModalVisible, setIsReweighModalVisible] = useState(false);
   const [isWeightModalVisible, setIsWeightModalVisible] = useState(false);
+  const [isWeightAlertVisible, setIsWeightAlertVisible] = useState(false);
+
   const [selectedShipment, setSelectedShipment] = useState(undefined);
   const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
   const [sections, setSections] = useState([]);
   const [activeSection, setActiveSection] = useState('');
   const [unapprovedServiceItemsForShipment, setUnapprovedServiceItemsForShipment] = useState({});
+  const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
 
   const { moveCode } = match.params;
-  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setMessage } = props;
+  const { setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount, setMessage } = props;
 
   const { orders = {}, move, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveCode);
 
@@ -208,6 +213,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       });
       queryCache.invalidateQueries([ORDERS, variables.orderID]);
       setIsWeightModalVisible(false);
+
       setMessage(
         `MSG_MAX_BILLABLE_WEIGHT_SUCCESS_${variables.orderID}`,
         'success',
@@ -320,31 +326,37 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     setSections(shipmentSections);
   }, [mtoShipments]);
 
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
+  useEffect(() => {
+    let estimatedWeightCalc = null;
+    let excessBillableWeightCount = 0;
 
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#shipment-${section.id}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section.id;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
     }
-  };
+
+    setEstimatedWeightTotal(estimatedWeightCalc);
+
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
+      excessBillableWeightCount = 1;
+      setExcessWeightRiskCount(1);
+    }
+
+    setIsWeightAlertVisible(!!excessBillableWeightCount);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
 
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
     };
-  });
+  }, [sections, activeSection]);
 
   const handleShowRejectionDialog = (mtoServiceItemID, mtoShipmentID) => {
     const serviceItem = shipmentServiceItems[`${mtoShipmentID}`]?.find((item) => item.id === mtoServiceItemID);
@@ -364,6 +376,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const handleShowWeightModal = () => {
     setIsWeightModalVisible(true);
+  };
+
+  const handleHideWeightAlert = () => {
+    setIsWeightAlertVisible(false);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -393,14 +409,11 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       }, 0);
   }
 
-  let estimatedWeightTotal = null;
-  if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
-    estimatedWeightTotal = mtoShipments
-      ?.filter((s) => s.primeEstimatedWeight)
-      .reduce((prev, current) => {
-        return prev + current.primeEstimatedWeight;
-      }, 0);
-  }
+  const excessWeightAlertControl = (
+    <Button type="button" onClick={handleHideWeightAlert} unstyled>
+      <FontAwesomeIcon icon="times" />
+    </Button>
+  );
 
   return (
     <div className={styles.tabContent}>
@@ -409,7 +422,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           {sections.map((s) => {
             const classes = classnames({ active: s.id === activeSection });
             return (
-              <a key={`sidenav_${s.id}`} href={`#shipment-${s.id}`} className={classes}>
+              <a key={`sidenav_${s.id}`} href={`#s-${s.id}`} className={classes}>
                 {s.label}{' '}
                 {unapprovedServiceItemsForShipment[`${s.id}`] > 0 && (
                   <Tag>{unapprovedServiceItemsForShipment[`${s.id}`]}</Tag>
@@ -419,6 +432,18 @@ export const MoveTaskOrder = ({ match, ...props }) => {
           })}
         </LeftNav>
         <FlashGridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+          {isWeightAlertVisible && (
+            <Alert slim type="warning" cta={excessWeightAlertControl} className={styles.alertWithButton}>
+              <span>
+                This move is at risk for excess weight.{' '}
+                <span className={styles.rightAlignButtonWrapper}>
+                  <Button type="button" onClick={handleShowWeightModal} unstyled>
+                    Review billable weight
+                  </Button>
+                </span>
+              </span>
+            </Alert>
+          )}
           {isModalVisible && (
             <RejectServiceItemModal
               serviceItem={selectedServiceItem}
@@ -494,7 +519,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
             return (
               <ShipmentContainer
-                id={`shipment-${mtoShipment.id}`}
+                id={`s-${mtoShipment.id}`}
                 key={mtoShipment.id}
                 shipmentType={mtoShipment.shipmentType}
                 className={styles.shipmentCard}
@@ -558,6 +583,7 @@ MoveTaskOrder.propTypes = {
   match: MatchShape.isRequired,
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setExcessWeightRiskCount: func.isRequired,
   setMessage: func.isRequired,
 };
 

@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	services "github.com/transcom/mymove/pkg/services"
 
 	uuid "github.com/gofrs/uuid"
@@ -14,20 +16,20 @@ type UploadInformationFetcher struct {
 	mock.Mock
 }
 
-// FetchUploadInformation provides a mock function with given fields: _a0
-func (_m *UploadInformationFetcher) FetchUploadInformation(_a0 uuid.UUID) (services.UploadInformation, error) {
-	ret := _m.Called(_a0)
+// FetchUploadInformation provides a mock function with given fields: appCtx, _a1
+func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.AppContext, _a1 uuid.UUID) (services.UploadInformation, error) {
+	ret := _m.Called(appCtx, _a1)
 
 	var r0 services.UploadInformation
-	if rf, ok := ret.Get(0).(func(uuid.UUID) services.UploadInformation); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) services.UploadInformation); ok {
+		r0 = rf(appCtx, _a1)
 	} else {
 		r0 = ret.Get(0).(services.UploadInformation)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(_a0)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

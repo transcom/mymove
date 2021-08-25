@@ -6,8 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -21,8 +20,7 @@ type GexSender interface {
 // GHCPaymentRequestInvoiceGenerator is the exported interface for generating an invoice
 //go:generate mockery --name GHCPaymentRequestInvoiceGenerator --disable-version-string
 type GHCPaymentRequestInvoiceGenerator interface {
-	InitDB(db *pop.Connection)
-	Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error)
+	Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error)
 }
 
 // SyncadaSFTPSender is the exported interface for sending an EDI to Syncada
@@ -49,12 +47,12 @@ type SFTPClient interface {
 // SyncadaSFTPReader is the exported interface for reading files from an SFTP connection
 //go:generate mockery --name SyncadaSFTPReader --disable-version-string
 type SyncadaSFTPReader interface {
-	FetchAndProcessSyncadaFiles(pickupPath string, lastRead time.Time, processor SyncadaFileProcessor) (time.Time, error)
+	FetchAndProcessSyncadaFiles(appCtx appcontext.AppContext, pickupPath string, lastRead time.Time, processor SyncadaFileProcessor) (time.Time, error)
 }
 
 // SyncadaFileProcessor is the exported interface for processing EDI files from Syncada
 //go:generate mockery --name SyncadaFileProcessor --disable-version-string
 type SyncadaFileProcessor interface {
-	ProcessFile(syncadaPath string, text string) error
+	ProcessFile(appCtx appcontext.AppContext, syncadaPath string, text string) error
 	EDIType() models.EDIType
 }

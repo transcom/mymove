@@ -33,8 +33,8 @@ import (
 )
 
 func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -46,7 +46,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		notFoundServiceItem := serviceItem
 		notFoundServiceItem.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &notFoundServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &notFoundServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -59,7 +59,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &invalidServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &invalidServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -73,7 +73,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
 		newServiceItem := serviceItem
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, "bloop")
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &newServiceItem, "bloop")
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -96,7 +96,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&actualWeight)
 		newServiceItem.ActualWeight = handlers.PoundPtrFromInt64Ptr(&estimatedWeight)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.TestAppContext(), &newServiceItem, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -119,7 +119,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
-	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+	checker := movetaskorder.NewMoveTaskOrderChecker()
 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: testdatagen.MakeAvailableMove(suite.DB()),
@@ -130,7 +130,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
 		serviceItemData := updateMTOServiceItemData{}
 		fakeKey := "FakeKey"
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, fakeKey)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, fakeKey)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -149,7 +149,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBasicValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemBasicValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -167,7 +167,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBasicValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemBasicValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -187,9 +187,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItemPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -205,9 +204,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItem,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -227,9 +225,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItemPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -257,9 +254,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:      oldServiceItemPrime,
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
-			db:                  suite.DB(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -274,7 +270,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, "")
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.TestAppContext(), &serviceItemData, "")
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -307,8 +303,8 @@ func (suite *MTOServiceItemServiceSuite) createServiceItemForUnapprovedMove() (s
 }
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	updater := NewMTOServiceItemUpdater(builder, moveRouter)
 
 	rejectionReason := swag.String("")
@@ -320,7 +316,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		eTag, serviceItem, move := suite.createServiceItem()
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 
 		suite.DB().Find(&move, move.ID)
 		suite.DB().Find(&serviceItem, serviceItem.ID)
@@ -340,7 +336,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.MustSave(&move)
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusSubmitted, rejectionReason, eTag)
 
 		suite.DB().Find(&move, move.ID)
 		suite.DB().Find(&serviceItem, serviceItem.ID)
@@ -362,7 +358,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		rejectionReason = swag.String("incomplete")
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusRejected, rejectionReason, eTag)
 
 		suite.DB().Find(&move, move.ID)
 		suite.DB().Find(&serviceItem, serviceItem.ID)
@@ -384,7 +380,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		eTag, serviceItem, move := suite.createServiceItemForUnapprovedMove()
 
 		updatedServiceItem, err := updater.UpdateMTOServiceItemStatus(
-			serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
+			suite.TestAppContext(), serviceItem.ID, models.MTOServiceItemStatusApproved, rejectionReason, eTag)
 
 		suite.DB().Find(&move, move.ID)
 		suite.DB().Find(&serviceItem, serviceItem.ID)

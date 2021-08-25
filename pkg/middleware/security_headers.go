@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 var securityHeaders = map[string]string{
@@ -18,8 +20,8 @@ var securityHeaders = map[string]string{
 }
 
 // SecurityHeaders adds a set of standard security headers.
-func SecurityHeaders(logger Logger) func(inner http.Handler) http.Handler {
-	logger.Debug("SecurityHeaders Middleware used")
+func SecurityHeaders(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
+	globalLogger.Debug("SecurityHeaders Middleware used")
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			for k, v := range securityHeaders {

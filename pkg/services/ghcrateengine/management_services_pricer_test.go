@@ -19,9 +19,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		paymentServiceItem := suite.setupManagementServicesItem()
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.TestAppContext(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 
@@ -34,26 +34,26 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, _, err := managementServicesPricer.Price(testdatagen.DefaultContractCode, msAvailableToPrimeAt)
+		priceCents, _, err := managementServicesPricer.Price(suite.TestAppContext(), testdatagen.DefaultContractCode, msAvailableToPrimeAt)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
 
 	suite.Run("sending PaymentServiceItemParams without expected param", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		_, _, err := managementServicesPricer.PriceUsingParams(suite.TestAppContext(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("not finding a rate record", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
-		managementServicesPricer := NewManagementServicesPricer(suite.DB())
+		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.Price("BOGUS", msAvailableToPrimeAt)
+		_, _, err := managementServicesPricer.Price(suite.TestAppContext(), "BOGUS", msAvailableToPrimeAt)
 		suite.Error(err)
 	})
 }

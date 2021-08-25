@@ -14,8 +14,8 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_ValidAccessCode() {
 		MoveType: selectedMoveType,
 	}
 	suite.MustSave(&accessCode)
-	validateAccessCode := NewAccessCodeValidator(suite.DB())
-	ac, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
+	validateAccessCode := NewAccessCodeValidator()
+	ac, valid, _ := validateAccessCode.ValidateAccessCode(suite.TestAppContext(), code, selectedMoveType)
 
 	suite.True(valid)
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
@@ -32,7 +32,7 @@ func (suite *AccessCodeServiceSuite) TestValidateAccessCode_InvalidAccessCode() 
 		ServiceMemberID: &user.ID,
 	}
 	suite.MustSave(&usedAccessCode)
-	validateAccessCode := NewAccessCodeValidator(suite.DB())
-	_, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
+	validateAccessCode := NewAccessCodeValidator()
+	_, valid, _ := validateAccessCode.ValidateAccessCode(suite.TestAppContext(), code, selectedMoveType)
 	suite.False(valid)
 }

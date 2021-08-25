@@ -34,9 +34,6 @@ type MTOServiceItemDimension struct {
 	// Required: true
 	Length *int32 `json:"length"`
 
-	// type
-	Type DimensionType `json:"type,omitempty"`
-
 	// Width in thousandth inches. 1000 thou = 1 inch.
 	// Example: 1000
 	// Required: true
@@ -56,10 +53,6 @@ func (m *MTOServiceItemDimension) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateLength(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -103,21 +96,6 @@ func (m *MTOServiceItemDimension) validateLength(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *MTOServiceItemDimension) validateType(formats strfmt.Registry) error {
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
-
-	if err := m.Type.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("type")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemDimension) validateWidth(formats strfmt.Registry) error {
 
 	if err := validate.Required("width", "body", m.Width); err != nil {
@@ -127,29 +105,8 @@ func (m *MTOServiceItemDimension) validateWidth(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this m t o service item dimension based on the context it is used
+// ContextValidate validates this m t o service item dimension based on context it is used
 func (m *MTOServiceItemDimension) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateType(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *MTOServiceItemDimension) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.Type.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("type")
-		}
-		return err
-	}
-
 	return nil
 }
 

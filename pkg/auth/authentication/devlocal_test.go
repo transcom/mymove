@@ -226,12 +226,12 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	}
 
 	var adminUser models.AdminUser
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	filters := []services.QueryFilter{
 		query.NewQueryFilter("email", "=", user.LoginGovEmail),
 	}
 
-	if err := queryBuilder.FetchOne(&adminUser, filters); err != nil {
+	if err := queryBuilder.FetchOne(suite.TestAppContext(), &adminUser, filters); err != nil {
 		t.Error("Couldn't find admin user record")
 	}
 

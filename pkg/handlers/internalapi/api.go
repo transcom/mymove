@@ -36,11 +36,11 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
 	internalAPI.ServeError = handlers.ServeCustomError
-	builder := query.NewQueryBuilder(ctx.DB())
+	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter := move.NewMoveRouter(ctx.DB(), ctx.Logger())
+	moveRouter := move.NewMoveRouter()
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop(ctx.DB())}
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{ctx, officeuser.NewOfficeUserFetcherPop()}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{ctx}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{ctx}
 
@@ -67,7 +67,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler{ctx}
 	internalAPI.OrdersUploadAmendedOrdersHandler = UploadAmendedOrdersHandler{
 		ctx,
-		order.NewOrderUpdater(ctx.DB()),
+		order.NewOrderUpdater(),
 	}
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{ctx}
@@ -78,7 +78,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	}
 	internalAPI.MovesSubmitAmendedOrdersHandler = SubmitAmendedOrdersHandler{
 		ctx,
-		move.NewMoveRouter(ctx.DB(), ctx.Logger()),
+		move.NewMoveRouter(),
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{ctx}
 
@@ -132,20 +132,20 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	}
 
 	// Access Codes
-	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeFetcher(ctx.DB())}
-	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeValidator(ctx.DB())}
-	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeClaimer(ctx.DB())}
+	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeFetcher()}
+	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeValidator()}
+	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{ctx, accesscodeservice.NewAccessCodeClaimer()}
 
 	// GHC Endpoint
 
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentCreator(ctx.DB(), builder, fetcher, moveRouter),
+		mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter),
 	}
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		ctx,
-		mtoshipment.NewMTOShipmentUpdater(ctx.DB(), builder, fetcher, ctx.Planner(), moveRouter),
+		mtoshipment.NewMTOShipmentUpdater(builder, fetcher, ctx.Planner(), moveRouter, move.NewMoveWeights()),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

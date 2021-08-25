@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
@@ -16,13 +18,13 @@ type UserUpdater struct {
 	mock.Mock
 }
 
-// UpdateUser provides a mock function with given fields: id, user
-func (_m *UserUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
-	ret := _m.Called(id, user)
+// UpdateUser provides a mock function with given fields: appCtx, id, user
+func (_m *UserUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
+	ret := _m.Called(appCtx, id, user)
 
 	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(uuid.UUID, *models.User) *models.User); ok {
-		r0 = rf(id, user)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.User) *models.User); ok {
+		r0 = rf(appCtx, id, user)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.User)
@@ -30,8 +32,8 @@ func (_m *UserUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(uuid.UUID, *models.User) *validate.Errors); ok {
-		r1 = rf(id, user)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *models.User) *validate.Errors); ok {
+		r1 = rf(appCtx, id, user)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +41,8 @@ func (_m *UserUpdater) UpdateUser(id uuid.UUID, user *models.User) (*models.User
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(uuid.UUID, *models.User) error); ok {
-		r2 = rf(id, user)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *models.User) error); ok {
+		r2 = rf(appCtx, id, user)
 	} else {
 		r2 = ret.Error(2)
 	}

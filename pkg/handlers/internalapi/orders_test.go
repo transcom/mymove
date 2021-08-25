@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	context.SetFileStorer(fakeS3)
 	uploadAmendedHandler := UploadAmendedOrdersHandler{
 		HandlerContext: context,
-		OrderUpdater:   orderservice.NewOrderUpdater(suite.DB()),
+		OrderUpdater:   orderservice.NewOrderUpdater(),
 	}
 	response := uploadAmendedHandler.Handle(params)
 

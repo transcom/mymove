@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -113,8 +114,8 @@ func main() {
 	}
 
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
-	generator.InitDB(dbConnection)
-	edi858c, err := generator.Generate(paymentRequest, false)
+	appCtx := appcontext.NewAppContext(dbConnection, logger)
+	edi858c, err := generator.Generate(appCtx, paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}

@@ -13,16 +13,16 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-680f0d69e2ae7606232685efbce29cbce7327083
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-e879fc520bb7b2d2878a3925bd472e6e154c562d
 
   postgres: &postgres postgres:12.7
 
 executors:
   av_medium:
     resource_class: medium
-    working_directory: /root/project
+    working_directory: ~/transcom/mymove
     docker:
-      - image: mk0x/docker-clamav:latest
+      - image: milmove/clamav-ci
         # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
         # See https://www.docker.com/blog/scaling-docker-to-serve-millions-more-developers-network-egress/ for details
         # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
@@ -693,14 +693,9 @@ jobs:
   anti_virus:
     executor: av_medium
     steps:
-      - run: apt-get update && apt-get install -y clamav curl git ssh
       - checkout
       - run: clamscan --version
-      - run: mkdir -p /store && chown clamav /store
-      - run: cp -v /root/project/anti-virus/whitelist-*.{fp,ign2} /store
-      - run:
-          name: freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store
-          command: for i in $(seq 1 5); do freshclam --config-file /etc/clamav/freshclam.conf --datadir=/store && s=0 && break || s=$? && sleep 5; done; (exit $s)
+      - run: cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
       - run: >
           clamscan \
             --recursive \
@@ -713,9 +708,7 @@ jobs:
             --max-recursion=30 \
             --max-files=50000 \
             --tempdir=/tmp \
-            --database=/store \
-            /root/project \
-            /store
+            ~/transcom/mymove
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.

@@ -18,6 +18,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -28,10 +29,10 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 	sessionID := "mil_session_token"
 	sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 
-	fakeUpdateOne := func(interface{}, *string) (*validate.Errors, error) {
+	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
 	}
-	fakeFetchOne := func(model interface{}) error {
+	fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 		reflect.ValueOf(model).Elem().FieldByName("CurrentMilSessionID").Set(reflect.ValueOf(sessionID))
 		return nil
 	}
@@ -51,7 +52,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, existsAfter, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -66,7 +67,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 			RevokeMilSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, exists, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -75,11 +76,11 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 	})
 
 	suite.T().Run("Returns an error if user is not found", func(t *testing.T) {
-		fakeUpdateOne := func(model interface{}, eTag *string) (*validate.Errors, error) {
+		fakeUpdateOne := func(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error) {
 			return nil, nil
 		}
 
-		fakeFetchOne := func(model interface{}) error {
+		fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 			return models.ErrFetchNotFound
 		}
 
@@ -89,7 +90,7 @@ func (suite *UserServiceSuite) TestRevokeMilUserSession() {
 		}
 
 		updater := NewUserSessionRevocation(builder)
-		_, _, err := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, _, err := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
@@ -102,10 +103,10 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 	sessionID := "admin_session_token"
 	sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 
-	fakeUpdateOne := func(interface{}, *string) (*validate.Errors, error) {
+	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
 	}
-	fakeFetchOne := func(model interface{}) error {
+	fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 		reflect.ValueOf(model).Elem().FieldByName("CurrentAdminSessionID").Set(reflect.ValueOf(sessionID))
 		return nil
 	}
@@ -125,7 +126,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, existsAfter, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -140,7 +141,7 @@ func (suite *UserServiceSuite) TestRevokeAdminUserSession() {
 			RevokeAdminSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, exists, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -155,10 +156,10 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 	sessionID := "office_session_token"
 	sessionStore.Commit(sessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 
-	fakeUpdateOne := func(interface{}, *string) (*validate.Errors, error) {
+	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
 	}
-	fakeFetchOne := func(model interface{}) error {
+	fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 		reflect.ValueOf(model).Elem().FieldByName("CurrentOfficeSessionID").Set(reflect.ValueOf(sessionID))
 		return nil
 	}
@@ -178,7 +179,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 
 		suite.Equal(existsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, existsAfter, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -193,7 +194,7 @@ func (suite *UserServiceSuite) TestRevokeOfficeUserSession() {
 			RevokeOfficeSession: &boolean,
 		}
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, exists, _ := sessionStore.Find(sessionID)
 
 		suite.NoError(revokeErr)
@@ -212,10 +213,10 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 	sessionStore.Commit(milSessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 	sessionStore.Commit(adminSessionID, []byte("encoded_data"), time.Now().Add(time.Minute))
 
-	fakeUpdateOne := func(interface{}, *string) (*validate.Errors, error) {
+	fakeUpdateOne := func(appcontext.AppContext, interface{}, *string) (*validate.Errors, error) {
 		return nil, nil
 	}
-	fakeFetchOne := func(model interface{}) error {
+	fakeFetchOne := func(appCtx appcontext.AppContext, model interface{}) error {
 		reflect.ValueOf(model).Elem().FieldByName("CurrentOfficeSessionID").Set(reflect.ValueOf(officeSessionID))
 		reflect.ValueOf(model).Elem().FieldByName("CurrentMilSessionID").Set(reflect.ValueOf(milSessionID))
 		reflect.ValueOf(model).Elem().FieldByName("CurrentAdminSessionID").Set(reflect.ValueOf(adminSessionID))
@@ -243,7 +244,7 @@ func (suite *UserServiceSuite) TestRevokeMultipleSessions() {
 		suite.Equal(officeExistsBefore, true)
 		suite.Equal(milExistsBefore, true)
 
-		_, verrs, revokeErr := updater.RevokeUserSession(newUUID, payload, sessionStore)
+		_, verrs, revokeErr := updater.RevokeUserSession(suite.TestAppContext(), newUUID, payload, sessionStore)
 		_, adminExistsAfter, _ := sessionStore.Find(adminSessionID)
 		_, officeExistsAfter, _ := sessionStore.Find(officeSessionID)
 		_, milExistsAfter, _ := sessionStore.Find(milSessionID)

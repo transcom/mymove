@@ -16,7 +16,7 @@ import (
 func (suite *testSuite) TestTrace() {
 	handlerContext := mocks.HandlerContext{}
 	handlerContext.On("SetTraceID", mock.Anything).Return(nil)
-	mw := Trace(suite.logger, &handlerContext)
+	mw := Trace(suite.logger)
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.trace, rr, httptest.NewRequest("GET", testURL, nil))
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code
