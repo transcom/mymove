@@ -145,9 +145,9 @@ describe('CustomerInfo', () => {
   });
 
   it('calls onUpdate prop with error on unsuccessful form submission', async () => {
-    updateCustomerInfo.mockImplementation(() =>
-      Promise.reject(new Error('Expected logged error from a rejected promise')),
-    );
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    updateCustomerInfo.mockImplementation(() => Promise.reject());
     render(
       <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo
@@ -162,7 +162,7 @@ describe('CustomerInfo', () => {
     const saveBtn = screen.getByRole('button', { name: 'Save' });
     userEvent.click(saveBtn);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(mockUpdate).toHaveBeenCalledWith('error');
     });
   });
