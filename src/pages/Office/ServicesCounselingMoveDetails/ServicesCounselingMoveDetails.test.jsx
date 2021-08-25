@@ -12,6 +12,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { formatDate } from 'shared/dates';
 import { MockProviders, renderWithRouter } from 'testUtils';
+import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
 
@@ -22,6 +23,11 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  updateMoveStatusServiceCounselingCompleted: jest.fn(),
 }));
 
 const mtoShipments = [
@@ -468,6 +474,7 @@ describe('MoveDetails page', () => {
 
       it('allows the service counselor to use the modal as expected', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
+        updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
         render(mockedComponent);
 
@@ -475,13 +482,17 @@ describe('MoveDetails page', () => {
 
         userEvent.click(submitButton);
 
-        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 }));
+        await waitFor(() => {
+          expect(screen.findByRole('heading', { name: 'Are you sure?', level: 2 }));
+        });
 
         const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
 
         userEvent.click(modalSubmitButton);
 
-        expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 }));
+        await waitFor(() => {
+          expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
+        });
       });
 
       it.each([

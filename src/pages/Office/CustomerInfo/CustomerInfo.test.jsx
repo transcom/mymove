@@ -145,7 +145,9 @@ describe('CustomerInfo', () => {
   });
 
   it('calls onUpdate prop with error on unsuccessful form submission', async () => {
-    updateCustomerInfo.mockImplementation(() => Promise.reject());
+    updateCustomerInfo.mockImplementation(() =>
+      Promise.reject(new Error('Expected logged error from a rejected promise')),
+    );
     render(
       <MockProviders initialEntries={[customerInfoEditURL]}>
         <CustomerInfo
