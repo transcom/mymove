@@ -1,6 +1,7 @@
 import React from 'react';
 import { string, number, shape } from 'prop-types';
 import moment from 'moment';
+import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './ShipmentCard.module.scss';
@@ -21,7 +22,7 @@ export default function ShipmentCard({
   estimatedWeight,
   originalWeight,
   reweighRemarks,
-  reweightWeight,
+  reweighWeight,
 }) {
   return (
     <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG} className={styles.container}>
@@ -48,15 +49,19 @@ export default function ShipmentCard({
           <strong>Original weight</strong>
           <span>{formatWeight(originalWeight)}</span>
         </div>
-        <div className={`${styles.field} ${styles.missing}`}>
+        <div
+          className={classnames(styles.field, {
+            [styles.missing]: !reweighWeight,
+          })}
+        >
           <strong>Reweigh weight</strong>
-          <span>{reweightWeight ? formatWeight : <strong>Missing</strong>}</span>
+          <span>{reweighWeight ? formatWeight(reweighWeight) : <strong>Missing</strong>}</span>
         </div>
         <div className={styles.field}>
           <strong>Date reweigh requested</strong>
           <span>{formatDate(dateReweighRequested)}</span>
         </div>
-        <div className={`${styles.field} ${styles.remarks}`}>
+        <div className={classnames(styles.field, styles.remarks)}>
           <strong>Reweigh remarks</strong>
           <span>{reweighRemarks}</span>
         </div>
@@ -87,9 +92,9 @@ ShipmentCard.propTypes = {
     postal_code: string.isRequired,
   }).isRequired,
   reweighRemarks: string.isRequired,
-  reweightWeight: number,
+  reweighWeight: number,
 };
 
 ShipmentCard.defaultProps = {
-  reweightWeight: null,
+  reweighWeight: null,
 };
