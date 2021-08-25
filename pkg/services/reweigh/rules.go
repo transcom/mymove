@@ -1,9 +1,10 @@
 package reweigh
 
 import (
-	"context"
 	"fmt"
 	"time"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -14,7 +15,7 @@ import (
 
 // checkShipmentID checks that the user can't change the shipment ID
 func checkShipmentID() reweighValidator {
-	return reweighValidatorFunc(func(_ context.Context, newReweigh models.Reweigh, oldReweigh *models.Reweigh, _ *models.MTOShipment) error {
+	return reweighValidatorFunc(func(_ appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if oldReweigh == nil {
 			if newReweigh.ShipmentID == uuid.Nil {
@@ -31,7 +32,7 @@ func checkShipmentID() reweighValidator {
 
 // checkReweighID checks that the user can't change the reweigh ID
 func checkReweighID() reweighValidator {
-	return reweighValidatorFunc(func(_ context.Context, newReweigh models.Reweigh, oldReweigh *models.Reweigh, _ *models.MTOShipment) error {
+	return reweighValidatorFunc(func(_ appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if oldReweigh == nil {
 			if newReweigh.ID != uuid.Nil {
@@ -50,7 +51,7 @@ func checkReweighID() reweighValidator {
 
 // checkRequiredFields checks that the required fields are included
 func checkRequiredFields() reweighValidator {
-	return reweighValidatorFunc(func(_ context.Context, reweigh models.Reweigh, oldReweigh *models.Reweigh, _ *models.MTOShipment) error {
+	return reweighValidatorFunc(func(_ appcontext.AppContext, reweigh models.Reweigh, oldReweigh *models.Reweigh, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 
 		var requestedAt time.Time
@@ -71,7 +72,6 @@ func checkRequiredFields() reweighValidator {
 		}
 
 		// Check that we have something in the RequestedAt field:
-		// I WANT TO SAY: IF TIME.TIME is not empty for requestedAt
 		if requestedAt.IsZero() {
 			verrs.Add("requestedAt", "cannot be empty")
 		}
@@ -87,12 +87,12 @@ func checkRequiredFields() reweighValidator {
 
 //checks that the shipment associated with the reweigh is available to Prime
 func checkPrimeAvailability(checker services.MoveTaskOrderChecker) reweighValidator {
-	return reweighValidatorFunc(func(ctx context.Context, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error {
+	return reweighValidatorFunc(func(appCtx appcontext.AppContext, newReweigh models.Reweigh, oldReweigh *models.Reweigh, shipment *models.MTOShipment) error {
 		if shipment == nil {
 			return services.NewNotFoundError(newReweigh.ID, "while looking for Prime-available Shipment")
 		}
 
-		isAvailable, err := checker.MTOAvailableToPrime(shipment.MoveTaskOrderID)
+		isAvailable, err := checker.MTOAvailableToPrime(appCtx, shipment.MoveTaskOrderID)
 		if !isAvailable || err != nil {
 			return services.NewNotFoundError(
 				newReweigh.ID, fmt.Sprintf("while looking for Prime-available Shipment with id: %s", shipment.ID))

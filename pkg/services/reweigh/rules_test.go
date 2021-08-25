@@ -1,8 +1,11 @@
 package reweigh
 
 import (
-	"context"
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"time"
 
@@ -32,7 +35,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(context.Background(), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), testCase.newReweigh, testCase.oldReweigh, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -55,7 +58,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkShipmentID().Validate(context.Background(), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkShipmentID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), testCase.newReweigh, testCase.oldReweigh, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(verr.HasAny())
@@ -86,7 +89,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkReweighID().Validate(context.Background(), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkReweighID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), testCase.newReweigh, testCase.oldReweigh, nil)
 					suite.NilOrNoVerrs(err)
 				})
 			}
@@ -112,7 +115,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 			}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {
-					err := checkReweighID().Validate(context.Background(), testCase.newReweigh, testCase.oldReweigh, nil)
+					err := checkReweighID().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), testCase.newReweigh, testCase.oldReweigh, nil)
 					switch verr := err.(type) {
 					case *validate.Errors:
 						suite.True(testCase.verr, "expected something other than a *validate.Errors type")
@@ -144,7 +147,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 				RequestedBy: requestedBy,
 			}
 
-			err := checkRequiredFields().Validate(context.Background(), reweigh, oldReweigh, nil)
+			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), reweigh, oldReweigh, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.NoVerrs(verr)
@@ -155,8 +158,6 @@ func (suite *ReweighSuite) TestValidationRules() {
 
 		// Test unsuccessful check for required info
 		suite.Run("failure", func() {
-			//requestedAt := models.ReweighRequester.IsZero
-			//time := time.Time{}
 			requestedAt := new(time.Time) // this is the zero time, what we need to nullify the field
 			requestedBy := new(models.ReweighRequester)
 
@@ -165,7 +166,7 @@ func (suite *ReweighSuite) TestValidationRules() {
 				RequestedBy: *requestedBy,
 			}
 
-			err := checkRequiredFields().Validate(context.Background(), reweigh, oldReweigh, nil)
+			err := checkRequiredFields().Validate(appcontext.NewAppContext(suite.DB(), suite.logger), reweigh, oldReweigh, nil)
 			switch verr := err.(type) {
 			case *validate.Errors:
 				suite.False(verr.HasAny())
@@ -176,56 +177,28 @@ func (suite *ReweighSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkPrimeAvailability", func() {
-		shipment := models.MTOShipment{
-			ID: uuid.Must(uuid.NewV4()),
-		}
-		checkHappy := primeFunc(func(uuid.UUID) (bool, error) {
-			return true, nil
+	suite.Run("checkPrimeAvailability - Failure", func() {
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: nil,
+			},
 		})
-		checkError := primeFunc(func(uuid.UUID) (bool, error) {
-			return false, fmt.Errorf("forced")
-		})
-		testCases := map[string]struct {
-			check services.MoveTaskOrderChecker
-			ship  *models.MTOShipment
-			err   bool
-		}{
-			"happy": {
-				check: checkHappy,
-				ship:  &shipment,
-				err:   false,
-			},
-			"error": {
-				check: checkError,
-				ship:  &shipment,
-				err:   true,
-			},
-			"misused": {
-				check: checkHappy,
-				ship:  nil,
-				err:   true,
-			},
-		}
-
-		for name, testCase := range testCases {
-			suite.Run(name, func() {
-				err := checkPrimeAvailability(testCase.check).Validate(context.Background(), models.Reweigh{}, nil, testCase.ship)
-				if err == nil {
-					if testCase.err {
-						suite.Fail("expected error")
-					}
-					return
-				}
-				suite.IsType(services.NotFoundError{}, err)
-			})
-		}
-
+		checker := movetaskorder.NewMoveTaskOrderChecker()
+		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.Reweigh{}, nil, &shipment)
+		suite.NotNil(err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("not found while looking for Prime-available Shipment with id: %s", shipment.ID), err.Error())
 	})
-}
 
-type primeFunc func(uuid.UUID) (bool, error)
-
-func (fn primeFunc) MTOAvailableToPrime(id uuid.UUID) (bool, error) {
-	return fn(id)
+	suite.Run("checkPrimeAvailability - Success", func() {
+		currentTime := time.Now()
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &currentTime,
+			},
+		})
+		checker := movetaskorder.NewMoveTaskOrderChecker()
+		err := checkPrimeAvailability(checker).Validate(appcontext.NewAppContext(suite.DB(), suite.logger), models.Reweigh{}, nil, &shipment)
+		suite.NoError(err)
+	})
 }
