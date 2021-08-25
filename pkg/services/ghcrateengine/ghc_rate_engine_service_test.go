@@ -16,18 +16,20 @@ import (
 
 type GHCRateEngineServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *GHCRateEngineServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func TestGHCRateEngineServiceSuite(t *testing.T) {
 	ts := &GHCRateEngineServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

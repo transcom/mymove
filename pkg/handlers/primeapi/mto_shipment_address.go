@@ -43,28 +43,28 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 		switch e := err.(type) {
 		case services.PreconditionFailedError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 		// Not Found Error -> Not Found Response
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(
-				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(handlers.ValidationErrMessage, appCtx.TraceID(), e.ValidationErrors))
 		// ConflictError -> ConflictError Response
 		case services.ConflictError:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressConflict().WithPayload(
-				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), appCtx.TraceID()))
 		// QueryError -> Internal Server Error
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				logger.Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
 			}
-			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		// Unknown -> Internal Server Error
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().
-				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 
 	}

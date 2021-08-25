@@ -12,12 +12,13 @@ import (
 
 type OrderServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *OrderServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *OrderServiceSuite) SetupTest() {
@@ -27,8 +28,9 @@ func (suite *OrderServiceSuite) SetupTest() {
 
 func TestOrderServiceSuite(t *testing.T) {
 	ts := &OrderServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

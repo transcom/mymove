@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -143,7 +141,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
+	req := suite.NewRequestWithContext("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := ppmop.ShowPPMEstimateParams{
@@ -184,7 +182,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
+	req := suite.NewRequestWithContext("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := ppmop.ShowPPMEstimateParams{

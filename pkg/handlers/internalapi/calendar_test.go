@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -11,7 +10,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {
-	req := httptest.NewRequest("GET", "/calendar/available_move_dates", nil)
+	req := suite.NewRequestWithContext("GET", "/calendar/available_move_dates", nil)
 
 	startDate := strfmt.Date(time.Date(2018, 9, 27, 0, 0, 0, 0, time.UTC))
 	params := calendarop.ShowAvailableMoveDatesParams{

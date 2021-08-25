@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
-
 	"github.com/go-openapi/swag"
 
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
@@ -18,7 +16,7 @@ import (
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	unknownUser := testdatagen.MakeStubbedUser(suite.DB())
 
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req := suite.NewRequestWithContext("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateUserRequest(req, unknownUser)
 
 	params := userop.ShowLoggedInUserParams{
@@ -56,7 +54,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 			User:               user,
 		},
 	})
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req := suite.NewRequestWithContext("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
@@ -89,7 +87,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 		},
 	})
 
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req := suite.NewRequestWithContext("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
@@ -124,7 +122,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	station.TransportationOfficeID = nil
 	suite.MustSave(&station)
 
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req := suite.NewRequestWithContext("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
 	params := userop.ShowLoggedInUserParams{
@@ -148,7 +146,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 		},
 	})
 
-	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req := suite.NewRequestWithContext("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params := userop.ShowLoggedInUserParams{

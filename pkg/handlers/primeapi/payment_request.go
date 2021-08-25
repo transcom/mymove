@@ -34,7 +34,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	payload := params.Body
 	if payload == nil {
-		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", h.GetTraceID())
+		errPayload := payloads.ClientError(handlers.SQLErrMessage, "Invalid payment request: params Body is nil", appCtx.TraceID())
 		logger.Error("Invalid payment request: params Body is nil", zap.Any("payload", errPayload))
 		return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(errPayload)
 	}
@@ -52,7 +52,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				"move_id": {"id cannot be converted to UUID"},
 			},
 			}
-		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
+		errPayload := payloads.ValidationError(err.Error(), appCtx.TraceID(), verrs)
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
@@ -76,7 +76,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		logger.Error("could not build service items", zap.Error(err))
 		// TODO: do not bail out before creating the payment request, we need the failed record
 		//       we should create the failed record and store it as failed with a rejection
-		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)
+		errPayload := payloads.ValidationError(err.Error(), appCtx.TraceID(), verrs)
 		return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(errPayload)
 	}
 
@@ -87,26 +87,26 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		case services.InvalidCreateInputError:
 			verrs := e.ValidationErrors
 			detail := err.Error()
-			payload := payloads.ValidationError(detail, h.GetTraceID(), verrs)
+			payload := payloads.ValidationError(detail, appCtx.TraceID(), verrs)
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestUnprocessableEntity().WithPayload(payload)
 
 		case services.NotFoundError:
-			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
 		case services.ConflictError:
-			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), appCtx.TraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
 		case services.InvalidInputError:
-			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), &validate.Errors{})
+			payload := payloads.ValidationError(err.Error(), appCtx.TraceID(), &validate.Errors{})
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
@@ -116,10 +116,10 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("primeapi.CreatePaymentRequestHandler query error", zap.Error(e.Unwrap()))
 			}
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 
 		case *services.BadDataError:
-			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), appCtx.TraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
@@ -127,7 +127,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		default:
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return paymentrequestop.NewCreatePaymentRequestInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 

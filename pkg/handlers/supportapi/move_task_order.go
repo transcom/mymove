@@ -40,7 +40,7 @@ func (h ListMTOsHandler) Handle(params movetaskorderops.ListMTOsParams) middlewa
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
-		return movetaskorderops.NewListMTOsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		return movetaskorderops.NewListMTOsInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
@@ -69,15 +69,15 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailableNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), appCtx.TraceID()))
 		case services.InvalidInputError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailableUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
+				payloads.ValidationError(err.Error(), appCtx.TraceID(), typedErr.ValidationErrors))
 		case services.PreconditionFailedError:
 			return movetaskorderops.NewMakeMoveTaskOrderAvailablePreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), appCtx.TraceID()))
 		default:
-			return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return movetaskorderops.NewMakeMoveTaskOrderAvailableInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 
@@ -95,11 +95,12 @@ type HideNonFakeMoveTaskOrdersHandlerFunc struct {
 // Handle hides any mto that doesnt have valid fake data
 func (h HideNonFakeMoveTaskOrdersHandlerFunc) Handle(params movetaskorderops.HideNonFakeMoveTaskOrdersParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 
 	hiddenMTOs, err := h.Hide()
 	if err != nil {
 		logger.Error("supportapi.HideNonFakeMoveTaskOrdersHandlerFunc error", zap.Error(err))
-		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		return movetaskorderops.NewHideNonFakeMoveTaskOrdersInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 	}
 	payload := payloads.MTOHideMovesResponse(hiddenMTOs)
 
@@ -127,9 +128,9 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 		switch err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), appCtx.TraceID()))
 		default:
-			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
@@ -154,17 +155,17 @@ func (h CreateMoveTaskOrderHandler) Handle(params movetaskorderops.CreateMoveTas
 		switch typedErr := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewCreateMoveTaskOrderNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), appCtx.TraceID()))
 		case services.InvalidInputError:
-			errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors)
+			errPayload := payloads.ValidationError(err.Error(), appCtx.TraceID(), typedErr.ValidationErrors)
 			return movetaskorderops.NewCreateMoveTaskOrderUnprocessableEntity().WithPayload(errPayload)
 		case services.QueryError:
 			// This error is generated when the validation passed but there was an error in creation
 			// Usually this is due to a more complex dependency like a foreign key constraint
 			return movetaskorderops.NewCreateMoveTaskOrderBadRequest().WithPayload(
-				payloads.ClientError(handlers.SQLErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.SQLErrMessage, *handlers.FmtString(err.Error()), appCtx.TraceID()))
 		default:
-			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return movetaskorderops.NewCreateMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 

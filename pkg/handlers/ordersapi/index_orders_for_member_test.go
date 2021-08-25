@@ -3,7 +3,6 @@ package ordersapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -20,7 +19,7 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
 		},
 	}
 	order2 := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
-	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
 
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:          true,
@@ -52,7 +51,7 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
 }
 
 func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
-	req := httptest.NewRequest("GET", "/orders/v1/edipis/1234567890/orders", nil)
+	req := suite.NewRequestWithContext("GET", "/orders/v1/edipis/1234567890/orders", nil)
 	clientCert := models.ClientCert{}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
@@ -73,7 +72,7 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
 }
 
 func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoReadPerms() {
-	req := httptest.NewRequest("GET", "/orders/v1/edipis/1234567890/orders", nil)
+	req := suite.NewRequestWithContext("GET", "/orders/v1/edipis/1234567890/orders", nil)
 	clientCert := models.ClientCert{
 		AllowOrdersAPI: true,
 	}
@@ -151,7 +150,7 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				},
 			}
 			order := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
-			req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
+			req := suite.NewRequestWithContext("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.IndexOrdersForMemberParams{

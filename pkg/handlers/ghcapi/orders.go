@@ -73,7 +73,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 		case services.NotFoundError:
 			return orderop.NewUpdateOrderNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return orderop.NewUpdateOrderUnprocessableEntity().WithPayload(payload)
 		case services.ConflictError:
 			return orderop.NewUpdateOrderConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -137,7 +137,7 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 		case services.NotFoundError:
 			return orderop.NewCounselingUpdateOrderNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return orderop.NewCounselingUpdateOrderUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return orderop.NewCounselingUpdateOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -181,7 +181,7 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 		case services.NotFoundError:
 			return orderop.NewUpdateAllowanceNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return orderop.NewUpdateAllowanceUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return orderop.NewUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -225,7 +225,7 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 		case services.NotFoundError:
 			return orderop.NewCounselingUpdateAllowanceNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return orderop.NewCounselingUpdateAllowanceUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return orderop.NewCounselingUpdateAllowancePreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -261,8 +261,7 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -279,8 +278,7 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx a
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -297,8 +295,7 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.A
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -315,8 +312,7 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
-		HandlerContext:  h,                         // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.

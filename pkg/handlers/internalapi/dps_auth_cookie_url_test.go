@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"net/url"
 
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -26,7 +25,7 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 
 	// Normal service member (not a DPS user) happy path
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	request := httptest.NewRequest("POST", "/dps_auth/cookie_url", nil)
+	request := suite.NewRequestWithContext("POST", "/dps_auth/cookie_url", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := dps_auth.NewGetCookieURLParams()

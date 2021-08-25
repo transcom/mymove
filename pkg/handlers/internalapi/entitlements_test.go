@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -19,7 +18,7 @@ func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
 	move := ppm.Move
 
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.IndexEntitlementsParams{
@@ -46,7 +45,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements/move_id", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
@@ -74,7 +73,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
 	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements/move_id", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
@@ -100,7 +99,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpmOrHhg(
 
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements/move_id", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
@@ -122,7 +121,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements/move_id", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	badMoveID := uuid.Must(uuid.NewV4())
@@ -159,7 +158,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 	suite.MustSave(&move.Orders.ServiceMember)
 
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements/move_id", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{
@@ -185,7 +184,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerManagesNilPPMWeightEsti
 	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
+	request := suite.NewRequestWithContext("GET", "/entitlements/move_id", nil)
 	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
 
 	params := entitlementop.ValidateEntitlementParams{

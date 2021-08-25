@@ -7,7 +7,6 @@ import (
 
 	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/handlers"
@@ -18,7 +17,7 @@ import (
 
 func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/electronic_orders/totals", nil)
+	req := suite.NewRequestWithContext("GET", "/electronic_orders/totals", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	queryFilter := mocks.QueryFilter{}

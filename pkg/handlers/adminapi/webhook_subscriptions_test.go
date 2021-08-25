@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -30,7 +29,7 @@ import (
 func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 	// test that everything is wired up correctly
 	m := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-	req := httptest.NewRequest("GET", "/webhook_subscriptions", nil)
+	req := suite.NewRequestWithContext("GET", "/webhook_subscriptions", nil)
 
 	suite.T().Run("200 - OK response", func(t *testing.T) {
 		// Setup: Provide a valid request to endpoint, when there is data in the db
@@ -99,7 +98,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 	// Setup: Create a default webhook subscription and request
 	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID), nil)
 
 	suite.T().Run("200 - OK, Successfuly get webhook subscription", func(t *testing.T) {
 		// Under test: 			GetWebhookSubscriptionHandler, Fetcher
@@ -175,7 +174,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 		CallbackURL:  "/my/callback/url",
 	}
 
-	req := httptest.NewRequest("POST", "/webhook_subscriptions", nil)
+	req := suite.NewRequestWithContext("POST", "/webhook_subscriptions", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
@@ -219,7 +218,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 	// Setup: Create a default webhook subscription and request
 	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/webhook_subscriptions/%s", webhookSubscription.ID), nil)
 
 	suite.T().Run("200 - OK, Successfully updated webhook subscription", func(t *testing.T) {
 		// Testing:             UpdateWebhookSubscriptionHandler, WebhookSubscriptionUpdater

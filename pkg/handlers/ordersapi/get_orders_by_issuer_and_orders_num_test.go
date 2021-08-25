@@ -3,7 +3,6 @@ package ordersapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -14,7 +13,7 @@ import (
 
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
 	order := testdatagen.MakeDefaultElectronicOrder(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(order.Issuer), order.OrdersNumber), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(order.Issuer), order.OrdersNumber), nil)
 
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:          true,
@@ -41,7 +40,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNoApiPerm() {
-	req := httptest.NewRequest("GET", "/orders/v1/issuers/air-force/orders/8675309", nil)
+	req := suite.NewRequestWithContext("GET", "/orders/v1/issuers/air-force/orders/8675309", nil)
 	clientCert := models.ClientCert{}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
@@ -118,7 +117,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				},
 			}
 			order := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
-			req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(order.Issuer), order.OrdersNumber), nil)
+			req := suite.NewRequestWithContext("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(order.Issuer), order.OrdersNumber), nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.GetOrdersByIssuerAndOrdersNumParams{
@@ -143,7 +142,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNotFound() {
 	issuer := models.IssuerArmy
 	ordersNum := "notfound"
-	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(issuer), ordersNum), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(issuer), ordersNum), nil)
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:      true,
 		AllowArmyOrdersRead: true,

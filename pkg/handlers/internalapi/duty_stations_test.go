@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -45,7 +43,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	}
 	suite.MustSave(&station2)
 
-	req := httptest.NewRequest("GET", "/duty_stations", nil)
+	req := suite.NewRequestWithContext("GET", "/duty_stations", nil)
 
 	// Make sure the context contains the auth values
 	session := &auth.Session{

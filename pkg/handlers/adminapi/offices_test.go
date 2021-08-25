@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -30,7 +29,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 	testdatagen.MakeTransportationOffice(suite.DB(), assertions)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/offices", nil)
+	req := suite.NewRequestWithContext("GET", "/offices", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up

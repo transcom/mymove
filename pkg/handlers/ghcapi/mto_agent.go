@@ -34,7 +34,7 @@ func (h ListMTOAgentsHandler) Handle(params mtoagentop.FetchMTOAgentListParams) 
 	if err != nil {
 		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MTOShipmentID", err).Error()
 		logger.Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, appCtx.TraceID(), validate.NewErrors())
 		return mtoagentop.NewFetchMTOAgentListUnprocessableEntity().WithPayload(payload)
 	}
 

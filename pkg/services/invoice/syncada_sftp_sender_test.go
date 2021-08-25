@@ -21,14 +21,16 @@ import (
 
 type SyncadaSftpSenderSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
 func TestSyncadaSftpSenderSuite(t *testing.T) {
 
 	ts := &SyncadaSftpSenderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_sender")),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("syncada_sftp_sender")),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"errors"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -22,7 +21,7 @@ func (suite *HandlerSuite) TestListMTOAgentsHandler() {
 	testMTOAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	suite.T().Run("Successful Response", func(t *testing.T) {

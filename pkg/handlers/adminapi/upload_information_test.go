@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -69,7 +68,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 	suite.MustSave(&uploadInstance)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/uploads/%s", uploadID.String()), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/uploads/%s", uploadID.String()), nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up

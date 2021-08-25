@@ -5,6 +5,8 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/trace"
 )
@@ -15,8 +17,8 @@ func ContextLogger(field string, original *zap.Logger) func(next http.Handler) h
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			logs := original
-			if id := trace.FromContext(ctx); len(id) > 0 {
-				logs = logs.With(zap.String(field, id))
+			if traceID := trace.FromContext(ctx); traceID != (uuid.UUID{}) {
+				logs = logs.With(zap.String(field, traceID.String()))
 			}
 			ctx = logging.NewContext(ctx, logs)
 			next.ServeHTTP(w, r.WithContext(ctx))

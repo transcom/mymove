@@ -10,7 +10,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-openapi/strfmt"
@@ -38,7 +37,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerValidate() {
 	suite.MustSave(&uploadUser)
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.Upload.ID)}
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	weightTicketSetType := internalmessages.WeightTicketSetType("BOX_TRUCK")
@@ -144,7 +143,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.Upload.ID)}
 
 	suite.T().Run("car without make and model fails", func(t *testing.T) {
-		request := httptest.NewRequest("POST", "/fake/path", nil)
+		request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 		request = suite.AuthenticateRequest(request, sm)
 
 		weightTicketSetType := internalmessages.WeightTicketSetType("CAR")
@@ -176,7 +175,7 @@ func (suite *HandlerSuite) TestWeightTicketSetDocumentHandlerCreateFailure() {
 	})
 
 	suite.T().Run("box truck without nickname fails", func(t *testing.T) {
-		request := httptest.NewRequest("POST", "/fake/path", nil)
+		request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 		request = suite.AuthenticateRequest(request, sm)
 
 		weightTicketSetType := internalmessages.WeightTicketSetType("BOX_TRUCK")
@@ -223,7 +222,7 @@ func createWeightTicketSetDocument(suite *HandlerSuite, weightTicketSetType stri
 	suite.MustSave(&uploadUser)
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(uploadUser.UploadID)}
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	wtst := internalmessages.WeightTicketSetType(weightTicketSetType)

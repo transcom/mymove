@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -29,7 +28,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	suite.MustSave(&userUpload)
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(userUpload.Upload.ID)}
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
@@ -97,7 +96,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingNoUploads() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
 	movingExpenseType := internalmessages.MovingExpenseTypeWEIGHINGFEES
@@ -132,7 +131,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingN
 func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNotMissingReceipt() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
 	movingExpenseType := internalmessages.MovingExpenseTypeWEIGHINGFEES
@@ -164,7 +163,7 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNot
 func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerStorageExpense() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
 	movingExpenseType := internalmessages.MovingExpenseTypeSTORAGE

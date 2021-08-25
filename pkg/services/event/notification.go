@@ -40,18 +40,18 @@ func notificationSave(event *Event, payload *[]byte) error {
 		Status:          models.WebhookNotificationPending,
 	}
 
-	trace := event.HandlerContext.GetTraceID()
+	trace := event.AppCtx.TraceID()
 	if trace != uuid.Nil {
 		newNotification.TraceID = &trace
 	}
 
 	// Creates the notification entry in the DB
-	verrs, err := event.DBConnection.ValidateAndCreate(&newNotification)
+	verrs, err := event.AppCtx.DB().ValidateAndCreate(&newNotification)
 	if verrs.Count() > 0 {
-		event.logger.Error("event.notificationSave error", zap.Error(verrs))
+		event.AppCtx.Logger().Error("event.notificationSave error", zap.Error(verrs))
 		return services.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	} else if err != nil {
-		event.logger.Error("event.notificationSave error", zap.Error(err))
+		event.AppCtx.Logger().Error("event.notificationSave error", zap.Error(err))
 		e := services.NewQueryError("Notification", err, "Unable to save Notification.")
 		return e
 	}
@@ -64,8 +64,7 @@ func notificationSave(event *Event, payload *[]byte) error {
 // error as well.
 func checkAvailabilityToPrime(event *Event) (bool, error) {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger)
-	availableToPrime, err := mtoChecker.MTOAvailableToPrime(appCtx, event.MtoID)
+	availableToPrime, err := mtoChecker.MTOAvailableToPrime(event.AppCtx, event.MtoID)
 	if err != nil {
 		unknownErr := services.NewEventError("Unknown error checking prime availability", err)
 		return false, unknownErr
@@ -207,8 +206,6 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 // Returns bool indicating whether notification was stored, and error if there was one
 // encountered.
 func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger)
-
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime
 	if isSourcePrime(event) {
@@ -227,15 +224,15 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 
 	switch modelBeingUpdated.(type) {
 	case models.PaymentRequest:
-		payloadArray, err = assemblePaymentRequestPayload(appCtx, event.UpdatedObjectID)
+		payloadArray, err = assemblePaymentRequestPayload(event.AppCtx, event.UpdatedObjectID)
 	case models.MTOShipment:
-		payloadArray, err = assembleMTOShipmentPayload(appCtx, event.UpdatedObjectID)
+		payloadArray, err = assembleMTOShipmentPayload(event.AppCtx, event.UpdatedObjectID)
 	case models.MTOServiceItem:
-		payloadArray, err = assembleMTOServiceItemPayload(appCtx, event.UpdatedObjectID)
+		payloadArray, err = assembleMTOServiceItemPayload(event.AppCtx, event.UpdatedObjectID)
 	case models.Move:
-		payloadArray, err = assembleMTOPayload(appCtx, event.UpdatedObjectID)
+		payloadArray, err = assembleMTOPayload(event.AppCtx, event.UpdatedObjectID)
 	default:
-		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
+		event.AppCtx.Logger().Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
 	}
 	if err != nil {
@@ -276,8 +273,7 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// case models.Order:
 	var payloadArray []byte
 	var err error
-	appCtx := appcontext.NewAppContext(event.DBConnection, event.logger)
-	payloadArray, _ = assembleOrderPayload(appCtx, event.UpdatedObjectID)
+	payloadArray, _ = assembleOrderPayload(event.AppCtx, event.UpdatedObjectID)
 
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)
@@ -296,7 +292,7 @@ func NotificationEventHandler(event *Event) error {
 	modelBeingUpdated, err := GetModelFromEvent(event.EventKey)
 
 	if err != nil {
-		event.logger.Error("event.NotificationEventHandler: EventKey does not exist.")
+		event.AppCtx.Logger().Error("event.NotificationEventHandler: EventKey does not exist.")
 		return err
 	}
 
@@ -311,13 +307,13 @@ func NotificationEventHandler(event *Event) error {
 
 	// Log what happened.
 	if err != nil {
-		event.logger.Error("event.NotificationEventHandler: ", zap.Error(err))
+		event.AppCtx.Logger().Error("event.NotificationEventHandler: ", zap.Error(err))
 		return err
 	} else if !stored {
-		event.logger.Info("event.NotificationEventHandler: No notification needed to be created.")
+		event.AppCtx.Logger().Info("event.NotificationEventHandler: No notification needed to be created.")
 	} else {
 		msg := fmt.Sprintf("event.NotificationEventHandler: Notification stored for %s event triggered by %s endpoint.", event.EventKey, event.EndpointKey)
-		event.logger.Info(msg)
+		event.AppCtx.Logger().Info(msg)
 	}
 
 	return nil

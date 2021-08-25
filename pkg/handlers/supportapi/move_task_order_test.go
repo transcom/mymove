@@ -1,7 +1,6 @@
 package supportapi
 
 import (
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -48,7 +47,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 		Move: moveTaskOrder,
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.ListMTOsParams{HTTPRequest: request}
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -69,7 +68,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 }
 
 func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
-	request := httptest.NewRequest("PATCH", "/move-task-orders/hide", nil)
+	request := suite.NewRequestWithContext("PATCH", "/move-task-orders/hide", nil)
 	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
 		HTTPRequest: request,
 	}
@@ -161,7 +160,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 			Status: models.MoveStatusSUBMITTED,
 		},
 	})
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
+	request := suite.NewRequestWithContext("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
 	params := move_task_order.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: move.ID.String(),
@@ -189,7 +188,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: move.ID.String(),
@@ -268,7 +267,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	}
 
 	// Create the handler object
-	request := httptest.NewRequest("POST", "/move-task-orders", nil)
+	request := suite.NewRequestWithContext("POST", "/move-task-orders", nil)
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := CreateMoveTaskOrderHandler{hConfig,
 		internalmovetaskorder.NewInternalMoveTaskOrderCreator(),
@@ -350,7 +349,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(models.MoveStatusSUBMITTED, (models.MoveStatus)(createdMTO.Status))
 
 		// Now we'll try to approve this MTO and verify that it was successfully made available to the Prime
-		approvalRequest := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
+		approvalRequest := suite.NewRequestWithContext("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
 		approvalParams := move_task_order.MakeMoveTaskOrderAvailableParams{
 			HTTPRequest:     approvalRequest,
 			MoveTaskOrderID: createdMTO.ID.String(),

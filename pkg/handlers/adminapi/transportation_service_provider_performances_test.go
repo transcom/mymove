@@ -11,7 +11,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -40,7 +39,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 	testdatagen.MakeTSPPerformance(suite.DB(), assertions)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/transportation_service_provider_performances", nil)
+	req := suite.NewRequestWithContext("GET", "/transportation_service_provider_performances", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up
@@ -141,7 +140,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 	testdatagen.MakeTSPPerformance(suite.DB(), assertions)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/transportation_service_provider_performances/"+uuidString, nil)
+	req := suite.NewRequestWithContext("GET", "/transportation_service_provider_performances/"+uuidString, nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up

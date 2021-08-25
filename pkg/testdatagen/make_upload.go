@@ -1,12 +1,14 @@
 package testdatagen
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/uploader"
 
 	"github.com/gobuffalo/pop/v5"
@@ -29,7 +31,8 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		}
 		// Ugh. Use the global logger. All testdatagen methods should
 		// take a logger
-		appCtx := appcontext.NewAppContext(db, zap.L())
+		ctx := logging.NewContext(context.Background(), zap.L())
+		appCtx := appcontext.NewAppContext(ctx, db)
 		upload, verrs, err = assertions.Uploader.CreateUpload(appCtx, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))

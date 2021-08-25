@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -43,7 +44,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	if err != nil {
 		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
 		logger.Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, appCtx.TraceID(), validate.NewErrors())
 
 		return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
 	}
@@ -125,7 +126,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload)
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "CreateMTOShipment", appCtx.TraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payload)
 		case services.QueryError:
 			if e.Unwrap() != nil {
@@ -161,7 +162,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		payload := payloadForValidationError(
 			"Empty body error",
 			"The MTO Shipment request body cannot be empty.",
-			h.GetTraceID(),
+			appCtx.TraceID(),
 			validate.NewErrors(),
 		)
 
@@ -177,7 +178,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		case services.NotFoundError:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
 		default:
-			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), appCtx.TraceID())
 
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 				&ghcmessages.Error{Message: &msg},
@@ -189,7 +190,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateShipmentHandler", zap.Error(err))
-		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+		msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), appCtx.TraceID())
 		return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 			&ghcmessages.Error{Message: &msg},
 		)
@@ -218,12 +219,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				payloadForValidationError(
 					handlers.ValidationErrMessage,
 					err.Error(),
-					h.GetTraceID(),
+					appCtx.TraceID(),
 					e.ValidationErrors,
 				),
 			)
 		case services.PreconditionFailedError:
-			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), appCtx.TraceID())
 			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
 				&ghcmessages.Error{Message: &msg},
 			)
@@ -233,13 +234,13 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				logger.Error("ghcapi.UpdateShipmentHandler error", zap.Error(e.Unwrap()))
 			}
 
-			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), appCtx.TraceID())
 
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 				&ghcmessages.Error{Message: &msg},
 			)
 		default:
-			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceID())
+			msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), appCtx.TraceID())
 
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
 				&ghcmessages.Error{Message: &msg},
@@ -254,8 +255,7 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 		UpdatedObjectID: updatedMtoShipment.ID,              // ID of the updated logical object
 		MtoID:           updatedMtoShipment.MoveTaskOrderID, // ID of the associated Move
 		Request:         params.HTTPRequest,                 // Pass on the http.Request
-		DBConnection:    h.DB(),                             // Pass on the pop.Connection
-		HandlerContext:  h,                                  // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 	// If the event trigger fails, just log the error.
 	if err != nil {
@@ -304,12 +304,12 @@ func (h DeleteShipmentHandler) Handle(params shipmentops.DeleteShipmentParams) m
 	// the DB for auditing purposes. When that happens, this code in the handler
 	// will not change. However, we should make sure to add a test in
 	// mto_shipment_test.go that verifies the audit got saved.
-	h.triggerShipmentDeletionEvent(shipmentID, moveID, params)
+	h.triggerShipmentDeletionEvent(appCtx, shipmentID, moveID, params)
 
 	return shipmentops.NewDeleteShipmentNoContent()
 }
 
-func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
+func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.DeleteShipmentParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -319,8 +319,7 @@ func (h DeleteShipmentHandler) triggerShipmentDeletionEvent(shipmentID uuid.UUID
 		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
 		MtoID:           moveID,                       // ID of the associated Move
 		Request:         params.HTTPRequest,           // Pass on the http.Request
-		DBConnection:    h.DB(),                       // Pass on the pop.Connection
-		HandlerContext:  h,                            // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -356,7 +355,7 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 		case services.NotFoundError:
 			return shipmentops.NewApproveShipmentNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "ApproveShipment", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "ApproveShipment", appCtx.TraceID(), e.ValidationErrors)
 			return shipmentops.NewApproveShipmentUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return shipmentops.NewApproveShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -367,13 +366,13 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 		}
 	}
 
-	h.triggerShipmentApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerShipmentApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment)
 	return shipmentops.NewApproveShipmentOK().WithPayload(payload)
 }
 
-func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentParams) {
+func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -383,8 +382,7 @@ func (h ApproveShipmentHandler) triggerShipmentApprovalEvent(shipmentID uuid.UUI
 		UpdatedObjectID: shipmentID,                    // ID of the updated logical object
 		MtoID:           moveID,                        // ID of the associated Move
 		Request:         params.HTTPRequest,            // Pass on the http.Request
-		DBConnection:    h.DB(),                        // Pass on the pop.Connection
-		HandlerContext:  h,                             // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -420,7 +418,7 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 		case services.NotFoundError:
 			return shipmentops.NewRequestShipmentDiversionNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RequestShipmentDiversion", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "RequestShipmentDiversion", appCtx.TraceID(), e.ValidationErrors)
 			return shipmentops.NewRequestShipmentDiversionUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return shipmentops.NewRequestShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -431,13 +429,13 @@ func (h RequestShipmentDiversionHandler) Handle(params shipmentops.RequestShipme
 		}
 	}
 
-	h.triggerRequestShipmentDiversionEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerRequestShipmentDiversionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment)
 	return shipmentops.NewRequestShipmentDiversionOK().WithPayload(payload)
 }
 
-func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
+func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentDiversionParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -447,8 +445,7 @@ func (h RequestShipmentDiversionHandler) triggerRequestShipmentDiversionEvent(sh
 		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
 		MtoID:           moveID,                                 // ID of the associated Move
 		Request:         params.HTTPRequest,                     // Pass on the http.Request
-		DBConnection:    h.DB(),                                 // Pass on the pop.Connection
-		HandlerContext:  h,                                      // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -484,7 +481,7 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		case services.NotFoundError:
 			return shipmentops.NewApproveShipmentDiversionNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "ApproveShipmentDiversion", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "ApproveShipmentDiversion", appCtx.TraceID(), e.ValidationErrors)
 			return shipmentops.NewApproveShipmentDiversionUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return shipmentops.NewApproveShipmentDiversionPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -495,13 +492,13 @@ func (h ApproveShipmentDiversionHandler) Handle(params shipmentops.ApproveShipme
 		}
 	}
 
-	h.triggerShipmentDiversionApprovalEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerShipmentDiversionApprovalEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment)
 	return shipmentops.NewApproveShipmentDiversionOK().WithPayload(payload)
 }
 
-func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
+func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.ApproveShipmentDiversionParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -511,8 +508,7 @@ func (h ApproveShipmentDiversionHandler) triggerShipmentDiversionApprovalEvent(s
 		UpdatedObjectID: shipmentID,                             // ID of the updated logical object
 		MtoID:           moveID,                                 // ID of the associated Move
 		Request:         params.HTTPRequest,                     // Pass on the http.Request
-		DBConnection:    h.DB(),                                 // Pass on the pop.Connection
-		HandlerContext:  h,                                      // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -549,7 +545,7 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 		case services.NotFoundError:
 			return shipmentops.NewRejectShipmentNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RejectShipment", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "RejectShipment", appCtx.TraceID(), e.ValidationErrors)
 			return shipmentops.NewRejectShipmentUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return shipmentops.NewRejectShipmentPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -560,13 +556,13 @@ func (h RejectShipmentHandler) Handle(params shipmentops.RejectShipmentParams) m
 		}
 	}
 
-	h.triggerShipmentRejectionEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerShipmentRejectionEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment)
 	return shipmentops.NewRejectShipmentOK().WithPayload(payload)
 }
 
-func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RejectShipmentParams) {
+func (h RejectShipmentHandler) triggerShipmentRejectionEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RejectShipmentParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -576,8 +572,7 @@ func (h RejectShipmentHandler) triggerShipmentRejectionEvent(shipmentID uuid.UUI
 		UpdatedObjectID: shipmentID,                   // ID of the updated logical object
 		MtoID:           moveID,                       // ID of the associated Move
 		Request:         params.HTTPRequest,           // Pass on the http.Request
-		DBConnection:    h.DB(),                       // Pass on the pop.Connection
-		HandlerContext:  h,                            // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -613,7 +608,7 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 		case services.NotFoundError:
 			return shipmentops.NewRequestShipmentCancellationNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RequestShipmentCancellation", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "RequestShipmentCancellation", appCtx.TraceID(), e.ValidationErrors)
 			return shipmentops.NewRequestShipmentCancellationUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return shipmentops.NewRequestShipmentCancellationPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -624,13 +619,13 @@ func (h RequestShipmentCancellationHandler) Handle(params shipmentops.RequestShi
 		}
 	}
 
-	h.triggerRequestShipmentCancellationEvent(shipmentID, shipment.MoveTaskOrderID, params)
+	h.triggerRequestShipmentCancellationEvent(appCtx, shipmentID, shipment.MoveTaskOrderID, params)
 
 	payload := payloads.MTOShipment(shipment)
 	return shipmentops.NewRequestShipmentCancellationOK().WithPayload(payload)
 }
 
-func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentCancellationParams) {
+func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentCancellationParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -640,8 +635,7 @@ func (h RequestShipmentCancellationHandler) triggerRequestShipmentCancellationEv
 		UpdatedObjectID: shipmentID,                                // ID of the updated logical object
 		MtoID:           moveID,                                    // ID of the associated Move
 		Request:         params.HTTPRequest,                        // Pass on the http.Request
-		DBConnection:    h.DB(),                                    // Pass on the pop.Connection
-		HandlerContext:  h,                                         // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.
@@ -676,7 +670,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 		case services.NotFoundError:
 			return shipmentops.NewRequestShipmentReweighNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Validation errors", "RequestShipmentReweigh", h.GetTraceID(), e.ValidationErrors)
+			payload := payloadForValidationError("Validation errors", "RequestShipmentReweigh", appCtx.TraceID(), e.ValidationErrors)
 			return shipmentops.NewRequestShipmentReweighUnprocessableEntity().WithPayload(payload)
 		case services.ConflictError:
 			return shipmentops.NewRequestShipmentReweighConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -686,7 +680,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	}
 
 	moveID := reweigh.Shipment.MoveTaskOrderID
-	h.triggerRequestShipmentReweighEvent(shipmentID, moveID, params)
+	h.triggerRequestShipmentReweighEvent(appCtx, shipmentID, moveID, params)
 
 	err = h.NotificationSender().SendNotification(
 		notifications.NewReweighRequested(h.DB(), logger, session, moveID),
@@ -699,7 +693,7 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 	return shipmentops.NewRequestShipmentReweighOK().WithPayload(payload)
 }
 
-func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentReweighParams) {
+func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(appCtx appcontext.AppContext, shipmentID uuid.UUID, moveID uuid.UUID, params shipmentops.RequestShipmentReweighParams) {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	_, err := event.TriggerEvent(event.Event{
@@ -709,8 +703,7 @@ func (h RequestShipmentReweighHandler) triggerRequestShipmentReweighEvent(shipme
 		UpdatedObjectID: shipmentID,                           // ID of the updated logical object
 		MtoID:           moveID,                               // ID of the associated Move
 		Request:         params.HTTPRequest,                   // Pass on the http.Request
-		DBConnection:    h.DB(),                               // Pass on the pop.Connection
-		HandlerContext:  h,                                    // Pass on the handlerContext
+		AppCtx:          appCtx,
 	})
 
 	// If the event trigger fails, just log the error.

@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -40,7 +39,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		AccessCode: ac,
 	}
 	testdatagen.MakeAccessCode(suite.DB(), assertions)
-	req := httptest.NewRequest("GET", "/access_codes", nil)
+	req := suite.NewRequestWithContext("GET", "/access_codes", nil)
 
 	suite.T().Run("integration test ok response", func(t *testing.T) {
 		params := accesscodeop.IndexAccessCodesParams{

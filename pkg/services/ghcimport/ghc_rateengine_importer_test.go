@@ -40,6 +40,7 @@ var tablesToTruncate = []string{
 
 type GHCRateEngineImportSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 

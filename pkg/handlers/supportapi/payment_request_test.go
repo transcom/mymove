@@ -11,7 +11,6 @@ package supportapi
 import (
 	"errors"
 	"fmt"
-	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
@@ -47,7 +46,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID := paymentRequest.ID
 
 	suite.T().Run("successful status update of payment request", func(t *testing.T) {
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		eTag := etag.GenerateEtag(paymentRequest.UpdatedAt)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
@@ -80,7 +79,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		})
 		availablePaymentRequestID := availablePaymentRequest.ID
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
 		eTag := etag.GenerateEtag(availablePaymentRequest.UpdatedAt)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
@@ -96,9 +95,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(),
 		}
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
+		traceID := suite.TestAppContext().TraceID()
 
 		response := handler.Handle(params)
 
@@ -118,7 +115,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
@@ -150,7 +147,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
@@ -179,7 +176,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
@@ -207,7 +204,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
@@ -234,7 +231,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	suite.T().Run("successful get an MTO with payment requests", func(t *testing.T) {
 		mtoID := paymentRequest.MoveTaskOrderID
-		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mtoID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mtoID), nil)
 
 		params := paymentrequestop.ListMTOPaymentRequestsParams{
 			HTTPRequest:     req,
@@ -255,7 +252,7 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 	})
 
 	suite.T().Run("successful get an MTO with no payment requests", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mto.ID), nil)
 
 		params := paymentrequestop.ListMTOPaymentRequestsParams{
 			HTTPRequest:     req,
@@ -328,7 +325,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	urlFormat := "/payment-requests/%s/edi"
 
 	suite.T().Run("successful get of EDI for payment request", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
@@ -353,7 +350,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 	suite.T().Run("failure due to incorrectly formatted payment request ID", func(t *testing.T) {
 		invalidID := "12345"
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, invalidID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf(urlFormat, invalidID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
@@ -366,7 +363,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	})
 
 	suite.T().Run("failure due to a validation error", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
@@ -388,7 +385,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	})
 
 	suite.T().Run("failure due to a conflict error", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
@@ -411,7 +408,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
 		notFoundID := uuid.Must(uuid.NewV4())
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
@@ -424,7 +421,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	})
 
 	suite.T().Run("failure when generating EDI", func(t *testing.T) {
-		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		req := suite.NewRequestWithContext("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
 
 		params := paymentrequestop.GetPaymentRequestEDIParams{
 			HTTPRequest:      req,
@@ -573,7 +570,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		readFromSyncada := false
@@ -600,7 +597,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		readFromSyncada := false
@@ -632,7 +629,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		readFromSyncada := false
@@ -658,7 +655,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		paymentRequestID := reviewedPaymentRequests[0].ID
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 
 		sendToSyncada := false
 		readFromSyncada := false
@@ -688,7 +685,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		suite.Equal(4, len(reviewedPaymentRequests))
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
@@ -719,7 +716,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
 		readFromSyncada := false
@@ -758,7 +755,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
-		req := httptest.NewRequest("PATCH", fmt.Sprint(urlFormat), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprint(urlFormat), nil)
 		sendToSyncada := false
 		readFromSyncada := false
 		deleteFromSyncada := false

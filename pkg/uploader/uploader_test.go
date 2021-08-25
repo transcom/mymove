@@ -37,6 +37,7 @@ import (
 
 type UploaderSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger       *zap.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
@@ -45,7 +46,7 @@ type UploaderSuite struct {
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *UploaderSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *UploaderSuite) SetupTest() {
@@ -106,9 +107,10 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	hs := &UploaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
-		storer:       storageTest.NewFakeS3Storage(true),
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               logger,
+		storer:               storageTest.NewFakeS3Storage(true),
 	}
 
 	suite.Run(t, hs)

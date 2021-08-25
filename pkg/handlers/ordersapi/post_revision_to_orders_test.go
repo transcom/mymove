@@ -3,7 +3,6 @@ package ordersapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -21,7 +20,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 	// prime the DB with an order with 1 revision
 	origOrder := testdatagen.MakeDefaultElectronicOrder(suite.DB())
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
+	req := suite.NewRequestWithContext("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:           true,
 		AllowAirForceOrdersWrite: true,
@@ -112,7 +111,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrders() {
 
 func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
 	id, _ := uuid.NewV4()
-	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", id.String()), nil)
+	req := suite.NewRequestWithContext("POST", fmt.Sprintf("/orders/v1/orders/%s", id.String()), nil)
 	clientCert := models.ClientCert{}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
@@ -189,7 +188,7 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				},
 			}
 			origOrder := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
-			req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID.String()), nil)
+			req := suite.NewRequestWithContext("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID.String()), nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.PostRevisionToOrdersParams{

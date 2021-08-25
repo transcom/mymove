@@ -544,18 +544,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
-	handlerContext := handlers.NewHandlerConfig(dbConnection, logger)
-	handlerContext.SetSessionManagers(sessionManagers)
-	handlerContext.SetCookieSecret(clientAuthSecretKey)
-	handlerContext.SetUseSecureCookie(useSecureCookie)
-	handlerContext.SetAppNames(appnames)
+	handlerConfig := handlers.NewHandlerConfig(dbConnection, logger)
+	handlerConfig.SetSessionManagers(sessionManagers)
+	handlerConfig.SetCookieSecret(clientAuthSecretKey)
+	handlerConfig.SetUseSecureCookie(useSecureCookie)
+	handlerConfig.SetAppNames(appnames)
 
 	// Email
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
 	}
-	handlerContext.SetNotificationSender(notificationSender)
+	handlerConfig.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildRootFlag)
 
@@ -563,11 +563,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	clientHandler := http.FileServer(http.Dir(build))
 
 	// Set SendProductionInvoice for ediinvoice
-	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
+	handlerConfig.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
 	storer := storage.InitStorage(v, session, logger)
-	handlerContext.SetFileStorer(storer)
+	handlerConfig.SetFileStorer(storer)
 
 	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
@@ -580,7 +580,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
 	routePlanner := route.InitRoutePlanner(v, logger)
-	handlerContext.SetPlanner(routePlanner)
+	handlerConfig.SetPlanner(routePlanner)
 
 	// Create a secondary planner specifically for GHC.
 	routeTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
@@ -588,7 +588,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if initRouteErr != nil {
 		logger.Fatal("Could not instantiate GHC route planner", zap.Error(initRouteErr))
 	}
-	handlerContext.SetGHCPlanner(ghcRoutePlanner)
+	handlerConfig.SetGHCPlanner(ghcRoutePlanner)
 
 	// Set the GexSender() and GexSender fields
 	gexTLSConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
@@ -617,10 +617,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			v.GetString(cli.GEXBasicAuthPasswordFlag),
 		)
 	}
-	handlerContext.SetGexSender(gexRequester)
+	handlerConfig.SetGexSender(gexRequester)
 
 	// Set feature flags
-	handlerContext.SetFeatureFlag(
+	handlerConfig.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
 	)
 
@@ -637,13 +637,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
 	}
-	handlerContext.SetICNSequencer(icnSequencer)
+	handlerConfig.SetICNSequencer(icnSequencer)
 
 	rbs, err := iws.InitRBSPersonLookup(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
-	handlerContext.SetIWSPersonLookup(rbs)
+	handlerConfig.SetIWSPersonLookup(rbs)
 
 	dpsAuthSecretKey := v.GetString(cli.DPSAuthSecretKeyFlag)
 	dpsCookieDomain := v.GetString(cli.DPSCookieDomainFlag)
@@ -651,7 +651,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
 
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
-	handlerContext.SetDPSAuthParams(dpsAuthParams)
+	handlerConfig.SetDPSAuthParams(dpsAuthParams)
 
 	// bare is the base muxer. Not intended to have any middleware attached.
 	bare := goji.NewMux()
@@ -780,7 +780,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 		}
-		ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
+		ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerConfig))
 		site.Handle(pat.New("/orders/v1/*"), ordersMux)
 	}
 	if v.GetBool(cli.ServeDPSFlag) {
@@ -797,7 +797,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			dpsMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 		}
-		dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
+		dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerConfig))
 		site.Handle(pat.New("/dps/v0/*"), dpsMux)
 	}
 
@@ -836,7 +836,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 		}
-		primeMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
+		primeMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerConfig))
 		site.Handle(pat.New("/prime/v1/*"), primeMux)
 	}
 
@@ -855,7 +855,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			supportMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 		}
-		supportMux.Handle(pat.New("/*"), supportapi.NewSupportAPIHandler(handlerContext))
+		supportMux.Handle(pat.New("/*"), supportapi.NewSupportAPIHandler(handlerConfig))
 		site.Handle(pat.New("/support/v1/*"), supportMux)
 	}
 
@@ -913,7 +913,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		api := internalapi.NewInternalAPI(handlerContext)
+		api := internalapi.NewInternalAPI(handlerConfig)
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 	}
 
@@ -934,7 +934,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Use(userAuthMiddleware)
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
-		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
+		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerConfig))
 	}
 
 	if v.GetBool(cli.ServeGHCFlag) {
@@ -953,12 +953,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		api := ghcapi.NewGhcAPIHandler(handlerContext)
+		api := ghcapi.NewGhcAPIHandler(handlerConfig)
 		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 	}
 
-	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
-	authContext.SetFeatureFlag(
+	authConfig := authentication.NewAuthConfig(loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
+	authConfig.SetFeatureFlag(
 		authentication.FeatureFlag{
 			Name:   cli.FeatureFlagAccessCode,
 			Active: v.GetBool(cli.FeatureFlagAccessCode),
@@ -966,18 +966,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection))
-	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, dbConnection))
+	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{AuthConfig: authConfig})
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authConfig, dbConnection))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authConfig, dbConnection))
 
 	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames))
+		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authConfig, dbConnection))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authConfig, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authConfig, dbConnection, appnames))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authConfig, dbConnection, appnames))
 
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment, cli.EnvironmentReview}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")

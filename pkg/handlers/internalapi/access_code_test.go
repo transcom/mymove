@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -32,7 +31,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
 	}
 
 	// makes request
-	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request := suite.NewRequestWithContext("GET", "/access_codes", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.FetchAccessCodeParams{
@@ -66,7 +65,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_Failure() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// makes request
-	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request := suite.NewRequestWithContext("GET", "/access_codes", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.FetchAccessCodeParams{
@@ -95,7 +94,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// makes request
-	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request := suite.NewRequestWithContext("GET", "/access_codes", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.FetchAccessCodeParams{
@@ -127,7 +126,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	}
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
 	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
+	request := suite.NewRequestWithContext("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
 
 	params := accesscodeops.ValidateAccessCodeParams{
@@ -172,7 +171,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
 
 	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
+	request := suite.NewRequestWithContext("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
 
 	params := accesscodeops.ValidateAccessCodeParams{
@@ -214,7 +213,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	claimedAt := time.Now()
 
 	// makes request
-	request := httptest.NewRequest("PATCH", "/access_codes/invalid", nil)
+	request := suite.NewRequestWithContext("PATCH", "/access_codes/invalid", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.ClaimAccessCodeParams{

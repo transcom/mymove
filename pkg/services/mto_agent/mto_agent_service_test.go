@@ -12,12 +12,13 @@ import (
 
 type MTOAgentServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *MTOAgentServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *MTOAgentServiceSuite) SetupTest() {
@@ -26,8 +27,9 @@ func (suite *MTOAgentServiceSuite) SetupTest() {
 }
 func TestMTOAgentServiceSuite(t *testing.T) {
 	ts := &MTOAgentServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

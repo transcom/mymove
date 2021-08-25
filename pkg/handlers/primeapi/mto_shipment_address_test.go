@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -68,7 +67,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Update with new address
 		payload := payloads.Address(&newAddress)
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
 			AddressID:     *handlers.FmtUUID(pickupAddress1.ID),
@@ -105,7 +104,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Update with new address
 		payload := payloads.Address(&newAddress2)
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
 			AddressID:     *handlers.FmtUUID(pickupAddress1.ID),
@@ -142,7 +141,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Update with new address
 		payload := payloads.Address(&newAddress)
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
 			AddressID:     *handlers.FmtUUID(pickupAddress2.ID),
@@ -172,7 +171,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		randomAddress := testdatagen.MakeDefaultAddress(suite.DB())
 
 		payload := payloads.Address(&randomAddress)
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment3.ID.String(), randomAddress.ID.String()), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment3.ID.String(), randomAddress.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
 			AddressID:     *handlers.FmtUUID(randomAddress.ID),
@@ -195,7 +194,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 
 		// Update with new address with a bad etag
 		payload := payloads.Address(&newAddress)
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
 			HTTPRequest:   req,
 			AddressID:     *handlers.FmtUUID(pickupAddress1.ID),

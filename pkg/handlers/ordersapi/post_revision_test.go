@@ -2,7 +2,6 @@ package ordersapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestPostRevision() {
-	req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
+	req := suite.NewRequestWithContext("POST", "/orders/v1/orders", nil)
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:           true,
 		AllowAirForceOrdersWrite: true,
@@ -160,7 +159,7 @@ func (suite *HandlerSuite) TestPostRevision() {
 }
 
 func (suite *HandlerSuite) TestPostRevisionNoApiPerm() {
-	req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
+	req := suite.NewRequestWithContext("POST", "/orders/v1/orders", nil)
 	clientCert := models.ClientCert{}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
@@ -216,7 +215,7 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
-			req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
+			req := suite.NewRequestWithContext("POST", "/orders/v1/orders", nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.PostRevisionParams{

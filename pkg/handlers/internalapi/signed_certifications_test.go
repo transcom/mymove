@@ -10,7 +10,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -39,7 +38,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 		MoveID:                           *handlers.FmtUUID(move.ID),
 	}
 
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req := suite.NewRequestWithContext("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
@@ -85,7 +84,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	}
 
 	// Uses a different user than is on the move object
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req := suite.NewRequestWithContext("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateUserRequest(req, user2)
 
 	params.HTTPRequest = req
@@ -121,7 +120,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	}
 
 	// Uses a different user than is on the move object
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req := suite.NewRequestWithContext("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
@@ -157,7 +156,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerBadMoveID() {
 		},
 	})
 
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req := suite.NewRequestWithContext("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")
 	params := certop.IndexSignedCertificationParams{
@@ -198,7 +197,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandlerMismatchedUser() {
 	}
 	suite.MustSave(&unauthorizedUser)
 
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req := suite.NewRequestWithContext("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateUserRequest(req, unauthorizedUser)
 
 	params.HTTPRequest = req
@@ -229,7 +228,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationHandler() {
 		MoveID: *handlers.FmtUUID(move.ID),
 	}
 
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req := suite.NewRequestWithContext("GET", "/move/id/thing", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
 	params.HTTPRequest = req

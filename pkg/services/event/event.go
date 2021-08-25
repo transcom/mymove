@@ -5,12 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth/authentication"
-	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -30,14 +27,12 @@ type eventModel struct {
 // Event holds a single event
 // It is passed to EventTrigger to trigger an event
 type Event struct {
-	EventKey        KeyType                // Pick from a select list of predefined events (PaymentRequest.Create)
-	Request         *http.Request          // We expect to get this from the handler
-	MtoID           uuid.UUID              // This is the ID of the MTO that the object is associated with
-	UpdatedObjectID uuid.UUID              // This is the ID of the object itself (PaymentRequest.ID)
-	EndpointKey     EndpointKeyType        // Pick from a select list of endpoints
-	DBConnection    *pop.Connection        // The pop connection DB
-	HandlerContext  handlers.HandlerConfig // The handler context
-	logger          *zap.Logger            // The logger
+	EventKey        KeyType               // Pick from a select list of predefined events (PaymentRequest.Create)
+	Request         *http.Request         // We expect to get this from the handler
+	MtoID           uuid.UUID             // This is the ID of the MTO that the object is associated with
+	UpdatedObjectID uuid.UUID             // This is the ID of the object itself (PaymentRequest.ID)
+	EndpointKey     EndpointKeyType       // Pick from a select list of endpoints
+	AppCtx          appcontext.AppContext // the application context
 }
 
 // OrderUpdateEventKey is a key containing Order.Update
@@ -181,8 +176,8 @@ func TriggerEvent(event Event) (*Event, error) {
 		return nil, err
 	}
 	// Check that DB and context were passed in
-	if event.DBConnection == nil || event.HandlerContext == nil {
-		err := services.NewEventError("Both DB and HandlerContext must be passed to TriggerEvent.", nil)
+	if event.AppCtx == nil {
+		err := services.NewEventError("AppCtx must be passed to TriggerEvent.", nil)
 		return nil, err
 	}
 	// Check endpointKey if exists
@@ -192,14 +187,6 @@ func TriggerEvent(event Event) (*Event, error) {
 			err := services.NewEventError(fmt.Sprintf("Endpoint Key %s was not found in endpoints. Must use known endpoint key.", event.EndpointKey), nil)
 			return nil, err
 		}
-	}
-
-	// Get logger from HandlerContext
-	clientCert := authentication.ClientCertFromRequestContext(event.Request)
-	if clientCert != nil {
-		event.logger = event.HandlerContext.LoggerFromRequest(event.Request)
-	} else {
-		_, event.logger = event.HandlerContext.SessionAndLoggerFromRequest(event.Request)
 	}
 
 	// Call each registered event handler with the event info and context

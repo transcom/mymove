@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -168,7 +169,8 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger)
+	ctx := logging.NewContext(context.Background(), logger)
+	appCtx := appcontext.NewAppContext(ctx, dbConnection)
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
 	namedSubScenario := v.GetString(namedSubScenarioFlag)

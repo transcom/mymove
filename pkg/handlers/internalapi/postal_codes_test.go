@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"strings"
 
 	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
@@ -21,7 +20,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	postalCodeType := services.PostalCodeType(postalCodeTypeString)
 
 	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
+	request := suite.NewRequestWithContext("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
 	request = suite.AuthenticateUserRequest(request, user)
 
 	params := postalcodesops.ValidatePostalCodeWithRateDataParams{
@@ -59,7 +58,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	postalCodeType := services.PostalCodeType(postalCodeTypeString)
 
 	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
+	request := suite.NewRequestWithContext("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
 	request = suite.AuthenticateUserRequest(request, user)
 
 	params := postalcodesops.ValidatePostalCodeWithRateDataParams{

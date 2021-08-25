@@ -13,6 +13,7 @@ import (
 
 type GHCDieselFuelPriceServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 

@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-openapi/strfmt"
@@ -33,7 +32,7 @@ import (
 func (suite *HandlerSuite) TestIndexMovesHandler() {
 	// test that everything is wired up correctly
 	m := testdatagen.MakeDefaultMove(suite.DB())
-	req := httptest.NewRequest("GET", "/moves", nil)
+	req := suite.NewRequestWithContext("GET", "/moves", nil)
 
 	suite.T().Run("integration test ok response", func(t *testing.T) {
 		params := moveop.IndexMovesParams{
@@ -106,7 +105,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			moveRouter,
 		),
 	}
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -155,7 +154,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 func (suite *HandlerSuite) TestGetMoveHandler() {
 	// test that everything is wired up correctly
 	defaultMove := testdatagen.MakeDefaultMove(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/moves/%s", defaultMove.ID), nil)
 
 	suite.T().Run("200 - OK response", func(t *testing.T) {
 		params := moveop.GetMoveParams{
@@ -175,7 +174,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 	suite.T().Run("500 - Internal Server Error for No SQL Rows Returned", func(t *testing.T) {
 		badUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-		badReq := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
+		badReq := suite.NewRequestWithContext("GET", fmt.Sprintf("/moves/%s", badUUID), nil)
 		params := moveop.GetMoveParams{
 			HTTPRequest: badReq,
 			MoveID:      *handlers.FmtUUID(badUUID),

@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -34,7 +33,7 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 	subtestData.paymentServiceItem = paymentServiceItem
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", mto.ID.String(), paymentServiceItem.ID.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", mto.ID.String(), paymentServiceItem.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	subtestData.params = paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
@@ -189,7 +188,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		})
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
@@ -211,9 +210,6 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			Fetcher:       fetcher,
 			Builder:       *queryBuilder,
 		}
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
 
 		response := handler.Handle(params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
@@ -221,6 +217,6 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		suite.Equal(availablePaymentServiceItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
 		suite.Nil(okResponse.Payload.RejectionReason)
-		suite.HasWebhookNotification(availablePaymentServiceItem.PaymentRequestID, traceID)
+		suite.HasWebhookNotification(availablePaymentServiceItem.PaymentRequestID, suite.TestAppContext().TraceID())
 	})
 }

@@ -50,6 +50,7 @@ type CreateWebhookNotificationHandler struct {
 // Handle handles the endpoint request to the createWebhookNotification handler
 func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhookNotificationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.Body
 
 	var err error
@@ -58,13 +59,13 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 		message := "{ \"message\": \"This is a test notification\" }"
 		payload = &supportmessages.WebhookNotification{
 			EventKey: string(event.TestCreateEventKey),
-			TraceID:  *handlers.FmtUUID(h.GetTraceID()),
+			TraceID:  *handlers.FmtUUID(appCtx.TraceID()),
 			Object:   swag.String(message),
 			Status:   supportmessages.WebhookNotificationStatusPENDING,
 		}
 	}
 	// Convert to model and create in DB
-	notification, verrs := payloads.WebhookNotificationModel(payload, h.GetTraceID())
+	notification, verrs := payloads.WebhookNotificationModel(payload, appCtx.TraceID())
 	if verrs == nil {
 		verrs, err = h.DB().ValidateAndCreate(notification)
 	}
@@ -72,11 +73,11 @@ func (h CreateWebhookNotificationHandler) Handle(params webhookops.CreateWebhook
 		logger.Error("Error validating WebhookNotification: ", zap.Error(verrs))
 
 		return webhookops.NewCreateWebhookNotificationUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"The notification definition is invalid.", h.GetTraceID(), verrs))
+			"The notification definition is invalid.", appCtx.TraceID(), verrs))
 	}
 	if err != nil {
 		logger.Error("Error creating WebhookNotification: ", zap.Error(err))
-		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String(err.Error()), h.GetTraceID()))
+		return webhookops.NewCreateWebhookNotificationInternalServerError().WithPayload(payloads.InternalServerError(swag.String(err.Error()), appCtx.TraceID()))
 	}
 
 	payload = payloads.WebhookNotification(notification)

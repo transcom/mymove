@@ -30,13 +30,14 @@ const (
 
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger       *zap.Logger
 	icnSequencer sequence.Sequencer
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *GHCInvoiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *GHCInvoiceSuite) SetupTest() {
@@ -48,8 +49,9 @@ func (suite *GHCInvoiceSuite) SetupTest() {
 
 func TestGHCInvoiceSuite(t *testing.T) {
 	ts := &GHCInvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	ts.icnSequencer = sequence.NewDatabaseSequencer(ts.DB(), ediinvoice.ICNSequenceName)
 

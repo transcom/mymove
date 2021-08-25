@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"time"
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -71,7 +70,7 @@ func (suite *HandlerSuite) makeListMTOShipmentsSubtestData() (subtestData *listM
 	subtestData.shipments = models.MTOShipments{mtoShipment}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{
@@ -176,7 +175,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		deleter.AssertNumberOfCalls(suite.T(), "DeleteShipment", 0)
 
-		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", uuid.String()), nil)
+		req := suite.NewRequestWithContext("DELETE", fmt.Sprintf("/shipments/%s", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -200,7 +199,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(shipment.MoveTaskOrderID, nil)
 
-		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -225,7 +224,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, services.NotFoundError{})
 
-		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -249,7 +248,7 @@ func (suite *HandlerSuite) TestDeleteShipmentHandler() {
 
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, services.ForbiddenError{})
 
-		req := httptest.NewRequest("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("DELETE", fmt.Sprintf("/shipments/%s", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -307,13 +306,12 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 			&routemocks.Planner{},
 		)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
 		handler := ApproveShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			approver,
 		}
 
@@ -325,7 +323,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, suite.TestAppContext().TraceID())
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -335,7 +333,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		approver.AssertNumberOfCalls(suite.T(), "ApproveShipment", 0)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", uuid.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -361,7 +359,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -387,7 +385,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.ConflictError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -413,7 +411,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -439,7 +437,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -465,7 +463,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 
 		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -500,10 +498,9 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 			mtoshipment.NewShipmentRouter(),
 		)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := RequestShipmentDiversionHandler{
 			handlerContext,
@@ -518,7 +515,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentDiversionOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, suite.TestAppContext().TraceID())
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -528,7 +525,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		requester.AssertNumberOfCalls(suite.T(), "RequestShipmentDiversion", 0)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", uuid.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -554,7 +551,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -580,7 +577,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -606,7 +603,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -632,7 +629,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -658,7 +655,7 @@ func (suite *HandlerSuite) TestRequestShipmentDiversionHandler() {
 
 		requester.On("RequestShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -694,10 +691,9 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 			mtoshipment.NewShipmentRouter(),
 		)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := ApproveShipmentDiversionHandler{
 			handlerContext,
@@ -712,7 +708,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.ApproveShipmentDiversionOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, suite.TestAppContext().TraceID())
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -722,7 +718,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		approver.AssertNumberOfCalls(suite.T(), "ApproveShipmentDiversion", 0)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", uuid.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -748,7 +744,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -774,7 +770,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -800,7 +796,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -826,7 +822,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -852,7 +848,7 @@ func (suite *HandlerSuite) TestApproveShipmentDiversionHandler() {
 
 		approver.On("ApproveShipmentDiversion", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/approve-diversion", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -886,10 +882,9 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			mtoshipment.NewShipmentRouter(),
 		)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := RejectShipmentHandler{
 			handlerContext,
@@ -909,7 +904,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&shipmentops.RejectShipmentOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, suite.TestAppContext().TraceID())
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -919,7 +914,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		rejecter.AssertNumberOfCalls(suite.T(), "RejectShipment", 0)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", uuid.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -950,7 +945,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, services.NotFoundError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -981,7 +976,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, mtoshipment.ConflictStatusError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1012,7 +1007,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, services.PreconditionFailedError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1043,7 +1038,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1074,7 +1069,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 
 		rejecter.On("RejectShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, &reason).Return(nil, errors.New("UnexpectedError"))
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1108,7 +1103,7 @@ func (suite *HandlerSuite) TestRejectShipmentHandler() {
 			mtoshipment.NewShipmentRouter(),
 		)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/reject", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1146,10 +1141,9 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 			mtoshipment.NewShipmentRouter(),
 		)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 
 		handler := RequestShipmentCancellationHandler{
 			handlerContext,
@@ -1164,7 +1158,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		response := handler.Handle(approveParams)
 		suite.IsType(&shipmentops.RequestShipmentCancellationOK{}, response)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, suite.TestAppContext().TraceID())
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -1174,7 +1168,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		canceler.AssertNumberOfCalls(suite.T(), "RequestShipmentCancellation", 0)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", uuid.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1200,7 +1194,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.NotFoundError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1226,7 +1220,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, mtoshipment.ConflictStatusError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1252,7 +1246,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.PreconditionFailedError{})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1278,7 +1272,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, services.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1304,7 +1298,7 @@ func (suite *HandlerSuite) TestRequestShipmentCancellationHandler() {
 
 		canceler.On("RequestShipmentCancellation", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-cancellation", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1336,14 +1330,13 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		reweighRequester := mtoshipment.NewShipmentReweighRequester()
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-		handlerContext.SetNotificationSender(suite.TestNotificationSender())
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+		handlerConfig.SetNotificationSender(suite.TestNotificationSender())
 
 		handler := RequestShipmentReweighHandler{
-			handlerContext,
+			handlerConfig,
 			reweighRequester,
 		}
 
@@ -1359,7 +1352,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		suite.Equal(strfmt.UUID(shipment.ID.String()), payload.ShipmentID)
 		suite.EqualValues(models.ReweighRequesterTOO, payload.RequestedBy)
 		suite.WithinDuration(time.Now(), (time.Time)(payload.RequestedAt), 2*time.Second)
-		suite.HasWebhookNotification(shipment.ID, handlerContext.GetTraceID())
+		suite.HasWebhookNotification(shipment.ID, suite.TestAppContext().TraceID())
 	})
 
 	suite.Run("Returns a 403 when the office user is not a TOO", func() {
@@ -1369,7 +1362,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 
 		reweighRequester.AssertNumberOfCalls(suite.T(), "RequestShipmentReweigh", 0)
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", uuid.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-reweigh", uuid.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1391,7 +1384,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1414,7 +1407,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1438,7 +1431,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1461,7 +1454,7 @@ func (suite *HandlerSuite) TestRequestShipmentReweighHandler() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		reweighRequester := &mocks.ShipmentReweighRequester{}
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/shipments/%s/request-reweigh", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 
@@ -1501,7 +1494,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 
 	subtestData.builder = query.NewQueryBuilder()
 
-	req := httptest.NewRequest("POST", "/mto-shipments", nil)
+	req := suite.NewRequestWithContext("POST", "/mto-shipments", nil)
 
 	subtestData.params = mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
@@ -1536,16 +1529,10 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 }
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	// Set the traceID so we can use it to find the webhook notification
-	handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-	handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
 	moveRouter := moverouter.NewMoveRouter()
 
 	suite.Run("Successful POST - Integration Test", func() {
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
 		params := subtestData.params
@@ -1553,7 +1540,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			creator,
 		}
 		response := handler.Handle(params)
@@ -1568,17 +1555,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 500", func() {
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		params := subtestData.params
 
 		mockCreator := mocks.MTOShipmentCreator{}
 
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			&mockCreator,
 		}
 
@@ -1596,10 +1580,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 422 -- Bad agent IDs set on shipment", func() {
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
 		params := subtestData.params
@@ -1608,7 +1589,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			creator,
 		}
 
@@ -1629,10 +1610,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 422 - invalid input, missing pickup address", func() {
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
 		params := subtestData.params
@@ -1641,7 +1619,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			creator,
 		}
 
@@ -1659,10 +1637,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
 		params := subtestData.params
@@ -1671,7 +1646,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			creator,
 		}
 
@@ -1684,10 +1659,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
-		// Set the traceID so we can use it to find the webhook notification
-		handlerContext := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
-
+		handlerConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 		subtestData := suite.makeCreateMTOShipmentSubtestData()
 		builder := subtestData.builder
 
@@ -1695,11 +1667,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		creator := mtoshipment.NewMTOShipmentCreator(builder, fetcher, moveRouter)
 
 		handler := CreateMTOShipmentHandler{
-			handlerContext,
+			handlerConfig,
 			creator,
 		}
 
-		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-shipments", nil)
 
 		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -1730,7 +1702,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 		AgentType: string(mtoAgent.MTOAgentType),
 	}}
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", originalShipment.MoveTaskOrderID.String(), originalShipment.ID.String()), nil)
 	req = suite.AuthenticateOfficeRequest(req, servicesCounselor)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)

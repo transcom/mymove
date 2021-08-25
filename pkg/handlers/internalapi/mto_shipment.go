@@ -41,7 +41,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+			"The MTO Shipment request body cannot be empty.", appCtx.TraceID()))
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
@@ -54,17 +54,17 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		logger.Error("internalapi.CreateMTOShipmentHandler", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.InvalidInputError:
-			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, appCtx.TraceID(), e.ValidationErrors))
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("internalapi.CreateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
 			}
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		default:
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 	returnPayload := payloads.MTOShipment(mtoShipment)
@@ -98,7 +98,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+			"The MTO Shipment request body cannot be empty.", appCtx.TraceID()))
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
@@ -111,7 +111,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
 			payloads.ClientError(handlers.BadRequestErrMessage,
 				"When present, the MTO Shipment status must be one of: DRAFT or SUBMITTED.",
-				h.GetTraceID()))
+				appCtx.TraceID()))
 	}
 
 	updatedMtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipmentCustomer(appCtx, mtoShipment, params.IfMatch)
@@ -120,19 +120,19 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		logger.Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.InvalidInputError:
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, appCtx.TraceID(), e.ValidationErrors))
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("internalapi.UpdateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
 			}
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 
@@ -166,7 +166,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	if err != nil {
 		logger.Error("Invalid request: move task order ID not valid")
 		return mtoshipmentops.NewListMTOShipmentsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+			"The MTO Shipment request body cannot be empty.", appCtx.TraceID()))
 	}
 
 	// check if move task order exists first

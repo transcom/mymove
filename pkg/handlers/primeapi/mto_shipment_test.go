@@ -3,7 +3,6 @@ package primeapi
 import (
 	"errors"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -58,7 +57,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 	moveRouter := moverouter.NewMoveRouter()
 
-	req := httptest.NewRequest("POST", "/mto-shipments", nil)
+	req := suite.NewRequestWithContext("POST", "/mto-shipments", nil)
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
@@ -208,7 +207,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoChecker,
 		}
 
-		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-shipments", nil)
 
 		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: req,
@@ -308,7 +307,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		SecondaryPickupAddress:   testdatagen.MakeAddress3(suite.DB(), testdatagen.Assertions{}),
 		SecondaryDeliveryAddress: testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{}),
 	})
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
 
 	// Create a minimal shipment
 	minimalShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
@@ -318,7 +317,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			ScheduledPickupDate: &time.Time{},
 		},
 	})
-	minimalReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
+	minimalReq := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-shipments/%s", minimalShipment.ID.String()), nil)
 
 	// Create some usable weights
 	primeEstimatedWeight := unit.Pound(500)
@@ -472,7 +471,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Nil(shipmentNotAvailable.MoveTaskOrder.AvailableToPrimeAt)
 
 		// Create params
-		notAvReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipmentNotAvailable.ID.String()), nil)
+		notAvReq := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-shipments/%s", shipmentNotAvailable.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   notAvReq,
 			MtoShipmentID: *handlers.FmtUUID(shipmentNotAvailable.ID),
@@ -589,7 +588,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		// Create request to UpdateMTOShipment
-		noPickupReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
+		noPickupReq := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
 		noPickupParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   noPickupReq,
 			MtoShipmentID: *handlers.FmtUUID(noScheduledPickupShipment.ID),
@@ -699,7 +698,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			PointOfContact: "John McRand",
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
@@ -762,7 +761,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 			Status:             "APPROVED",
 		}, // Prime-available move
 	})
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", shipment.ID.String()), nil)
 
 	// CREATE HANDLER OBJECT
 	builder := query.NewQueryBuilder()
@@ -955,7 +954,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -984,7 +983,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		payload := primemessages.UpdateMTOShipment{
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -1021,7 +1020,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			ScheduledPickupDate:  &schedDate,
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -1080,7 +1079,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		update := primemessages.UpdateMTOShipment{
 			DestinationAddress: getFakeAddress(),
 		}
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1139,7 +1138,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		}
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1199,7 +1198,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		}
 
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1243,7 +1242,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1275,7 +1274,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
@@ -1313,7 +1312,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1345,7 +1344,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			PrimeEstimatedWeight: int64(primeEstimatedWeight),
 		}
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
@@ -1387,7 +1386,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mtoshipment.NewMTOShipmentStatusUpdater(builder,
 			mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter), planner),
 	}
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s/status", uuid.Nil.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto_shipments/%s/status", uuid.Nil.String()), nil)
 
 	// Set up Prime-available move
 	move := testdatagen.MakeAvailableMove(suite.DB())

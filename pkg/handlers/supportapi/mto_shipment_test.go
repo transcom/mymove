@@ -2,7 +2,6 @@ package supportapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -60,7 +59,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.UpdateMTOShipmentStatusParams{

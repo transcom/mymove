@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -49,7 +48,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
-		req := httptest.NewRequest("GET", path, nil)
+		req := suite.NewRequestWithContext("GET", path, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := queueop.ShowQueueParams{
@@ -84,7 +83,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
-		req := httptest.NewRequest("GET", path, nil)
+		req := suite.NewRequestWithContext("GET", path, nil)
 		req = suite.AuthenticateRequest(req, user)
 
 		params := queueop.ShowQueueParams{
@@ -109,7 +108,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerNotFound() {
 	// And: the context contains the auth values
 	queueType := "queue_not_found"
 	path := "/queues/" + queueType
-	req := httptest.NewRequest("GET", path, nil)
+	req := suite.NewRequestWithContext("GET", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := queueop.ShowQueueParams{

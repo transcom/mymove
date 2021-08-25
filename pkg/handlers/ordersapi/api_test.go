@@ -41,6 +41,7 @@ func (suite *HandlerSuite) SetupTest() {
 	if errTruncateAll != nil {
 		log.Panicf("failed to truncate database: %#v", errTruncateAll)
 	}
+	suite.BaseHandlerTestSuite.SetupTest()
 }
 
 // AfterTest completes tests by trying to close open files

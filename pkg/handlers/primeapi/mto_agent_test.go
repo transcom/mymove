@@ -3,7 +3,6 @@ package primeapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -56,7 +55,7 @@ func (suite *HandlerSuite) makeUpdateMTOAgentSubtestData() (subtestData *updateM
 		handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 		mtoagent.NewMTOAgentUpdater(movetaskorder.NewMoveTaskOrderChecker()),
 	}
-	subtestData.req = httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", subtestData.agent.MTOShipmentID.String(), subtestData.agent.ID.String()), nil)
+	subtestData.req = suite.NewRequestWithContext("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", subtestData.agent.MTOShipmentID.String(), subtestData.agent.ID.String()), nil)
 
 	subtestData.eTag = etag.GenerateEtag(subtestData.agent.UpdatedAt)
 
@@ -276,7 +275,7 @@ func (suite *HandlerSuite) makeCreateMTOAgentSubtestData() (subtestData *createM
 		handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()),
 		mtoagent.NewMTOAgentCreator(movetaskorder.NewMoveTaskOrderChecker()),
 	}
-	subtestData.req = httptest.NewRequest("POST", fmt.Sprintf("/mto-shipments/%s/agents", subtestData.mtoShipment.ID), nil)
+	subtestData.req = suite.NewRequestWithContext("POST", fmt.Sprintf("/mto-shipments/%s/agents", subtestData.mtoShipment.ID), nil)
 
 	return subtestData
 }

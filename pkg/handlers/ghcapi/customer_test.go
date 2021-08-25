@@ -1,8 +1,6 @@
 package ghcapi
 
 import (
-	"net/http/httptest"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models/roles"
 	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
@@ -20,7 +18,7 @@ import (
 func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	customer := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	request := httptest.NewRequest("GET", "/customer/{customerID}", nil)
+	request := suite.NewRequestWithContext("GET", "/customer/{customerID}", nil)
 	params := customerops.GetCustomerParams{
 		HTTPRequest: request,
 		CustomerID:  strfmt.UUID(customer.ID.String()),
@@ -68,7 +66,7 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 		},
 	}
 	customer := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
-	request := httptest.NewRequest("PATCH", "/orders/{customerID}", nil)
+	request := suite.NewRequestWithContext("PATCH", "/orders/{customerID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := customerops.UpdateCustomerParams{
 		HTTPRequest: request,

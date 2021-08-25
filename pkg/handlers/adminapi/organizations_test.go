@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
@@ -31,7 +30,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 	testdatagen.MakeOrganization(suite.DB(), assertions)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/organizations", nil)
+	req := suite.NewRequestWithContext("GET", "/organizations", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up

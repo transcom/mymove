@@ -3,7 +3,6 @@ package primeapi
 import (
 	"encoding/base64"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -51,7 +50,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 		Move: moveTaskOrder,
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -190,7 +189,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -226,7 +225,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 		Move: moveTaskOrder,
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders", nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -258,7 +257,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 		now.Add(-2*time.Second), olderMoveTaskOrder.ID).Exec())
 
 	since := lastFetch.Unix()
-	request := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders?since=%d", lastFetch.Unix()), nil)
+	request := suite.NewRequestWithContext("GET", fmt.Sprintf("/move-task-orders?since=%d", lastFetch.Unix()), nil)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request, Since: &since}
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -354,7 +353,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 	})
 
 	// Setup and call the handler.
-	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders", nil)
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := FetchMTOUpdatesHandler{
@@ -396,7 +395,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	handler := GetMoveTaskOrderHandlerFunc{hConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
@@ -458,7 +457,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := base64.StdEncoding.EncodeToString([]byte(mto.UpdatedAt.Format(time.RFC3339Nano)))
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	ppmType := "FULL"
@@ -504,7 +503,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		eTag := base64.StdEncoding.EncodeToString([]byte(defaultMTO.UpdatedAt.Format(time.RFC3339Nano)))
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		ppmType := "FULL"

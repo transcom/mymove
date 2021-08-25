@@ -10,8 +10,6 @@
 package supportapi
 
 import (
-	"net/http/httptest"
-
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/go-openapi/strfmt"
@@ -60,7 +58,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 	suite.MustSave(&mtoServiceItem)
 
 	// Create a request to the endpoint
-	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
+	request := suite.NewRequestWithContext("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
 		Status: supportmessages.MTOServiceItemStatusAPPROVED,
@@ -108,7 +106,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	// Create a service item on a move
 	mtoServiceItem := suite.createServiceItem()
 
-	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
+	request := suite.NewRequestWithContext("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
 		Status:          supportmessages.MTOServiceItemStatusREJECTED,
 		RejectionReason: swag.String("Should definitely update the reason"),
@@ -155,7 +153,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 	// Create a service item on a move
 	mtoServiceItem := suite.createServiceItem()
 
-	request := httptest.NewRequest("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
+	request := suite.NewRequestWithContext("PATCH", "/mto-service-items/{mtoServiceItemID}/status", nil)
 	requestPayload := &supportmessages.UpdateMTOServiceItemStatus{
 		Status:          supportmessages.MTOServiceItemStatusREJECTED,
 		RejectionReason: nil,

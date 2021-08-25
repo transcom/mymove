@@ -13,6 +13,7 @@ import (
 
 type FuelPriceServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 	storer storage.FileStorer
 }

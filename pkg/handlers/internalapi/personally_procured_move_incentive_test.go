@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -140,7 +138,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	}
 
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
-	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
+	req := suite.NewRequestWithContext("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
@@ -172,7 +170,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	suite.setupPersonallyProcuredMoveIncentiveTest(ordersID)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
+	req := suite.NewRequestWithContext("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
@@ -211,7 +209,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	suite.setupPersonallyProcuredMoveIncentiveTest(ordersID)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
+	req := suite.NewRequestWithContext("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{

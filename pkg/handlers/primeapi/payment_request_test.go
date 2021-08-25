@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"errors"
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -85,7 +84,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			UpdatedAt:            time.Now(),
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
@@ -154,7 +153,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -204,7 +203,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -243,7 +242,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -267,7 +266,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -300,7 +299,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		badFormatID := strfmt.UUID("hb7b134a-7c44-45f2-9114-bb0831cc5db3")
@@ -329,7 +328,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
@@ -371,7 +370,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -410,7 +409,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -448,7 +447,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			paymentRequestCreator,
 		}
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -475,7 +474,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.Run("successful create payment request payload audit", func() {
 		subtestData := suite.makeCreatePaymentRequestHandlerSubtestData()
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, subtestData.requestUser)
 
 		params := paymentrequestop.CreatePaymentRequestParams{
@@ -597,7 +596,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
@@ -667,7 +666,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}
@@ -726,7 +725,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-		req := httptest.NewRequest("POST", "/payment_requests", nil)
+		req := suite.NewRequestWithContext("POST", "/payment_requests", nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		planner := &routemocks.Planner{}

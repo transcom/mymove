@@ -1,7 +1,6 @@
 package ghcapi
 
 import (
-	"net/http/httptest"
 	"time"
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -38,7 +37,7 @@ func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	order := move.Orders
-	request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
+	request := suite.NewRequestWithContext("GET", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	params := orderop.GetOrderParams{
@@ -90,7 +89,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 				ProGearWeightSpouse:  500,
 			},
 		})
-		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
+		request := suite.NewRequestWithContext("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
 			HTTPRequest: request,
 			OrderID:     strfmt.UUID(order.ID.String()),
@@ -129,7 +128,7 @@ func (suite *HandlerSuite) TestWeightAllowances() {
 			},
 		})
 
-		request := httptest.NewRequest("GET", "/orders/{orderID}", nil)
+		request := suite.NewRequestWithContext("GET", "/orders/{orderID}", nil)
 		params := orderop.GetOrderParams{
 			HTTPRequest: request,
 			OrderID:     strfmt.UUID(order.ID.String()),
@@ -221,7 +220,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	ordersTypeDetail := ghcmessages.OrdersTypeDetail("INSTRUCTION_20_WEEKS")
 	ordersAcknowledgement := true
 
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request := suite.NewRequestWithContext("PATCH", "/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when acknowledging orders", func() {
 		subtestData := suite.makeUpdateOrderHandlerAmendedUploadSubtestData()
@@ -482,7 +481,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerSubtestData() (subtestData *upd
 }
 
 func (suite *HandlerSuite) TestUpdateOrderHandler() {
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request := suite.NewRequestWithContext("PATCH", "/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -699,7 +698,7 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	body := &ghcmessages.UpdateOrderPayload{}
 
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}", nil)
+	request := suite.NewRequestWithContext("PATCH", "/orders/{orderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	params := orderop.UpdateOrderParams{
@@ -720,8 +719,6 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 		&mocks.MoveTaskOrderUpdater{},
 	}
 
-	traceID, err := uuid.NewV4()
-	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
@@ -729,10 +726,9 @@ func (suite *HandlerSuite) TestUpdateOrderEventTrigger() {
 	orderOK := response.(*orderop.UpdateOrderOK)
 	ordersPayload := orderOK.Payload
 
-	suite.FatalNoError(err, "Error creating a new trace ID.")
 	suite.IsType(&orderop.UpdateOrderOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
-	suite.HasWebhookNotification(order.ID, traceID)
+	suite.HasWebhookNotification(order.ID, suite.TestAppContext().TraceID())
 }
 
 type counselingUpdateOrderHandlerSubtestData struct {
@@ -763,7 +759,7 @@ func (suite *HandlerSuite) makeCounselingUpdateOrderHandlerSubtestData() (subtes
 }
 
 func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
-	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}", nil)
+	request := suite.NewRequestWithContext("PATCH", "/counseling/orders/{orderID}", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -959,7 +955,7 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 }
 
 func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request := suite.NewRequestWithContext("PATCH", "/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -1132,7 +1128,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	body := &ghcmessages.UpdateAllowancePayload{}
 
 	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
-	request := httptest.NewRequest("PATCH", "/orders/{orderID}/allowances", nil)
+	request := suite.NewRequestWithContext("PATCH", "/orders/{orderID}/allowances", nil)
 	request = suite.AuthenticateOfficeRequest(request, requestUser)
 
 	params := orderop.UpdateAllowanceParams{
@@ -1152,8 +1148,6 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 		updater,
 	}
 
-	traceID, err := uuid.NewV4()
-	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 
 	suite.IsNotErrResponse(response)
@@ -1161,10 +1155,9 @@ func (suite *HandlerSuite) TestUpdateAllowanceEventTrigger() {
 	orderOK := response.(*orderop.UpdateAllowanceOK)
 	ordersPayload := orderOK.Payload
 
-	suite.FatalNoError(err, "Error creating a new trace ID.")
 	suite.IsType(&orderop.UpdateAllowanceOK{}, response)
 	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
-	suite.HasWebhookNotification(order.ID, traceID)
+	suite.HasWebhookNotification(order.ID, suite.TestAppContext().TraceID())
 }
 
 func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
@@ -1185,7 +1178,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 		RequiredMedicalEquipmentWeight: rmeWeight,
 	}
 
-	request := httptest.NewRequest("PATCH", "/counseling/orders/{orderID}/allowances", nil)
+	request := suite.NewRequestWithContext("PATCH", "/counseling/orders/{orderID}/allowances", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())

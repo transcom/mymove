@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -114,7 +115,8 @@ func main() {
 	}
 
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
-	appCtx := appcontext.NewAppContext(dbConnection, logger)
+	ctx := logging.NewContext(context.Background(), logger)
+	appCtx := appcontext.NewAppContext(ctx, dbConnection)
 	edi858c, err := generator.Generate(appCtx, paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -167,7 +168,8 @@ func processEDIs(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	appCtx := appcontext.NewAppContext(dbConnection, logger)
+	ctx := logging.NewContext(context.Background(), logger)
+	appCtx := appcontext.NewAppContext(ctx, dbConnection)
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	gexURL := v.GetString(cli.GEXURLFlag)
 

@@ -197,7 +197,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 		validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
 		validationError.Detail = handlers.FmtString("The information you provided is invalid.")
-		validationError.Instance = handlers.FmtUUID(h.GetTraceID())
+		validationError.Instance = handlers.FmtUUID(appCtx.TraceID())
 
 		return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError)
 	}

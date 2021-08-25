@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"errors"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -24,7 +23,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	ordersID, ppmID, user := setupShowPPMSitEstimateHandlerData(suite)
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+	req := suite.NewRequestWithContext("GET", "/estimates/ppm_sit", nil)
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
@@ -42,7 +41,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerSuccess() {
 	mockedCost := rateengine.CostComputation{}
 	estimateCalculator := &mocks.EstimateCalculator{}
 	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestAppContext().Logger()).Return(mockedSitCharge, mockedCost, nil).Once()
 	showEstimateHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 	showResponse := showEstimateHandler.Handle(params)
 
@@ -62,7 +61,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	ordersID, ppmID, user := setupShowPPMSitEstimateHandlerData(suite)
 
 	suite.T().Run("not found ppm ID fails", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req := suite.NewRequestWithContext("GET", "/estimates/ppm_sit", nil)
 		req = suite.AuthenticateRequest(req, user)
 
 		notFoundID := uuid.FromStringOrNil("07b277d6-8ee5-4288-9e08-72449aa6643f")
@@ -88,7 +87,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	})
 
 	suite.T().Run("not found orders ID fails", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req := suite.NewRequestWithContext("GET", "/estimates/ppm_sit", nil)
 		req = suite.AuthenticateRequest(req, user)
 
 		notFoundID := uuid.FromStringOrNil("07b277d6-8ee5-4288-9e08-72449aa6643f")
@@ -114,7 +113,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	})
 
 	suite.T().Run("missing original move date fails", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req := suite.NewRequestWithContext("GET", "/estimates/ppm_sit", nil)
 		req = suite.AuthenticateRequest(req, user)
 
 		params := ppmop.ShowPPMSitEstimateParams{
@@ -138,7 +137,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	})
 
 	suite.T().Run("no estimated weight fails", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+		req := suite.NewRequestWithContext("GET", "/estimates/ppm_sit", nil)
 		req = suite.AuthenticateRequest(req, user)
 
 		params := ppmop.ShowPPMSitEstimateParams{
@@ -165,7 +164,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails() {
 	ordersID, ppmID, user := setupShowPPMSitEstimateHandlerData(suite)
 
-	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+	req := suite.NewRequestWithContext("GET", "/estimates/ppm_sit", nil)
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
@@ -183,7 +182,7 @@ func (suite *HandlerSuite) TestShowPpmSitEstimateHandlerEstimateCalculationFails
 	estimateCalculator := &mocks.EstimateCalculator{}
 	mockedError := errors.New("this is an error")
 	estimateCalculator.On("CalculateEstimates",
-		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestLogger()).Return(mockedSitCharge, mockedCost, mockedError).Once()
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), mock.Anything, suite.TestAppContext().Logger()).Return(mockedSitCharge, mockedCost, mockedError).Once()
 	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerConfig(suite.DB(), suite.TestLogger()), estimateCalculator}
 	showResponse := showHandler.Handle(params)
 

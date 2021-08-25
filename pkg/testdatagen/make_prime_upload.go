@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -10,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -47,7 +49,8 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		}
 		// Ugh. Use the global logger. All testdatagen methods should
 		// take a logger
-		appCtx := appcontext.NewAppContext(db, zap.L())
+		ctx := logging.NewContext(context.Background(), zap.L())
+		appCtx := appcontext.NewAppContext(ctx, db)
 		primeUpload, verrs, err = assertions.PrimeUploader.CreatePrimeUploadForDocument(appCtx, &posDoc.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving prime upload %v, %v", verrs, err))

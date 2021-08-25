@@ -16,6 +16,7 @@ import (
 
 type ModelSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
@@ -25,7 +26,7 @@ func (suite *ModelSuite) SetupTest() {
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *ModelSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map[string][]string) {
@@ -60,8 +61,9 @@ func (suite *ModelSuite) verifyValidationErrors(model ValidateableModel, exp map
 
 func TestModelSuite(t *testing.T) {
 	hs := &ModelSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

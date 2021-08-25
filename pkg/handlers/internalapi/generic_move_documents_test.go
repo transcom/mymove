@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -27,7 +25,7 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	suite.MustSave(&userUpload)
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(userUpload.UploadID)}
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{

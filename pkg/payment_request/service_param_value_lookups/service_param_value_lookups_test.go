@@ -34,13 +34,14 @@ const defaultZip5Distance = 48
 
 type ServiceParamValueLookupsSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger  *zap.Logger
 	planner route.Planner
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *ServiceParamValueLookupsSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func TestServiceParamValueLookupsSuite(t *testing.T) {
@@ -59,9 +60,10 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	).Return(defaultZip5Distance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
-		planner:      planner,
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing
+		planner:              planner,
 	}
 
 	suite.Run(t, ts)

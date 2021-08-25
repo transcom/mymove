@@ -1,7 +1,6 @@
 package dpsapi
 
 import (
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -10,14 +9,13 @@ import (
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
 	"github.com/transcom/mymove/pkg/gen/dpsmessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetUserHandler() {
-	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
+	hConfig := suite.TestHandlerConfig()
 	hConfig.SetIWSPersonLookup(iws.TestingPersonLookup{})
 	dpsParams := dpsauth.Params{
 		CookieSecret:  []byte("cookie secret"),
@@ -42,7 +40,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	cookie, err := dpsauth.LoginGovIDToCookie(loginGovID, dpsParams.CookieSecret, dpsParams.CookieExpires)
 	suite.NoError(err)
 
-	request := httptest.NewRequest("GET", "/dps/v0/authentication/user", nil)
+	request := suite.NewRequestWithContext("GET", "/dps/v0/authentication/user", nil)
 	params := dps.GetUserParams{Token: cookie.Value}
 	params.HTTPRequest = request
 

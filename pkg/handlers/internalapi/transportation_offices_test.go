@@ -3,7 +3,6 @@ package internalapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -15,7 +14,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
-	req := httptest.NewRequest("GET", path, nil)
+	req := suite.NewRequestWithContext("GET", path, nil)
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
 		HTTPRequest:   req,
@@ -39,7 +38,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 	suite.MustSave(&station)
 
 	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
-	req := httptest.NewRequest("GET", path, nil)
+	req := suite.NewRequestWithContext("GET", path, nil)
 
 	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
 		HTTPRequest:   req,

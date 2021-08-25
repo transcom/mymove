@@ -3,7 +3,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gobuffalo/validate/v3"
@@ -37,7 +36,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 	testdatagen.MakeDefaultAdminUser(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/admin_users", nil)
+	req := suite.NewRequestWithContext("GET", "/admin_users", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
@@ -143,7 +142,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 	testdatagen.MakeAdminUser(suite.DB(), assertions)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/admin_users/%s", id), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/admin_users/%s", id), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up
@@ -234,7 +233,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
-	req := httptest.NewRequest("POST", "/admin_users", nil)
+	req := suite.NewRequestWithContext("POST", "/admin_users", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -291,7 +290,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	endpoint := fmt.Sprintf("/admin_users/%s", adminUserID)
-	req := httptest.NewRequest("PUT", endpoint, nil)
+	req := suite.NewRequestWithContext("PUT", endpoint, nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 

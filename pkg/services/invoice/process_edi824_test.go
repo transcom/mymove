@@ -20,12 +20,13 @@ import (
 
 type ProcessEDI824Suite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *ProcessEDI824Suite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *ProcessEDI824Suite) SetupTest() {
@@ -37,8 +38,9 @@ func (suite *ProcessEDI824Suite) SetupTest() {
 
 func TestProcessEDI824Suite(t *testing.T) {
 	ts := &ProcessEDI824Suite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 
 	suite.Run(t, ts)

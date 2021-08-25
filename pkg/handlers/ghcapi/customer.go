@@ -76,7 +76,7 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 		case services.NotFoundError:
 			return customercodeop.NewGetCustomerNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return customercodeop.NewUpdateCustomerUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return customercodeop.NewUpdateCustomerPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})

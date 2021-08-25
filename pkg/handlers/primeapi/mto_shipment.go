@@ -39,7 +39,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+			"The MTO Shipment request body cannot be empty.", appCtx.TraceID()))
 	}
 
 	for _, mtoServiceItem := range params.Body.MtoServiceItems() {
@@ -53,7 +53,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(verrs))
 			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-				detailErr, h.GetTraceID(), verrs))
+				detailErr, appCtx.TraceID(), verrs))
 		}
 	}
 
@@ -65,7 +65,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
 
 		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-			"The MTO service item list is invalid.", h.GetTraceID(), nil))
+			"The MTO service item list is invalid.", appCtx.TraceID(), nil))
 	}
 
 	moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
@@ -76,7 +76,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
 		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
-			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), appCtx.TraceID()))
 	}
 
 	// Could be the error from MTOAvailableToPrime or CreateMTOShipment:
@@ -84,17 +84,17 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.InvalidInputError:
-			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), appCtx.TraceID(), e.ValidationErrors))
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging
 				logger.Error("primeapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
 			}
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		default:
-			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 	returnPayload := payloads.MTOShipment(mtoShipment)
@@ -121,7 +121,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		"SecondaryDeliveryAddress",
 		"MTOAgents").Find(&dbShipment, params.MtoShipmentID)
 	if err != nil {
-		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 	}
 
 	// Validate further prime restrictions on model
@@ -130,7 +130,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
 		errPayload := payloads.ValidationError("Invalid data found in input",
-			h.GetTraceID(), validationErrs)
+			appCtx.TraceID(), validationErrs)
 
 		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
 	}
@@ -141,14 +141,14 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.InvalidInputError:
-			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
+			payload := payloads.ValidationError(err.Error(), appCtx.TraceID(), e.ValidationErrors)
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
@@ -283,13 +283,13 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), appCtx.TraceID()))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 	if !availableToPrime {
-		return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 	}
 
 	status := models.MTOShipmentStatus(params.Body.Status)
@@ -301,16 +301,16 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentStatusUnprocessableEntity().WithPayload(
-				payloads.ValidationError("The input provided did not pass validation.", h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError("The input provided did not pass validation.", appCtx.TraceID(), e.ValidationErrors))
 		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 		case mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), appCtx.TraceID()))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 

@@ -12,7 +12,6 @@ package internalapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
@@ -39,7 +38,7 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	})
 	suite.MustSave(&newServiceMember)
 
-	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("GET", "/service_members/some_id", nil)
 	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.ShowServiceMemberParams{
@@ -63,7 +62,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
 	req = suite.AuthenticateRequest(req, loggedInUser)
 
 	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
@@ -87,7 +86,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{}
 
-	req := httptest.NewRequest("POST", "/service_members", nil)
+	req := suite.NewRequestWithContext("POST", "/service_members", nil)
 	req = suite.AuthenticateUserRequest(req, user)
 
 	params := servicememberop.CreateServiceMemberParams{
@@ -149,7 +148,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		BackupMailingAddress: fakeAddressPayload(),
 	}
 
-	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("GET", "/service_members/some_id", nil)
 	req = suite.AuthenticateUserRequest(req, user)
 
 	params := servicememberop.CreateServiceMemberParams{
@@ -265,7 +264,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		Telephone:            newTelephone,
 	}
 
-	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/service_members/some_id", nil)
 	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -409,7 +408,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		CurrentStationID:     &newDutyStationID,
 	}
 
-	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/service_members/some_id", nil)
 	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -473,7 +472,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	}
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/service_members/some_id", nil)
 	req = suite.AuthenticateUserRequest(req, user2)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -503,7 +502,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 		Edipi: &newEdipi,
 	}
 
-	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/service_members/some_id", nil)
 	req = suite.AuthenticateUserRequest(req, user)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -534,7 +533,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 
 	patchPayload := internalmessages.PatchServiceMemberPayload{}
 
-	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/service_members/some_id", nil)
 	req = suite.AuthenticateRequest(req, newServiceMember)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -559,7 +558,7 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 	}
 	order2 := testdatagen.MakeOrder(suite.DB(), order2Assertions)
 
-	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
+	req := suite.NewRequestWithContext("GET", "/service_members/some_id/current_orders", nil)
 	req = suite.AuthenticateRequest(req, order1.ServiceMember)
 
 	params := servicememberop.ShowServiceMemberOrdersParams{

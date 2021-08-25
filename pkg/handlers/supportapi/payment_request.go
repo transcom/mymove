@@ -45,7 +45,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
@@ -54,7 +54,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if err != nil {
 		msg := fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String())
 		logger.Error(msg, zap.Error(err))
-		return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+		return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, appCtx.TraceID()))
 	}
 
 	status := existingPaymentRequest.Status
@@ -126,14 +126,14 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if err != nil {
 		switch err.(type) {
 		case services.NotFoundError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.PreconditionFailedError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 		case services.ConflictError:
-			return paymentrequestop.NewUpdatePaymentRequestStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+			return paymentrequestop.NewUpdatePaymentRequestStatusConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), appCtx.TraceID()))
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
-			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 
@@ -143,8 +143,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		UpdatedObjectID: updatedPaymentRequest.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.SupportUpdatePaymentRequestStatusEndpointKey,
-		DBConnection:    appCtx.DB(),
-		HandlerContext:  h,
+		AppCtx:          appCtx,
 	})
 	if err != nil {
 		logger.Error("supportapi.UpdatePaymentRequestStatusHandler could not generate the event")
@@ -202,7 +201,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	if err != nil {
 		msg := fmt.Sprintf("Error finding Payment Request for EDI generation with ID: %s", params.PaymentRequestID.String())
 		logger.Error(msg, zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestEDINotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+		return paymentrequestop.NewGetPaymentRequestEDINotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, appCtx.TraceID()))
 	}
 
 	var payload supportmessages.PaymentRequestEDI
@@ -219,17 +218,17 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 		// NotFoundError -> Not Found response
 		case services.NotFoundError:
 			return paymentrequestop.NewGetPaymentRequestEDINotFound().
-				WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 
 		// InvalidInputError -> Unprocessable Entity reponse
 		case services.InvalidInputError:
 			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
-				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, appCtx.TraceID(), e.ValidationErrors))
 
 		// ConflictError -> Conflict Error reponse
 		case services.ConflictError:
 			return paymentrequestop.NewGetPaymentRequestEDIConflict().
-				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+				WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), appCtx.TraceID()))
 
 		// QueryError -> Internal Server error
 		case services.QueryError:
@@ -239,11 +238,11 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 				logger.Error("Error retrieving an EDI for thepayment request", zap.Error(e.Unwrap()))
 			}
 			return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().
-				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		// Unknown -> Internal Server Error
 		default:
 			return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().
-				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 
@@ -280,13 +279,13 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	var updatedPaymentRequests models.PaymentRequests
 
 	if sendToSyncada == nil {
-		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", appCtx.TraceID()))
 	}
 	if readFromSyncada == nil {
-		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, readFromSyncada flag required", h.GetTraceID()))
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, readFromSyncada flag required", appCtx.TraceID()))
 	}
 	if deleteFromSyncada == nil {
-		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, deleteFromSyncada flag required", h.GetTraceID()))
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, deleteFromSyncada flag required", appCtx.TraceID()))
 	}
 
 	if *sendToSyncada {
@@ -328,7 +327,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		if err != nil {
 			msg := "failed to initialize InitNewPaymentRequestReviewedProcessor"
 			logger.Error(msg, zap.Error(err))
-			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 		reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest(appCtx)
 	} else {
@@ -337,7 +336,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			if err != nil {
 				msg := fmt.Sprintf("Error finding Payment Request with ID: %s", params.Body.PaymentRequestID.String())
 				logger.Error(msg, zap.Error(err))
-				return paymentrequestop.NewProcessReviewedPaymentRequestsNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+				return paymentrequestop.NewProcessReviewedPaymentRequestsNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, appCtx.TraceID()))
 			}
 			paymentRequests = append(paymentRequests, pr)
 		} else {
@@ -345,7 +344,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			if err != nil {
 				msg := "function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest"
 				logger.Error(msg, zap.Error(err))
-				return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+				return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 			}
 			paymentRequests = append(paymentRequests, reviewedPaymentRequests...)
 		}
@@ -378,7 +377,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				pr.Status = models.PaymentRequestStatusSentToGex
 				pr.SentToGexAt = &sentToGex
 			default:
-				return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, an invalid status type was used", h.GetTraceID()))
+				return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, an invalid status type was used", appCtx.TraceID()))
 			}
 
 			newPr := pr
@@ -388,12 +387,12 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			if err != nil {
 				switch err.(type) {
 				case services.NotFoundError:
-					return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+					return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 				case services.PreconditionFailedError:
-					return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+					return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 				default:
 					logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
-					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 				}
 			}
 			updatedPaymentRequests = append(updatedPaymentRequests, *updatedPaymentRequest)

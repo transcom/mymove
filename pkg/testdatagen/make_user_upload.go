@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -10,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -38,7 +40,8 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 		}
 		// Ugh. Use the global logger. All testdatagen methods should
 		// take a logger
-		appCtx := appcontext.NewAppContext(db, zap.L())
+		ctx := logging.NewContext(context.Background(), zap.L())
+		appCtx := appcontext.NewAppContext(ctx, db)
 		userUpload, verrs, err = assertions.UserUploader.CreateUserUploadForDocument(appCtx, &document.ID, uploaderID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving user upload %v, %v", verrs, err))

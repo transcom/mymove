@@ -6,7 +6,6 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -60,8 +59,6 @@ type HandlerConfig interface {
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
-	SetTraceID(traceID uuid.UUID)
-	GetTraceID() uuid.UUID
 	SetSessionManagers(sessionManagers [3]*scs.SessionManager)
 	SessionManager(session *auth.Session) *scs.SessionManager
 }
@@ -89,7 +86,6 @@ type handlerContext struct {
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
 	featureFlags          map[string]bool
-	traceID               uuid.UUID
 	sessionManagers       [3]*scs.SessionManager
 }
 
@@ -103,8 +99,7 @@ func NewHandlerConfig(db *pop.Connection, logger *zap.Logger) HandlerConfig {
 
 // AppContextFromRequest builds an AppContext from the http request
 func (hctx *handlerContext) AppContextFromRequest(r *http.Request) appcontext.AppContext {
-	// use LoggerFromRequest to get the most specific logger
-	return appcontext.NewAppContext(hctx.db, hctx.LoggerFromRequest(r))
+	return appcontext.NewAppContext(r.Context(), hctx.db)
 }
 
 func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, *zap.Logger) {
@@ -267,14 +262,6 @@ func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
 		return value
 	}
 	return false
-}
-
-func (hctx *handlerContext) SetTraceID(traceID uuid.UUID) {
-	hctx.traceID = traceID
-}
-
-func (hctx *handlerContext) GetTraceID() uuid.UUID {
-	return hctx.traceID
 }
 
 func (hctx *handlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {

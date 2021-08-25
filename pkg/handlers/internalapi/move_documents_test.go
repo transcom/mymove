@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 
 	"github.com/gobuffalo/validate/v3"
 
@@ -36,7 +35,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	suite.MustSave(&userUpload)
 	uploadIds := []strfmt.UUID{*handlers.FmtUUID(userUpload.Upload.ID)}
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	moveDocumentType := internalmessages.MoveDocumentTypeOTHER
@@ -107,7 +106,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 		},
 	})
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
@@ -179,7 +178,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
@@ -242,7 +241,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
@@ -295,7 +294,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 			ServiceMember:   sm,
 		},
 	})
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	status := internalmessages.MoveDocumentStatusOK
@@ -375,7 +374,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 			ServiceMember:   sm,
 		},
 	})
-	request := httptest.NewRequest("DELETE", "/fake/path", nil)
+	request := suite.NewRequestWithContext("DELETE", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	deleteMoveDocParams := movedocop.DeleteMoveDocumentParams{
@@ -423,7 +422,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	request2 := httptest.NewRequest("DELETE", "/fake/path", nil)
+	request2 := suite.NewRequestWithContext("DELETE", "/fake/path", nil)
 	request2 = suite.AuthenticateRequest(request2, sm)
 
 	deleteMoveDocParams2 := movedocop.DeleteMoveDocumentParams{

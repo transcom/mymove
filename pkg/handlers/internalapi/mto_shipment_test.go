@@ -22,8 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
-	"net/http/httptest"
-
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -73,7 +71,7 @@ func (suite *HandlerSuite) makeCreateSubtestData() (subtestData *mtoCreateSubtes
 
 	subtestData.builder = query.NewQueryBuilder()
 
-	req := httptest.NewRequest("POST", "/mto_shipments", nil)
+	req := suite.NewRequestWithContext("POST", "/mto_shipments", nil)
 	req = suite.AuthenticateRequest(req, subtestData.serviceMember)
 	shipmentType := internalmessages.MTOShipmentTypeHHG
 
@@ -188,7 +186,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		fetcher := fetch.NewFetcher(subtestData.builder)
 		creator := mtoshipment.NewMTOShipmentCreator(subtestData.builder, fetcher, moveRouter)
 
-		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
+		unauthorizedReq := suite.NewRequestWithContext("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
 		unauthorizedParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: unauthorizedReq,
@@ -336,7 +334,7 @@ func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MT
 
 	customerRemarks := ""
 
-	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
+	req := suite.NewRequestWithContext("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	eTag := etag.GenerateEtag(originalShipment.UpdatedAt)
@@ -513,7 +511,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		updateURI := "/mto-shipments/" + oldShipment.ID.String()
 
-		unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
+		unauthorizedReq := suite.NewRequestWithContext("PATCH", updateURI, nil)
 		params.HTTPRequest = unauthorizedReq
 
 		response := handler.Handle(params)
@@ -535,7 +533,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		updateURI := "/mto-shipments/" + oldShipment.ID.String()
 
-		unauthorizedReq := httptest.NewRequest("PATCH", updateURI, nil)
+		unauthorizedReq := suite.NewRequestWithContext("PATCH", updateURI, nil)
 		unauthorizedReq = suite.AuthenticateOfficeRequest(unauthorizedReq, officeUser)
 		params.HTTPRequest = unauthorizedReq
 
@@ -597,7 +595,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// 	oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	// 	oldShipment.RequestedPickupDate = nil
 
-	// 	req := httptest.NewRequest("PATCH", "/mto-shipments/"+oldShipment.ID.String(), nil)
+	// 	req := suite.NewRequestWithContext("PATCH", "/mto-shipments/"+oldShipment.ID.String(), nil)
 	// 	req = suite.AuthenticateRequest(req, serviceMember)
 	// 	// invalid zip
 	// 	payloadDestinationAddress := &internalmessages.Address{
@@ -713,7 +711,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2}
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	subtestData.params = mtoshipmentops.ListMTOShipmentsParams{

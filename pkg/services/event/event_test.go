@@ -21,12 +21,13 @@ import (
 
 type EventServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *EventServiceSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *EventServiceSuite) SetupTest() {
@@ -36,8 +37,9 @@ func (suite *EventServiceSuite) SetupTest() {
 
 func TestEventServiceSuite(t *testing.T) {
 	ts := &EventServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
@@ -68,8 +70,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			Path: "",
 		},
 	}
-	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with support api endpoint", func(t *testing.T) {
@@ -81,8 +81,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: paymentRequestID,
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		suite.Nil(err)
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
@@ -100,8 +99,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: paymentRequestID,
 			Request:         &dummyRequest,
 			EndpointKey:     GhcUpdatePaymentRequestStatusEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		suite.Nil(err)
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
@@ -123,8 +121,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: unavailablePRID,
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		suite.Nil(err)
 
@@ -141,8 +138,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: paymentRequestID,
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -157,8 +153,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: paymentRequestID,
 			Request:         &dummyRequest,
 			EndpointKey:     "Bad Endpoint Key That Doesn't Exist",
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -179,8 +174,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: paymentRequestID,
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		// Check that at least one error was returned
 		suite.NotNil(err)
@@ -206,10 +200,6 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 			Path: "",
 		},
 	}
-	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerConfig(suite.DB(), logger)
-	traceID, _ := uuid.NewV4()
-	handler.SetTraceID(traceID)
 
 	// Test successful event
 	suite.T().Run("Success with GHC MoveTaskOrder endpoint", func(t *testing.T) {
@@ -220,13 +210,12 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 			UpdatedObjectID: mtoID,
 			Request:         &dummyRequest,
 			EndpointKey:     GhcUpdateMoveTaskOrderEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		suite.Nil(err)
 
 		// Get the notification
-		notification, err := suite.getNotification(mtoID, traceID)
+		notification, err := suite.getNotification(mtoID, suite.TestAppContext().TraceID())
 		suite.NoError(err)
 		suite.Equal(&mtoID, notification.ObjectID)
 
@@ -267,11 +256,6 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			Path: "",
 		},
 	}
-	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerConfig(suite.DB(), logger)
-	traceID, _ := uuid.NewV4()
-	handler.SetTraceID(traceID)
-
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
 
@@ -281,13 +265,12 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			UpdatedObjectID: mtoShipmentID,
 			Request:         &dummyRequest,
 			EndpointKey:     GhcApproveShipmentEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		suite.Nil(err)
 
 		// Get the notification
-		notification, err := suite.getNotification(mtoShipmentID, traceID)
+		notification, err := suite.getNotification(mtoShipmentID, suite.TestAppContext().TraceID())
 		suite.NoError(err)
 		suite.Equal(&mtoShipmentID, notification.ObjectID)
 
@@ -328,8 +311,6 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			Path: "",
 		},
 	}
-	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerConfig(suite.DB(), logger)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
@@ -341,8 +322,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			UpdatedObjectID: mtoServiceItemID,
 			Request:         &dummyRequest,
 			EndpointKey:     GhcCreateMTOServiceItemEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 
 		suite.Nil(err)
@@ -359,10 +339,6 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 			Path: "",
 		},
 	}
-	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerConfig(suite.DB(), logger)
-	traceID, _ := uuid.NewV4()
-	handler.SetTraceID(traceID)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
@@ -372,13 +348,12 @@ func (suite *EventServiceSuite) TestOrderEventTrigger() {
 			UpdatedObjectID: move.OrdersID,
 			Request:         &dummyRequest,
 			EndpointKey:     InternalUpdateOrdersEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		})
 		suite.Nil(err)
 
 		// Get the notification
-		notification, err := suite.getNotification(move.OrdersID, traceID)
+		notification, err := suite.getNotification(move.OrdersID, suite.TestAppContext().TraceID())
 		suite.NoError(err)
 		suite.Equal(&move.OrdersID, notification.ObjectID)
 
@@ -402,10 +377,6 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 			Path: "",
 		},
 	}
-	logger, _ := zap.NewDevelopment()
-	handler := handlers.NewHandlerConfig(suite.DB(), logger)
-	traceID, _ := uuid.NewV4()
-	handler.SetTraceID(traceID)
 
 	// Test a nil MTO ID is present and no notification stored
 	suite.T().Run("No move and notification stored", func(t *testing.T) {
@@ -416,8 +387,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 			UpdatedObjectID: order.ID,
 			Request:         &dummyRequest,
 			EndpointKey:     InternalUpdateOrdersEndpointKey,
-			HandlerContext:  handler,
-			DBConnection:    suite.DB(),
+			AppCtx:          suite.TestAppContext(),
 		}
 		_, err := TriggerEvent(event)
 		suite.NoError(err)
@@ -426,7 +396,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 		suite.Equal(count, afterCount)
 
 		// No notification stored and nil error returned
-		_, err = suite.getNotification(order.ID, traceID)
+		_, err = suite.getNotification(order.ID, suite.TestAppContext().TraceID())
 		suite.Error(err)
 		suite.Equal("sql: no rows in result set", err.Error())
 	})

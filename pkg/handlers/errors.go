@@ -256,26 +256,26 @@ func ServeCustomError(rw http.ResponseWriter, r *http.Request, err error) {
 		rw.Header().Add("Allow", strings.Join(err.(*openapierrors.MethodNotAllowedError).Allowed, ","))
 		rw.WriteHeader(asHTTPCode(int(e.Code())))
 		if r == nil || r.Method != http.MethodHead {
-			_, _ = rw.Write(errorAsJSON(e, traceID))
+			_, _ = rw.Write(errorAsJSON(e, traceID.String()))
 		}
 	case openapierrors.Error:
 		value := reflect.ValueOf(e)
 		if value.Kind() == reflect.Ptr && value.IsNil() {
 			rw.WriteHeader(http.StatusInternalServerError)
-			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "Unknown error"), traceID))
+			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "Unknown error"), traceID.String()))
 			return
 		}
 		rw.WriteHeader(asHTTPCode(int(e.Code())))
 		if r == nil || r.Method != http.MethodHead {
-			_, _ = rw.Write(errorAsJSON(e, traceID))
+			_, _ = rw.Write(errorAsJSON(e, traceID.String()))
 		}
 	case nil:
 		rw.WriteHeader(http.StatusInternalServerError)
-		_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "Unknown error"), traceID))
+		_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "Unknown error"), traceID.String()))
 	default:
 		rw.WriteHeader(http.StatusInternalServerError)
 		if r == nil || r.Method != http.MethodHead {
-			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, err.Error()), traceID))
+			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, err.Error()), traceID.String()))
 		}
 	}
 }

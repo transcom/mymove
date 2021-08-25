@@ -20,6 +20,7 @@ import (
 
 type PaperworkSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger       *zap.Logger
 	userUploader *uploader.UserUploader
 	filesToClose []afero.File
@@ -27,7 +28,7 @@ type PaperworkSuite struct {
 
 // TestAppContext returns the AppContext for the test suite
 func (suite *PaperworkSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.AppContextTestHelper.CurrentTestContext(suite.T().Name()), suite.DB())
 }
 
 func (suite *PaperworkSuite) AfterTest() {
@@ -82,9 +83,10 @@ func TestPaperworkSuite(t *testing.T) {
 		log.Panic(err)
 	}
 	hs := &PaperworkSuite{
-		PopTestSuite: popSuite,
-		logger:       logger,
-		userUploader: newUploader,
+		PopTestSuite:         popSuite,
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               logger,
+		userUploader:         newUploader,
 	}
 
 	suite.Run(t, hs)

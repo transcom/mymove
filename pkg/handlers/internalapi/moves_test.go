@@ -12,7 +12,6 @@ package internalapi
 import (
 	"bytes"
 	"fmt"
-	"net/http/httptest"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -39,7 +38,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	var newType = internalmessages.SelectedMoveTypeHHGPPM
@@ -70,7 +69,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains a different user
-	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, anotherUser)
 
 	var newType = internalmessages.SelectedMoveTypeHHGPPM
@@ -97,7 +96,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	moveUUID := uuid.Must(uuid.NewV4())
 
 	// And: the context contains a logged in user
-	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, user)
 
 	var newType = internalmessages.SelectedMoveTypeHHGPPM
@@ -122,7 +121,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req := suite.NewRequestWithContext("PATCH", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	patchPayload := internalmessages.PatchMovePayload{}
@@ -147,7 +146,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("GET", "/moves/some_id", nil)
+	req := suite.NewRequestWithContext("GET", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.ShowMoveParams{
@@ -174,7 +173,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains the auth values for not logged-in user
-	req := httptest.NewRequest("GET", "/moves/some_id", nil)
+	req := suite.NewRequestWithContext("GET", "/moves/some_id", nil)
 	req = suite.AuthenticateRequest(req, anotherUser)
 
 	showMoveParams := moveop.ShowMoveParams{
@@ -196,7 +195,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		move := ppm.Move
 
 		// And: the context contains the auth values
-		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req := suite.NewRequestWithContext("POST", "/moves/some_id/submit", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
@@ -247,7 +246,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		move := hhg.MoveTaskOrder
 
 		// And: the context contains the auth values
-		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req := suite.NewRequestWithContext("POST", "/moves/some_id/submit", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
@@ -297,7 +296,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		move := testdatagen.MakeMove(suite.DB(), assertions)
 
 		// And: the context contains the auth values
-		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req := suite.NewRequestWithContext("POST", "/moves/some_id/submit", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 		signingDate := strfmt.DateTime(time.Now())
@@ -402,7 +401,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	})
 
 	path := fmt.Sprintf("/moves/%s/move_dates", move.ID.String())
-	req := httptest.NewRequest("GET", path, nil)
+	req := suite.NewRequestWithContext("GET", path, nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	moveID := strfmt.UUID(move.ID.String())
@@ -474,7 +473,7 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 	anotherUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains the auth values for not logged-in user
-	req := httptest.NewRequest("GET", "/moves/some_id/", nil)
+	req := suite.NewRequestWithContext("GET", "/moves/some_id/", nil)
 	req = suite.AuthenticateRequest(req, anotherUser)
 
 	moveDate := strfmt.Date(time.Date(2018, 10, 10, 0, 0, 0, 0, time.UTC))
@@ -584,7 +583,7 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		},
 	})
 
-	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
+	req := suite.NewRequestWithContext("GET", "/moves/some_id/shipment_summary_worksheet", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 	preparationDate := strfmt.Date(time.Date(2019, time.January, 1, 1, 1, 1, 1, time.UTC))
@@ -638,7 +637,7 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		})
 
 		// And: the context contains the auth values
-		req := httptest.NewRequest("POST", "/moves/some_id/submit_amended_orders", nil)
+		req := suite.NewRequestWithContext("POST", "/moves/some_id/submit_amended_orders", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 		params := moveop.SubmitAmendedOrdersParams{

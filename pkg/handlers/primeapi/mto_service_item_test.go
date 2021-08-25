@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"time"
 
 	moverouter "github.com/transcom/mymove/pkg/services/move"
@@ -55,7 +54,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
 			},
 		})
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -317,7 +316,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 				Code: "DUCRT",
 			},
 		})
-		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
+		subtestData.req = suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: mto.ID,
@@ -477,7 +476,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -508,7 +507,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -547,7 +546,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -614,7 +613,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -705,7 +704,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -808,7 +807,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		})
 		testdatagen.MakeDDFSITReService(suite.DB())
 
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{
 			MoveTaskOrderID: subtestData.mto.ID,
 			MTOShipmentID:   &subtestData.mtoShipment.ID,
@@ -862,7 +861,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		paramsDDFSIT := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&mtoServiceItemDDFSIT),
@@ -973,7 +972,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		}
 
 		// CALL FUNCTION UNDER TEST
-		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		req := suite.NewRequestWithContext("POST", "/mto-service-items", nil)
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
@@ -1041,7 +1040,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		}
 
 		// create the params struct
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dddsit.ID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dddsit.ID), nil)
 		eTag := etag.GenerateEtag(subtestData.dddsit.UpdatedAt)
 		subtestData.params = mtoserviceitemops.UpdateMTOServiceItemParams{
 			HTTPRequest:      req,
@@ -1093,7 +1092,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		// SETUP
 		// Replace the request path with a bad id that won't be found
 		badUUID := uuid.Must(uuid.NewV4())
-		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
+		badReq := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
 		subtestData.params.HTTPRequest = badReq
 		subtestData.params.MtoServiceItemID = badUUID.String()
 		subtestData.reqPayload.SetID(strfmt.UUID(badUUID.String()))
@@ -1204,7 +1203,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		}
 
 		// create the params struct
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dopsit.ID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-service_items/%s", subtestData.dopsit.ID), nil)
 		eTag := etag.GenerateEtag(subtestData.dopsit.UpdatedAt)
 		subtestData.params = mtoserviceitemops.UpdateMTOServiceItemParams{
 			HTTPRequest:      req,
@@ -1251,7 +1250,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		// SETUP
 		// Replace the request path with a bad id that won't be found
 		badUUID := uuid.Must(uuid.NewV4())
-		badReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
+		badReq := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/mto-service_items/%s", badUUID), nil)
 		subtestData.params.HTTPRequest = badReq
 		subtestData.params.MtoServiceItemID = badUUID.String()
 		subtestData.reqPayload.SetID(strfmt.UUID(badUUID.String()))

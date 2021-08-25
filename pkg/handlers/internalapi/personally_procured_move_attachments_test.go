@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
 	"os"
 	"regexp"
 
@@ -95,7 +94,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 			// nolint:errcheck
 			userUploader.CreateUserUploadForDocument(suite.TestAppContext(), &expDoc.MoveDocument.DocumentID, *officeUser.UserID, uploader.File{File: f}, uploader.AllowedTypesServiceMember)
 
-			request := httptest.NewRequest("POST", "/fake/path", nil)
+			request := suite.NewRequestWithContext("POST", "/fake/path", nil)
 			request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 			docTypesToFetch := []string{"WEIGHT_TICKET", "EXPENSE", "OTHER", "STORAGE_EXPENSE"}

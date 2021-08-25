@@ -2,7 +2,6 @@ package internalapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -24,7 +23,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
-	req := httptest.NewRequest("POST", "/orders", nil)
+	req := suite.NewRequestWithContext("POST", "/orders", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
 	hasDependents := true
@@ -89,7 +88,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 		},
 	})
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
-	req := httptest.NewRequest("GET", path, nil)
+	req := suite.NewRequestWithContext("GET", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
 
 	params := ordersop.ShowOrdersParams{
@@ -135,7 +134,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrder() {
 	})
 	order.Moves = append(moves, mto)
 	path := fmt.Sprintf("/orders/%v/upload_amended_orders", order.ID.String())
-	req := httptest.NewRequest("PATCH", path, nil)
+	req := suite.NewRequestWithContext("PATCH", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
 
 	params := ordersop.UploadAmendedOrdersParams{
@@ -165,7 +164,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
-	req := httptest.NewRequest("PUT", path, nil)
+	req := suite.NewRequestWithContext("PUT", path, nil)
 	req = suite.AuthenticateRequest(req, order.ServiceMember)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION

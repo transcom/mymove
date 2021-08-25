@@ -92,7 +92,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		}
 	}
 	if verrs != nil {
-		payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", h.GetTraceID(), verrs)
+		payload := payloadForValidationError("Validation errors", "UpdatePaymentServiceItemStatus", appCtx.TraceID(), verrs)
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusUnprocessableEntity().WithPayload(payload)
 	}
 
@@ -102,8 +102,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		UpdatedObjectID: paymentServiceItem.PaymentRequestID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdatePaymentServiceItemStatusEndpointKey,
-		DBConnection:    h.DB(),
-		HandlerContext:  h,
+		AppCtx:          appCtx,
 	})
 	if err != nil {
 		logger.Error("ghcapi.UpdatePaymentServiceItemStatusHandler could not generate the event")

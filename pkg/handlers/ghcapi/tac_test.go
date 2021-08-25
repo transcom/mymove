@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
@@ -24,7 +23,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 
 	for _, tc := range tests {
 		suite.T().Run("Successful TAC validation", func(t *testing.T) {
-			request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tc.tacCode), nil)
+			request := suite.NewRequestWithContext("GET", fmt.Sprintf("/tac/valid?tac=%s", tc.tacCode), nil)
 			request = suite.AuthenticateOfficeRequest(request, user)
 			params := tacop.TacValidationParams{
 				HTTPRequest: request,
@@ -44,7 +43,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 
 	suite.T().Run("Unknown user for TAC validation is unauthorized", func(t *testing.T) {
 		tac := "4EVR"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
+		request := suite.NewRequestWithContext("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
 		params := tacop.TacValidationParams{
 			HTTPRequest: request,
 			Tac:         tac,
@@ -60,7 +59,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 		unauthorizedUser := serviceMember.User
 		tac := "4EVR"
-		request := httptest.NewRequest("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
+		request := suite.NewRequestWithContext("GET", fmt.Sprintf("/tac/valid?tac=%s", tac), nil)
 		request = suite.AuthenticateUserRequest(request, unauthorizedUser)
 		params := tacop.TacValidationParams{
 			HTTPRequest: request,

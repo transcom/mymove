@@ -2,7 +2,6 @@ package ordersapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-openapi/strfmt"
@@ -17,7 +16,7 @@ import (
 
 func (suite *HandlerSuite) TestGetOrdersSuccess() {
 	order := testdatagen.MakeDefaultElectronicOrder(suite.DB())
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
+	req := suite.NewRequestWithContext("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:          true,
@@ -42,7 +41,7 @@ func (suite *HandlerSuite) TestGetOrdersSuccess() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersNoApiPerm() {
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
+	req := suite.NewRequestWithContext("GET", "/orders/v1/orders/", nil)
 	clientCert := models.ClientCert{}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
@@ -119,7 +118,7 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				},
 			}
 			order := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
-			req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
+			req := suite.NewRequestWithContext("GET", "/orders/v1/orders/", nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.GetOrdersParams{
@@ -141,7 +140,7 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersMissingUUID() {
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
+	req := suite.NewRequestWithContext("GET", "/orders/v1/orders/", nil)
 	clientCert := models.ClientCert{
 		AllowOrdersAPI: true,
 	}

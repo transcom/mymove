@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -31,7 +30,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 	testdatagen.MakeDefaultNotification(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/notifications", nil)
+	req := suite.NewRequestWithContext("GET", "/notifications", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up

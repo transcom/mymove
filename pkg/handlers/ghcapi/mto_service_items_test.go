@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"errors"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -49,7 +48,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	})
 	serviceItems := models.MTOServiceItems{serviceItem}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoserviceitemop.ListMTOServiceItemsParams{
@@ -140,7 +139,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	moveTaskOrderID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 
-	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
+	req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 		moveTaskOrderID, serviceItemID), nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
@@ -277,7 +276,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItem, move := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 			moveTaskOrderID, serviceItemID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -318,7 +317,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		availableMoveID := availableMove.ID
 		mtoServiceItemID := mtoServiceItem.ID
 
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status", availableMoveID, mtoServiceItemID), nil)
+		req := suite.NewRequestWithContext("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status", availableMoveID, mtoServiceItemID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
@@ -338,9 +337,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			Fetcher:               fetcher,
 		}
 
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
+		traceID := suite.TestAppContext().TraceID()
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)

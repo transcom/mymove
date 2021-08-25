@@ -11,6 +11,7 @@ import (
 
 type PPMServiceSuite struct {
 	testingsuite.PopTestSuite
+	testingsuite.AppContextTestHelper
 	logger *zap.Logger
 }
 
@@ -22,8 +23,9 @@ func (suite *PPMServiceSuite) SetupTest() {
 func TestPPMServiceSuite(t *testing.T) {
 
 	hs := &PPMServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite:         testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		AppContextTestHelper: testingsuite.NewAppContextTestHelper(),
+		logger:               zap.NewNop(), // Use a no-op logger during testing, // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

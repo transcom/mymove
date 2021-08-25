@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-openapi/swag"
@@ -49,7 +48,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 
 	suite.T().Run("successful lookup", func(t *testing.T) {
 		for _, ts := range tests {
-			req := httptest.NewRequest("GET", "/addresses/"+ts.ID.String(), nil)
+			req := suite.NewRequestWithContext("GET", "/addresses/"+ts.ID.String(), nil)
 			req = suite.AuthenticateUserRequest(req, requestUser)
 
 			params := addressop.ShowAddressParams{

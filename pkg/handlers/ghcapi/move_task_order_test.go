@@ -10,7 +10,6 @@
 package ghcapi
 
 import (
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -57,7 +56,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 			Code: "CS",
 		},
 	})
-	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
@@ -105,7 +104,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	for _, validStatus := range validStatuses {
 		move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: validStatus.status}})
 
-		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
+		request := suite.NewRequestWithContext("PATCH", "/move-task-orders/{moveID}/status", nil)
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		request = suite.AuthenticateUserRequest(request, requestUser)
 
@@ -128,9 +127,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{hConfig,
 			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter),
 		}
-		traceID, err := uuid.NewV4()
-		suite.FatalNoError(err, "Error creating a new trace ID.")
-		handler.SetTraceID(traceID)
+		traceID := suite.TestAppContext().TraceID()
 
 		// make the request
 		response := handler.Handle(params)
@@ -176,7 +173,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 		},
 	})
 
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
+	request := suite.NewRequestWithContext("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
@@ -212,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 		Order: orderWithoutDefaults,
 	})
 
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
+	request := suite.NewRequestWithContext("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
@@ -250,7 +247,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		Order: order,
 	})
 
-	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
+	request := suite.NewRequestWithContext("PATCH", "/move-task-orders/{moveTaskOrderID}/status/service-counseling-completed", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())

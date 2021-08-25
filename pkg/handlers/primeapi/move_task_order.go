@@ -38,7 +38,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	if err != nil {
 		logger.Error("Unexpected error while fetching records:", zap.Error(err))
-		return movetaskorderops.NewFetchMTOUpdatesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		return movetaskorderops.NewFetchMTOUpdatesInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
@@ -67,7 +67,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 
 	if err != nil {
 		logger.Error("Unexpected error while fetching moves:", zap.Error(err))
-		return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 	}
 
 	payload := payloads.ListMoves(&mtos)
@@ -111,9 +111,9 @@ func (h GetMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.GetMoveTaskO
 		switch err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), appCtx.TraceID()))
 		default:
-			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+			return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), appCtx.TraceID()))
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
@@ -134,13 +134,13 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformation error", zap.Error(err))
 		return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
-			payloads.ValidationError(err.Error(), h.GetTraceID(), nil))
+			payloads.ValidationError(err.Error(), appCtx.TraceID(), nil))
 	}
 
 	if !mtoAvailableToPrime {
 		logger.Error("primeapi.UpdateMTOPostCounselingInformationHandler error - MTO is not available to Prime")
 		return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(payloads.ClientError(
-			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceID()))
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), appCtx.TraceID()))
 	}
 
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(appCtx, mtoID, params.Body, eTag)
@@ -149,15 +149,15 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 		switch e := err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.NotFoundMessage, err.Error(), appCtx.TraceID()))
 		case services.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), appCtx.TraceID()))
 		case services.InvalidInputError:
 			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+				payloads.ValidationError(err.Error(), appCtx.TraceID(), e.ValidationErrors))
 		default:
-			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationInternalServerError().WithPayload(payloads.InternalServerError(nil, appCtx.TraceID()))
 		}
 	}
 	mtoPayload := payloads.MoveTaskOrder(mto)

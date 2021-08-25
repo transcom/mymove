@@ -12,7 +12,6 @@ package adminapi
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/alexedwards/scs/v2"
@@ -61,7 +60,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	userID := user.ID
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/users/%s", userID), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/users/%s", userID), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	suite.T().Run("integration test ok response", func(t *testing.T) {
@@ -152,7 +151,7 @@ func (suite *HandlerSuite) TestIndexUsersHandler() {
 	testdatagen.MakeDefaultUser(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/users", nil)
+	req := suite.NewRequestWithContext("GET", "/users", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
@@ -265,7 +264,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		}
 		user := testdatagen.MakeUser(suite.DB(), assertions)
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -311,7 +310,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		})
 
 		// Create the update to revoke 2 sessions and deactivate the user
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -356,7 +355,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			},
 		})
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -403,7 +402,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		// Manually update Active because of an issue with mergeModels in MakeUser
 		suite.DB().ValidateAndUpdate(&user)
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -445,7 +444,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 			},
 		})
 
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 		params := userop.UpdateUserParams{
 			HTTPRequest: req,
@@ -502,7 +501,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		})
 
 		userID := user.ID
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := userop.UpdateUserParams{
@@ -564,7 +563,7 @@ func (suite *HandlerSuite) TestUpdateUserHandler() {
 		})
 
 		userID := user.ID
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
+		req := suite.NewRequestWithContext("PUT", fmt.Sprintf("/users/%s", user.ID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := userop.UpdateUserParams{

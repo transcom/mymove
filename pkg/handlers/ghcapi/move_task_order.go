@@ -81,7 +81,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -107,8 +107,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		UpdatedObjectID: mto.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
-		DBConnection:    h.DB(),
-		HandlerContext:  h,
+		AppCtx:          appCtx,
 	})
 	if err != nil {
 		logger.Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
@@ -141,7 +140,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedNotFound()
 		case services.InvalidInputError:
-			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			payload := payloadForValidationError("Unable to complete request", err.Error(), appCtx.TraceID(), validate.NewErrors())
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedUnprocessableEntity().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMTOStatusServiceCounselingCompletedPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
@@ -167,8 +166,7 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 		UpdatedObjectID: mto.ID,
 		Request:         params.HTTPRequest,
 		EndpointKey:     event.GhcUpdateMTOStatusServiceCounselingCompletedEndpointKey,
-		DBConnection:    h.DB(),
-		HandlerContext:  h,
+		AppCtx:          appCtx,
 	})
 	if err != nil {
 		logger.Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc could not generate the event")

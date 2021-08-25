@@ -1,7 +1,6 @@
 package supportapi
 
 import (
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -28,7 +27,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		//             Success, a webhook notification with the fields we passed in
 
 		// CREATE THE REQUEST
-		request := httptest.NewRequest("POST", "/webhook-notifications/", nil)
+		request := suite.NewRequestWithContext("POST", "/webhook-notifications/", nil)
 		requestPayload := &supportmessages.WebhookNotification{
 			EventKey: "Test.Create",
 			Object:   swag.String("{ \"message\": \"This is an example notification.\" } "),
@@ -39,7 +38,6 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		}
 
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		hConfig.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{hConfig}
 
 		// CALL FUNCTION UNDER TEST
@@ -68,13 +66,12 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		//             Success, A basic webhook notification with default fields is created
 
 		// CREATE THE REQUEST
-		request := httptest.NewRequest("POST", "/webhook-notifications/", nil)
+		request := suite.NewRequestWithContext("POST", "/webhook-notifications/", nil)
 		params := webhookops.CreateWebhookNotificationParams{
 			HTTPRequest: request,
 		}
 
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		hConfig.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{hConfig}
 
 		// CALL FUNCTION UNDER TEST
@@ -103,7 +100,7 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		//             Note, returning 500 here because this is a support api.
 
 		// CREATE THE REQUEST
-		request := httptest.NewRequest("POST", "/webhook-notifications/", nil)
+		request := suite.NewRequestWithContext("POST", "/webhook-notifications/", nil)
 		moveTaskOrderID := uuid.Must(uuid.NewV4())
 		requestPayload := &supportmessages.WebhookNotification{
 			EventKey:        "Test.Create",
@@ -116,7 +113,6 @@ func (suite *HandlerSuite) TestCreateWebhookNotification() {
 		}
 
 		hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
-		hConfig.SetTraceID(uuid.Must(uuid.NewV4()))
 		handler := CreateWebhookNotificationHandler{hConfig}
 
 		// CALL FUNCTION UNDER TEST

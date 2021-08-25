@@ -15,7 +15,7 @@ type ValidatePostalCodeTestSuite struct {
 
 func TestValidatePostalCodeTestSuite(t *testing.T) {
 	ts := &ValidatePostalCodeTestSuite{
-		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()

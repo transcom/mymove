@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -62,7 +61,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
@@ -117,7 +116,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
 			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
-		request := httptest.NewRequest("GET", "/queues/moves", nil)
+		request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
@@ -172,7 +171,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
@@ -240,7 +239,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request := suite.NewRequestWithContext("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
@@ -358,7 +357,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		MTOShipment: submittedShipment,
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -562,7 +561,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		MTOShipment: shipment,
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -674,7 +673,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 		RoleType: roles.RoleTypeTIO,
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
@@ -697,7 +696,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 		RoleType: roles.RoleTypeCustomer,
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateRequest(request, serviceUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
@@ -738,7 +737,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
@@ -796,7 +795,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
@@ -852,7 +851,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
@@ -913,7 +912,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() {
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
-	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
@@ -941,7 +940,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		mock.Anything,
 		mock.Anything).Return(nil, 0, errors.New("database query error"))
 
-	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
@@ -969,7 +968,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		mock.Anything,
 		mock.Anything).Return(&models.PaymentRequests{}, 0, nil)
 
-	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
@@ -1108,7 +1107,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/queues/counseling", nil)
+	request := suite.NewRequestWithContext("GET", "/queues/counseling", nil)
 	subtestData.request = suite.AuthenticateOfficeRequest(request, officeUser)
 	hConfig := handlers.NewHandlerConfig(suite.DB(), suite.TestLogger())
 	subtestData.handler = GetServicesCounselingQueueHandler{
@@ -1222,7 +1221,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		subtestData := suite.makeServicesCounselingSubtestData()
 		marineCorpsOfficeUser := testdatagen.MakeServicesCounselorOfficeUserWithUSMCGBLOC(suite.DB())
 
-		usmcRequest := httptest.NewRequest("GET", "/queues/counseling", nil)
+		usmcRequest := suite.NewRequestWithContext("GET", "/queues/counseling", nil)
 		usmcRequest = suite.AuthenticateOfficeRequest(usmcRequest, marineCorpsOfficeUser)
 
 		params := queues.GetServicesCounselingQueueParams{
@@ -1253,7 +1252,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		subtestData := suite.makeServicesCounselingSubtestData()
 		ppmOfficeUser := testdatagen.MakePPMOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
-		request := httptest.NewRequest("GET", "/queues/counseling", nil)
+		request := suite.NewRequestWithContext("GET", "/queues/counseling", nil)
 		request = suite.AuthenticateOfficeRequest(request, ppmOfficeUser)
 
 		params := queues.GetServicesCounselingQueueParams{

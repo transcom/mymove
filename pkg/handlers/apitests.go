@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"context"
+	"io"
 	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
 	"path/filepath"
@@ -19,9 +22,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
@@ -30,6 +35,7 @@ type BaseHandlerTestSuite struct {
 	logger             *zap.Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
+	testCtx            context.Context
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
@@ -46,9 +52,35 @@ func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
 	return suite.logger
 }
 
+// SetupTest sets up a testing Context like we expect middleware to do in production
+func (suite *BaseHandlerTestSuite) SetupTest() {
+	suite.testCtx = context.Background()
+	traceID := uuid.Must(uuid.NewV4())
+	suite.testCtx = trace.NewContext(suite.testCtx, traceID)
+	suite.testCtx = logging.NewContext(suite.testCtx,
+		suite.logger.With(zap.String("milmove_trace_id", traceID.String())))
+}
+
+// TearDownTest removes the existing test context and calls the
+// PopTestSuite TearDownTest
+func (suite *BaseHandlerTestSuite) TearDownTest() {
+	suite.testCtx = nil
+	suite.PopTestSuite.TearDownTest()
+}
+
+// TestContext returns the test context
+func (suite *BaseHandlerTestSuite) TestContext() context.Context {
+	return suite.testCtx
+}
+
 // TestAppContext returns the AppContext for the test suite
 func (suite *BaseHandlerTestSuite) TestAppContext() appcontext.AppContext {
-	return appcontext.NewAppContext(suite.DB(), suite.logger)
+	return appcontext.NewAppContext(suite.testCtx, suite.DB())
+}
+
+// TestHandlerConfig returns a base HandlerConfig for the test suite
+func (suite *BaseHandlerTestSuite) TestHandlerConfig() HandlerConfig {
+	return NewHandlerConfig(suite.DB(), suite.logger)
 }
 
 // TestFilesToClose returns the list of files needed to close at the end of tests
@@ -69,6 +101,11 @@ func (suite *BaseHandlerTestSuite) CloseFile(file *runtime.File) {
 // TestNotificationSender returns the notification sender to use in the suite
 func (suite *BaseHandlerTestSuite) TestNotificationSender() notifications.NotificationSender {
 	return suite.notificationSender
+}
+
+// NewRequestWithContext returns a new http request with the test context
+func (suite *BaseHandlerTestSuite) NewRequestWithContext(method string, target string, body io.Reader) *http.Request {
+	return httptest.NewRequest(method, target, body).WithContext(suite.testCtx)
 }
 
 // HasWebhookNotification checks that there's a record on the WebhookNotifications table for the object and trace IDs

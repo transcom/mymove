@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -30,7 +29,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	testdatagen.MakeDefaultContractor(suite.DB())
 
 	suite.T().Run("successful create upload", func(t *testing.T) {
-		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
 
 		handler := CreateUploadHandler{
@@ -60,7 +59,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		file := suite.Fixture("test.pdf")
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
 		params := uploadop.CreateUploadParams{
 			HTTPRequest:      req,
@@ -82,7 +81,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 
 		file := suite.Fixture("test.pdf")
 
-		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
+		req := suite.NewRequestWithContext("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
 		params := uploadop.CreateUploadParams{
 			HTTPRequest:      req,

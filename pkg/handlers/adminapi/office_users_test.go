@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -44,7 +43,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", "/office_users", nil)
+	req := suite.NewRequestWithContext("GET", "/office_users", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
@@ -107,7 +106,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
-	req := httptest.NewRequest("GET", fmt.Sprintf("/office_users/%s", id), nil)
+	req := suite.NewRequestWithContext("GET", fmt.Sprintf("/office_users/%s", id), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	// test that everything is wired up
@@ -187,7 +186,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		Active:                 true,
 	}
 
-	req := httptest.NewRequest("POST", "/office_users", nil)
+	req := suite.NewRequestWithContext("POST", "/office_users", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -291,7 +290,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	endpoint := fmt.Sprintf("/office_users/%s", officeUser.ID)
-	request := suite.AuthenticateUserRequest(httptest.NewRequest("PUT", endpoint, nil), requestUser)
+	request := suite.AuthenticateUserRequest(suite.NewRequestWithContext("PUT", endpoint, nil), requestUser)
 
 	suite.T().Run("Office user is successfully updated", func(t *testing.T) {
 		transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{Stub: true})
