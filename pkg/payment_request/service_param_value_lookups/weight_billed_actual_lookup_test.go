@@ -18,7 +18,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	})
 
 	suite.Run("estimated is greater than actual", func() {
-		// Set the actual weight to less than estimated weight
+		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
@@ -26,7 +26,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	})
 
 	suite.Run("actual is exactly 110% of estimated weight", func() {
-		// Set the actual weight to exactly 110% of estimated weight
+		// Set the original weight to exactly 110% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
@@ -35,7 +35,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	})
 
 	suite.Run("actual is 120% of estimated weight", func() {
-		// Set the actual weight to about 120% of estimated weight
+		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
@@ -55,7 +55,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	// Setup data for testing all minimums
 	serviceCodesWithMinimum := []struct {
 		code            models.ReServiceCode
-		actualWeight    unit.Pound
+		originalWeight  unit.Pound
 		expectedMinimum string
 		shipmentType    models.MTOShipmentType
 	}{
@@ -95,8 +95,8 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	// test minimums are correct
 	for _, data := range serviceCodesWithMinimum {
 		suite.Run(fmt.Sprintf("actual below minimum service code %s", data.code), func() {
-			// Set the actual weight to below minimum
-			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.actualWeight, data.code, data.shipmentType)
+			// Set the original weight to below minimum
+			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
 
 			valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 			suite.FatalNoError(err)
@@ -148,7 +148,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledActualLookup(
 	})
 
 	suite.Run("estimated is greater than actual", func() {
-		// Set the actual weight to less than estimated weight
+		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
@@ -156,7 +156,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledActualLookup(
 	})
 
 	suite.Run("actual is 120% of estimated weight", func() {
-		// Set the actual weight to about 120% of estimated weight
+		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
@@ -176,7 +176,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledActualLookup(
 	// Setup data for testing all minimums
 	serviceCodesWithMinimum := []struct {
 		code            models.ReServiceCode
-		actualWeight    unit.Pound
+		originalWeight  unit.Pound
 		expectedMinimum string
 		shipmentType    models.MTOShipmentType
 	}{
@@ -193,8 +193,8 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledActualLookup(
 	// test minimums are correct
 	for _, data := range serviceCodesWithMinimum {
 		suite.Run(fmt.Sprintf("actual below minimum service code %s", data.code), func() {
-			// Set the actual weight to below minimum
-			_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), data.actualWeight, data.code, data.shipmentType)
+			// Set the original weight to below minimum
+			_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
 
 			valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 			suite.FatalNoError(err)

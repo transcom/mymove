@@ -78,3 +78,9 @@ VALUES ('4a359f1a-7e93-46b8-b868-0e9c956556f8', (SELECT id FROM re_services WHER
 	   ('2fd21c6b-c348-49f1-8848-a6cf03d4290e', (SELECT id FROM re_services WHERE code = 'NSTH'), (SELECT id FROM service_item_param_keys WHERE key = 'WeightReweigh'), now(), now()),
 	   ('7282674f-7f4e-473e-bcd9-125191e443da', (SELECT id FROM re_services WHERE code = 'NSTUB'), (SELECT id FROM service_item_param_keys WHERE key = 'WeightAdjusted'), now(), now()),
 	   ('16f4c508-8edb-48b8-aa83-49941693fd70', (SELECT id FROM re_services WHERE code = 'NSTUB'), (SELECT id FROM service_item_param_keys WHERE key = 'WeightReweigh'), now(), now());
+
+-- Rename WeightActual to WeightOriginal.
+UPDATE service_item_param_keys
+SET key         = 'WeightOriginal',
+	description = 'Original weight'
+WHERE key = 'WeightActual';

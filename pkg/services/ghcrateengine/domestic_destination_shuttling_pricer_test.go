@@ -99,7 +99,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationShuttlingService
 				Value:   strconv.Itoa(ddshutTestServiceSchedule),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "1400",
 			},

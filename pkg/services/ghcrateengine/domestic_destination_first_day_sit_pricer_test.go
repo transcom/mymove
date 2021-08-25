@@ -99,7 +99,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationFirstDaySITServi
 				Value:   ddfsitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(ddfsitTestWeight)),
 			},

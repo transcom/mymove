@@ -99,7 +99,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginFirstDaySITServiceIte
 				Value:   dofsitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "1400",
 			},

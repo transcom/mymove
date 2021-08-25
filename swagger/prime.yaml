@@ -2142,10 +2142,10 @@ definitions:
       - ServicesScheduleOrigin
       - SITScheduleDest
       - SITScheduleOrigin
-      - WeightActual
       - WeightAdjusted
       - WeightBilledActual
       - WeightEstimated
+      - WeightOriginal
       - WeightReweigh
       - ZipDestAddress
       - ZipPickupAddress

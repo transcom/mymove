@@ -168,8 +168,8 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
-				Key:         models.ServiceItemParamNameWeightActual,
-				Description: "weight actual",
+				Key:         models.ServiceItemParamNameWeightOriginal,
+				Description: "weight original",
 				Type:        models.ServiceItemParamTypeInteger,
 				Origin:      models.ServiceItemParamOriginPrime,
 			},

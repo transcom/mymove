@@ -167,7 +167,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},

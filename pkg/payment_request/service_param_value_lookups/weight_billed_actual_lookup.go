@@ -16,7 +16,7 @@ type WeightBilledActualLookup struct {
 
 func (r WeightBilledActualLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
-	var actualWeight *unit.Pound
+	var originalWeight *unit.Pound
 
 	switch keyData.MTOServiceItem.ReService.Code {
 	case models.ReServiceCodeDOSHUT,
@@ -29,9 +29,9 @@ func (r WeightBilledActualLookup) lookup(appCtx appcontext.AppContext, keyData *
 			// TODO: Do we need a different error -- is this a "normal" scenario?
 			return "", fmt.Errorf("could not find estimated weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
 		}
-		actualWeight = keyData.MTOServiceItem.ActualWeight
+		originalWeight = keyData.MTOServiceItem.ActualWeight
 
-		if actualWeight == nil {
+		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
 			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
 		}
@@ -40,8 +40,8 @@ func (r WeightBilledActualLookup) lookup(appCtx appcontext.AppContext, keyData *
 		estimatedWeight = r.MTOShipment.PrimeEstimatedWeight
 
 		// Make sure there's an actual weight since that's nullable
-		actualWeight = r.MTOShipment.PrimeActualWeight
-		if actualWeight == nil {
+		originalWeight = r.MTOShipment.PrimeActualWeight
+		if originalWeight == nil {
 			// TODO: Do we need a different error -- is this a "normal" scenario?
 			return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", r.MTOShipment.ID)
 		}
@@ -50,13 +50,13 @@ func (r WeightBilledActualLookup) lookup(appCtx appcontext.AppContext, keyData *
 	var value string
 	if estimatedWeight != nil {
 		estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
-		if float64(*actualWeight) > estimatedWeightCap {
+		if float64(*originalWeight) > estimatedWeightCap {
 			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
 		} else {
-			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*actualWeight))
+			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 		}
 	} else {
-		value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*actualWeight))
+		value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
 	}
 
 	return value, nil

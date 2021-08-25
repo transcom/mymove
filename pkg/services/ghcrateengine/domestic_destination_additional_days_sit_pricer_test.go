@@ -111,7 +111,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 		//Value:   ddasitTestServiceArea,
 		//},
 		//{
-		//Key:     models.ServiceItemParamNameWeightActual,
+		//Key:     models.ServiceItemParamNameWeightOriginal,
 		//KeyType: models.ServiceItemParamTypeInteger,
 		//Value:   "2700",
 		//},
@@ -147,7 +147,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 					Value:   ddasitTestRequestedPickupDate.Format(TimestampParamFormat),
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightActual,
+					Key:     models.ServiceItemParamNameWeightOriginal,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "2700",
 				},
@@ -228,7 +228,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationAdditionalDaysSI
 				Value:   ddasitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "2700",
 			},

@@ -111,7 +111,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 		//Value:   doasitTestServiceArea,
 		//},
 		//{
-		//Key:     models.ServiceItemParamNameWeightActual,
+		//Key:     models.ServiceItemParamNameWeightOriginal,
 		//KeyType: models.ServiceItemParamTypeInteger,
 		//Value:   "2700",
 		//},
@@ -147,7 +147,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginAdditionalDaysSITPrice
 					Value:   doasitTestRequestedPickupDate.Format(TimestampParamFormat),
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightActual,
+					Key:     models.ServiceItemParamNameWeightOriginal,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "2700",
 				},
@@ -228,7 +228,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginAdditionalDaysSITServ
 				Value:   doasitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "2700",
 			},

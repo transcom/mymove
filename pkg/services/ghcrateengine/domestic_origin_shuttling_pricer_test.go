@@ -99,7 +99,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginShuttlingServiceItem(
 				Value:   strconv.Itoa(doshutTestServiceSchedule),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "1400",
 			},

@@ -126,14 +126,14 @@ const (
 	ServiceItemParamNameSITScheduleDest ServiceItemParamName = "SITScheduleDest"
 	// ServiceItemParamNameSITScheduleOrigin is the param key name SITScheduleOrigin
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
-	// ServiceItemParamNameWeightActual is the param key name WeightActual
-	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
 	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
 	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
 	ServiceItemParamNameWeightEstimated ServiceItemParamName = "WeightEstimated"
+	// ServiceItemParamNameWeightOriginal is the param key name WeightOriginal
+	ServiceItemParamNameWeightOriginal ServiceItemParamName = "WeightOriginal"
 	// ServiceItemParamNameWeightReweigh is the param key name WeightReweigh
 	ServiceItemParamNameWeightReweigh ServiceItemParamName = "WeightReweigh"
 	// ServiceItemParamNameZipDestAddress is the param key name ZipDestAddress
@@ -197,6 +197,9 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameContractYearName,
 	ServiceItemParamNameCubicFeetBilled,
 	ServiceItemParamNameCubicFeetCrating,
+	ServiceItemParamNameDimensionHeight,
+	ServiceItemParamNameDimensionLength,
+	ServiceItemParamNameDimensionWidth,
 	ServiceItemParamNameDistanceZip3,
 	ServiceItemParamNameDistanceZip5,
 	ServiceItemParamNameDistanceZipSITDest,
@@ -243,10 +246,10 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameServicesScheduleOrigin,
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
-	ServiceItemParamNameWeightActual,
 	ServiceItemParamNameWeightAdjusted,
 	ServiceItemParamNameWeightBilledActual,
 	ServiceItemParamNameWeightEstimated,
+	ServiceItemParamNameWeightOriginal,
 	ServiceItemParamNameWeightReweigh,
 	ServiceItemParamNameZipDestAddress,
 	ServiceItemParamNameZipPickupAddress,
@@ -262,6 +265,9 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameContractYearName),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
+	string(ServiceItemParamNameDimensionHeight),
+	string(ServiceItemParamNameDimensionLength),
+	string(ServiceItemParamNameDimensionWidth),
 	string(ServiceItemParamNameDistanceZip3),
 	string(ServiceItemParamNameDistanceZip5),
 	string(ServiceItemParamNameDistanceZipSITDest),
@@ -308,10 +314,10 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameServicesScheduleOrigin),
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
-	string(ServiceItemParamNameWeightActual),
 	string(ServiceItemParamNameWeightAdjusted),
 	string(ServiceItemParamNameWeightBilledActual),
 	string(ServiceItemParamNameWeightEstimated),
+	string(ServiceItemParamNameWeightOriginal),
 	string(ServiceItemParamNameWeightReweigh),
 	string(ServiceItemParamNameZipDestAddress),
 	string(ServiceItemParamNameZipPickupAddress),
