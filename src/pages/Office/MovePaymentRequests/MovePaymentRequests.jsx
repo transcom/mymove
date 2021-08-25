@@ -15,7 +15,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import BillableWeightCard from 'components/Office/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useMovePaymentRequestsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
@@ -34,6 +34,7 @@ const MovePaymentRequests = ({
   const history = useHistory();
 
   const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
+  const { order, moveIsLoading, moveIsError } = useMoveDetailsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
@@ -75,8 +76,8 @@ const MovePaymentRequests = ({
     };
   }, [sections, activeSection]);
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isLoading || moveIsLoading) return <LoadingPlaceholder />;
+  if (isError || moveIsError) return <SomethingWentWrong />;
 
   const shipmentsInfo = [];
 
@@ -112,11 +113,16 @@ const MovePaymentRequests = ({
         <GridContainer className={txoStyles.gridContainer} data-testid="tio-payment-request-details">
           <h1>Payment requests</h1>
           <div className={txoStyles.section} id="billable-weights">
+            {/* TODO
+                maxBillableWeight should check to see if there has been edits by the TIO and use that number instead
+                totalBillableWeights needs to be calculated using serviceObject from MB-9278
+                weightRequested needs to be calculated using the serviceObject from MB-9278
+              */}
             <BillableWeightCard
-              maxBillableWeight="13,750"
-              totalBillableWeight="12,460"
-              weightRequested="12,460"
-              weightAllowance="8,000"
+              maxBillableWeight={order?.entitlement?.authorizedWeight}
+              totalBillableWeight={0}
+              weightRequested={0}
+              weightAllowance={order?.entitlement?.authorizedWeight}
               reviewWeights={handleReviewWeightsClick}
               shipments={mtoShipments}
             />

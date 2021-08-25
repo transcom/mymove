@@ -10,10 +10,10 @@ export default {
 export const Card = () => (
   <div style={{ background: '#f9f9f9', width: '100%', height: '100%', paddingTop: 20 }}>
     <BillableWeightCard
-      maxBillableWeight="13,750"
-      totalBillableWeight="12,460"
-      weightRequested="12,460"
-      weightAllowance="8,000"
+      maxBillableWeight={13750}
+      totalBillableWeight={12460}
+      weightRequested={12460}
+      weightAllowance={8000}
       shipments={[
         { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
         {

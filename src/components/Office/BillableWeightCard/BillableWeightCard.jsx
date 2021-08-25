@@ -46,10 +46,10 @@ export default function BillableWeightCard({
 }
 
 BillableWeightCard.propTypes = {
-  maxBillableWeight: string.isRequired,
-  weightRequested: string.isRequired,
-  weightAllowance: string.isRequired,
-  totalBillableWeight: string.isRequired,
+  maxBillableWeight: number.isRequired,
+  weightRequested: number.isRequired,
+  weightAllowance: number.isRequired,
+  totalBillableWeight: number.isRequired,
   reviewWeights: func.isRequired,
   shipments: arrayOf(
     shape({
