@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import ShipmentCard, { formatDate } from './ShipmentCard';
+import ShipmentCard from './ShipmentCard';
 
-import { formatWeight, formatAddressShort } from 'shared/formatters';
+import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
 
 describe('ShipmentCard', () => {
   it('renders address and weight information', () => {
@@ -46,8 +46,8 @@ describe('ShipmentCard', () => {
     expect(screen.getByText(formatWeight(defaultProps.originalWeight))).toBeInTheDocument();
 
     // dates
-    expect(screen.getByText(formatDate(defaultProps.dateReweighRequested))).toBeInTheDocument();
-    expect(screen.getByText(formatDate(defaultProps.departedDate))).toBeInTheDocument();
+    expect(screen.getByText(formatDateFromIso(defaultProps.dateReweighRequested, 'DD MMM YYYY'))).toBeInTheDocument();
+    expect(screen.getByText(formatDateFromIso(defaultProps.departedDate, 'DD MMM YYYY'))).toBeInTheDocument();
 
     // addresses
     expect(screen.getByText(formatAddressShort(defaultProps.pickupAddress))).toBeInTheDocument();

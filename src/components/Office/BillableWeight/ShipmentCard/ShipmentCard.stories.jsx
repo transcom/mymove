@@ -9,8 +9,8 @@ export default {
 
 const props = {
   billableWeight: 4014,
-  dateReweighRequested: new Date().toISOString(),
-  departedDate: new Date().toISOString(),
+  dateReweighRequested: new Date('1/1/2020').toISOString(),
+  departedDate: new Date('12/25/2019').toISOString(),
   pickupAddress: {
     city: 'Rancho Santa Margarita',
     state: 'CA',

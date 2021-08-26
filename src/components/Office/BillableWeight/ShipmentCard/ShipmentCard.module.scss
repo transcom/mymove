@@ -29,12 +29,11 @@
     @include u-padding-x(2);
     font-size: 15px;
 
-    
     .field {
       display: flex;
       @include u-border-bottom('1px');
       @include u-border-bottom('base-lighter');
-      
+
       > :first-child {
         color: $base-darker;
       }
@@ -73,7 +72,7 @@
       @include u-margin-bottom(1);
       font-size: 17px;
     }
-    
+
     .editBtn {
       width: fit-content;
     }

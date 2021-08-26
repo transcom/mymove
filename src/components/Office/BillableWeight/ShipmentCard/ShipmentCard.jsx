@@ -1,6 +1,5 @@
 import React from 'react';
 import { string, number, shape } from 'prop-types';
-import moment from 'moment';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
@@ -8,11 +7,8 @@ import styles from './ShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatWeight, formatAddressShort } from 'shared/formatters';
+import { formatWeight, formatAddressShort, formatDateFromIso } from 'shared/formatters';
 
-export function formatDate(date) {
-  return moment(date).format('DD MMM YYYY');
-}
 export default function ShipmentCard({
   billableWeight,
   dateReweighRequested,
@@ -30,7 +26,7 @@ export default function ShipmentCard({
         <h2>HHG</h2>
         <section>
           <span>
-            <strong>Departed</strong> {formatDate(departedDate)}
+            <strong>Departed</strong> {formatDateFromIso(departedDate, 'DD MMM YYYY')}
           </span>
           <span>
             <strong>From</strong> {formatAddressShort(pickupAddress)}
@@ -59,7 +55,7 @@ export default function ShipmentCard({
         </div>
         <div className={styles.field}>
           <strong>Date reweigh requested</strong>
-          <span>{formatDate(dateReweighRequested)}</span>
+          <span>{formatDateFromIso(dateReweighRequested, 'DD MMM YYYY')}</span>
         </div>
         <div className={classnames(styles.field, styles.remarks)}>
           <strong>Reweigh remarks</strong>
