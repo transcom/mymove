@@ -64,6 +64,7 @@ var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
 var ppmMoveType = models.SelectedMoveTypePPM
+var tioRemarks = "New billable weight set"
 
 func save(db *pop.Connection, model interface{}) error {
 	verrs, err := db.ValidateAndSave(model)
@@ -3613,6 +3614,7 @@ func createHHGMoveWithReweigh(appCtx appcontext.AppContext, userUploader *upload
 	db := appCtx.DB()
 	move := testdatagen.MakeAvailableMove(db)
 	move.Locator = "REWAYD"
+	move.TIORemarks = &tioRemarks
 	mustSave(db, &move)
 	reweighedWeight := unit.Pound(800)
 	testdatagen.MakeReweigh(db, testdatagen.Assertions{
@@ -3678,6 +3680,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 			ID:               uuid.FromStringOrNil("5c89c1f8-ffae-11eb-9a03-0242ac130003"),
 			Locator:          "MULTRW",
 			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -3774,6 +3777,7 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 			ID:               uuid.FromStringOrNil("44961144-ffe7-11eb-9a03-0242ac130003"),
 			Locator:          "MISHRW",
 			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -3844,6 +3848,7 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 			ID:               uuid.FromStringOrNil("02c32c36-ffea-11eb-9a03-0242ac130003"),
 			Locator:          "MAXCED",
 			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
 		},
 	})
 
@@ -3914,6 +3919,7 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 			ID:               uuid.FromStringOrNil("c01706b4-0147-11ec-9a03-0242ac130003"),
 			Locator:          "NOESTW",
 			SelectedMoveType: &hhgMoveType,
+			TIORemarks:       &tioRemarks,
 		},
 	})
 
