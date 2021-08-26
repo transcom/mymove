@@ -12,6 +12,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/notifications/mocks"
+
 	"github.com/transcom/mymove/pkg/notifications"
 
 	"github.com/alexedwards/scs/v2"
@@ -47,11 +51,6 @@ const (
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
-
-var (
-	notificationLogger, _ = zap.NewDevelopment() // needed because of Logger interface discrepancies between packages
-	notificationSender    = notifications.NewStubNotificationSender("milmovelocal", notificationLogger)
-)
 
 // SessionCookieName returns the session cookie name
 func SessionCookieName(session *auth.Session) string {
@@ -150,6 +149,18 @@ func setupSessionManagers() [3]*scs.SessionManager {
 	officeSession.Cookie.Name = "office_session_token"
 
 	return [3]*scs.SessionManager{milSession, adminSession, officeSession}
+}
+
+func setUpMockNotificationSender() notifications.NotificationSender {
+	// We need a NotificationSender for sending user activity emails to system admins.
+	// If an unknown Service Member tries to log in, we'll create a new account for them, and that's requires an email.
+	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
+	mockSender := mocks.NotificationSender{}
+	mockSender.On("SendNotification",
+		mock.AnythingOfType("*notifications.UserAccountModified"),
+	).Return(nil)
+
+	return &mockSender
 }
 
 func (suite *AuthSuite) TestGenerateNonce() {
@@ -389,7 +400,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
@@ -433,7 +444,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
@@ -466,7 +477,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
@@ -521,7 +532,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
@@ -585,7 +596,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
@@ -629,7 +640,7 @@ func (suite *AuthSuite) TestAuthKnownServiceMember() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(scsContext), "")
@@ -699,7 +710,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 
 	// Prepare the request and response writer
@@ -784,7 +795,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
@@ -820,7 +831,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
@@ -855,7 +866,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
@@ -902,7 +913,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
@@ -940,7 +951,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
@@ -975,7 +986,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
@@ -1019,7 +1030,7 @@ func (suite *AuthSuite) TestAuthorizeKnownUserAdminNotFound() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
@@ -1066,7 +1077,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		notificationSender,
+		setUpMockNotificationSender(),
 	}
 	rr := httptest.NewRecorder()
 
