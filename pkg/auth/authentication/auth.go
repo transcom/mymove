@@ -734,8 +734,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil {
 			//todo new function and tests
-			appCtx := appcontext.NewAppContext(h.db, h.logger)
-			appCtx.SetRequestContext(auth.SetSessionInContext(context.Background(), session))
+			appCtx := appcontext.WithSession(appcontext.NewAppContext(h.db, h.logger), session)
 			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
 			h.logger.Info(fmt.Sprintf("Sys admin email: %s", sysAdminEmail))
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)

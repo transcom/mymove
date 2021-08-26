@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
@@ -87,7 +86,7 @@ func newUserAccountModified(
 	modifiedAt time.Time,
 ) (*UserAccountModified, error) {
 	logger := appCtx.Logger()
-	session := auth.SessionFromContext(appCtx.RequestContext())
+	session := appCtx.Session()
 	if session == nil {
 		return nil, services.NewContextError("Unable to find Session in Context")
 	}

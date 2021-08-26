@@ -1,7 +1,7 @@
 package appcontext
 
 import (
-	"context"
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
@@ -16,14 +16,13 @@ type AppContext interface {
 	DB() *pop.Connection
 	Logger() *zap.Logger
 	NewTransaction(func(appCtx AppContext) error) error
-	RequestContext() context.Context
-	SetRequestContext(ctx context.Context)
+	Session() *auth.Session
 }
 
 type appContext struct {
-	db     *pop.Connection
-	logger *zap.Logger
-	ctx    context.Context
+	db      *pop.Connection
+	logger  *zap.Logger
+	session *auth.Session
 }
 
 // NewAppContext creates a new AppContext
@@ -31,6 +30,15 @@ func NewAppContext(db *pop.Connection, logger *zap.Logger) AppContext {
 	return &appContext{
 		db:     db,
 		logger: logger,
+	}
+}
+
+// WithSession sets the session in the copy of an AppContext
+func WithSession(appCtx AppContext, session *auth.Session) AppContext {
+	return &appContext{
+		db:      appCtx.DB(),
+		logger:  appCtx.Logger(),
+		session: session,
 	}
 }
 
@@ -54,10 +62,6 @@ func (ac *appContext) NewTransaction(fn func(appCtx AppContext) error) error {
 	})
 }
 
-func (ac *appContext) RequestContext() context.Context {
-	return ac.ctx
-}
-
-func (ac *appContext) SetRequestContext(ctx context.Context) {
-	ac.ctx = ctx
+func (ac *appContext) Session() *auth.Session {
+	return ac.session
 }

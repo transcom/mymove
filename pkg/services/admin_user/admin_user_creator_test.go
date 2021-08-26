@@ -1,7 +1,6 @@
 package adminuser
 
 import (
-	"context"
 	"errors"
 	"reflect"
 	"testing"
@@ -42,8 +41,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 
 	// The AdminUserCreator needs a NotificationSender and the Session for sending user activity emails to admins
 	stubSender := notifications.NewStubNotificationSender("adminlocal", suite.logger)
-	appCtx := suite.TestAppContext()
-	appCtx.SetRequestContext(auth.SetSessionInContext(context.Background(), &auth.Session{}))
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {

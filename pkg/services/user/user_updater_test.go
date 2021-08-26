@@ -10,8 +10,9 @@
 package user
 
 import (
-	"context"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -32,8 +33,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 
 	// The UserUpdater needs a NotificationSender and the Session for sending user activity emails to admins
 	stubSender := notifications.NewStubNotificationSender("adminlocal", suite.logger)
-	appCtx := suite.TestAppContext()
-	appCtx.SetRequestContext(auth.SetSessionInContext(context.Background(), &auth.Session{}))
+	appCtx := appcontext.WithSession(suite.TestAppContext(), &auth.Session{})
 
 	updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater, stubSender)
 
