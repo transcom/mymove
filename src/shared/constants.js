@@ -79,7 +79,6 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
   { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
   { key: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, label: 'HHG_SHORTHAUL_DOMESTIC' },
-  { key: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC, label: 'HHG_LONGHAUL_DOMESTIC' },
 ];
 
 export const SERVICE_ITEM_STATUS = {
