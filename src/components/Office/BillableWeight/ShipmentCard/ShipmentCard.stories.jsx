@@ -27,7 +27,7 @@ const props = {
 };
 
 export const Card = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+  <div style={{ margin: '0 auto', height: '100%', width: 336 }}>
     <ShipmentCard {...props} />
   </div>
 );

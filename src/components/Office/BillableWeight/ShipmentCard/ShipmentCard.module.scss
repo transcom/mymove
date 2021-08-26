@@ -3,7 +3,6 @@
 @import 'shared/styles/colors';
 
 .container {
-  width: 336px;
   @include u-padding-x(0);
 
   header {
