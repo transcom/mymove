@@ -25,7 +25,7 @@ func InitEmailFlags(flag *pflag.FlagSet) {
 	flag.String(EmailBackendFlag, "local", "Email backend to use, either 'ses' or 'local'")
 	flag.String(AWSSESRegionFlag, "", "AWS region used for SES")
 	flag.String(AWSSESDomainFlag, "", "Domain used for SES")
-	flag.String(SysAdminEmail, "sandy+flag@truss.works", "Email address for the system administrators")
+	flag.String(SysAdminEmail, "dp3-alerts@truss.works", "Email address for the system administrators")
 }
 
 // CheckEmail validates Email command line flags
