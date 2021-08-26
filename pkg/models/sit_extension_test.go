@@ -62,7 +62,7 @@ func (suite *ModelSuite) TestSITExtensionCreation() {
 
 func (suite *ModelSuite) TestSITExtensionValidation() {
 	suite.T().Run("test valid SITExtension", func(t *testing.T) {
-		approvedDays := 0
+		approvedDays := 1
 		decisionDate := time.Now()
 		contractorRemarks := "some remarks here from the contractor"
 		officeRemarks := "some remarks here from the office"
@@ -125,7 +125,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 	suite.T().Run("test invalid sit extension", func(t *testing.T) {
 		const badReason models.SITExtensionRequestReason = "bad reason"
 		const badStatus models.SITExtensionStatus = "bad status"
-		approvedDays := -1
+		approvedDays := 0
 		badDecisionDate := time.Time{}
 		validSITExtension := models.SITExtension{
 			MTOShipmentID: uuid.Nil,
@@ -140,7 +140,7 @@ func (suite *ModelSuite) TestSITExtensionValidation() {
 			"request_reason": {"RequestReason is not in the list [SERIOUS_ILLNESS_MEMBER, SERIOUS_ILLNESS_DEPENDENT, IMPENDING_ASSIGNEMENT, DIRECTED_TEMPORARY_DUTY, NONAVAILABILITY_OF_CIVILIAN_HOUSING, AWAITING_COMPLETION_OF_RESIDENCE, OTHER]."},
 			"requested_days": {"0 is not greater than 0."},
 			"status":         {"Status is not in the list [PENDING, APPROVED, DENIED]."},
-			"approved_days":  {"-1 is not greater than -1."},
+			"approved_days":  {"0 is not greater than 0."},
 			"decision_date":  {"DecisionDate can not be blank."},
 		}
 		suite.verifyValidationErrors(&validSITExtension, expErrors)

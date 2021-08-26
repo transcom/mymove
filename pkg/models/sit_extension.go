@@ -87,7 +87,7 @@ func (m *SITExtension) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}})
 
 	if m.ApprovedDays != nil {
-		vs = append(vs, &validators.IntIsGreaterThan{Field: *m.ApprovedDays, Compared: -1, Name: "ApprovedDays"})
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *m.ApprovedDays, Compared: 0, Name: "ApprovedDays"})
 	}
 
 	if m.DecisionDate != nil {
