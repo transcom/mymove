@@ -733,13 +733,19 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil {
-			//todo new function and tests
 			appCtx := appcontext.WithSession(appcontext.NewAppContext(h.db, h.logger), session)
 			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
-			h.logger.Info(fmt.Sprintf("Sys admin email: %s", sysAdminEmail))
+			h.logger.Info(
+				"New user account created through Login.gov",
+				zap.String("newUserID", user.ID.String()),
+				zap.String("sysAdminEmail", sysAdminEmail),
+			)
 			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
 			if emailErr == nil {
-				err = h.sender.SendNotification(email)
+				sendErr := h.sender.SendNotification(email)
+				if sendErr != nil {
+					h.logger.Error("Error sending user activity email", zap.Error(sendErr))
+				}
 			} else {
 				h.logger.Error("Error creating user activity email", zap.Error(emailErr))
 			}
