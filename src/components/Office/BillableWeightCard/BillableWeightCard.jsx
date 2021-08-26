@@ -14,13 +14,13 @@ export default function BillableWeightCard({
   weightAllowance,
   totalBillableWeight,
   shipments,
-  reviewWeights,
+  onReviewWeights,
 }) {
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
         <h2>Billable weights</h2>
-        <Button onClick={reviewWeights}>Review weights</Button>
+        <Button onClick={onReviewWeights}>Review weights</Button>
       </div>
       <div className={styles.spaceBetween}>
         <div>
@@ -50,7 +50,7 @@ BillableWeightCard.propTypes = {
   weightRequested: number.isRequired,
   weightAllowance: number.isRequired,
   totalBillableWeight: number.isRequired,
-  reviewWeights: func.isRequired,
+  onReviewWeights: func.isRequired,
   shipments: arrayOf(
     shape({
       id: string.isRequired,

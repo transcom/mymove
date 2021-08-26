@@ -6,7 +6,7 @@ export default {
   title: 'Office Components/BillableWeightCard',
   component: BillableWeightCard,
   argTypes: {
-    reviewWeights: { action: 'review weights' },
+    onReviewWeights: { action: 'review weights' },
   },
 };
 
@@ -17,7 +17,7 @@ export const Card = (argTypes) => (
       totalBillableWeight={12460}
       weightRequested={12460}
       weightAllowance={8000}
-      reviewWeights={argTypes.reviewWeights}
+      onReviewWeights={argTypes.onReviewWeights}
       shipments={[
         { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
         {

@@ -123,7 +123,7 @@ const MovePaymentRequests = ({
               totalBillableWeight={0}
               weightRequested={0}
               weightAllowance={order?.entitlement?.authorizedWeight}
-              reviewWeights={handleReviewWeightsClick}
+              onReviewWeights={handleReviewWeightsClick}
               shipments={mtoShipments}
             />
           </div>

@@ -19,7 +19,7 @@ describe('BillableWeightCard', () => {
     weightRequested: 12260,
     weightAllowance: 8000,
     shipments,
-    reviewWeights: jest.fn(),
+    onReviewWeights: jest.fn(),
   };
 
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
@@ -55,7 +55,7 @@ describe('BillableWeightCard', () => {
     userEvent.click(reviewWeights);
 
     await waitFor(() => {
-      expect(defaultProps.reviewWeights).toHaveBeenCalled();
+      expect(defaultProps.onReviewWeights).toHaveBeenCalled();
     });
   });
 });
