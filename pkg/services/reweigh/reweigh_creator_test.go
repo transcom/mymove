@@ -15,7 +15,6 @@ import (
 
 func (suite *ReweighSuite) TestReweighCreator() {
 	// Create new mtoShipment
-	//move := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
 
 	// Create a valid reweigh for the move
