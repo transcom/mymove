@@ -707,10 +707,11 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 			Active: *swag.Bool(true),
 		},
 	)
+	mockSender := setUpMockNotificationSender() // We should get an email for this activity
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		setUpMockNotificationSender(),
+		mockSender,
 	}
 
 	// Prepare the request and response writer
@@ -726,6 +727,7 @@ func (suite *AuthSuite) TestAuthUnknownServiceMember() {
 
 	// Call the function under test
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), h.landingURL(&session))
+	mockSender.(*mocks.NotificationSender).AssertNumberOfCalls(suite.T(), "SendNotification", 1)
 
 	// Look up the user and service member in the test DB
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), user.Email)
