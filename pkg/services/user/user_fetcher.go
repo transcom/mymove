@@ -3,13 +3,14 @@ package user
 import (
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type userQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type userFetcher struct {
@@ -17,9 +18,9 @@ type userFetcher struct {
 }
 
 // FetchUser fetches an  user given a slice of filters
-func (o *userFetcher) FetchUser(filters []services.QueryFilter) (models.User, error) {
+func (o *userFetcher) FetchUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.User, error) {
 	var user models.User
-	error := o.builder.FetchOne(&user, filters)
+	error := o.builder.FetchOne(appCtx, &user, filters)
 	return user, error
 }
 

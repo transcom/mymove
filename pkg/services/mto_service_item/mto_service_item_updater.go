@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop/v5"
-
+	"github.com/transcom/mymove/pkg/appcontext"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -20,35 +19,34 @@ import (
 )
 
 type mtoServiceItemQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
-	CreateOne(model interface{}) (*validate.Errors, error)
-	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
-	Transaction(fn func(tx *pop.Connection) error) error
+	FetchOne(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error
+	CreateOne(appCtx appcontext.AppContext, model interface{}) (*validate.Errors, error)
+	UpdateOne(appCtx appcontext.AppContext, model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoServiceItemUpdater struct {
 	builder          mtoServiceItemQueryBuilder
-	createNewBuilder func(db *pop.Connection) mtoServiceItemQueryBuilder
+	createNewBuilder func() mtoServiceItemQueryBuilder
 	moveRouter       services.MoveRouter
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
 func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
-	createNewBuilder := func(db *pop.Connection) mtoServiceItemQueryBuilder {
-		return query.NewQueryBuilder(db)
+	createNewBuilder := func() mtoServiceItemQueryBuilder {
+		return query.NewQueryBuilder()
 	}
 
 	return &mtoServiceItemUpdater{builder, createNewBuilder, moveRouter}
 }
 
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoServiceItemID),
 	}
-	err := p.builder.FetchOne(&mtoServiceItem, queryFilters)
+	err := p.builder.FetchOne(appCtx, &mtoServiceItem, queryFilters)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
@@ -58,7 +56,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	moveFilter := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
 	}
-	err = p.builder.FetchOne(&move, moveFilter)
+	err = p.builder.FetchOne(appCtx, &move, moveFilter)
 	moveID := mtoServiceItem.MoveTaskOrderID
 	if err != nil {
 		return nil, services.NewNotFoundError(moveID, "MoveID")
@@ -95,7 +93,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		mtoServiceItem.ApprovedAt = &updatedAt
 	}
 
-	verrs, err := p.builder.UpdateOne(&mtoServiceItem, &eTag)
+	verrs, err := p.builder.UpdateOne(appCtx, &mtoServiceItem, &eTag)
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(mtoServiceItemID, err, verrs, "")
@@ -120,7 +118,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		moveShouldBeMoveApproved = false
 	} else {
 		// Fetch move again since other service items could have been updated
-		err = p.builder.FetchOne(&move, moveFilter)
+		err = p.builder.FetchOne(appCtx, &move, moveFilter)
 		if err != nil {
 			return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 		}
@@ -140,11 +138,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	}
 
 	if moveShouldBeMoveApproved {
-		err = p.moveRouter.Approve(&move)
+		err = p.moveRouter.Approve(appCtx, &move)
 		if err != nil {
 			return nil, err
 		}
-		verrs, err = p.builder.UpdateOne(&move, nil)
+		verrs, err = p.builder.UpdateOne(appCtx, &move, nil)
 		if verrs != nil && verrs.HasAny() {
 			return nil, services.NewInvalidInputError(move.ID, err, verrs, "")
 		}
@@ -159,11 +157,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	// being in SUBMITTED status) then it needs to be set to APPROVALS REQUESTED
 	// so the TOO can review it.
 	if !moveShouldBeMoveApproved {
-		err = p.moveRouter.SendToOfficeUser(&move)
+		err = p.moveRouter.SendToOfficeUser(appCtx, &move)
 		if err != nil {
 			return nil, err
 		}
-		verrs, err = p.builder.UpdateOne(&move, nil)
+		verrs, err = p.builder.UpdateOne(appCtx, &move, nil)
 		if verrs != nil && verrs.HasAny() {
 			return nil, services.NewInvalidInputError(move.ID, err, verrs, "")
 		}
@@ -179,38 +177,37 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 }
 
 // UpdateMTOServiceItemBasic updates the MTO Service Item using base validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	return p.UpdateMTOServiceItem(db, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
 }
 
 // UpdateMTOServiceItemPrime updates the MTO Service Item using Prime API validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	return p.UpdateMTOServiceItem(db, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
 }
 
 // UpdateMTOServiceItem updates the given service item
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
 	oldServiceItem := models.MTOServiceItem{}
 
 	// Find the service item, return error if not found
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoServiceItem.ID),
 	}
-	err := p.builder.FetchOne(&oldServiceItem, queryFilters)
+	err := p.builder.FetchOne(appCtx, &oldServiceItem, queryFilters)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 	}
 
-	checker := movetaskorder.NewMoveTaskOrderChecker(db)
+	checker := movetaskorder.NewMoveTaskOrderChecker()
 	serviceItemData := updateMTOServiceItemData{
 		updatedServiceItem:  *mtoServiceItem,
 		oldServiceItem:      oldServiceItem,
 		availabilityChecker: checker,
-		db:                  db,
 		verrs:               validate.NewErrors(),
 	}
 
-	validServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, validatorKey)
+	validServiceItem, err := ValidateUpdateMTOServiceItem(appCtx, &serviceItemData, validatorKey)
 	if err != nil {
 		return nil, err
 	}
@@ -222,11 +219,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 	}
 
 	// Create address record (if needed) and update service item in a single transaction
-	transactionErr := p.builder.Transaction(func(tx *pop.Connection) error {
-		txBuilder := p.createNewBuilder(tx)
+	transactionErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		if validServiceItem.SITDestinationFinalAddress != nil {
 			if validServiceItem.SITDestinationFinalAddressID == nil || *validServiceItem.SITDestinationFinalAddressID == uuid.Nil {
-				verrs, createErr := txBuilder.CreateOne(validServiceItem.SITDestinationFinalAddress)
+				verrs, createErr := p.builder.CreateOne(txnAppCtx, validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
 					return services.NewInvalidInputError(
 						validServiceItem.ID, createErr, verrs, "Invalid input found while creating a final Destination SIT address for service item.")
@@ -238,7 +234,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 			} else {
 				// If this service item already had a SITDestinationFinalAddress, update that record instead
 				// of creating a new one.
-				verrs, updateErr := tx.ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
+				verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem.SITDestinationFinalAddress)
 				if verrs != nil && verrs.HasAny() {
 					return services.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating final Destination SIT address for the service item.")
 				} else if updateErr != nil {
@@ -248,7 +244,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 			}
 		}
 		// Make the update and create a InvalidInputError if there were validation issues
-		verrs, updateErr := tx.ValidateAndUpdate(validServiceItem)
+		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
 
 		// If there were validation errors create an InvalidInputError type
 		if verrs != nil && verrs.HasAny() {
@@ -266,7 +262,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 
 	// Get the updated address and return
 	updatedServiceItem := models.MTOServiceItem{}
-	err = p.builder.FetchOne(&updatedServiceItem, queryFilters) // using the same queryFilters set at the beginning
+	err = p.builder.FetchOne(appCtx, &updatedServiceItem, queryFilters) // using the same queryFilters set at the beginning
 	if err != nil {
 		return nil, services.NewQueryError("MTOServiceItem", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
@@ -276,7 +272,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 // ValidateUpdateMTOServiceItem checks the provided serviceItemData struct against the validator indicated by validatorKey.
 // Defaults to base validation if the empty string is entered as the key.
 // Returns an MTOServiceItem that has been set up for update.
-func ValidateUpdateMTOServiceItem(serviceItemData *updateMTOServiceItemData, validatorKey string) (*models.MTOServiceItem, error) {
+func ValidateUpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData, validatorKey string) (*models.MTOServiceItem, error) {
 	if validatorKey == "" {
 		validatorKey = UpdateMTOServiceItemBasicValidator
 	}
@@ -285,7 +281,7 @@ func ValidateUpdateMTOServiceItem(serviceItemData *updateMTOServiceItemData, val
 		err := fmt.Errorf("validator key %s was not found in update MTO Service Item validators", validatorKey)
 		return nil, err
 	}
-	err := validator.validate(serviceItemData)
+	err := validator.validate(appCtx, serviceItemData)
 	if err != nil {
 		return nil, err
 	}

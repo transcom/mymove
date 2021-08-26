@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 )
 
@@ -12,13 +14,13 @@ type MTOAgentUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOAgentBasic provides a mock function with given fields: mtoAgent, eTag
-func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	ret := _m.Called(mtoAgent, eTag)
+// UpdateMTOAgentBasic provides a mock function with given fields: appCtx, mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	ret := _m.Called(appCtx, mtoAgent, eTag)
 
 	var r0 *models.MTOAgent
-	if rf, ok := ret.Get(0).(func(*models.MTOAgent, string) *models.MTOAgent); ok {
-		r0 = rf(mtoAgent, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) *models.MTOAgent); ok {
+		r0 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOAgent)
@@ -26,8 +28,8 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.MTOAgent, string) error); ok {
-		r1 = rf(mtoAgent, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent, string) error); ok {
+		r1 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -35,13 +37,13 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag s
 	return r0, r1
 }
 
-// UpdateMTOAgentPrime provides a mock function with given fields: mtoAgent, eTag
-func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	ret := _m.Called(mtoAgent, eTag)
+// UpdateMTOAgentPrime provides a mock function with given fields: appCtx, mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	ret := _m.Called(appCtx, mtoAgent, eTag)
 
 	var r0 *models.MTOAgent
-	if rf, ok := ret.Get(0).(func(*models.MTOAgent, string) *models.MTOAgent); ok {
-		r0 = rf(mtoAgent, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) *models.MTOAgent); ok {
+		r0 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOAgent)
@@ -49,8 +51,8 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag s
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.MTOAgent, string) error); ok {
-		r1 = rf(mtoAgent, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOAgent, string) error); ok {
+		r1 = rf(appCtx, mtoAgent, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -25,7 +26,7 @@ func NewEstimateCalculator(db *pop.Connection, planner route.Planner) services.E
 	return &estimateCalculator{db: db, planner: planner}
 }
 
-func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID, logger services.Logger) (int64, rateengine.CostComputation, error) {
+func (e *estimateCalculator) CalculateEstimates(ppm *models.PersonallyProcuredMove, moveID uuid.UUID, logger *zap.Logger) (int64, rateengine.CostComputation, error) {
 	// temporarily passing in logger here until fix listed above in service struct
 	var sitCharge int64
 	cost := rateengine.CostComputation{}

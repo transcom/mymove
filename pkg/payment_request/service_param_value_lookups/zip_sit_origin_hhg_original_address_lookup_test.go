@@ -64,20 +64,20 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 	)
 
 	suite.T().Run("success SIT origin original zip lookup", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemWithSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemWithSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(key)
+		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := mtoServiceItemWithSITOriginZips.SITOriginHHGOriginalAddress.PostalCode
 		suite.Equal(expected, sitOriginZipOriginal)
 	})
 
 	suite.T().Run("fail to find SIT origin original zip lookup", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemNoSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemNoSITOriginZips.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(key)
+		sitOriginZipOriginal, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.Equal("", sitOriginZipOriginal)
 		suite.Contains(err.Error(), "nil SITOriginHHGOriginalAddressID")

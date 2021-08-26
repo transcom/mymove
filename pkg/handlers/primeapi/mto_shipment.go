@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -31,6 +32,7 @@ type CreateMTOShipmentHandler struct {
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	payload := params.Body
 
@@ -67,10 +69,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
-	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(appCtx, moveTaskOrderID)
 
 	if mtoAvailableToPrime {
-		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(appCtx, mtoShipment, mtoServiceItemsList)
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
 		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
@@ -108,6 +110,7 @@ type UpdateMTOShipmentHandler struct {
 // Handle handler that updates a mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
 
 	// Get the associated shipment from the database
@@ -122,7 +125,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	}
 
 	// Validate further prime restrictions on model
-	mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(mtoShipment, &dbShipment)
+	mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(appCtx, mtoShipment, &dbShipment)
 	if validationErrs != nil && validationErrs.HasAny() {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
@@ -133,7 +136,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	}
 
 	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-	mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentPrime(params.HTTPRequest.Context(), mtoShipment, params.IfMatch)
+	mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipmentPrime(appCtx, mtoShipment, params.IfMatch)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch e := err.(type) {
@@ -156,7 +159,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 // It expects dbShipment to represent what's in the db and mtoShipment to represent the requested update
 // It updates mtoShipment accordingly if there are dependent updates like requiredDeliveryDate
 // On completion it either returns a list of errors or an updated MTOShipment that should be stored to the database.
-func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *models.MTOShipment, dbShipment *models.MTOShipment) (*models.MTOShipment, *validate.Errors) {
+func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, dbShipment *models.MTOShipment) (*models.MTOShipment, *validate.Errors) {
 	verrs := validate.NewErrors()
 
 	// Prime cannot edit the customer's requestedPickupDate
@@ -232,7 +235,7 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 
 	// If we have all the data, calculate RDD
 	if latestSchedPickupDate != nil && latestEstimatedWeight != nil && latestPickupAddress != nil && latestDestinationAddress != nil {
-		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(h.Planner(), h.DB(), *latestPickupAddress,
+		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(appCtx, h.Planner(), *latestPickupAddress,
 			*latestDestinationAddress, *latestSchedPickupDate, latestEstimatedWeight.Int())
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
@@ -271,10 +274,11 @@ type UpdateMTOShipmentStatusHandler struct {
 // Handle handler that updates a mto shipment's status
 func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOShipmentStatusParams) middleware.Responder {
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	shipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
-	availableToPrime, err := h.checker.MTOShipmentsMTOAvailableToPrime(shipmentID)
+	availableToPrime, err := h.checker.MTOShipmentsMTOAvailableToPrime(appCtx, shipmentID)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
 		switch e := err.(type) {
@@ -291,7 +295,7 @@ func (h UpdateMTOShipmentStatusHandler) Handle(params mtoshipmentops.UpdateMTOSh
 	status := models.MTOShipmentStatus(params.Body.Status)
 	eTag := params.IfMatch
 
-	shipment, err := h.updater.UpdateMTOShipmentStatus(shipmentID, status, nil, eTag)
+	shipment, err := h.updater.UpdateMTOShipmentStatus(appCtx, shipmentID, status, nil, eTag)
 	if err != nil {
 		logger.Error("UpdateMTOShipmentStatusStatus error: ", zap.Error(err))
 

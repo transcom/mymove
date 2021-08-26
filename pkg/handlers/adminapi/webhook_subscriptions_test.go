@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		params := webhooksubscriptionop.IndexWebhookSubscriptionsParams{
 			HTTPRequest: req,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := IndexWebhookSubscriptionsHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
@@ -70,6 +70,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		webhookSubscriptionListFetcher := &mocks.ListFetcher{}
 
 		webhookSubscriptionListFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -78,6 +79,7 @@ func (suite *HandlerSuite) TestIndexWebhookSubscriptionsHandler() {
 		).Return(nil, expectedError).Once()
 
 		webhookSubscriptionListFetcher.On("FetchRecordCount",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()
@@ -110,7 +112,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 			WebhookSubscriptionID: strfmt.UUID(webhookSubscription.ID.String()),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetWebhookSubscriptionHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			webhooksubscriptionservice.NewWebhookSubscriptionFetcher(queryBuilder),
@@ -142,6 +144,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 		}
 
 		webhookSubscriptionFetcher.On("FetchWebhookSubscription",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.WebhookSubscription{}, expectedError).Once()
 
@@ -162,7 +165,7 @@ func (suite *HandlerSuite) TestGetWebhookSubscriptionHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	subscriber := testdatagen.MakeDefaultContractor(suite.DB())
 
 	webhookSubscription := models.WebhookSubscription{
@@ -189,7 +192,7 @@ func (suite *HandlerSuite) TestCreateWebhookSubscriptionHandler() {
 
 	handler := CreateWebhookSubscriptionHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		webhooksubscription.NewWebhookSubscriptionCreator(suite.DB(), queryBuilder),
+		webhooksubscription.NewWebhookSubscriptionCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 
@@ -238,7 +241,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
@@ -275,7 +278,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			IfMatch: etag.GenerateEtag(webhookSubscription2.UpdatedAt),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
@@ -319,7 +322,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			IfMatch: etag.GenerateEtag(webhookSubscription.UpdatedAt),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),
@@ -345,7 +348,7 @@ func (suite *HandlerSuite) TestUpdateWebhookSubscriptionHandler() {
 			IfMatch: etag.GenerateEtag(time.Now()),
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		handler := UpdateWebhookSubscriptionHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			webhooksubscriptionservice.NewWebhookSubscriptionUpdater(queryBuilder),

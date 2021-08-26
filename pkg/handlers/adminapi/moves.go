@@ -3,6 +3,7 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	"github.com/gofrs/uuid"
@@ -62,6 +63,7 @@ var locatorFilterConverters = map[string]func(string) []services.QueryFilter{
 // Handle retrieves a list of moves/MTOs
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryFilters := generateQueryFilters(logger, params.Filter, locatorFilterConverters)
@@ -71,13 +73,13 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	associations := query.NewQueryAssociationsPreload(queryAssociations)
-	moves, err := h.MoveListFetcher.FetchMoveList(queryFilters, associations, pagination, ordering)
+	moves, err := h.MoveListFetcher.FetchMoveList(appCtx, queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 	movesCount := len(moves)
 
-	totalMoveCount, err := h.MoveListFetcher.FetchMoveCount(queryFilters)
+	totalMoveCount, err := h.MoveListFetcher.FetchMoveCount(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -99,6 +101,7 @@ type UpdateMoveHandler struct {
 // Handle updates a given move
 func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
@@ -106,7 +109,7 @@ func (h UpdateMoveHandler) Handle(params moveop.UpdateMoveParams) middleware.Res
 		return moveop.NewUpdateMoveBadRequest()
 	}
 
-	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(moveID, params.Move.Show)
+	updatedMove, err := h.MoveTaskOrderUpdater.ShowHide(appCtx, moveID, params.Move.Show)
 	if err != nil {
 		switch e := err.(type) {
 		case services.NotFoundError:

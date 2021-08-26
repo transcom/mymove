@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -49,6 +50,7 @@ type UpdateMTOServiceItemStatusHandler struct {
 // Handle handler that handles the handling for updating service item status
 func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.UpdateMTOServiceItemStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	existingMTOServiceItem := models.MTOServiceItem{}
 
 	mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
@@ -63,7 +65,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 
 	// Fetch the existing service item
 	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", mtoServiceItemID)}
-	err = h.Fetcher.FetchRecord(&existingMTOServiceItem, filter)
+	err = h.Fetcher.FetchRecord(appCtx, &existingMTOServiceItem, filter)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
@@ -77,7 +79,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
 
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(appCtx, mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
@@ -123,6 +125,7 @@ type ListMTOServiceItemsHandler struct {
 // Handle handler that lists mto service items for the move task order
 func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServiceItemsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	// return any parsing error
@@ -140,7 +143,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	}
 
 	moveTaskOrder := &models.Move{}
-	err = h.Fetcher.FetchRecord(moveTaskOrder, queryFilters)
+	err = h.Fetcher.FetchRecord(appCtx, moveTaskOrder, queryFilters)
 	if err != nil {
 		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 
@@ -157,7 +160,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	})
 
 	var serviceItems models.MTOServiceItems
-	err = h.ListFetcher.FetchRecordList(&serviceItems, queryFilters, queryAssociations, nil, nil)
+	err = h.ListFetcher.FetchRecordList(appCtx, &serviceItems, queryFilters, queryAssociations, nil, nil)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto service items: ", zap.Error(err))

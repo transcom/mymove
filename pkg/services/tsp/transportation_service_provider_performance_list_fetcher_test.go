@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -14,17 +15,17 @@ import (
 )
 
 type testTransportationServiceProviderPerformanceListQueryBuilder struct {
-	fakeFetchMany func(model interface{}) error
-	fakeCount     func(model interface{}) (int, error)
+	fakeFetchMany func(appCtx appcontext.AppContext, model interface{}) error
+	fakeCount     func(appCtx appcontext.AppContext, model interface{}) (int, error)
 }
 
-func (t *testTransportationServiceProviderPerformanceListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
-	m := t.fakeFetchMany(model)
+func (t *testTransportationServiceProviderPerformanceListQueryBuilder) FetchMany(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+	m := t.fakeFetchMany(appCtx, model)
 	return m
 }
 
-func (t *testTransportationServiceProviderPerformanceListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
-	count, m := t.fakeCount(model)
+func (t *testTransportationServiceProviderPerformanceListQueryBuilder) Count(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(appCtx, model)
 	return count, m
 }
 
@@ -45,7 +46,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 	suite.T().Run("if the TSPP is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchMany := func(model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.TransportationServiceProviderPerformance{ID: id})))
 			return nil
@@ -59,7 +60,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, tspps[0].ID)
@@ -71,7 +72,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 
 		suite.NoError(err)
 		suite.NoError(err2)
-		fakeFetchMany := func(model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.TransportationServiceProviderPerformance{ID: id})))
 			value.Set(reflect.Append(value, reflect.ValueOf(models.TransportationServiceProviderPerformance{ID: id2})))
@@ -86,14 +87,14 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.TestAppContext(), filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Len(tspps, 2)
 	})
 
 	suite.T().Run("if there is an error, we get it with no tspps", func(t *testing.T) {
-		fakeFetchMany := func(model interface{}) error {
+		fakeFetchMany := func(appCtx appcontext.AppContext, model interface{}) error {
 			return errors.New("Fetch error")
 		}
 		builder := &testTransportationServiceProviderPerformanceListQueryBuilder{
@@ -102,7 +103,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 
 		fetcher := NewTransportationServiceProviderPerformanceListFetcher(builder)
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(suite.TestAppContext(), []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
@@ -116,7 +117,7 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 		id, err := uuid.NewV4()
 
 		suite.NoError(err)
-		fakeCount := func(model interface{}) (int, error) {
+		fakeCount := func(appCtx appcontext.AppContext, model interface{}) (int, error) {
 			count := 2
 			return count, nil
 		}
@@ -129,14 +130,14 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(filters)
+		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(suite.TestAppContext(), filters)
 
 		suite.NoError(err)
 		suite.Equal(2, count)
 	})
 
 	suite.T().Run("if there is an error, we get it with no count", func(t *testing.T) {
-		fakeCount := func(model interface{}) (int, error) {
+		fakeCount := func(appCtx appcontext.AppContext, model interface{}) (int, error) {
 			return 0, errors.New("Fetch error")
 		}
 		builder := &testTransportationServiceProviderPerformanceListQueryBuilder{
@@ -145,7 +146,7 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 
 		fetcher := NewTransportationServiceProviderPerformanceListFetcher(builder)
 
-		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount([]services.QueryFilter{})
+		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(suite.TestAppContext(), []services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

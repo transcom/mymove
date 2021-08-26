@@ -9,6 +9,8 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 func (suite *testSuite) TestRequestLogger() {
@@ -21,9 +23,11 @@ func (suite *testSuite) TestRequestLogger() {
 			zapcore.DebugLevel,
 		))
 	}))
-	requestLogger := RequestLogger(logger)
+	requestLogger := RequestLogger(suite.logger)
 	rr := httptest.NewRecorder()
-	suite.do(requestLogger, suite.ok, rr, httptest.NewRequest("GET", testURL, nil))
+	treq := httptest.NewRequest("GET", testURL, nil)
+	reqCtx := logging.NewContext(treq.Context(), logger)
+	suite.do(requestLogger, suite.ok, rr, treq.WithContext(reqCtx))
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code
 	out := strings.TrimSpace(buf.String())             // remove trailing new line
 	suite.NotEmpty(out, "log was empty")

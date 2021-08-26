@@ -21,7 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
-func checkPaymentReminderConfig(v *viper.Viper, logger logger) error {
+func checkPaymentReminderConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Debug("checking config")
 

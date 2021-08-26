@@ -33,6 +33,7 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 
 		electronicOrderCategoryCountFetcher := &mocks.ElectronicOrderCategoryCountFetcher{}
 		electronicOrderCategoryCountFetcher.On("FetchElectronicOrderCategoricalCounts",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(map[interface{}]int{models.IssuerArmy: 2}, nil)
@@ -56,6 +57,7 @@ func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
 
 		electronicOrderCategoryCountFetcher := &mocks.ElectronicOrderCategoryCountFetcher{}
 		electronicOrderCategoryCountFetcher.On("FetchElectronicOrderCategoricalCounts",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, err)

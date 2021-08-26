@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	}
 
 	suite.T().Run("Successful list fetch - Integration Test", func(t *testing.T) {
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOServiceItemsHandler{
@@ -87,11 +87,13 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		internalServerErr := errors.New("ServerError")
 
 		mockFetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil)
 
 		mockListFetcher.On("FetchRecordList",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -115,6 +117,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		notfound := errors.New("Not found error")
 
 		mockFetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(notfound)
@@ -156,6 +159,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(errors.New("Not found error")).Once()
@@ -173,11 +177,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
 
 		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -197,11 +203,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
 
 		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -221,11 +229,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
 		fetcher := mocks.Fetcher{}
 		fetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
 
 		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -246,6 +256,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		fetcher := mocks.Fetcher{}
 		params.MtoServiceItemID = ""
 		fetcher.On("FetchRecord",
+			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
 		).Return(nil).Once()
@@ -262,7 +273,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// With this we'll do a happy path integration test to ensure that the use of the service object
 	// by the handler is working as expected.
 	suite.T().Run("Successful rejected status update - Integration test", func(t *testing.T) {
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		mtoServiceItem, move := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
@@ -280,7 +291,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		moveRouter := moverouter.NewMoveRouter()
 		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder, moveRouter)
 
 		handler := UpdateMTOServiceItemStatusHandler{
@@ -300,8 +311,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// With this we'll do a happy path integration test to ensure that the use of the service object
 	// by the handler is working as expected.
 	suite.T().Run("Successful status update of MTO service item and event trigger", func(t *testing.T) {
-		queryBuilder := query.NewQueryBuilder(suite.DB())
-		moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.TestLogger())
+		queryBuilder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		availableMoveID := availableMove.ID

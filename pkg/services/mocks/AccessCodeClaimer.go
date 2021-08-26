@@ -4,6 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	appcontext "github.com/transcom/mymove/pkg/appcontext"
+
 	models "github.com/transcom/mymove/pkg/models"
 
 	uuid "github.com/gofrs/uuid"
@@ -16,13 +18,13 @@ type AccessCodeClaimer struct {
 	mock.Mock
 }
 
-// ClaimAccessCode provides a mock function with given fields: code, serviceMemberID
-func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
-	ret := _m.Called(code, serviceMemberID)
+// ClaimAccessCode provides a mock function with given fields: appCtx, code, serviceMemberID
+func (_m *AccessCodeClaimer) ClaimAccessCode(appCtx appcontext.AppContext, code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
+	ret := _m.Called(appCtx, code, serviceMemberID)
 
 	var r0 *models.AccessCode
-	if rf, ok := ret.Get(0).(func(string, uuid.UUID) *models.AccessCode); ok {
-		r0 = rf(code, serviceMemberID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, uuid.UUID) *models.AccessCode); ok {
+		r0 = rf(appCtx, code, serviceMemberID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AccessCode)
@@ -30,8 +32,8 @@ func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.U
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(string, uuid.UUID) *validate.Errors); ok {
-		r1 = rf(code, serviceMemberID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, uuid.UUID) *validate.Errors); ok {
+		r1 = rf(appCtx, code, serviceMemberID)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
@@ -39,8 +41,8 @@ func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.U
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, uuid.UUID) error); ok {
-		r2 = rf(code, serviceMemberID)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, uuid.UUID) error); ok {
+		r2 = rf(appCtx, code, serviceMemberID)
 	} else {
 		r2 = ret.Error(2)
 	}
