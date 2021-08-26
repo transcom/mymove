@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, arrayOf, shape, bool } from 'prop-types';
+import { number, arrayOf, shape, bool } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './WeightSummary.module.scss';
@@ -39,12 +39,12 @@ const WeightSummary = ({
         {shipments.map((shipment) => {
           return (
             <div className={styles.flex}>
-              {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.billableWeightCap) ? (
+              {shipmentIsOverweight(shipment.estimatedWeight, shipment.billableWeight) ? (
                 <FontAwesomeIcon icon="exclamation-triangle" className={styles.warningFlag} />
               ) : (
                 <div className={styles.noEdit} />
               )}
-              {formatWeight(shipment.billableWeightCap)}
+              {formatWeight(shipment.billableWeight)}
             </div>
           );
         })}
@@ -54,14 +54,15 @@ const WeightSummary = ({
 };
 
 WeightSummary.propTypes = {
-  maxBillableWeight: string.isRequired,
-  weightRequested: string.isRequired,
-  weightAllowance: string.isRequired,
-  totalBillableWeight: string.isRequired,
+  maxBillableWeight: number.isRequired,
+  weightRequested: number.isRequired,
+  weightAllowance: number.isRequired,
+  totalBillableWeight: number.isRequired,
   totalBillableWeightFlag: bool.isRequired,
   shipments: arrayOf(
     shape({
-      billableWeightCap: string.isRequired,
+      billableWeight: number.isRequired,
+      estimatedWeight: number.isRequired,
     }),
   ).isRequired,
 };

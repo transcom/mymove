@@ -5,6 +5,8 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentList from '.';
 
+import { formatWeight } from 'shared/formatters';
+
 describe('ShipmentList component', () => {
   const shipments = [
     { id: 'ID-1', shipmentType: 'PPM' },
@@ -54,10 +56,17 @@ describe('ShipmentList component', () => {
 describe('BillableWeightCard', () => {
   it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
     const shipments = [
-      { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
-      { id: '0002', shipmentType: 'HHG', billableWeightCap: '3,200', reweigh: { id: '1234' } },
-      { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400', primeEstimatedWeight: '5,000' },
+      { id: '0001', shipmentType: 'HHG', billableWeight: 6161, estimatedWeight: 5600 },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        billableWeight: 3200,
+        estimatedWeight: 5000,
+        reweigh: { id: '1234' },
+      },
+      { id: '0003', shipmentType: 'HHG', billableWeight: 3400, estimatedWeight: 5000 },
     ];
+
     const defaultProps = {
       shipments,
       moveSubmitted: false,
@@ -71,8 +80,8 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText('Missing weight')).toBeInTheDocument();
 
     // weights
-    expect(screen.getByText(`${shipments[0].billableWeightCap} lbs`)).toBeInTheDocument();
-    expect(screen.getByText(`${shipments[1].billableWeightCap} lbs`)).toBeInTheDocument();
-    expect(screen.getByText(`${shipments[2].billableWeightCap} lbs`)).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[0].billableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[1].billableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[2].billableWeight))).toBeInTheDocument();
   });
 });
