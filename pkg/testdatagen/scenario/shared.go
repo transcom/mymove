@@ -519,13 +519,14 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 	}
 }
 
-func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter) {
+func createMoveWithHHGMissingOrdersInfo(appCtx appcontext.AppContext, moveRouter services.MoveRouter, userUploader *uploader.UserUploader) {
 	db := appCtx.DB()
 	move := testdatagen.MakeHHGMoveWithShipment(db, testdatagen.Assertions{
 		Move: models.Move{
 			Locator: "REQINF",
 			Status:  models.MoveStatusDRAFT,
 		},
+		UserUploader: userUploader,
 	})
 	order := move.Orders
 	order.TAC = nil
