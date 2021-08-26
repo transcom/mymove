@@ -1,13 +1,16 @@
 package services
 
-import "github.com/transcom/mymove/pkg/models"
+import (
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/models"
+)
 
 // ReweighCreator creates a reweigh
 type ReweighCreator interface {
-	CreateReweigh(reweigh *models.Reweigh) (*models.Reweigh, error)
+	CreateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh) (*models.Reweigh, error)
 }
 
 // ReweighUpdater creates a reweigh
 type ReweighUpdater interface {
-	UpdateReweigh(reweigh *models.Reweigh, eTag string) (*models.Reweigh, error)
+	UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error)
 }

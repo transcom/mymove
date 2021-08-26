@@ -3,6 +3,8 @@ package reweigh
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/appcontext"
+
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -23,7 +25,7 @@ func NewReweighUpdater(db *pop.Connection) services.ReweighUpdater {
 }
 
 // UpdateReweigh updates the Reweigh table
-func (f *reweighUpdater) UpdateReweigh(reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
+func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
 	oldWeight := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
@@ -31,12 +33,6 @@ func (f *reweighUpdater) UpdateReweigh(reweigh *models.Reweigh, eTag string) (*m
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")
 	}
-
-	//err = validateReweigh(context.TODO(), *reweigh, &oldWeight, &oldWeight.ShipmentID, checks...)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//newReweigh := mergeReweigh(*reweigh, &oldWeight)
 
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldWeight.UpdatedAt)
