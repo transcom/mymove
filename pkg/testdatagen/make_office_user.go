@@ -121,7 +121,11 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 // MakeActiveOfficeUser returns an active office user
 func MakeActiveOfficeUser(db *pop.Connection) models.OfficeUser {
-	officeUser := MakeDefaultOfficeUser(db)
+	officeUser := MakeOfficeUser(db, Assertions{
+		User: models.User{
+			Active: true, // an active office user should also have an active user
+		},
+	})
 
 	officeUser.Active = true
 
