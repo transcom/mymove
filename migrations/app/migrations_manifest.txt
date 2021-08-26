@@ -659,3 +659,4 @@
 20210802205220_create_reweighs_table_excess_weights_columns.up.sql
 20210809190551_add_index_to_move_fields.up.sql
 20210812163307_add_contract_code_FSC.up.sql
+20210826153944_add_tio_remarks_to_moves_table.up.sql
