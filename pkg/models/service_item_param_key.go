@@ -128,8 +128,8 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightAdjusted is the param key name WeightAdjusted
 	ServiceItemParamNameWeightAdjusted ServiceItemParamName = "WeightAdjusted"
-	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
-	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
+	// ServiceItemParamNameWeightBilled is the param key name WeightBilled
+	ServiceItemParamNameWeightBilled ServiceItemParamName = "WeightBilled"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
 	ServiceItemParamNameWeightEstimated ServiceItemParamName = "WeightEstimated"
 	// ServiceItemParamNameWeightOriginal is the param key name WeightOriginal
@@ -247,7 +247,7 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameSITScheduleDest,
 	ServiceItemParamNameSITScheduleOrigin,
 	ServiceItemParamNameWeightAdjusted,
-	ServiceItemParamNameWeightBilledActual,
+	ServiceItemParamNameWeightBilled,
 	ServiceItemParamNameWeightEstimated,
 	ServiceItemParamNameWeightOriginal,
 	ServiceItemParamNameWeightReweigh,
@@ -315,7 +315,7 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightAdjusted),
-	string(ServiceItemParamNameWeightBilledActual),
+	string(ServiceItemParamNameWeightBilled),
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameWeightOriginal),
 	string(ServiceItemParamNameWeightReweigh),

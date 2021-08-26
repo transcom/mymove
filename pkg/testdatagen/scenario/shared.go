@@ -4171,7 +4171,7 @@ func createMoveWithServiceItems(appCtx appcontext.AppContext, userUploader *uplo
 			Value:   currentTime.Format(testDateFormat),
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
+			Key:     models.ServiceItemParamNameWeightBilled,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "4242",
 		},

@@ -9,12 +9,12 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// WeightBilledActualLookup does lookup on actual weight billed
-type WeightBilledActualLookup struct {
+// WeightBilledLookup does lookup on weight billed
+type WeightBilledLookup struct {
 	MTOShipment models.MTOShipment
 }
 
-func (r WeightBilledActualLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
+func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	var estimatedWeight *unit.Pound
 	var originalWeight *unit.Pound
 
@@ -62,15 +62,15 @@ func (r WeightBilledActualLookup) lookup(appCtx appcontext.AppContext, keyData *
 	return value, nil
 }
 
-// Looks at code and applies minimum if necessary, otherwise returns actual
-func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType, actual int) string {
-	result := actual
+// Looks at code and applies minimum if necessary, otherwise returns weight passed in
+func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType, weight int) string {
+	result := weight
 	switch shipmentType {
 	case models.MTOShipmentTypeInternationalUB:
 		switch code {
 		case models.ReServiceCodeIOSHUT,
 			models.ReServiceCodeIDSHUT:
-			if int(actual) < 300 {
+			if weight < 300 {
 				result = 300
 			}
 		}
@@ -103,7 +103,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIDDSIT,
 			models.ReServiceCodeIOSHUT,
 			models.ReServiceCodeIDSHUT:
-			if int(actual) < 500 {
+			if weight < 500 {
 				result = 500
 			}
 		case models.ReServiceCodeIOOUB,
@@ -111,7 +111,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeIOCUB,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK:
-			if int(actual) < 300 {
+			if weight < 300 {
 				result = 300
 			}
 		}

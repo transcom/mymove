@@ -162,8 +162,8 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 				Origin:      models.ServiceItemParamOriginPrime,
 			},
 			{
-				Key:         models.ServiceItemParamNameWeightBilledActual,
-				Description: "weight billed actual",
+				Key:         models.ServiceItemParamNameWeightBilled,
+				Description: "weight billed",
 				Type:        models.ServiceItemParamTypeInteger,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
@@ -175,7 +175,7 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 			},
 			{
 				Key:         models.ServiceItemParamNameServiceAreaOrigin,
-				Description: "service area actual",
+				Description: "service area origin",
 				Type:        models.ServiceItemParamTypeString,
 				Origin:      models.ServiceItemParamOriginPrime,
 			},
@@ -222,8 +222,8 @@ func fixtureMapOfServiceItemParams() map[models.ReServiceCode]realMTOServicePara
 				Origin:      models.ServiceItemParamOriginSystem,
 			},
 			{
-				Key:         models.ServiceItemParamNameWeightBilledActual,
-				Description: "weight billed actual",
+				Key:         models.ServiceItemParamNameWeightBilled,
+				Description: "weight billed",
 				Type:        models.ServiceItemParamTypeInteger,
 				Origin:      models.ServiceItemParamOriginSystem,
 			},

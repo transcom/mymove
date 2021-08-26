@@ -104,7 +104,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginShuttlingServiceItem(
 				Value:   "1400",
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(doshutTestWeight)),
 			},

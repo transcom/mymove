@@ -84,3 +84,9 @@ UPDATE service_item_param_keys
 SET key         = 'WeightOriginal',
 	description = 'Original weight'
 WHERE key = 'WeightActual';
+
+-- Rename WeightBilledActual to WeightBilled.
+UPDATE service_item_param_keys
+SET key         = 'WeightBilled',
+	description = 'Billed weight'
+WHERE key = 'WeightBilledActual';

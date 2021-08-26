@@ -2143,7 +2143,7 @@ definitions:
       - SITScheduleDest
       - SITScheduleOrigin
       - WeightAdjusted
-      - WeightBilledActual
+      - WeightBilled
       - WeightEstimated
       - WeightOriginal
       - WeightReweigh

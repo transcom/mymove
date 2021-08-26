@@ -7,17 +7,17 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
-	key := models.ServiceItemParamNameWeightBilledActual
+func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
+	key := models.ServiceItemParamNameWeightBilled
 
-	suite.Run("estimated and actual are the same", func() {
+	suite.Run("estimated and original are the same", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
 
-	suite.Run("estimated is greater than actual", func() {
+	suite.Run("estimated is greater than original", func() {
 		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
@@ -25,7 +25,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.Equal("1024", valueStr)
 	})
 
-	suite.Run("actual is exactly 110% of estimated weight", func() {
+	suite.Run("original is exactly 110% of estimated weight", func() {
 		// Set the original weight to exactly 110% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
 
@@ -34,7 +34,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.Equal("110", valueStr)
 	})
 
-	suite.Run("actual is 120% of estimated weight", func() {
+	suite.Run("original is 120% of estimated weight", func() {
 		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 
@@ -94,7 +94,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	// test minimums are correct
 	for _, data := range serviceCodesWithMinimum {
-		suite.Run(fmt.Sprintf("actual below minimum service code %s", data.code), func() {
+		suite.Run(fmt.Sprintf("original below minimum service code %s", data.code), func() {
 			// Set the original weight to below minimum
 			_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), data.originalWeight, data.code, data.shipmentType)
 
@@ -137,17 +137,17 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	})
 }
 
-func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledActualLookup() {
-	key := models.ServiceItemParamNameWeightBilledActual
+func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledLookup() {
+	key := models.ServiceItemParamNameWeightBilled
 
-	suite.Run("estimated and actual are the same", func() {
+	suite.Run("estimated and original are the same", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		suite.Equal("1234", valueStr)
 	})
 
-	suite.Run("estimated is greater than actual", func() {
+	suite.Run("estimated is greater than original", func() {
 		// Set the original weight to less than estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1024), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
 		valueStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
@@ -155,7 +155,7 @@ func (suite *ServiceParamValueLookupsSuite) TestShuttleWeightBilledActualLookup(
 		suite.Equal("1024", valueStr)
 	})
 
-	suite.Run("actual is 120% of estimated weight", func() {
+	suite.Run("original is 120% of estimated weight", func() {
 		// Set the original weight to about 120% of estimated weight
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1481), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)
 
