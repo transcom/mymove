@@ -36,7 +36,7 @@ export default function ShipmentCard({
           </span>
         </section>
       </header>
-      <main>
+      <div className={styles.weights}>
         <div className={styles.field}>
           <strong>Estimated weight</strong>
           <span>{formatWeight(estimatedWeight)}</span>
@@ -61,7 +61,7 @@ export default function ShipmentCard({
           <strong>Reweigh remarks</strong>
           <span>{reweighRemarks}</span>
         </div>
-      </main>
+      </div>
       <footer>
         <h3>Billable weight</h3>
         <span>{formatWeight(billableWeight)}</span>
