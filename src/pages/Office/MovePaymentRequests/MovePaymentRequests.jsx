@@ -15,7 +15,7 @@ import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequ
 import BillableWeightCard from 'components/Office/BillableWeightCard/BillableWeightCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { useMovePaymentRequestsQueries, useMoveDetailsQueries } from 'hooks/queries';
+import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
@@ -33,8 +33,7 @@ const MovePaymentRequests = ({
   const { moveCode } = useParams();
   const history = useHistory();
 
-  const { paymentRequests, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
-  const { order, moveIsLoading, moveIsError } = useMoveDetailsQueries(moveCode);
+  const { paymentRequests, order, mtoShipments, isLoading, isError } = useMovePaymentRequestsQueries(moveCode);
   const [activeSection, setActiveSection] = useState('');
   const sections = useMemo(() => {
     return ['billable-weights', 'payment-requests'];
@@ -76,8 +75,8 @@ const MovePaymentRequests = ({
     };
   }, [sections, activeSection]);
 
-  if (isLoading || moveIsLoading) return <LoadingPlaceholder />;
-  if (isError || moveIsError) return <SomethingWentWrong />;
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const shipmentsInfo = [];
 

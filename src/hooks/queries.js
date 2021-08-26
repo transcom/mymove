@@ -306,10 +306,18 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
     enabled: !!mtoID,
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery]);
+  const orderId = move?.ordersId;
+  const { data: { orders } = {}, ...orderQuery } = useQuery([ORDERS, orderId], getOrder, {
+    enabled: !!orderId,
+  });
+
+  const order = Object.values(orders || {})?.[0];
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery, mtoShipmentQuery, orderQuery]);
 
   return {
     paymentRequests: data,
+    order,
     mtoShipments,
     isLoading,
     isError,
