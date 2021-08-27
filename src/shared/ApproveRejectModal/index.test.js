@@ -3,15 +3,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { ApproveRejectModal } from '.';
 import userEvent from '@testing-library/user-event';
 
-// throw errors if component throws warning or errors
-// eslint-disable-next-line no-console
-let error = console.error;
-// eslint-disable-next-line no-console
-console.error = function (message) {
-  error.apply(console, arguments); // keep default behaviour
-  throw message instanceof Error ? message : new Error(message);
-};
-
 const approveBtnOnClick = jest.fn();
 const rejectBtnOnClick = jest.fn();
 
