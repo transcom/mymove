@@ -482,9 +482,7 @@ describe('MoveDetails page', () => {
 
         userEvent.click(submitButton);
 
-        await waitFor(() => {
-          expect(screen.findByRole('heading', { name: 'Are you sure?', level: 2 }));
-        });
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
 
         const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
 
