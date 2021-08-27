@@ -89,7 +89,7 @@ describe('Orders Upload page', () => {
   describe('when there are uploads', () => {
     const testUpload = {
       id: 'test upload',
-      created_at: 'test date',
+      created_at: '2020-10-19T17:01:16.114Z',
       bytes: 100,
       url: 'test url',
       filename: 'Test Upload',
