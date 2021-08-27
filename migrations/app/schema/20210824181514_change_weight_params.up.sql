@@ -90,3 +90,20 @@ UPDATE service_item_param_keys
 SET key         = 'WeightBilled',
 	description = 'Billed weight'
 WHERE key = 'WeightBilledActual';
+
+-- Add is_optional to our service_params metadata to if a parameter is optional for a given service item.
+-- Default everything to false (required) initially as that's the typical case, then we will make certain
+-- params optional.
+ALTER TABLE service_params
+	ADD COLUMN is_optional BOOLEAN NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN service_params.is_optional IS 'True if this parameter is optional for this service item.';
+
+-- Note the optional weight-based params (applies to all weight-based service items currently).
+UPDATE service_params
+SET is_optional = true
+WHERE service_item_param_key_id IN (
+	SELECT id
+	FROM service_item_param_keys
+	WHERE key IN ('WeightAdjusted', 'WeightEstimated', 'WeightReweigh')
+);
