@@ -11,15 +11,11 @@ beforeEach(() => {
 });
 
 describe('SCRequestShipmentCancellationModal', () => {
-  const shipmentInfo = {
-    shipmentID: '123456',
-    moveTaskOrderID: '98765',
-    ifMatchEtag: 'string',
-  };
+  const shipmentID = '123456';
 
   it('renders the component', () => {
     const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
+      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
     );
     expect(wrapper.find('SCRequestShipmentCancellationModal').exists()).toBe(true);
     expect(wrapper.find('ModalTitle').exists()).toBe(true);
@@ -31,7 +27,7 @@ describe('SCRequestShipmentCancellationModal', () => {
 
   it('closes the modal when close icon is clicked', () => {
     const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
+      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
     );
 
     wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
@@ -41,7 +37,7 @@ describe('SCRequestShipmentCancellationModal', () => {
 
   it('closes the modal when the cancel button is clicked', () => {
     const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
+      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
     );
 
     wrapper.find('button[data-testid="modalBackButton"]').simulate('click');
@@ -51,7 +47,7 @@ describe('SCRequestShipmentCancellationModal', () => {
 
   it('calls the submit function when submit button is clicked', async () => {
     const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
+      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
     );
 
     wrapper.find('button[type="submit"]').simulate('click');
