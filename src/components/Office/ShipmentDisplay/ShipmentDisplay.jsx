@@ -40,6 +40,9 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
+            {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
+              <Tag>cancellation requested</Tag>
+            )}
           </div>
 
           <FontAwesomeIcon icon="chevron-down" />

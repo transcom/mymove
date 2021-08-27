@@ -495,6 +495,7 @@ func createMoveWithPPMAndHHG(appCtx appcontext.AppContext, userUploader *uploade
 			Status:               models.MTOShipmentStatusRejected,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
+			RejectionReason:      swag.String("No longer necessary, included in other shipment"),
 		},
 	})
 
@@ -3641,6 +3642,135 @@ func createHHGMoveWithBillableWeights(appCtx appcontext.AppContext, userUploader
 	testdatagen.MakeReweighForShipment(db, testdatagen.Assertions{UserUploader: userUploader}, shipment, unit.Pound(5000))
 }
 
+// creates a mix of shipments statuses with estimated, actual, and reweigh weights for testing the MTO page
+func createReweighWithMixedShipmentStatuses(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) {
+	db := appCtx.DB()
+	now := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Locator:            "WTSTAT",
+			Status:             models.MoveStatusAPPROVED,
+			AvailableToPrimeAt: &now,
+		},
+		UserUploader: userUploader,
+	})
+
+	// shipment is not yet approved so will be excluded from MTO weight calculations
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Move: move,
+	})
+
+	divertedEstimated := unit.Pound(5000)
+	divertedActual := unit.Pound(6000)
+	// shipment was diverted so will have weights values already
+	divertedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusSubmitted,
+			Diversion:            true,
+			PrimeEstimatedWeight: &divertedEstimated,
+			PrimeActualWeight:    &divertedActual,
+		},
+		Move: move,
+	})
+	diveretedReweigh := unit.Pound(5500)
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: divertedShipment,
+		Reweigh: models.Reweigh{
+			Weight: &diveretedReweigh,
+		},
+	})
+
+	canceledEstimated := unit.Pound(5000)
+	canceledActual := unit.Pound(6000)
+	canceledReweigh := unit.Pound(5500)
+	// cancelled shipment will still appear on MTO page but will not be included in weight calculations
+	canceledShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusCanceled,
+			PrimeEstimatedWeight: &canceledEstimated,
+			PrimeActualWeight:    &canceledActual,
+		},
+		Move: move,
+	})
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: canceledShipment,
+		Reweigh: models.Reweigh{
+			Weight: &canceledReweigh,
+		},
+	})
+
+	approvedEstimated := unit.Pound(1000)
+	approvedActual := unit.Pound(1500)
+	approvedReweigh := unit.Pound(1250)
+	approvedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusApproved,
+			PrimeEstimatedWeight: &approvedEstimated,
+			PrimeActualWeight:    &approvedActual,
+		},
+		Move: move,
+	})
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: approvedShipment,
+		Reweigh: models.Reweigh{
+			Weight: &approvedReweigh,
+		},
+	})
+
+	approvedReweighRequestedEstimated := unit.Pound(1000)
+	approvedReweighRequestedActual := unit.Pound(1500)
+	approvedReweighRequestedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusApproved,
+			PrimeEstimatedWeight: &approvedReweighRequestedEstimated,
+			PrimeActualWeight:    &approvedReweighRequestedActual,
+		},
+		Move: move,
+	})
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: approvedReweighRequestedShipment,
+	})
+
+	divRequestedEstimated := unit.Pound(1000)
+	divRequestedActual := unit.Pound(1500)
+	divRequestedReweigh := unit.Pound(1750)
+	divRequestedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusDiversionRequested,
+			PrimeEstimatedWeight: &divRequestedEstimated,
+			PrimeActualWeight:    &divRequestedActual,
+		},
+		Move: move,
+	})
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: divRequestedShipment,
+		Reweigh: models.Reweigh{
+			Weight: &divRequestedReweigh,
+		},
+	})
+
+	cancellationRequestedEstimated := unit.Pound(1000)
+	cancellationRequestedActual := unit.Pound(1500)
+	cancellationRequestedReweigh := unit.Pound(1250)
+	cancellationRequestedShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status:               models.MTOShipmentStatusCancellationRequested,
+			PrimeEstimatedWeight: &cancellationRequestedEstimated,
+			PrimeActualWeight:    &cancellationRequestedActual,
+		},
+		Move: move,
+	})
+	testdatagen.MakeReweigh(db, testdatagen.Assertions{
+		MTOShipment: cancellationRequestedShipment,
+		Reweigh: models.Reweigh{
+			Weight: &cancellationRequestedReweigh,
+		},
+	})
+}
+
 func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, moveRouter services.MoveRouter) {
 	db := appCtx.DB()
 	email := "multShipments@hhg.hhg"
@@ -3683,13 +3813,14 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(3000)
+	now := time.Now()
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("5b72c64e-ffad-11eb-9a03-0242ac130003"),
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
+			ApprovedDate:         &now,
 			Status:               models.MTOShipmentStatusApproved,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
@@ -3702,7 +3833,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
+			ApprovedDate:         &now,
 			Status:               models.MTOShipmentStatusApproved,
 			CounselorRemarks:     swag.String("Please handle with care"),
 			MoveTaskOrder:        move,
@@ -3715,7 +3846,7 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
+			ApprovedDate:         &now,
 			Status:               models.MTOShipmentStatusApproved,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
@@ -3729,6 +3860,15 @@ func createReweighWithMultipleShipments(appCtx appcontext.AppContext, userUpload
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	filterFile := &[]string{"150Kb.png"}
@@ -3779,13 +3919,13 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(6000)
-
+	now := time.Now()
 	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
+			ApprovedDate:         &now,
 			Status:               models.MTOShipmentStatusApproved,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
@@ -3799,6 +3939,15 @@ func createReweighWithShipmentMissingReweigh(appCtx appcontext.AppContext, userU
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	filterFile := &[]string{"150Kb.png"}
@@ -3849,13 +3998,13 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 
 	estimatedHHGWeight := unit.Pound(1400)
 	actualHHGWeight := unit.Pound(6000)
-
+	now := time.Now()
 	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
 			PrimeActualWeight:    &actualHHGWeight,
 			ShipmentType:         models.MTOShipmentTypeHHG,
-			ApprovedDate:         swag.Time(time.Now()),
+			ApprovedDate:         &now,
 			Status:               models.MTOShipmentStatusApproved,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
@@ -3869,6 +4018,15 @@ func createReweighWithShipmentMaxBillableWeightExceeded(appCtx appcontext.AppCon
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	filterFile := &[]string{"150Kb.png"}
@@ -3918,12 +4076,12 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 	})
 
 	actualHHGWeight := unit.Pound(6000)
-
+	now := time.Now()
 	shipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeActualWeight: &actualHHGWeight,
 			ShipmentType:      models.MTOShipmentTypeHHG,
-			ApprovedDate:      swag.Time(time.Now()),
+			ApprovedDate:      &now,
 			Status:            models.MTOShipmentStatusApproved,
 			MoveTaskOrder:     move,
 			MoveTaskOrderID:   move.ID,
@@ -3937,6 +4095,15 @@ func createReweighWithShipmentNoEstimatedWeight(appCtx appcontext.AppContext, us
 	verrs, err := models.SaveMoveDependencies(db, &move)
 	if err != nil || verrs.HasAny() {
 		log.Panic(fmt.Errorf("Failed to save move and dependencies: %w", err))
+	}
+	err = moveRouter.Approve(appCtx, &move)
+	if err != nil {
+		log.Panic(err)
+	}
+	move.AvailableToPrimeAt = &now
+	err = db.Save(&move)
+	if err != nil {
+		log.Panic(err)
 	}
 
 	filterFile := &[]string{"150Kb.png"}
