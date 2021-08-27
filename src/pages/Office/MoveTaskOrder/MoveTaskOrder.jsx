@@ -206,6 +206,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const [mutateOrders] = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
+      queryCache.invalidateQueries([MOVES, move.locator]);
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
         orders: {
@@ -240,9 +241,8 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   });
 
   const [mutateAcknowledgeExcessWeightRisk] = useMutation(acknowledgeExcessWeightRisk, {
-    onSuccess: (data) => {
-      queryCache.setQueryData([MOVES, data.locator], data);
-      queryCache.invalidateQueries([MOVES, data.locator]);
+    onSuccess: () => {
+      queryCache.invalidateQueries([MOVES, move.locator]);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -367,15 +367,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     setEstimatedWeightTotal(estimatedWeightCalc);
 
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)) {
+    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       excessBillableWeightCount = 1;
       setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
     }
 
     const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
 
     setIsWeightAlertVisible(showWeightAlert);
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage, move]);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, move]);
 
   useEffect(() => {
     // attach scroll listener
