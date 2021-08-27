@@ -115,13 +115,12 @@ const MovePaymentRequests = ({
             {/* TODO
                 totalBillableWeights needs to be calculated using serviceObject from MB-9278
                 weightRequested needs to be calculated using the serviceObject from MB-9278
-                weightAllowance needs to be updated to use the default weight allowance from authorizedWeight
               */}
             <BillableWeightCard
               maxBillableWeight={order?.entitlement?.authorizedWeight}
               totalBillableWeight={0}
               weightRequested={0}
-              weightAllowance={order?.entitlement?.authorizedWeight}
+              weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
               shipments={mtoShipments}
             />
