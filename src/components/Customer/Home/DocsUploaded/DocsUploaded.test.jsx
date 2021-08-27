@@ -13,7 +13,7 @@ function mountDocsUploaded(props = defaultProps) {
 describe('DocsUploaded component', () => {
   it('renders document list with single file', () => {
     const props = {
-      files: [{ filename: 'The fellowship of the file' }],
+      files: [{ id: '1', filename: 'The fellowship of the file' }],
     };
     const wrapper = mountDocsUploaded(props);
     expect(wrapper.find('h6').text()).toBe('1 File uploaded');
@@ -22,7 +22,10 @@ describe('DocsUploaded component', () => {
 
   it('renders document list with multiple files', () => {
     const props = {
-      files: [{ filename: 'The twin files' }, { filename: 'The return of the file' }],
+      files: [
+        { id: '1', filename: 'The twin files' },
+        { id: '2', filename: 'The return of the file' },
+      ],
     };
     const wrapper = mountDocsUploaded(props);
     expect(wrapper.find('h6').text()).toBe('2 Files uploaded');
