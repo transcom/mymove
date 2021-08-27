@@ -37,9 +37,9 @@ export class ApproveRejectModal extends Component {
     this.setState({
       showApproveBtn: true,
       showRejectionToggleBtn: true,
+      showRejectionInput: false,
       rejectBtnIsDisabled: true,
       rejectionReason: null,
-      showRejectionInput: false,
     });
   };
 
@@ -54,14 +54,26 @@ export class ApproveRejectModal extends Component {
         <>
           <div>
             {this.state.showApproveBtn && <button onClick={this.handleApproveClick}>Approve</button>}
-            {this.state.showRejectionToggleBtn && <button onClick={this.handleRejectionToggleClick}>Reject</button>}
+            {this.state.showRejectionToggleBtn && (
+              <button data-testid="rejectionToggle" onClick={this.handleRejectionToggleClick}>
+                Reject
+              </button>
+            )}
           </div>
           <div>
             {this.state.showRejectionInput && (
-              <label>
+              <label htmlFor="rejectionReason">
                 Rejection reason
-                <input name="rejectionReason" onChange={(event) => this.handleRejectionChange(event.target.value)} />
-                <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>
+                <input
+                  name="rejectionReason"
+                  id="rejectionReason"
+                  onChange={(event) => this.handleRejectionChange(event.target.value)}
+                />
+                <button
+                  data-testid="rejectionButton"
+                  onClick={this.handleRejectionClick}
+                  disabled={this.state.rejectBtnIsDisabled}
+                >
                   Reject
                 </button>
                 <button onClick={this.handleRejectionCancelClick}>Cancel</button>
