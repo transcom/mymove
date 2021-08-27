@@ -880,6 +880,430 @@ const approvedMTOWithCancelledShipmentQuery = {
   isSuccess: true,
 };
 
+const lowerReweighsMTOQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 99,
+      },
+    },
+    {
+      id: '4',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      primeEstimatedWeight: null,
+      primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.DIVERSION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 99,
+      },
+    },
+    {
+      id: '6',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELLATION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 50,
+      reweigh: {
+        weight: 49,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 99,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 99,
+      },
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOFSIT',
+    },
+    {
+      id: '9',
+      mtoShipmentID: '4',
+      reServiceName: "Domestic origin add'l SIT",
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+const lowerActualsMTOQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 101,
+      },
+    },
+    {
+      id: '4',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      primeEstimatedWeight: null,
+      primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.DIVERSION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 101,
+      },
+    },
+    {
+      id: '6',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELLATION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 50,
+      reweigh: {
+        weight: 51,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 101,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 101,
+      },
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOFSIT',
+    },
+    {
+      id: '9',
+      mtoShipmentID: '4',
+      reServiceName: "Domestic origin add'l SIT",
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
@@ -1158,6 +1582,42 @@ describe('MoveTaskOrder', () => {
       );
 
       const moveWeightTotal = await screen.getByText(/350 lbs/);
+      expect(moveWeightTotal).toBeInTheDocument();
+    });
+
+    it('displays the move weight total using lower reweighs', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(lowerReweighsMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      const moveWeightTotal = await screen.getByText(/247 lbs/);
+      expect(moveWeightTotal).toBeInTheDocument();
+    });
+
+    it('displays the move weight total using lower actual weights', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(lowerActualsMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      const moveWeightTotal = await screen.getByText(/250 lbs/);
       expect(moveWeightTotal).toBeInTheDocument();
     });
   });

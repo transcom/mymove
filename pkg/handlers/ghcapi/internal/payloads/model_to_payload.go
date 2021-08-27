@@ -585,6 +585,15 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	}, nil
 }
 
+// In the TOO queue response we only want to count shipments in these statuses (excluding draft and cancelled)
+// For the Services Counseling queue we will find the earliest move date from shipments in these statuses
+func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
+	return status == models.MTOShipmentStatusSubmitted ||
+		status == models.MTOShipmentStatusApproved ||
+		status == models.MTOShipmentStatusDiversionRequested ||
+		status == models.MTOShipmentStatusCancellationRequested
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -593,8 +602,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
+		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
 		for _, shipment := range move.MTOShipments {
-			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+			if queueIncludeShipmentStatus(shipment.Status) {
 				if earliestRequestedPickup == nil {
 					earliestRequestedPickup = shipment.RequestedPickupDate
 				} else if shipment.RequestedPickupDate.Before(*earliestRequestedPickup) {
