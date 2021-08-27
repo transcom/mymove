@@ -188,11 +188,13 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
     render(<ServicesCounselingEditShipmentDetails {...props} />);
 
     const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
-    expect(h1).toBeInTheDocument();
+    await waitFor(() => {
+      expect(h1).toBeInTheDocument();
+    });
   });
 
   it('routes to the move details page when the save button is clicked', async () => {
-    updateMTOShipment.mockImplementation(() => Promise.resolve());
+    updateMTOShipment.mockImplementation(() => Promise.resolve({}));
 
     render(<ServicesCounselingEditShipmentDetails {...props} />);
 

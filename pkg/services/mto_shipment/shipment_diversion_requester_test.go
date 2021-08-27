@@ -43,9 +43,11 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentDiversion() {
 	})
 
 	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
+		rejectionReason := "a rejection reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusRejected,
+				Status:          models.MTOShipmentStatusRejected,
+				RejectionReason: &rejectionReason,
 			},
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
