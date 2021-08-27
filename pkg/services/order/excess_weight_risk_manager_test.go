@@ -54,7 +54,7 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 			Move: models.Move{ExcessWeightQualifiedAt: &now},
 		})
 		order := move.Orders
-		newAuthorizedWeight := int(10000)
+		newAuthorizedWeight := int(12345)
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
 		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
@@ -223,6 +223,7 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 
 		suite.Equal(move.ID.String(), updatedMove.ID.String())
 		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 		suite.NotNil(moveInDB.ExcessWeightAcknowledgedAt)
 		suite.NotNil(updatedMove.ExcessWeightAcknowledgedAt)
 	})

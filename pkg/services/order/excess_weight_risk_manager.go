@@ -70,17 +70,29 @@ func (f *excessWeightRiskManager) findOrder(appCtx appcontext.AppContext, orderI
 
 func (f *excessWeightRiskManager) acknowledgeRiskAndApproveMove(appCtx appcontext.AppContext, order models.Order) (*models.Move, error) {
 	move := order.Moves[0]
+	var returnedMove models.Move
 
-	updatedMove, err := f.acknowledgeExcessWeight(appCtx, move)
-	if err != nil {
-		return nil, err
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move)
+		if err != nil {
+			return err
+		}
+
+		updatedMove, err = f.approveMove(txnAppCtx, order, *updatedMove)
+		if err != nil {
+			return err
+		}
+
+		returnedMove = *updatedMove
+
+		return nil
+	})
+
+	if transactionError != nil {
+		return nil, transactionError
 	}
 
-	if err := f.approveMove(appCtx, order); err != nil {
-		return nil, err
-	}
-
-	return updatedMove, nil
+	return &returnedMove, nil
 }
 
 func (f *excessWeightRiskManager) updateBillableWeight(appCtx appcontext.AppContext, order models.Order, weight *int, checks ...Validator) (*models.Order, uuid.UUID, error) {
@@ -95,11 +107,13 @@ func (f *excessWeightRiskManager) updateBillableWeight(appCtx appcontext.AppCont
 			return err
 		}
 
-		if _, err := f.acknowledgeExcessWeight(txnAppCtx, move); err != nil {
+		updatedMove, err := f.acknowledgeExcessWeight(txnAppCtx, move)
+		if err != nil {
 			return err
 		}
 
-		if err := f.approveMove(txnAppCtx, order); err != nil {
+		_, err = f.approveMove(txnAppCtx, order, *updatedMove)
+		if err != nil {
 			return err
 		}
 
@@ -138,31 +152,22 @@ func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppC
 	return &move, nil
 }
 
-func (f *excessWeightRiskManager) approveMove(appCtx appcontext.AppContext, order models.Order) error {
+func (f *excessWeightRiskManager) approveMove(appCtx appcontext.AppContext, order models.Order, move models.Move) (*models.Move, error) {
 	if !f.moveShouldBeApproved(order) {
-		return nil
+		return &move, nil
 	}
 
-	move := order.Moves[0]
-
-	// We need to reload the move to include the ExcessWeightAcknowledgedAt that
-	// was updated above
-	err := appCtx.DB().Reload(&move)
+	err := f.moveRouter.Approve(appCtx, &move)
 	if err != nil {
-		return err
-	}
-
-	err = f.moveRouter.Approve(appCtx, &move)
-	if err != nil {
-		return err
+		return nil, err
 	}
 
 	verrs, err := appCtx.DB().ValidateAndUpdate(&move)
 	if e := f.handleError(move.ID, verrs, err); e != nil {
-		return e
+		return nil, e
 	}
 
-	return nil
+	return &move, nil
 }
 
 func (f *excessWeightRiskManager) moveShouldBeApproved(order models.Order) bool {
