@@ -80,8 +80,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
-      shipment.status === shipmentStatuses.CANCELED ||
-      shipment.status === shipmentStatuses.DIVERSION_REQUESTED,
+      shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELED,
   );
 
   useEffect(() => {
