@@ -35,10 +35,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip3Distance)
 		suite.Equal(expected, distanceStr)
@@ -73,10 +73,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip3Distance)
 		suite.Equal(expected, distanceStr)
@@ -147,13 +147,12 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			},
 		})
 
-		paramCache := ServiceParamsCache{}
-		paramCache.Initialize(suite.DB())
+		paramCache := NewServiceParamsCache()
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDLH.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItemDLH.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.FatalNoError(err)
 
-		distanceStr, err := paramLookup.ServiceParamValue(key)
+		distanceStr, err := paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultZip3Distance)
 		suite.Equal(expected, distanceStr)
@@ -190,10 +189,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Shipment must have valid pickup zipcode")
 	})
@@ -219,10 +218,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramLookup, err := ServiceParamLookupInitialize(suite.TestAppContext(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
-		_, err = paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(suite.TestAppContext(), key)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Shipment must have valid destination zipcode")
 	})

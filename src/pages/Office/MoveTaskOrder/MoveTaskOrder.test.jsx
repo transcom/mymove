@@ -880,8 +880,433 @@ const approvedMTOWithCancelledShipmentQuery = {
   isSuccess: true,
 };
 
+const lowerReweighsMTOQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 99,
+      },
+    },
+    {
+      id: '4',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      primeEstimatedWeight: null,
+      primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.DIVERSION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 99,
+      },
+    },
+    {
+      id: '6',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELLATION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 50,
+      reweigh: {
+        weight: 49,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 99,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 99,
+      },
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOFSIT',
+    },
+    {
+      id: '9',
+      mtoShipmentID: '4',
+      reServiceName: "Domestic origin add'l SIT",
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+const lowerActualsMTOQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postal_code: '40121',
+        },
+      },
+      destinationDutyStation: {
+        address: {
+          street_address_1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postal_code: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      id: '3',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 101,
+      },
+    },
+    {
+      id: '4',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTS,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.APPROVED,
+      eTag: '1234',
+      primeEstimatedWeight: null,
+      primeActualWeight: null,
+      reweigh: {
+        id: '00000000-0000-0000-0000-000000000000',
+      },
+    },
+    {
+      id: '5',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.DIVERSION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      reweigh: {
+        weight: 101,
+      },
+    },
+    {
+      id: '6',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELLATION_REQUESTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 50,
+      reweigh: {
+        weight: 51,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.SUBMITTED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 101,
+      },
+    },
+    {
+      id: '7',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        street_address_1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postal_code: '60601',
+      },
+      destinationAddress: {
+        street_address_1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postal_code: '08401',
+      },
+      status: shipmentStatuses.CANCELED,
+      eTag: '1234',
+      primeEstimatedWeight: 100,
+      primeActualWeight: 100,
+      diversion: true,
+      reweigh: {
+        weight: 101,
+      },
+    },
+  ],
+  mtoServiceItems: [
+    {
+      id: '8',
+      mtoShipmentID: '3',
+      reServiceName: 'Domestic origin 1st day SIT',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOFSIT',
+    },
+    {
+      id: '9',
+      mtoShipmentID: '4',
+      reServiceName: "Domestic origin add'l SIT",
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
+const setExcessWeightRiskCount = jest.fn();
 
 const moveCode = 'WE31AZ';
 const requiredProps = {
@@ -911,12 +1336,19 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
       expect(weightSummaries[0]).toHaveTextContent('8,500 lbs');
+
+      const riskOfExcessAlert = await screen.queryByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeFalsy();
+
+      const riskOfExcessTag = await screen.queryByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeFalsy();
     });
 
     it('displays the max billable weight', async () => {
@@ -926,6 +1358,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -943,6 +1376,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -960,6 +1394,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -977,6 +1412,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -994,6 +1430,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1011,6 +1448,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1028,6 +1466,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1045,6 +1484,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1062,6 +1502,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1079,12 +1520,33 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
 
       const riskOfExcessTag = await screen.getByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeInTheDocument();
+    });
+
+    it('displays risk of excess alert', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      expect(setExcessWeightRiskCount).toHaveBeenCalledWith(1);
+
+      const riskOfExcessAlert = await screen.getByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeInTheDocument();
     });
 
     it('displays the estimated total weight', async () => {
@@ -1096,6 +1558,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1113,6 +1576,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1120,7 +1584,44 @@ describe('MoveTaskOrder', () => {
       const moveWeightTotal = await screen.getByText(/350 lbs/);
       expect(moveWeightTotal).toBeInTheDocument();
     });
+
+    it('displays the move weight total using lower reweighs', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(lowerReweighsMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      const moveWeightTotal = await screen.getByText(/247 lbs/);
+      expect(moveWeightTotal).toBeInTheDocument();
+    });
+
+    it('displays the move weight total using lower actual weights', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(lowerActualsMTOQuery);
+
+      render(
+        <MockProviders initialEntries={['moves/1000/allowances']}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+          />
+        </MockProviders>,
+      );
+
+      const moveWeightTotal = await screen.getByText(/250 lbs/);
+      expect(moveWeightTotal).toBeInTheDocument();
+    });
   });
+
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveTaskOrderQueries.mockReturnValue(loadingReturnValue);
@@ -1131,6 +1632,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1148,6 +1650,7 @@ describe('MoveTaskOrder', () => {
             {...requiredProps}
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
           />
         </MockProviders>,
       );
@@ -1165,6 +1668,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1199,6 +1703,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1214,7 +1719,7 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.length).toBe(1);
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1265,6 +1770,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1280,20 +1786,20 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
 
       expect(navLinks.at(1).contains('NTS shipment')).toBe(true);
       expect(navLinks.at(1).contains('1'));
-      expect(navLinks.at(1).prop('href')).toBe('#shipment-4');
+      expect(navLinks.at(1).prop('href')).toBe('#s-4');
 
       expect(navLinks.at(2).contains('NTS-R shipment')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#shipment-5');
+      expect(navLinks.at(2).prop('href')).toBe('#s-5');
 
       expect(navLinks.at(3).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#shipment-6');
+      expect(navLinks.at(3).prop('href')).toBe('#s-6');
 
       expect(navLinks.at(4).contains('HHG shipment')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#shipment-7');
+      expect(navLinks.at(4).prop('href')).toBe('#s-7');
     });
 
     it('renders the ShipmentContainer', () => {
@@ -1343,6 +1849,7 @@ describe('MoveTaskOrder', () => {
           {...requiredProps}
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
         />
       </MockProviders>,
     );
@@ -1358,7 +1865,7 @@ describe('MoveTaskOrder', () => {
       const navLinks = wrapper.find('LeftNav a');
       expect(navLinks.at(0).contains('HHG shipment')).toBe(true);
       expect(navLinks.at(0).contains('1'));
-      expect(navLinks.at(0).prop('href')).toBe('#shipment-3');
+      expect(navLinks.at(0).prop('href')).toBe('#s-3');
     });
 
     it('renders the ShipmentContainer', () => {

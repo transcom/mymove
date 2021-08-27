@@ -24,7 +24,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop()
 
 	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), builder}
 
@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
 	context.SetFeatureFlag(featureFlag)
-	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop()
 
 	handler := ShowLoggedInUserHandler{context, builder}
 
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
 	context.SetFeatureFlag(featureFlag)
-	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop()
 	handler := ShowLoggedInUserHandler{context, builder}
 
 	response := handler.Handle(params)
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop()
 	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), builder}
 
 	response := handler.Handle(params)
@@ -157,7 +157,7 @@ func (suite *HandlerSuite) TestServiceMemberNoMovesLoggedInUserHandler() {
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
-	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop()
 
 	handler := ShowLoggedInUserHandler{context, builder}
 

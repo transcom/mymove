@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewQueryBuilder()
 	subscriber := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
 
 	webhookSubscriptionInfo := models.WebhookSubscription{
@@ -24,8 +24,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 	suite.T().Run("If the subscription is created successfully it should be returned", func(t *testing.T) {
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", subscriber.ID)}
 
-		creator := NewWebhookSubscriptionCreator(suite.DB(), queryBuilder)
-		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(&webhookSubscriptionInfo, filter)
+		creator := NewWebhookSubscriptionCreator(queryBuilder)
+		webhookSubscription, verrs, err := creator.CreateWebhookSubscription(suite.TestAppContext(), &webhookSubscriptionInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(webhookSubscription.ID)
@@ -37,8 +37,8 @@ func (suite *WebhookSubscriptionServiceSuite) TestCreateWebhookSubscription() {
 	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
 
-		creator := NewWebhookSubscriptionCreator(suite.DB(), queryBuilder)
-		_, _, err := creator.CreateWebhookSubscription(&webhookSubscriptionInfo, filter)
+		creator := NewWebhookSubscriptionCreator(queryBuilder)
+		_, _, err := creator.CreateWebhookSubscription(suite.TestAppContext(), &webhookSubscriptionInfo, filter)
 		suite.Error(err)
 		suite.Contains(err.Error(), "not found while looking for SubscriberID")
 	})

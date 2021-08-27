@@ -70,6 +70,6 @@
   }
 
   &.expandedDetail td {
-    @include u-padding(3);
+    padding: 0;
   }
 }

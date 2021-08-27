@@ -49,6 +49,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		}
 
 		mockFetcher.On("FetchMove",
+			mock.AnythingOfType("*appcontext.appContext"),
 			move.Locator,
 			mock.Anything,
 		).Return(&move, nil)
@@ -92,6 +93,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		}
 
 		mockFetcher.On("FetchMove",
+			mock.AnythingOfType("*appcontext.appContext"),
 			move.Locator,
 			mock.Anything,
 		).Return(&models.Move{}, services.NotFoundError{})
@@ -109,6 +111,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 		}
 
 		mockFetcher.On("FetchMove",
+			mock.AnythingOfType("*appcontext.appContext"),
 			move.Locator,
 			mock.Anything,
 		).Return(&models.Move{}, services.QueryError{})

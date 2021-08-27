@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -72,12 +74,12 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	suite.False(verrs.HasAny())
 	suite.FatalNoError(err)
 
-	router := NewShipmentRouter(suite.DB())
-	builder := query.NewQueryBuilder(suite.DB())
-	moveRouter := moverouter.NewMoveRouter(suite.DB(), suite.logger)
+	router := NewShipmentRouter()
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder, moveRouter)
 	planner := &mocks.Planner{}
-	approver := NewShipmentApprover(suite.DB(), router, siCreator, planner)
+	approver := NewShipmentApprover(router, siCreator, planner)
 
 	suite.T().Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func(t *testing.T) {
 		shipmentForAutoApprove := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -102,7 +104,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		// Verify that required delivery date is not calculated when it does not need to be
 		planner.AssertNumberOfCalls(suite.T(), "TransitDistance", 0)
 
-		shipment, approverErr := approver.ApproveShipment(shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
+		shipment, approverErr := approver.ApproveShipment(suite.TestAppContext(), shipmentForAutoApprove.ID, shipmentForAutoApproveEtag)
 
 		suite.NoError(approverErr)
 		suite.Equal(move.ID, shipment.MoveTaskOrderID)
@@ -169,7 +171,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		).Return(500, nil)
 
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
-		_, err = approver.ApproveShipment(shipmentHeavy.ID, shipmentHeavyEtag)
+		_, err = approver.ApproveShipment(suite.TestAppContext(), shipmentHeavy.ID, shipmentHeavyEtag)
 		suite.NoError(err)
 
 		fetchedShipment := models.MTOShipment{}
@@ -180,15 +182,17 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.T().Run("When status transition is not allowed, returns a ConflictStatusError", func(t *testing.T) {
+		rejectionReason := "a reason"
 		rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusRejected,
+				Status:          models.MTOShipmentStatusRejected,
+				RejectionReason: &rejectionReason,
 			},
 		})
 		eTag := etag.GenerateEtag(rejectedShipment.UpdatedAt)
 
-		_, err = approver.ApproveShipment(rejectedShipment.ID, eTag)
+		_, err = approver.ApproveShipment(suite.TestAppContext(), rejectedShipment.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(ConflictStatusError{}, err)
@@ -203,7 +207,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		})
 
-		_, err = approver.ApproveShipment(staleShipment.ID, staleETag)
+		_, err = approver.ApproveShipment(suite.TestAppContext(), staleShipment.ID, staleETag)
 
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
@@ -213,7 +217,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		eTag := etag.GenerateEtag(time.Now())
 		badShipmentID := uuid.FromStringOrNil("424d930b-cf8d-4c10-8059-be8a25ba952a")
 
-		_, err = approver.ApproveShipment(badShipmentID, eTag)
+		_, err = approver.ApproveShipment(suite.TestAppContext(), badShipmentID, eTag)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
@@ -221,7 +225,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 	suite.T().Run("It calls Approve on the ShipmentRouter", func(t *testing.T) {
 		shipmentRouter := &shipmentmocks.ShipmentRouter{}
-		approver := NewShipmentApprover(suite.DB(), shipmentRouter, siCreator, planner)
+		approver := NewShipmentApprover(shipmentRouter, siCreator, planner)
 		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: move,
 			MTOShipment: models.MTOShipment{
@@ -236,9 +240,9 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		err = suite.DB().Load(&createdShipment, "MoveTaskOrder", "PickupAddress", "DestinationAddress")
 		suite.FatalNoError(err)
 
-		shipmentRouter.On("Approve", &createdShipment).Return(nil)
+		shipmentRouter.On("Approve", mock.AnythingOfType("*appcontext.appContext"), &createdShipment).Return(nil)
 
-		_, err := approver.ApproveShipment(shipment.ID, eTag)
+		_, err := approver.ApproveShipment(suite.TestAppContext(), shipment.ID, eTag)
 
 		suite.NoError(err)
 		shipmentRouter.AssertNumberOfCalls(t, "Approve", 1)

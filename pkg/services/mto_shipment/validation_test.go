@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"context"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -27,7 +26,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		for status, allowed := range testCases {
 			suite.Run("status "+string(status), func() {
 				err := checkStatus().Validate(
-					context.Background(),
+					suite.TestAppContext(),
 					&models.MTOShipment{Status: status},
 					nil,
 				)
@@ -95,8 +94,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		for name, tc := range testCases {
 			suite.Run(name, func() {
-				checker := checkAvailToPrime(suite.DB())
-				err := checker.Validate(context.Background(), &models.MTOShipment{ID: tc.id}, nil)
+				checker := checkAvailToPrime()
+				err := checker.Validate(suite.TestAppContext(), &models.MTOShipment{ID: tc.id}, nil)
 				tc.verf(err)
 			})
 		}

@@ -53,11 +53,6 @@ const errorReturnValue = {
   isSuccess: false,
 };
 
-const updatedOrdersUseTXOMoveInfoQueriesValue = {
-  ...basicUseTXOMoveInfoQueriesValue,
-  order: { ...basicUseTXOMoveInfoQueriesValue.order, uploadedAmendedOrderID: '123' },
-};
-
 describe('TXO Move Info Container', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -142,45 +137,6 @@ describe('TXO Move Info Container', () => {
         </MockProviders>,
       );
       expect(queryByTestId(document.documentElement, 'system-error')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Tag rendering', () => {
-    it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(updatedOrdersUseTXOMoveInfoQueriesValue);
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('1');
-    });
-
-    it('should render the move details tab container with a tag that shows the count of items that need attention when there are unapproved shipments', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(basicUseTXOMoveInfoQueriesValue);
-      const setUnapprovedShipmentCount = jest.fn();
-      jest.spyOn(React, 'useState').mockReturnValueOnce([2, setUnapprovedShipmentCount]);
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('2');
-    });
-
-    it('should render the move details tab container with a tag that shows the count of items that need attention when the orders have been amended and there are unapproved shipments', () => {
-      useTXOMoveInfoQueries.mockReturnValueOnce(updatedOrdersUseTXOMoveInfoQueriesValue);
-      const setUnapprovedShipmentCount = jest.fn();
-      jest.spyOn(React, 'useState').mockReturnValueOnce([2, setUnapprovedShipmentCount]);
-      const wrapper = mount(
-        <MockProviders initialEntries={[`/moves/${testMoveCode}/details`]}>
-          <TXOMoveInfo />
-        </MockProviders>,
-      );
-
-      expect(wrapper.find('[data-testid="MoveDetails-Tab"] [data-testid="tag"]').text()).toContain('3');
     });
   });
 

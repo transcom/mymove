@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory, Link } from 'react-router-dom';
 import { GridContainer, Tag } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +9,8 @@ import classnames from 'classnames';
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import 'styles/office.scss';
+import hasRiskOfExcess from 'utils/hasRiskOfExcess';
+import handleScroll from 'utils/handleScroll';
 import { MOVES, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { shipmentStatuses } from 'constants/shipments';
@@ -31,7 +33,7 @@ const sectionLabels = {
   'customer-info': 'Customer info',
 };
 
-const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount }) => {
+const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount, setExcessWeightRiskCount }) => {
   const { moveCode } = useParams();
   const history = useHistory();
 
@@ -39,33 +41,19 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   const { move, order, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveDetailsQueries(moveCode);
 
-  let sections = ['orders', 'allowances', 'customer-info'];
-
-  const handleScroll = () => {
-    const distanceFromTop = window.scrollY;
-    let newActiveSection;
-
-    sections.forEach((section) => {
-      const sectionEl = document.querySelector(`#${section}`);
-      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
-        newActiveSection = section;
-      }
-    });
-
-    if (activeSection !== newActiveSection) {
-      setActiveSection(newActiveSection);
-    }
-  };
+  let sections = useMemo(() => {
+    return ['orders', 'allowances', 'customer-info'];
+  }, []);
 
   useEffect(() => {
     // attach scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
 
     // remove scroll listener
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(sections, activeSection, setActiveSection));
     };
-  });
+  }, [sections, activeSection]);
 
   // use mutation calls
   const [mutateMoveStatus] = useMutation(updateMoveStatus, {
@@ -88,11 +76,13 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
+
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
-      shipment.status === shipmentStatuses.CANCELED ||
-      shipment.status === shipmentStatuses.DIVERSION_REQUESTED,
+      shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELED,
   );
 
   useEffect(() => {
@@ -113,6 +103,22 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
     });
     setUnapprovedServiceItemCount(serviceItemCount);
   }, [approvedOrCanceledShipments, mtoServiceItems, setUnapprovedServiceItemCount]);
+
+  useEffect(() => {
+    let estimatedWeightCalc = null;
+
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+      estimatedWeightCalc = mtoShipments
+        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
+        .reduce((prev, current) => {
+          return prev + current.primeEstimatedWeight;
+        }, 0);
+    }
+
+    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight)) {
+      setExcessWeightRiskCount(1);
+    }
+  }, [mtoShipments, setExcessWeightRiskCount, order]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -272,6 +278,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 MoveDetails.propTypes = {
   setUnapprovedShipmentCount: func.isRequired,
   setUnapprovedServiceItemCount: func.isRequired,
+  setExcessWeightRiskCount: func.isRequired,
 };
 
 export default MoveDetails;

@@ -180,7 +180,7 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 	suite.MustSave(&tspPerformance1)
 }
 
-func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, distance int, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
+func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, distance int, weight unit.Pound, logger *zap.Logger, planner route.Planner) (CostComputation, error) {
 	move := models.Move{
 		Locator: "ABC123",
 	}
@@ -397,7 +397,7 @@ func (suite *RateEngineSuite) TestComputePPMMoveCosts() {
 
 type RateEngineSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestRateEngineSuite(t *testing.T) {

@@ -22,7 +22,7 @@ import (
 )
 
 func (suite *UserServiceSuite) TestUserUpdater() {
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := query.NewQueryBuilder()
 	officeUserUpdater := officeUser.NewOfficeUserUpdater(builder)
 	adminUserUpdater := adminUser.NewAdminUserUpdater(builder)
 	updater := NewUserUpdater(builder, officeUserUpdater, adminUserUpdater)
@@ -38,7 +38,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		}
 		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
 		// Take our existing active user and change their Active status to False
-		updatedUser, verr, err := updater.UpdateUser(activeUser.ID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(suite.TestAppContext(), activeUser.ID, modelToPayload)
 
 		suite.Nil(verr)
 		suite.Nil(err)
@@ -68,7 +68,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		modelToPayload, _ := payloads.UserModel(&payload, *activeOfficeUser.UserID, activeOfficeUser.Active)
 
 		// Deactivate user
-		updatedUser, verr, err := updater.UpdateUser(*activeOfficeUser.UserID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(suite.TestAppContext(), *activeOfficeUser.UserID, modelToPayload)
 
 		// Fetch updated office user to confirm status
 		updatedOfficeUser := models.OfficeUser{}
@@ -104,7 +104,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		modelToPayload, _ := payloads.UserModel(&payload, *activeAdminUser.UserID, activeAdminUser.Active)
 
 		// Deactivate user
-		updatedUser, verr, err := updater.UpdateUser(*activeAdminUser.UserID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(suite.TestAppContext(), *activeAdminUser.UserID, modelToPayload)
 
 		// Fetch updated admin user to confirm status
 		updatedAdminUser := models.AdminUser{}
@@ -124,7 +124,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 		}
 		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
 		// Take our existing inactive user and change their Active status to True
-		updatedUser, verr, err := updater.UpdateUser(activeUser.ID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(suite.TestAppContext(), activeUser.ID, modelToPayload)
 
 		suite.Nil(verr)
 		suite.Nil(err)
@@ -137,7 +137,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 			Active: nil,
 		}
 		modelToPayload, _ := payloads.UserModel(&payload, activeUser.ID, activeUser.Active)
-		updatedUser, verr, err := updater.UpdateUser(activeUser.ID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(suite.TestAppContext(), activeUser.ID, modelToPayload)
 
 		suite.Nil(verr)
 		suite.Nil(err)
@@ -156,7 +156,7 @@ func (suite *UserServiceSuite) TestUserUpdater() {
 			Active: nil,
 		}
 		modelToPayload, _ := payloads.UserModel(&payload, inactiveUser.ID, inactiveUser.Active)
-		updatedUser, verr, err := updater.UpdateUser(inactiveUser.ID, modelToPayload)
+		updatedUser, verr, err := updater.UpdateUser(suite.TestAppContext(), inactiveUser.ID, modelToPayload)
 
 		suite.Nil(verr)
 		suite.Nil(err)

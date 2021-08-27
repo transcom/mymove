@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
-	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/invoice"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -30,8 +30,6 @@ func (e GexSendError) Error() string {
 }
 
 type paymentRequestReviewedProcessor struct {
-	db                            *pop.Connection
-	logger                        Logger
 	reviewedPaymentRequestFetcher services.PaymentRequestReviewedFetcher
 	ediGenerator                  services.GHCPaymentRequestInvoiceGenerator
 	runSendToSyncada              bool // if false, do not send to Syncada, e.g. UT shouldn't send to Syncada
@@ -40,8 +38,7 @@ type paymentRequestReviewedProcessor struct {
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
-func NewPaymentRequestReviewedProcessor(db *pop.Connection,
-	logger Logger,
+func NewPaymentRequestReviewedProcessor(
 	fetcher services.PaymentRequestReviewedFetcher,
 	generator services.GHCPaymentRequestInvoiceGenerator,
 	runSendToSyncada bool,
@@ -49,8 +46,6 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 	sftpSender services.SyncadaSFTPSender) services.PaymentRequestReviewedProcessor {
 
 	return &paymentRequestReviewedProcessor{
-		db:                            db,
-		logger:                        logger,
 		reviewedPaymentRequestFetcher: fetcher,
 		ediGenerator:                  generator,
 		gexSender:                     gexSender,
@@ -59,8 +54,8 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 }
 
 // InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
-func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool, icnSequencer sequence.Sequencer, gexSender services.GexSender) (services.PaymentRequestReviewedProcessor, error) {
-	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
+func InitNewPaymentRequestReviewedProcessor(appCtx appcontext.AppContext, sendToSyncada bool, icnSequencer sequence.Sequencer, gexSender services.GexSender) (services.PaymentRequestReviewedProcessor, error) {
+	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher()
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.New())
 	var sftpSession services.SyncadaSFTPSender
 	if gexSender == nil {
@@ -68,14 +63,12 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 		sftpSession, err = invoice.InitNewSyncadaSFTPSession()
 		if err != nil {
 			// just log the error, sftpSession is set to nil if there is an error
-			logger.Error(fmt.Errorf("configuration of SyncadaSFTPSession failed: %w", err).Error())
+			appCtx.Logger().Error(fmt.Errorf("configuration of SyncadaSFTPSession failed: %w", err).Error())
 			return nil, err
 		}
 	}
 
 	return NewPaymentRequestReviewedProcessor(
-		db,
-		logger,
 		reviewedPaymentRequestFetcher,
 		generator,
 		sendToSyncada,
@@ -83,15 +76,15 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 		sftpSession), nil
 }
 
-func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.PaymentRequest) error {
-	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
+func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
+	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		var lockedPR models.PaymentRequest
 
 		query := `
 			SELECT * FROM payment_requests
 			WHERE id = $1 FOR NO KEY UPDATE SKIP LOCKED;
 		`
-		err := tx.RawQuery(query, pr.ID).First(&lockedPR)
+		err := txnAppCtx.DB().RawQuery(query, pr.ID).First(&lockedPR)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil
@@ -101,19 +94,18 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
-		p.ediGenerator.InitDB(tx)
-		edi858c, err = p.ediGenerator.Generate(lockedPR, false)
+		edi858c, err = p.ediGenerator.Generate(txnAppCtx, lockedPR, false)
 		icn := edi858c.ISA.InterchangeControlNumber
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
 		}
 		var edi858cString string
-		edi858cString, err = edi858c.EDIString(p.logger)
+		edi858cString, err = edi858c.EDIString(txnAppCtx.Logger())
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
 		}
 
-		p.logger.Info("858 Processor calling SendToSyncada...",
+		txnAppCtx.Logger().Info("858 Processor calling SendToSyncada...",
 			zap.Int64("858 ICN", edi858c.ISA.InterchangeControlNumber),
 			zap.String("ShipmentIdentificationNumber/PaymentRequestNumber", edi858c.Header.ShipmentInformation.ShipmentIdentificationNumber),
 			zap.String("ReferenceIdentification/PaymentRequestNumber", edi858c.Header.PaymentRequestNumber.ReferenceIdentification),
@@ -123,14 +115,14 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		)
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentrequesthelper.SendToSyncada(edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
+		err = paymentrequesthelper.SendToSyncada(txnAppCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
 		if err != nil {
 			return GexSendError{paymentRequestID: lockedPR.ID, err: err}
 		}
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
 		lockedPR.Status = models.PaymentRequestStatusSentToGex
-		err = tx.Update(&lockedPR)
+		err = txnAppCtx.DB().Update(&lockedPR)
 
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
@@ -148,17 +140,17 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 			Description:                &errDescription,
 			EDIType:                    models.EDIType858,
 		}
-		verrs, err := p.db.ValidateAndCreate(&errToSave)
+		verrs, err := appCtx.DB().ValidateAndCreate(&errToSave)
 
 		// We are just logging these errors instead of returning them to avoid obscuring the original error
 		if err != nil {
-			p.logger.Error(
+			appCtx.Logger().Error(
 				"failed to save EDI 858 error",
 				zap.String("PaymentRequestID", pr.ID.String()),
 				zap.Error(err),
 			)
 		} else if verrs != nil && verrs.HasAny() {
-			p.logger.Error(
+			appCtx.Logger().Error(
 				"failed to save EDI 858 error due to validation errors",
 				zap.String("PaymentRequestID", pr.ID.String()),
 				zap.Error(verrs),
@@ -171,15 +163,15 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 		default:
 			pr.Status = models.PaymentRequestStatusEDIError
 		}
-		verrs, err = p.db.ValidateAndUpdate(&pr)
+		verrs, err = appCtx.DB().ValidateAndUpdate(&pr)
 		if err != nil {
-			p.logger.Error(
+			appCtx.Logger().Error(
 				"error while updating payment request status",
 				zap.String("PaymentRequestID", pr.ID.String()),
 				zap.Error(err),
 			)
 		} else if verrs != nil && verrs.HasAny() {
-			p.logger.Error(
+			appCtx.Logger().Error(
 				"failed to update payment request status due to validation errors",
 				zap.String("PaymentRequestID", pr.ID.String()),
 				zap.Error(verrs),
@@ -191,10 +183,11 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(pr models.Pay
 	return nil
 }
 
-func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() {
+func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx appcontext.AppContext) {
 	// Store/log metrics about EDI processing upon exiting this method.
 	numProcessed := 0
 	start := time.Now()
+	logger := appCtx.Logger()
 	defer func() {
 		ediProcessing := models.EDIProcessing{
 			EDIType:          models.EDIType858,
@@ -202,36 +195,36 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() {
 			ProcessEndedAt:   time.Now(),
 			NumEDIsProcessed: numProcessed,
 		}
-		p.logger.Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
+		logger.Info("EDIs processed", zap.Object("edisProcessed", &ediProcessing))
 
-		verrs, err := p.db.ValidateAndCreate(&ediProcessing)
+		verrs, err := appCtx.DB().ValidateAndCreate(&ediProcessing)
 		if err != nil {
-			p.logger.Error("failed to create EDIProcessing record", zap.Error(err))
+			logger.Error("failed to create EDIProcessing record", zap.Error(err))
 		}
 		if verrs.HasAny() {
-			p.logger.Error("failed to validate EDIProcessing record", zap.Error(err))
+			logger.Error("failed to validate EDIProcessing record", zap.Error(err))
 		}
 	}()
 
 	// Fetch all payment request that have been reviewed
-	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
+	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest(appCtx)
 	if err != nil {
-		p.logger.Error("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest", zap.Error(err))
+		logger.Error("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest", zap.Error(err))
 		return
 	}
 
 	if len(reviewedPaymentRequests) == 0 {
 		// No reviewed payment requests to process
-		p.logger.Info("no payment requests to process found")
+		logger.Info("no payment requests to process found")
 		return
 	}
 
 	// Send all reviewed payment request to Syncada
 	for _, pr := range reviewedPaymentRequests {
-		err := p.ProcessAndLockReviewedPR(pr)
+		err := p.ProcessAndLockReviewedPR(appCtx, pr)
 		if err != nil {
 			// only log the error and keep working, one failure shouldn't stop the processing of others
-			p.logger.Error(fmt.Sprintf("failed to process payment request id: %s", pr.ID), zap.Error(err))
+			logger.Error(fmt.Sprintf("failed to process payment request id: %s", pr.ID), zap.Error(err))
 		} else {
 			numProcessed++
 		}

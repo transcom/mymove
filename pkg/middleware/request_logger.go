@@ -15,20 +15,13 @@ import (
 )
 
 // RequestLogger returns a middleware that logs requests.
-// The middleware trys to use the logger from the context.
-// If the request context has no handler, then falls back to the server logger.
-func RequestLogger(serverLogger Logger) func(inner http.Handler) http.Handler {
+func RequestLogger(globalLogger *zap.Logger) func(inner http.Handler) http.Handler {
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			ctx := r.Context()
 
-			var logger InfoLogger
-			if requestLogger, ok := logging.FromContext(ctx).(InfoLogger); ok {
-				logger = requestLogger
-			} else {
-				logger = serverLogger
-			}
+			logger := logging.FromContext(ctx)
 
 			fields := []zap.Field{
 				zap.String("accepted-language", r.Header.Get("accepted-language")),
