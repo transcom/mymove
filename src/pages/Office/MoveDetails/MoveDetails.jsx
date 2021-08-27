@@ -106,7 +106,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   useEffect(() => {
     let estimatedWeightCalc = null;
-    const riskOfExcessAcknowledged = !!move.excess_weight_acknowledged_at;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
