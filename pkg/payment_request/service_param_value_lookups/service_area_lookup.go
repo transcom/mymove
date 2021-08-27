@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -9,13 +10,11 @@ type ServiceAreaLookup struct {
 	Address models.Address
 }
 
-func (r ServiceAreaLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	db := *keyData.db
-
+func (r ServiceAreaLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	zip := r.Address.PostalCode
 	zip3 := zip[0:3]
 
-	domesticServiceArea, err := fetchDomesticServiceArea(&db, keyData.ContractCode, zip3)
+	domesticServiceArea, err := fetchDomesticServiceArea(appCtx, keyData.ContractCode, zip3)
 
 	return domesticServiceArea.ServiceArea, err
 }

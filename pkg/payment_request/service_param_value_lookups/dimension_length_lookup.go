@@ -3,6 +3,7 @@ package serviceparamvaluelookups
 import (
 	"strconv"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -12,7 +13,7 @@ type DimensionLengthLookup struct {
 	Dimensions models.MTOServiceItemDimensions
 }
 
-func (d DimensionLengthLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
+func (d DimensionLengthLookup) lookup(appCtx appcontext.AppContext, keyData *ServiceItemParamKeyData) (string, error) {
 	// Each service item has an array of dimensions. There is a DB constraint preventing
 	// more than one dimension of each type for a given service item, so we just have to
 	// look for the first crating dimension.

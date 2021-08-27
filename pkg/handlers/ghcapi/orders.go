@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/move"
 
@@ -32,8 +33,9 @@ type GetOrdersHandler struct {
 // Handle getting the information of a specific order
 func (h GetOrdersHandler) Handle(params orderop.GetOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	orderID, _ := uuid.FromString(params.OrderID.String())
-	order, err := h.FetchOrder(orderID)
+	order, err := h.FetchOrder(appCtx, orderID)
 	if err != nil {
 		logger.Error("fetching order", zap.Error(err))
 		switch err {
@@ -64,6 +66,7 @@ func amendedOrdersRequiresApproval(params orderop.UpdateOrderParams, updatedOrde
 // Handle ... updates an order from a request payload
 func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
 		switch err.(type) {
@@ -88,17 +91,17 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(orderID, *params.Body, params.IfMatch)
+	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
 	if err != nil {
 		return handleError(err)
 	}
 
-	h.triggerUpdateOrderEvent(orderID, moveID, params)
+	h.triggerUpdateOrderEvent(appCtx, orderID, moveID, params)
 
 	// the move status may need set back to approved if the amended orders upload caused it to be in approvals requested
 	if amendedOrdersRequiresApproval(params, *updatedOrder) {
-		moveRouter := move.NewMoveRouter(h.DB(), logger)
-		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(moveID, updatedOrder.ID)
+		moveRouter := move.NewMoveRouter()
+		approvedMove, approveErr := moveRouter.ApproveAmendedOrders(appCtx, moveID, updatedOrder.ID)
 		if approveErr != nil {
 			if errors.Is(approveErr, models.ErrInvalidTransition) {
 				return handleError(services.NewConflictError(moveID, approveErr.Error()))
@@ -106,7 +109,7 @@ func (h UpdateOrderHandler) Handle(params orderop.UpdateOrderParams) middleware.
 			return handleError(approveErr)
 		}
 
-		updateErr := h.moveUpdater.UpdateApprovedAmendedOrders(approvedMove)
+		updateErr := h.moveUpdater.UpdateApprovedAmendedOrders(appCtx, approvedMove)
 		if updateErr != nil {
 			handleError(updateErr)
 		}
@@ -126,6 +129,7 @@ type CounselingUpdateOrderHandler struct {
 // Handle ... updates an order as requested by a services counselor
 func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrderParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order", zap.Error(err))
@@ -149,12 +153,12 @@ func (h CounselingUpdateOrderHandler) Handle(params orderop.CounselingUpdateOrde
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(orderID, *params.Body, params.IfMatch)
+	updatedOrder, moveID, err := h.orderUpdater.UpdateOrderAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
 	if err != nil {
 		return handleError(err)
 	}
 
-	h.triggerCounselingUpdateOrderEvent(orderID, moveID, params)
+	h.triggerCounselingUpdateOrderEvent(appCtx, orderID, moveID, params)
 
 	orderPayload := payloads.Order(updatedOrder)
 
@@ -170,6 +174,7 @@ type UpdateAllowanceHandler struct {
 // Handle ... updates an order from a request payload
 func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
@@ -192,12 +197,12 @@ func (h UpdateAllowanceHandler) Handle(params orderop.UpdateAllowanceParams) mid
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(orderID, *params.Body, params.IfMatch)
+	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsTOO(appCtx, orderID, *params.Body, params.IfMatch)
 	if err != nil {
 		return handleError(err)
 	}
 
-	h.triggerUpdatedAllowanceEvent(orderID, moveID, params)
+	h.triggerUpdatedAllowanceEvent(appCtx, orderID, moveID, params)
 
 	orderPayload := payloads.Order(updatedOrder)
 
@@ -213,6 +218,7 @@ type CounselingUpdateAllowanceHandler struct {
 // Handle ... updates an order from a request payload
 func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdateAllowanceParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	handleError := func(err error) middleware.Responder {
 		logger.Error("error updating order allowance", zap.Error(err))
 		switch err.(type) {
@@ -235,21 +241,19 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 	}
 
 	orderID := uuid.FromStringOrNil(params.OrderID.String())
-	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(orderID, *params.Body, params.IfMatch)
+	updatedOrder, moveID, err := h.orderUpdater.UpdateAllowanceAsCounselor(appCtx, orderID, *params.Body, params.IfMatch)
 	if err != nil {
 		return handleError(err)
 	}
 
-	h.triggerCounselingUpdateAllowanceEvent(orderID, moveID, params)
+	h.triggerCounselingUpdateAllowanceEvent(appCtx, orderID, moveID, params)
 
 	orderPayload := payloads.Order(updatedOrder)
 
 	return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload)
 }
 
-func (h UpdateOrderHandler) triggerUpdateOrderEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateOrderEndpointKey,
 		// Endpoint that is being handled
@@ -257,19 +261,17 @@ func (h UpdateOrderHandler) triggerUpdateOrderEvent(orderID uuid.UUID, moveID uu
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.UpdateOrderHandler could not generate the event")
+		appCtx.Logger().Error("ghcapi.UpdateOrderHandler could not generate the event")
 	}
 }
 
-func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateOrderParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateOrderParams) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcCounselingUpdateOrderEndpointKey,
 		// Endpoint that is being handled
@@ -277,19 +279,17 @@ func (h CounselingUpdateOrderHandler) triggerCounselingUpdateOrderEvent(orderID 
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.UpdateAllowanceHandler could not generate the event")
+		appCtx.Logger().Error("ghcapi.UpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateAllowanceParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateAllowanceParams) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateAllowanceEndpointKey,
 		// Endpoint that is being handled
@@ -297,19 +297,17 @@ func (h UpdateAllowanceHandler) triggerUpdatedAllowanceEvent(orderID uuid.UUID, 
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.UpdateAllowanceHandler could not generate the event")
+		appCtx.Logger().Error("ghcapi.UpdateAllowanceHandler could not generate the event")
 	}
 }
 
-func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateAllowanceParams) {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.CounselingUpdateAllowanceParams) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcCounselingUpdateAllowanceEndpointKey,
 		// Endpoint that is being handled
@@ -317,12 +315,12 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 		UpdatedObjectID: orderID,                   // ID of the updated logical object
 		MtoID:           moveID,                    // ID of the associated Move
 		Request:         params.HTTPRequest,        // Pass on the http.Request
-		DBConnection:    h.DB(),                    // Pass on the pop.Connection
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
 		HandlerContext:  h,                         // Pass on the handlerContext
 	})
 
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		logger.Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
+		appCtx.Logger().Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
 	}
 }

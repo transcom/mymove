@@ -70,7 +70,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -114,7 +114,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
 
 		orderFetcher := mocks.OrderFetcher{}
-		orderFetcher.On("ListOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -180,7 +181,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -247,7 +248,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -363,7 +364,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -567,7 +568,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -681,7 +682,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -704,7 +705,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -745,7 +746,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -803,7 +804,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+		paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -857,7 +858,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+		paymentrequest.NewPaymentRequestListFetcher(),
 	}
 	suite.Run("returns unfiltered results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
@@ -922,7 +923,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+		paymentrequest.NewPaymentRequestListFetcher(),
 	}
 
 	response := handler.Handle(params)
@@ -935,7 +936,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+	paymentRequestListFetcher.On("FetchPaymentRequestList", mock.AnythingOfType("*appcontext.appContext"),
+		officeUser.ID,
 		mock.Anything,
 		mock.Anything).Return(nil, 0, errors.New("database query error"))
 
@@ -962,7 +964,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+	paymentRequestListFetcher.On("FetchPaymentRequestList", mock.AnythingOfType("*appcontext.appContext"),
+		officeUser.ID,
 		mock.Anything,
 		mock.Anything).Return(&models.PaymentRequests{}, 0, nil)
 
@@ -1110,7 +1113,7 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	subtestData.handler = GetServicesCounselingQueueHandler{
 		context,
-		order.NewOrderFetcher(suite.DB()),
+		order.NewOrderFetcher(),
 	}
 
 	return subtestData

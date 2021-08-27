@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -27,8 +28,9 @@ type GetCustomerHandler struct {
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	customerID, _ := uuid.FromString(params.CustomerID.String())
-	customer, err := h.FetchCustomer(customerID)
+	customer, err := h.FetchCustomer(appCtx, customerID)
 	if err != nil {
 		logger.Error("Loading Customer Info", zap.Error(err))
 		switch err {
@@ -51,6 +53,7 @@ type UpdateCustomerHandler struct {
 // Handle updates a customer from a request payload
 func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		logger.Error("user is not authenticated with service counselor office role")
@@ -66,7 +69,7 @@ func (h UpdateCustomerHandler) Handle(params customercodeop.UpdateCustomerParams
 	newCustomer := payloads.CustomerToServiceMember(*params.Body)
 	newCustomer.ID = customerID
 
-	updatedCustomer, err := h.customerUpdater.UpdateCustomer(params.IfMatch, newCustomer)
+	updatedCustomer, err := h.customerUpdater.UpdateCustomer(appCtx, params.IfMatch, newCustomer)
 
 	if err != nil {
 		logger.Error("error updating customer", zap.Error(err))

@@ -22,7 +22,7 @@ type fakeModel struct {
 
 type ErrorsSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 }
 
 func TestErrorsSuite(t *testing.T) {

@@ -1,10 +1,9 @@
 package mtoagent
 
 import (
-	"context"
-
 	"github.com/gobuffalo/validate/v3"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -15,15 +14,15 @@ type mtoAgentValidator interface {
 	// oldAgent parameter is expected to be nil in creation use cases.
 	// It is safe to return a *validate.Errors with zero added errors as
 	// a success case.
-	Validate(c context.Context, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error
+	Validate(appCtx appcontext.AppContext, newAgent models.MTOAgent, oldAgent *models.MTOAgent, shipment *models.MTOShipment) error
 }
 
 // mtoAgentValidatorFunc is an adapter type for converting a function into an implementation of mtoAgentValidator
-type mtoAgentValidatorFunc func(context.Context, models.MTOAgent, *models.MTOAgent, *models.MTOShipment) error
+type mtoAgentValidatorFunc func(appcontext.AppContext, models.MTOAgent, *models.MTOAgent, *models.MTOShipment) error
 
 // Validate fulfills the mtoAgentValidator interface
-func (fn mtoAgentValidatorFunc) Validate(ctx context.Context, newer models.MTOAgent, older *models.MTOAgent, ship *models.MTOShipment) error {
-	return fn(ctx, newer, older, ship)
+func (fn mtoAgentValidatorFunc) Validate(appCtx appcontext.AppContext, newer models.MTOAgent, older *models.MTOAgent, ship *models.MTOShipment) error {
+	return fn(appCtx, newer, older, ship)
 }
 
 // validateMTOAgent checks an MTOAgent against a passed-in set of business rule checks
@@ -32,7 +31,7 @@ func (fn mtoAgentValidatorFunc) Validate(ctx context.Context, newer models.MTOAg
 // and returned immediately, ignoring any accumulated validation errors and short circuiting
 // the execution of any further mtoAgentValidator instances.
 func validateMTOAgent(
-	ctx context.Context,
+	appCtx appcontext.AppContext,
 	newAgent models.MTOAgent,
 	oldAgent *models.MTOAgent,
 	shipment *models.MTOShipment,
@@ -40,7 +39,7 @@ func validateMTOAgent(
 ) (result error) {
 	verrs := validate.NewErrors()
 	for _, checker := range checks {
-		if err := checker.Validate(ctx, newAgent, oldAgent, shipment); err != nil {
+		if err := checker.Validate(appCtx, newAgent, oldAgent, shipment); err != nil {
 			switch e := err.(type) {
 			case *validate.Errors:
 				// accumulate validation errors

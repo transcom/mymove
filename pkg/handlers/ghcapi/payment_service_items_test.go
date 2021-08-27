@@ -77,7 +77,7 @@ func (suite *HandlerSuite) makeUpdatePaymentSubtestData() (subtestData *updatePa
 func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("Successful patch - Approval - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	suite.Run("404 - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		newParam := subtestData.input
 		newParam.Body.Status = ""
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := UpdatePaymentServiceItemStatusHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -132,7 +132,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.Run("Successful patch - Rejection - Integration Test", func() {
 		subtestData := suite.makeUpdatePaymentSubtestData()
 		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 
@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 				Status: models.PaymentServiceItemStatusDenied,
 			},
 		})
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 
@@ -202,7 +202,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 				Status:          ghcmessages.PaymentServiceItemStatusAPPROVED,
 			},
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewQueryBuilder()
 
 		fetcher := fetch.NewFetcher(queryBuilder)
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -35,18 +36,19 @@ type IndexOrganizationsHandler struct {
 // Handle retrieves a list of organizations
 func (h IndexOrganizationsHandler) Handle(params organization.IndexOrganizationsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	organizations, err := h.OrganizationListFetcher.FetchOrganizationList(queryFilters, nil, pagination, ordering)
+	organizations, err := h.OrganizationListFetcher.FetchOrganizationList(appCtx, queryFilters, nil, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOrganizationsCount, err := h.OrganizationListFetcher.FetchOrganizationCount(queryFilters)
+	totalOrganizationsCount, err := h.OrganizationListFetcher.FetchOrganizationCount(appCtx, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -27,6 +28,7 @@ type GetMoveTaskOrderHandler struct {
 // Handle fetches a single MoveTaskOrder
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
@@ -34,7 +36,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 		IncludeHidden:   false,
 		MoveTaskOrderID: moveTaskOrderID,
 	}
-	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(&searchParams)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(appCtx, &searchParams)
 	if err != nil {
 		logger.Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
@@ -59,6 +61,7 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 // Handle updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	eTag := params.IfMatch
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
@@ -70,7 +73,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		serviceItemCodes = *params.ServiceItemCodes
 	}
 
-	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID, eTag,
+	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(appCtx, moveTaskOrderID, eTag,
 		serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
 
 	if err != nil {
@@ -125,12 +128,13 @@ type UpdateMTOStatusServiceCounselingCompletedHandlerFunc struct {
 // this handler will update the Move status without making it available to the Prime and without creating basic service items.
 func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params movetaskorderops.UpdateMTOStatusServiceCounselingCompletedParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
 	eTag := params.IfMatch
 
 	// TODO - Revisit authorization for Service Counselor role
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 
-	mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(moveTaskOrderID, eTag)
+	mto, err := h.moveTaskOrderStatusUpdater.UpdateStatusServiceCounselingCompleted(appCtx, moveTaskOrderID, eTag)
 
 	if err != nil {
 		logger.Error("ghcapi.UpdateMTOStatusServiceCounselingCompletedHandlerFunc error", zap.Error(err))

@@ -13,7 +13,7 @@ import (
 
 type InvoiceServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger Logger
+	logger *zap.Logger
 	storer storage.FileStorer
 }
 

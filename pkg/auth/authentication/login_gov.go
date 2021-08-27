@@ -42,11 +42,11 @@ func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, er
 type LoginGovProvider struct {
 	hostname  string
 	secretKey string
-	logger    Logger
+	logger    *zap.Logger
 }
 
 // NewLoginGovProvider returns a new LoginGovProvider
-func NewLoginGovProvider(hostname string, secretKey string, logger Logger) LoginGovProvider {
+func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
 	return LoginGovProvider{
 		hostname:  hostname,
 		secretKey: secretKey,

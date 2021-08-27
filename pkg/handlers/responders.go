@@ -15,17 +15,15 @@ import (
 // See: https://github.com/go-swagger/go-swagger/issues/748
 type CookieUpdateResponder struct {
 	session        *auth.Session
-	logger         Logger
 	Responder      middleware.Responder
 	sessionManager *scs.SessionManager
 	ctx            context.Context
 }
 
 // NewCookieUpdateResponder constructs a wrapper for the responder which will update cookies
-func NewCookieUpdateResponder(request *http.Request, logger Logger, responder middleware.Responder, sessionManager *scs.SessionManager, session *auth.Session) middleware.Responder {
+func NewCookieUpdateResponder(request *http.Request, responder middleware.Responder, sessionManager *scs.SessionManager, session *auth.Session) middleware.Responder {
 	return &CookieUpdateResponder{
 		session:        session,
-		logger:         logger,
 		Responder:      responder,
 		sessionManager: sessionManager,
 		ctx:            request.Context(),
