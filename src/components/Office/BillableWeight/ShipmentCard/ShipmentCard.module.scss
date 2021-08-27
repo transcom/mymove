@@ -5,6 +5,10 @@
 .container {
   @include u-padding-x(0);
 
+  :global(.usa-button) {
+    width: fit-content;
+  }
+
   header {
     @include u-padding-x(2);
     @include u-padding-bottom(2);

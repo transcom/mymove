@@ -2,11 +2,11 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.container {
-  .editBtn {
-    width: fit-content;
-  }
+.editBtn {
+  width: fit-content;
+}
 
+.container {
   h5 {
     @include u-margin-bottom(0.5);
     font-size: 13px;
