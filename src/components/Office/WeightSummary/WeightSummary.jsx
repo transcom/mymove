@@ -27,7 +27,7 @@ const WeightSummary = ({
       </div>
       <div>
         <h4 className={styles.weightSummaryHeading}>Total billable weight</h4>
-        <div className={styles.flex}>
+        <div className={styles.weight}>
           {totalBillableWeightFlag ? (
             <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
           ) : (
@@ -38,7 +38,7 @@ const WeightSummary = ({
         <hr />
         {shipments.map((shipment) => {
           return (
-            <div className={styles.flex}>
+            <div className={styles.weight}>
               {shipmentIsOverweight(shipment.estimatedWeight, shipment.billableWeight) ? (
                 <FontAwesomeIcon icon="exclamation-triangle" className={styles.warningFlag} />
               ) : (
