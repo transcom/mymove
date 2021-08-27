@@ -1,5 +1,6 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { SCRequestShipmentCancellationModal } from 'components/Office/ServicesCounseling/SCRequestShipmentCancellationModal/SCRequestShipmentCancellationModal';
 
@@ -13,45 +14,40 @@ beforeEach(() => {
 describe('SCRequestShipmentCancellationModal', () => {
   const shipmentID = '123456';
 
-  it('renders the component', () => {
-    const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
-    );
-    expect(wrapper.find('SCRequestShipmentCancellationModal').exists()).toBe(true);
-    expect(wrapper.find('ModalTitle').exists()).toBe(true);
-    expect(wrapper.find('ModalActions').exists()).toBe(true);
-    expect(wrapper.find('ModalClose').exists()).toBe(true);
-    expect(wrapper.find('button[data-testid="modalBackButton"]').exists()).toBe(true);
-    expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
+  it('renders the component', async () => {
+    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Are you sure?' })).toBeInTheDocument();
   });
 
-  it('closes the modal when close icon is clicked', () => {
-    const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
-    );
+  it('closes the modal when close icon is clicked', async () => {
+    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
-    wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
+    const closeButton = await screen.findByTestId('modalCloseButton');
 
-    expect(onClose.mock.calls.length).toBe(1);
+    userEvent.click(closeButton);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('closes the modal when the cancel button is clicked', () => {
-    const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
-    );
+  it('closes the modal when the keep button is clicked', async () => {
+    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
-    wrapper.find('button[data-testid="modalBackButton"]').simulate('click');
+    const keepButton = await screen.findByRole('button', { name: 'Keep shipment' });
 
-    expect(onClose).toHaveBeenCalled();
+    userEvent.click(keepButton);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls the submit function when submit button is clicked', async () => {
-    const wrapper = mount(
-      <SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />,
-    );
+  it('calls the submit function when delete button is clicked', async () => {
+    render(<SCRequestShipmentCancellationModal onSubmit={onSubmit} onClose={onClose} shipmentID={shipmentID} />);
 
-    wrapper.find('button[type="submit"]').simulate('click');
+    const deleteButton = await screen.findByRole('button', { name: 'Delete shipment' });
 
-    expect(onSubmit).toHaveBeenCalled();
+    userEvent.click(deleteButton);
+
+    expect(onSubmit).toHaveBeenCalledWith(shipmentID);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
