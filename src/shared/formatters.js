@@ -376,3 +376,8 @@ export const formatDaysInTransit = (days) => {
     return '0 days';
   }
 };
+
+export const formatAddressShort = (address) => {
+  const { city, state, postal_code } = address;
+  return `${city}, ${state} ${postal_code}`;
+};
