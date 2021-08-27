@@ -355,6 +355,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   useEffect(() => {
     let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
+    const riskOfExcessAcknowledged = !!move.excess_weight_acknowledged_at;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
@@ -371,8 +372,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
       setExcessWeightRiskCount(1);
     }
 
-    setIsWeightAlertVisible(!!excessBillableWeightCount);
-  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
+    const showWeightAlert = !riskOfExcessAcknowledged && !!excessBillableWeightCount;
+
+    setIsWeightAlertVisible(showWeightAlert);
+  }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage, move]);
 
   useEffect(() => {
     // attach scroll listener
