@@ -5,7 +5,6 @@
 .weightSummaryContainer {
     display: flex;
     justify-content: space-between;
-    max-width: 336px;
     padding: 20px 14px;
 
     .weightSummaryHeading {
@@ -17,11 +16,12 @@
     }
 
     .marginBottom {
-      @include u-margin-bottom(1.5);
+      @include u-margin-bottom(2);
     }
 
     .flex {
-        display: flex;
+        text-align: right;
+        width: 102px;
     }
 
     .noEdit {
@@ -34,7 +34,7 @@
     }
 
     svg {
-        @include u-margin-right(2);
+        float: left;
         height: 25px;
     }
 

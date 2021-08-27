@@ -33,7 +33,7 @@ const WeightSummary = ({
           ) : (
             <div className={styles.noEdit} />
           )}
-          <div className={styles.flex}>{formatWeight(totalBillableWeight)}</div>
+          {formatWeight(totalBillableWeight)}
         </div>
         <hr />
         {shipments.map((shipment) => {

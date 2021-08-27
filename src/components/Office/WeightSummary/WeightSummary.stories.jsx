@@ -26,4 +26,8 @@ const props = {
   ],
 };
 
-export const WeightSummaryCard = () => <WeightSummary {...props} />;
+export const WeightSummaryCard = () => (
+  <div style={{ maxWidth: '336px' }}>
+    <WeightSummary {...props} />
+  </div>
+);
