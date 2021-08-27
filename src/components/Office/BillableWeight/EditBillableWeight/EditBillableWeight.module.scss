@@ -1,0 +1,53 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.container {
+  .editBtn {
+    width: fit-content;
+  }
+
+  h5 {
+    @include u-margin-bottom(0.5);
+    font-size: 13px;
+    color: $base-darker;
+  }
+
+  .estimatedWeight {
+    line-height: 18px;
+  }
+
+  strong,
+  span {
+    font-size: 13px;
+    color: $base;
+  }
+
+  .maxBillableWeight {
+    display: inline-block;
+    width: 96px;
+    appearance: none; // removes up and down arrow for number inputs on firefox
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      appearance: none; // removes up and down arrow for number inputs on all other browsers
+    }
+  }
+
+  .fieldset {
+    padding: 0;
+
+    :global(.usa-label) {
+      color: $base-darker;
+      @include u-margin-top(3);
+    }
+
+    :global(.usa-textarea) {
+      height: 96px;
+    }
+  }
+  .btnContainer {
+    display: flex;
+    @include u-margin-top(2);
+  }
+}
