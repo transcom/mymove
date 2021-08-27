@@ -16,7 +16,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import handleScroll from 'utils/handleScroll';
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
-import { MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
+import { MTO_SERVICE_ITEMS, MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
@@ -31,6 +31,7 @@ import ShipmentHeading from 'components/Office/ShipmentHeading/ShipmentHeading';
 import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
+  acknowledgeExcessWeightRisk,
   patchMTOServiceItemStatus,
   updateBillableWeight,
   updateMTOShipmentRequestReweigh,
@@ -238,6 +239,27 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
+  const [mutateAcknowledgeExcessWeightRisk] = useMutation(acknowledgeExcessWeightRisk, {
+    onSuccess: (data) => {
+      queryCache.setQueryData([MOVES, data.locator], data);
+      queryCache.invalidateQueries([MOVES, data.locator]);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
   const handleDivertShipment = (mtoShipmentID, eTag) => {
     mutateMTOShipmentStatus({
       shipmentID: mtoShipmentID,
@@ -278,6 +300,10 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
   const handleUpdateBillableWeight = (maxBillableWeight) => {
     mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
+  };
+
+  const handleAcknowledgeExcessWeightRisk = () => {
+    mutateAcknowledgeExcessWeightRisk({ orderID: order.id, ifMatchETag: move.eTag });
   };
 
   useEffect(() => {
@@ -379,6 +405,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   };
 
   const handleHideWeightAlert = () => {
+    handleAcknowledgeExcessWeightRisk();
     setIsWeightAlertVisible(false);
   };
 
