@@ -54,6 +54,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
 		ETag:                         etag.GenerateEtag(move.UpdatedAt),
 		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
+		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
 	}
 
 	return payload

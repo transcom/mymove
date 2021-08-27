@@ -126,6 +126,11 @@ export async function counselingUpdateAllowance({ orderID, ifMatchETag, body }) 
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function updateBillableWeight({ orderID, ifMatchETag, body }) {
+  const operationPath = 'order.updateBillableWeight';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
+}
+
 export async function updateCustomerInfo({ customerId, ifMatchETag, body }) {
   const operationPath = 'customer.updateCustomer';
   return makeGHCRequest(operationPath, { customerID: customerId, 'If-Match': ifMatchETag, body });

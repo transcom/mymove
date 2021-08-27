@@ -1308,6 +1308,63 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/allowances": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -1341,6 +1398,71 @@ func init() {
         "responses": {
           "200": {
             "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/update-billable-weight": {
+      "patch": {
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements=",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates the max billable weight",
+        "operationId": "updateBillableWeight",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateBillableWeightPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Order",
             "schema": {
               "$ref": "#/definitions/Order"
             }
@@ -3443,6 +3565,12 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "excess_weight_acknowledged_at": {
+          "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "excess_weight_qualified_at": {
           "description": "Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance",
           "type": "string",
@@ -4296,6 +4424,19 @@ func init() {
           "description": "unit is in lbs",
           "type": "integer",
           "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "UpdateBillableWeightPayload": {
+      "type": "object",
+      "properties": {
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
           "example": 2000
         }
       }
@@ -6299,6 +6440,78 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/allowances": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -6332,6 +6545,86 @@ func init() {
         "responses": {
           "200": {
             "description": "updated instance of allowance",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/update-billable-weight": {
+      "patch": {
+        "description": "Updates the DBAuthorizedWeight attribute for the Order Entitlements=",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Updates the max billable weight",
+        "operationId": "updateBillableWeight",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateBillableWeightPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Order",
             "schema": {
               "$ref": "#/definitions/Order"
             }
@@ -8638,6 +8931,12 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "excess_weight_acknowledged_at": {
+          "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "excess_weight_qualified_at": {
           "description": "Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance",
           "type": "string",
@@ -9494,6 +9793,19 @@ func init() {
           "type": "integer",
           "minimum": 0,
           "x-formatting": "weight",
+          "example": 2000
+        }
+      }
+    },
+    "UpdateBillableWeightPayload": {
+      "type": "object",
+      "properties": {
+        "authorizedWeight": {
+          "description": "unit is in lbs",
+          "type": "integer",
+          "minimum": 1,
+          "x-formatting": "weight",
+          "x-nullable": true,
           "example": 2000
         }
       }

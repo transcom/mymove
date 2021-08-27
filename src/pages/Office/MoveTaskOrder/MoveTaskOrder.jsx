@@ -32,7 +32,7 @@ import ShipmentDetails from 'components/Office/ShipmentDetails/ShipmentDetails';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import {
   patchMTOServiceItemStatus,
-  updateAllowance,
+  updateBillableWeight,
   updateMTOShipmentRequestReweigh,
   updateMTOShipmentStatus,
 } from 'services/ghcApi';
@@ -203,7 +203,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     },
   });
 
-  const [mutateOrders] = useMutation(updateAllowance, {
+  const [mutateOrders] = useMutation(updateBillableWeight, {
     onSuccess: (data, variables) => {
       const updatedOrder = data.orders[variables.orderID];
       queryCache.setQueryData([ORDERS, variables.orderID], {
@@ -276,7 +276,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
     });
   };
 
-  const handleUpdateAllowance = (maxBillableWeight) => {
+  const handleUpdateBillableWeight = (maxBillableWeight) => {
     mutateOrders({ orderID: order.id, ifMatchETag: order.eTag, body: { authorizedWeight: maxBillableWeight } });
   };
 
@@ -469,7 +469,7 @@ export const MoveTaskOrder = ({ match, ...props }) => {
             <EditMaxBillableWeightModal
               defaultWeight={order.entitlement.totalWeight}
               maxBillableWeight={order.entitlement.authorizedWeight}
-              onSubmit={handleUpdateAllowance}
+              onSubmit={handleUpdateBillableWeight}
               onClose={setIsWeightModalVisible}
             />
           )}
