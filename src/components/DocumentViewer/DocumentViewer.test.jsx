@@ -118,7 +118,7 @@ describe('DocumentViewer component', () => {
 
   it('shows error if file type is unsupported', () => {
     const wrapper = mount(
-      <DocumentViewer files={[{ filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
+      <DocumentViewer files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
     );
     expect(wrapper.find('.unsupported-message').text()).toEqual('.zip is not supported.');
   });
