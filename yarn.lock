@@ -18639,10 +18639,10 @@ storybook-addon-outline@^1.4.1:
     "@storybook/core-events" "^6.3.0"
     ts-dedent "^2.1.1"
 
-storybook-addons-abstract@^6.1.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/storybook-addons-abstract/-/storybook-addons-abstract-6.2.0.tgz#68aa79075809c713502e6f53ef5c5159fbaa1b21"
-  integrity sha512-xQS/9x8s1hVXa8vlQfWOCj4ehpeURKrXzPDEl+CdAB2KIAt7RKL28dAasje4DWVMrqrYvKV6DponVXWTdZXZtA==
+storybook-addons-abstract@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/storybook-addons-abstract/-/storybook-addons-abstract-6.2.1.tgz#4cd228d6a6a841437704a3606a3aaccb98fcc2fe"
+  integrity sha512-dAmMnnFfcnFcqDJnzMIwe1wVcraLc2oHSlpg/o/9qn/0BbyKMyXCnCVaHFBMIzw6jclMg0DCwNDq//JZWKTItg==
   dependencies:
     "@storybook/addons" "^6.0.5"
     "@storybook/api" "^6.0.5"
