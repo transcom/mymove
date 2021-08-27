@@ -2289,8 +2289,7 @@ func createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles(db *pop.Connection,
 			SelectedMoveType: &mtoSelectedMoveType,
 		},
 	})
-	estimatedWeight := unit.Pound(1400)
-	actualWeight := unit.Pound(2000)
+
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff2b5"),
