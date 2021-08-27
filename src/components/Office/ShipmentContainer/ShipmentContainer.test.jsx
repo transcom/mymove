@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ShipmentHeading from '../ShipmentHeading/ShipmentHeading';
 
@@ -16,9 +16,11 @@ const headingInfo = {
     originCity: 'San Antonio',
     originState: 'TX',
     originPostalCode: '98421',
-    destinationCity: 'Tacoma',
-    destinationState: 'WA',
-    destinationPostalCode: '98421',
+    destinationAddress: {
+      city: 'Tacoma',
+      state: 'WA',
+      postalCode: '98421',
+    },
     scheduledPickupDate: '27 Mar 2020',
     reweigh: { id: '00000000-0000-0000-0000-000000000000' },
     ifMatchEtag: 'etag',
@@ -28,58 +30,51 @@ const headingInfo = {
 };
 
 describe('Shipment Container', () => {
-  it('renders the container successfully', () => {
-    const wrapper = shallow(
+  it('renders the container successfully', async () => {
+    render(
       <ShipmentContainer>
         <ShipmentHeading {...headingInfo} />
       </ShipmentContainer>,
     );
-    expect(wrapper.find('[data-testid="ShipmentContainer"]').exists()).toBe(true);
+
+    const shipmentContainer = await screen.findByTestId('ShipmentContainer');
+
+    expect(shipmentContainer).toBeInTheDocument();
+
+    expect(shipmentContainer.className).toContain('container--accent--default');
   });
-  it('renders a child component passed to it', () => {
-    const wrapper = shallow(
+
+  it('renders a child component passed to it', async () => {
+    render(
       <ShipmentContainer>
         <ShipmentHeading {...headingInfo} />
       </ShipmentContainer>,
     );
-    expect(wrapper.find(ShipmentHeading).length).toBe(1);
-  });
-  it('renders a container with className container--accent--hhg', () => {
-    let wrapper = shallow(
-      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG}>
-        <ShipmentHeading {...headingInfo} />
-      </ShipmentContainer>,
-    );
-    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
 
-    wrapper = shallow(
-      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}>
-        <ShipmentHeading {...headingInfo} />
-      </ShipmentContainer>,
-    );
-    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
+    const childHeading = await screen.findByRole('heading', { level: 2, name: headingInfo.shipmentInfo.shipmentType });
+    expect(childHeading).toBeInTheDocument();
+  });
 
-    wrapper = shallow(
-      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}>
-        <ShipmentHeading {...headingInfo} />
+  it.each([
+    [SHIPMENT_OPTIONS.HHG, 'container--accent--hhg'],
+    [SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, 'container--accent--hhg'],
+    [SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC, 'container--accent--hhg'],
+    [SHIPMENT_OPTIONS.NTS, 'container--accent--nts'],
+    [SHIPMENT_OPTIONS.NTSR, 'container--accent--ntsr'],
+  ])('renders a container for a shipment (%s) with className %s ', async (shipmentType, expectedClass) => {
+    const newHeadingInfo = {
+      ...headingInfo,
+      shipmentInfo: { ...headingInfo.shipmentInfo, shipmentType },
+    };
+
+    render(
+      <ShipmentContainer shipmentType={shipmentType}>
+        <ShipmentHeading {...newHeadingInfo} />
       </ShipmentContainer>,
     );
-    expect(wrapper.find('.container--accent--hhg').length).toBe(1);
-  });
-  it('renders a container with className container--accent--nts', () => {
-    const wrapper = shallow(
-      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.NTS}>
-        <ShipmentHeading {...headingInfo} />
-      </ShipmentContainer>,
-    );
-    expect(wrapper.find('.container--accent--nts').length).toBe(1);
-  });
-  it('renders a container with className container--accent--ntsr', () => {
-    const wrapper = shallow(
-      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.NTSR}>
-        <ShipmentHeading {...headingInfo} />
-      </ShipmentContainer>,
-    );
-    expect(wrapper.find('.container--accent--ntsr').length).toBe(1);
+
+    const shipmentContainer = await screen.findByTestId('ShipmentContainer');
+
+    expect(shipmentContainer.className).toContain(expectedClass);
   });
 });
