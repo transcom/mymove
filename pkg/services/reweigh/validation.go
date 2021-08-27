@@ -2,6 +2,7 @@ package reweigh
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -22,4 +23,20 @@ type reweighValidatorFunc func(appcontext.AppContext, models.Reweigh, *models.Re
 // Validate fulfills the reweighValidator interface
 func (fn reweighValidatorFunc) Validate(appCtx appcontext.AppContext, newer models.Reweigh, older *models.Reweigh, ship *models.MTOShipment) error {
 	return fn(appCtx, newer, older, ship)
+}
+
+// mergeReweigh compares NewReweigh and OldReweigh and updates a new MTOReweigh instance with all data
+// (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
+func mergeReweigh(newReweigh models.Reweigh, oldReweigh *models.Reweigh) *models.Reweigh {
+	if oldReweigh == nil {
+		return &newReweigh
+	}
+
+	reweigh := *oldReweigh
+
+	reweigh.Weight = services.SetOptionalPoundField(newReweigh.Weight, reweigh.Weight)
+	reweigh.VerificationReason = services.SetOptionalStringField(newReweigh.VerificationReason, reweigh.VerificationReason)
+	// Need to determine the date....
+
+	return &reweigh
 }

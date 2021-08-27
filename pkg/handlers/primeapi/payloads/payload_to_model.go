@@ -45,6 +45,28 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	return modelAddress
 }
 
+// ReweighModelFromUpdate model
+func ReweighModelFromUpdate(reweigh *primemessages.UpdateReweigh, mtoShipmentID strfmt.UUID, reweighID strfmt.UUID) *models.Reweigh {
+	if reweigh == nil {
+		return nil
+	}
+
+	model := &models.Reweigh{
+		ID:         uuid.FromStringOrNil(reweighID.String()),
+		ShipmentID: uuid.FromStringOrNil(mtoShipmentID.String()),
+	}
+
+	if reweigh.Weight != nil {
+		model.Weight = handlers.PoundPtrFromInt64Ptr(reweigh.Weight)
+	}
+
+	if reweigh.VerificationReason != nil {
+		model.VerificationReason = reweigh.VerificationReason
+	}
+
+	return model
+}
+
 // MTOAgentModel model
 func MTOAgentModel(mtoAgent *primemessages.MTOAgent) *models.MTOAgent {
 	if mtoAgent == nil {

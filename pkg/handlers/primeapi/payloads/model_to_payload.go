@@ -546,6 +546,25 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	return &payload
 }
 
+// Reweigh returns the reweigh payload
+func Reweigh(reweigh *models.Reweigh) *primemessages.Reweigh {
+	payload := &primemessages.Reweigh{
+		ID:                     strfmt.UUID(reweigh.ID.String()),
+		ShipmentID:             strfmt.UUID(reweigh.ShipmentID.String()),
+		RequestedAt:            strfmt.DateTime(reweigh.RequestedAt),
+		RequestedBy:            primemessages.ReweighRequester(reweigh.RequestedBy),
+		CreatedAt:              strfmt.DateTime(reweigh.CreatedAt),
+		UpdatedAt:              strfmt.DateTime(reweigh.UpdatedAt),
+		ETag:                   etag.GenerateEtag(reweigh.UpdatedAt),
+		Weight:                 handlers.FmtPoundPtr(reweigh.Weight),
+		VerificationReason:     handlers.FmtStringPtr(reweigh.VerificationReason),
+		VerificationProvidedAt: handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt),
+		Shipment:               MTOShipment(&reweigh.Shipment),
+	}
+
+	return payload
+}
+
 // InternalServerError describes errors in a standard structure to be returned in the payload.
 // If detail is nil, string defaults to "An internal server error has occurred."
 func InternalServerError(detail *string, traceID uuid.UUID) *primemessages.Error {

@@ -19,6 +19,15 @@ import (
 // swagger:model Reweigh
 type Reweigh struct {
 
+	// created at
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
@@ -39,22 +48,31 @@ type Reweigh struct {
 	// Format: uuid
 	ShipmentID strfmt.UUID `json:"shipmentID,omitempty"`
 
+	// updated at
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+
 	// verification provided at
 	// Format: date-time
-	VerificationProvidedAt *strfmt.DateTime `json:"verificationProvidedAt,omitempty"`
+	VerificationProvidedAt *strfmt.DateTime `json:"verificationProvidedAt"`
 
 	// verification reason
 	// Example: The reweigh was not performed due to some justification provided by the Prime
-	VerificationReason *string `json:"verificationReason,omitempty"`
+	VerificationReason *string `json:"verificationReason"`
 
 	// weight
 	// Example: 2000
-	Weight *int64 `json:"weight,omitempty"`
+	Weight *int64 `json:"weight"`
 }
 
 // Validate validates this reweigh
 func (m *Reweigh) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
@@ -76,6 +94,10 @@ func (m *Reweigh) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateVerificationProvidedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -83,6 +105,18 @@ func (m *Reweigh) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Reweigh) validateCreatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -154,6 +188,18 @@ func (m *Reweigh) validateShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Reweigh) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Reweigh) validateVerificationProvidedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.VerificationProvidedAt) { // not required
 		return nil
@@ -170,6 +216,14 @@ func (m *Reweigh) validateVerificationProvidedAt(formats strfmt.Registry) error 
 func (m *Reweigh) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateRequestedBy(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -178,9 +232,31 @@ func (m *Reweigh) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Reweigh) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Reweigh) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -205,6 +281,15 @@ func (m *Reweigh) contextValidateShipment(ctx context.Context, formats strfmt.Re
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Reweigh) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
 	}
 
 	return nil

@@ -2503,6 +2503,15 @@ func init() {
     },
     "Reweigh": {
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2523,20 +2532,28 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": "The reweigh was not performed due to some justification provided by the Prime"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -2853,6 +2870,7 @@ func init() {
           "description": "In lieu of a document being uploaded indicating why a reweigh did not occur.",
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": "The reweigh was not performed because the shipment was already delivered"
         },
         "weight": {
@@ -2860,6 +2878,7 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -5766,6 +5785,15 @@ func init() {
     },
     "Reweigh": {
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -5786,20 +5814,28 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "verificationProvidedAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "verificationReason": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": "The reweigh was not performed due to some justification provided by the Prime"
         },
         "weight": {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -6119,6 +6155,7 @@ func init() {
           "description": "In lieu of a document being uploaded indicating why a reweigh did not occur.",
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": "The reweigh was not performed because the shipment was already delivered"
         },
         "weight": {
@@ -6126,6 +6163,7 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "x-nullable": true,
+          "x-omitempty": false,
           "example": 2000
         }
       }

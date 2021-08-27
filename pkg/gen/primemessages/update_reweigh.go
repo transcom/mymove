@@ -19,11 +19,11 @@ type UpdateReweigh struct {
 
 	// In lieu of a document being uploaded indicating why a reweigh did not occur.
 	// Example: The reweigh was not performed because the shipment was already delivered
-	VerificationReason *string `json:"verificationReason,omitempty"`
+	VerificationReason *string `json:"verificationReason"`
 
 	// The total reweighed weight for the shipment in pounds.
 	// Example: 2000
-	Weight *int64 `json:"weight,omitempty"`
+	Weight *int64 `json:"weight"`
 }
 
 // Validate validates this update reweigh

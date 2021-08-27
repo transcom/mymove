@@ -3,6 +3,8 @@ package reweigh
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 
 	"github.com/gobuffalo/pop/v5"
@@ -26,22 +28,24 @@ func NewReweighUpdater(db *pop.Connection) services.ReweighUpdater {
 
 // UpdateReweigh updates the Reweigh table
 func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *models.Reweigh, eTag string) (*models.Reweigh, error) {
-	oldWeight := models.Reweigh{}
+	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
-	err := f.db.Find(&oldWeight, reweigh.ID)
+	err := f.db.Find(&oldReweigh, reweigh.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")
 	}
 
+	newReweigh := mergeReweigh(*reweigh, &oldReweigh)
+
 	// Check the If-Match header against existing eTag before updating
-	encodedUpdatedAt := etag.GenerateEtag(oldWeight.UpdatedAt)
+	encodedUpdatedAt := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	if encodedUpdatedAt != eTag {
 		return nil, services.NewPreconditionFailedError(reweigh.ID, nil)
 	}
 
 	// Make the update and create a InvalidInputError if there were validation issues
-	verrs, err := f.db.ValidateAndSave(reweigh)
+	verrs, err := f.db.ValidateAndSave(newReweigh)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
@@ -57,5 +61,20 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	if err != nil {
 		return nil, services.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}
+
+	// Need to pull out this common code. It is from reweigh requester
+	var shipment models.MTOShipment
+	err = appCtx.DB().Q().
+		Eager("Reweigh").
+		Find(&shipment, reweigh.ShipmentID)
+
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		return nil, services.NewNotFoundError(reweigh.ShipmentID, "while looking for shipment")
+	} else if err != nil {
+		return nil, err
+	}
+
+	updatedReweigh.Shipment = shipment
+
 	return &updatedReweigh, nil
 }
