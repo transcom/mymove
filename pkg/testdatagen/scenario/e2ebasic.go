@@ -2165,12 +2165,12 @@ func createMoveWithServiceItemsandPaymentRequests02(db *pop.Connection, userUplo
 	})
 
 	dopCost := unit.Cents(3456)
-	rejectionReason := "Customer no longer required this service"
+	rejectionReason8 := "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
 			Status:          models.MTOServiceItemStatusRejected,
-			RejectionReason: &rejectionReason,
+			RejectionReason: &rejectionReason8,
 		},
 		Move:        move8,
 		MTOShipment: mtoShipment8,
