@@ -1888,6 +1888,75 @@ func createMoveWithServiceItemsandPaymentRequests01(db *pop.Connection, userUplo
 		MTOServiceItem: serviceItemMS,
 	})
 
+	// Shuttling service item
+	doshutCost := unit.Cents(623)
+	approvedAtTime := time.Now()
+	serviceItemDOSHUT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:              uuid.FromStringOrNil("801c8cdb-1573-40cc-be5f-d0a24034894b"),
+			Status:          models.MTOServiceItemStatusApproved,
+			ApprovedAt:      &approvedAtTime,
+			EstimatedWeight: &estimatedWeight,
+			ActualWeight:    &actualWeight,
+		},
+		Move:        mto,
+		MTOShipment: mtoShipmentHHG,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &doshutCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDOSHUT,
+	})
+
+	currentTime := time.Now()
+	const testDateFormat = "060102"
+
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format(testDateFormat),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilledActual,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "2424",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip5,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "24245",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		db,
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipmentHHG,
+			PaymentRequest: paymentRequest,
+		},
+	)
+
+	// Domestic line haul service item
 	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
