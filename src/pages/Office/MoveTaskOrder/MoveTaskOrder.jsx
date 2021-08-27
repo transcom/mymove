@@ -9,6 +9,7 @@ import classnames from 'classnames';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import EditMaxBillableWeightModal from '../../../components/Office/EditMaxBillableWeightModal/EditMaxBillableWeightModal';
+import returnLowestValue from '../../../utils/returnLowestValue';
 
 import moveTaskOrderStyles from './MoveTaskOrder.module.scss';
 
@@ -62,6 +63,15 @@ function showShipmentFilter(shipment) {
     shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
     shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
     shipment.status === shipmentStatuses.CANCELED
+  );
+}
+
+// only sum estimated/actual/reweigh weights for shipments in these statuses
+function includedStatuses(status) {
+  return (
+    status === shipmentStatuses.APPROVED ||
+    status === shipmentStatuses.DIVERSION_REQUESTED ||
+    status === shipmentStatuses.CANCELLATION_REQUESTED
   );
 }
 
@@ -270,30 +280,25 @@ export const MoveTaskOrder = ({ match, ...props }) => {
   }, [mtoShipments, setUnapprovedShipmentCount]);
 
   useEffect(() => {
-    const shipmentSections = [];
-    mtoShipments?.forEach((shipment) => {
-      if (
-        shipment.status === shipmentStatuses.APPROVED ||
-        shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
-        shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
-        shipment.status === shipmentStatuses.CANCELED
-      ) {
-        shipmentSections.push({
+    const shipmentSections = mtoShipments?.reduce((previous, shipment) => {
+      if (showShipmentFilter(shipment)) {
+        previous.push({
           id: shipment.id,
           label: shipmentSectionLabels[`${shipment.shipmentType}`] || shipment.shipmentType,
         });
       }
-    });
-    setSections(shipmentSections);
+      return previous;
+    }, []);
+    setSections(shipmentSections || []);
   }, [mtoShipments]);
 
   useEffect(() => {
     let estimatedWeightCalc = null;
     let excessBillableWeightCount = 0;
 
-    if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
+    if (mtoShipments?.some((s) => s.primeEstimatedWeight && includedStatuses(s.status))) {
       estimatedWeightCalc = mtoShipments
-        ?.filter((s) => s.primeEstimatedWeight && s.status === shipmentStatuses.APPROVED)
+        ?.filter((s) => s.primeEstimatedWeight && includedStatuses(s.status))
         .reduce((prev, current) => {
           return prev + current.primeEstimatedWeight;
         }, 0);
@@ -308,6 +313,17 @@ export const MoveTaskOrder = ({ match, ...props }) => {
 
     setIsWeightAlertVisible(!!excessBillableWeightCount);
   }, [mtoShipments, setExcessWeightRiskCount, order, estimatedWeightTotal, setMessage]);
+
+  // Edge case of diversion shipments being counted twice
+  const moveWeightTotal = useMemo(() => {
+    return (
+      mtoShipments
+        ?.filter((s) => includedStatuses(s.status) && (s.primeActualWeight || s.reweigh?.weight))
+        .reduce((prev, current) => {
+          return prev + returnLowestValue(current.primeActualWeight, current.reweigh?.weight);
+        }, 0) || null
+    );
+  }, [mtoShipments]);
 
   useEffect(() => {
     // attach scroll listener
@@ -359,15 +375,6 @@ export const MoveTaskOrder = ({ match, ...props }) => {
         </GridContainer>
       </div>
     );
-  }
-
-  let moveWeightTotal = null;
-  if (mtoShipments?.some((s) => s.primeActualWeight)) {
-    moveWeightTotal = mtoShipments
-      ?.filter((s) => s.primeActualWeight)
-      .reduce((prev, current) => {
-        return prev + current.primeActualWeight;
-      }, 0);
   }
 
   const excessWeightAlertControl = (
