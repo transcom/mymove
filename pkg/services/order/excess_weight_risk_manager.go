@@ -138,7 +138,7 @@ func (f *excessWeightRiskManager) updateAuthorizedWeight(appCtx appcontext.AppCo
 }
 
 func (f *excessWeightRiskManager) acknowledgeExcessWeight(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
-	if !moveHasExcessWeightRisk(move) {
+	if !excessWeightRiskShouldBeAcknowledged(move) {
 		return &move, nil
 	}
 
@@ -173,7 +173,7 @@ func (f *excessWeightRiskManager) approveMove(appCtx appcontext.AppContext, orde
 func (f *excessWeightRiskManager) moveShouldBeApproved(order models.Order) bool {
 	move := order.Moves[0]
 
-	return moveHasExcessWeightRisk(move) &&
+	return excessWeightRiskShouldBeAcknowledged(move) &&
 		moveHasAcknowledgedOrdersAmendment(order) &&
 		moveHasReviewedServiceItems(move)
 }
@@ -206,6 +206,6 @@ func moveHasReviewedServiceItems(move models.Move) bool {
 	return true
 }
 
-func moveHasExcessWeightRisk(move models.Move) bool {
-	return move.ExcessWeightQualifiedAt != nil
+func excessWeightRiskShouldBeAcknowledged(move models.Move) bool {
+	return move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil
 }

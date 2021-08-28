@@ -175,6 +175,36 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Nil(moveInDB.ExcessWeightAcknowledgedAt)
 	})
+
+	suite.T().Run("Updates the BillableWeight but does not approve the move or acknowledge the risk if the risk was already acknowledged", func(t *testing.T) {
+		moveRouter := moverouter.NewMoveRouter()
+		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ExcessWeightAcknowledgedAt: &now,
+				ExcessWeightQualifiedAt:    &now,
+			},
+		})
+		order := move.Orders
+		newAuthorizedWeight := int(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		updatedOrder, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.TestAppContext(), order.ID, &newAuthorizedWeight, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+		suite.NoError(err)
+		err = suite.DB().Load(&orderInDB, "Moves", "Entitlement")
+		suite.NoError(err)
+		moveInDB := orderInDB.Moves[0]
+
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(newAuthorizedWeight, *updatedOrder.Entitlement.DBAuthorizedWeight)
+		suite.Equal(newAuthorizedWeight, *orderInDB.Entitlement.DBAuthorizedWeight)
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+	})
 }
 
 func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
@@ -309,6 +339,32 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
 		suite.Nil(moveInDB.ExcessWeightAcknowledgedAt)
 		suite.Nil(updatedMove.ExcessWeightAcknowledgedAt)
+	})
+
+	suite.T().Run("Does not update the ExcessWeightAcknowledgedAt field if the risk was already acknowledged", func(t *testing.T) {
+		moveRouter := moverouter.NewMoveRouter()
+		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
+
+		date := time.Now().Add(30 * time.Minute)
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				ExcessWeightAcknowledgedAt: &date,
+				ExcessWeightQualifiedAt:    &date,
+			},
+		})
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+		order := move.Orders
+
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.TestAppContext(), order.ID, eTag)
+		suite.NoError(err)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+
+		suite.Equal(move.ID.String(), updatedMove.ID.String())
+		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, moveInDB.Status)
+		suite.WithinDuration(*move.ExcessWeightAcknowledgedAt, *moveInDB.ExcessWeightAcknowledgedAt, 1*time.Second)
 	})
 }
 
