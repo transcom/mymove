@@ -15,7 +15,7 @@ import (
 )
 
 func (suite *ReweighSuite) TestReweighUpdater() {
-	reweighUpdater := NewReweighUpdater(suite.DB())
+	reweighUpdater := NewReweighUpdater()
 	oldReweigh := testdatagen.MakeReweigh(suite.DB(), testdatagen.Assertions{})
 	eTag := etag.GenerateEtag(oldReweigh.UpdatedAt)
 	newReweigh := oldReweigh

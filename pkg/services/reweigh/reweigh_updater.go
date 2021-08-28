@@ -7,23 +7,18 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// reweighUpdater handles the db connection
+// reweighUpdater needs to be updates to have checks for validation
 type reweighUpdater struct {
-	db *pop.Connection
 }
 
 // NewReweighUpdater creates a new struct with the service dependencies
-func NewReweighUpdater(db *pop.Connection) services.ReweighUpdater {
-	return &reweighUpdater{
-		db: db,
-	}
+func NewReweighUpdater() services.ReweighUpdater {
+	return &reweighUpdater{}
 }
 
 // UpdateReweigh updates the Reweigh table
@@ -31,7 +26,7 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	oldReweigh := models.Reweigh{}
 
 	// Find the reweigh, return error if not found
-	err := f.db.Find(&oldReweigh, reweigh.ID)
+	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")
 	}
@@ -45,7 +40,7 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	}
 
 	// Make the update and create a InvalidInputError if there were validation issues
-	verrs, err := f.db.ValidateAndSave(newReweigh)
+	verrs, err := appCtx.DB().ValidateAndSave(newReweigh)
 
 	// If there were validation errors create an InvalidInputError type
 	if verrs != nil && verrs.HasAny() {
@@ -57,7 +52,7 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 
 	// Get the updated reweigh and return
 	updatedReweigh := models.Reweigh{}
-	err = f.db.Find(&updatedReweigh, reweigh.ID)
+	err = appCtx.DB().Find(&updatedReweigh, reweigh.ID)
 	if err != nil {
 		return nil, services.NewQueryError("Reweigh", err, fmt.Sprintf("Unexpected error after saving: %v", err))
 	}

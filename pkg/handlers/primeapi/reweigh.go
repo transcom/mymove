@@ -18,7 +18,7 @@ type UpdateReweighHandler struct {
 	ReweighUpdater services.ReweighUpdater
 }
 
-// Handle updates an address on a shipment
+// Handle updates on a reweigh
 func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	appCtx := appcontext.NewAppContext(h.DB(), logger)
