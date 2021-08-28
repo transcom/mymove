@@ -2,6 +2,7 @@ package reweigh
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -29,6 +30,11 @@ func (f *reweighUpdater) UpdateReweigh(appCtx appcontext.AppContext, reweigh *mo
 	err := appCtx.DB().Find(&oldReweigh, reweigh.ID)
 	if err != nil {
 		return nil, services.NewNotFoundError(reweigh.ID, "while looking for a reweigh")
+	}
+
+	if reweigh.VerificationReason != nil {
+		now := time.Now()
+		reweigh.VerificationProvidedAt = &now
 	}
 
 	newReweigh := mergeReweigh(*reweigh, &oldReweigh)
