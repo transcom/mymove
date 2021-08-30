@@ -8,7 +8,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -53,15 +52,5 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		suite.Nil(updatedReweigh)
 		suite.Error(err)
 		suite.IsType(services.PreconditionFailedError{}, err)
-	})
-	// InvalidInputError
-	suite.T().Run("Reweigh with validation errors returns an InvalidInputError", func(t *testing.T) {
-		badRequestedby := models.ReweighRequester("not requested by anyone")
-		newReweigh.RequestedBy = badRequestedby
-		updatedReweigh, err := reweighUpdater.UpdateReweigh(appCtx, &newReweigh, eTag)
-
-		suite.Error(err)
-		suite.Nil(updatedReweigh)
-		suite.IsType(services.InvalidInputError{}, err)
 	})
 }

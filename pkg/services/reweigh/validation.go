@@ -36,7 +36,7 @@ func mergeReweigh(newReweigh models.Reweigh, oldReweigh *models.Reweigh) *models
 
 	reweigh.Weight = services.SetOptionalPoundField(newReweigh.Weight, reweigh.Weight)
 	reweigh.VerificationReason = services.SetOptionalStringField(newReweigh.VerificationReason, reweigh.VerificationReason)
-	// Need to determine the date....
+	reweigh.VerificationProvidedAt = services.SetOptionalDateTimeField(newReweigh.VerificationProvidedAt, reweigh.VerificationProvidedAt)
 
 	return &reweigh
 }

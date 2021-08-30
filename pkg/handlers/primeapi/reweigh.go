@@ -1,6 +1,8 @@
 package primeapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -29,6 +31,10 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 
 	// Get the new reweigh model
 	newReweigh := payloads.ReweighModelFromUpdate(payload, params.ReweighID, params.MtoShipmentID)
+	fmt.Println("🍉🍉🍉🍉🍉")
+	fmt.Println(newReweigh.ID)
+	fmt.Println(newReweigh.ShipmentID)
+	fmt.Println(newReweigh.Weight)
 
 	// Call the service object
 	updatedReweigh, err := h.ReweighUpdater.UpdateReweigh(appCtx, newReweigh, eTag)
@@ -46,7 +52,7 @@ func (h UpdateReweighHandler) Handle(params mtoshipmentops.UpdateReweighParams) 
 			return mtoshipmentops.NewUpdateReweighNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
 		case services.InvalidInputError:
-			return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(
+			return mtoshipmentops.NewUpdateReweighUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 		// ConflictError -> ConflictError Response
 		case services.ConflictError:

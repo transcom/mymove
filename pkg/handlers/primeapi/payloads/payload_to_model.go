@@ -46,7 +46,7 @@ func AddressModel(address *primemessages.Address) *models.Address {
 }
 
 // ReweighModelFromUpdate model
-func ReweighModelFromUpdate(reweigh *primemessages.UpdateReweigh, mtoShipmentID strfmt.UUID, reweighID strfmt.UUID) *models.Reweigh {
+func ReweighModelFromUpdate(reweigh *primemessages.UpdateReweigh, reweighID strfmt.UUID, mtoShipmentID strfmt.UUID) *models.Reweigh {
 	if reweigh == nil {
 		return nil
 	}
