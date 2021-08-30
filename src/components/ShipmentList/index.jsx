@@ -7,7 +7,7 @@ import styles from './ShipmentList.module.scss';
 
 import { formatWeight } from 'shared/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { shipmentTypes } from 'constants/shipments';
 import shipmentIsOverweight from 'utils/shipmentIsOverweight';
 
 export const ShipmentListItem = ({
@@ -23,7 +23,10 @@ export const ShipmentListItem = ({
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
-    [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
+    [styles[`shipment-list-item-HHG`]]:
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
+      shipment.shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
     [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
   });
 
@@ -41,7 +44,7 @@ export const ShipmentListItem = ({
       tabIndex="0"
     >
       <strong>
-        {getShipmentTypeLabel(shipment.shipmentType)}
+        {shipmentTypes[shipment.shipmentType]}
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
