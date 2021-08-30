@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
 
+import { tioRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
@@ -44,7 +45,7 @@ const TXOMoveInfo = () => {
       exact: true,
     }) ||
     matchPath(pathname, {
-      path: '/moves/:moveCode/billable-weight',
+      path: tioRoutes.BILLABLE_WEIGHT_PATH,
       exact: true,
     });
 
