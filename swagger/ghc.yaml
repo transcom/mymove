@@ -282,6 +282,87 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/orders/{orderID}/acknowledge-excess-weight-risk':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+      description: Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert
+      operationId: acknowledgeExcessWeightRisk
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated Move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/orders/{orderID}/update-billable-weight':
+    parameters:
+      - description: ID of order to use
+        in: path
+        name: orderID
+        required: true
+        type: string
+        format: uuid
+    patch:
+      summary: Updates the max billable weight
+      description: Updates the DBAuthorizedWeight attribute for the Order Entitlements=
+      operationId: updateBillableWeight
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateBillableWeightPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated Order
+          schema:
+            $ref: '#/definitions/Order'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
@@ -2035,6 +2116,11 @@ definitions:
         format: date-time
         description: Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
         x-nullable: true
+      excess_weight_acknowledged_at:
+        type: string
+        format: date-time
+        description: Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
+        x-nullable: true
       createdAt:
         type: string
         format: date-time
@@ -2325,6 +2411,16 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         description: only for Army
         type: boolean
+        x-nullable: true
+  UpdateBillableWeightPayload:
+    type: object
+    properties:
+      authorizedWeight:
+        description: unit is in lbs
+        example: 2000
+        minimum: 1
+        type: integer
+        x-formatting: weight
         x-nullable: true
   CounselingUpdateAllowancePayload:
     type: object

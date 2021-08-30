@@ -780,6 +780,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 		},
 	})
 
+	rejectionReason := "a rejection reason"
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -787,6 +788,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusRejected,
+			RejectionReason:      &rejectionReason,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
 		},
@@ -1731,7 +1733,7 @@ func (e e2eBasicScenario) Run(appCtx appcontext.AppContext, userUploader *upload
 	})
 
 	dopCost := unit.Cents(3456)
-	rejectionReason := "Customer no longer required this service"
+	rejectionReason = "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),

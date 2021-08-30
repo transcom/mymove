@@ -96,7 +96,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeActualWeight:     &actualWeight,
 		ShipmentType:          shipmentType,
 		Status:                shipmentStatus,
-		RejectionReason:       swag.String("Not enough information"),
 	}
 
 	if shipmentHasDeliveryDetails {
