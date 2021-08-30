@@ -89,6 +89,7 @@ type Move struct {
 	SignedCertifications         SignedCertifications    `has_many:"signed_certifications" fk_id:"move_id" order_by:"created_at desc"`
 	CancelReason                 *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                         *bool                   `json:"show" db:"show"`
+	TIORemarks                   *string                 `db:"tio_remarks"`
 	AvailableToPrimeAt           *time.Time              `db:"available_to_prime_at"`
 	ContractorID                 *uuid.UUID              `db:"contractor_id"`
 	Contractor                   *Contractor             `belongs_to:"contractors" fk_id:"contractor_id"`

@@ -2505,6 +2505,10 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      tioRemarks:
+        type: string
+        example: approved additional weight
+        x-nullable: true
       eTag:
         type: string
     type: object

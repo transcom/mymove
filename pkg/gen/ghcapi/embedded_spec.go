@@ -3692,6 +3692,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -9062,6 +9067,11 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "tioRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "approved additional weight"
         },
         "updatedAt": {
           "type": "string",
