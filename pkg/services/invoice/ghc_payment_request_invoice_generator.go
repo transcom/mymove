@@ -595,7 +595,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getPhoneNumberDigitsOnly(phoneString 
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(appCtx appcontext.AppContext, serviceItem models.PaymentServiceItem) (int, error) {
-	weight, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
+	weight, err := g.fetchPaymentServiceItemParam(appCtx, serviceItem.ID, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return 0, err
 	}

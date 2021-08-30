@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			Value:   time.Now().Format("20060102"),
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
+			Key:     models.ServiceItemParamNameWeightBilled,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "4242",
 		},
@@ -467,7 +467,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests 
 				Value:   currentTime.Format(testDateFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "4242",
 			},

@@ -71,7 +71,7 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 	mtoShipment := paymentServiceItem.MTOServiceItem.MTOShipment
 	distance := *mtoShipment.Distance
 
-	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -86,5 +86,5 @@ func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, para
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilledActual), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
+	return p.Price(appCtx, actualPickupDate, distance, unit.Pound(weightBilled), fscWeightBasedDistanceMultiplier, unit.Millicents(eiaFuelPrice))
 }

@@ -883,6 +883,7 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(db *pop.Connection, appCtx appcont
 		},
 	})
 
+	rejectionReason := "a rejection reason"
 	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			PrimeEstimatedWeight: &estimatedHHGWeight,
@@ -890,6 +891,7 @@ func serviceMemberWithOrdersAndAMovePPMandHHG(db *pop.Connection, appCtx appcont
 			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusRejected,
+			RejectionReason:      &rejectionReason,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
 		},
@@ -2272,7 +2274,9 @@ func createMoveWithServiceItemsandPaymentRequests02(db *pop.Connection, userUplo
 	})
 
 	dopCost := unit.Cents(3456)
+
 	rejectionReason8 := "Customer no longer required this service"
+
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),

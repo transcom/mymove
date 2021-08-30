@@ -43,7 +43,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 					Value:   strconv.Itoa(dshTestMileage),
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightBilledActual,
+					Key:     models.ServiceItemParamNameWeightBilled,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "0",
 				},
@@ -104,10 +104,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		suite.Nil(rateEngineParams)
 
 		// No weight
-		missingBilledActualWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilledActual)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledActualWeight)
+		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledWeight)
 		suite.Error(err)
-		suite.Equal("could not find param with key WeightBilledActual", err.Error())
+		suite.Equal("could not find param with key WeightBilled", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No service area
@@ -278,7 +278,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems(reque
 				Value:   strconv.Itoa(dshTestMileage),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(dshTestWeight),
 			},

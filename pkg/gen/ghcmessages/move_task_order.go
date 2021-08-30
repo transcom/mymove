@@ -75,6 +75,10 @@ type MoveTaskOrder struct {
 	// Format: date-time
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
 
+	// tio remarks
+	// Example: approved additional weight
+	TioRemarks *string `json:"tioRemarks,omitempty"`
+
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`

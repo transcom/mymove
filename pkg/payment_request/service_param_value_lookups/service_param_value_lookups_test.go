@@ -68,7 +68,7 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
@@ -77,7 +77,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 			},
 			MTOShipment: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
-				PrimeActualWeight:    &actualWeight,
+				PrimeActualWeight:    &originalWeight,
 				ShipmentType:         shipmentType,
 			},
 		})
@@ -95,7 +95,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 	return mtoServiceItem, paymentRequest, paramLookup
 }
 
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWeight(estimatedWeight unit.Pound, originalWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
 			ReService: models.ReService{
@@ -104,7 +104,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithShuttleWe
 			},
 			MTOServiceItem: models.MTOServiceItem{
 				EstimatedWeight: &estimatedWeight,
-				ActualWeight:    &actualWeight,
+				ActualWeight:    &originalWeight,
 			},
 			MTOShipment: models.MTOShipment{
 				ShipmentType: shipmentType,

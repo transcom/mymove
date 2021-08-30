@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './Orders.module.scss';
 
+import { milmoveLog, MILMOVE_LOG_LEVEL } from 'utils/milmoveLog';
 import { getTacValid, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -43,13 +44,13 @@ const validationSchema = Yup.object({
 const Orders = () => {
   const history = useHistory();
   const { moveCode } = useParams();
-  const [isValidTac, setIsValidTac] = useState(true);
+  const [isValidTac, setIsValidTac] = useState({ isValid: true, tac: '' });
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const orderId = move?.ordersId;
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     history.push(`/moves/${moveCode}/details`);
-  };
+  }, [history, moveCode]);
 
   const [mutateOrders] = useMutation(updateOrder, {
     onSuccess: (data, variables) => {
@@ -64,25 +65,18 @@ const Orders = () => {
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
-      // TODO: Handle error some how
-      // RA Summary: eslint: no-console - System Information Leak: External
-      // RA: The linter flags any use of console.
-      // RA: This console displays an error message from unsuccessful mutation.
-      // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
-      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
-      // RA Developer Status: Known Issue
-      // RA Validator Status: Known Issue
-      // RA Modified Severity: CAT II
-      // eslint-disable-next-line no-console
-      console.log(errorMsg);
+      milmoveLog(MILMOVE_LOG_LEVEL.LOG, errorMsg);
     },
   });
 
-  const handleTacValidation = (value) => {
-    if (value && value.length === 4) {
-      getTacValid({ tac: value }).then((response) => setIsValidTac(response.isValid));
-    }
-  };
+  const handleTacValidation = React.useCallback(
+    (value) => {
+      if (value && value.length === 4 && value !== isValidTac.tac) {
+        getTacValid({ tac: value }).then((response) => setIsValidTac({ isValid: response.isValid, tac: value }));
+      }
+    },
+    [isValidTac.tac],
+  );
 
   const order = Object.values(orders)?.[0];
   const { entitlement, uploadedAmendedOrderID, amendedOrdersAcknowledgedAt } = order;
@@ -96,8 +90,10 @@ const Orders = () => {
 
   useEffect(() => {
     // if the initial value === value, and it's 4 digits, run validator and show warning if invalid
-    if (order?.tac) handleTacValidation(order.tac);
-  }, [order]);
+    if (order?.tac && order.tac.length === 4) {
+      getTacValid({ tac: order.tac }).then((response) => setIsValidTac({ isValid: response.isValid, tac: order.tac }));
+    }
+  }, [order?.tac]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -130,11 +126,11 @@ const Orders = () => {
     issueDate: order?.date_issued,
     reportByDate: order?.report_by_date,
     departmentIndicator: order?.department_indicator,
-    ordersNumber: order?.order_number,
+    ordersNumber: order?.order_number || '',
     ordersType: order?.order_type,
     ordersTypeDetail: order?.order_type_detail,
-    tac: order?.tac,
-    sac: order?.sac,
+    tac: order?.tac || '',
+    sac: order?.sac || '',
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
   };
 
@@ -143,7 +139,7 @@ const Orders = () => {
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {(formik) => {
           // onBlur, if the value has 4 digits, run validator and show warning if invalid
-          const tacWarning = isValidTac ? '' : tacWarningMsg;
+          const tacWarning = isValidTac.isValid ? '' : tacWarningMsg;
           return (
             <form onSubmit={formik.handleSubmit}>
               <div className={styles.orderDetails}>
