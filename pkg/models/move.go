@@ -102,6 +102,7 @@ type Move struct {
 	ExcessWeightQualifiedAt      *time.Time              `db:"excess_weight_qualified_at"`
 	ExcessWeightUploadID         *uuid.UUID              `db:"excess_weight_upload_id"`
 	ExcessWeightUpload           *Upload                 `belongs_to:"uploads" fk_id:"excess_weight_upload_id"`
+	ExcessWeightAcknowledgedAt   *time.Time              `db:"excess_weight_acknowledged_at"`
 }
 
 // MoveOptions is used when creating new moves based on parameters

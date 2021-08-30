@@ -4678,7 +4678,18 @@ func createHHGMoveWithRiskOfExcess(appCtx appcontext.AppContext, userUploader *u
 	filterFile := &[]string{"2mb.png", "150Kb.png"}
 	serviceMember := makeServiceMember(db)
 	orders := makeOrdersForServiceMember(serviceMember, db, userUploader, filterFile)
-	move := makeMoveForOrders(orders, db, "RISKEX", models.MoveStatusAPPROVALSREQUESTED)
+	now := time.Now()
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			Status:                  models.MoveStatusAPPROVALSREQUESTED,
+			OrdersID:                orders.ID,
+			Orders:                  orders,
+			SelectedMoveType:        &hhgMoveType,
+			Locator:                 "RISKEX",
+			AvailableToPrimeAt:      &now,
+			ExcessWeightQualifiedAt: &now,
+		},
+	})
 	shipment := makeRiskOfExcessShipmentForMove(move, models.MTOShipmentStatusApproved, db)
 	paymentRequestID := uuid.Must(uuid.FromString("50b35add-705a-468b-8bad-056f5d9ef7e1"))
 	makePaymentRequestForShipment(move, shipment, db, primeUploader, filterFile, paymentRequestID)
