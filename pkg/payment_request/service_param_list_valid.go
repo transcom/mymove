@@ -11,6 +11,11 @@ func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOSe
 	var errorString string
 	hasError := false
 	for _, serviceParam := range serviceParams {
+		if serviceParam.IsOptional {
+			// Some params are considered optional.  If this is one, then we can skip looking for it.
+			continue
+		}
+
 		found := false
 		for _, paymentServiceItemParam := range paymentServiceItemParams {
 			if serviceParam.ServiceItemParamKey.Key == paymentServiceItemParam.ServiceItemParamKey.Key &&
@@ -19,14 +24,8 @@ func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOSe
 			}
 		}
 		if !found {
-			if serviceParam.ServiceItemParamKey.Key == models.ServiceItemParamNameWeightEstimated {
-				// This field is optional for a shipment, if the lookups did not error out when setting
-				// the weights, then finding this param in the paymentServiceItemParams is not critical
-				found = true
-			} else {
-				hasError = true
-				errorString = fmt.Sprintf("%s Param Key <%s>", errorString, serviceParam.ServiceItemParamKey.Key)
-			}
+			hasError = true
+			errorString = fmt.Sprintf("%s Param Key <%s>", errorString, serviceParam.ServiceItemParamKey.Key)
 		}
 	}
 
