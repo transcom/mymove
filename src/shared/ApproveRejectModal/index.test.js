@@ -8,12 +8,12 @@ const rejectBtnOnClick = jest.fn();
 
 describe('AcceptRejectModal component test', () => {
   // Positive tests
-  it('renders without crashing with required props', async () => {
+  it('renders without crashing with required props', () => {
     render(<ApproveRejectModal approveBtnOnClick={approveBtnOnClick} rejectBtnOnClick={rejectBtnOnClick} />);
-    expect(await screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument();
   });
 
-  it('renders nothing without crashing with required props and showModal prop false', async () => {
+  it('renders nothing without crashing with required props and showModal prop false', () => {
     render(
       <ApproveRejectModal
         showModal={false}
@@ -21,7 +21,7 @@ describe('AcceptRejectModal component test', () => {
         rejectBtnOnClick={rejectBtnOnClick}
       />,
     );
-    expect(await screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument();
   });
 
   it('handleApproveClick() is called', async () => {
@@ -107,12 +107,5 @@ describe('AcceptRejectModal component test', () => {
     expect(await screen.queryByLabelText('Approve')).not.toBeInTheDocument();
     expect(rejectionToggle).not.toBeInTheDocument();
     expect(await screen.getByLabelText('Rejection reason')).toBeInTheDocument();
-  });
-
-  // Negative tests
-  it('tries renders but crashes with no required props', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    render(<ApproveRejectModal />);
-    await expect(consoleErrorSpy).toHaveBeenCalled();
   });
 });
