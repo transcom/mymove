@@ -1,5 +1,5 @@
 import React from 'react';
-import { arrayOf, shape, string } from 'prop-types';
+import { string, arrayOf, shape, number } from 'prop-types';
 import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
@@ -45,15 +45,15 @@ export default function BillableWeightCard({
 }
 
 BillableWeightCard.propTypes = {
-  maxBillableWeight: string.isRequired,
-  weightRequested: string.isRequired,
-  weightAllowance: string.isRequired,
-  totalBillableWeight: string.isRequired,
+  maxBillableWeight: number.isRequired,
+  weightRequested: number.isRequired,
+  weightAllowance: number.isRequired,
+  totalBillableWeight: number.isRequired,
   shipments: arrayOf(
     shape({
       id: string.isRequired,
       shipmentType: string.isRequired,
-      reweigh: shape({ id: string.isRequired, weight: string }),
+      reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
 };

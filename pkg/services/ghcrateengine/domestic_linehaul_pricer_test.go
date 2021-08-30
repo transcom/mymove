@@ -59,15 +59,15 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.Error(err)
 	})
 
-	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func() {
+	suite.Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilled", func() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		weightBilledActualIndex := 5
-		if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
+		weightBilledIndex := 5
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
 		}
-		paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		priceCents, _, err := linehaulServicePricer.PriceUsingParams(suite.TestAppContext(), paramsWithBelowMinimumWeight)
 		suite.Error(err)
@@ -79,11 +79,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		weightBilledActualIndex := 5
-		if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
+		weightBilledIndex := 5
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
 		}
-		paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		_, _, err := linehaulServicePricer.Price(suite.TestAppContext(), "BOGUS", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
@@ -93,11 +93,11 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
-		weightBilledActualIndex := 5
-		if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
-			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
+		weightBilledIndex := 5
+		if paramsWithBelowMinimumWeight[weightBilledIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilled {
+			suite.Fail("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilled, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
 		}
-		paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 
 		// No contract code
 		_, _, err := linehaulServicePricer.Price(suite.TestAppContext(), "", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
@@ -162,12 +162,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() model
 				Value:   "94535",
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},

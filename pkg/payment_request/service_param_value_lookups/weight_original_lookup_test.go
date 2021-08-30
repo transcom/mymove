@@ -7,8 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShipment() {
-	key := models.ServiceItemParamNameWeightActual
+func (suite *ServiceParamValueLookupsSuite) TestWeightOriginalLookupForShipment() {
+	key := models.ServiceItemParamNameWeightOriginal
 
 	suite.Run("actual weight is present on MTO Shipment", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
@@ -35,8 +35,8 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShipment() 
 	})
 }
 
-func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookupForShuttling() {
-	key := models.ServiceItemParamNameWeightActual
+func (suite *ServiceParamValueLookupsSuite) TestWeightOriginalLookupForShuttling() {
+	key := models.ServiceItemParamNameWeightOriginal
 
 	suite.Run("actual weight is present on MTO Shipment", func() {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDOSHUT, models.MTOShipmentTypeHHG)

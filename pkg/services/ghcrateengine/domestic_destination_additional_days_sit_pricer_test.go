@@ -111,12 +111,12 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 		//Value:   ddasitTestServiceArea,
 		//},
 		//{
-		//Key:     models.ServiceItemParamNameWeightActual,
+		//Key:     models.ServiceItemParamNameWeightOriginal,
 		//KeyType: models.ServiceItemParamTypeInteger,
 		//Value:   "2700",
 		//},
 		//{
-		//Key:     models.ServiceItemParamNameWeightBilledActual,
+		//Key:     models.ServiceItemParamNameWeightBilled,
 		//KeyType: models.ServiceItemParamTypeInteger,
 		//Value:   fmt.Sprintf("%d", int(ddasitTestWeight)),
 		//},
@@ -147,12 +147,12 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 					Value:   ddasitTestRequestedPickupDate.Format(TimestampParamFormat),
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightActual,
+					Key:     models.ServiceItemParamNameWeightOriginal,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "2700",
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightBilledActual,
+					Key:     models.ServiceItemParamNameWeightBilled,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   fmt.Sprintf("%d", int(ddasitTestWeight)),
 				},
@@ -164,8 +164,8 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationAdditionalDaysSIT
 			},
 		},
 		{
-			testDescription: "not finding weight billed actual",
-			expectedError:   "could not find param with key WeightBilledActual",
+			testDescription: "not finding weight billed",
+			expectedError:   "could not find param with key WeightBilled",
 			psiParams: []testdatagen.CreatePaymentServiceItemParams{
 				{
 					Key:     models.ServiceItemParamNameContractCode,
@@ -228,12 +228,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationAdditionalDaysSI
 				Value:   ddasitTestServiceArea,
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "2700",
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(ddasitTestWeight)),
 			},

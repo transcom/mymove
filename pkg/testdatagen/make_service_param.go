@@ -36,6 +36,8 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 		serviceParam.ServiceItemParamKeyID = assertions.ServiceItemParamKey.ID
 	}
 
+	serviceParam.IsOptional = false
+
 	// Overwrite values with those from assertions
 	mergeModels(&serviceParam, assertions.ServiceParam)
 

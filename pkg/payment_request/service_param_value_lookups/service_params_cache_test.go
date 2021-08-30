@@ -113,6 +113,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID,
 			ServiceItemParamKey:   subtestData.serviceItemParamKey1,
+			IsOptional:            true,
 		},
 	})
 
@@ -131,6 +132,7 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 			ServiceID:             mtoServiceItem2.ReServiceID,
 			ServiceItemParamKeyID: subtestData.serviceItemParamKey1.ID,
 			ServiceItemParamKey:   subtestData.serviceItemParamKey1,
+			IsOptional:            true,
 		},
 	})
 
