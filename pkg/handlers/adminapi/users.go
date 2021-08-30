@@ -115,8 +115,7 @@ type UpdateUserHandler struct {
 // Handle updates a user's Active status and/or their sessions
 func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	appCtx := appcontext.NewAppContext(h.DB(), logger)
-
+	appCtx := h.AppContextFromRequest(params.HTTPRequest)
 	payload := params.User
 
 	// Check that the uuid provided is valid and get user model

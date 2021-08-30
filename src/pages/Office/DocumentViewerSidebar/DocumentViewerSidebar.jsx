@@ -1,5 +1,5 @@
 import React from 'react';
-import { func, string, node } from 'prop-types';
+import { func, node, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
