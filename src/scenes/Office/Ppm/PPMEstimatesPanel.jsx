@@ -2,9 +2,9 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, FormSection } from 'redux-form';
+import { FormSection, getFormValues, reduxForm } from 'redux-form';
 
-import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
+import { editablePanelify, PanelField, PanelSwaggerField } from 'shared/EditablePanel';
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';

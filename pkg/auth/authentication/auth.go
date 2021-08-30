@@ -12,6 +12,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -24,7 +27,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -434,14 +436,16 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db *pop.Connection
+	db     *pop.Connection
+	sender notifications.NotificationSender
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection, sender notifications.NotificationSender) CallbackHandler {
 	handler := CallbackHandler{
 		Context: ac,
 		db:      db,
+		sender:  sender,
 	}
 	return handler
 }
@@ -728,6 +732,24 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+		if err == nil {
+			appCtx := appcontext.WithSession(appcontext.NewAppContext(h.db, h.logger), session)
+			sysAdminEmail := notifications.GetSysAdminEmail(h.sender)
+			h.logger.Info(
+				"New user account created through Login.gov",
+				zap.String("newUserID", user.ID.String()),
+				zap.String("sysAdminEmail", sysAdminEmail),
+			)
+			email, emailErr := notifications.NewUserAccountCreated(appCtx, sysAdminEmail, user.ID, user.UpdatedAt)
+			if emailErr == nil {
+				sendErr := h.sender.SendNotification(email)
+				if sendErr != nil {
+					h.logger.Error("Error sending user creation email", zap.Error(sendErr))
+				}
+			} else {
+				h.logger.Error("Error creating user creation email", zap.Error(emailErr))
+			}
+		}
 		// Create the user's service member now and add the ServiceMemberID to
 		// the session to allow the user's `CurrentMilSessionId` field to be
 		// populated. This field is only populated if `session.IsServiceMember()`

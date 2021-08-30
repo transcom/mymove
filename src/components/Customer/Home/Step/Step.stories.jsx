@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { text, boolean } from '@storybook/addon-knobs';
+import { boolean, text } from '@storybook/addon-knobs';
 
 import DocsUploaded from '../DocsUploaded/index';
 import ShipmentList from '../../../ShipmentList/index';

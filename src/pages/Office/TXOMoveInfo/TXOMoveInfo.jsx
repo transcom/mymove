@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { Switch, useParams, Redirect, Route, useLocation, matchPath } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { matchPath, Redirect, Route, Switch, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
