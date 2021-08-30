@@ -1,12 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import BillableWeightCard from './BillableWeightCard';
-
 import { formatWeight } from 'shared/formatters';
+import WeightSummary from 'components/Office/WeightSummary/WeightSummary';
 
-describe('BillableWeightCard', () => {
-  it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
+describe('WeightSummary', () => {
+  it('renders without crashing', () => {
     const shipments = [
       { id: '0001', shipmentType: 'HHG', billableWeight: 6161, estimatedWeight: 5600 },
       {
@@ -27,10 +26,9 @@ describe('BillableWeightCard', () => {
       shipments,
     };
 
-    render(<BillableWeightCard {...defaultProps} />);
-
+    render(<WeightSummary {...defaultProps} />);
     // labels
-    expect(screen.getByText('Maximum billable weight')).toBeInTheDocument();
+    expect(screen.getByText('Max billable weight')).toBeInTheDocument();
     expect(screen.getByText('Weight requested')).toBeInTheDocument();
     expect(screen.getByText('Weight allowance')).toBeInTheDocument();
     expect(screen.getByText('Total billable weight')).toBeInTheDocument();
@@ -40,10 +38,6 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText(formatWeight(defaultProps.totalBillableWeight))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.weightRequested))).toBeInTheDocument();
     expect(screen.getByText(formatWeight(defaultProps.weightAllowance))).toBeInTheDocument();
-
-    // flags
-    expect(screen.getByText('Over weight')).toBeInTheDocument();
-    expect(screen.getByText('Missing weight')).toBeInTheDocument();
 
     // shipment weights
     expect(screen.getByText(formatWeight(shipments[0].billableWeight))).toBeInTheDocument();
