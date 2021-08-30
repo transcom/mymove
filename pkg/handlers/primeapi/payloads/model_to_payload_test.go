@@ -110,8 +110,8 @@ func (suite *PayloadsSuite) TestReweigh() {
 		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
 		suite.Equal(strfmt.DateTime(returnedPayload.UpdatedAt), returnedPayload.UpdatedAt)
 		suite.Equal(handlers.FmtPoundPtr(reweigh.Weight), returnedPayload.Weight)
-		suite.Nil(handlers.FmtStringPtr(reweigh.VerificationReason), returnedPayload.VerificationReason)
-		suite.Nil(handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt), returnedPayload.VerificationProvidedAt)
+		suite.Equal(handlers.FmtStringPtr(reweigh.VerificationReason), returnedPayload.VerificationReason)
+		suite.Equal(handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt), returnedPayload.VerificationProvidedAt)
 		suite.NotNil(returnedPayload.ETag)
 
 	})
