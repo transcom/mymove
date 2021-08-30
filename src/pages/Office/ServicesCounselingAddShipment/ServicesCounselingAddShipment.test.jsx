@@ -195,7 +195,7 @@ describe('ServicesCounselingAddShipment component', () => {
 
     it('routes to the move details page when the save button is clicked', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      createMTOShipment.mockImplementation(() => Promise.resolve());
+      createMTOShipment.mockImplementation(() => Promise.resolve({}));
 
       render(<ServicesCounselingAddShipment {...props} />);
 

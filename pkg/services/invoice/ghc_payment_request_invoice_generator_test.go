@@ -77,7 +77,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			Value:   currentTime.Format(testDateFormat),
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
+			Key:     models.ServiceItemParamNameWeightBilled,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "4242",
 		},
@@ -760,7 +760,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 			Value:   currentTime.Format(testDateFormat),
 		},
 		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
+			Key:     models.ServiceItemParamNameWeightBilled,
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "4242",
 		},

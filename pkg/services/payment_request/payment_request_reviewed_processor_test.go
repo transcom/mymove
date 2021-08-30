@@ -43,7 +43,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.Pa
 				Value:   currentTime.Format(testDateFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   "4242",
 			},

@@ -29,7 +29,7 @@ func (p domesticOriginShuttlingPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
+	weightBilled, err := getParamInt(params, models.ServiceItemParamNameWeightBilled)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -44,5 +44,5 @@ func (p domesticOriginShuttlingPricer) PriceUsingParams(appCtx appcontext.AppCon
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilledActual), serviceScheduleOrigin)
+	return p.Price(appCtx, contractCode, requestedPickupDate, unit.Pound(weightBilled), serviceScheduleOrigin)
 }

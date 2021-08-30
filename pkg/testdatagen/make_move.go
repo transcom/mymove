@@ -220,6 +220,7 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 		TransportationOffice: assertions.TransportationOffice,
 		Order:                assertions.Order,
 		Stub:                 assertions.Stub,
+		UserUploader:         assertions.UserUploader,
 	})
 
 	mergeModels(&move, assertions.Move)
