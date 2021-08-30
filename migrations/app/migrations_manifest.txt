@@ -662,3 +662,4 @@
 20210823225557_add_sit_extensions_table.up.sql
 20210823225613_add_sit_days_allownance_to_mto_shipments.up.sql
 20210824170712_add_excess_weight_acknowledged_at_to_moves.up.sql
+20210826153944_add_tio_remarks_to_moves_table.up.sql
