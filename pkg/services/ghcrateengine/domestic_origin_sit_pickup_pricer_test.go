@@ -223,12 +223,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginSITPickupServiceItem(
 				Value:   fmt.Sprintf("%d", dopsitTestSchedule),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightActual,
+				Key:     models.ServiceItemParamNameWeightOriginal,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dopsitTestWeight)),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   fmt.Sprintf("%d", int(dopsitTestWeight)),
 			},

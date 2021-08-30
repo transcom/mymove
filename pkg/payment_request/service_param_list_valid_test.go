@@ -70,6 +70,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 			ServiceID:             subtestData.mtoServiceItem1.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey1.ID,
 			ServiceItemParamKey:   serviceItemParamKey1,
+			IsOptional:            true,
 		},
 	})
 
@@ -102,6 +103,7 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 			ServiceID:             subtestData.mtoServiceItem2.ReServiceID,
 			ServiceItemParamKeyID: serviceItemParamKey1.ID,
 			ServiceItemParamKey:   serviceItemParamKey1,
+			IsOptional:            true,
 		},
 	})
 
@@ -123,6 +125,8 @@ func (suite *PaymentRequestHelperSuite) makeServiceParamTestData() (subtestData 
 func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 	suite.Run("Validate Service Items Params is TRUE (All params present)", func() {
 		subtestData := suite.makeServiceParamTestData()
+
+		// This set of service params has required and optional params with no value set (should be valid).
 		var paymentServiceItemParams1 models.PaymentServiceItemParams
 		for _, p := range subtestData.mtoService1ServiceParams {
 			paymentServiceItemParams1 = append(paymentServiceItemParams1,
@@ -132,11 +136,13 @@ func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 				})
 		}
 		var paymentServiceItemParams2 models.PaymentServiceItemParams
+		// This set of service params has only one optional param, and we're setting a value (should be valid).
 		for _, p := range subtestData.mtoService2ServiceParams {
 			paymentServiceItemParams2 = append(paymentServiceItemParams2,
 				models.PaymentServiceItemParam{
 					ServiceItemParamKeyID: p.ServiceItemParamKeyID,
 					ServiceItemParamKey:   p.ServiceItemParamKey,
+					Value:                 "1000",
 				})
 		}
 		paymentRequest := models.PaymentRequest{

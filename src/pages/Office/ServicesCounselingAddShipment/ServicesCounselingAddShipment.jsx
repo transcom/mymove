@@ -52,6 +52,7 @@ const ServicesCounselingAddShipment = ({ match }) => {
                   selectedMoveType={SHIPMENT_OPTIONS.HHG}
                   serviceMember={{ weightAllotment }}
                   moveTaskOrderID={move.id}
+                  mtoShipments={mtoShipments}
                 />
               </Grid>
             </Grid>

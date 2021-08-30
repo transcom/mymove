@@ -8,9 +8,15 @@ import { formatWeight } from 'shared/formatters';
 
 describe('BillableWeightCard', () => {
   const shipments = [
-    { id: '0001', shipmentType: 'HHG', billableWeightCap: '6,161', primeEstimatedWeight: '5,600' },
-    { id: '0002', shipmentType: 'HHG', billableWeightCap: '3,200', reweigh: { id: '1234' } },
-    { id: '0003', shipmentType: 'HHG', billableWeightCap: '3,400', primeEstimatedWeight: '5,000' },
+    { id: '0001', shipmentType: 'HHG', billableWeight: 6161, estimatedWeight: 5600 },
+    {
+      id: '0002',
+      shipmentType: 'HHG',
+      billableWeight: 3200,
+      estimatedWeight: 5000,
+      reweigh: { id: '1234' },
+    },
+    { id: '0003', shipmentType: 'HHG', billableWeight: 3400, estimatedWeight: 5000 },
   ];
 
   const defaultProps = {
@@ -42,9 +48,9 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText('Missing weight')).toBeInTheDocument();
 
     // shipment weights
-    expect(screen.getByText(formatWeight(shipments[0].billableWeightCap))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(shipments[1].billableWeightCap))).toBeInTheDocument();
-    expect(screen.getByText(formatWeight(shipments[2].billableWeightCap))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[0].billableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[1].billableWeight))).toBeInTheDocument();
+    expect(screen.getByText(formatWeight(shipments[2].billableWeight))).toBeInTheDocument();
   });
 
   it('implements the review weights handler when the review weights button is clicked', async () => {

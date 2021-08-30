@@ -19,9 +19,10 @@ const MaskedTextField = ({
   blocks,
   lazy,
   warning,
+  validate,
   ...props
 }) => {
-  const [field, meta, helpers] = useField({ id, name, ...props });
+  const [field, meta, helpers] = useField({ id, name, validate, ...props });
   const hasError = meta.touched && !!meta.error;
   const { value } = field;
   return (
@@ -48,7 +49,8 @@ const MaskedTextField = ({
         lazy={lazy}
         onAccept={(val, masked) => {
           helpers.setValue(masked.unmaskedValue);
-          helpers.setTouched(true);
+          // setValue is already triggering validation for this field so we should be able to skip it in setTouched
+          helpers.setTouched(true, false);
         }}
         {...props}
       />
@@ -69,6 +71,7 @@ MaskedTextField.propTypes = {
   blocks: PropTypes.oneOfType([PropTypes.object]),
   lazy: PropTypes.bool,
   warning: PropTypes.string,
+  validate: PropTypes.func,
 };
 
 MaskedTextField.defaultProps = {
@@ -80,6 +83,7 @@ MaskedTextField.defaultProps = {
   blocks: {},
   lazy: true, // make placeholder not visible
   warning: '',
+  validate: undefined,
 };
 
 export default MaskedTextField;

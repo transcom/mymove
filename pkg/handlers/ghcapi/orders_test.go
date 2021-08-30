@@ -931,6 +931,12 @@ type updateAllowanceHandlerSubtestData struct {
 	body  *ghcmessages.UpdateAllowancePayload
 }
 
+type updateBillableWeightHandlerSubtestData struct {
+	move  models.Move
+	order models.Order
+	body  *ghcmessages.UpdateBillableWeightPayload
+}
+
 func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData *updateAllowanceHandlerSubtestData) {
 	subtestData = &updateAllowanceHandlerSubtestData{}
 
@@ -954,6 +960,22 @@ func (suite *HandlerSuite) makeUpdateAllowanceHandlerSubtestData() (subtestData 
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		RequiredMedicalEquipmentWeight: rmeWeight,
+	}
+	return subtestData
+}
+
+func (suite *HandlerSuite) makeUpdateBillableWeightHandlerSubtestData() (subtestData *updateBillableWeightHandlerSubtestData) {
+	subtestData = &updateBillableWeightHandlerSubtestData{}
+	now := time.Now()
+	subtestData.move = testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{ExcessWeightQualifiedAt: &now},
+	})
+	subtestData.order = subtestData.move.Orders
+
+	newAuthorizedWeight := int64(10000)
+
+	subtestData.body = &ghcmessages.UpdateBillableWeightPayload{
+		AuthorizedWeight: &newAuthorizedWeight,
 	}
 	return subtestData
 }
@@ -1342,4 +1364,413 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 
 		suite.IsType(&orderop.CounselingUpdateAllowanceUnprocessableEntity{}, response)
 	})
+}
+
+func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
+
+	suite.Run("Returns 200 when all validations pass", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateBillableWeightParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		router := moverouter.NewMoveRouter()
+		handler := UpdateBillableWeightHandler{
+			context,
+			orderservice.NewExcessWeightRiskManager(router),
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		orderOK := response.(*orderop.UpdateBillableWeightOK)
+		ordersPayload := orderOK.Payload
+
+		suite.Assertions.IsType(&orderop.UpdateBillableWeightOK{}, response)
+		suite.Equal(order.ID.String(), ordersPayload.ID.String())
+		suite.Equal(body.AuthorizedWeight, ordersPayload.Entitlement.AuthorizedWeight)
+	})
+
+	suite.Run("Returns a 403 when the user does not have TOO role", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateBillableWeightParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateBillableWeightHandler{
+			context,
+			updater,
+		}
+
+		updater.AssertNumberOfCalls(suite.T(), "UpdateBillableWeightAsTOO", 0)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateBillableWeightForbidden{}, response)
+	})
+
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateBillableWeightParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateBillableWeightHandler{
+			context,
+			updater,
+		}
+		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+
+		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.NotFoundError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateBillableWeightNotFound{}, response)
+	})
+
+	suite.Run("Returns 412 when eTag does not match", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateBillableWeightParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     "",
+			Body:        body,
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateBillableWeightHandler{
+			context,
+			updater,
+		}
+		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+
+		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.PreconditionFailedError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateBillableWeightPreconditionFailed{}, response)
+	})
+
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
+		order := subtestData.order
+		body := subtestData.body
+
+		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.UpdateBillableWeightParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+			Body:        body,
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := UpdateBillableWeightHandler{
+			context,
+			updater,
+		}
+		dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+
+		updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, dbAuthorizedWeight, params.IfMatch).Return(nil, nil, services.InvalidInputError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.UpdateBillableWeightUnprocessableEntity{}, response)
+	})
+}
+
+// Test that an order notification got stored successfully
+func (suite *HandlerSuite) TestUpdateBillableWeightEventTrigger() {
+	subtestData := suite.makeUpdateBillableWeightHandlerSubtestData()
+	order := subtestData.order
+	body := subtestData.body
+	move := subtestData.move
+
+	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	request := httptest.NewRequest("PATCH", "/orders/{orderID}/update-billable-weight", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+	params := orderop.UpdateBillableWeightParams{
+		HTTPRequest: request,
+		OrderID:     strfmt.UUID(order.ID.String()),
+		IfMatch:     etag.GenerateEtag(order.UpdatedAt), // This is broken if you get a preconditioned failed error
+		Body:        body,
+	}
+	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+
+	updater := &mocks.ExcessWeightRiskManager{}
+	updater.On("UpdateBillableWeightAsTOO", mock.AnythingOfType("*appcontext.appContext"),
+		order.ID, dbAuthorizedWeight, params.IfMatch).Return(&order, move.ID, nil)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := UpdateBillableWeightHandler{
+		context,
+		updater,
+	}
+
+	traceID, err := uuid.NewV4()
+	handler.SetTraceID(traceID)        // traceID is inserted into handler
+	response := handler.Handle(params) // This step also saves traceID into DB
+
+	suite.IsNotErrResponse(response)
+
+	orderOK := response.(*orderop.UpdateBillableWeightOK)
+	ordersPayload := orderOK.Payload
+
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	suite.IsType(&orderop.UpdateBillableWeightOK{}, response)
+	suite.Equal(ordersPayload.ID, strfmt.UUID(order.ID.String()))
+	suite.HasWebhookNotification(order.ID, traceID)
+}
+
+func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
+	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
+
+	suite.Run("Returns 200 when all validations pass", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{ExcessWeightQualifiedAt: &now},
+		})
+		order := move.Orders
+
+		requestUser := testdatagen.MakeOfficeUserWithMultipleRoles(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
+		}
+
+		router := moverouter.NewMoveRouter()
+		handler := AcknowledgeExcessWeightRiskHandler{
+			context,
+			orderservice.NewExcessWeightRiskManager(router),
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+		moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
+		movePayload := moveOK.Payload
+
+		suite.Assertions.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
+		suite.Equal(move.ID.String(), movePayload.ID.String())
+		suite.NotNil(movePayload.ExcessWeightAcknowledgedAt)
+	})
+
+	suite.Run("Returns a 403 when the user does not have TOO role", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{ExcessWeightQualifiedAt: &now},
+		})
+		order := move.Orders
+
+		requestUser := testdatagen.MakeServicesCounselorOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessWeightRiskHandler{
+			context,
+			updater,
+		}
+
+		updater.AssertNumberOfCalls(suite.T(), "AcknowledgeExcessWeightRisk", 0)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessWeightRiskForbidden{}, response)
+	})
+
+	suite.Run("Returns 404 when updater returns NotFoundError", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{ExcessWeightQualifiedAt: &now},
+		})
+		order := move.Orders
+
+		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessWeightRiskHandler{
+			context,
+			updater,
+		}
+
+		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, params.IfMatch).Return(nil, services.NotFoundError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessWeightRiskNotFound{}, response)
+	})
+
+	suite.Run("Returns 412 when eTag does not match", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{ExcessWeightQualifiedAt: &now},
+		})
+		order := move.Orders
+
+		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     "",
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessWeightRiskHandler{
+			context,
+			updater,
+		}
+
+		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, params.IfMatch).Return(nil, services.PreconditionFailedError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessWeightRiskPreconditionFailed{}, response)
+	})
+
+	suite.Run("Returns 422 when updater service returns validation errors", func() {
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		now := time.Now()
+		move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{ExcessWeightQualifiedAt: &now},
+		})
+		order := move.Orders
+
+		requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+		request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+		params := orderop.AcknowledgeExcessWeightRiskParams{
+			HTTPRequest: request,
+			OrderID:     strfmt.UUID(order.ID.String()),
+			IfMatch:     etag.GenerateEtag(order.UpdatedAt),
+		}
+
+		updater := &mocks.ExcessWeightRiskManager{}
+		handler := AcknowledgeExcessWeightRiskHandler{
+			context,
+			updater,
+		}
+
+		updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+			order.ID, params.IfMatch).Return(nil, services.InvalidInputError{})
+
+		response := handler.Handle(params)
+
+		suite.IsType(&orderop.AcknowledgeExcessWeightRiskUnprocessableEntity{}, response)
+	})
+}
+
+// Test that an order notification got stored successfully
+func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskEventTrigger() {
+	now := time.Now()
+	move := testdatagen.MakeApprovalsRequestedMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{ExcessWeightQualifiedAt: &now},
+	})
+	order := move.Orders
+
+	requestUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-weight-risk", nil)
+	request = suite.AuthenticateOfficeRequest(request, requestUser)
+
+	params := orderop.AcknowledgeExcessWeightRiskParams{
+		HTTPRequest: request,
+		OrderID:     strfmt.UUID(order.ID.String()),
+		IfMatch:     etag.GenerateEtag(order.UpdatedAt), // This is broken if you get a preconditioned failed error
+	}
+
+	updater := &mocks.ExcessWeightRiskManager{}
+	updater.On("AcknowledgeExcessWeightRisk", mock.AnythingOfType("*appcontext.appContext"),
+		order.ID, params.IfMatch).Return(&move, nil)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := AcknowledgeExcessWeightRiskHandler{
+		context,
+		updater,
+	}
+
+	traceID, err := uuid.NewV4()
+	handler.SetTraceID(traceID)        // traceID is inserted into handler
+	response := handler.Handle(params) // This step also saves traceID into DB
+
+	suite.IsNotErrResponse(response)
+
+	moveOK := response.(*orderop.AcknowledgeExcessWeightRiskOK)
+	movePayload := moveOK.Payload
+
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	suite.IsType(&orderop.AcknowledgeExcessWeightRiskOK{}, response)
+	suite.Equal(movePayload.ID, strfmt.UUID(move.ID.String()))
+	suite.HasWebhookNotification(move.ID, traceID)
 }

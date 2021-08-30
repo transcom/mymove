@@ -36,7 +36,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 					Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 				},
 				{
-					Key:     models.ServiceItemParamNameWeightBilledActual,
+					Key:     models.ServiceItemParamNameWeightBilled,
 					KeyType: models.ServiceItemParamTypeInteger,
 					Value:   "0",
 				},
@@ -83,10 +83,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 		suite.Equal("could not find param with key RequestedPickupDate", err.Error())
 
 		// No weight
-		missingBilledActualWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilledActual)
-		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledActualWeight)
+		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
+		_, _, err = pricer.PriceUsingParams(suite.TestAppContext(), missingBilledWeight)
 		suite.Error(err)
-		suite.Equal("could not find param with key WeightBilledActual", err.Error())
+		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No service area
 		missingServiceAreaDest := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaDest)
@@ -234,7 +234,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationServiceItems() m
 				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				Key:     models.ServiceItemParamNameWeightBilledActual,
+				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   strconv.Itoa(ddpTestWeight),
 			},

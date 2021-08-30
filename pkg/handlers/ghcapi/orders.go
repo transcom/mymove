@@ -4,24 +4,22 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/move"
-
-	"github.com/gobuffalo/validate/v3"
-
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/event"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	orderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/services/move"
 )
 
 // GetOrdersHandler fetches the information of a specific order
@@ -253,6 +251,95 @@ func (h CounselingUpdateAllowanceHandler) Handle(params orderop.CounselingUpdate
 	return orderop.NewCounselingUpdateAllowanceOK().WithPayload(orderPayload)
 }
 
+// UpdateBillableWeightHandler updates the max billable weight on an order's entitlements via PATCH /orders/{orderId}/update-billable-weight
+type UpdateBillableWeightHandler struct {
+	handlers.HandlerContext
+	excessWeightRiskManager services.ExcessWeightRiskManager
+}
+
+// Handle ... updates the authorized weight
+func (h UpdateBillableWeightHandler) Handle(params orderop.UpdateBillableWeightParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error updating max billable weight", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return orderop.NewUpdateBillableWeightNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return orderop.NewUpdateBillableWeightUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewUpdateBillableWeightPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewUpdateBillableWeightForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewUpdateBillableWeightInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
+	}
+
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	dbAuthorizedWeight := swag.Int(int(*params.Body.AuthorizedWeight))
+	updatedOrder, moveID, err := h.excessWeightRiskManager.UpdateBillableWeightAsTOO(appCtx, orderID, dbAuthorizedWeight, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	h.triggerUpdatedBillableWeightEvent(appCtx, orderID, moveID, params)
+
+	orderPayload := payloads.Order(updatedOrder)
+
+	return orderop.NewUpdateBillableWeightOK().WithPayload(orderPayload)
+}
+
+// AcknowledgeExcessWeightRiskHandler is called when a TOO dismissed the alert to acknowledge the excess weight risk via POST /orders/{orderId}/acknowledge-excess-weight-risk
+type AcknowledgeExcessWeightRiskHandler struct {
+	handlers.HandlerContext
+	excessWeightRiskManager services.ExcessWeightRiskManager
+}
+
+// Handle ... updates the authorized weight
+func (h AcknowledgeExcessWeightRiskHandler) Handle(params orderop.AcknowledgeExcessWeightRiskParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	appCtx := appcontext.NewAppContext(h.DB(), logger)
+	handleError := func(err error) middleware.Responder {
+		logger.Error("error acknowledging excess weight risk", zap.Error(err))
+		switch e := err.(type) {
+		case services.NotFoundError:
+			return orderop.NewAcknowledgeExcessWeightRiskNotFound()
+		case services.InvalidInputError:
+			payload := payloadForValidationError(handlers.ValidationErrMessage, err.Error(), h.GetTraceID(), e.ValidationErrors)
+			return orderop.NewAcknowledgeExcessWeightRiskUnprocessableEntity().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return orderop.NewAcknowledgeExcessWeightRiskPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ForbiddenError:
+			return orderop.NewAcknowledgeExcessWeightRiskForbidden().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return orderop.NewAcknowledgeExcessWeightRiskInternalServerError()
+		}
+	}
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
+		return handleError(services.NewForbiddenError("is not a TOO"))
+	}
+
+	orderID := uuid.FromStringOrNil(params.OrderID.String())
+	updatedMove, err := h.excessWeightRiskManager.AcknowledgeExcessWeightRisk(appCtx, orderID, params.IfMatch)
+	if err != nil {
+		return handleError(err)
+	}
+
+	h.triggerAcknowledgeExcessWeightRiskEvent(appCtx, updatedMove.ID, params)
+
+	movePayload := payloads.Move(updatedMove)
+
+	return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload)
+}
+
 func (h UpdateOrderHandler) triggerUpdateOrderEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateOrderParams) {
 	_, err := event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateOrderEndpointKey,
@@ -322,5 +409,41 @@ func (h CounselingUpdateAllowanceHandler) triggerCounselingUpdateAllowanceEvent(
 	// If the event trigger fails, just log the error.
 	if err != nil {
 		appCtx.Logger().Error("ghcapi.CounselingUpdateAllowanceHandler could not generate the event")
+	}
+}
+
+func (h UpdateBillableWeightHandler) triggerUpdatedBillableWeightEvent(appCtx appcontext.AppContext, orderID uuid.UUID, moveID uuid.UUID, params orderop.UpdateBillableWeightParams) {
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateBillableWeightEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.OrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: orderID,                   // ID of the updated logical object
+		MtoID:           moveID,                    // ID of the associated Move
+		Request:         params.HTTPRequest,        // Pass on the http.Request
+		DBConnection:    appCtx.DB(),               // Pass on the pop.Connection
+		HandlerContext:  h,                         // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
+	}
+}
+
+func (h AcknowledgeExcessWeightRiskHandler) triggerAcknowledgeExcessWeightRiskEvent(appCtx appcontext.AppContext, moveID uuid.UUID, params orderop.AcknowledgeExcessWeightRiskParams) {
+	_, err := event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcAcknowledgeExcessWeightRiskEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MoveTaskOrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: moveID,                            // ID of the updated logical object
+		MtoID:           moveID,                            // ID of the associated Move
+		Request:         params.HTTPRequest,                // Pass on the http.Request
+		DBConnection:    appCtx.DB(),                       // Pass on the pop.Connection
+		HandlerContext:  h,                                 // Pass on the handlerContext
+	})
+
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		appCtx.Logger().Error("ghcapi.UpdateBillableWeightHandler could not generate the event")
 	}
 }

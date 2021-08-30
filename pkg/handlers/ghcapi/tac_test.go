@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	tacop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
@@ -19,6 +20,7 @@ func (suite *HandlerSuite) TestTacValidation() {
 		isValid bool
 	}{
 		{tacCode: transportationAccountingCode.TAC, isValid: true},
+		{tacCode: strings.ToLower(transportationAccountingCode.TAC), isValid: true}, // test case insensitivity
 		{tacCode: "4EVR", isValid: false},
 	}
 
