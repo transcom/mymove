@@ -15,11 +15,11 @@ export function formatOrderType(orderType) {
 
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
-  return moment(new Date(date)).format('DD MMM YYYY');
+  return moment(date).format('DD MMM YYYY');
 }
 
 export function formatSignatureDate(date) {
-  return moment(new Date(date)).format('YYYY-MM-DD');
+  return moment(date).format('YYYY-MM-DD');
 }
 
 // Translate boolean (true/false) into "yes"/"no" string
