@@ -37,6 +37,10 @@ type Move struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight
+	// Format: date-time
+	ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excess_weight_acknowledged_at,omitempty"`
+
 	// Timestamp of when the estimated shipment weights of the move reached 90% of the weight allowance
 	// Format: date-time
 	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excess_weight_qualified_at,omitempty"`
@@ -95,6 +99,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightAcknowledgedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -183,6 +191,18 @@ func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateExcessWeightAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excess_weight_acknowledged_at", "body", "date-time", m.ExcessWeightAcknowledgedAt.String(), formats); err != nil {
 		return err
 	}
 

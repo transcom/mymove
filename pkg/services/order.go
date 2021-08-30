@@ -31,6 +31,13 @@ type OrderUpdater interface {
 	UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error)
 }
 
+//ExcessWeightRiskManager is the service object interface for updating the max billable weight for an Order's Entitlement
+//go:generate mockery --name ExcessWeightRiskManager --disable-version-string
+type ExcessWeightRiskManager interface {
+	AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error)
+	UpdateBillableWeightAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, eTag string) (*models.Order, uuid.UUID, error)
+}
+
 // ListOrderParams is a public struct that's used to pass filter arguments to the ListOrders
 type ListOrderParams struct {
 	Branch                 *string

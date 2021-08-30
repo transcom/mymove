@@ -78,7 +78,7 @@ func NewInternalAPI(ctx handlers.HandlerContext) *internalops.MymoveAPI {
 	}
 	internalAPI.MovesSubmitAmendedOrdersHandler = SubmitAmendedOrdersHandler{
 		ctx,
-		move.NewMoveRouter(),
+		moveRouter,
 	}
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{ctx}
 

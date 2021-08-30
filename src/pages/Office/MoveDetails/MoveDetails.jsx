@@ -80,8 +80,9 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
   const approvedOrCanceledShipments = mtoShipments?.filter(
     (shipment) =>
       shipment.status === shipmentStatuses.APPROVED ||
-      shipment.status === shipmentStatuses.CANCELED ||
-      shipment.status === shipmentStatuses.DIVERSION_REQUESTED,
+      shipment.status === shipmentStatuses.DIVERSION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELLATION_REQUESTED ||
+      shipment.status === shipmentStatuses.CANCELED,
   );
 
   useEffect(() => {
@@ -105,6 +106,7 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
 
   useEffect(() => {
     let estimatedWeightCalc = null;
+    const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
     if (mtoShipments?.some((s) => s.primeEstimatedWeight)) {
       estimatedWeightCalc = mtoShipments
@@ -114,10 +116,12 @@ const MoveDetails = ({ setUnapprovedShipmentCount, setUnapprovedServiceItemCount
         }, 0);
     }
 
-    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight)) {
+    if (hasRiskOfExcess(estimatedWeightCalc, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
       setExcessWeightRiskCount(1);
+    } else {
+      setExcessWeightRiskCount(0);
     }
-  }, [mtoShipments, setExcessWeightRiskCount, order]);
+  }, [mtoShipments, setExcessWeightRiskCount, order, move]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;

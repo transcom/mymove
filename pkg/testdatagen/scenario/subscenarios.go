@@ -205,6 +205,7 @@ func subScenarioReweighs(appCtx appcontext.AppContext, userUploader *uploader.Us
 		createReweighWithShipmentMissingReweigh(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentMaxBillableWeightExceeded(appCtx, userUploader, primeUploader, moveRouter)
 		createReweighWithShipmentNoEstimatedWeight(appCtx, userUploader, primeUploader, moveRouter)
+		createReweighWithMixedShipmentStatuses(appCtx, userUploader)
 	}
 }
 
@@ -215,7 +216,7 @@ func subScenarioMisc(appCtx appcontext.AppContext, userUploader *uploader.UserUp
 		createTXOServicesUSMCCounselor(appCtx)
 
 		// A move with missing required order fields
-		createMoveWithHHGMissingOrdersInfo(appCtx, moveRouter)
+		createMoveWithHHGMissingOrdersInfo(appCtx, moveRouter, userUploader)
 
 		createHHGMoveWith10ServiceItems(appCtx, userUploader)
 		createHHGMoveWith2PaymentRequests(appCtx, userUploader)
