@@ -54,3 +54,65 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.NotNil(returnedModel.ETag)
 	})
 }
+
+func (suite *PayloadsSuite) TestReweigh() {
+	id, _ := uuid.NewV4()
+	shipmentID, _ := uuid.NewV4()
+	requestedAt := time.Now()
+	createdAt := time.Now()
+	updatedAt := time.Now()
+
+	reweigh := models.Reweigh{
+		ID:          id,
+		ShipmentID:  shipmentID,
+		RequestedAt: requestedAt,
+		RequestedBy: models.ReweighRequesterTOO,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+	}
+
+	suite.T().Run("Success - Returns a basic rewweigh payload without optional fields", func(t *testing.T) {
+		returnedPayload := Reweigh(&reweigh)
+
+		suite.IsType(&primemessages.Reweigh{}, returnedPayload)
+		suite.Equal(strfmt.UUID(returnedPayload.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(returnedPayload.ShipmentID.String()), returnedPayload.ShipmentID)
+		suite.Equal(strfmt.DateTime(returnedPayload.RequestedAt), returnedPayload.RequestedAt)
+		suite.Equal(primemessages.ReweighRequester(reweigh.RequestedBy), returnedPayload.RequestedBy)
+		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(returnedPayload.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Nil(returnedPayload.Weight)
+		suite.Nil(returnedPayload.VerificationReason)
+		suite.Nil(returnedPayload.VerificationProvidedAt)
+		suite.NotNil(returnedPayload.ETag)
+
+	})
+
+	suite.T().Run("Success - Returns a basic rewweigh payload with optional fields", func(t *testing.T) {
+		// Set optional fields
+		weight := int64(2000)
+		reweigh.Weight = handlers.PoundPtrFromInt64Ptr(&weight)
+
+		verificationProvidedAt := time.Now()
+		reweigh.VerificationProvidedAt = &verificationProvidedAt
+
+		verificationReason := "Because I said so"
+		reweigh.VerificationReason = &verificationReason
+
+		// Send model through func
+		returnedPayload := Reweigh(&reweigh)
+
+		suite.IsType(&primemessages.Reweigh{}, returnedPayload)
+		suite.Equal(strfmt.UUID(returnedPayload.ID.String()), returnedPayload.ID)
+		suite.Equal(strfmt.UUID(returnedPayload.ShipmentID.String()), returnedPayload.ShipmentID)
+		suite.Equal(strfmt.DateTime(returnedPayload.RequestedAt), returnedPayload.RequestedAt)
+		suite.Equal(primemessages.ReweighRequester(reweigh.RequestedBy), returnedPayload.RequestedBy)
+		suite.Equal(strfmt.DateTime(returnedPayload.CreatedAt), returnedPayload.CreatedAt)
+		suite.Equal(strfmt.DateTime(returnedPayload.UpdatedAt), returnedPayload.UpdatedAt)
+		suite.Equal(handlers.FmtPoundPtr(reweigh.Weight), returnedPayload.Weight)
+		suite.Nil(handlers.FmtStringPtr(reweigh.VerificationReason), returnedPayload.VerificationReason)
+		suite.Nil(handlers.FmtDateTimePtr(reweigh.VerificationProvidedAt), returnedPayload.VerificationProvidedAt)
+		suite.NotNil(returnedPayload.ETag)
+
+	})
+}
